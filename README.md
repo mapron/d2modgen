@@ -11,24 +11,40 @@ Features included:
 # Quick start
 ![mainwindow](docs/mainwindow.png "Main Window")  
 Main Window  
-1. Download zip archive from [releases/tag/0.1](releases/tag/0.1);
+1. Download zip archive from [releases page](https://github.com/mapron/d2modgen/releases/tag/0.1);
 2. Extract wherever you want and go inside extracted folder;
-3. Run modgen.exe (see the screenshot)
+3. Run modgen.exe (see the screenshot);
 4. Check if "D2R path" is filled correctly; if not, edit it manually to point "Diablo II Resurrected/" folder;
-5. Optional; press "Copy Settings.json" to initialize new mod with your default game settings (music volume etc)
-6. Optional and recommended; close Battlenet client, press "Set launch to mod" to setup game launch in modded offline mode. You need to do it once for specific mod.
-7. Launch Battlenet; if you skiped previous step, go to "Settings near Play button" - "Game Settings" - "Diablo II Resurrected" - "Additional command line arguments" and paste string from "D2R commandline"
-8. Press "Generate" button
-9. Launch the game and go to offline mode. Create a new character and start.
-10. If you done all correctly, character will have key in the inventory after creation.  
-Now go and play around with other settings, click "Generate" and restart D2R again!  
+5. Optional; press "Copy Settings.json" to initialize new mod with your default game settings (music volume, etc);
+6. Optional and recommended; close Battlenet client, press "Set launch to mod" to setup game launch in modded offline mode. You need to do it once for specific mod;
+7. Launch Battlenet; if you skiped previous step, go to "Settings near Play button" - "Game Settings" - "Diablo II Resurrected" - "Additional command line arguments" and paste string from "D2R commandline";
+8. Press "Generate" button;
+9. Launch the game and go to offline mode. Create a new character and start;
+10. If you done all correctly, character will have chest key in the inventory after creation.  
+
+
+Now, go and play around with other settings, click "Generate" and restart D2R again!  
 Note: all you offline character still exist in non-modded save folder.  
 Note 2: mod do not affect online play in any way, you won't get banned for it.  
 Note 3: if you want to return to unmodded, press "Reset launch to unmodded" (again, BNet must be closed when you press this button).
 
 # How it looks like
+![density](docs/density.png "Density")  
+High density setting in Lost City  
+![rando_gem](docs/rando_gem.png "rando_gem")  
+Random affixes set on gem with Randomizer  
+![rando_rune](docs/rando_rune.png "rando_rune")  
+That's and Eld rune I always wanted to see!  
+![rando_rare](docs/rando_rare.png "rando_rare")  
+Nice boots i found in Cold Plains Normal!  
+![rando_unique](docs/rando_unique.png "rando_unique")  
+Another GG find, Pelta Lunata! Trying to use balanced drops next time...  
 
 # Detailed description how everything works
+1. Game (D2 and D2R) stores a lot of properties/balance of game cotent in tables - imagine an Excel spreadsheet or database table inside the game. One way to modify this data - provide a set of txt files (which are CSV - tab-separted). Starting with D2R, that can be done in a very simple way - creating a mod subfolder, so custom mod no not override the main game. d2modgen utilizes this feature.
+2. Main game data localted in "D2R folder", mod in "D2R folder/mod/modname/modname.mpq/"; save files stored in "User folder/Saved Games", mod save files (and games settings) stored in  "User folder/Saved Games/mods/modname". You can easily transfer your data between modded and non-modded versions (for example, shared storage).
+3. To run the game in modded version, you need to provide command-line option, like "-mod rando -txt" will run D2R with mod "rando" enabled.
+4. You can check "Export all .txt" checkbox, and have you own mod setup instead (mod folder is filled by D2R internal files).
 
 # KnownIssues
 1. If there is many dead bodies on the screen, some portals won't open (e.g. near Summoner). Workaround - go far away to another location, wait while corpses disappeared and then trigger the portal.
