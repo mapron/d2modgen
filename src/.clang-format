@@ -1,0 +1,104 @@
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+# Version: LLVM 11
+---
+Language:        Cpp
+AccessModifierOffset: -4
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignEscapedNewlines: DontAlign
+AlignOperands:   true
+AlignTrailingComments: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+AlwaysBreakTemplateDeclarations: true
+BinPackArguments: false
+BinPackParameters: false
+BraceWrapping:
+  AfterCaseLabel:  true
+  AfterClass:      false
+  AfterControlStatement: false
+  AfterEnum:       true
+  AfterFunction:   true
+  AfterNamespace:  false
+  AfterObjCDeclaration: true
+  AfterStruct:     false
+  AfterUnion:      true
+  BeforeCatch:     true
+  BeforeElse:      false
+  BeforeLambdaBody: false
+  IndentBraces:    false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+BreakAfterJavaFieldAnnotations: false
+BreakBeforeBinaryOperators: All
+BreakBeforeBraces: Custom
+BreakBeforeInheritanceComma: false
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializersBeforeComma: false
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
+BreakStringLiterals: true
+ColumnLimit:    0
+CommentPragmas:  '^ IWYU pragma:'
+CompactNamespaces: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: false
+DerivePointerAlignment: false
+DisableFormat:   false
+ExperimentalAutoDetectBinPacking: false
+FixNamespaceComments: false
+ForEachMacros:
+  - forever # avoids { wrapped to next line
+  - foreach
+  - Q_FOREACH
+  - BOOST_FOREACH
+IndentCaseLabels: true
+IndentPPDirectives: None
+IndentWidth:     4
+IndentWrappedFunctionNames: false
+JavaScriptQuotes: Leave
+JavaScriptWrapImports: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+# Do not add QT_BEGIN_NAMESPACE/QT_END_NAMESPACE as this will indent lines in between.
+MacroBlockBegin: ""
+MacroBlockEnd:   ""
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: None
+ObjCBlockIndentWidth: 4
+ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: true
+PenaltyBreakAssignment: 150
+PenaltyBreakBeforeFirstCallParameter: 300
+PenaltyBreakComment: 500
+PenaltyBreakFirstLessLess: 400
+PenaltyBreakString: 600
+PenaltyExcessCharacter: 50
+PenaltyReturnTypeOnItsOwnLine: 300
+PointerAlignment: Left
+ReflowComments:  false
+SortIncludes:    false
+SortUsingDeclarations: true
+SpaceAfterCStyleCast: true
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles:  false
+SpacesInContainerLiterals: false
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+Standard:        Latest
+TabWidth:        4
+UseTab:          Never
