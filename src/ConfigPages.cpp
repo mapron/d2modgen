@@ -209,7 +209,7 @@ public:
         addEditors(QList<IValueWidget*>()
                    << new SliderWidgetMinMax("Increase Unique Chance", "chance_uni", 1, 50, 1, this)
                    << new SliderWidgetMinMax("Increase Set Chance", "chance_set", 1, 30, 1, this)
-                   << new SliderWidgetMinMax("Increase Rare Chance", "chance_rare", 1, 20, 1, this)
+                   << new SliderWidgetMinMax("Increase Rare Chance", "chance_rare", 1, 15, 1, this)
                    << new SliderWidgetMinMax("NoDrop reduce % (higher=more drops)", "nodrop_factor", 1, 10, 1, this));
         closeLayout();
     }
@@ -228,7 +228,12 @@ public:
     {
         if (isAllDefault({ "chance_uni", "chance_set", "chance_rare", "nodrop_factor" }))
             return {};
-        static const QSet<int> s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
+        static const QSet<int>     s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
+        static const QSet<QString> s_modifyNames{
+            "Cow",
+            "Cow (N)",
+            "Cow (H)",
+        };
 
         {
             TableView view(tableSet.tables["treasureclassex"]);
@@ -239,9 +244,9 @@ public:
             const int factorNo     = getWidgetValue("nodrop_factor");
             auto      factorAdjust = [](QString& value, double factor, int maxFact) {
                 const double prev           = value.toInt();
-                const double probReverseOld = 1. / (1. - (prev / 1024.));
-                const double probReverseNew = probReverseOld * factor;
-                const double probNew        = (1. - (1. / probReverseNew)) * 1024.;
+                const double probReverseOld = (1024. - prev);
+                const double probReverseNew = probReverseOld / factor;
+                const double probNew        = (1024. - probReverseNew);
 
                 const int next = static_cast<int>(probNew);
                 value          = QString("%1").arg(std::min(next, maxFact));
@@ -256,18 +261,13 @@ public:
             };
 
             for (auto& row : view) {
-                QString&   treasureGroup      = row["group"]; // Unique	Set	Rare
+                QString&   treasureGroup      = row["group"];
+                QString&   className          = row["Treasure Class"];
                 QString&   uniqueRatio        = row["Unique"];
                 QString&   setRatio           = row["Set"];
                 QString&   rareRatio          = row["Rare"];
-                const bool allowFillNewValues = !treasureGroup.isEmpty() && s_modifyGroups.contains(treasureGroup.toInt());
+                const bool allowFillNewValues = !treasureGroup.isEmpty() && s_modifyGroups.contains(treasureGroup.toInt()) || s_modifyNames.contains(className);
                 const bool allowModifyValues  = !uniqueRatio.isEmpty() && uniqueRatio != "1024" && !setRatio.isEmpty();
-                if (allowFillNewValues) {
-                    // @todo: I don't know default ratio values when columns are empty... I picked up lowest in treasureclass (from chests)
-                    uniqueRatio = "512";
-                    setRatio    = "654";
-                    rareRatio   = "972";
-                }
                 if (allowFillNewValues || allowModifyValues) {
                     // these limits are empyrical - to prevent 100% drop chance on 1000% MF.
                     factorAdjust(uniqueRatio, factorUnique, 1010);
