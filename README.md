@@ -16,12 +16,14 @@ Main Window
 3. Run modgen.exe (see the screenshot);
 4. Check if "D2R path" is filled correctly; if not, edit it manually to point "Diablo II Resurrected/" folder;
 5. Optional; press "Copy Settings.json" to initialize new mod with your default game settings (music volume, etc);
-6. Optional and recommended; close Battlenet client, press "Set launch to mod" to setup game launch in modded offline mode. You need to do it once for specific mod;
-7. Launch Battlenet; if you skiped previous step, go to "Settings near Play button" - "Game Settings" - "Diablo II Resurrected" - "Additional command line arguments" and paste string from "D2R commandline";
-8. Press "Generate" button;
-9. Launch the game and go to offline mode. Create a new character and start;
+6. Now you need to setup modded launch of D2R - that can be done either by creating the shortcut or modifying launch option in BNet launcher, choose what is suitable for you:  
+a) Press "Make shortcut on Desktop", that will make "Diablo II - modname Mod" link on your Desktop;  
+b) OR copy value from "D2R command arguments" and create shortcut by yourself, pointing to D2R.exe and use this as extra args;  
+c) OR close Battlenet client, press "Set launch to mod" to setup game launch as modded by default and launch BNet again;  
+d) OR make it manually, by going  "Settings near Play button" - "Game Settings" - "Diablo II Resurrected" - "Additional command line arguments" and paste string from "D2R commandline"  
+7. Press "Generate" button;
+9. Launch the game and go to offline tab mode. Create a new character and start;
 10. If you done all correctly, character will have chest key in the inventory after creation.  
-
 
 Now, go and play around with other settings, click "Generate" and restart D2R again!  
 Note: all you offline character still exist in non-modded save folder.  

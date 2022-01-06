@@ -103,6 +103,7 @@ struct GenerationEnvironment {
     QString  modName;
     QString  d2rPath;
     QString  appData;
+    QString  outPath;
     bool     exportAllTables;
     uint32_t seed;
 };

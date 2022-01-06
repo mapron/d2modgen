@@ -5,6 +5,7 @@
  */
 #include "MainConfigPage.hpp"
 #include "Utils.hpp"
+#include "WinSpecific.hpp"
 
 #include <QLayout>
 #include <QLineEdit>
@@ -61,6 +62,7 @@ struct MainConfigPage::Impl {
     QLineEdit* d2rSaves;
     QLineEdit* d2rArgs;
     QLineEdit* seed;
+    QLineEdit* outPath;
     QCheckBox* addKeys;
     QCheckBox* exportAll;
 };
@@ -87,6 +89,8 @@ MainConfigPage::MainConfigPage(QWidget* parent)
     m_impl->seed->setValidator(validatorSeed);
     m_impl->seed->setMaximumWidth(80);
 
+    m_impl->outPath = new QLineEdit(this);
+
     m_impl->addKeys = new QCheckBox("Add key to new char inventory (Basic mod test)", this);
     m_impl->addKeys->setChecked(true);
 
@@ -97,6 +101,7 @@ MainConfigPage::MainConfigPage(QWidget* parent)
 
     QPushButton* launchArgs      = new QPushButton("Set launch to mod", this);
     QPushButton* launchArgsClear = new QPushButton("Reset launch to unmodded", this);
+    QPushButton* makeShortcut    = new QPushButton("Make shortcut on Desktop", this);
 
     // layouts
 
@@ -138,6 +143,10 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         mainLayout->addLayout(rowLayout);
         rowLayout->addWidget(new QLabel("D2R command arguments (read-only):", this));
         rowLayout->addWidget(m_impl->d2rArgs);
+        QHBoxLayout* rowLayoutButtonShortcut = new QHBoxLayout();
+        rowLayout->addLayout(rowLayoutButtonShortcut);
+        rowLayoutButtonShortcut->addWidget(makeShortcut);
+        rowLayoutButtonShortcut->addStretch();
         QHBoxLayout* rowLayoutButtons = new QHBoxLayout();
         rowLayout->addLayout(rowLayoutButtons);
         rowLayoutButtons->addWidget(launchArgsClear);
@@ -153,6 +162,14 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         rowLayout->addWidget(new QLabel("Random seed:", this));
         rowLayout->addWidget(m_impl->seed);
         rowLayout->addStretch();
+    }
+
+    {
+        QVBoxLayout* rowLayout = new QVBoxLayout();
+        rowLayout->setSpacing(5);
+        mainLayout->addLayout(rowLayout);
+        rowLayout->addWidget(new QLabel("Output directory (leave empty to output to D2R path):", this));
+        rowLayout->addWidget(m_impl->outPath);
     }
 
     {
@@ -190,6 +207,11 @@ MainConfigPage::MainConfigPage(QWidget* parent)
     connect(launchArgs, &QPushButton::clicked, this, [this] {
         setLaunch(m_impl->d2rArgs->text());
     });
+    connect(makeShortcut, &QPushButton::clicked, this, [this] {
+        auto env  = getEnv();
+        auto desk = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+        createShortCut(desk + "Diablo II - " + env.modName + " Mod", env.d2rPath + "D2R.exe", m_impl->d2rArgs->text());
+    });
 
     m_impl->modName->setText("rando");
 }
@@ -204,6 +226,9 @@ GenerationEnvironment MainConfigPage::getEnv() const
     env.exportAllTables = m_impl->exportAll->isChecked();
     env.appData         = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
     env.seed            = m_impl->seed->text().toInt();
+    env.outPath         = ensureTrailingSlash(m_impl->outPath->text());
+    if (env.outPath.isEmpty())
+        env.outPath = env.d2rPath;
     return env;
 }
 

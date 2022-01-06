@@ -154,7 +154,7 @@ void MainWindow::generate(const GenerationEnvironment& env)
         qWarning() << "D2R path is empty";
         return;
     }
-    const QString modRoot = env.d2rPath + QString("mods/%1/%1.mpq/").arg(env.modName);
+    const QString modRoot = env.outPath + QString("mods/%1/%1.mpq/").arg(env.modName);
     m_status->setText("Start...");
     m_status->repaint();
     qDebug() << "started generation in " << modRoot;
