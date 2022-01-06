@@ -21,6 +21,7 @@
 #include <QFileDialog>
 #include <QProcess>
 #include <QLabel>
+#include <QDesktopServices>
 
 MainWindow::MainWindow()
     : QMainWindow(nullptr)
@@ -32,7 +33,7 @@ MainWindow::MainWindow()
     QPushButton*    genButton     = new QPushButton("Generate", this);
 
     QList<QPushButton*> pageButtons;
-    
+
     m_status = new QLabel("Status label.", this);
 
     MainConfigPage* mainPage = new MainConfigPage(this);
@@ -74,12 +75,15 @@ MainWindow::MainWindow()
 
     {
         QHBoxLayout* tabLayoutOuter = new QHBoxLayout();
+        tabLayoutOuter->setSpacing(0);
         QVBoxLayout* tabLayoutInner = new QVBoxLayout();
+        tabLayoutInner->setSpacing(5);
         for (auto* pageButton : pageButtons)
             tabLayoutInner->addWidget(pageButton);
         tabLayoutInner->addStretch();
         tabLayoutOuter->addLayout(tabLayoutInner);
         tabLayoutOuter->addWidget(stackedWidget);
+        stackedWidget->setFrameStyle(QFrame::StyledPanel);
         topLayout->addLayout(tabLayoutOuter);
     }
     {
@@ -107,7 +111,7 @@ MainWindow::MainWindow()
     }
 
     connect(about, &QAction::triggered, this, [this] {
-        //
+        QDesktopServices::openUrl(QUrl("https://github.com/mapron/d2modgen"));
     });
     connect(saveConfigAction, &QAction::triggered, this, [this] {
         auto file = QFileDialog::getSaveFileName(this, "", "", "*.json");
