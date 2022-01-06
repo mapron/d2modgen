@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  * See LICENSE file for details.
  */
+#define _USE_MATH_DEFINES
 #include "SliderWidget.hpp"
 
 #include <QLabel>
@@ -13,6 +14,24 @@
 namespace {
 constexpr int s_sliderAverage  = 500;
 constexpr int s_spinboxAverage = 100;
+
+// map [0..1] to [0..1] but with exponential curve
+double expGrowth(double val)
+{
+    double ex = std::exp(val * 2);
+    ex -= 1.;
+    ex /= (M_E * M_E - 1);
+    return ex;
+}
+
+double expGrowthRev(double val)
+{
+    val *= (M_E * M_E - 1);
+    val += 1.;
+    const double lg = std::log(val);
+    return lg / 2;
+}
+
 }
 
 SliderWidget::SliderWidget(const QString& caption,
@@ -40,7 +59,7 @@ SliderWidget::SliderWidget(const QString& caption,
     m_slider->setMaximumHeight(15);
     m_slider->setValue(s_sliderAverage);
 
-    QVBoxLayout* mainLayout   = new QVBoxLayout(this);
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(4);
     QHBoxLayout* bottomLayout = new QHBoxLayout();
@@ -48,6 +67,7 @@ SliderWidget::SliderWidget(const QString& caption,
     mainLayout->addLayout(bottomLayout);
     bottomLayout->addWidget(m_slider);
     bottomLayout->addWidget(m_valueBox);
+    bottomLayout->addWidget(new QLabel("%", this));
 
     connect(m_slider, &QSlider::valueChanged, this, &SliderWidget::sliderToSpinbox);
     connect(m_valueBox, qOverload<int>(&QSpinBox::valueChanged), this, &SliderWidget::spinboxToSlider);
@@ -86,9 +106,11 @@ void SliderWidget::sliderToSpinbox()
         const int lowRange = s_spinboxAverage - m_min;
         m_valueBox->setValue(m_min + (value * lowRange / sliderRange));
     } else {
-        const int highRatio = value - s_sliderAverage;
-        const int highRange = m_max - s_spinboxAverage;
-        m_valueBox->setValue(s_spinboxAverage + (highRatio * highRange / sliderRange));
+        const int    highRatio = value - s_sliderAverage;
+        const int    highRange = m_max - s_spinboxAverage;
+        const double ratio     = double(highRatio) / sliderRange;
+        const double ratioExp  = expGrowth(ratio);
+        m_valueBox->setValue(s_spinboxAverage + static_cast<int>(ratioExp * highRange));
     }
 
     m_valueBox->blockSignals(false);
@@ -106,7 +128,9 @@ void SliderWidget::spinboxToSlider()
     } else {
         const int highRatio = value - s_spinboxAverage;
         const int highRange = m_max - s_spinboxAverage;
-        m_slider->setValue(s_sliderAverage + (highRatio * sliderRange / highRange));
+        const double ratio     = double(highRatio) / highRange;
+        const double ratioLog  = expGrowthRev(ratio);
+        m_slider->setValue(s_sliderAverage + (ratioLog * sliderRange));
     }
 }
 
@@ -137,7 +161,7 @@ SliderWidgetMinMax::SliderWidgetMinMax(const QString& caption,
     m_slider->setMaximumHeight(15);
     m_slider->setValue(m_defaultValue);
 
-    QVBoxLayout* mainLayout   = new QVBoxLayout(this);
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(4);
     QHBoxLayout* bottomLayout = new QHBoxLayout();
