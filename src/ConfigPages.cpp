@@ -411,6 +411,7 @@ public:
         addEditors(QList<IValueWidget*>()
                    << new CheckboxWidget("Enable Item Randomizer", "enable", false, this)
                    << new SliderWidgetMinMax("Balance level (lower = more balance)", "balance", 5, 99, 99, this)
+                   << new SliderWidgetMinMax("Create several versions of each Unique item", "repeat_uniques", 1, 20, 10, this)
                    << new SliderWidgetMinMax("Minimum Unique properties", "min_uniq_props", 1, 12, 3, this)
                    << new SliderWidgetMinMax("Maximum Unique properties", "max_uniq_props", 1, 12, 12, this)
                    << new SliderWidgetMinMax("Minimum RW properties", "min_rw_props", 1, 7, 3, this)
@@ -638,8 +639,17 @@ public:
                 return setLevels.value(row["name"]);
             };
             {
-                TableView view(tableSet.tables["uniqueitems"]);
+                auto&     table = tableSet.tables["uniqueitems"];
+                TableView view(table);
                 grabProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 12), commonLvlReq);
+                const int repeatUniques = getWidgetValue("repeat_uniques");
+                if (repeatUniques > 1) {
+                    auto rows = table.rows;
+
+                    for (int i = 2; i <= repeatUniques; ++i)
+                        rows.append(table.rows);
+                    table.rows = rows;
+                }
             }
             {
                 TableView view(tableSet.tables["runes"]);
