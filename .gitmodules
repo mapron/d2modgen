@@ -1,3 +1,6 @@
 [submodule "thirdparty/casclib"]
 	path = thirdparty/casclib
 	url = https://github.com/ladislav-zezula/CascLib.git
+[submodule "thirdparty/stormlib"]
+	path = thirdparty/stormlib
+	url = https://github.com/ladislav-zezula/StormLib.git
