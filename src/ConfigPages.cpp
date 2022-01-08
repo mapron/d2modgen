@@ -223,7 +223,12 @@ public:
                    << new SliderWidgetMinMax("Increase Unique Chance", "chance_uni", 1, 50, 1, this)
                    << new SliderWidgetMinMax("Increase Set Chance", "chance_set", 1, 30, 1, this)
                    << new SliderWidgetMinMax("Increase Rare Chance", "chance_rare", 1, 15, 1, this)
-                   << new SliderWidgetMinMax("NoDrop reduce % (higher=more drops)", "nodrop_factor", 1, 10, 1, this));
+                   << new SliderWidgetMinMax("NoDrop reduce % (higher=more drops)", "nodrop_factor", 1, 10, 1, this)
+                   << new CheckboxWidget("Increase Champion/Unique item count", "high_elite_drops", false, this)
+                   << new SliderWidgetMinMax("Increase Good TC (Runes/Gems/Jewellery)", "good_factor", 1, 10, 1, this)
+                   << new SliderWidgetMinMax("Increase Runes chance in Good TC", "rune_factor", 1, 10, 1, this)
+                   << new CheckboxWidget("Switch Ber,Jah with Cham,Zod in rarity", "highrune_switch", false, this)
+                   << new SliderWidgetMinMax("Increase Rare Rune drops<br>This is increase of dropping Zod in 'Runes 17' TC<br>Rarity of other runes will change proportionally.", "zod_factor", 1, 1000, 1, this));
         closeLayout();
     }
 
@@ -239,7 +244,7 @@ public:
     }
     KeySet generate(TableSet& tableSet, QRandomGenerator& rng) const override
     {
-        if (isAllDefault({ "chance_uni", "chance_set", "chance_rare", "nodrop_factor" }))
+        if (isAllDefault({ "chance_uni", "chance_set", "chance_rare", "nodrop_factor", "high_elite_drops", "good_factor", "rune_factor", "zod_factor", "highrune_switch" }))
             return {};
         static const QSet<int>     s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
         static const QSet<QString> s_modifyNames{
@@ -251,11 +256,16 @@ public:
         {
             TableView view(tableSet.tables["treasureclassex"]);
 
-            const int factorUnique = getWidgetValue("chance_uni");
-            const int factorSet    = getWidgetValue("chance_set");
-            const int factorRare   = getWidgetValue("chance_rare");
-            const int factorNo     = getWidgetValue("nodrop_factor");
-            auto      factorAdjust = [](QString& value, double factor, int maxFact) {
+            const int  factorUnique    = getWidgetValue("chance_uni");
+            const int  factorSet       = getWidgetValue("chance_set");
+            const int  factorRare      = getWidgetValue("chance_rare");
+            const int  factorNo        = getWidgetValue("nodrop_factor");
+            const bool highDropsCount  = getWidgetValue("high_elite_drops");
+            const int  factorGoodTC    = getWidgetValue("good_factor");
+            const int  factorRune      = getWidgetValue("rune_factor");
+            const int  factorZod       = getWidgetValue("zod_factor");
+            const bool switchHighRunes = getWidgetValue("highrune_switch");
+            auto       factorAdjust    = [](QString& value, double factor, int maxFact) {
                 const double prev           = value.toInt();
                 const double probReverseOld = (1024. - prev);
                 const double probReverseNew = probReverseOld / factor;
@@ -273,6 +283,29 @@ public:
                 value                       = QString("%1").arg(std::max(next, 1));
             };
 
+            QMap<QString, QString> highRuneReplacement{
+                { "r33", "r31" },
+                { "r32", "r30" },
+                { "r31", "r33" },
+                { "r30", "r32" },
+            };
+
+            QMap<QString, double> runesReplaceFactor;
+            if (factorZod > 1) {
+                double       startFactor = 1.4;
+                const double iterFactor  = 1.02;
+                if (factorZod > 10)
+                    startFactor = 1.3;
+                if (factorZod > 100)
+                    startFactor = 1.2;
+                double mult = factorZod;
+                for (int i = 16; i >= 3; --i) {
+                    runesReplaceFactor[QString("Runes %1").arg(i)] = mult;
+                    mult /= startFactor;
+                    startFactor *= iterFactor;
+                }
+            }
+
             for (auto& row : view) {
                 QString&   treasureGroup      = row["group"];
                 QString&   className          = row["Treasure Class"];
@@ -288,7 +321,9 @@ public:
                     factorAdjust(rareRatio, factorRare, 960);
                 }
                 QString& noDrop = row["NoDrop"];
-                if (!noDrop.isEmpty() && noDrop != "0") {
+
+                const bool needToAdjustNodrop = !noDrop.isEmpty() && noDrop != "0";
+                if (needToAdjustNodrop) {
                     int totalOther = 0;
                     for (int i = 1; i <= 10; ++i) {
                         QString& prob = row[QString("Prob%1").arg(i)];
@@ -297,6 +332,70 @@ public:
                         totalOther += prob.toInt();
                     }
                     nodropAdjust(noDrop, totalOther);
+                }
+                if (highDropsCount) {
+                    if (treasureGroup == "15") { // Uniques, insead of 1 item + 2*2 potion, make 4 items + 1*2 potion
+                        QString& probItem = row["Prob1"];
+                        QString& probPot  = row["Prob2"];
+                        QString& picks    = row["Picks"];
+                        probItem          = "4";
+                        probPot           = "1";
+                        picks             = "-5";
+                    }
+                    if (treasureGroup == "13") { // Champions, insead of 1 item + 1-2*2 potion, make 2 items + 1*2 potion
+                        QString& probItem = row["Prob1"];
+                        QString& probPot  = row["Prob2"];
+                        QString& picks    = row["Picks"];
+                        probItem          = "2";
+                        probPot           = "1";
+                        picks             = "-3";
+                    }
+                }
+                if (factorGoodTC > 1) {
+                    for (int i = 1; i <= 10; ++i) {
+                        QString& prob = row[QString("Prob%1").arg(i)];
+                        if (prob.isEmpty())
+                            break;
+                        QString& tcName = row[QString("Item%1").arg(i)];
+                        if (!tcName.endsWith(" Good"))
+                            continue;
+                        prob = QString("%1").arg(prob.toInt() * factorGoodTC);
+                        break;
+                    }
+                }
+                if (factorRune > 1 && className.endsWith(" Good")) {
+                    for (int i = 1; i <= 10; ++i) {
+                        QString& prob = row[QString("Prob%1").arg(i)];
+                        if (prob.isEmpty())
+                            break;
+                        QString& tcName = row[QString("Item%1").arg(i)];
+                        if (!tcName.startsWith("Runes "))
+                            continue;
+                        prob = QString("%1").arg(prob.toInt() * factorRune);
+                        break;
+                    }
+                }
+                if (factorZod > 1 && className.startsWith("Runes ")) {
+                    for (int i = 1; i <= 10; ++i) {
+                        QString& prob = row[QString("Prob%1").arg(i)];
+                        if (prob.isEmpty())
+                            break;
+                        QString& tcName = row[QString("Item%1").arg(i)];
+                        if (!tcName.startsWith("Runes ") || !runesReplaceFactor.contains(tcName))
+                            continue;
+                        const int newProb = static_cast<int>(prob.toInt() / runesReplaceFactor[tcName]);
+                        prob              = QString("%1").arg(std::max(newProb, 5));
+                        break;
+                    }
+                }
+                if (switchHighRunes && className.startsWith("Runes ")) {
+                    for (int i = 1; i <= 10; ++i) {
+                        QString& prob = row[QString("Prob%1").arg(i)];
+                        if (prob.isEmpty())
+                            break;
+                        QString& tcName = row[QString("Item%1").arg(i)];
+                        tcName          = highRuneReplacement.value(tcName, tcName);
+                    }
                 }
             }
         }

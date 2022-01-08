@@ -41,6 +41,8 @@ That's and Eld rune I always wanted to see!
 Nice boots i found in Cold Plains Normal!  
 ![rando_unique](docs/rando_unique.png "rando_unique")  
 Another GG find, Pelta Lunata! Trying to use balanced drops next time...  
+![drops_max](docs/drops_max.png "drops_max")  
+A lot of features enabled here - more Boss drops, increased Uniques/drop count/Rune drops etc. Almost close to D3 drop count (please, dont go that far!)  
 
 # Detailed description how everything works
 1. Game (D2 and D2R) stores a lot of properties/balance of game cotent in tables - imagine an Excel spreadsheet or database table inside the game. One way to modify this data - provide a set of txt files (which are CSV - tab-separted). Starting with D2R, that can be done in a very simple way - creating a mod subfolder, so custom mod no not override the main game. d2modgen utilizes this feature.
