@@ -55,6 +55,7 @@ A lot of features enabled here - more Boss drops, increased Uniques/drop count/R
 2. If charges spawned on a gem/rune, it will constantly update count on gem mouse hover. This glitch is fixes after gem is inserted in socket.
 3. Game trying to render limited item label on the screen - if there are too many items, you will see only closest ones.
 4. Some mods can be spawn on items that do not support them (like Replenish quantity on Amulet). (TODO - future releases)
+5. You need to completely quit out of the game for Diablo 2 Resurrected, to mod changes apply. In Diablo 2 legacy, however, you can just reload save again without quitting.
 
 # Q&A and Troubleshooting
 If you encounter an issue (hang/crash) in generator itself, grab applog.txt (File->Browse to settings folder) (make sure to copy file just after the crash). Then create an issue and attach this file.  
