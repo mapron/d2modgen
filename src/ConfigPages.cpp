@@ -99,7 +99,8 @@ public:
                    << new SliderWidget("Monster XP", "mon_xp", 10, 10, this)
                    << new SliderWidget("Density", "density", 2, 20, this)
                    << new SliderWidget("Boss packs", "packs", 2, 50, this)
-                   << new CheckboxWidget("Use Hell pack count everywhere", "hellPacks", false, this));
+                   << new CheckboxWidget("Use Hell pack count everywhere", "hellPacks", false, this)
+                   << new SliderWidgetMinMax("Increase area level (Nightmare and Hell)", "levelIncrease", 0, 20, 0, this));
         closeLayout();
     }
 
@@ -139,7 +140,7 @@ public:
             proceedMonParam("mon_dam", { "DM", "DM(N)", "DM(H)", "L-DM", "L-DM(N)", "L-DM(H)" });
             proceedMonParam("mon_xp", { "XP", "XP(N)", "XP(H)", "L-XP", "L-XP(N)", "L-XP(H)" });
         }
-        if (!isAllDefault({ "density", "packs", "hellPacks" })) {
+        if (!isAllDefault({ "density", "packs", "hellPacks", "levelIncrease" })) {
             result << "levels";
             TableView view(tableSet.tables["levels"]);
             auto      isEmptyCell = [](const QString& value) {
@@ -152,6 +153,7 @@ public:
                 return true;
             };
             const int density       = getWidgetValue("density");
+            const int levelIncrease = getWidgetValue("levelIncrease");
             auto      densityAdjust = [density](QString& value) {
                 const int prev = value.toInt();
                 const int next = prev * density / 100;
@@ -164,12 +166,15 @@ public:
                 value          = QString("%1").arg(std::min(next, 255));
             };
             for (auto& row : view) {
-                QString& normMin = row["MonUMin"];
-                QString& normMax = row["MonUMax"];
-                QString& nighMin = row["MonUMin(N)"];
-                QString& nighMax = row["MonUMax(N)"];
-                QString& hellMin = row["MonUMin(H)"];
-                QString& hellMax = row["MonUMax(H)"];
+                QString& normMin   = row["MonUMin"];
+                QString& normMax   = row["MonUMax"];
+                QString& nighMin   = row["MonUMin(N)"];
+                QString& nighMax   = row["MonUMax(N)"];
+                QString& hellMin   = row["MonUMin(H)"];
+                QString& hellMax   = row["MonUMax(H)"];
+                QString& nighLevel = row["MonLvlEx(N)"];
+                QString& hellLevel = row["MonLvlEx(H)"];
+
                 if (allCellsNonEmpty({ hellMin, hellMax })) {
                     if (getWidgetValue("hellPacks")) {
                         normMin = nighMin = hellMin;
@@ -194,6 +199,14 @@ public:
                     densityAdjust(normDen);
                     densityAdjust(nighDen);
                     densityAdjust(hellDen);
+                }
+                if (levelIncrease) {
+                    for (QString* lev : { &nighLevel, &hellLevel }) {
+                        int level = lev->toInt();
+                        if (!level || level > 85)
+                            continue;
+                        *lev = QString("%1").arg(std::min(85, level + levelIncrease));
+                    }
                 }
             }
         }
