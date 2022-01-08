@@ -46,9 +46,39 @@ A lot of features enabled here - more Boss drops, increased Uniques/drop count/R
 
 # Detailed description how everything works
 1. Game (D2 and D2R) stores a lot of properties/balance of game cotent in tables - imagine an Excel spreadsheet or database table inside the game. One way to modify this data - provide a set of txt files (which are CSV - tab-separted). Starting with D2R, that can be done in a very simple way - creating a mod subfolder, so custom mod no not override the main game. d2modgen utilizes this feature.
-2. Main game data localted in "D2R folder", mod in "D2R folder/mod/modname/modname.mpq/"; save files stored in "User folder/Saved Games", mod save files (and games settings) stored in  "User folder/Saved Games/mods/modname". You can easily transfer your data between modded and non-modded versions (for example, shared storage).
+2. Main game data located in "D2R folder", mod in "D2R folder/mod/modname/modname.mpq/"; save files stored in "User folder/Saved Games", mod save files (and games settings) stored in  "User folder/Saved Games/mods/modname". You can easily transfer your data between modded and non-modded versions (for example, shared storage).
 3. To run the game in modded version, you need to provide command-line option, like "-mod rando -txt" will run D2R with mod "rando" enabled.
 4. You can check "Export all .txt" checkbox, and have you own mod setup instead (mod folder is filled by D2R internal files).
+
+# Feature tabs
+![tab_difficulty](docs/tab_difficulty.png "Difficulty")  
+Difficulty settings.  
+First there are sliders to adjust monsters AR/Def/HP/Damage/XP. That will affect all monsters on all difficulties.  
+Next, "Density" slider - that will affect increase of density of regular monsters (note that it is higly dependant on map and tiles; max density can be reached on open area tiles.)  
+Boss packs slider icreate number of Champion/Uniques in zones; again, that also not a precise setting.  
+Checkbox can be used to quickly setup boss count on Normal and Nightmare exactly the same as on Hell.  
+And the last, you can adjust level area on all maps; note that max value of 85 is still used (so set to 20 to basically make all Hell 85 areas).  
+  
+  
+![tab_drops](docs/tab_drops.png "Drops")  
+Drops improvement.  
+First 3 sliders are for increasing chance for Uniques/Sets/Rares. Note that it's not than accurate when you have already high chance (like killing low level monster with high MF).  
+NoDrop slider provides ability to gradually reduce NoDrop parts (it basically similar to increasing players count in the game).  
+"Increase Champion/Unique item count" make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one.  
+"Increase Good TC" slider makes Gems/Runes/Rings/Amulets/Charms drop far more often compare to equipment.  
+"Increase Runes chance" tunes Runes specifically compared to other jewellery.  
+Switch Ber/Jah with Cham/Zod pretty descriptive: when game deside to drop Jah rune, it drops Zod instead.  
+Final slider is when everything above is not satisfying and you really really want high runes to be more common. Please don't do that :).  
+  
+  
+![tab_random](docs/tab_random.png "Randomizer")  
+Randomizer. Firs you need to set topmost checbox to enable everything.  
+Balance level - determine level difference to be used when selecting new properties for item/rune/etc. With '10' it will select between level-10 and level+5 at first, if there are few candidates, then it will select 0..level+5, and finally it will try fully random. In short, lower value = more balance in terms of original affix level and item level.  
+Next four sliders set min/max amount of affixes on Uniques, Sets and RuneWords. Sets (whole bonus)/gems/runes will have 1 as minimum and maximum possible as maximum.  
+Always perfect means simply minimum roll becomes maximum.  
+Randomize magic/rare include modification of regular affixes - so they can include properties of any other item in the game.  
+Same for last option for gems.  
+
 
 # KnownIssues
 1. If there is many dead bodies on the screen, some portals won't open (e.g. near Summoner). Workaround - go far away to another location, wait while corpses disappeared and then trigger the portal.
