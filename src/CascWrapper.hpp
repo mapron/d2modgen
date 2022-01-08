@@ -8,3 +8,4 @@
 #include "CommonTypes.hpp"
 
 bool ExtractTables(const QString& d2rpath, TableSet& tableSet);
+bool ExtractTablesLegacy(const QString& d2rpath, TableSet& tableSet);

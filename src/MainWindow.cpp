@@ -158,7 +158,7 @@ void MainWindow::generate(const GenerationEnvironment& env)
         qWarning() << "D2R path is empty";
         return;
     }
-    const QString modRoot = env.outPath + QString("mods/%1/%1.mpq/").arg(env.modName);
+    const QString modRoot = env.isLegacy ? env.outPath : env.outPath + QString("mods/%1/%1.mpq/").arg(env.modName);
     m_status->setText("Start...");
     m_status->repaint();
     qDebug() << "started generation in " << modRoot;
@@ -168,12 +168,14 @@ void MainWindow::generate(const GenerationEnvironment& env)
         QMessageBox::warning(this, "error", "Failed to create mod folder in D2R installation; try to launch as admin.");
         return;
     }
-    QJsonObject modinfo;
-    modinfo["name"]     = env.modName;
-    modinfo["savepath"] = env.modName + "/";
-    if (!writeJsonFile(modRoot + "modinfo.json", modinfo)) {
-        QMessageBox::warning(this, "error", "Failed to write modinfo.");
-        return;
+    if (!env.isLegacy) {
+        QJsonObject modinfo;
+        modinfo["name"]     = env.modName;
+        modinfo["savepath"] = env.modName + "/";
+        if (!writeJsonFile(modRoot + "modinfo.json", modinfo)) {
+            QMessageBox::warning(this, "error", "Failed to write modinfo.");
+            return;
+        }
     }
     const QString excelRoot = modRoot + "data/global/excel/";
     if (!QFileInfo::exists(excelRoot))
@@ -188,7 +190,7 @@ void MainWindow::generate(const GenerationEnvironment& env)
         if (m_tableCache) {
             tableSet = *m_tableCache;
         } else {
-            if (!ExtractTables(env.d2rPath, tableSet)) {
+            if (env.isLegacy && !ExtractTablesLegacy(env.d2rPath, tableSet) || !env.isLegacy && !ExtractTables(env.d2rPath, tableSet)) {
                 QMessageBox::warning(this, "error", "Failed to read csv data from D2R folder.");
                 return;
             }

@@ -11,7 +11,7 @@ Features included:
 # Quick start
 ![mainwindow](docs/mainwindow.png "Main Window")  
 Main Window  
-1. Download zip archive from [releases page](https://github.com/mapron/d2modgen/releases/tag/0.1.1);
+1. Download zip archive from [releases page](https://github.com/mapron/d2modgen/releases/tag/0.2);
 2. Extract wherever you want and go inside extracted folder;
 3. Run modgen.exe (see the screenshot);
 4. Check if "D2R path" is filled correctly; if not, edit it manually to point "Diablo II Resurrected/" folder;
@@ -75,7 +75,8 @@ If requirements are met, then go "cmake/build/build install". For windows platfo
 
 # Used thirdparty products
 - (MIT) CascLib (https://github.com/ladislav-zezula/CascLib) is used for Blizzard CASC data storage read;
-- (Zlib) Zlib library used internally by CascLib.
+- (Zlib) Zlib library used internally by CascLib;
+- (MIT) StormLib (https://github.com/ladislav-zezula/StormLib) is used for reading MPQ files.
 
 # Third party components as non-distributed dependency
 - Qt , https://www.qt.io/, GPL/LGPL/Commercial; components utilized by d2modgen are available under LGPL.

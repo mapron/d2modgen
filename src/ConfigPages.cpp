@@ -165,6 +165,8 @@ public:
                 const int next = prev * packs / 100;
                 value          = QString("%1").arg(std::min(next, 255));
             };
+            const QString nighLevelKey = view.hasColumn("MonLvlEx(N)") ? "MonLvlEx(N)" : "MonLvl2Ex";
+            const QString hellLevelKey = view.hasColumn("MonLvlEx(H)") ? "MonLvlEx(H)" : "MonLvl3Ex";
             for (auto& row : view) {
                 QString& normMin   = row["MonUMin"];
                 QString& normMax   = row["MonUMax"];
@@ -172,8 +174,8 @@ public:
                 QString& nighMax   = row["MonUMax(N)"];
                 QString& hellMin   = row["MonUMin(H)"];
                 QString& hellMax   = row["MonUMax(H)"];
-                QString& nighLevel = row["MonLvlEx(N)"];
-                QString& hellLevel = row["MonLvlEx(H)"];
+                QString& nighLevel = row[nighLevelKey];
+                QString& hellLevel = row[hellLevelKey];
 
                 if (allCellsNonEmpty({ hellMin, hellMax })) {
                     if (getWidgetValue("hellPacks")) {

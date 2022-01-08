@@ -93,6 +93,8 @@ public:
     auto begin() const { return m_rows.begin(); }
     auto end() const { return m_rows.end(); }
 
+    bool hasColumn(const QString& name) const { return m_columnIndex.contains(name); }
+
 private:
     Table&               m_table;
     std::vector<RowView> m_rows;
@@ -105,5 +107,6 @@ struct GenerationEnvironment {
     QString  appData;
     QString  outPath;
     bool     exportAllTables;
+    bool     isLegacy;
     uint32_t seed;
 };

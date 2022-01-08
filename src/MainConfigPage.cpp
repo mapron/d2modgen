@@ -32,9 +32,10 @@ QString ensureTrailingSlash(QString path)
     return path;
 }
 
-QString getInstallLocationFromRegistry()
+QString getInstallLocationFromRegistry(bool resurrected)
 {
-    QSettings set("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II Resurrected",
+    static const QString base("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II");
+    QSettings            set(base + (resurrected ? " Resurrected" : ""),
                   QSettings::Registry32Format);
     return ensureTrailingSlash(set.value("InstallLocation").toString());
 }
@@ -58,13 +59,17 @@ QString getBattleNetConfig()
 }
 struct MainConfigPage::Impl {
     QLineEdit* modName;
+    QCheckBox* d2legacyMode;
     QLineEdit* d2rPath;
+    QLineEdit* d2legacyPath;
     QLineEdit* d2rSaves;
     QLineEdit* d2rArgs;
     QLineEdit* seed;
     QLineEdit* outPath;
     QCheckBox* addKeys;
     QCheckBox* exportAll;
+
+    std::function<void(bool)> setMode;
 };
 
 MainConfigPage::MainConfigPage(QWidget* parent)
@@ -75,8 +80,10 @@ MainConfigPage::MainConfigPage(QWidget* parent)
     QValidator* validator = new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9_]+"), this);
     m_impl->modName->setValidator(validator);
 
-    m_impl->d2rPath = new QLineEdit(this);
-    m_impl->d2rPath->setText(getInstallLocationFromRegistry());
+    m_impl->d2legacyMode = new QCheckBox("Use Diablo II legacy installation", this);
+
+    m_impl->d2rPath      = new QLineEdit(this);
+    m_impl->d2legacyPath = new QLineEdit(this);
 
     m_impl->d2rSaves = new QLineEdit(this);
     m_impl->d2rSaves->setText(getSaveRoot());
@@ -92,7 +99,6 @@ MainConfigPage::MainConfigPage(QWidget* parent)
     m_impl->outPath = new QLineEdit(this);
 
     m_impl->addKeys = new QCheckBox("Add key to new char inventory (Basic mod test)", this);
-    m_impl->addKeys->setChecked(true);
 
     m_impl->exportAll = new QCheckBox("Export all *.txt (for further manual edit)", this);
     m_impl->exportAll->setChecked(false);
@@ -102,6 +108,9 @@ MainConfigPage::MainConfigPage(QWidget* parent)
     QPushButton* launchArgs      = new QPushButton("Set launch to mod", this);
     QPushButton* launchArgsClear = new QPushButton("Reset launch to unmodded", this);
     QPushButton* makeShortcut    = new QPushButton("Make shortcut on Desktop", this);
+
+    QList<QWidget*> d2resurrectedWidgets;
+    QList<QWidget*> d2legacyWidgets;
 
     // layouts
 
@@ -115,19 +124,40 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         rowLayout->addWidget(new QLabel("Mod id:", this));
         rowLayout->addWidget(m_impl->modName);
     }
-
     {
         QVBoxLayout* rowLayout = new QVBoxLayout();
-        rowLayout->setSpacing(5);
         mainLayout->addLayout(rowLayout);
-        rowLayout->addWidget(new QLabel("D2R path:", this));
-        rowLayout->addWidget(m_impl->d2rPath);
+        rowLayout->addWidget(m_impl->d2legacyMode);
     }
 
     {
-        QVBoxLayout* rowLayout = new QVBoxLayout();
+        QWidget*     rowWidget = new QWidget(this);
+        QVBoxLayout* rowLayout = new QVBoxLayout(rowWidget);
         rowLayout->setSpacing(5);
-        mainLayout->addLayout(rowLayout);
+        rowLayout->setMargin(0);
+        mainLayout->addWidget(rowWidget);
+        rowLayout->addWidget(new QLabel("D2R path:", this));
+        rowLayout->addWidget(m_impl->d2rPath);
+        d2resurrectedWidgets << rowWidget;
+    }
+
+    {
+        QWidget*     rowWidget = new QWidget(this);
+        QVBoxLayout* rowLayout = new QVBoxLayout(rowWidget);
+        rowLayout->setSpacing(5);
+        rowLayout->setMargin(0);
+        mainLayout->addWidget(rowWidget);
+        rowLayout->addWidget(new QLabel("D2 legacy path:", this));
+        rowLayout->addWidget(m_impl->d2legacyPath);
+        d2legacyWidgets << rowWidget;
+    }
+
+    {
+        QWidget*     rowWidget = new QWidget(this);
+        QVBoxLayout* rowLayout = new QVBoxLayout(rowWidget);
+        rowLayout->setSpacing(5);
+        rowLayout->setMargin(0);
+        mainLayout->addWidget(rowWidget);
         rowLayout->addWidget(new QLabel("D2R save and user settings root:", this));
         rowLayout->addWidget(m_impl->d2rSaves);
         QHBoxLayout* rowLayoutButtons = new QHBoxLayout();
@@ -135,6 +165,7 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         rowLayoutButtons->addWidget(copySettings);
         rowLayoutButtons->addWidget(new QLabel("(this will copy default settings to mod folder)", this));
         rowLayoutButtons->addStretch();
+        d2resurrectedWidgets << rowWidget;
     }
 
     {
@@ -147,12 +178,15 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         rowLayout->addLayout(rowLayoutButtonShortcut);
         rowLayoutButtonShortcut->addWidget(makeShortcut);
         rowLayoutButtonShortcut->addStretch();
-        QHBoxLayout* rowLayoutButtons = new QHBoxLayout();
-        rowLayout->addLayout(rowLayoutButtons);
+        QWidget*     rowWidget        = new QWidget(this);
+        QHBoxLayout* rowLayoutButtons = new QHBoxLayout(rowWidget);
+        rowLayout->addWidget(rowWidget);
+        rowLayoutButtons->setMargin(0);
         rowLayoutButtons->addWidget(launchArgsClear);
         rowLayoutButtons->addWidget(launchArgs);
         rowLayoutButtons->addWidget(new QLabel("(<b>Close Battlenet launcher before actions!</b>)", this));
         rowLayoutButtons->addStretch();
+        d2resurrectedWidgets << rowWidget;
     }
 
     {
@@ -185,11 +219,19 @@ MainConfigPage::MainConfigPage(QWidget* parent)
 
     mainLayout->addStretch();
 
-    // connects
+    for (QWidget* w : d2legacyWidgets)
+        w->setVisible(false);
 
-    connect(m_impl->modName, &QLineEdit::textChanged, this, [this](const QString& text) {
-        m_impl->d2rArgs->setText(QString("-mod %1 -txt").arg(text));
-    });
+    // connects
+    auto updateArgs = [this]() {
+        auto modname = m_impl->modName->text();
+        auto args    = QString("-mod %1 -txt").arg(modname);
+        if (m_impl->d2legacyMode->isChecked())
+            args = "-direct -txt";
+        m_impl->d2rArgs->setText(args);
+    };
+
+    connect(m_impl->modName, &QLineEdit::textChanged, this, updateArgs);
     connect(copySettings, &QPushButton::clicked, this, [this] {
         const QString saves = ensureTrailingSlash(m_impl->d2rSaves->text());
         if (saves.isEmpty() || !QFileInfo::exists(saves))
@@ -210,7 +252,15 @@ MainConfigPage::MainConfigPage(QWidget* parent)
     connect(makeShortcut, &QPushButton::clicked, this, [this] {
         auto env  = getEnv();
         auto desk = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
-        createShortCut(desk + "Diablo II - " + env.modName + " Mod", env.d2rPath + "D2R.exe", m_impl->d2rArgs->text());
+        createShortCut(desk + "Diablo II - " + env.modName + " Mod", env.d2rPath + (env.isLegacy ? "Diablo II.exe" : "D2R.exe"), m_impl->d2rArgs->text());
+    });
+    connect(m_impl->d2legacyMode, &QCheckBox::stateChanged, this, [this, d2resurrectedWidgets, d2legacyWidgets, updateArgs](int) {
+        const bool legacy = m_impl->d2legacyMode->isChecked();
+        for (QWidget* w : d2resurrectedWidgets)
+            w->setVisible(!legacy);
+        for (QWidget* w : d2legacyWidgets)
+            w->setVisible(legacy);
+        updateArgs();
     });
 
     m_impl->modName->setText("rando");
@@ -222,7 +272,8 @@ GenerationEnvironment MainConfigPage::getEnv() const
 {
     GenerationEnvironment env;
     env.modName         = m_impl->modName->text();
-    env.d2rPath         = ensureTrailingSlash(m_impl->d2rPath->text());
+    env.isLegacy        = m_impl->d2legacyMode->isChecked();
+    env.d2rPath         = ensureTrailingSlash(env.isLegacy ? m_impl->d2legacyPath->text() : m_impl->d2rPath->text());
     env.exportAllTables = m_impl->exportAll->isChecked();
     env.appData         = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
     env.seed            = m_impl->seed->text().toInt();
@@ -260,14 +311,28 @@ void MainConfigPage::readSettings(const QJsonObject& data)
     else
         createNewSeed();
 
+    if (data.contains("d2rpath"))
+        m_impl->d2rPath->setText(data["d2rpath"].toString());
+    else
+        m_impl->d2rPath->setText(getInstallLocationFromRegistry(true));
+
+    if (data.contains("d2legacyPath"))
+        m_impl->d2legacyPath->setText(data["d2legacyPath"].toString());
+    else
+        m_impl->d2legacyPath->setText(getInstallLocationFromRegistry(false));
+
     m_impl->addKeys->setChecked(!data.contains("addKeys") || data["addKeys"].toBool());
+    m_impl->d2legacyMode->setChecked(data["isLegacy"].toBool());
 }
 
 void MainConfigPage::writeSettings(QJsonObject& data) const
 {
-    data["modname"] = m_impl->modName->text();
-    data["seed"]    = m_impl->seed->text();
-    data["addKeys"] = m_impl->addKeys->isChecked();
+    data["modname"]      = m_impl->modName->text();
+    data["seed"]         = m_impl->seed->text();
+    data["d2rPath"]      = m_impl->d2rPath->text();
+    data["d2legacyPath"] = m_impl->d2legacyPath->text();
+    data["addKeys"]      = m_impl->addKeys->isChecked();
+    data["isLegacy"]     = m_impl->d2legacyMode->isChecked();
 }
 
 KeySet MainConfigPage::generate(TableSet& tableSet, QRandomGenerator& rng) const
