@@ -17,6 +17,16 @@
 
 struct TableRow {
     QStringList data;
+    TableRow() = default;
+    explicit TableRow(int size)
+    {
+        for (int i = 0; i < size; ++i)
+            data << "";
+    }
+    explicit TableRow(QStringList data)
+        : data(std::move(data))
+    {
+    }
 };
 
 struct Table {
@@ -94,6 +104,17 @@ public:
     auto end() const { return m_rows.end(); }
 
     bool hasColumn(const QString& name) const { return m_columnIndex.contains(name); }
+    void appendRow(const QMap<QString, QString>& values)
+    {
+        m_table.rows << TableRow(m_table.columns.size());
+        m_rows.emplace_back(static_cast<int>(m_rows.size()), *this);
+        RowView&                       row = *m_rows.rbegin();
+        QMapIterator<QString, QString> i(values);
+        while (i.hasNext()) {
+            i.next();
+            row[i.key()] = i.value();
+        }
+    }
 
 private:
     Table&               m_table;
