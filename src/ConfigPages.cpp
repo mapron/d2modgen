@@ -230,7 +230,8 @@ public:
                    << new SliderWidgetMinMax("Increase Good TC (Runes/Gems/Jewellery)", "good_factor", 1, 10, 1, this)
                    << new SliderWidgetMinMax("Increase Runes chance in Good TC", "rune_factor", 1, 10, 1, this)
                    << new CheckboxWidget("Switch Ber,Jah with Cham,Zod in rarity", "highrune_switch", false, this)
-                   << new SliderWidgetMinMax("Increase Rare Rune drops<br>This is increase of dropping Zod in 'Runes 17' TC<br>Rarity of other runes will change proportionally.", "zod_factor", 1, 1000, 1, this));
+                   << new SliderWidgetMinMax("Increase Rare Rune drops<br>This is increase of dropping Zod in 'Runes 17' TC<br>Rarity of other runes will change proportionally.", "zod_factor", 1, 1000, 1, this)
+                   << new CheckboxWidget("Make all Uniques have equal rarity on same base (including rings)", "equal_uniques", false, this));
         closeLayout();
     }
 
@@ -246,8 +247,9 @@ public:
     }
     KeySet generate(TableSet& tableSet, QRandomGenerator& rng) const override
     {
-        if (isAllDefault({ "chance_uni", "chance_set", "chance_rare", "nodrop_factor", "high_elite_drops", "good_factor", "rune_factor", "zod_factor", "highrune_switch" }))
+        if (isAllDefault({ "chance_uni", "chance_set", "chance_rare", "nodrop_factor", "high_elite_drops", "good_factor", "rune_factor", "zod_factor", "highrune_switch", "equal_uniques" }))
             return {};
+        KeySet                     result{ "treasureclassex" };
         static const QSet<int>     s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
         static const QSet<QString> s_modifyNames{
             "Cow",
@@ -401,7 +403,18 @@ public:
                 }
             }
         }
-        return { "treasureclassex" };
+
+        const bool equalRarity = getWidgetValue("equal_uniques");
+        if (equalRarity) {
+            result << "uniqueitems";
+            TableView view(tableSet.tables["uniqueitems"]);
+            for (auto& row : view) {
+                QString& rarity = row["rarity"];
+                if (!rarity.isEmpty())
+                    rarity = "1";
+            }
+        }
+        return result;
     }
 };
 
