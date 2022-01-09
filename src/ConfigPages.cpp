@@ -626,6 +626,7 @@ public:
             auto grabProps      = [&all, &code2type](TableView&           view,
                                                 const ColumnsDesc&   columns,
                                                 const LevelCallback& levelCb) {
+                static const QSet<QString> s_ignoredCodes{ "ac/time" }; // unused and buggy.
                 for (auto& row : view) {
                     const int level = levelCb(row);
 
@@ -640,6 +641,8 @@ public:
                         mp.level = level;
                         if (mp.code.isEmpty())
                             break;
+                        if (s_ignoredCodes.contains(mp.code))
+                            continue;
                         bundle.props << mp;
                     }
                     if (!bundle.props.isEmpty())
