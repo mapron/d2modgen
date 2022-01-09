@@ -131,3 +131,33 @@ struct GenerationEnvironment {
     bool     isLegacy;
     uint32_t seed;
 };
+
+struct ColumnsDesc {
+    struct Col {
+        QString code;
+        QString par;
+        QString min;
+        QString max;
+    };
+    QList<Col> m_cols;
+    int        m_start = 0;
+    ColumnsDesc()      = default;
+    ColumnsDesc(const QString& codeTpl,
+                const QString& parTpl,
+                const QString& minTpl,
+                const QString& maxTpl,
+                int            end,
+                int            start = 1)
+        : m_start(start)
+    {
+        for (int i = start; i <= end; ++i) {
+            Col col{
+                codeTpl.arg(i),
+                parTpl.arg(i),
+                minTpl.arg(i),
+                maxTpl.arg(i)
+            };
+            m_cols << col;
+        }
+    }
+};

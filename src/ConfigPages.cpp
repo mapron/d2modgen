@@ -13,6 +13,8 @@
 
 namespace {
 
+const QSet<QString> g_ignoreMinMax{ "hit-skill", "charged" };
+
 class AbstractPage : public IConfigPage {
 public:
     AbstractPage(QWidget* parent)
@@ -231,7 +233,8 @@ public:
                    << new SliderWidgetMinMax("Increase Runes chance in Good TC", "rune_factor", 1, 10, 1, this)
                    << new CheckboxWidget("Switch Ber,Jah with Cham,Zod in rarity", "highrune_switch", false, this)
                    << new SliderWidgetMinMax("Increase Rare Rune drops<br>This is increase of dropping Zod in 'Runes 17' TC<br>Rarity of other runes will change proportionally.", "zod_factor", 1, 1000, 1, this)
-                   << new CheckboxWidget("Make all Uniques have equal rarity on same base (including rings)", "equal_uniques", false, this));
+                   << new CheckboxWidget("Make all Uniques have equal rarity on same base (including rings)", "equal_uniques", false, this)
+                   << new CheckboxWidget("Always perfect rolls (independent from Randomizer)", "perfect_rolls", false, this));
         closeLayout();
     }
 
@@ -247,7 +250,7 @@ public:
     }
     KeySet generate(TableSet& tableSet, QRandomGenerator& rng) const override
     {
-        if (isAllDefault({ "chance_uni", "chance_set", "chance_rare", "nodrop_factor", "high_elite_drops", "good_factor", "rune_factor", "zod_factor", "highrune_switch", "equal_uniques" }))
+        if (isAllDefault({ "chance_uni", "chance_set", "chance_rare", "nodrop_factor", "high_elite_drops", "good_factor", "rune_factor", "zod_factor", "highrune_switch", "equal_uniques", "perfect_rolls" }))
             return {};
         KeySet                     result{ "treasureclassex" };
         static const QSet<int>     s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
@@ -414,6 +417,47 @@ public:
                     rarity = "1";
             }
         }
+        const bool perfectRolls = getWidgetValue("perfect_rolls");
+        if (perfectRolls) {
+            result << "uniqueitems"
+                   << "runes"
+                   << "setitems"
+                   << "magicprefix"
+                   << "magicsuffix";
+            auto updateMinParam = [](TableView&         view,
+                                     const ColumnsDesc& columns) {
+                for (auto& row : view) {
+                    for (const auto& col : columns.m_cols) {
+                        auto& min = row[col.min];
+                        if (min.isEmpty())
+                            break;
+                        if (!g_ignoreMinMax.contains(row[col.code]))
+                            min = row[col.max];
+                    }
+                }
+            };
+
+            {
+                auto&     table = tableSet.tables["uniqueitems"];
+                TableView view(table);
+                updateMinParam(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 12));
+            }
+            {
+                TableView view(tableSet.tables["runes"]);
+                updateMinParam(view, ColumnsDesc("T1Code%1", "T1Param%1", "T1Min%1", "T1Max%1", 7));
+            }
+            {
+                TableView view(tableSet.tables["setitems"]);
+                updateMinParam(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9));
+            }
+            {
+                for (const char* table : { "magicprefix", "magicsuffix" }) {
+                    TableView view(tableSet.tables[table]);
+                    updateMinParam(view, ColumnsDesc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3));
+                }
+            }
+        }
+
         return result;
     }
 };
@@ -539,36 +583,6 @@ public:
         // @todo: do we really need to handle item-specific properties (knockback, replinish quantity)?
         static const QString           s_all;
         QMap<QString, MagicPropBucket> bucketByType;
-    };
-
-    struct ColumnsDesc {
-        struct Col {
-            QString code;
-            QString par;
-            QString min;
-            QString max;
-        };
-        QList<Col> m_cols;
-        int        m_start = 0;
-        ColumnsDesc()      = default;
-        ColumnsDesc(const QString& codeTpl,
-                    const QString& parTpl,
-                    const QString& minTpl,
-                    const QString& maxTpl,
-                    int            end,
-                    int            start = 1)
-            : m_start(start)
-        {
-            for (int i = start; i <= end; ++i) {
-                Col col{
-                    codeTpl.arg(i),
-                    parTpl.arg(i),
-                    minTpl.arg(i),
-                    maxTpl.arg(i)
-                };
-                m_cols << col;
-            }
-        }
     };
 
     // IConfigPage interface
@@ -743,7 +757,7 @@ public:
                             auto&       max     = row[colDesc.max];
                             code                = prop.code;
                             par                 = prop.par;
-                            min                 = isPerfect ? prop.max : prop.min;
+                            min                 = isPerfect && !g_ignoreMinMax.contains(code) ? prop.max : prop.min;
                             max                 = prop.max;
                             col++;
                         }
