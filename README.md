@@ -11,7 +11,7 @@ Features included:
 # Quick start
 ![mainwindow](docs/mainwindow.png "Main Window")  
 Main Window  
-1. Download zip archive from [releases page](https://github.com/mapron/d2modgen/releases/tag/0.2);
+1. Download zip archive from [releases page](https://github.com/mapron/d2modgen/releases);
 2. Extract wherever you want and go inside extracted folder;
 3. Run modgen.exe (see the screenshot);
 4. Check if "D2R path" is filled correctly; if not, edit it manually to point "Diablo II Resurrected/" folder;
