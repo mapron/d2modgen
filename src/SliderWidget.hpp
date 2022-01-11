@@ -43,7 +43,22 @@ public:
                        int            minValue,
                        int            maxValue,
                        int            defaultValue,
+                       bool           compact,
                        QWidget*       parent);
+    SliderWidgetMinMax(const QString& caption,
+                       const QString& id,
+                       int            minValue,
+                       int            maxValue,
+                       int            defaultValue,
+                       QWidget*       parent)
+        : SliderWidgetMinMax(caption,
+                             id,
+                             minValue,
+                             maxValue,
+                             defaultValue,
+                             false,
+                             parent)
+    {}
     ~SliderWidgetMinMax();
 
     void resetValue() override;

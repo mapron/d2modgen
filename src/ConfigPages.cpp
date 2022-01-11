@@ -123,6 +123,11 @@ protected:
             m_editors[w->objectName()] = w;
         }
     }
+    void addEditorsPlain(QList<IValueWidget*> editors)
+    {
+        for (IValueWidget* w : editors)
+            m_editors[w->objectName()] = w;
+    }
     void closeLayout()
     {
         m_layout->addStretch();
@@ -614,16 +619,36 @@ public:
         addEditors(QList<IValueWidget*>()
                    << new CheckboxWidget("Enable Item Randomizer", "enable", false, this)
                    << new SliderWidgetMinMax("Balance level (lower = more balance)", "balance", 5, 99, 99, this)
-                   << new SliderWidgetMinMax("Create several versions of each Unique item", "repeat_uniques", 1, 20, 10, this)
-                   << new SliderWidgetMinMax("Minimum Unique properties", "min_uniq_props", 1, 12, 3, this)
-                   << new SliderWidgetMinMax("Maximum Unique properties", "max_uniq_props", 1, 12, 12, this)
-                   << new SliderWidgetMinMax("Minimum RW properties", "min_rw_props", 1, 7, 3, this)
-                   << new SliderWidgetMinMax("Maximum RW properties", "max_rw_props", 1, 7, 7, this)
-                   << new SliderWidgetMinMax("Minimum Set items properties", "min_set_props", 1, 9, 3, this)
-                   << new SliderWidgetMinMax("Maximum Set items properties", "max_set_props", 1, 9, 9, this)
+                   << new SliderWidgetMinMax("Create several versions of each Unique item", "repeat_uniques", 1, 20, 10, this));
+
+        auto addMinimax = [this](int minValue, int maxValue, int midValue, const QString& minKey, const QString& maxKey, const QString& overallTitle) {
+            IValueWidget* minw = new SliderWidgetMinMax("Min", minKey, minValue, maxValue, midValue, true, this);
+            IValueWidget* maxw = new SliderWidgetMinMax("Max", maxKey, minValue, maxValue, maxValue, true, this);
+
+            QWidget*     wrapper    = new QWidget(this);
+            QHBoxLayout* mainLayout = new QHBoxLayout(wrapper);
+            mainLayout->setContentsMargins(0, 5, 0, 5);
+            QHBoxLayout* bottom = new QHBoxLayout();
+            auto*        l      = new QLabel(overallTitle, this);
+            l->setMinimumWidth(110);
+            mainLayout->addWidget(l);
+            mainLayout->addLayout(bottom);
+            bottom->addWidget(minw);
+            bottom->addWidget(maxw);
+
+            addWidget(wrapper);
+            addEditorsPlain({ minw, maxw });
+        };
+        addMinimax(1, 12, 3, "min_uniq_props", "max_uniq_props", "Unique properties");
+        addMinimax(1, 7, 3, "min_rw_props", "max_rw_props", "RW properties");
+        addMinimax(1, 9, 3, "min_set_props", "max_set_props", "Set items properties");
+
+        addEditors(QList<IValueWidget*>()
                    << new CheckboxWidget("Always perfect rolls", "perfectRoll", false, this)
                    << new CheckboxWidget("Randomize magix/rare affixes", "affixRandom", false, this)
-                   << new CheckboxWidget("Randomize gem and runes properties", "gemsRandom", false, this));
+                   << new CheckboxWidget("Randomize gem and runes properties", "gemsRandom", false, this)
+                   << new CheckboxWidget("Replace skills with oskills", "replaceSkills", false, this)
+                   << new CheckboxWidget("Replace charges with oskills", "replaceCharges", false, this));
         closeLayout();
     }
 
@@ -643,6 +668,30 @@ public:
     struct MagicPropBucket {
         QList<MagicPropBundle> bundles;
         QMap<int, int>         lowerLevelBounds;
+
+        void postProcess(bool replaceSkills, bool replaceCharges)
+        {
+            if (!replaceSkills && !replaceCharges)
+                return;
+
+            for (MagicPropBundle& bundle : bundles) {
+                for (MagicProp& prop : bundle.props) {
+                    if (prop.code == "skill") {
+                        if (prop.par == "132")
+                            continue;
+                        prop.code = "oskill";
+                    }
+                    if (prop.code == "charged") {
+                        if (prop.par == "132")
+                            continue;
+                        prop.code = "oskill";
+                        if (prop.max.startsWith("-")) {
+                            prop.min = prop.max = prop.max.mid(1);
+                        }
+                    }
+                }
+            }
+        }
 
         void sortByLevel()
         {
@@ -867,6 +916,7 @@ public:
                 grabProps(view, ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2), commonSetReq);
                 grabProps(view, ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8), commonSetReq);
             }
+            all.bucketByType[MagicPropSet::s_all].postProcess(getWidgetValue("replaceSkills"), getWidgetValue("replaceCharges"));
             all.bucketByType[MagicPropSet::s_all].sortByLevel();
 
             const int  balance     = getWidgetValue("balance");

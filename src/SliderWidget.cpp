@@ -126,8 +126,8 @@ void SliderWidget::spinboxToSlider()
         const int lowRange = s_spinboxAverage - m_min;
         m_slider->setValue((value - m_min) * sliderRange / lowRange);
     } else {
-        const int highRatio = value - s_spinboxAverage;
-        const int highRange = m_max - s_spinboxAverage;
+        const int    highRatio = value - s_spinboxAverage;
+        const int    highRange = m_max - s_spinboxAverage;
         const double ratio     = double(highRatio) / highRange;
         const double ratioLog  = expGrowthRev(ratio);
         m_slider->setValue(s_sliderAverage + (ratioLog * sliderRange));
@@ -141,6 +141,7 @@ SliderWidgetMinMax::SliderWidgetMinMax(const QString& caption,
                                        int            minValue,
                                        int            maxValue,
                                        int            defaultValue,
+                                       bool           compact,
                                        QWidget*       parent)
     : IValueWidget(parent)
     , m_minValue(minValue)
@@ -161,7 +162,11 @@ SliderWidgetMinMax::SliderWidgetMinMax(const QString& caption,
     m_slider->setMaximumHeight(15);
     m_slider->setValue(m_defaultValue);
 
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    QBoxLayout* mainLayout;
+    if (compact)
+        mainLayout = new QHBoxLayout(this);
+    else
+        mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(4);
     QHBoxLayout* bottomLayout = new QHBoxLayout();
