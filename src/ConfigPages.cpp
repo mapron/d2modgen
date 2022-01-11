@@ -8,12 +8,61 @@
 #include "CheckboxWidget.hpp"
 
 #include <QVBoxLayout>
+#include <QLabel>
 
 #include <functional>
 
 namespace {
 
 const QSet<QString> g_ignoreMinMax{ "hit-skill", "charged" };
+
+struct DropSet {
+    struct Item {
+        QString tc;
+        int     prob;
+    };
+    int         m_noDrop = 0;
+    QList<Item> m_items;
+
+    void readRow(const TableView::RowView& row)
+    {
+        const QString& noDrop = row["NoDrop"];
+        m_noDrop              = noDrop.toInt();
+
+        m_items.clear();
+        for (int i = 1; i <= 10; ++i) {
+            const QString& prob = row[QString("Prob%1").arg(i)];
+            if (prob.isEmpty())
+                break;
+            const QString& tcName = row[QString("Item%1").arg(i)];
+            m_items << Item{ tcName, prob.toInt() };
+        }
+    }
+    void writeRow(TableView::RowView& row) const
+    {
+        QString& noDrop = row["NoDrop"];
+        noDrop          = QString("%1").arg(m_noDrop);
+        for (int i = 1; i <= 10; ++i) {
+            QString& prob   = row[QString("Prob%1").arg(i)];
+            QString& tcName = row[QString("Item%1").arg(i)];
+            prob.clear();
+            tcName.clear();
+            if (i - 1 >= m_items.size())
+                continue;
+            auto& item = m_items[i - 1];
+            prob       = QString("%1").arg(item.prob);
+            tcName     = item.tc;
+        }
+    }
+
+    int getDropSomethingProb() const
+    {
+        int totalOther = 0;
+        for (const auto& item : m_items)
+            totalOther += item.prob;
+        return totalOther;
+    }
+};
 
 class AbstractPage : public IConfigPage {
 public:
@@ -63,6 +112,10 @@ public:
     }
 
 protected:
+    void addWidget(QWidget* w)
+    {
+        m_layout->addWidget(w);
+    }
     void addEditors(QList<IValueWidget*> editors)
     {
         for (IValueWidget* w : editors) {
@@ -311,13 +364,13 @@ public:
                 const int next = static_cast<int>(probNew);
                 value          = QString("%1").arg(std::min(next, maxFact));
             };
-            auto nodropAdjust = [factorNo](QString& value, double totalOther) {
-                const double oldNoDrop      = value.toInt();
+            auto nodropAdjust = [factorNo](int value, double totalOther) -> int {
+                const double oldNoDrop      = value;
                 const double oldNoDropRatio = oldNoDrop / (oldNoDrop + totalOther);
                 const double newNoDropRatio = oldNoDropRatio / factorNo;
                 const double newNoDrop      = totalOther * newNoDropRatio / (1. - newNoDropRatio);
                 const int    next           = static_cast<int>(newNoDrop);
-                value                       = QString("%1").arg(std::max(next, 1));
+                return std::max(next, 1);
             };
 
             QMap<QString, QString> highRuneReplacement{
@@ -357,83 +410,58 @@ public:
                     factorAdjust(setRatio, factorSet, 990);
                     factorAdjust(rareRatio, factorRare, 960);
                 }
-                QString& noDrop = row["NoDrop"];
+                DropSet dropSet;
+                dropSet.readRow(row);
 
-                const bool needToAdjustNodrop = !noDrop.isEmpty() && noDrop != "0";
-                if (needToAdjustNodrop) {
-                    int totalOther = 0;
-                    for (int i = 1; i <= 10; ++i) {
-                        QString& prob = row[QString("Prob%1").arg(i)];
-                        if (prob.isEmpty())
-                            break;
-                        totalOther += prob.toInt();
-                    }
-                    nodropAdjust(noDrop, totalOther);
-                }
+                const bool needToAdjustNodrop = dropSet.m_noDrop;
+                if (needToAdjustNodrop)
+                    dropSet.m_noDrop = nodropAdjust(dropSet.m_noDrop, dropSet.getDropSomethingProb());
+
                 if (highDropsCount) {
                     if (treasureGroup == "15") { // Uniques, insead of 1 item + 2*2 potion, make 4 items + 1*2 potion
-                        QString& probItem = row["Prob1"];
-                        QString& probPot  = row["Prob2"];
-                        QString& picks    = row["Picks"];
-                        probItem          = "4";
-                        probPot           = "1";
-                        picks             = "-5";
+                        dropSet.m_items[0].prob = 4;
+                        dropSet.m_items[1].prob = 1;
+                        row["Picks"]            = "-5";
                     }
                     if (treasureGroup == "13") { // Champions, insead of 1 item + 1-2*2 potion, make 2 items + 1*2 potion
-                        QString& probItem = row["Prob1"];
-                        QString& probPot  = row["Prob2"];
-                        QString& picks    = row["Picks"];
-                        probItem          = "2";
-                        probPot           = "1";
-                        picks             = "-3";
+                        dropSet.m_items[0].prob = 2;
+                        dropSet.m_items[1].prob = 1;
+                        row["Picks"]            = "-3";
                     }
                 }
                 if (factorGoodTC > 1) {
-                    for (int i = 1; i <= 10; ++i) {
-                        QString& prob = row[QString("Prob%1").arg(i)];
-                        if (prob.isEmpty())
-                            break;
-                        QString& tcName = row[QString("Item%1").arg(i)];
-                        if (!tcName.endsWith(" Good"))
+                    for (auto& item : dropSet.m_items) {
+                        if (!item.tc.endsWith(" Good"))
                             continue;
-                        prob = QString("%1").arg(prob.toInt() * factorGoodTC);
+                        item.prob *= factorGoodTC;
                         break;
                     }
                 }
                 if (factorRune > 1 && className.endsWith(" Good")) {
-                    for (int i = 1; i <= 10; ++i) {
-                        QString& prob = row[QString("Prob%1").arg(i)];
-                        if (prob.isEmpty())
-                            break;
-                        QString& tcName = row[QString("Item%1").arg(i)];
-                        if (!tcName.startsWith("Runes "))
+                    for (auto& item : dropSet.m_items) {
+                        if (!item.tc.startsWith("Runes "))
                             continue;
-                        prob = QString("%1").arg(prob.toInt() * factorRune);
+                        item.prob *= factorRune;
                         break;
                     }
                 }
                 if (factorZod > 1 && className.startsWith("Runes ")) {
-                    for (int i = 1; i <= 10; ++i) {
-                        QString& prob = row[QString("Prob%1").arg(i)];
-                        if (prob.isEmpty())
-                            break;
-                        QString& tcName = row[QString("Item%1").arg(i)];
+                    for (auto& item : dropSet.m_items) {
+                        QString& tcName = item.tc;
                         if (!tcName.startsWith("Runes ") || !runesReplaceFactor.contains(tcName))
                             continue;
-                        const int newProb = static_cast<int>(prob.toInt() / runesReplaceFactor[tcName]);
-                        prob              = QString("%1").arg(std::max(newProb, 5));
+                        const int newProb = static_cast<int>(item.prob / runesReplaceFactor[tcName]);
+                        item.prob         = std::max(newProb, 5);
                         break;
                     }
                 }
                 if (switchHighRunes && className.startsWith("Runes ")) {
-                    for (int i = 1; i <= 10; ++i) {
-                        QString& prob = row[QString("Prob%1").arg(i)];
-                        if (prob.isEmpty())
-                            break;
-                        QString& tcName = row[QString("Item%1").arg(i)];
+                    for (auto& item : dropSet.m_items) {
+                        QString& tcName = item.tc;
                         tcName          = highRuneReplacement.value(tcName, tcName);
                     }
                 }
+                dropSet.writeRow(row);
             }
         }
 
@@ -485,6 +513,92 @@ public:
                     TableView view(tableSet.tables[table]);
                     updateMinParam(view, ColumnsDesc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3));
                 }
+            }
+        }
+
+        return result;
+    }
+};
+
+class DropFiltering : public AbstractPage {
+public:
+    struct Item {
+        QSet<QString> internalIds;
+        QString       settingKey;
+        QString       title;
+    };
+    const QList<Item> m_items;
+
+    DropFiltering(QWidget* parent)
+        : AbstractPage(parent)
+        , m_items{
+            { { "isc" }, "isc", "ID scroll" },
+            { { "tsc" }, "tsc", "TP scroll" },
+            { { "hp1", "hp2", "hp3" }, "hps", "Health pots 1-3" },
+            { { "hp1", "hp2", "hp3", "hp4", "hp5" }, "hpsa", "All Health pots" },
+            { { "mp1", "mp2", "mp3" }, "mps", "Mana pots 1-3" },
+            { { "mp1", "mp2", "mp3", "mp4", "mp5" }, "mpsa", "All Mana pots" },
+            { { "rvs" }, "rvs", "Rejuv pots" },
+            { { "rvl" }, "rvl", "Full Rejuv pots" },
+            { { "Ammo" }, "ammo", "Bolts/Arrows" },
+            { { "vps", "yps", "wms" }, "ammo", "Stamina/Antidote/Thawing" },
+            { { "Misc 0", "Misc 1", "Misc 2" }, "junks", "Keys/Fire/Poison pots" },
+        }
+
+    {
+        addWidget(new QLabel("<b>Warning</b>: please note, there is no real way to filter drops in D2R;<br>"
+                             "Instead of filtering loot, we just make it to not drop at all instead.<br>"
+                             "In practice, it's the same for user, but you have no way to pick an item if you changed you mind.<br>"
+                             "Other approach - is to change item tag to something really short - that solution require <br>"
+                             "localization edits, which is possible, but not yet supported.<br>"
+                             "All options below just <b>replace drops with NoDrop</b>, so no real affect on probabilities of other items."
+
+                             ,
+                             this));
+        for (auto& item : m_items)
+            addEditors(QList<IValueWidget*>()
+                       << new CheckboxWidget("Disable " + item.title, "nodrop_" + item.settingKey, false, this));
+        closeLayout();
+    }
+
+    // IConfigPage interface
+public:
+    QString caption() const override
+    {
+        return "Drops filtering";
+    }
+    QString settingKey() const override
+    {
+        return "drop_filter";
+    }
+    KeySet generate(TableSet& tableSet, QRandomGenerator& rng) const override
+    {
+        if (isAllDefault())
+            return {};
+        KeySet result;
+        result << "treasureclassex";
+
+        TableView view(tableSet.tables["treasureclassex"]);
+
+        QSet<QString> disabledIds;
+        for (auto& item : m_items) {
+            const bool disable = getWidgetValue("nodrop_" + item.settingKey);
+            if (disable)
+                disabledIds += item.internalIds;
+        }
+        if (!disabledIds.empty()) {
+            for (auto& row : view) {
+                DropSet dropSet;
+                dropSet.readRow(row);
+                for (int i = dropSet.m_items.size() - 1; i >= 0; i--) {
+                    auto&    dropItem = dropSet.m_items[i];
+                    QString& tcName   = dropItem.tc;
+                    if (disabledIds.contains(tcName)) {
+                        dropSet.m_noDrop += dropItem.prob;
+                        dropSet.m_items.removeAt(i);
+                    }
+                }
+                dropSet.writeRow(row);
             }
         }
 
@@ -1008,7 +1122,6 @@ public:
         return result;
     }
 };
-
 }
 
 QList<IConfigPage*> CreateConfigPages(QWidget* parent)
@@ -1016,6 +1129,7 @@ QList<IConfigPage*> CreateConfigPages(QWidget* parent)
     return QList<IConfigPage*>{
         new DifficultyPage(parent),
         new DropsPage(parent),
+        new DropFiltering(parent),
         new RandomizerPage(parent),
         new CubePage(parent),
     };
