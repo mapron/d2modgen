@@ -8,6 +8,11 @@
 #include <QBoxLayout>
 #include <QLabel>
 
+namespace {
+constexpr const int s_maxBalanceLevel = 99;
+constexpr const int s_maxIngameLevel  = 110;
+}
+
 void RandomizerPage::MagicPropBucket::postProcess(bool replaceSkills, bool replaceCharges)
 {
     if (!replaceSkills && !replaceCharges)
@@ -43,17 +48,20 @@ void RandomizerPage::MagicPropBucket::sortByLevel()
         }
         lastLevel = level + 1;
     }
-    for (; lastLevel <= 110; ++lastLevel)
+    for (; lastLevel <= s_maxIngameLevel; ++lastLevel)
         lowerLevelBounds[lastLevel] = bundles.size();
 }
 
 std::pair<int, int> RandomizerPage::MagicPropBucket::getBounds(int level, int balance, int minRange) const
 {
-    int lowerIndex  = lowerLevelBounds.value(std::clamp(level - balance, 0, 110));
-    int higherIndex = lowerLevelBounds.value(std::clamp(level + (balance / 2), 0, 110));
+    if (balance >= s_maxBalanceLevel)
+        return { 0, bundles.size() };
+
+    int lowerIndex  = lowerLevelBounds.value(std::clamp(level - balance, 0, s_maxIngameLevel));
+    int higherIndex = lowerLevelBounds.value(std::clamp(level + (balance / 2), 0, s_maxIngameLevel));
     if (higherIndex - lowerIndex >= minRange)
         return { lowerIndex, higherIndex };
-    lowerIndex = lowerLevelBounds.value(std::clamp(level - balance * 2, 0, 110));
+    lowerIndex = lowerLevelBounds.value(std::clamp(level - balance * 2, 0, s_maxIngameLevel));
     if (higherIndex - lowerIndex >= minRange)
         return { lowerIndex, higherIndex };
     lowerIndex = 0;
@@ -115,7 +123,7 @@ RandomizerPage::RandomizerPage(QWidget* parent)
 {
     addEditors(QList<IValueWidget*>()
                << new CheckboxWidget("Enable Item Randomizer", "enable", false, this)
-               << new SliderWidgetMinMax("Balance level (lower = more balance)", "balance", 5, 99, 99, this)
+               << new SliderWidgetMinMax("Balance level (lower = more balance)", "balance", 5, s_maxBalanceLevel, s_maxBalanceLevel, this)
                << new SliderWidgetMinMax("Create several versions of each Unique item", "repeat_uniques", 1, 20, 10, this));
 
     auto addMinimax = [this](int minValue, int maxValue, int midValue, const QString& minKey, const QString& maxKey, const QString& overallTitle) {
