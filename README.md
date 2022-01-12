@@ -101,7 +101,7 @@ If requirements are met, then go "cmake/build/build install". For windows platfo
 
 # Contribute
 1. follow clang-format rules in src/ directory;
-2. ConfigPages.cpp is probably your main focus of interest for adding new rules.
+2. ConfigPage(Someting).cpp is probably your main focus of interest for adding new rules. Either create new configpage file or edit existent one.
 
 # Used thirdparty products
 - (MIT) CascLib (https://github.com/ladislav-zezula/CascLib) is used for Blizzard CASC data storage read;
