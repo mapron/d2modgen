@@ -7,7 +7,7 @@
 
 #include <QLabel>
 
-DropFiltering::DropFiltering(QWidget* parent)
+ConfigPageDropFiltering::ConfigPageDropFiltering(QWidget* parent)
     : ConfigPageAbstract(parent)
     , m_items{
         { { "isc" }, "isc", "ID scroll" },
@@ -39,7 +39,7 @@ DropFiltering::DropFiltering(QWidget* parent)
     closeLayout();
 }
 
-KeySet DropFiltering::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageDropFiltering::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};

@@ -13,7 +13,7 @@ constexpr const int s_maxBalanceLevel = 99;
 constexpr const int s_maxIngameLevel  = 110;
 }
 
-void RandomizerPage::MagicPropBucket::postProcess(bool replaceSkills, bool replaceCharges)
+void ConfigPageRandomizer::MagicPropBucket::postProcess(bool replaceSkills, bool replaceCharges)
 {
     if (!replaceSkills && !replaceCharges)
         return;
@@ -37,7 +37,7 @@ void RandomizerPage::MagicPropBucket::postProcess(bool replaceSkills, bool repla
     }
 }
 
-void RandomizerPage::MagicPropBucket::sortByLevel()
+void ConfigPageRandomizer::MagicPropBucket::sortByLevel()
 {
     std::sort(bundles.begin(), bundles.end(), [](const MagicPropBundle& l, const MagicPropBundle& r) { return l.level < r.level; });
     int lastLevel = -1;
@@ -52,7 +52,7 @@ void RandomizerPage::MagicPropBucket::sortByLevel()
         lowerLevelBounds[lastLevel] = bundles.size();
 }
 
-std::pair<int, int> RandomizerPage::MagicPropBucket::getBounds(int level, int balance, int minRange) const
+std::pair<int, int> ConfigPageRandomizer::MagicPropBucket::getBounds(int level, int balance, int minRange) const
 {
     if (balance >= s_maxBalanceLevel)
         return { 0, bundles.size() };
@@ -70,14 +70,14 @@ std::pair<int, int> RandomizerPage::MagicPropBucket::getBounds(int level, int ba
     return { 0, bundles.size() };
 }
 
-const RandomizerPage::MagicPropBundle& RandomizerPage::MagicPropBucket::getRandomBundle(QRandomGenerator& rng, int level, int balance) const
+const ConfigPageRandomizer::MagicPropBundle& ConfigPageRandomizer::MagicPropBucket::getRandomBundle(QRandomGenerator& rng, int level, int balance) const
 {
     const auto [lowerBound, upperBound] = getBounds(level, balance, 10);
     const int index                     = rng.bounded(lowerBound, upperBound);
     return bundles[index];
 }
 
-void RandomizerPage::MagicPropBucket::addParsedBundle(MagicPropBundle inBundle)
+void ConfigPageRandomizer::MagicPropBucket::addParsedBundle(MagicPropBundle inBundle)
 {
     static const QList<QSet<QString>> s_bundledIds{
         QSet<QString>{ "ltng-min", "ltng-max" },
@@ -118,7 +118,7 @@ void RandomizerPage::MagicPropBucket::addParsedBundle(MagicPropBundle inBundle)
     }
 }
 
-RandomizerPage::RandomizerPage(QWidget* parent)
+ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
@@ -157,7 +157,7 @@ RandomizerPage::RandomizerPage(QWidget* parent)
     closeLayout();
 }
 
-KeySet RandomizerPage::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageRandomizer::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (!getWidgetValue("enable"))
         return {};
@@ -397,4 +397,4 @@ KeySet RandomizerPage::generate(TableSet& tableSet, QRandomGenerator& rng, const
     }
 }
 
-const QString RandomizerPage::MagicPropSet::s_all = "all";
+const QString ConfigPageRandomizer::MagicPropSet::s_all = "all";

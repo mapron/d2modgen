@@ -4,22 +4,21 @@
  * See LICENSE file for details.
  */
 #pragma once
-
 #include "ConfigPageAbstract.hpp"
 
-class ConfigPageDifficulty : public ConfigPageAbstract {
+class ConfigPageCharacter : public ConfigPageAbstract {
 public:
-    ConfigPageDifficulty(QWidget* parent);
+    ConfigPageCharacter(QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
-        return "Difficulty";
+        return "Character";
     }
     QString settingKey() const override
     {
-        return "difficulty";
+        return "character";
     }
     KeySet generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };

@@ -7,7 +7,7 @@
 
 #include "ConfigPageAbstract.hpp"
 
-class DropFiltering : public ConfigPageAbstract {
+class ConfigPageDropFiltering : public ConfigPageAbstract {
 public:
     struct Item {
         QSet<QString> internalIds;
@@ -16,7 +16,7 @@ public:
     };
     const QList<Item> m_items;
 
-    DropFiltering(QWidget* parent);
+    ConfigPageDropFiltering(QWidget* parent);
 
     // IConfigPage interface
 public:

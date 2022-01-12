@@ -101,6 +101,8 @@ public:
         const QString& operator[](int index) const { return parent.m_table.rows[i].data[index]; }
         const QString& operator[](QString index) const { return parent.m_table.rows[i].data[ind(index)]; }
 
+        bool hasColumn(const QString& name) const { return parent.m_columnIndex.contains(name); }
+
     private:
         int        ind(const QString& index) const { return parent.m_columnIndex.value(index, -1); }
         int        i;

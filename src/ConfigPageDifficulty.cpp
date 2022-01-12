@@ -5,7 +5,7 @@
  */
 #include "ConfigPageDifficulty.hpp"
 
-DifficultyPage::DifficultyPage(QWidget* parent)
+ConfigPageDifficulty::ConfigPageDifficulty(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
@@ -29,7 +29,7 @@ DifficultyPage::DifficultyPage(QWidget* parent)
     closeLayout();
 }
 
-KeySet DifficultyPage::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageDifficulty::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     KeySet result;
     if (!isAllDefault({ "mon_ar", "mon_def", "mon_hp", "mon_dam", "mon_xp" })) {

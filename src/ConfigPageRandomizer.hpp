@@ -7,9 +7,9 @@
 
 #include "ConfigPageAbstract.hpp"
 
-class RandomizerPage : public ConfigPageAbstract {
+class ConfigPageRandomizer : public ConfigPageAbstract {
 public:
-    RandomizerPage(QWidget* parent);
+    ConfigPageRandomizer(QWidget* parent);
 
     struct MagicProp {
         QString code;

@@ -7,9 +7,9 @@
 
 #include "ConfigPageAbstract.hpp"
 
-class DropsPage : public ConfigPageAbstract {
+class ConfigPageDrops : public ConfigPageAbstract {
 public:
-    DropsPage(QWidget* parent);
+    ConfigPageDrops(QWidget* parent);
 
     // IConfigPage interface
 public:

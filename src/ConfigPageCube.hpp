@@ -7,9 +7,9 @@
 
 #include "ConfigPageAbstract.hpp"
 
-class CubePage : public ConfigPageAbstract {
+class ConfigPageCube : public ConfigPageAbstract {
 public:
-    CubePage(QWidget* parent);
+    ConfigPageCube(QWidget* parent);
 
     // IConfigPage interface
 public:
