@@ -9,7 +9,7 @@ CubePage::CubePage(QWidget* parent)
     : AbstractPage(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget("Remove gems from Rune upgrades", "noGemUpgrade", false, this)
+               << new CheckboxWidget("Remove gem component from Rune upgrade recipes (Rune x3,x2 => next Rune)", "noGemUpgrade", false, this)
                << new CheckboxWidget("Add quick portal access recipes:\n"
                                      "1. TP book + Id scroll = Cow Portal\n"
                                      "2. TP book + Id scroll x2 = Minor Uber Portal\n"
@@ -17,12 +17,19 @@ CubePage::CubePage(QWidget* parent)
                                      "quickPortals",
                                      false,
                                      this)
+               << new CheckboxWidget("Add quick quest recipes:\n"
+                                     "1. key + Id scroll = Horadric Staff\n"
+                                     "2. key + TP scroll = Khalim Will\n",
+                                     "quickQuests",
+                                     false,
+                                     this)
                << new CheckboxWidget("Add socketing recipes:\n"
                                      "1. Normal item + TP scroll x1 + Id scroll x1 = Add 3 sockets\n"
                                      "2. Normal item + TP scroll x1 + Id scroll x2 = Add 4 sockets\n"
                                      "3. Normal item + TP scroll x2 + Id scroll x1 = Add 5 sockets\n"
                                      "4. Normal item + TP scroll x2 + Id scroll x2 = Add 6 sockets\n"
-                                     "5. Unique item + TP scroll x1 + Id scroll x1 = Add 1 socket\n",
+                                     "5. Unique item + TP scroll x1 + Id scroll x1 = Add 1 socket\n"
+                                     "6. Socketed item + TP scroll x1 = Clear sockets\n",
                                      "socketing",
                                      false,
                                      this));
@@ -31,13 +38,14 @@ CubePage::CubePage(QWidget* parent)
 
 KeySet CubePage::generate(TableSet& tableSet, QRandomGenerator& rng) const
 {
-    if (isAllDefault({ "noGemUpgrade", "quickPortals", "socketing" }))
+    if (isAllDefault())
         return {};
     KeySet result;
     result << "cubemain";
 
     const bool noGemUpgrade = getWidgetValue("noGemUpgrade");
     const bool quickPortals = getWidgetValue("quickPortals");
+    const bool quickQuests  = getWidgetValue("quickQuests");
     const bool newSocketing = getWidgetValue("socketing");
 
     TableView view(tableSet.tables["cubemain"]);
@@ -58,7 +66,7 @@ KeySet CubePage::generate(TableSet& tableSet, QRandomGenerator& rng) const
         const StringMap base{
             { "description", "Quick Portal" },
             { "enabled", "1" },
-            { "version", "0" },
+            { "version", "100" },
             { "op", "28" },
             { "*eol", "0" },
             { "input 1", "tbk" },
@@ -83,12 +91,35 @@ KeySet CubePage::generate(TableSet& tableSet, QRandomGenerator& rng) const
         view.appendRow(uber1);
         view.appendRow(uber2);
     }
+    if (quickQuests) {
+        using StringMap = QMap<QString, QString>;
+        const StringMap base{
+            { "description", "Quick Quest" },
+            { "enabled", "1" },
+            { "version", "0" },
+            { "op", "28" },
+            { "*eol", "0" },
+            { "input 1", "key" },
+            { "numinputs", "2" },
+
+        };
+        StringMap staff  = base;
+        staff["input 2"] = "isc";
+        staff["output"]  = "hst";
+
+        StringMap khalim  = base;
+        khalim["input 2"] = "tsc";
+        khalim["output"]  = "qf2";
+
+        view.appendRow(staff);
+        view.appendRow(khalim);
+    }
     if (newSocketing) {
         using StringMap = QMap<QString, QString>;
         const StringMap base{
             { "description", "Quick Sockets" },
             { "enabled", "1" },
-            { "version", "0" },
+            { "version", "100" },
             { "*eol", "0" },
             { "input 1", "\"any,nor,nos\"" },
 
@@ -124,11 +155,18 @@ KeySet CubePage::generate(TableSet& tableSet, QRandomGenerator& rng) const
         socket1["input 3"]   = "isc";
         socket1["output"]    = "\"useitem,sock=1\"";
 
+        StringMap socketClear    = base;
+        socketClear["numinputs"] = "2";
+        socketClear["input 1"]   = "\"any,sock\"";
+        socketClear["input 2"]   = "tsc";
+        socketClear["output"]    = "\"useitem,uns\"";
+
         view.appendRow(socket3);
         view.appendRow(socket4);
         view.appendRow(socket5);
         view.appendRow(socket6);
         view.appendRow(socket1);
+        view.appendRow(socketClear);
     }
 
     return result;
