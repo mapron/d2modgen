@@ -6,7 +6,7 @@
 #include "ConfigPageCube.hpp"
 
 CubePage::CubePage(QWidget* parent)
-    : AbstractPage(parent)
+    : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
                << new CheckboxWidget("Remove gem component from Rune upgrade recipes (Rune x3,x2 => next Rune)", "noGemUpgrade", false, this)
@@ -36,7 +36,7 @@ CubePage::CubePage(QWidget* parent)
     closeLayout();
 }
 
-KeySet CubePage::generate(TableSet& tableSet, QRandomGenerator& rng) const
+KeySet CubePage::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};

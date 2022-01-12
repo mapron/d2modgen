@@ -6,7 +6,7 @@
 #include "ConfigPageDifficulty.hpp"
 
 DifficultyPage::DifficultyPage(QWidget* parent)
-    : AbstractPage(parent)
+    : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
                << new SliderWidget("Monster Attack Rating, multiply by", "mon_ar", 10, 10, this)
@@ -29,7 +29,7 @@ DifficultyPage::DifficultyPage(QWidget* parent)
     closeLayout();
 }
 
-KeySet DifficultyPage::generate(TableSet& tableSet, QRandomGenerator& rng) const
+KeySet DifficultyPage::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     KeySet result;
     if (!isAllDefault({ "mon_ar", "mon_def", "mon_hp", "mon_dam", "mon_xp" })) {

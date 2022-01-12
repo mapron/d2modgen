@@ -7,19 +7,19 @@
 
 #include "ConfigPageAbstract.hpp"
 
-class CubePage : public ConfigPageAbstract {
+class ConfigPageGambling : public ConfigPageAbstract {
 public:
-    CubePage(QWidget* parent);
+    ConfigPageGambling(QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
-        return "Horadric Cube";
+        return "Gambling";
     }
     QString settingKey() const override
     {
-        return "cube";
+        return "gambling";
     }
     KeySet generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };

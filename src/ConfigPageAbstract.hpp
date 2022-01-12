@@ -27,9 +27,9 @@ struct DropSet {
     int getDropSomethingProb() const;
 };
 
-class AbstractPage : public IConfigPage {
+class ConfigPageAbstract : public IConfigPage {
 public:
-    AbstractPage(QWidget* parent);
+    ConfigPageAbstract(QWidget* parent);
 
     // IConfigPage interface
 public:

@@ -9,6 +9,7 @@
 #include "ConfigPageDifficulty.hpp"
 #include "ConfigPageDropFiltering.hpp"
 #include "ConfigPageDrops.hpp"
+#include "ConfigPageGambling.hpp"
 #include "ConfigPageRandomizer.hpp"
 
 QList<IConfigPage*> CreateConfigPages(QWidget* parent)
@@ -19,5 +20,6 @@ QList<IConfigPage*> CreateConfigPages(QWidget* parent)
         new DropFiltering(parent),
         new RandomizerPage(parent),
         new CubePage(parent),
+        new ConfigPageGambling(parent),
     };
 }

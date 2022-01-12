@@ -21,7 +21,7 @@ public:
     QString settingKey() const override;
     void    readSettings(const QJsonObject& data) override;
     void    writeSettings(QJsonObject& data) const override;
-    KeySet  generate(TableSet& tableSet, QRandomGenerator& rng) const override;
+    KeySet  generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 
 private:
     void setLaunch(QString arg);

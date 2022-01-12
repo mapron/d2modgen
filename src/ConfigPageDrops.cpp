@@ -6,7 +6,7 @@
 #include "ConfigPageDrops.hpp"
 
 DropsPage::DropsPage(QWidget* parent)
-    : AbstractPage(parent)
+    : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
                << new SliderWidgetMinMax("Increase Unique Chance", "chance_uni", 1, 50, 1, this)
@@ -23,7 +23,7 @@ DropsPage::DropsPage(QWidget* parent)
     closeLayout();
 }
 
-KeySet DropsPage::generate(TableSet& tableSet, QRandomGenerator& rng) const
+KeySet DropsPage::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault({ "chance_uni", "chance_set", "chance_rare", "nodrop_factor", "high_elite_drops", "good_factor", "rune_factor", "zod_factor", "highrune_switch", "equal_uniques", "perfect_rolls" }))
         return {};

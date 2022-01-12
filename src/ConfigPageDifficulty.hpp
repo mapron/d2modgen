@@ -7,7 +7,7 @@
 
 #include "ConfigPageAbstract.hpp"
 
-class DifficultyPage : public AbstractPage {
+class DifficultyPage : public ConfigPageAbstract {
 public:
     DifficultyPage(QWidget* parent);
 
@@ -21,5 +21,5 @@ public:
     {
         return "difficulty";
     }
-    KeySet generate(TableSet& tableSet, QRandomGenerator& rng) const override;
+    KeySet generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };

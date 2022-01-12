@@ -7,7 +7,7 @@
 
 #include "ConfigPageAbstract.hpp"
 
-class RandomizerPage : public AbstractPage {
+class RandomizerPage : public ConfigPageAbstract {
 public:
     RandomizerPage(QWidget* parent);
 
@@ -55,6 +55,5 @@ public:
     {
         return "randomizer";
     }
-    KeySet generate(TableSet& tableSet, QRandomGenerator& rng) const override;
+    KeySet generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
-

@@ -111,7 +111,7 @@ void RandomizerPage::MagicPropBucket::addParsedBundle(MagicPropBundle inBundle)
 }
 
 RandomizerPage::RandomizerPage(QWidget* parent)
-    : AbstractPage(parent)
+    : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
                << new CheckboxWidget("Enable Item Randomizer", "enable", false, this)
@@ -149,7 +149,7 @@ RandomizerPage::RandomizerPage(QWidget* parent)
     closeLayout();
 }
 
-KeySet RandomizerPage::generate(TableSet& tableSet, QRandomGenerator& rng) const
+KeySet RandomizerPage::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (!getWidgetValue("enable"))
         return {};

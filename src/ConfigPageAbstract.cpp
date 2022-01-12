@@ -48,13 +48,13 @@ int DropSet::getDropSomethingProb() const
     return totalOther;
 }
 
-AbstractPage::AbstractPage(QWidget* parent)
+ConfigPageAbstract::ConfigPageAbstract(QWidget* parent)
     : IConfigPage(parent)
 {
     m_layout = new QVBoxLayout(this);
 }
 
-void AbstractPage::readSettings(const QJsonObject& data)
+void ConfigPageAbstract::readSettings(const QJsonObject& data)
 {
     for (QString key : m_editors.keys()) {
         auto* w = m_editors[key];
@@ -65,7 +65,7 @@ void AbstractPage::readSettings(const QJsonObject& data)
     }
 }
 
-void AbstractPage::writeSettings(QJsonObject& data) const
+void ConfigPageAbstract::writeSettings(QJsonObject& data) const
 {
     for (QString key : m_editors.keys()) {
         auto* w = m_editors[key];
@@ -74,7 +74,7 @@ void AbstractPage::writeSettings(QJsonObject& data) const
     }
 }
 
-bool AbstractPage::isAllDefault() const
+bool ConfigPageAbstract::isAllDefault() const
 {
     for (QString key : m_editors.keys()) {
         auto* w = m_editors[key];
@@ -84,7 +84,7 @@ bool AbstractPage::isAllDefault() const
     return true;
 }
 
-bool AbstractPage::isAllDefault(const QStringList& keys) const
+bool ConfigPageAbstract::isAllDefault(const QStringList& keys) const
 {
     for (const QString& key : keys) {
         auto* w = m_editors[key];
@@ -94,12 +94,12 @@ bool AbstractPage::isAllDefault(const QStringList& keys) const
     return true;
 }
 
-void AbstractPage::addWidget(QWidget* w)
+void ConfigPageAbstract::addWidget(QWidget* w)
 {
     m_layout->addWidget(w);
 }
 
-void AbstractPage::addEditors(QList<IValueWidget*> editors)
+void ConfigPageAbstract::addEditors(QList<IValueWidget*> editors)
 {
     for (IValueWidget* w : editors) {
         m_layout->addWidget(w);
@@ -107,24 +107,24 @@ void AbstractPage::addEditors(QList<IValueWidget*> editors)
     }
 }
 
-void AbstractPage::addEditorsPlain(QList<IValueWidget*> editors)
+void ConfigPageAbstract::addEditorsPlain(QList<IValueWidget*> editors)
 {
     for (IValueWidget* w : editors)
         m_editors[w->objectName()] = w;
 }
 
-void AbstractPage::closeLayout()
+void ConfigPageAbstract::closeLayout()
 {
     m_layout->addStretch();
 }
 
-int AbstractPage::getWidgetValue(const QString& id) const
+int ConfigPageAbstract::getWidgetValue(const QString& id) const
 {
     return m_editors[id]->getValue();
 }
 
-bool AbstractPage::isWidgetValueDefault(const QString& id) const
+bool ConfigPageAbstract::isWidgetValueDefault(const QString& id) const
 {
     return m_editors[id]->isDefault();
 }
-const QSet<QString> AbstractPage::s_ignoreMinMax{ "hit-skill", "charged" };
+const QSet<QString> ConfigPageAbstract::s_ignoreMinMax{ "hit-skill", "charged" };

@@ -7,7 +7,7 @@
 
 #include "ConfigPageAbstract.hpp"
 
-class DropFiltering : public AbstractPage {
+class DropFiltering : public ConfigPageAbstract {
 public:
     struct Item {
         QSet<QString> internalIds;
@@ -28,5 +28,5 @@ public:
     {
         return "drop_filter";
     }
-    KeySet generate(TableSet& tableSet, QRandomGenerator& rng) const override;
+    KeySet generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };

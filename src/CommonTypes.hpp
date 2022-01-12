@@ -39,6 +39,16 @@ struct TableSet {
     QMap<QString, Table> tables;
 };
 
+struct GenerationEnvironment {
+    QString  modName;
+    QString  d2rPath;
+    QString  appData;
+    QString  outPath;
+    bool     exportAllTables;
+    bool     isLegacy;
+    uint32_t seed;
+};
+
 using KeySet = QSet<QString>;
 
 class IConfigPage : public QWidget {
@@ -47,11 +57,12 @@ public:
         : QWidget(parent)
     {}
 
-    virtual QString caption() const                                           = 0;
-    virtual QString settingKey() const                                        = 0;
-    virtual void    readSettings(const QJsonObject& data)                     = 0;
-    virtual void    writeSettings(QJsonObject& data) const                    = 0;
-    virtual KeySet  generate(TableSet& tableSet, QRandomGenerator& rng) const = 0;
+    virtual QString caption() const                        = 0;
+    virtual QString settingKey() const                     = 0;
+    virtual void    readSettings(const QJsonObject& data)  = 0;
+    virtual void    writeSettings(QJsonObject& data) const = 0;
+
+    virtual KeySet generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const = 0;
 };
 
 class IValueWidget : public QWidget {
@@ -120,16 +131,6 @@ private:
     Table&               m_table;
     std::vector<RowView> m_rows;
     QHash<QString, int>  m_columnIndex;
-};
-
-struct GenerationEnvironment {
-    QString  modName;
-    QString  d2rPath;
-    QString  appData;
-    QString  outPath;
-    bool     exportAllTables;
-    bool     isLegacy;
-    uint32_t seed;
 };
 
 struct ColumnsDesc {

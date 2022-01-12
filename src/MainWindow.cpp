@@ -205,7 +205,7 @@ void MainWindow::generate(const GenerationEnvironment& env)
         QRandomGenerator rng;
         rng.seed(env.seed);
         for (auto* page : m_pages)
-            keySet += page->generate(tableSet, rng);
+            keySet += page->generate(tableSet, rng, env);
     }
     qDebug() << "writing output.";
     for (const auto& key : keySet)

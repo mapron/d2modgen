@@ -335,7 +335,7 @@ void MainConfigPage::writeSettings(QJsonObject& data) const
     data["isLegacy"]     = m_impl->d2legacyMode->isChecked();
 }
 
-KeySet MainConfigPage::generate(TableSet& tableSet, QRandomGenerator& rng) const
+KeySet MainConfigPage::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (!m_impl->addKeys->isChecked())
         return {};

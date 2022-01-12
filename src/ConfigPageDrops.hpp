@@ -7,7 +7,7 @@
 
 #include "ConfigPageAbstract.hpp"
 
-class DropsPage : public AbstractPage {
+class DropsPage : public ConfigPageAbstract {
 public:
     DropsPage(QWidget* parent);
 
@@ -21,6 +21,6 @@ public:
     {
         return "drops";
     }
-    KeySet generate(TableSet& tableSet, QRandomGenerator& rng) const override;
+    KeySet generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 
