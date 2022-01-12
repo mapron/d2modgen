@@ -124,7 +124,7 @@ ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
     addEditors(QList<IValueWidget*>()
                << new CheckboxWidget("Enable Item Randomizer", "enable", false, this)
                << new SliderWidgetMinMax("Balance level (lower = more balance)", "balance", 5, s_maxBalanceLevel, s_maxBalanceLevel, this)
-               << new SliderWidgetMinMax("Create several versions of each Unique item", "repeat_uniques", 1, 20, 10, this));
+               << new SliderWidgetMinMax("Number of versions of each unique", "repeat_uniques", 1, 20, 10, this));
 
     auto addMinimax = [this](int minValue, int maxValue, int midValue, const QString& minKey, const QString& maxKey, const QString& overallTitle) {
         IValueWidget* minw = new SliderWidgetMinMax("Min", minKey, minValue, maxValue, midValue, true, this);

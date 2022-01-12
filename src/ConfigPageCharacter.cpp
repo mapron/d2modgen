@@ -72,7 +72,7 @@ ConfigPageCharacter::ConfigPageCharacter(QWidget* parent)
 
 KeySet ConfigPageCharacter::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
-    if (isAllDefault()) // StatPerLevel	SkillsPerLevel
+    if (isAllDefault())
         return {};
     KeySet result;
     result << "charstats";

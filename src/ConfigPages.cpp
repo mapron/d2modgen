@@ -11,6 +11,7 @@
 #include "ConfigPageDropFiltering.hpp"
 #include "ConfigPageDrops.hpp"
 #include "ConfigPageGambling.hpp"
+#include "ConfigPageQol.hpp"
 #include "ConfigPageRandomizer.hpp"
 
 QList<IConfigPage*> CreateConfigPages(QWidget* parent)
@@ -23,5 +24,6 @@ QList<IConfigPage*> CreateConfigPages(QWidget* parent)
         new ConfigPageCube(parent),
         new ConfigPageGambling(parent),
         new ConfigPageCharacter(parent),
+        new ConfigPageQol(parent),
     };
 }
