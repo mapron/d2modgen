@@ -13,7 +13,13 @@ ConfigPageQol::ConfigPageQol(QWidget* parent)
                << new CheckboxWidget("Increase key chain 12 -> 50", "keySize", false, this)
                << new CheckboxWidget("Increase quivers size (250,350) -> 511", "quiverSize", false, this)
                << new CheckboxWidget("Remove limit on Unique charms", "uniqueCharmLimit", false, this)
-               << new CheckboxWidget("Allow using Teleport, BC, BO in town", "weakenTownSkills", false, this));
+               << new CheckboxWidget("Allow using Teleport, BC, BO in town", "weakenTownSkills", false, this)
+               << new SliderWidgetMinMax("Reduce costs of skills and stats on items (affects repair cost mostly)",
+                                         "reduceCost",
+                                         5,
+                                         100,
+                                         100,
+                                         this));
     closeLayout();
 }
 
@@ -28,6 +34,7 @@ KeySet ConfigPageQol::generate(TableSet& tableSet, QRandomGenerator& rng, const 
     const bool quiverSize       = getWidgetValue("quiverSize");
     const bool uniqueCharmLimit = getWidgetValue("uniqueCharmLimit");
     const bool weakenTownSkills = getWidgetValue("weakenTownSkills");
+    const int  reduceCost       = getWidgetValue("reduceCost");
     if (tomeSize || keySize || quiverSize) {
         result << "misc";
         Table&    table = tableSet.tables["misc"];
@@ -59,6 +66,34 @@ KeySet ConfigPageQol::generate(TableSet& tableSet, QRandomGenerator& rng, const 
         for (auto& row : tableView) {
             if (s_exceptions.contains(row["skill"]))
                 row["InTown"] = "1";
+        }
+    }
+    if (reduceCost != 100) {
+        result << "skills"
+               << "itemstatcost";
+        {
+            Table&    table = tableSet.tables["skills"];
+            TableView tableView(table);
+            for (auto& row : tableView) {
+                QString& mult = row["cost mult"];
+                QString& add  = row["cost add"];
+                if (mult.isEmpty())
+                    continue;
+                mult = QString("%1").arg(mult.toInt() * reduceCost / 100);
+                add  = QString("%1").arg(add.toInt() * reduceCost / 100);
+            }
+        }
+        {
+            Table&    table = tableSet.tables["itemstatcost"];
+            TableView tableView(table);
+            for (auto& row : tableView) {
+                QString& mult = row["Multiply"];
+                QString& add  = row["Add"];
+                if (mult.isEmpty())
+                    continue;
+                mult = QString("%1").arg(mult.toInt() * reduceCost / 100);
+                add  = QString("%1").arg(add.toInt() * reduceCost / 100);
+            }
         }
     }
     return result;
