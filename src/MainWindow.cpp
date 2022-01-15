@@ -22,6 +22,7 @@
 #include <QFileDialog>
 #include <QProcess>
 #include <QLabel>
+#include <QJsonDocument>
 #include <QDesktopServices>
 
 MainWindow::MainWindow()
@@ -183,7 +184,7 @@ void MainWindow::generate(const GenerationEnvironment& env)
         QJsonObject modinfo;
         modinfo["name"]     = env.modName;
         modinfo["savepath"] = env.modName + "/";
-        if (!writeJsonFile(modRoot + "modinfo.json", modinfo)) {
+        if (!writeJsonFile(modRoot + "modinfo.json", QJsonDocument(modinfo))) {
             QMessageBox::warning(this, "error", "Failed to write modinfo.");
             return;
         }
@@ -259,14 +260,15 @@ bool MainWindow::saveConfig(const QString& filename) const
         data[page->settingKey()] = pageData;
     }
     QDir().mkpath(QFileInfo(filename).absolutePath());
-    return writeJsonFile(filename, data);
+    return writeJsonFile(filename, QJsonDocument(data));
 }
 
 bool MainWindow::loadConfig(const QString& filename)
 {
-    QJsonObject data;
-    if (!readJsonFile(filename, data))
+    QJsonDocument doc;
+    if (!readJsonFile(filename, doc))
         return false;
+    QJsonObject data = doc.object();
 
     {
         for (auto* page : m_pages)

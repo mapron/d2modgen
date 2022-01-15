@@ -8,7 +8,7 @@
 #include <QFile>
 #include <QJsonDocument>
 
-bool readJsonFile(const QString& file, QJsonObject& data)
+bool readJsonFile(const QString& file, QJsonDocument& data)
 {
     QFile loadFile(file);
 
@@ -20,21 +20,24 @@ bool readJsonFile(const QString& file, QJsonObject& data)
 
     QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
 
-    data = loadDoc.object();
+    data = loadDoc;
 
     return true;
 }
 
-bool writeJsonFile(const QString& file, const QJsonObject& data, bool escape)
+bool writeJsonFile(const QString& file, const QJsonDocument& data, bool escape)
 {
     QFile saveFile(file);
 
     if (!saveFile.open(QIODevice::WriteOnly)) {
         return false;
     }
-    QByteArray datastr = QJsonDocument(data).toJson(QJsonDocument::Indented);
+    QByteArray datastr = data.toJson(QJsonDocument::Indented);
     if (escape)
         datastr.replace(QByteArray("/"), QByteArray("\\/")); // weird battlenet format.
+
+    datastr.replace(QByteArray("\xC3\x83\xC2\xBF\x63"), QByteArray("\xC3\xBF\x63")); // hack: replace color codes converter to UTF-8 from latin-1.
+
     saveFile.write(datastr);
 
     return true;

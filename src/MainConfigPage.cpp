@@ -18,6 +18,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QMessageBox>
+#include <QJsonDocument>
 
 namespace {
 
@@ -386,16 +387,19 @@ void MainConfigPage::setLaunch(QString arg)
         QMessageBox::warning(this, "warning", "Failed to locate Battle.net.config");
         return;
     }
-    QJsonObject data;
-    if (!readJsonFile(config, data)) {
+    QJsonDocument doc;
+    if (!readJsonFile(config, doc)) {
         QMessageBox::warning(this, "warning", "Failed to read data from Battle.net.config");
         return;
     }
+    QJsonObject data = doc.object();
+
     auto valGames                       = data["Games"].toObject();
     auto valOsi                         = valGames["osi"].toObject();
     valOsi["AdditionalLaunchArguments"] = arg;
     valGames["osi"]                     = valOsi;
     data["Games"]                       = valGames;
-    if (!writeJsonFile(config, data, true))
+    doc.setObject(data);
+    if (!writeJsonFile(config, doc, true))
         QMessageBox::warning(this, "warning", "Failed to write data to Battle.net.config");
 }

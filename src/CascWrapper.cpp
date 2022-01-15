@@ -74,8 +74,7 @@ bool ExtractTables(const QString& d2rpath, GenOutput& output, const JsonFileSet&
 
         auto loadDoc(QJsonDocument::fromJson(buffer));
 
-        auto data              = loadDoc.object();
-        output.jsonFiles[path] = data;
+        output.jsonFiles[path] = loadDoc;
     }
 
     return true;

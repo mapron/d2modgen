@@ -7,8 +7,8 @@
 
 #include "CommonTypes.hpp"
 
-bool readJsonFile(const QString& file, QJsonObject& data);
-bool writeJsonFile(const QString& file, const QJsonObject& data, bool escape = false);
+bool readJsonFile(const QString& file, QJsonDocument& data);
+bool writeJsonFile(const QString& file, const QJsonDocument& data, bool escape = false);
 
 bool readCSV(const QString& csvData, Table& table);
 bool writeCSV(QString& csvData, const Table& table);

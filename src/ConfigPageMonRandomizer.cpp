@@ -5,6 +5,8 @@
  */
 #include "ConfigPageMonRandomizer.hpp"
 
+#include <QJsonDocument>
+
 namespace {
 
 constexpr const int s_maxIngameLevel = 110;
@@ -318,7 +320,8 @@ KeySet ConfigPageMonRandomizer::generate(GenOutput& output, QRandomGenerator& rn
         typeTable.newCopies = std::move(newCopies);
     }
     if (output.jsonFiles.contains(s_monstersJson)) {
-        auto& jsonObject = output.jsonFiles[s_monstersJson];
+        auto& jsonDoc = output.jsonFiles[s_monstersJson];
+        auto jsonObject = jsonDoc.object();
         for (const auto& copy : typeTable.newCopies) {
             const auto& sourceId  = copy.sourceId;
             const auto& newId     = copy.newId;
@@ -326,6 +329,7 @@ KeySet ConfigPageMonRandomizer::generate(GenOutput& output, QRandomGenerator& rn
             assert(!modelName.isEmpty());
             jsonObject[newId] = modelName;
         }
+        jsonDoc.setObject(jsonObject);
     }
 
     return result;

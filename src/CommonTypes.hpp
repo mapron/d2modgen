@@ -58,9 +58,9 @@ struct CopyFileInfo {
 };
 
 struct GenOutput {
-    TableSet                   tableSet;
-    QMap<QString, QJsonObject> jsonFiles;
-    QList<CopyFileInfo>        copyFiles;
+    TableSet                     tableSet;
+    QMap<QString, QJsonDocument> jsonFiles;
+    QList<CopyFileInfo>          copyFiles;
 };
 
 class IConfigPage : public QWidget {
