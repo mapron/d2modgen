@@ -229,8 +229,10 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         if (m_impl->d2legacyMode->isChecked())
             args = "-direct -txt";
         m_impl->d2rArgs->setText(args);
+        emit updateModList();
     };
 
+    connect(m_impl->d2rPath, &QLineEdit::textChanged, this, &MainConfigPage::updateModList);
     connect(m_impl->modName, &QLineEdit::textChanged, this, updateArgs);
     connect(copySettings, &QPushButton::clicked, this, [this] {
         const QString saves = ensureTrailingSlash(m_impl->d2rSaves->text());
@@ -287,6 +289,17 @@ void MainConfigPage::createNewSeed()
 {
     auto seed = QRandomGenerator::system()->generate();
     m_impl->seed->setText(QString("%1").arg(seed));
+}
+
+QStringList MainConfigPage::getOtherMods() const
+{
+    QStringList   result;
+    const QString modName = m_impl->modName->text();
+    for (auto d : QDir(m_impl->d2rPath->text() + "/mods").entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        if (d.fileName() != modName)
+            result << d.fileName();
+    }
+    return result;
 }
 
 QString MainConfigPage::caption() const

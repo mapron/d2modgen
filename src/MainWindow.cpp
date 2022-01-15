@@ -7,6 +7,7 @@
 
 #include "MainConfigPage.hpp"
 #include "ConfigPages.hpp"
+#include "ConfigPageMergeMods.hpp"
 #include "Utils.hpp"
 #include "CascWrapper.hpp"
 
@@ -36,9 +37,11 @@ MainWindow::MainWindow()
 
     m_status = new QLabel("Status label.", this);
 
-    MainConfigPage* mainPage = new MainConfigPage(this);
+    auto* mainPage     = new MainConfigPage(this);
+    auto* modMergePage = new ConfigPageMergeMods(this);
     m_pages << mainPage;
     m_pages << CreateConfigPages(this);
+    m_pages << modMergePage;
 
     for (IConfigPage* page : m_pages) {
         QPushButton* pageButton = new QPushButton(page->caption(), this);
@@ -140,8 +143,13 @@ MainWindow::MainWindow()
     connect(newSeed, &QAction::triggered, this, [mainPage] {
         mainPage->createNewSeed();
     });
+    auto updateModList = [modMergePage, mainPage] {
+        modMergePage->setModList(mainPage->getOtherMods());
+    };
+    connect(mainPage, &MainConfigPage::updateModList, this, updateModList);
 
     // misc
+    updateModList();
 
     m_defaultConfig = mainPage->getEnv().appData + "config.json";
     loadConfig(m_defaultConfig);
@@ -162,6 +170,9 @@ void MainWindow::generate(const GenerationEnvironment& env)
     m_status->setText("Start...");
     m_status->repaint();
     qDebug() << "started generation in " << modRoot;
+    if (QFileInfo::exists(modRoot))
+        QDir(modRoot).removeRecursively();
+
     if (!QFileInfo::exists(modRoot))
         QDir().mkpath(modRoot);
     if (!QFileInfo::exists(modRoot)) {
@@ -223,6 +234,16 @@ void MainWindow::generate(const GenerationEnvironment& env)
         if (!QFileInfo::exists(folder))
             QDir().mkpath(folder);
         writeJsonFile(modRoot + iter.key(), iter.value());
+    }
+    for (auto& copyFile : output.copyFiles) {
+        const QString src  = copyFile.srcModRoot + copyFile.relativePath;
+        const QString dest = modRoot + copyFile.relativePath;
+        if (QFile::exists(dest)) {
+            QMessageBox::warning(this, "error", QString("Merge conflict in file: %1").arg(copyFile.relativePath));
+            return;
+        }
+        QDir().mkpath(QFileInfo(dest).absolutePath());
+        QFile::copy(src, dest);
     }
 
     qDebug() << "generation ends.";

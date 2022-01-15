@@ -52,10 +52,15 @@ struct GenerationEnvironment {
 using KeySet      = QSet<QString>;
 using JsonFileSet = QSet<QString>;
 
-struct GenOutput
-{
-    TableSet tableSet;
+struct CopyFileInfo {
+    QString srcModRoot;
+    QString relativePath;
+};
+
+struct GenOutput {
+    TableSet                   tableSet;
     QMap<QString, QJsonObject> jsonFiles;
+    QList<CopyFileInfo>        copyFiles;
 };
 
 class IConfigPage : public QWidget {
