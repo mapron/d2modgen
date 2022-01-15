@@ -49,7 +49,14 @@ struct GenerationEnvironment {
     uint32_t seed;
 };
 
-using KeySet = QSet<QString>;
+using KeySet      = QSet<QString>;
+using JsonFileSet = QSet<QString>;
+
+struct GenOutput
+{
+    TableSet tableSet;
+    QMap<QString, QJsonObject> jsonFiles;
+};
 
 class IConfigPage : public QWidget {
 public:
@@ -57,12 +64,13 @@ public:
         : QWidget(parent)
     {}
 
-    virtual QString caption() const                        = 0;
-    virtual QString settingKey() const                     = 0;
-    virtual void    readSettings(const QJsonObject& data)  = 0;
-    virtual void    writeSettings(QJsonObject& data) const = 0;
+    virtual QString     caption() const                        = 0;
+    virtual QString     settingKey() const                     = 0;
+    virtual void        readSettings(const QJsonObject& data)  = 0;
+    virtual void        writeSettings(QJsonObject& data) const = 0;
+    virtual JsonFileSet extraFiles() const                     = 0;
 
-    virtual KeySet generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const = 0;
+    virtual KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const = 0;
 };
 
 class IValueWidget : public QWidget {
@@ -102,6 +110,8 @@ public:
         const QString& operator[](QString index) const { return parent.m_table.rows[i].data[ind(index)]; }
 
         bool hasColumn(const QString& name) const { return parent.m_columnIndex.contains(name); }
+
+        int index() const { return i; }
 
     private:
         int        ind(const QString& index) const { return parent.m_columnIndex.value(index, -1); }

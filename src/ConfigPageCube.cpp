@@ -36,7 +36,7 @@ ConfigPageCube::ConfigPageCube(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageCube::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageCube::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};
@@ -48,6 +48,7 @@ KeySet ConfigPageCube::generate(TableSet& tableSet, QRandomGenerator& rng, const
     const bool quickQuests  = getWidgetValue("quickQuests");
     const bool newSocketing = getWidgetValue("socketing");
 
+    auto&     tableSet = output.tableSet;
     TableView view(tableSet.tables["cubemain"]);
     for (auto& row : view) {
         QString& description = row["description"];

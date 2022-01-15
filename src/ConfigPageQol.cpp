@@ -23,11 +23,12 @@ ConfigPageQol::ConfigPageQol(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageQol::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageQol::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};
     KeySet result;
+    auto&  tableSet = output.tableSet;
 
     const bool tomeSize         = getWidgetValue("tomeSize");
     const bool keySize          = getWidgetValue("keySize");

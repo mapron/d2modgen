@@ -17,11 +17,12 @@ public:
 
     // IConfigPage interface
 public:
-    QString caption() const override;
-    QString settingKey() const override;
-    void    readSettings(const QJsonObject& data) override;
-    void    writeSettings(QJsonObject& data) const override;
-    KeySet  generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    QString     caption() const override;
+    QString     settingKey() const override;
+    void        readSettings(const QJsonObject& data) override;
+    void        writeSettings(QJsonObject& data) const override;
+    JsonFileSet extraFiles() const override;
+    KeySet      generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 
 private:
     void setLaunch(QString arg);

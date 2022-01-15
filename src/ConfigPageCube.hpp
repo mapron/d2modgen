@@ -21,5 +21,5 @@ public:
     {
         return "cube";
     }
-    KeySet generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };

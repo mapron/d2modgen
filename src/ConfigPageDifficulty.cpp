@@ -29,8 +29,9 @@ ConfigPageDifficulty::ConfigPageDifficulty(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageDifficulty::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageDifficulty::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
+    auto&  tableSet = output.tableSet;
     KeySet result;
     if (!isAllDefault({ "mon_ar", "mon_def", "mon_hp", "mon_dam", "mon_xp" })) {
         result << "monlvl";

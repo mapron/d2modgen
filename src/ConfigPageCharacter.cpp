@@ -70,12 +70,13 @@ ConfigPageCharacter::ConfigPageCharacter(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageCharacter::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageCharacter::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};
     KeySet result;
     result << "charstats";
+    auto&     tableSet  = output.tableSet;
     Table&    charTable = tableSet.tables["charstats"];
     TableView charTableView(charTable);
 
@@ -117,7 +118,7 @@ KeySet ConfigPageCharacter::generate(TableSet& tableSet, QRandomGenerator& rng, 
                     if (value.isEmpty())
                         continue;
                     const int newStat = value.toInt() * statLower / 100;
-                    value = QString("%1").arg(newStat < 10 ? 0 : newStat);
+                    value             = QString("%1").arg(newStat < 10 ? 0 : newStat);
                 }
             }
         }

@@ -35,6 +35,7 @@ public:
 public:
     void readSettings(const QJsonObject& data) override;
     void writeSettings(QJsonObject& data) const override;
+    JsonFileSet extraFiles() const override;
     bool isAllDefault() const;
     bool isAllDefault(const QStringList& keys) const;
 

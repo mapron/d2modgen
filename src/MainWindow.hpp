@@ -7,10 +7,11 @@
 
 #include <QMainWindow>
 #include <QScopedPointer>
+#include <QSet>
 
 class QLabel;
 class IConfigPage;
-struct TableSet;
+struct GenOutput;
 struct GenerationEnvironment;
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -24,8 +25,9 @@ public:
     bool loadConfig(const QString& filename);
 
 private:
-    QString                  m_defaultConfig;
-    QList<IConfigPage*>      m_pages;
-    QLabel*                  m_status;
-    QScopedPointer<TableSet> m_tableCache;
+    QString                   m_defaultConfig;
+    QList<IConfigPage*>       m_pages;
+    QLabel*                   m_status;
+    QScopedPointer<GenOutput> m_outputCache;
+    QSet<QString>             m_cachedFilenames;
 };

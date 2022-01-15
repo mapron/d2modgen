@@ -74,6 +74,11 @@ void ConfigPageAbstract::writeSettings(QJsonObject& data) const
     }
 }
 
+JsonFileSet ConfigPageAbstract::extraFiles() const
+{
+    return {};
+}
+
 bool ConfigPageAbstract::isAllDefault() const
 {
     for (QString key : m_editors.keys()) {

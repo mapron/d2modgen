@@ -10,7 +10,9 @@
 
 #include "Utils.hpp"
 
-bool ExtractTables(const QString& d2rpath, TableSet& tableSet)
+#include <QJsonDocument>
+
+bool ExtractTables(const QString& d2rpath, GenOutput& output, const JsonFileSet& extraFiles)
 {
     const std::string utf8path = d2rpath.toStdString();
     HANDLE            storage;
@@ -25,9 +27,8 @@ bool ExtractTables(const QString& d2rpath, TableSet& tableSet)
     //            return false;
     //        return false;
     //    }
-
-    for (const QString& id : g_tableNames) {
-        const std::string fullId = QString("data:data\\global\\excel\\%1.txt").arg(id).toStdString();
+    auto readCascFile = [storage](QByteArray& data, const QString& filename) -> bool {
+        const std::string fullId = QString("data:%1").arg(filename).toStdString();
         HANDLE            fileHandle;
 
         if (!CascOpenFile(storage, fullId.c_str(), CASC_LOCALE_ALL, 0, &fileHandle)) {
@@ -36,32 +37,51 @@ bool ExtractTables(const QString& d2rpath, TableSet& tableSet)
         }
         MODGEN_SCOPE_EXIT([fileHandle] { CascCloseFile(fileHandle); });
 
-        auto       dataSize = CascGetFileSize(fileHandle, nullptr);
-        QByteArray buffer;
-        buffer.resize(dataSize);
+        auto dataSize = CascGetFileSize(fileHandle, nullptr);
+
+        data.resize(dataSize);
         DWORD wread;
-        if (!CascReadFile(fileHandle, buffer.data(), dataSize, &wread)) {
+        if (!CascReadFile(fileHandle, data.data(), dataSize, &wread)) {
             qWarning() << "failed to read:" << fullId.c_str();
             return false;
         }
+        return true;
+    };
+
+    for (const QString& id : g_tableNames) {
+        QByteArray    buffer;
+        const QString file = QString("data\\global\\excel\\%1.txt").arg(id);
+        if (!readCascFile(buffer, file))
+            return false;
 
         QString data = QString::fromUtf8(buffer);
         Table   table;
         table.id = id;
         if (!readCSV(data, table)) {
-            qWarning() << "failed to parse:" << fullId.c_str();
+            qWarning() << "failed to parse:" << file;
             return false;
         }
 
-        tableSet.tables[id] = std::move(table);
+        output.tableSet.tables[id] = std::move(table);
     }
-    if (tableSet.tables.empty())
+    if (output.tableSet.tables.empty())
         return false;
+
+    for (const QString& path : extraFiles) {
+        QByteArray buffer;
+        if (!readCascFile(buffer, path))
+            return false;
+
+        auto loadDoc(QJsonDocument::fromJson(buffer));
+
+        auto data              = loadDoc.object();
+        output.jsonFiles[path] = data;
+    }
 
     return true;
 }
 
-bool ExtractTablesLegacy(const QString& d2rpath, TableSet& tableSet)
+bool ExtractTablesLegacy(const QString& d2rpath, GenOutput& output)
 {
     const std::string utf8path = d2rpath.toStdString() + "patch_d2.mpq";
     HANDLE            mpq;
@@ -98,9 +118,9 @@ bool ExtractTablesLegacy(const QString& d2rpath, TableSet& tableSet)
             return false;
         }
 
-        tableSet.tables[id] = std::move(table);
+        output.tableSet.tables[id] = std::move(table);
     }
-    if (tableSet.tables.empty())
+    if (output.tableSet.tables.empty())
         return false;
 
     return true;

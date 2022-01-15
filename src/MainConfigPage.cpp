@@ -276,7 +276,7 @@ GenerationEnvironment MainConfigPage::getEnv() const
     env.d2rPath         = ensureTrailingSlash(env.isLegacy ? m_impl->d2legacyPath->text() : m_impl->d2rPath->text());
     env.exportAllTables = m_impl->exportAll->isChecked();
     env.appData         = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-    env.seed            = m_impl->seed->text().toInt();
+    env.seed            = m_impl->seed->text().toUInt();
     env.outPath         = ensureTrailingSlash(m_impl->outPath->text());
     if (env.outPath.isEmpty())
         env.outPath = env.d2rPath;
@@ -335,11 +335,16 @@ void MainConfigPage::writeSettings(QJsonObject& data) const
     data["isLegacy"]     = m_impl->d2legacyMode->isChecked();
 }
 
-KeySet MainConfigPage::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+JsonFileSet MainConfigPage::extraFiles() const
+{
+    return {};
+}
+
+KeySet MainConfigPage::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (!m_impl->addKeys->isChecked())
         return {};
-    Table&    charTable = tableSet.tables["charstats"];
+    Table&    charTable = output.tableSet.tables["charstats"];
     TableView charTableView(charTable);
 
     for (auto& rowView : charTableView) {

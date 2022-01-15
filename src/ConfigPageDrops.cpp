@@ -23,7 +23,7 @@ ConfigPageDrops::ConfigPageDrops(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageDrops::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageDrops::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault({ "chance_uni", "chance_set", "chance_rare", "nodrop_factor", "high_elite_drops", "good_factor", "rune_factor", "zod_factor", "highrune_switch", "equal_uniques", "perfect_rolls" }))
         return {};
@@ -34,7 +34,7 @@ KeySet ConfigPageDrops::generate(TableSet& tableSet, QRandomGenerator& rng, cons
         "Cow (N)",
         "Cow (H)",
     };
-
+    auto& tableSet = output.tableSet;
     {
         TableView view(tableSet.tables["treasureclassex"]);
 

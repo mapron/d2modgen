@@ -18,8 +18,9 @@ ConfigPageGambling::ConfigPageGambling(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageGambling::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageGambling::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
+    auto&      tableSet = output.tableSet;
     KeySet     result;
     const bool charmGamble = getWidgetValue("charmGamble") && env.isLegacy; // disabled for D2R now; it crashes the game.
     if (charmGamble) {

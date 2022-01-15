@@ -39,14 +39,14 @@ ConfigPageDropFiltering::ConfigPageDropFiltering(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageDropFiltering::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageDropFiltering::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};
     KeySet result;
     result << "treasureclassex";
 
-    TableView view(tableSet.tables["treasureclassex"]);
+    TableView view(output.tableSet.tables["treasureclassex"]);
 
     QSet<QString> disabledIds;
     for (auto& item : m_items) {

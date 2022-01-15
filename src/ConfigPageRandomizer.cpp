@@ -157,10 +157,12 @@ ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageRandomizer::generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (!getWidgetValue("enable"))
         return {};
+
+    auto&  tableSet = output.tableSet;
     KeySet result;
     result << "uniqueitems"
            << "runes"

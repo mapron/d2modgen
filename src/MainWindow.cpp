@@ -184,32 +184,46 @@ void MainWindow::generate(const GenerationEnvironment& env)
         QFile::remove(path.absoluteFilePath());
     }
 
-    KeySet   keySet;
-    TableSet tableSet;
+    KeySet      keySet;
+    GenOutput   output;
+    JsonFileSet requiredFiles;
     {
-        if (m_tableCache) {
-            tableSet = *m_tableCache;
+        for (auto* page : m_pages)
+            requiredFiles += page->extraFiles();
+    }
+    {
+        if (m_outputCache && m_cachedFilenames == requiredFiles) {
+            output = *m_outputCache;
         } else {
-            if (env.isLegacy && !ExtractTablesLegacy(env.d2rPath, tableSet) || !env.isLegacy && !ExtractTables(env.d2rPath, tableSet)) {
+            if (env.isLegacy && !ExtractTablesLegacy(env.d2rPath, output) || !env.isLegacy && !ExtractTables(env.d2rPath, output, requiredFiles)) {
                 QMessageBox::warning(this, "error", "Failed to read csv data from D2R folder.");
                 return;
             }
-            m_tableCache.reset(new TableSet(tableSet));
+            m_cachedFilenames = requiredFiles;
+            m_outputCache.reset(new GenOutput(output));
         }
         if (env.exportAllTables)
-            for (auto id : tableSet.tables.keys())
+            for (auto id : output.tableSet.tables.keys())
                 keySet << id;
     }
-    qDebug() << "prepare ended; modifying tables.";
+    qDebug() << "prepare ended; modifying tables. seed=" << env.seed;
     {
         QRandomGenerator rng;
         rng.seed(env.seed);
         for (auto* page : m_pages)
-            keySet += page->generate(tableSet, rng, env);
+            keySet += page->generate(output, rng, env);
     }
     qDebug() << "writing output.";
     for (const auto& key : keySet)
-        writeCSVfile(excelRoot + key + ".txt", tableSet.tables[key]);
+        writeCSVfile(excelRoot + key + ".txt", output.tableSet.tables[key]);
+    auto iter = QMapIterator(output.jsonFiles);
+    while (iter.hasNext()) {
+        iter.next();
+        const QString folder = QFileInfo(modRoot + iter.key()).absolutePath();
+        if (!QFileInfo::exists(folder))
+            QDir().mkpath(folder);
+        writeJsonFile(modRoot + iter.key(), iter.value());
+    }
 
     qDebug() << "generation ends.";
     m_status->setText(QString("Mod '%1' successfully updated (%2).").arg(env.modName).arg(QTime::currentTime().toString("mm:ss")));

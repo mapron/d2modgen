@@ -20,5 +20,6 @@ public:
     {
         return "monRandomizer";
     }
-    KeySet generate(TableSet& tableSet, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    JsonFileSet extraFiles() const override;
+    KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
