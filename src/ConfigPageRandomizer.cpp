@@ -185,8 +185,9 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
         for (auto& row : view) {
             QString& code     = row["code"];
             QString& levelreq = row["levelreq"];
+            QString& level    = row["level"];
             if (!code.isEmpty())
-                miscItemsLevels[code] = levelreq.toInt();
+                miscItemsLevels[code] = std::max(levelreq.toInt(), level.toInt());
         }
     }
     QMap<QString, int> setLevels;
@@ -305,6 +306,9 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
                     continue;
 
                 const int level = levelCb(row);
+                if (level <= 0) {
+                    continue;
+                }
 
                 const int newCnt = rng.bounded(minProps, maxProps + 1);
 
