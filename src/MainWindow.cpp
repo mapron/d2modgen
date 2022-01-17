@@ -33,6 +33,11 @@ MainWindow::MainWindow()
     // widgets
     QStackedWidget* stackedWidget = new QStackedWidget(this);
     QPushButton*    genButton     = new QPushButton("Generate", this);
+    {
+        auto f = genButton->font();
+        f.setPointSize(f.pointSize() + 4);
+        genButton->setFont(f);
+    }
 
     QList<QPushButton*> pageButtons;
 
@@ -48,6 +53,9 @@ MainWindow::MainWindow()
         QPushButton* pageButton = new QPushButton(page->caption(), this);
         pageButton->setCheckable(true);
         pageButtons << pageButton;
+        auto f = pageButton->font();
+        f.setPointSize(f.pointSize() + 2);
+        pageButton->setFont(f);
         stackedWidget->addWidget(page);
     }
     QMenuBar* mainMenu         = menuBar();
