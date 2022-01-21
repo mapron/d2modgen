@@ -5,6 +5,7 @@
  */
 #include "ConfigPages.hpp"
 
+#include "ConfigPageChallenge.hpp"
 #include "ConfigPageCharacter.hpp"
 #include "ConfigPageCube.hpp"
 #include "ConfigPageDifficulty.hpp"
@@ -19,6 +20,7 @@ QList<IConfigPage*> CreateConfigPages(QWidget* parent)
 {
     return QList<IConfigPage*>{
         new ConfigPageDifficulty(parent),
+        new ConfigPageChallenge(parent),
         new ConfigPageDrops(parent),
         new ConfigPageDropFiltering(parent),
         new ConfigPageRandomizer(parent),
