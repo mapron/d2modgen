@@ -271,7 +271,8 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
             else if (row["Repair"] == "1")
                 info.flags << AttributeFlag::Durability;
 
-            if (row["MaxSockets3"] != "0")
+            if (row.hasColumn("MaxSockets3") && row["MaxSockets3"] != "0"
+                || row.hasColumn("MaxSock40") && row["MaxSock40"] != "0")
                 info.flags << AttributeFlag::Sockets;
             if (!row["Shoots"].isEmpty())
                 info.flags << AttributeFlag::Missile;

@@ -197,19 +197,25 @@ KeySet ConfigPageMonRandomizer::generate(GenOutput& output, QRandomGenerator& rn
                 QString& id = row[QString("mon%1").arg(i)];
                 if (id.isEmpty())
                     break;
-                baseIds << typeTable.id2base.value(id);
+                auto base = typeTable.id2base.value(id);
+                if (!base.isEmpty())
+                    baseIds << base;
             }
             for (int i = 1; i < 25; ++i) {
                 QString& id = row[QString("nmon%1").arg(i)];
                 if (id.isEmpty())
                     break;
-                baseIds << typeTable.id2base.value(id);
+                auto base = typeTable.id2base.value(id);
+                if (!base.isEmpty())
+                    baseIds << base;
             }
             for (int i = 1; i < 25; ++i) {
                 QString& id = row[QString("umon%1").arg(i)];
                 if (id.isEmpty())
                     break;
-                ubaseIds << typeTable.id2base.value(id);
+                auto base = typeTable.id2base.value(id);
+                if (!base.isEmpty())
+                    ubaseIds << base;
             }
         }
         nonUniqueBaseIds = baseIds;
@@ -223,7 +229,7 @@ KeySet ConfigPageMonRandomizer::generate(GenOutput& output, QRandomGenerator& rn
                 continue;
             if (row["Name"] == "Act 5 - Mountain Top")
                 continue;
-            const int     normalLevel = row["MonLvlEx"].toInt();
+            const int     normalLevel = row.hasColumn("MonLvlEx") ? row["MonLvlEx"].toInt() : row["MonLvl1Ex"].toInt();
             QSet<QString> normalSet;
             for (int i = 0; i < maxTypes * 2; ++i) {
                 normalSet << idsList[rng.bounded(idsList.size())];
@@ -320,8 +326,8 @@ KeySet ConfigPageMonRandomizer::generate(GenOutput& output, QRandomGenerator& rn
         typeTable.newCopies = std::move(newCopies);
     }
     if (output.jsonFiles.contains(s_monstersJson)) {
-        auto& jsonDoc = output.jsonFiles[s_monstersJson];
-        auto jsonObject = jsonDoc.object();
+        auto& jsonDoc    = output.jsonFiles[s_monstersJson];
+        auto  jsonObject = jsonDoc.object();
         for (const auto& copy : typeTable.newCopies) {
             const auto& sourceId  = copy.sourceId;
             const auto& newId     = copy.newId;
