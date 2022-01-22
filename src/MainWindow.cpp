@@ -179,7 +179,7 @@ void MainWindow::generate(const GenerationEnvironment& env)
     m_status->setText("Start...");
     m_status->repaint();
     qDebug() << "started generation in " << modRoot;
-    if (QFileInfo::exists(modRoot))
+    if (!env.isLegacy && QFileInfo::exists(modRoot))
         QDir(modRoot).removeRecursively();
 
     if (!QFileInfo::exists(modRoot))
@@ -198,6 +198,8 @@ void MainWindow::generate(const GenerationEnvironment& env)
         }
     }
     const QString excelRoot = modRoot + "data/global/excel/";
+    if (env.isLegacy && QFileInfo::exists(excelRoot))
+        QDir(excelRoot).removeRecursively();
     if (!QFileInfo::exists(excelRoot))
         QDir().mkpath(excelRoot);
     for (auto path : QDir(excelRoot).entryInfoList(QStringList() << "*.txt")) {
