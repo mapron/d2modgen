@@ -29,7 +29,7 @@ public:
         QList<MagicPropBundle> bundles;
         QMap<int, int>         lowerLevelBounds;
 
-        void postProcess(bool replaceSkills, bool replaceCharges);
+        void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
 
         void sortByLevel();
 
@@ -44,7 +44,7 @@ public:
         QMap<AttributeFlag, MagicPropBucket> bucketByType;
 
         void addParsedBundle(MagicPropBundle inBundle);
-        void postProcess(bool replaceSkills, bool replaceCharges);
+        void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
 
         QList<const MagicPropBundle*> getRandomBundles(const AttributeFlagSet& allowedTypes,
                                                        QRandomGenerator&       rng,

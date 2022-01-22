@@ -14,27 +14,38 @@ constexpr const int s_maxBalanceLevel = 99;
 constexpr const int s_maxIngameLevel  = 110;
 }
 
-void ConfigPageRandomizer::MagicPropBucket::postProcess(bool replaceSkills, bool replaceCharges)
+void ConfigPageRandomizer::MagicPropBucket::postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock)
 {
     if (!replaceSkills && !replaceCharges)
         return;
 
     for (MagicPropBundle& bundle : bundles) {
-        for (MagicProp& prop : bundle.props) {
-            if (prop.code == "skill") {
+        QList<MagicProp> newProps;
+        for (MagicProp prop : bundle.props) {
+            if (replaceSkills && prop.code == "skill") {
                 if (prop.par == "132") // Leap
+                {
+                    newProps << prop;
                     continue;
+                }
                 prop.code = "oskill";
             }
-            if (prop.code == "charged") {
+            if (replaceCharges && prop.code == "charged") {
                 if (prop.par == "132") // Leap
+                {
+                    newProps << prop;
                     continue;
+                }
                 prop.code = "oskill";
                 if (prop.max.startsWith("-")) {
                     prop.min = prop.max = prop.max.mid(1);
                 }
             }
+            if (skipKnock && (prop.code == "knock" || prop.code == "howl"))
+                continue;
+            newProps << prop;
         }
+        bundle.props = std::move(newProps);
     }
 }
 
@@ -148,10 +159,10 @@ void ConfigPageRandomizer::MagicPropSet::addParsedBundle(MagicPropBundle inBundl
     bucketByType[AttributeFlag::ANY].addParsedBundle(std::move(inBundle));
 }
 
-void ConfigPageRandomizer::MagicPropSet::postProcess(bool replaceSkills, bool replaceCharges)
+void ConfigPageRandomizer::MagicPropSet::postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock)
 {
     for (auto&& bucket : bucketByType) {
-        bucket.postProcess(replaceSkills, replaceCharges);
+        bucket.postProcess(replaceSkills, replaceCharges, skipKnock);
         bucket.sortByLevel();
     }
 }
@@ -224,14 +235,15 @@ ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
     };
     addMinimax(1, 12, 3, "min_uniq_props", "max_uniq_props", "Unique properties");
     addMinimax(1, 7, 3, "min_rw_props", "max_rw_props", "RW properties");
-    addMinimax(1, 9, 3, "min_set_props", "max_set_props", "Set items properties");
+    addMinimax(1, 19, 3, "min_set_props", "max_set_props", "Set items properties");
 
     addEditors(QList<IValueWidget*>()
                << new CheckboxWidget("Always perfect rolls", "perfectRoll", false, this)
                << new CheckboxWidget("Randomize magix/rare affixes", "affixRandom", false, this)
                << new CheckboxWidget("Randomize gem and runes properties", "gemsRandom", false, this)
                << new CheckboxWidget("Replace skills with oskills", "replaceSkills", false, this)
-               << new CheckboxWidget("Replace charges with oskills", "replaceCharges", false, this));
+               << new CheckboxWidget("Replace charges with oskills", "replaceCharges", false, this)
+               << new CheckboxWidget("Remove Knockback/Monster flee", "removeKnock", false, this));
     closeLayout();
 }
 
@@ -335,6 +347,9 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
         auto commonTypeAll = [](const TableView::RowView&) -> AttributeFlagSet {
             return { AttributeFlag::ANY };
         };
+        auto commonTypeEquipNoSock = [](const TableView::RowView&) -> AttributeFlagSet {
+            return { AttributeFlag::ANY, AttributeFlag::Durability };
+        };
         {
             auto&     table = tableSet.tables["uniqueitems"];
             TableView view(table);
@@ -355,6 +370,8 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
         {
             TableView view(tableSet.tables["setitems"]);
             grabProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9), commonLvlReq);
+            grabProps(view, ColumnsDesc("aprop%1a", "apar%1a", "amin%1a", "amax%1a", 5), commonLvlReq);
+            grabProps(view, ColumnsDesc("aprop%1b", "apar%1b", "amin%1b", "amax%1b", 5), commonLvlReq);
             for (auto& row : view) {
                 QString& setId   = row["set"];
                 QString& lvl     = row["lvl"];
@@ -388,7 +405,7 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
             grabProps(view, ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2), commonSetReq);
             grabProps(view, ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8), commonSetReq);
         }
-        all.postProcess(getWidgetValue("replaceSkills"), getWidgetValue("replaceCharges"));
+        all.postProcess(getWidgetValue("replaceSkills"), getWidgetValue("replaceCharges"), getWidgetValue("removeKnock"));
 
         const int  balance     = getWidgetValue("balance");
         const bool perfectRoll = getWidgetValue("perfectRoll");
@@ -398,10 +415,11 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
                                                            const TypeCallback&  typesCb,
                                                            const int            minProps,
                                                            const int            maxProps,
-                                                           const bool           isPerfect) {
+                                                           const bool           isPerfect,
+                                                           const bool           commonSkip) {
             for (auto& row : view) {
                 QString& firstPar = row[columns.m_cols[0].code];
-                if (firstPar.isEmpty())
+                if (commonSkip && firstPar.isEmpty())
                     continue;
 
                 const int level = levelCb(row);
@@ -444,30 +462,37 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
             const int minProps = getWidgetValue("min_uniq_props");
             const int maxProps = std::max(minProps, getWidgetValue("max_uniq_props"));
             TableView view(tableSet.tables["uniqueitems"]);
-            fillProps(
-                view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 12), commonLvlReq, [&code2type, &itemTypeInfo](const TableView::RowView& row) -> AttributeFlagSet {
-                    AttributeFlagSet result{ AttributeFlag::ANY };
-                    const QString    type = code2type.value(row["code"]);
-                    assert(itemTypeInfo.contains(type));
-                    const ItemTypeInfo info = itemTypeInfo.value(type);
-                    result += info.flags;
-                    return result;
-                },
-                minProps,
-                maxProps,
-                perfectRoll);
+            auto      code2flags = [&code2type, &itemTypeInfo](const TableView::RowView& row) -> AttributeFlagSet {
+                AttributeFlagSet result{ AttributeFlag::ANY };
+                const QString    type = code2type.value(row["code"]);
+                assert(itemTypeInfo.contains(type));
+                const ItemTypeInfo info = itemTypeInfo.value(type);
+                result += info.flags;
+                return result;
+            };
+            fillProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 12), commonLvlReq, code2flags, minProps, maxProps, perfectRoll, true);
         }
         {
             const int minProps = getWidgetValue("min_rw_props");
             const int maxProps = std::max(minProps, getWidgetValue("max_rw_props"));
             TableView view(tableSet.tables["runes"]);
-            fillProps(view, ColumnsDesc("T1Code%1", "T1Param%1", "T1Min%1", "T1Max%1", 7), commonRWreq, commonTypeAll, minProps, maxProps, perfectRoll);
+            fillProps(view, ColumnsDesc("T1Code%1", "T1Param%1", "T1Min%1", "T1Max%1", 7), commonRWreq, commonTypeEquipNoSock, minProps, maxProps, perfectRoll, true);
         }
         {
             const int minProps = getWidgetValue("min_set_props");
             const int maxProps = std::max(minProps, getWidgetValue("max_set_props"));
             TableView view(tableSet.tables["setitems"]);
-            fillProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9), commonLvlReq, commonTypeAll, minProps, maxProps, perfectRoll);
+            auto      code2flags = [&code2type, &itemTypeInfo](const TableView::RowView& row) -> AttributeFlagSet {
+                AttributeFlagSet result{ AttributeFlag::ANY };
+                const QString    type = code2type.value(row["item"]);
+                assert(itemTypeInfo.contains(type));
+                const ItemTypeInfo info = itemTypeInfo.value(type);
+                result += info.flags;
+                return result;
+            };
+            fillProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9), commonLvlReq, code2flags, minProps / 2, maxProps / 2, perfectRoll, false);
+            fillProps(view, ColumnsDesc("aprop%1a", "apar%1a", "amin%1a", "amax%1a", 5), commonLvlReq, code2flags, (minProps / 4) + 1, (maxProps / 4) + 1, perfectRoll, false);
+            fillProps(view, ColumnsDesc("aprop%1b", "apar%1b", "amin%1b", "amax%1b", 5), commonLvlReq, code2flags, (minProps / 4) + 1, (maxProps / 4) + 1, perfectRoll, false);
         }
         if (getWidgetValue("gemsRandom")) {
             const int minProps = 1;
@@ -479,9 +504,10 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
                     view, desc, [&miscItemsLevels](const TableView::RowView& row) {
                         return miscItemsLevels.value(row["code"]);
                     },
-                    commonTypeAll,
+                    commonTypeEquipNoSock,
                     minProps,
                     maxProps,
+                    true,
                     true);
             }
             result << "gems";
@@ -499,7 +525,8 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
                     commonTypeAll,
                     minProps,
                     maxProps,
-                    perfectRoll);
+                    perfectRoll,
+                    true);
             }
             result << "magicprefix"
                    << "magicsuffix";
@@ -507,9 +534,9 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
         {
             TableView view(tableSet.tables["sets"]);
 
-            fillProps(view, ColumnsDesc("PCode%1a", "PParam%1a", "PMin%1a", "PMax%1a", 5, 2), commonSetReq, commonTypeAll, 1, 5, true);
-            fillProps(view, ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2), commonSetReq, commonTypeAll, 1, 5, true);
-            fillProps(view, ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8), commonSetReq, commonTypeAll, 3, 8, true);
+            fillProps(view, ColumnsDesc("PCode%1a", "PParam%1a", "PMin%1a", "PMax%1a", 5, 2), commonSetReq, commonTypeAll, 1, 5, true, false);
+            fillProps(view, ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2), commonSetReq, commonTypeAll, 1, 5, true, false);
+            fillProps(view, ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8), commonSetReq, commonTypeAll, 3, 8, true, false);
         }
         return result;
     }

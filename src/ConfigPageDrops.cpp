@@ -202,7 +202,7 @@ KeySet ConfigPageDrops::generate(GenOutput& output, QRandomGenerator& rng, const
             updateMinParam(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9));
         }
         {
-            for (const char* table : { "magicprefix", "magicsuffix" }) {
+            for (const char* table : { "magicprefix", "magicsuffix", "automagic" }) {
                 TableView view(tableSet.tables[table]);
                 updateMinParam(view, ColumnsDesc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3));
             }
