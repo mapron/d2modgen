@@ -6,6 +6,7 @@
 #pragma once
 
 #include "ConfigPageAbstract.hpp"
+#include "AttributeHelper.hpp"
 
 class ConfigPageRandomizer : public ConfigPageAbstract {
 public:
@@ -40,9 +41,20 @@ public:
     };
 
     struct MagicPropSet {
-        // @todo: do we really need to handle item-specific properties (knockback, replinish quantity)?
-        static const QString           s_all;
-        QMap<QString, MagicPropBucket> bucketByType;
+        QMap<AttributeFlag, MagicPropBucket> bucketByType;
+
+        void addParsedBundle(MagicPropBundle inBundle);
+        void postProcess(bool replaceSkills, bool replaceCharges);
+
+        QList<const MagicPropBundle*> getRandomBundles(const AttributeFlagSet& allowedTypes,
+                                                       QRandomGenerator&       rng,
+                                                       int                     count,
+                                                       int                     level,
+                                                       int                     balance) const;
+    };
+
+    struct ItemTypeInfo {
+        QSet<AttributeFlag> flags;
     };
 
     // IConfigPage interface

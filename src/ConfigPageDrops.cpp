@@ -4,6 +4,7 @@
  * See LICENSE file for details.
  */
 #include "ConfigPageDrops.hpp"
+#include "AttributeHelper.hpp"
 
 ConfigPageDrops::ConfigPageDrops(QWidget* parent)
     : ConfigPageAbstract(parent)
@@ -181,7 +182,7 @@ KeySet ConfigPageDrops::generate(GenOutput& output, QRandomGenerator& rng, const
                     auto& min = row[col.min];
                     if (min.isEmpty())
                         break;
-                    if (!s_ignoreMinMax.contains(row[col.code]))
+                    if (isMinMaxRange(row[col.code]))
                         min = row[col.max];
                 }
             }

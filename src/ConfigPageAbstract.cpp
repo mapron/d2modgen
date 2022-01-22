@@ -132,4 +132,3 @@ bool ConfigPageAbstract::isWidgetValueDefault(const QString& id) const
 {
     return m_editors[id]->isDefault();
 }
-const QSet<QString> ConfigPageAbstract::s_ignoreMinMax{ "hit-skill", "charged" };
