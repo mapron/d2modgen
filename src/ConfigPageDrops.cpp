@@ -174,7 +174,8 @@ KeySet ConfigPageDrops::generate(GenOutput& output, QRandomGenerator& rng, const
                << "runes"
                << "setitems"
                << "magicprefix"
-               << "magicsuffix";
+               << "magicsuffix"
+               << "automagic";
         auto updateMinParam = [](TableView&         view,
                                  const ColumnsDesc& columns) {
             for (auto& row : view) {

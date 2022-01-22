@@ -51,17 +51,21 @@ A lot of features enabled here - more Boss drops, increased Uniques/drop count/R
 4. You can check "Export all .txt" checkbox, and have you own mod setup instead (mod folder is filled by D2R internal files).
 
 # Feature tabs
-![tab_difficulty](docs/tab_difficulty.png "Difficulty")  
-Difficulty settings.  
+#### Difficulty settings.  
+![Difficulty](docs/tab_difficulty.png)  
 First there are sliders to adjust monsters AR/Def/HP/Damage/XP. That will affect all monsters on all difficulties.  
 Next, "Density" slider - that will affect increase of density of regular monsters (note that it is higly dependant on map and tiles; max density can be reached on open area tiles.)  
 Boss packs slider icreate number of Champion/Uniques in zones; again, that also not a precise setting.  
 Checkbox can be used to quickly setup boss count on Normal and Nightmare exactly the same as on Hell.  
 And the last, you can adjust level area on all maps; note that max value of 85 is still used (so set to 20 to basically make all Hell 85 areas).  
-  
-  
-![tab_drops](docs/tab_drops.png "Drops")  
-Drops improvement.  
+
+#### Challenge difficulty.  
+![Challenge](docs/tab_challenge.png)  
+First, you can disable potion drops entirely (that's not the same as drop filter).  
+Second, you can change resistance penalty for each difficulty from default 0/40/100.  
+
+#### Drops improvement.  
+![Drops](docs/tab_drops.png)  
 First 3 sliders are for increasing chance for Uniques/Sets/Rares. Note that it's not than accurate when you have already high chance (like killing low level monster with high MF).  
 NoDrop slider provides ability to gradually reduce NoDrop parts (it basically similar to increasing players count in the game).  
 "Increase Champion/Unique item count" make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one.  
@@ -69,23 +73,60 @@ NoDrop slider provides ability to gradually reduce NoDrop parts (it basically si
 "Increase Runes chance" tunes Runes specifically compared to other jewellery.  
 Switch Ber/Jah with Cham/Zod pretty descriptive: when game deside to drop Jah rune, it drops Zod instead.  
 Final slider is when everything above is not satisfying and you really really want high runes to be more common. Please don't do that :).  
+"Make all Uniques have same rarity" option for making, for example Tyrael's and Templar's have same chance.  
+"Always perfect rolls" for those who want perfect rolls without Randomizer.  
   
-  
-![tab_random](docs/tab_random.png "Randomizer")  
-Randomizer. Firs you need to set topmost checbox to enable everything.  
+#### Drop filter.  
+![Drop filter](docs/tab_drop_filtering.png)  
+This tab consists of two sections:  
+1. Make some items have compact names, like "!MP5" for Super mana Potion. 
+2. Hide item labels on the ground (you still be able to pick them). 
+
+#### Item randomizer.
+![Randomizer](docs/tab_random.png)  
+First you need to set topmost checkbox to enable everything.  
 Balance level - determine level difference to be used when selecting new properties for item/rune/etc. With '10' it will select between level-10 and level+5 at first, if there are few candidates, then it will select 0..level+5, and finally it will try fully random. In short, lower value = more balance in terms of original affix level and item level.  
 Next four sliders set min/max amount of affixes on Uniques, Sets and RuneWords. Sets (whole bonus)/gems/runes will have 1 as minimum and maximum possible as maximum.  
-Always perfect means simply minimum roll becomes maximum.  
+Always perfect means simply minimum roll becomes maximum (where it makes sense).  
 Randomize magic/rare include modification of regular affixes - so they can include properties of any other item in the game.  
 Same for last option for gems.  
 
+#### Monster randomizer.
+![MonsterRandomizer](docs/tab_random_monsters.png)  
+When this feature enabled, now any area in the game can spawn any basic monsters (Super Uniques, Act bosses etc not affected).  
+For normal difficulty, each monster will have a "level-adjusted" copy which correspond to area level (so you will have adequate monster stats in Act 1 for guest from Act 5).  
+For Nightmare/Hell, adjustment is done by area level.  
+Monster will have adjusted their minion spawns and skill levels, too.  
+First option choose how many different types will spawn at once (default is 3).  
+Second option defines how many possibilites for monster types are exist; Make this value lower if you want less variety on game restart.
+
+#### Horadric cube.
+![Horadric](docs/tab_horadric.png)  
+Create some recipes to cheese/cut corners around the game. Input and results are self-explanatory.  
+
+#### Gambling.
+![Gambling](docs/tab_gamble.png)  
+Tab have sliders to increase basic chance of getting Unique/Rare/Set/High-quality item.  
+
+#### Character.
+![Character](docs/tab_char.png)  
+First three options allow you to change starting items for characters: add Cube, replace id scroll with Tome (useful for No-town runs), and replace hp1 with mp1 potions.  
+Next two sliders allow you to change how many skill and stat poits you get on levelup.  
+Last slider allow you to lower Strength and Dexterity requirements on all items.  
+
+#### Quality of life.
+![Qol](docs/tab_qol.png)  
+Tiny quality things to make you life easier:  
+1. Insreasing stacks for tomes/quivers/keys;
+2. Remove Unique charm limit (useful with randomizer);
+3. Allow usage of some skills in the town;
+4. Reduce item costs. 
 
 # KnownIssues
 1. If there is many dead bodies on the screen, some portals won't open (e.g. near Summoner). Workaround - go far away to another location, wait while corpses disappeared and then trigger the portal.
 2. If charges spawned on a gem/rune, it will constantly update count on gem mouse hover. This glitch is fixes after gem is inserted in socket.
-3. Game trying to render limited item label on the screen - if there are too many items, you will see only closest ones.
-4. Some mods can be spawn on items that do not support them (like Replenish quantity on Amulet). (TODO - future releases)
-5. You need to completely quit out of the game for Diablo 2 Resurrected, to mod changes apply. In Diablo 2 legacy, however, you can just reload save again without quitting.
+3. Game trying to render limited item label on the screen - if there are too many items, you will see only closest ones. Use DropFiltering tab feature.
+4. You need to completely quit out of the game for Diablo 2 Resurrected, to mod changes apply. In Diablo 2 legacy, however, you can just reload save again without quitting.
 
 # Q&A and Troubleshooting
 If you encounter an issue (hang/crash) in generator itself, grab applog.txt (File->Browse to settings folder) (make sure to copy file just after the crash). Then create an issue and attach this file.  
