@@ -9,6 +9,7 @@
 
 class QCheckBox;
 class CheckboxWidget : public IValueWidget {
+    Q_OBJECT
 public:
     CheckboxWidget(const QString& caption,
                    const QString& id,
@@ -20,6 +21,9 @@ public:
     void setValue(int value) override;
     int  getValue() const override;
     bool isDefault() const override;
+
+signals:
+    void toggled(bool);
 
 private:
     const bool m_default;

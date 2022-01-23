@@ -296,6 +296,8 @@ const QHash<QString, int> s_attributesIndex = [] {
 
 bool isUnusedAttribute(const QString& code)
 {
+    if (code.startsWith('*'))
+        return true;
     const bool result = s_attributesIndex.value(code, -1) == -1;
     if (!result)
         assert(s_unused.contains(code) || "Unknown code");
@@ -314,6 +316,9 @@ const AttributeDesc& getAttributeDesc(const QString& code)
 
 bool isMinMaxRange(const QString& code)
 {
+    if (isUnusedAttribute(code))
+        return false;
+
     const AttributeDesc& desc     = getAttributeDesc(code);
     const bool           noMinMax = desc.flags.contains(AttributeFlag::NoMinMax);
     const bool           byLevel  = desc.flags.contains(AttributeFlag::PerLevel);

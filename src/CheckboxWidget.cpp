@@ -18,6 +18,7 @@ CheckboxWidget::CheckboxWidget(const QString& caption,
     setObjectName(id);
     m_checkBox = new QCheckBox(caption, this);
     m_checkBox->setChecked(m_default);
+    connect(m_checkBox, &QCheckBox::toggled, this, &CheckboxWidget::toggled);
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);

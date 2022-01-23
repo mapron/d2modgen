@@ -20,12 +20,12 @@ void ConfigPageRandomizer::MagicPropBucket::postProcess(bool replaceSkills, bool
         return;
 
     for (MagicPropBundle& bundle : bundles) {
-        QList<MagicProp> newProps;
+        std::vector<MagicProp> newProps;
         for (MagicProp prop : bundle.props) {
             if (replaceSkills && prop.code == "skill") {
                 if (prop.par == "132") // Leap
                 {
-                    newProps << prop;
+                    newProps.push_back(std::move(prop));
                     continue;
                 }
                 prop.code = "oskill";
@@ -33,7 +33,7 @@ void ConfigPageRandomizer::MagicPropBucket::postProcess(bool replaceSkills, bool
             if (replaceCharges && prop.code == "charged") {
                 if (prop.par == "132") // Leap
                 {
-                    newProps << prop;
+                    newProps.push_back(std::move(prop));
                     continue;
                 }
                 prop.code = "oskill";
@@ -43,7 +43,7 @@ void ConfigPageRandomizer::MagicPropBucket::postProcess(bool replaceSkills, bool
             }
             if (skipKnock && (prop.code == "knock" || prop.code == "howl"))
                 continue;
-            newProps << prop;
+            newProps.push_back(std::move(prop));
         }
         bundle.props = std::move(newProps);
     }
@@ -67,7 +67,7 @@ void ConfigPageRandomizer::MagicPropBucket::sortByLevel()
 std::pair<int, int> ConfigPageRandomizer::MagicPropBucket::getBounds(int level, int balance, int minRange) const
 {
     if (balance >= s_maxBalanceLevel)
-        return { 0, bundles.size() };
+        return { 0, static_cast<int>(bundles.size()) };
 
     int lowerIndex  = lowerLevelBounds.value(std::clamp(level - balance, 0, s_maxIngameLevel));
     int higherIndex = lowerLevelBounds.value(std::clamp(level + (balance / 2), 0, s_maxIngameLevel));
@@ -91,7 +91,7 @@ const ConfigPageRandomizer::MagicPropBundle& ConfigPageRandomizer::MagicPropBuck
 
 void ConfigPageRandomizer::MagicPropBucket::addParsedBundle(MagicPropBundle inBundle)
 {
-    if (inBundle.props.isEmpty())
+    if (inBundle.props.empty())
         return;
     static const QList<QSet<QString>> s_bundledIds{
         QSet<QString>{ "ltng-min", "ltng-max" },
@@ -108,22 +108,23 @@ void ConfigPageRandomizer::MagicPropBucket::addParsedBundle(MagicPropBundle inBu
     auto consume = [&inBundle, &isBundled, this]() -> bool {
         if (inBundle.props.empty())
             return false;
-        auto            prop = inBundle.props.takeFirst();
+        auto prop = inBundle.props[0];
+        inBundle.removeAt(0);
         MagicPropBundle bundle;
-        bundle.props << prop;
+        bundle.props.push_back(std::move(prop));
         bundle.level = prop.level;
         if (!isBundled(prop.code)) {
-            bundles << bundle;
+            bundles.push_back(std::move(bundle));
             return true;
         }
         for (int i = inBundle.props.size() - 1; i >= 0; --i) {
-            const auto& prop = inBundle.props[i];
+            auto& prop = inBundle.props[i];
             if (isBundled(prop.code)) {
-                bundle.props << prop;
-                inBundle.props.removeAt(i);
+                bundle.props.push_back(std::move(prop));
+                inBundle.removeAt(i);
             }
         }
-        bundles << bundle;
+        bundles.push_back(std::move(bundle));
 
         return true;
     };
@@ -134,7 +135,7 @@ void ConfigPageRandomizer::MagicPropBucket::addParsedBundle(MagicPropBundle inBu
 
 void ConfigPageRandomizer::MagicPropSet::addParsedBundle(MagicPropBundle inBundle)
 {
-    if (inBundle.props.isEmpty())
+    if (inBundle.props.empty())
         return;
 
     auto splitByProperty = [this](MagicPropBundle& inBundle, AttributeFlag flag) {
@@ -142,19 +143,20 @@ void ConfigPageRandomizer::MagicPropSet::addParsedBundle(MagicPropBundle inBundl
         hasProperty.level = inBundle.level;
 
         for (int i = inBundle.props.size() - 1; i >= 0; --i) {
-            const auto& prop = inBundle.props[i];
+            auto&       prop = inBundle.props[i];
             const auto& desc = getAttributeDesc(prop.code);
             if (desc.flags.contains(flag)) {
-                hasProperty.props << prop;
-                inBundle.props.removeAt(i);
+                hasProperty.props.push_back(std::move(prop));
+                inBundle.removeAt(i);
             }
         }
-        bucketByType[flag].addParsedBundle(hasProperty);
+        bucketByType[flag].addParsedBundle(std::move(hasProperty));
     };
 
     splitByProperty(inBundle, AttributeFlag::Durability);
     splitByProperty(inBundle, AttributeFlag::Quantity);
     splitByProperty(inBundle, AttributeFlag::Sockets);
+    splitByProperty(inBundle, AttributeFlag::Missile);
 
     bucketByType[AttributeFlag::ANY].addParsedBundle(std::move(inBundle));
 }
@@ -162,8 +164,8 @@ void ConfigPageRandomizer::MagicPropSet::addParsedBundle(MagicPropBundle inBundl
 void ConfigPageRandomizer::MagicPropSet::postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock)
 {
     for (auto&& bucket : bucketByType) {
-        bucket.postProcess(replaceSkills, replaceCharges, skipKnock);
-        bucket.sortByLevel();
+        bucket.second.postProcess(replaceSkills, replaceCharges, skipKnock);
+        bucket.second.sortByLevel();
     }
 }
 
@@ -173,33 +175,33 @@ QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicP
                                                                                                          int                     level,
                                                                                                          int                     balance) const
 {
+    if (!count)
+        return {};
+
     QList<const ConfigPageRandomizer::MagicPropBundle*> result;
 
-    struct Range {
-        AttributeFlag type;
-        int           offset;
-        int           size;
-    };
-    QList<Range> ranges;
-    int          totalSize = 0;
+    std::vector<BucketRange> branges;
+    int                      totalSize = 0;
 
     for (const auto type : allowedTypes) {
-        const auto [lowerBound, upperBound] = bucketByType[type].getBounds(level, balance, 2);
-        const auto size                     = upperBound - lowerBound - 1;
+        const auto p          = bucketByType.at(type).getBounds(level, balance, 2);
+        const auto lowerBound = p.first;
+        const auto upperBound = p.second;
+        const auto size       = upperBound - lowerBound - 1;
         if (size <= 0)
             continue;
-        ranges << Range{ type, lowerBound, size };
+        branges.push_back(BucketRange{ type, lowerBound, size });
         totalSize += size;
     }
     assert(totalSize > 0);
     for (int i = 0; i < count; ++i) {
-        int index = rng.bounded(totalSize + 1);
-        for (const Range& range : ranges) {
+        int index = rng.bounded(totalSize);
+        for (const BucketRange& range : branges) {
             if (index >= range.size) {
                 index -= range.size;
                 continue;
             }
-            result << &(bucketByType[range.type].bundles[index]);
+            result << &(bucketByType.at(range.type).bundles[index]);
             break;
         }
     }
@@ -211,10 +213,13 @@ ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new SliderWidgetMinMax("Balance level (lower = more balance)", "balance", 5, s_maxBalanceLevel, s_maxBalanceLevel, this)
-               << new SliderWidgetMinMax("Number of versions of each unique", "repeat_uniques", 1, 20, 10, this));
+               << new SliderWidgetMinMax("Balance level (lower = more balance, 99=chaos)", "balance", 5, s_maxBalanceLevel, s_maxBalanceLevel, this)
+               << new SliderWidgetMinMax("Item type fit percent (0% = all affixes fully random, 100% = all according to item type)", "itemFit", 0, 100, 0, this)
+               << new SliderWidgetMinMax("Number of versions of each unique (you will have N different uniques with differnet stats)", "repeat_uniques", 1, 20, 10, this));
 
-    auto addMinimax = [this](int minValue, int maxValue, int midValue, const QString& minKey, const QString& maxKey, const QString& overallTitle) {
+    auto* keepCount = new CheckboxWidget("Keep original property count", "keepCount", false, this);
+    addEditors(QList<IValueWidget*>() << keepCount);
+    auto addMinimax = [this, keepCount](int minValue, int maxValue, int midValue, const QString& minKey, const QString& maxKey, const QString& overallTitle) {
         IValueWidget* minw = new SliderWidgetMinMax("Min", minKey, minValue, maxValue, midValue, true, this);
         IValueWidget* maxw = new SliderWidgetMinMax("Max", maxKey, minValue, maxValue, maxValue, true, this);
 
@@ -231,6 +236,7 @@ ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
 
         addWidget(wrapper);
         addEditorsPlain({ minw, maxw });
+        connect(keepCount, &CheckboxWidget::toggled, wrapper, &QWidget::setDisabled);
     };
     addMinimax(1, 12, 3, "min_uniq_props", "max_uniq_props", "Unique properties");
     addMinimax(1, 7, 3, "min_rw_props", "max_rw_props", "RW properties");
@@ -329,7 +335,7 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
                         break;
                     if (isUnusedAttribute(mp.code))
                         continue;
-                    bundle.props << mp;
+                    bundle.props.push_back(std::move(mp));
                 }
                 all.addParsedBundle(std::move(bundle));
             }
@@ -406,14 +412,15 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
 
         const int  balance     = getWidgetValue("balance");
         const bool perfectRoll = getWidgetValue("perfectRoll");
-        auto       fillProps   = [&all, &code2type, &rng, balance](TableView&           view,
-                                                           const ColumnsDesc&   columns,
-                                                           const LevelCallback& levelCb,
-                                                           const TypeCallback&  typesCb,
-                                                           const int            minProps,
-                                                           const int            maxProps,
-                                                           const bool           isPerfect,
-                                                           const bool           commonSkip) {
+        const bool keepCount   = getWidgetValue("keepCount");
+        auto       fillProps   = [&all, &code2type, &rng, balance, keepCount](TableView&           view,
+                                                                      const ColumnsDesc&   columns,
+                                                                      const LevelCallback& levelCb,
+                                                                      const TypeCallback&  typesCb,
+                                                                      const int            minProps,
+                                                                      const int            maxProps,
+                                                                      const bool           isPerfect,
+                                                                      const bool           commonSkip) {
             for (auto& row : view) {
                 QString& firstPar = row[columns.m_cols[0].code];
                 if (commonSkip && firstPar.isEmpty())
@@ -423,8 +430,14 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
                 if (level <= 0) {
                     continue;
                 }
+                int originalCount = 0;
+                for (const auto& col : columns.m_cols) {
+                    if (row[col.code].isEmpty())
+                        break;
+                    originalCount++;
+                }
                 const AttributeFlagSet allowedTypes = typesCb(row);
-                const int              newCnt       = rng.bounded(minProps, maxProps + 1);
+                const int              newCnt       = keepCount ? originalCount : rng.bounded(minProps, maxProps + 1);
                 const auto             bundles      = all.getRandomBundles(allowedTypes, rng, newCnt, level, balance);
 
                 int col = 0;
@@ -495,7 +508,9 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
             const int minProps = 1;
             const int maxProps = 3;
             TableView view(tableSet.tables["gems"]);
-            for (QString prefix : QStringList{ "weaponMod", "helmMod", "shieldMod" }) {
+
+            static const QStringList s_prefixes{ "weaponMod", "helmMod", "shieldMod" };
+            for (const QString& prefix : s_prefixes) {
                 const ColumnsDesc desc(prefix + "%1Code", prefix + "%1Param", prefix + "%1Min", prefix + "%1Max", 3);
                 fillProps(
                     view, desc, [&miscItemsLevels](const TableView::RowView& row) {

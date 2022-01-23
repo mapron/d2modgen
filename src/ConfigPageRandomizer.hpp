@@ -21,13 +21,15 @@ public:
     };
 
     struct MagicPropBundle {
-        QList<MagicProp> props;
-        int              level = 0;
+        std::vector<MagicProp> props;
+        int                    level = 0;
+
+        void removeAt(int i) { props.erase(std::next(props.begin(), i)); }
     };
 
     struct MagicPropBucket {
-        QList<MagicPropBundle> bundles;
-        QMap<int, int>         lowerLevelBounds;
+        std::vector<MagicPropBundle> bundles;
+        QMap<int, int>               lowerLevelBounds;
 
         void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
 
@@ -41,7 +43,7 @@ public:
     };
 
     struct MagicPropSet {
-        QMap<AttributeFlag, MagicPropBucket> bucketByType;
+        std::map<AttributeFlag, MagicPropBucket> bucketByType;
 
         void addParsedBundle(MagicPropBundle inBundle);
         void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
@@ -55,6 +57,12 @@ public:
 
     struct ItemTypeInfo {
         QSet<AttributeFlag> flags;
+    };
+
+    struct BucketRange {
+        AttributeFlag type;
+        int           offset;
+        int           size;
     };
 
     // IConfigPage interface
