@@ -79,7 +79,7 @@ std::pair<int, int> ConfigPageRandomizer::MagicPropBucket::getBounds(int level, 
     lowerIndex = 0;
     if (higherIndex - lowerIndex >= minRange)
         return { lowerIndex, higherIndex };
-    return { 0, bundles.size() };
+    return { 0, static_cast<int>(bundles.size()) };
 }
 
 const ConfigPageRandomizer::MagicPropBundle& ConfigPageRandomizer::MagicPropBucket::getRandomBundle(QRandomGenerator& rng, int level, int balance) const
@@ -111,8 +111,9 @@ void ConfigPageRandomizer::MagicPropBucket::addParsedBundle(MagicPropBundle inBu
         auto prop = inBundle.props[0];
         inBundle.removeAt(0);
         MagicPropBundle bundle;
+        bundle.level     = prop.level;
+        bundle.itemTypes = prop.itemTypes;
         bundle.props.push_back(std::move(prop));
-        bundle.level = prop.level;
         if (!isBundled(prop.code)) {
             bundles.push_back(std::move(bundle));
             return true;
@@ -138,9 +139,13 @@ void ConfigPageRandomizer::MagicPropSet::addParsedBundle(MagicPropBundle inBundl
     if (inBundle.props.empty())
         return;
 
+    for (auto code : inBundle.itemTypes.include)
+        assert(code);
+
     auto splitByProperty = [this](MagicPropBundle& inBundle, AttributeFlag flag) {
         MagicPropBundle hasProperty;
-        hasProperty.level = inBundle.level;
+        hasProperty.level     = inBundle.level;
+        hasProperty.itemTypes = inBundle.itemTypes;
 
         for (int i = inBundle.props.size() - 1; i >= 0; --i) {
             auto&       prop = inBundle.props[i];
@@ -184,6 +189,8 @@ QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicP
     int                      totalSize = 0;
 
     for (const auto type : allowedTypes) {
+        if (!bucketByType.contains(type))
+            continue;
         const auto p          = bucketByType.at(type).getBounds(level, balance, 2);
         const auto lowerBound = p.first;
         const auto upperBound = p.second;
@@ -209,12 +216,61 @@ QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicP
     return result;
 }
 
+QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicPropUniverse::getRandomBundles(const AttributeFlagSet& allowedTypes,
+                                                                                                              const ItemCodeFilter&   query,
+                                                                                                              int                     specificItemUsage,
+                                                                                                              QRandomGenerator&       rng,
+                                                                                                              int                     count,
+                                                                                                              int                     level,
+                                                                                                              int                     balance) const
+{
+    if (!specificItemUsage)
+        return all.getRandomBundles(allowedTypes, rng, count, level, balance);
+
+    QList<const ConfigPageRandomizer::MagicPropBundle*> result;
+    const ItemCodeSet                                   codeSet       = query.include; //processQuery(query);
+    const ItemCode                                      code          = (*codeSet.begin());
+    int                                                 specificCount = 0;
+    for (int i = 0; i < count; ++i) {
+        if (rng.bounded(100) < specificItemUsage)
+            specificCount++;
+    }
+    result += propSetByCode.at(code).getRandomBundles(allowedTypes, rng, count, level, balance);
+    result += all.getRandomBundles(allowedTypes, rng, count - specificCount, level, balance);
+    return result;
+}
+
+ConfigPageRandomizer::ItemCodeSet ConfigPageRandomizer::MagicPropUniverse::processQuery(const ItemCodeFilter& query) const
+{
+    ItemCodeSet codeSet;
+    codeSet += query.include;
+    for (const auto code : query.include)
+        codeSet += itemTypeInfo.at(code).nested;
+    codeSet -= query.exclude;
+    for (const auto code : query.exclude)
+        codeSet -= itemTypeInfo.at(code).nested;
+    return codeSet;
+}
+
+void ConfigPageRandomizer::MagicPropUniverse::fillPropSets()
+{
+    for (const auto& bucket : all.bucketByType) {
+        for (const MagicPropBundle& bundle : bucket.second.bundles) {
+            const ItemCodeSet codeSet = processQuery(bundle.itemTypes);
+
+            for (const auto code : codeSet) {
+                propSetByCode[code].bucketByType[bucket.first].bundles.push_back(bundle);
+            }
+        }
+    }
+}
+
 ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
                << new SliderWidgetMinMax("Balance level (lower = more balance, 99=chaos)", "balance", 5, s_maxBalanceLevel, s_maxBalanceLevel, this)
-               << new SliderWidgetMinMax("Item type fit percent (0% = all affixes fully random, 100% = all according to item type)", "itemFit", 0, 100, 0, this)
+               << new SliderWidgetMinMax("Item type fit percent (0% = all affixes fully random, 100% = all according to item type)", "itemFitPercent", 0, 100, 0, this)
                << new SliderWidgetMinMax("Number of versions of each unique (you will have N different uniques with differnet stats)", "repeat_uniques", 1, 20, 10, this));
 
     auto* keepCount = new CheckboxWidget("Keep original property count", "keepCount", false, this);
@@ -260,12 +316,13 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
            << "runes"
            << "setitems"
            << "sets";
-    QMap<QString, ItemTypeInfo> itemTypeInfo;
+
+    MagicPropUniverse props;
     {
         TableView view(tableSet.tables["itemtypes"]);
         for (auto& row : view) {
-            QString& code = row["Code"];
-            if (code.isEmpty())
+            QString& codeStr = row["Code"];
+            if (codeStr.isEmpty())
                 continue;
             ItemTypeInfo info;
             if (row["Throwable"] == "1")
@@ -279,20 +336,60 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
             if (!row["Shoots"].isEmpty())
                 info.flags << AttributeFlag::Missile;
 
-            itemTypeInfo[code] = info;
+            const auto parent1 = makeCode(row["Equiv1"]);
+            const auto parent2 = makeCode(row["Equiv2"]);
+            const auto code    = makeCode(codeStr);
+            if (parent1) {
+                info.parents << parent1;
+                props.itemTypeInfo[parent1].nested << code;
+            }
+            if (parent2) {
+                info.parents << parent2;
+                props.itemTypeInfo[parent2].nested << code;
+            }
+
+            props.itemTypeInfo[code] = info;
         }
+        props.itemTypeInfo[makeCode("SETS")] = {};
+
+        auto expandNested = [&props]() -> bool {
+            bool result = false;
+            for (auto& typeInfo : props.itemTypeInfo) {
+                const auto ncopy = typeInfo.second.nested;
+                for (uint32_t nestedCode : ncopy) {
+                    typeInfo.second.nested += props.itemTypeInfo[nestedCode].nested;
+                }
+                const auto pcopy = typeInfo.second.parents;
+                for (uint32_t pCode : pcopy) {
+                    typeInfo.second.parents += props.itemTypeInfo[pCode].parents;
+                }
+                result = result || ncopy != typeInfo.second.nested || pcopy != typeInfo.second.parents;
+            }
+            return result;
+        };
+        while (expandNested()) {
+            ;
+        }
+        //        for (auto& typeInfo : itemTypeInfo) {
+        //            qDebug() << printCode(typeInfo.first) << " -> " << printCodes(typeInfo.second.nested);
+        //            qDebug() << printCode(typeInfo.first) << " <- " << printCodes(typeInfo.second.parents);
+        //        }
     }
 
-    QMap<QString, QString> code2type;
+    QMap<QString, ItemCode> code2type;
     for (const auto* tableName : { "armor", "weapons", "misc" }) {
         TableView view(tableSet.tables[tableName]);
         for (auto& row : view) {
             QString& code = row["code"];
             QString& type = row["type"];
-            if (!code.isEmpty() && !type.isEmpty())
-                code2type[code] = type;
+            if (!code.isEmpty() && !type.isEmpty()) {
+                auto tc         = makeCode(type);
+                code2type[code] = tc;
+                assert(props.itemTypeInfo.count(tc));
+            }
         }
     }
+
     QMap<QString, int> miscItemsLevels;
     {
         TableView view(tableSet.tables["misc"]);
@@ -312,244 +409,302 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
         return level;
     };
 
-    MagicPropSet all;
-    {
-        using LevelCallback = std::function<int(const TableView::RowView& row)>;
-        using TypeCallback  = std::function<AttributeFlagSet(const TableView::RowView& row)>;
-        auto grabProps      = [&all, &code2type](TableView&           view,
-                                            const ColumnsDesc&   columns,
-                                            const LevelCallback& levelCb) {
-            for (auto& row : view) {
-                const int level = levelCb(row);
+    using LevelCallback     = std::function<int(const TableView::RowView& row)>;
+    using FlagsCallback     = std::function<AttributeFlagSet(const TableView::RowView& row)>;
+    using ItemTypesCallback = std::function<ItemCodeFilter(const TableView::RowView& row)>;
+    auto grabProps          = [&props](TableView&               view,
+                              const ColumnsDesc&       columns,
+                              const LevelCallback&     levelCb,
+                              const ItemTypesCallback& typeCb) {
+        for (auto& row : view) {
+            const int level = levelCb(row);
+            if (level <= 0)
+                continue;
+            const auto itemTypes = typeCb(row);
 
-                MagicPropBundle bundle;
+            MagicPropBundle bundle;
 
-                for (const auto& col : columns.m_cols) {
-                    MagicProp mp;
-                    mp.code  = row[col.code];
-                    mp.par   = row[col.par];
-                    mp.min   = row[col.min];
-                    mp.max   = row[col.max];
-                    mp.level = level;
-                    if (mp.code.isEmpty())
-                        break;
-                    if (isUnusedAttribute(mp.code))
-                        continue;
-                    bundle.props.push_back(std::move(mp));
-                }
-                all.addParsedBundle(std::move(bundle));
-            }
-        };
-        auto commonLvlReq = [](const TableView::RowView& row) { return row["lvl"].toInt(); };
-        auto commonRWreq  = [&determineRWlevel](const TableView::RowView& row) {
-            return determineRWlevel({ row["Rune1"], row["Rune2"], row["Rune3"], row["Rune4"], row["Rune5"], row["Rune6"] });
-        };
-        auto commonSetReq = [&setLevels](const TableView::RowView& row) {
-            return setLevels.value(row["name"]);
-        };
-        auto commonTypeAll = [](const TableView::RowView&) -> AttributeFlagSet {
-            return { AttributeFlag::ANY };
-        };
-        auto commonTypeEquipNoSock = [](const TableView::RowView&) -> AttributeFlagSet {
-            return { AttributeFlag::ANY, AttributeFlag::Durability };
-        };
-        {
-            auto&     table = tableSet.tables["uniqueitems"];
-            TableView view(table);
-            grabProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 12), commonLvlReq);
-            const int repeatUniques = getWidgetValue("repeat_uniques");
-            if (repeatUniques > 1) {
-                auto rows = table.rows;
-
-                for (int i = 2; i <= repeatUniques; ++i)
-                    rows.append(table.rows);
-                table.rows = rows;
-            }
-        }
-        {
-            TableView view(tableSet.tables["runes"]);
-            grabProps(view, ColumnsDesc("T1Code%1", "T1Param%1", "T1Min%1", "T1Max%1", 7), commonRWreq);
-        }
-        {
-            TableView view(tableSet.tables["setitems"]);
-            grabProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9), commonLvlReq);
-            grabProps(view, ColumnsDesc("aprop%1a", "apar%1a", "amin%1a", "amax%1a", 5), commonLvlReq);
-            grabProps(view, ColumnsDesc("aprop%1b", "apar%1b", "amin%1b", "amax%1b", 5), commonLvlReq);
-            for (auto& row : view) {
-                QString& setId   = row["set"];
-                QString& lvl     = row["lvl"];
-                setLevels[setId] = lvl.toInt();
-            }
-        }
-        {
-            TableView view(tableSet.tables["gems"]);
-            for (QString prefix : QStringList{ "weaponMod", "helmMod", "shieldMod" }) {
-                const ColumnsDesc desc(prefix + "%1Code", prefix + "%1Param", prefix + "%1Min", prefix + "%1Max", 3);
-                grabProps(
-                    view, desc, [&miscItemsLevels](const TableView::RowView& row) {
-                        return miscItemsLevels.value(row["code"]);
-                    });
-            }
-        }
-        {
-            for (const char* table : { "magicprefix", "magicsuffix" }) {
-                TableView         view(tableSet.tables[table]);
-                const ColumnsDesc desc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3);
-                grabProps(
-                    view, desc, [](const TableView::RowView& row) {
-                        return row["level"].toInt(); // utilize maxLevel ?
-                    });
-            }
-        }
-        {
-            TableView view(tableSet.tables["sets"]);
-
-            grabProps(view, ColumnsDesc("PCode%1a", "PParam%1a", "PMin%1a", "PMax%1a", 5, 2), commonSetReq);
-            grabProps(view, ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2), commonSetReq);
-            grabProps(view, ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8), commonSetReq);
-        }
-        all.postProcess(getWidgetValue("replaceSkills"), getWidgetValue("replaceCharges"), getWidgetValue("removeKnock"));
-
-        const int  balance     = getWidgetValue("balance");
-        const bool perfectRoll = getWidgetValue("perfectRoll");
-        const bool keepCount   = getWidgetValue("keepCount");
-        auto       fillProps   = [&all, &code2type, &rng, balance, keepCount](TableView&           view,
-                                                                      const ColumnsDesc&   columns,
-                                                                      const LevelCallback& levelCb,
-                                                                      const TypeCallback&  typesCb,
-                                                                      const int            minProps,
-                                                                      const int            maxProps,
-                                                                      const bool           isPerfect,
-                                                                      const bool           commonSkip) {
-            for (auto& row : view) {
-                QString& firstPar = row[columns.m_cols[0].code];
-                if (commonSkip && firstPar.isEmpty())
+            for (const auto& col : columns.m_cols) {
+                MagicProp mp;
+                mp.code      = row[col.code];
+                mp.par       = row[col.par];
+                mp.min       = row[col.min];
+                mp.max       = row[col.max];
+                mp.level     = level;
+                mp.itemTypes = itemTypes;
+                if (mp.code.isEmpty())
+                    break;
+                if (isUnusedAttribute(mp.code))
                     continue;
-
-                const int level = levelCb(row);
-                if (level <= 0) {
-                    continue;
-                }
-                int originalCount = 0;
-                for (const auto& col : columns.m_cols) {
-                    if (row[col.code].isEmpty())
-                        break;
-                    originalCount++;
-                }
-                const AttributeFlagSet allowedTypes = typesCb(row);
-                const int              newCnt       = keepCount ? originalCount : rng.bounded(minProps, maxProps + 1);
-                const auto             bundles      = all.getRandomBundles(allowedTypes, rng, newCnt, level, balance);
-
-                int col = 0;
-                for (auto* bundle : bundles) {
-                    for (int j = 0; j < bundle->props.size(); ++j) {
-                        if (col >= columns.m_cols.size())
-                            break;
-                        const auto& colDesc = columns.m_cols[col];
-                        const auto& prop    = bundle->props[j];
-                        auto&       code    = row[colDesc.code];
-                        auto&       par     = row[colDesc.par];
-                        auto&       min     = row[colDesc.min];
-                        auto&       max     = row[colDesc.max];
-                        code                = prop.code;
-                        par                 = prop.par;
-                        min                 = isPerfect && isMinMaxRange(code) ? prop.max : prop.min;
-                        max                 = prop.max;
-                        col++;
-                    }
-                }
-                for (; col < columns.m_cols.size(); ++col) {
-                    const auto& colDesc = columns.m_cols[col];
-                    row[colDesc.code]   = "";
-                    row[colDesc.par]    = "";
-                    row[colDesc.min]    = "";
-                    row[colDesc.max]    = "";
-                }
+                bundle.props.push_back(std::move(mp));
             }
-        };
-
-        {
-            const int minProps = getWidgetValue("min_uniq_props");
-            const int maxProps = std::max(minProps, getWidgetValue("max_uniq_props"));
-            TableView view(tableSet.tables["uniqueitems"]);
-            auto      code2flags = [&code2type, &itemTypeInfo](const TableView::RowView& row) -> AttributeFlagSet {
-                AttributeFlagSet result{ AttributeFlag::ANY };
-                const QString    type = code2type.value(row["code"]);
-                assert(itemTypeInfo.contains(type));
-                const ItemTypeInfo info = itemTypeInfo.value(type);
-                result += info.flags;
-                return result;
-            };
-            fillProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 12), commonLvlReq, code2flags, minProps, maxProps, perfectRoll, true);
+            props.all.addParsedBundle(std::move(bundle));
         }
-        {
-            const int minProps = getWidgetValue("min_rw_props");
-            const int maxProps = std::max(minProps, getWidgetValue("max_rw_props"));
-            TableView view(tableSet.tables["runes"]);
-            fillProps(view, ColumnsDesc("T1Code%1", "T1Param%1", "T1Min%1", "T1Max%1", 7), commonRWreq, commonTypeEquipNoSock, minProps, maxProps, perfectRoll, true);
+    };
+    auto commonLvlReq = [](const TableView::RowView& row) { return row["lvl"].toInt(); };
+    auto commonRWreq  = [&determineRWlevel](const TableView::RowView& row) {
+        return determineRWlevel({ row["Rune1"], row["Rune2"], row["Rune3"], row["Rune4"], row["Rune5"], row["Rune6"] });
+    };
+    auto commonSetReq = [&setLevels](const TableView::RowView& row) {
+        return setLevels.value(row["name"]);
+    };
+    auto commonTypeAll = [](const TableView::RowView&) -> AttributeFlagSet {
+        return { AttributeFlag::ANY };
+    };
+    auto commonTypeEquipNoSock = [](const TableView::RowView&) -> AttributeFlagSet {
+        return { AttributeFlag::ANY, AttributeFlag::Durability };
+    };
+    auto uniqueType = [&code2type](const TableView::RowView& row) -> ItemCodeFilter {
+        assert(code2type.contains(row["code"]));
+        return { { code2type.value(row["code"]) }, {} };
+    };
+    auto setitemType = [&code2type](const TableView::RowView& row) -> ItemCodeFilter {
+        assert(code2type.contains(row["item"]));
+        return { { code2type.value(row["item"]) }, {} };
+    };
+    auto rwTypes = [](const TableView::RowView& row) -> ItemCodeFilter {
+        ItemCodeSet result;
+        for (int i = 1; i <= 6; ++i) {
+            const QString& itype = row[QString("itype%1").arg(i)];
+            if (itype.isEmpty())
+                break;
+            auto tc = makeCode(itype);
+            assert(tc);
+            result << tc;
         }
-        {
-            const int minProps = getWidgetValue("min_set_props");
-            const int maxProps = std::max(minProps, getWidgetValue("max_set_props"));
-            TableView view(tableSet.tables["setitems"]);
-            auto      code2flags = [&code2type, &itemTypeInfo](const TableView::RowView& row) -> AttributeFlagSet {
-                AttributeFlagSet result{ AttributeFlag::ANY };
-                const QString    type = code2type.value(row["item"]);
-                assert(itemTypeInfo.contains(type));
-                const ItemTypeInfo info = itemTypeInfo.value(type);
-                result += info.flags;
-                return result;
-            };
-            fillProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9), commonLvlReq, code2flags, minProps / 2, maxProps / 2, perfectRoll, false);
-            fillProps(view, ColumnsDesc("aprop%1a", "apar%1a", "amin%1a", "amax%1a", 5), commonLvlReq, code2flags, (minProps / 4) + 1, (maxProps / 4) + 1, perfectRoll, false);
-            fillProps(view, ColumnsDesc("aprop%1b", "apar%1b", "amin%1b", "amax%1b", 5), commonLvlReq, code2flags, (minProps / 4) + 1, (maxProps / 4) + 1, perfectRoll, false);
+        return { result, {} };
+    };
+    auto affixTypes = [](const TableView::RowView& row) -> ItemCodeFilter {
+        ItemCodeFilter result;
+        for (int i = 1; i <= 7; ++i) {
+            const QString& itype = row[QString("itype%1").arg(i)];
+            if (itype.isEmpty())
+                break;
+            auto tc = makeCode(itype);
+            assert(tc);
+            result.include += tc;
         }
-        if (getWidgetValue("gemsRandom")) {
-            const int minProps = 1;
-            const int maxProps = 3;
-            TableView view(tableSet.tables["gems"]);
-
-            static const QStringList s_prefixes{ "weaponMod", "helmMod", "shieldMod" };
-            for (const QString& prefix : s_prefixes) {
-                const ColumnsDesc desc(prefix + "%1Code", prefix + "%1Param", prefix + "%1Min", prefix + "%1Max", 3);
-                fillProps(
-                    view, desc, [&miscItemsLevels](const TableView::RowView& row) {
-                        return miscItemsLevels.value(row["code"]);
-                    },
-                    commonTypeEquipNoSock,
-                    minProps,
-                    maxProps,
-                    true,
-                    true);
-            }
-            result << "gems";
-        }
-        if (getWidgetValue("affixRandom")) {
-            const int minProps = 1;
-            const int maxProps = 3;
-            for (const char* table : { "magicprefix", "magicsuffix" }) {
-                TableView         view(tableSet.tables[table]);
-                const ColumnsDesc desc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3);
-                fillProps(
-                    view, desc, [&miscItemsLevels](const TableView::RowView& row) {
-                        return row["level"].toInt(); // utilize maxLevel ?
-                    },
-                    commonTypeAll,
-                    minProps,
-                    maxProps,
-                    perfectRoll,
-                    true);
-            }
-            result << "magicprefix"
-                   << "magicsuffix";
-        }
-        {
-            TableView view(tableSet.tables["sets"]);
-
-            fillProps(view, ColumnsDesc("PCode%1a", "PParam%1a", "PMin%1a", "PMax%1a", 5, 2), commonSetReq, commonTypeAll, 1, 5, true, false);
-            fillProps(view, ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2), commonSetReq, commonTypeAll, 1, 5, true, false);
-            fillProps(view, ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8), commonSetReq, commonTypeAll, 3, 8, true, false);
+        for (int i = 1; i <= 5; ++i) {
+            const QString& itype = row[QString("etype%1").arg(i)];
+            if (itype.isEmpty())
+                break;
+            auto tc = makeCode(itype);
+            assert(tc);
+            result.exclude += tc;
         }
         return result;
+    };
+    auto setsTypes = [](const TableView::RowView& row) -> ItemCodeFilter { return { { makeCode("SETS") }, {} }; };
+
+    {
+        auto&     table = tableSet.tables["uniqueitems"];
+        TableView view(table);
+        grabProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 12), commonLvlReq, uniqueType);
+        const int repeatUniques = getWidgetValue("repeat_uniques");
+        if (repeatUniques > 1) {
+            auto rows = table.rows;
+
+            for (int i = 2; i <= repeatUniques; ++i)
+                rows.append(table.rows);
+            table.rows = rows;
+        }
     }
+    {
+        TableView view(tableSet.tables["runes"]);
+        grabProps(view, ColumnsDesc("T1Code%1", "T1Param%1", "T1Min%1", "T1Max%1", 7), commonRWreq, rwTypes);
+    }
+    {
+        TableView view(tableSet.tables["setitems"]);
+        grabProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9), commonLvlReq, setitemType);
+        grabProps(view, ColumnsDesc("aprop%1a", "apar%1a", "amin%1a", "amax%1a", 5), commonLvlReq, setitemType);
+        grabProps(view, ColumnsDesc("aprop%1b", "apar%1b", "amin%1b", "amax%1b", 5), commonLvlReq, setitemType);
+        for (auto& row : view) {
+            QString& setId   = row["set"];
+            QString& lvl     = row["lvl"];
+            setLevels[setId] = lvl.toInt();
+        }
+    }
+    {
+        TableView view(tableSet.tables["gems"]);
+        for (QString prefix : QStringList{ "weaponMod", "helmMod", "shieldMod" }) {
+            const ColumnsDesc desc(prefix + "%1Code", prefix + "%1Param", prefix + "%1Min", prefix + "%1Max", 3);
+            grabProps(
+                view, desc, [&miscItemsLevels](const TableView::RowView& row) {
+                    return miscItemsLevels.value(row["code"]);
+                },
+                uniqueType);
+        }
+    }
+    {
+        for (const char* table : { "magicprefix", "magicsuffix" }) {
+            TableView         view(tableSet.tables[table]);
+            const ColumnsDesc desc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3);
+            grabProps(
+                view, desc, [](const TableView::RowView& row) {
+                    return row["spawnable"] == "1" ? row["level"].toInt() : 0; // utilize maxLevel ?
+                },
+                affixTypes);
+        }
+    }
+    {
+        TableView view(tableSet.tables["sets"]);
+
+        grabProps(view, ColumnsDesc("PCode%1a", "PParam%1a", "PMin%1a", "PMax%1a", 5, 2), commonSetReq, setsTypes);
+        grabProps(view, ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2), commonSetReq, setsTypes);
+        grabProps(view, ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8), commonSetReq, setsTypes);
+    }
+    props.all.postProcess(getWidgetValue("replaceSkills"), getWidgetValue("replaceCharges"), getWidgetValue("removeKnock"));
+
+    const int  balance        = getWidgetValue("balance");
+    const int  itemFitPercent = getWidgetValue("itemFitPercent");
+    const bool perfectRoll    = getWidgetValue("perfectRoll");
+    const bool keepCount      = getWidgetValue("keepCount");
+    if (itemFitPercent)
+        props.fillPropSets();
+
+    auto fillProps = [&props, &rng, balance, keepCount](TableView&               view,
+                                                        const ColumnsDesc&       columns,
+                                                        const LevelCallback&     levelCb,
+                                                        const FlagsCallback&     flagsCb,
+                                                        const ItemTypesCallback& typesCb,
+                                                        const int                minProps,
+                                                        const int                maxProps,
+                                                        const int                itemFitPercent,
+                                                        const bool               isPerfect,
+                                                        const bool               commonSkip) {
+        for (auto& row : view) {
+            QString& firstPar = row[columns.m_cols[0].code];
+            if (commonSkip && firstPar.isEmpty())
+                continue;
+
+            const int level = levelCb(row);
+            if (level <= 0) {
+                continue;
+            }
+            int originalCount = 0;
+            for (const auto& col : columns.m_cols) {
+                if (row[col.code].isEmpty())
+                    break;
+                originalCount++;
+            }
+            const auto allowedTypes = flagsCb(row);
+            const auto filter       = typesCb(row);
+            const int  newCnt       = keepCount ? originalCount : rng.bounded(minProps, maxProps + 1);
+            const auto bundles      = props.getRandomBundles(allowedTypes, filter, itemFitPercent, rng, newCnt, level, balance);
+
+            int col = 0;
+            for (auto* bundle : bundles) {
+                for (int j = 0; j < bundle->props.size(); ++j) {
+                    if (col >= columns.m_cols.size())
+                        break;
+                    const auto& colDesc = columns.m_cols[col];
+                    const auto& prop    = bundle->props[j];
+                    auto&       code    = row[colDesc.code];
+                    auto&       par     = row[colDesc.par];
+                    auto&       min     = row[colDesc.min];
+                    auto&       max     = row[colDesc.max];
+                    code                = prop.code;
+                    par                 = prop.par;
+                    min                 = isPerfect && isMinMaxRange(code) ? prop.max : prop.min;
+                    max                 = prop.max;
+                    col++;
+                }
+            }
+            for (; col < columns.m_cols.size(); ++col) {
+                const auto& colDesc = columns.m_cols[col];
+                row[colDesc.code]   = "";
+                row[colDesc.par]    = "";
+                row[colDesc.min]    = "";
+                row[colDesc.max]    = "";
+            }
+        }
+    };
+
+    {
+        const int minProps = getWidgetValue("min_uniq_props");
+        const int maxProps = std::max(minProps, getWidgetValue("max_uniq_props"));
+        TableView view(tableSet.tables["uniqueitems"]);
+        auto      code2flags = [&code2type, &props](const TableView::RowView& row) -> AttributeFlagSet {
+            AttributeFlagSet result{ AttributeFlag::ANY };
+            const auto       type = code2type.value(row["code"]);
+            assert(props.itemTypeInfo.contains(type));
+            const ItemTypeInfo& info = props.itemTypeInfo.at(type);
+            result += info.flags;
+            return result;
+        };
+        fillProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 12), commonLvlReq, code2flags, uniqueType, minProps, maxProps, itemFitPercent, perfectRoll, true);
+    }
+    {
+        const int minProps = getWidgetValue("min_rw_props");
+        const int maxProps = std::max(minProps, getWidgetValue("max_rw_props"));
+        TableView view(tableSet.tables["runes"]);
+        fillProps(view, ColumnsDesc("T1Code%1", "T1Param%1", "T1Min%1", "T1Max%1", 7), commonRWreq, commonTypeEquipNoSock, rwTypes, minProps, maxProps, itemFitPercent, perfectRoll, true);
+    }
+    {
+        const int minProps = getWidgetValue("min_set_props");
+        const int maxProps = std::max(minProps, getWidgetValue("max_set_props"));
+        TableView view(tableSet.tables["setitems"]);
+        auto      code2flags = [&code2type, &props](const TableView::RowView& row) -> AttributeFlagSet {
+            AttributeFlagSet result{ AttributeFlag::ANY };
+            const auto       type = code2type.value(row["item"]);
+            assert(props.itemTypeInfo.contains(type));
+            const ItemTypeInfo& info = props.itemTypeInfo.at(type);
+            result += info.flags;
+            return result;
+        };
+        fillProps(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9), commonLvlReq, code2flags, setitemType, minProps / 2, maxProps / 2, itemFitPercent, perfectRoll, false);
+        fillProps(view, ColumnsDesc("aprop%1a", "apar%1a", "amin%1a", "amax%1a", 5), commonLvlReq, code2flags, setitemType, (minProps / 4) + 1, (maxProps / 4) + 1, itemFitPercent, perfectRoll, false);
+        fillProps(view, ColumnsDesc("aprop%1b", "apar%1b", "amin%1b", "amax%1b", 5), commonLvlReq, code2flags, setitemType, (minProps / 4) + 1, (maxProps / 4) + 1, itemFitPercent, perfectRoll, false);
+    }
+    if (getWidgetValue("gemsRandom")) {
+        const int minProps = 1;
+        const int maxProps = 3;
+        TableView view(tableSet.tables["gems"]);
+
+        static const QStringList s_prefixes{ "weaponMod", "helmMod", "shieldMod" };
+        for (const QString& prefix : s_prefixes) {
+            const ColumnsDesc desc(prefix + "%1Code", prefix + "%1Param", prefix + "%1Min", prefix + "%1Max", 3);
+            fillProps(
+                view, desc, [&miscItemsLevels](const TableView::RowView& row) {
+                    return miscItemsLevels.value(row["code"]);
+                },
+                commonTypeEquipNoSock,
+                uniqueType,
+                minProps,
+                maxProps,
+                0, // @todo: itemFitPercent
+                true,
+                true);
+        }
+        result << "gems";
+    }
+    if (getWidgetValue("affixRandom")) {
+        const int minProps = 1;
+        const int maxProps = 3;
+        for (const char* table : { "magicprefix", "magicsuffix" }) {
+            TableView         view(tableSet.tables[table]);
+            const ColumnsDesc desc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3);
+            fillProps(
+                view, desc, [&miscItemsLevels](const TableView::RowView& row) {
+                    return row["spawnable"] == "1" ? row["level"].toInt() : 0; // utilize maxLevel ?
+                },
+                commonTypeAll,
+                affixTypes,
+                minProps,
+                maxProps,
+                itemFitPercent,
+                perfectRoll,
+                true);
+        }
+        result << "magicprefix"
+               << "magicsuffix";
+    }
+    {
+        TableView view(tableSet.tables["sets"]);
+
+        fillProps(view, ColumnsDesc("PCode%1a", "PParam%1a", "PMin%1a", "PMax%1a", 5, 2), commonSetReq, commonTypeAll, setsTypes, 1, 5, itemFitPercent, true, false);
+        fillProps(view, ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2), commonSetReq, commonTypeAll, setsTypes, 1, 5, itemFitPercent, true, false);
+        fillProps(view, ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8), commonSetReq, commonTypeAll, setsTypes, 3, 8, itemFitPercent, true, false);
+    }
+    return result;
 }
