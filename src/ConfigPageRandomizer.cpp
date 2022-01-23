@@ -211,7 +211,6 @@ ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget("Enable Item Randomizer", "enable", false, this)
                << new SliderWidgetMinMax("Balance level (lower = more balance)", "balance", 5, s_maxBalanceLevel, s_maxBalanceLevel, this)
                << new SliderWidgetMinMax("Number of versions of each unique", "repeat_uniques", 1, 20, 10, this));
 
@@ -249,9 +248,6 @@ ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
 
 KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
-    if (!getWidgetValue("enable"))
-        return {};
-
     auto&  tableSet = output.tableSet;
     KeySet result;
     result << "uniqueitems"

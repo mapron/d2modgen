@@ -24,6 +24,8 @@
 #include <QLabel>
 #include <QJsonDocument>
 #include <QDesktopServices>
+#include <QButtonGroup>
+#include <QCheckBox>
 
 MainWindow::MainWindow()
     : QMainWindow(nullptr)
@@ -31,20 +33,24 @@ MainWindow::MainWindow()
     setWindowTitle("Diablo II Resurrected mod generator by mapron");
 
     // widgets
-    QStackedWidget* stackedWidget = new QStackedWidget(this);
-    QPushButton*    genButton     = new QPushButton("Generate", this);
-    {
-        auto f = genButton->font();
-        f.setPointSize(f.pointSize() + 4);
-        genButton->setFont(f);
-    }
-
-    QList<QPushButton*> pageButtons;
+    QStackedWidget* stackedWidget    = new QStackedWidget(this);
+    QPushButton*    genButton        = new QPushButton("Generate", this);
+    auto            increaseFontSize = [](QWidget* w, int pointPlus, bool bold) {
+        auto f = w->font();
+        f.setPointSize(f.pointSize() + pointPlus);
+        f.setBold(bold);
+        w->setFont(f);
+    };
+    increaseFontSize(genButton, 4, false);
 
     m_status = new QLabel("Status label.", this);
 
     auto* mainPage     = new MainConfigPage(this);
     auto* modMergePage = new ConfigPageMergeMods(this);
+    auto* pageGroup    = new QButtonGroup(this);
+    auto* buttonPanel  = new QWidget(this);
+
+    QVBoxLayout* buttonPanelLayout = new QVBoxLayout(buttonPanel);
     m_pages << mainPage;
     m_pages << CreateConfigPages(this);
     m_pages << modMergePage;
@@ -52,12 +58,57 @@ MainWindow::MainWindow()
     for (IConfigPage* page : m_pages) {
         QPushButton* pageButton = new QPushButton(page->caption(), this);
         pageButton->setCheckable(true);
-        pageButtons << pageButton;
-        auto f = pageButton->font();
-        f.setPointSize(f.pointSize() + 2);
-        pageButton->setFont(f);
-        stackedWidget->addWidget(page);
+        pageGroup->addButton(pageButton);
+        increaseFontSize(pageButton, 2, false);
+
+        QPushButton* resetButton   = new QPushButton("Reset to default", this);
+        QCheckBox*   headerEnabler = new QCheckBox("Enable this tab", this);
+        QCheckBox*   sideEnabler   = new QCheckBox("", this);
+        headerEnabler->setChecked(true);
+        sideEnabler->setChecked(true);
+        if (!page->canBeDisabled()) {
+            headerEnabler->hide();
+            sideEnabler->hide();
+        }
+
+        QWidget* pageWrapper = new QWidget(this);
+        pageWrapper->setContentsMargins(0, 0, 0, 0);
+        auto* caption = new QLabel(page->caption(), this);
+        increaseFontSize(caption, 2, true);
+
+        QVBoxLayout* pageWrapperMain = new QVBoxLayout(pageWrapper);
+        pageWrapperMain->setMargin(8);
+        pageWrapperMain->setSpacing(10);
+        QHBoxLayout* pageWrapperHeader = new QHBoxLayout();
+        pageWrapperHeader->addWidget(caption);
+        pageWrapperHeader->addStretch();
+        pageWrapperHeader->addWidget(headerEnabler);
+        pageWrapperHeader->addWidget(resetButton);
+        pageWrapperMain->addLayout(pageWrapperHeader);
+        pageWrapperMain->addWidget(page);
+        stackedWidget->addWidget(pageWrapper);
+
+        QHBoxLayout* buttonPanelRow = new QHBoxLayout();
+        buttonPanelRow->setMargin(0);
+        buttonPanelRow->setSpacing(3);
+        buttonPanelRow->addWidget(sideEnabler);
+        buttonPanelRow->addWidget(pageButton, 1);
+        buttonPanelLayout->addLayout(buttonPanelRow);
+
+        connect(pageButton, &QPushButton::clicked, this, [pageWrapper, stackedWidget]() {
+            stackedWidget->setCurrentWidget(pageWrapper);
+        });
+        connect(resetButton, &QPushButton::clicked, this, [page]() {
+            page->readSettings({});
+        });
+        connect(headerEnabler, &QCheckBox::toggled, sideEnabler, &QCheckBox::setChecked);
+        connect(sideEnabler, &QCheckBox::toggled, headerEnabler, &QCheckBox::setChecked);
+        connect(headerEnabler, &QCheckBox::toggled, page, &IConfigPage::setConfigEnabled);
+        if (page->canBeDisabled())
+            connect(headerEnabler, &QCheckBox::toggled, page, &QWidget::setEnabled);
+        m_enableButtons[page] = headerEnabler;
     }
+
     QMenuBar* mainMenu         = menuBar();
     QMenu*    fileMenu         = mainMenu->addMenu("File");
     QMenu*    actionsMenu      = mainMenu->addMenu("Actions");
@@ -83,17 +134,16 @@ MainWindow::MainWindow()
     setCentralWidget(new QWidget(this));
     centralWidget()->setLayout(topLayout);
 
-    pageButtons.first()->setChecked(true);
+    pageGroup->buttons().first()->setChecked(true);
 
     {
         QHBoxLayout* tabLayoutOuter = new QHBoxLayout();
         tabLayoutOuter->setSpacing(0);
-        QVBoxLayout* tabLayoutInner = new QVBoxLayout();
-        tabLayoutInner->setSpacing(5);
-        for (auto* pageButton : pageButtons)
-            tabLayoutInner->addWidget(pageButton);
-        tabLayoutInner->addStretch();
-        tabLayoutOuter->addLayout(tabLayoutInner);
+        buttonPanel->setContentsMargins(0, 0, 0, 0);
+        buttonPanelLayout->setMargin(0);
+        buttonPanelLayout->setSpacing(5);
+        buttonPanelLayout->addStretch();
+        tabLayoutOuter->addWidget(buttonPanel);
         tabLayoutOuter->addWidget(stackedWidget);
         stackedWidget->setFrameStyle(QFrame::StyledPanel);
         topLayout->addLayout(tabLayoutOuter);
@@ -112,16 +162,6 @@ MainWindow::MainWindow()
         generate(mainPage->getEnv());
     });
 
-    for (auto* pageButton : pageButtons) {
-        connect(pageButton, &QPushButton::clicked, this, [this, pageButton, pageButtons, stackedWidget]() {
-            const int index = pageButtons.indexOf(qobject_cast<QPushButton*>(sender()));
-            for (auto* modeButtonOther : pageButtons) {
-                modeButtonOther->setChecked(modeButtonOther == pageButton);
-            }
-            stackedWidget->setCurrentWidget(m_pages[index]);
-        });
-    }
-
     connect(about, &QAction::triggered, this, [this] {
         QDesktopServices::openUrl(QUrl("https://github.com/mapron/d2modgen"));
     });
@@ -136,8 +176,7 @@ MainWindow::MainWindow()
             loadConfig(file);
     });
     connect(clearConfig, &QAction::triggered, this, [this] {
-        for (auto* page : m_pages)
-            page->readSettings({});
+        loadConfig(QJsonObject{});
     });
     connect(browseToSettings, &QAction::triggered, this, [mainPage] {
         QFileInfo dir = mainPage->getEnv().appData;
@@ -211,7 +250,8 @@ void MainWindow::generate(const GenerationEnvironment& env)
     JsonFileSet requiredFiles;
     {
         for (auto* page : m_pages)
-            requiredFiles += page->extraFiles();
+            if (page->isConfigEnabled())
+                requiredFiles += page->extraFiles();
     }
     {
         if (m_outputCache && m_cachedFilenames == requiredFiles) {
@@ -233,7 +273,8 @@ void MainWindow::generate(const GenerationEnvironment& env)
         QRandomGenerator rng;
         rng.seed(env.seed);
         for (auto* page : m_pages)
-            keySet += page->generate(output, rng, env);
+            if (page->isConfigEnabled())
+                keySet += page->generate(output, rng, env);
     }
     qDebug() << "writing output.";
     for (const auto& key : keySet)
@@ -267,7 +308,8 @@ bool MainWindow::saveConfig(const QString& filename) const
     for (auto* page : m_pages) {
         QJsonObject pageData;
         page->writeSettings(pageData);
-        data[page->settingKey()] = pageData;
+        data[page->settingKey()]              = pageData;
+        data[page->settingKey() + "_enabled"] = page->isConfigEnabled();
     }
     QDir().mkpath(QFileInfo(filename).absolutePath());
     return writeJsonFile(filename, QJsonDocument(data));
@@ -279,10 +321,16 @@ bool MainWindow::loadConfig(const QString& filename)
     if (!readJsonFile(filename, doc))
         return false;
     QJsonObject data = doc.object();
+    return loadConfig(data);
+}
 
-    {
-        for (auto* page : m_pages)
-            page->readSettings(data[page->settingKey()].toObject());
+bool MainWindow::loadConfig(const QJsonObject& data)
+{
+    for (auto* page : m_pages) {
+        page->setConfigEnabled(data[page->settingKey() + "_enabled"].toBool());
+        page->readSettings(data[page->settingKey()].toObject());
+        m_enableButtons[page]->setChecked(page->isConfigEnabled());
     }
+
     return true;
 }

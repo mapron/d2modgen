@@ -52,6 +52,12 @@ ConfigPageAbstract::ConfigPageAbstract(QWidget* parent)
     : IConfigPage(parent)
 {
     m_layout = new QVBoxLayout(this);
+    m_layout->setMargin(0);
+}
+
+bool ConfigPageAbstract::canBeDisabled() const
+{
+    return true;
 }
 
 void ConfigPageAbstract::readSettings(const QJsonObject& data)
@@ -77,6 +83,16 @@ void ConfigPageAbstract::writeSettings(QJsonObject& data) const
 JsonFileSet ConfigPageAbstract::extraFiles() const
 {
     return {};
+}
+
+bool ConfigPageAbstract::isConfigEnabled() const
+{
+    return m_enabled;
+}
+
+void ConfigPageAbstract::setConfigEnabled(bool state)
+{
+    m_enabled = state;
 }
 
 bool ConfigPageAbstract::isAllDefault() const

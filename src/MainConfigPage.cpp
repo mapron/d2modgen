@@ -117,6 +117,7 @@ MainConfigPage::MainConfigPage(QWidget* parent)
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(15);
+    mainLayout->setMargin(0);
 
     {
         QHBoxLayout* rowLayout = new QHBoxLayout();
@@ -303,6 +304,11 @@ QStringList MainConfigPage::getOtherMods() const
     return result;
 }
 
+bool MainConfigPage::canBeDisabled() const
+{
+    return false;
+}
+
 QString MainConfigPage::caption() const
 {
     return "Main";
@@ -352,6 +358,15 @@ void MainConfigPage::writeSettings(QJsonObject& data) const
 JsonFileSet MainConfigPage::extraFiles() const
 {
     return {};
+}
+
+bool MainConfigPage::isConfigEnabled() const
+{
+    return true;
+}
+
+void MainConfigPage::setConfigEnabled(bool state)
+{
 }
 
 KeySet MainConfigPage::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const

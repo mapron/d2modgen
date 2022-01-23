@@ -33,11 +33,15 @@ public:
 
     // IConfigPage interface
 public:
+    bool        canBeDisabled() const override;
     void        readSettings(const QJsonObject& data) override;
     void        writeSettings(QJsonObject& data) const override;
     JsonFileSet extraFiles() const override;
-    bool        isAllDefault() const;
-    bool        isAllDefault(const QStringList& keys) const;
+    bool        isConfigEnabled() const override;
+    void        setConfigEnabled(bool state) override;
+
+    bool isAllDefault() const;
+    bool isAllDefault(const QStringList& keys) const;
 
 protected:
     void addWidget(QWidget* w);
@@ -50,4 +54,5 @@ protected:
 private:
     QMap<QString, IValueWidget*> m_editors;
     QVBoxLayout*                 m_layout;
+    bool                         m_enabled = true;
 };

@@ -8,8 +8,10 @@
 #include <QMainWindow>
 #include <QScopedPointer>
 #include <QSet>
+#include <QMap>
 
 class QLabel;
+class QCheckBox;
 class IConfigPage;
 struct GenOutput;
 struct GenerationEnvironment;
@@ -23,11 +25,13 @@ public:
 
     bool saveConfig(const QString& filename) const;
     bool loadConfig(const QString& filename);
+    bool loadConfig(const QJsonObject& data);
 
 private:
-    QString                   m_defaultConfig;
-    QList<IConfigPage*>       m_pages;
-    QLabel*                   m_status;
-    QScopedPointer<GenOutput> m_outputCache;
-    QSet<QString>             m_cachedFilenames;
+    QString                        m_defaultConfig;
+    QList<IConfigPage*>            m_pages;
+    QMap<IConfigPage*, QCheckBox*> m_enableButtons;
+    QLabel*                        m_status;
+    QScopedPointer<GenOutput>      m_outputCache;
+    QSet<QString>                  m_cachedFilenames;
 };

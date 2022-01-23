@@ -19,12 +19,16 @@ public:
 
     // IConfigPage interface
 public:
+    bool        canBeDisabled() const override;
     QString     caption() const override;
     QString     settingKey() const override;
     void        readSettings(const QJsonObject& data) override;
     void        writeSettings(QJsonObject& data) const override;
     JsonFileSet extraFiles() const override;
-    KeySet      generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    bool        isConfigEnabled() const override;
+    void        setConfigEnabled(bool state) override;
+
+    KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 
 signals:
     void updateModList();

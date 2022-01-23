@@ -143,7 +143,6 @@ ConfigPageMonRandomizer::ConfigPageMonRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget("Enable Monster Randomizer", "enable", false, this)
                << new SliderWidgetMinMax("Spawned different types in one area", "spawnedCount", 3, 10, 3, this)
                << new SliderWidgetMinMax("Maximum possible monster types in one area (population variety)", "maxTypes", 6, 25, 25, this));
     closeLayout();
@@ -151,14 +150,14 @@ ConfigPageMonRandomizer::ConfigPageMonRandomizer(QWidget* parent)
 
 JsonFileSet ConfigPageMonRandomizer::extraFiles() const
 {
-    if (isAllDefault() || !getWidgetValue("enable"))
+    if (isAllDefault())
         return {};
     return { s_monstersJson };
 }
 
 KeySet ConfigPageMonRandomizer::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
-    if (isAllDefault() || !getWidgetValue("enable"))
+    if (isAllDefault())
         return {};
     KeySet result;
     result << "levels";
