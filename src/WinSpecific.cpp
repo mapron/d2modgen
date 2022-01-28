@@ -10,7 +10,7 @@
 #define UNICODE
 #endif
 #include "WinSpecific.hpp"
-#include "Utils.hpp"
+#include "RAIIUtils.hpp"
 
 #include <QDebug>
 #include <QFileInfo>

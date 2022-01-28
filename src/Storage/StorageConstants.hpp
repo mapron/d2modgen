@@ -5,48 +5,7 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
-
-bool readJsonFile(const QString& file, QJsonDocument& data);
-bool writeJsonFile(const QString& file, const QJsonDocument& data, bool escape = false);
-
-bool readCSV(const QString& csvData, Table& table);
-bool writeCSV(QString& csvData, const Table& table);
-
-bool readCSVfile(const QString& csvFilename, Table& table);
-bool writeCSVfile(const QString& csvFilename, const Table& table);
-
-namespace details {
-
-template<typename F>
-struct ScopeExitFunctionWrapper {
-    ScopeExitFunctionWrapper(const F& f)
-        : f(f)
-    {}
-
-    ScopeExitFunctionWrapper(const ScopeExitFunctionWrapper&) = delete;
-    ScopeExitFunctionWrapper(ScopeExitFunctionWrapper&&)      = default;
-
-    ScopeExitFunctionWrapper& operator=(const ScopeExitFunctionWrapper&) = delete;
-    ScopeExitFunctionWrapper& operator=(ScopeExitFunctionWrapper&&) = default;
-
-    ~ScopeExitFunctionWrapper() { f(); }
-    F f;
-};
-
-template<typename F>
-static constexpr ScopeExitFunctionWrapper<F> createScopeExitFunctionWrapper(const F& f)
-{
-    return ScopeExitFunctionWrapper<F>(f);
-}
-
-}
-#define MODGEN_DO_STRING_JOIN2(arg1, arg2) arg1##arg2
-#define MODGEN_STRING_JOIN2(arg1, arg2) MODGEN_DO_STRING_JOIN2(arg1, arg2)
-
-#define MODGEN_SCOPE_EXIT(...) \
-    auto MODGEN_STRING_JOIN2(scope_exit_, __LINE__) = details::createScopeExitFunctionWrapper(__VA_ARGS__); \
-    (void) MODGEN_STRING_JOIN2(scope_exit_, __LINE__)
+#include <QStringList>
 
 static const QStringList g_tableNames{
     "weapons",

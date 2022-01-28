@@ -341,7 +341,14 @@ target_include_directories(stormlib PUBLIC ${stormInc})
 
 # source
 set(sourceRoot ${CMAKE_CURRENT_SOURCE_DIR}/src)
-file(GLOB src ${sourceRoot}/*.hpp ${sourceRoot}/*.cpp)
+file(GLOB src 
+	${sourceRoot}/*.hpp 
+	${sourceRoot}/*.cpp
+	${sourceRoot}/Storage/*.hpp 
+	${sourceRoot}/Storage/*.cpp
+	${sourceRoot}/ConfigPages/*.hpp 
+	${sourceRoot}/ConfigPages/*.cpp
+	)
 
 if (WIN32 AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
 	set(w32 "WIN32")

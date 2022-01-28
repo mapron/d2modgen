@@ -5,11 +5,12 @@
  */
 #include "MainWindow.hpp"
 
-#include "MainConfigPage.hpp"
-#include "ConfigPages.hpp"
-#include "ConfigPageMergeMods.hpp"
-#include "Utils.hpp"
-#include "CascWrapper.hpp"
+#include "ConfigPages/MainConfigPage.hpp"
+#include "ConfigPages/ConfigPages.hpp"
+#include "ConfigPages/ConfigPageMergeMods.hpp"
+#include "FileIOUtils.hpp"
+#include "Storage/CascStorage.hpp"
+#include "Storage/StormStorage.hpp"
 
 #include <QDebug>
 #include <QLayout>

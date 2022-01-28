@@ -4,7 +4,7 @@
  * See LICENSE file for details.
  */
 #include "MainConfigPage.hpp"
-#include "Utils.hpp"
+#include "FileIOUtils.hpp"
 #include "WinSpecific.hpp"
 
 #include <QLayout>
