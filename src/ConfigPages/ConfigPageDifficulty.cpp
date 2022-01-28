@@ -5,6 +5,8 @@
  */
 #include "ConfigPageDifficulty.hpp"
 
+namespace D2ModGen {
+
 ConfigPageDifficulty::ConfigPageDifficulty(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
@@ -151,4 +153,6 @@ KeySet ConfigPageDifficulty::generate(GenOutput& output, QRandomGenerator& rng, 
         }
     }
     return result;
+}
+
 }

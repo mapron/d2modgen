@@ -9,6 +9,9 @@
 
 class QSpinBox;
 class QSlider;
+
+namespace D2ModGen {
+
 class SliderWidget : public IValueWidget {
 public:
     SliderWidget(const QString& caption,
@@ -77,3 +80,5 @@ private:
     QSpinBox* m_valueBox;
     QSlider*  m_slider;
 };
+
+}

@@ -7,4 +7,8 @@
 
 #include "IConfigPage.hpp"
 
+namespace D2ModGen {
+
 QList<IConfigPage*> CreateConfigPages(QWidget* parent);
+
+}

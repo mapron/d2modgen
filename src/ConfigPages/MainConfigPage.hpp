@@ -7,6 +7,8 @@
 
 #include "IConfigPage.hpp"
 
+namespace D2ModGen {
+
 class MainConfigPage : public IConfigPage {
     Q_OBJECT
 public:
@@ -40,3 +42,5 @@ private:
     struct Impl;
     QScopedPointer<Impl> m_impl;
 };
+
+}

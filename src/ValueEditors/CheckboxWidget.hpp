@@ -8,6 +8,9 @@
 #include "IValueWidget.hpp"
 
 class QCheckBox;
+
+namespace D2ModGen {
+
 class CheckboxWidget : public IValueWidget {
     Q_OBJECT
 public:
@@ -29,3 +32,5 @@ private:
     const bool m_default;
     QCheckBox* m_checkBox;
 };
+
+}

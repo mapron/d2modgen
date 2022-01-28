@@ -15,6 +15,8 @@
 
 class QVBoxLayout;
 
+namespace D2ModGen {
+
 struct DropSet {
     struct Item {
         QString tc;
@@ -58,3 +60,5 @@ private:
     QVBoxLayout*                 m_layout;
     bool                         m_enabled = true;
 };
+
+}

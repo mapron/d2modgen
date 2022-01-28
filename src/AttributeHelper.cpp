@@ -5,6 +5,8 @@
  */
 #include "AttributeHelper.hpp"
 
+namespace D2ModGen {
+
 namespace {
 const QSet<QString> s_unused{
     "dmg-mon",
@@ -323,4 +325,6 @@ bool isMinMaxRange(const QString& code)
     const bool           noMinMax = desc.flags.contains(AttributeFlag::NoMinMax);
     const bool           byLevel  = desc.flags.contains(AttributeFlag::PerLevel);
     return !noMinMax && !byLevel;
+}
+
 }

@@ -6,6 +6,8 @@
 #include "ConfigPageDrops.hpp"
 #include "AttributeHelper.hpp"
 
+namespace D2ModGen {
+
 ConfigPageDrops::ConfigPageDrops(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
@@ -211,4 +213,6 @@ KeySet ConfigPageDrops::generate(GenOutput& output, QRandomGenerator& rng, const
     }
 
     return result;
+}
+
 }

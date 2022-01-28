@@ -7,6 +7,8 @@
 
 #include "ConfigPageAbstract.hpp"
 
+namespace D2ModGen {
+
 class ConfigPageDrops : public ConfigPageAbstract {
 public:
     ConfigPageDrops(QWidget* parent);
@@ -24,3 +26,4 @@ public:
     KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 
+}

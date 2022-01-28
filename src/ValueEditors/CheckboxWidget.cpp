@@ -8,6 +8,8 @@
 #include <QCheckBox>
 #include <QBoxLayout>
 
+namespace D2ModGen {
+
 CheckboxWidget::CheckboxWidget(const QString& caption,
                                const QString& id,
                                bool           def,
@@ -46,4 +48,6 @@ int CheckboxWidget::getValue() const
 bool CheckboxWidget::isDefault() const
 {
     return m_checkBox->isChecked() == m_default;
+}
+
 }

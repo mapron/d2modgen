@@ -21,6 +21,8 @@
 #include <QMessageBox>
 #include <QJsonDocument>
 
+namespace D2ModGen {
+
 namespace {
 
 QString ensureTrailingSlash(QString path)
@@ -418,4 +420,6 @@ void MainConfigPage::setLaunch(QString arg)
     doc.setObject(data);
     if (!writeJsonFile(config, doc, true))
         QMessageBox::warning(this, "warning", "Failed to write data to Battle.net.config");
+}
+
 }

@@ -5,6 +5,8 @@
  */
 #include "ConfigPageQol.hpp"
 
+namespace D2ModGen {
+
 ConfigPageQol::ConfigPageQol(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
@@ -98,4 +100,6 @@ KeySet ConfigPageQol::generate(GenOutput& output, QRandomGenerator& rng, const G
         }
     }
     return result;
+}
+
 }

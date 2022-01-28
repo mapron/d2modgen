@@ -6,6 +6,8 @@
 #pragma once
 #include "ConfigPageAbstract.hpp"
 
+namespace D2ModGen {
+
 class ConfigPageChallenge : public ConfigPageAbstract {
     struct Item {
         QSet<QString> internalIds;
@@ -29,3 +31,5 @@ public:
     }
     KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
+
+}

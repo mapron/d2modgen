@@ -12,9 +12,13 @@
 
 class QLabel;
 class QCheckBox;
+
+namespace D2ModGen {
+
 class IConfigPage;
 struct GenOutput;
 struct GenerationEnvironment;
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
@@ -35,3 +39,5 @@ private:
     QScopedPointer<GenOutput>      m_outputCache;
     QSet<QString>                  m_cachedFilenames;
 };
+
+}

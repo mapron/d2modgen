@@ -25,6 +25,8 @@
 #include <accctrl.h>
 #include <cassert>
 
+namespace D2ModGen {
+
 namespace {
 
 std::wstring winFilename(QString filename)
@@ -84,4 +86,6 @@ bool createShortCut(const QString& from, const QString& to, const QString& extra
     }
 
     return true;
+}
+
 }

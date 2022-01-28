@@ -9,6 +9,8 @@
 #include <QBoxLayout>
 #include <QLabel>
 
+namespace D2ModGen {
+
 namespace {
 constexpr const int s_maxBalanceLevel = 99;
 constexpr const int s_maxIngameLevel  = 110;
@@ -707,4 +709,6 @@ KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, 
         fillProps(view, ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8), commonSetReq, commonTypeAll, setsTypes, 3, 8, itemFitPercent, true, false);
     }
     return result;
+}
+
 }

@@ -6,6 +6,8 @@
 #pragma once
 #include "ConfigPageAbstract.hpp"
 
+namespace D2ModGen {
+
 class ConfigPageMonRandomizer : public ConfigPageAbstract {
 public:
     ConfigPageMonRandomizer(QWidget* parent);
@@ -21,5 +23,7 @@ public:
         return "monRandomizer";
     }
     JsonFileSet extraFiles() const override;
-    KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    KeySet      generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
+
+}

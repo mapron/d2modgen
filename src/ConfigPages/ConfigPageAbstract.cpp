@@ -8,6 +8,8 @@
 #include <QVBoxLayout>
 #include <QLabel>
 
+namespace D2ModGen {
+
 void DropSet::readRow(const TableView::RowView& row)
 {
     const QString& noDrop = row["NoDrop"];
@@ -147,4 +149,6 @@ int ConfigPageAbstract::getWidgetValue(const QString& id) const
 bool ConfigPageAbstract::isWidgetValueDefault(const QString& id) const
 {
     return m_editors[id]->isDefault();
+}
+
 }

@@ -5,6 +5,8 @@
  */
 #include "ConfigPageGambling.hpp"
 
+namespace D2ModGen {
+
 ConfigPageGambling::ConfigPageGambling(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
@@ -55,4 +57,6 @@ KeySet ConfigPageGambling::generate(GenOutput& output, QRandomGenerator& rng, co
     }
 
     return result;
+}
+
 }

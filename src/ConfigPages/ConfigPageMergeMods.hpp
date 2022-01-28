@@ -9,10 +9,12 @@
 
 class QListWidget;
 
+namespace D2ModGen {
+
 class ConfigPageMergeMods : public ConfigPageAbstract {
 public:
     ConfigPageMergeMods(QWidget* parent);
-    
+
     void setModList(QStringList mods);
 
     // IConfigPage interface
@@ -25,13 +27,15 @@ public:
     {
         return "merging";
     }
-    void readSettings(const QJsonObject& data) override;
-    void writeSettings(QJsonObject& data) const override;
+    void   readSettings(const QJsonObject& data) override;
+    void   writeSettings(QJsonObject& data) const override;
     KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
-    
+
 private:
     QStringList getSelected() const;
-    
+
 private:
-    QListWidget * m_modList;
+    QListWidget* m_modList;
 };
+
+}

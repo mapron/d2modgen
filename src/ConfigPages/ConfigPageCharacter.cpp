@@ -5,6 +5,8 @@
  */
 #include "ConfigPageCharacter.hpp"
 
+namespace D2ModGen {
+
 namespace {
 struct CharItems {
     struct Item {
@@ -124,4 +126,6 @@ KeySet ConfigPageCharacter::generate(GenOutput& output, QRandomGenerator& rng, c
         }
     }
     return result;
+}
+
 }

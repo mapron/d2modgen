@@ -7,6 +7,8 @@
 
 #include "CommonTypes.hpp"
 
+namespace D2ModGen {
+
 class TableView {
 public:
     TableView(Table& table)
@@ -96,3 +98,5 @@ struct ColumnsDesc {
         }
     }
 };
+
+}

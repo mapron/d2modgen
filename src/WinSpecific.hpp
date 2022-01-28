@@ -7,4 +7,8 @@
 
 #include <QString>
 
+namespace D2ModGen {
+
 bool createShortCut(const QString& from, const QString& to, const QString& extraArgs);
+
+}

@@ -8,6 +8,8 @@
 #include "ConfigPageAbstract.hpp"
 #include "AttributeHelper.hpp"
 
+namespace D2ModGen {
+
 class ConfigPageRandomizer : public ConfigPageAbstract {
 public:
     ConfigPageRandomizer(QWidget* parent);
@@ -143,3 +145,5 @@ public:
     }
     KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
+
+}

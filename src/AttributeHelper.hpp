@@ -8,6 +8,8 @@
 #include <QString>
 #include <QSet>
 
+namespace D2ModGen {
+
 enum class AttributeFlag
 {
     ANY,
@@ -62,3 +64,5 @@ bool isUnusedAttribute(const QString& code);
 bool isMinMaxRange(const QString& code);
 
 const AttributeDesc& getAttributeDesc(const QString& code);
+
+}

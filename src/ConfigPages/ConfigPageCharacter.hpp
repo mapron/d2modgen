@@ -6,6 +6,8 @@
 #pragma once
 #include "ConfigPageAbstract.hpp"
 
+namespace D2ModGen {
+
 class ConfigPageCharacter : public ConfigPageAbstract {
 public:
     ConfigPageCharacter(QWidget* parent);
@@ -22,3 +24,5 @@ public:
     }
     KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
+
+}

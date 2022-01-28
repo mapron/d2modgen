@@ -16,6 +16,8 @@
 #include "ConfigPageQol.hpp"
 #include "ConfigPageRandomizer.hpp"
 
+namespace D2ModGen {
+
 QList<IConfigPage*> CreateConfigPages(QWidget* parent)
 {
     return QList<IConfigPage*>{
@@ -30,4 +32,6 @@ QList<IConfigPage*> CreateConfigPages(QWidget* parent)
         new ConfigPageCharacter(parent),
         new ConfigPageQol(parent),
     };
+}
+
 }

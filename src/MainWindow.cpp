@@ -5,12 +5,15 @@
  */
 #include "MainWindow.hpp"
 
+#include "FileIOUtils.hpp"
+
 #include "ConfigPages/MainConfigPage.hpp"
 #include "ConfigPages/ConfigPages.hpp"
 #include "ConfigPages/ConfigPageMergeMods.hpp"
-#include "FileIOUtils.hpp"
+
 #include "Storage/CascStorage.hpp"
 #include "Storage/StormStorage.hpp"
+#include "Storage/StorageConstants.hpp"
 
 #include <QDebug>
 #include <QLayout>
@@ -27,6 +30,8 @@
 #include <QDesktopServices>
 #include <QButtonGroup>
 #include <QCheckBox>
+
+namespace D2ModGen {
 
 MainWindow::MainWindow()
     : QMainWindow(nullptr)
@@ -216,6 +221,11 @@ void MainWindow::generate(const GenerationEnvironment& env)
         return;
     }
     const QString modRoot = env.isLegacy ? env.outPath : env.outPath + QString("mods/%1/%1.mpq/").arg(env.modName);
+    IStorage::Ptr storage;
+    if (env.isLegacy)
+        storage = std::make_shared<StormStorage>();
+    else
+        storage = std::make_shared<CascStorage>();
     m_status->setText("Start...");
     m_status->repaint();
     qDebug() << "started generation in " << modRoot;
@@ -258,7 +268,44 @@ void MainWindow::generate(const GenerationEnvironment& env)
         if (m_outputCache && m_cachedFilenames == requiredFiles) {
             output = *m_outputCache;
         } else {
-            if (env.isLegacy && !ExtractTablesLegacy(env.d2rPath, output) || !env.isLegacy && !ExtractTables(env.d2rPath, output, requiredFiles)) {
+            auto extractTables = [&storage, &env, &output, &requiredFiles]() -> bool {
+                IStorage::RequestFileList filenames;
+                for (const QString& id : g_tableNames)
+                    filenames << IStorage::RequestFile{ QString("data\\global\\excel\\%1.txt").arg(id), id };
+                for (const QString& path : requiredFiles)
+                    filenames << IStorage::RequestFile{ path };
+
+                auto result = storage->ReadData(env.d2rPath, filenames);
+                if (!result.success)
+                    return false;
+
+                for (const auto& fileData : result.files) {
+                    if (!fileData.id.isEmpty()) {
+                        QString data = QString::fromUtf8(fileData.data);
+                        Table   table;
+                        table.id = fileData.id;
+                        if (!readCSV(data, table)) {
+                            qWarning() << "failed to parse csv:" << fileData.relFilepath;
+                            return false;
+                        }
+                        output.tableSet.tables[fileData.id] = std::move(table);
+                    } else if (requiredFiles.contains(fileData.relFilepath)) {
+                        QJsonParseError err;
+                        auto            loadDoc(QJsonDocument::fromJson(fileData.data, &err));
+                        if (loadDoc.isNull()) {
+                            qWarning() << "failed to parse json:" << fileData.relFilepath << ", " << err.errorString();
+                            return false;
+                        }
+                        output.jsonFiles[fileData.relFilepath] = loadDoc;
+                    } else {
+                        qWarning() << "Unexpected file got from Read(): " << fileData.relFilepath;
+                    }
+                }
+
+                return true;
+            };
+
+            if (!extractTables()) {
                 QMessageBox::warning(this, "error", "Failed to read csv data from D2R folder.");
                 return;
             }
@@ -334,4 +381,6 @@ bool MainWindow::loadConfig(const QJsonObject& data)
     }
 
     return true;
+}
+
 }

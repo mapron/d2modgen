@@ -5,6 +5,8 @@
  */
 #include "ConfigPageChallenge.hpp"
 
+namespace D2ModGen {
+
 ConfigPageChallenge::ConfigPageChallenge(QWidget* parent)
     : ConfigPageAbstract(parent)
     , m_items{
@@ -77,4 +79,6 @@ KeySet ConfigPageChallenge::generate(GenOutput& output, QRandomGenerator& rng, c
     }
 
     return result;
+}
+
 }

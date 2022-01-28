@@ -5,29 +5,24 @@
  */
 #include "CascStorage.hpp"
 
-#include "FileIOUtils.hpp"
 #include "RAIIUtils.hpp"
-#include "StorageConstants.hpp"
 
 #include <CascLib.h>
 
-#include <QJsonDocument>
+#include <QDebug>
 
-bool ExtractTables(const QString& d2rpath, GenOutput& output, const JsonFileSet& extraFiles)
+namespace D2ModGen {
+
+IStorage::Result CascStorage::ReadData(const QString& storageRoot, const RequestFileList& filenames) const noexcept
 {
-    const std::string utf8path = d2rpath.toStdString();
+    const std::string utf8path = storageRoot.toStdString();
     HANDLE            storage;
-    if (!CascOpenStorage(utf8path.c_str(), 0, &storage))
-        return false;
+    if (!CascOpenStorage(utf8path.c_str(), 0, &storage)) {
+        qWarning() << "failed to open storage:" << utf8path.c_str();
+        return {};
+    }
     MODGEN_SCOPE_EXIT([storage] { CascCloseStorage(storage); });
 
-    //    {
-    //        CASC_FIND_DATA findData;
-    //        HANDLE findHandle = CascFindFirstFile(storage, "*.txt", &findData, nullptr);
-    //        if (findHandle == INVALID_HANDLE_VALUE)
-    //            return false;
-    //        return false;
-    //    }
     auto readCascFile = [storage](QByteArray& data, const QString& filename) -> bool {
         const std::string fullId = QString("data:%1").arg(filename).toStdString();
         HANDLE            fileHandle;
@@ -49,34 +44,15 @@ bool ExtractTables(const QString& d2rpath, GenOutput& output, const JsonFileSet&
         return true;
     };
 
-    for (const QString& id : g_tableNames) {
-        QByteArray    buffer;
-        const QString file = QString("data\\global\\excel\\%1.txt").arg(id);
-        if (!readCascFile(buffer, file))
-            return false;
+    IStorage::Result result{ true };
 
-        QString data = QString::fromUtf8(buffer);
-        Table   table;
-        table.id = id;
-        if (!readCSV(data, table)) {
-            qWarning() << "failed to parse:" << file;
-            return false;
-        }
-
-        output.tableSet.tables[id] = std::move(table);
-    }
-    if (output.tableSet.tables.empty())
-        return false;
-
-    for (const QString& path : extraFiles) {
+    for (const auto& filename : filenames) {
         QByteArray buffer;
-        if (!readCascFile(buffer, path))
-            return false;
-
-        auto loadDoc(QJsonDocument::fromJson(buffer));
-
-        output.jsonFiles[path] = loadDoc;
+        if (!readCascFile(buffer, filename.relFilepath))
+            return {};
+        result.files << StoredFile{ buffer, filename.relFilepath, filename.id };
     }
+    return result;
+}
 
-    return true;
 }

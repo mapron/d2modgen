@@ -7,6 +7,8 @@
 
 #include "ConfigPageAbstract.hpp"
 
+namespace D2ModGen {
+
 class ConfigPageDropFiltering : public ConfigPageAbstract {
 public:
     struct Item {
@@ -29,5 +31,7 @@ public:
         return "drop_filter";
     }
     JsonFileSet extraFiles() const override;
-    KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    KeySet      generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
+
+}

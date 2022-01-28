@@ -69,10 +69,10 @@ int main(int argc, char* argv[])
     file.open(QIODevice::WriteOnly | QIODevice::Truncate);
     g_logFile = &file;
 
-    MainWindow w;
+    D2ModGen::MainWindow w;
     qDebug() << "main window created";
     w.show();
-    auto res  = app.exec();
+    auto res = app.exec();
     qDebug() << "closing app";
     g_logFile = nullptr;
     return res;

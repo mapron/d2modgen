@@ -8,6 +8,8 @@
 #include <QFile>
 #include <QJsonDocument>
 
+namespace D2ModGen {
+
 bool readJsonFile(const QString& file, QJsonDocument& data)
 {
     QFile loadFile(file);
@@ -98,4 +100,6 @@ bool writeCSVfile(const QString& csvFilename, const Table& table)
     saveFile.write(datastr);
 
     return true;
+}
+
 }

@@ -5,6 +5,15 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
+#include "IStorage.hpp"
 
-bool ExtractTablesLegacy(const QString& d2rpath, GenOutput& output);
+namespace D2ModGen {
+
+class StormStorage : public IStorage {
+public:
+    Result ReadData(const QString& storageRoot, const RequestFileList& filenames) const noexcept override;
+
+    Result ListContents(const QString& storageRoot) const noexcept override { return {}; }
+};
+
+}

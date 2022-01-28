@@ -7,6 +7,8 @@
 
 #include <QStringList>
 
+namespace D2ModGen {
+
 static const QStringList g_tableNames{
     "weapons",
     "actinfo",
@@ -94,3 +96,5 @@ static const QStringList g_tableNames{
     "uniquesuffix",
     "wanderingmon",
 };
+
+}

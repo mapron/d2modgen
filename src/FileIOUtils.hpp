@@ -7,6 +7,8 @@
 
 #include "CommonTypes.hpp"
 
+namespace D2ModGen {
+
 bool readJsonFile(const QString& file, QJsonDocument& data);
 bool writeJsonFile(const QString& file, const QJsonDocument& data, bool escape = false);
 
@@ -15,3 +17,5 @@ bool writeCSV(QString& csvData, const Table& table);
 
 bool readCSVfile(const QString& csvFilename, Table& table);
 bool writeCSVfile(const QString& csvFilename, const Table& table);
+
+}

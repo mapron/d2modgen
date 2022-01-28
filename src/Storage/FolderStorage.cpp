@@ -4,3 +4,7 @@
  * See LICENSE file for details.
  */
 #include "FolderStorage.hpp"
+
+namespace D2ModGen {
+
+}

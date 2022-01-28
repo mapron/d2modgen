@@ -9,6 +9,8 @@
 #include <QListWidget>
 #include <QDirIterator>
 
+namespace D2ModGen {
+
 ConfigPageMergeMods::ConfigPageMergeMods(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
@@ -75,4 +77,6 @@ QStringList ConfigPageMergeMods::getSelected() const
         if (m_modList->item(i)->isSelected())
             mods << m_modList->item(i)->text();
     return mods;
+}
+
 }

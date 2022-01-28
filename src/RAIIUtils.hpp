@@ -5,6 +5,8 @@
  */
 #pragma once
 
+namespace D2ModGen {
+
 namespace details {
 
 template<typename F>
@@ -34,6 +36,7 @@ static constexpr ScopeExitFunctionWrapper<F> createScopeExitFunctionWrapper(cons
 #define MODGEN_STRING_JOIN2(arg1, arg2) MODGEN_DO_STRING_JOIN2(arg1, arg2)
 
 #define MODGEN_SCOPE_EXIT(...) \
-    auto MODGEN_STRING_JOIN2(scope_exit_, __LINE__) = details::createScopeExitFunctionWrapper(__VA_ARGS__); \
+    auto MODGEN_STRING_JOIN2(scope_exit_, __LINE__) = D2ModGen::details::createScopeExitFunctionWrapper(__VA_ARGS__); \
     (void) MODGEN_STRING_JOIN2(scope_exit_, __LINE__)
 
+}

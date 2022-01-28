@@ -7,6 +7,8 @@
 
 #include <QJsonDocument>
 
+namespace D2ModGen {
+
 namespace {
 
 constexpr const int s_maxIngameLevel = 110;
@@ -338,4 +340,6 @@ KeySet ConfigPageMonRandomizer::generate(GenOutput& output, QRandomGenerator& rn
     }
 
     return result;
+}
+
 }

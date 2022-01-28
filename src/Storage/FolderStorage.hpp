@@ -4,3 +4,10 @@
  * See LICENSE file for details.
  */
 #pragma once
+
+namespace D2ModGen {
+
+class FolderStorage {
+};
+
+}

@@ -5,26 +5,27 @@
  */
 #include "StormStorage.hpp"
 
-#include "FileIOUtils.hpp"
 #include "RAIIUtils.hpp"
-#include "StorageConstants.hpp"
 
 #include <StormLib.h>
 
-#include <QJsonDocument>
+#include <QDebug>
 
-bool ExtractTablesLegacy(const QString& d2rpath, GenOutput& output)
+namespace D2ModGen {
+
+IStorage::Result StormStorage::ReadData(const QString& storageRoot, const RequestFileList& filenames) const noexcept
 {
-    const std::string utf8path = d2rpath.toStdString() + "patch_d2.mpq";
+    const std::string utf8path = storageRoot.toStdString() + "patch_d2.mpq";
     HANDLE            mpq;
     if (!SFileOpenArchive(utf8path.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq))
-        return false;
+        return {};
 
     MODGEN_SCOPE_EXIT([mpq] { SFileCloseArchive(mpq); });
-    for (const QString& id : g_tableNames) {
-        const std::string fullId = QString("data\\global\\excel\\%1.txt").arg(id).toStdString();
+
+    auto readStormFile = [mpq](QByteArray& data, const QString& filename) -> bool {
+        const std::string fullId = filename.toStdString();
         if (!SFileHasFile(mpq, fullId.c_str()))
-            continue;
+            return false;
 
         HANDLE fileHandle;
         if (!SFileOpenFileEx(mpq, fullId.c_str(), SFILE_OPEN_FROM_MPQ, &fileHandle)) {
@@ -42,18 +43,18 @@ bool ExtractTablesLegacy(const QString& d2rpath, GenOutput& output)
             return false;
         }
 
-        QString data = QString::fromUtf8(buffer);
-        Table   table;
-        table.id = id;
-        if (!readCSV(data, table)) {
-            qWarning() << "failed to parse:" << fullId.c_str();
-            return false;
-        }
+        return true;
+    };
 
-        output.tableSet.tables[id] = std::move(table);
+    IStorage::Result result{ true };
+
+    for (const auto& filename : filenames) {
+        QByteArray buffer;
+        if (!readStormFile(buffer, filename.relFilepath))
+            return {};
+        result.files << StoredFile{ buffer, filename.relFilepath, filename.id };
     }
-    if (output.tableSet.tables.empty())
-        return false;
+    return result;
+}
 
-    return true;
 }

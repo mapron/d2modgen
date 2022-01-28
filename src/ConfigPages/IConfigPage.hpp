@@ -9,6 +9,8 @@
 
 #include <QWidget>
 
+namespace D2ModGen {
+
 class IConfigPage : public QWidget {
 public:
     explicit IConfigPage(QWidget* parent)
@@ -26,3 +28,5 @@ public:
 
     virtual KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const = 0;
 };
+
+}

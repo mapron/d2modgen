@@ -15,6 +15,8 @@
 
 #include <vector>
 
+namespace D2ModGen {
+
 struct TableRow {
     QStringList data;
     TableRow() = default;
@@ -63,3 +65,4 @@ struct GenOutput {
     QList<CopyFileInfo>          copyFiles;
 };
 
+}

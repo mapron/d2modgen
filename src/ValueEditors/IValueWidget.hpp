@@ -7,6 +7,8 @@
 
 #include <QWidget>
 
+namespace D2ModGen {
+
 class IValueWidget : public QWidget {
 public:
     explicit IValueWidget(QWidget* parent)
@@ -18,3 +20,5 @@ public:
     virtual void resetValue()        = 0;
     virtual bool isDefault() const   = 0;
 };
+
+}

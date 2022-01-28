@@ -7,6 +7,8 @@
 
 #include "ConfigPageAbstract.hpp"
 
+namespace D2ModGen {
+
 class ConfigPageDifficulty : public ConfigPageAbstract {
 public:
     ConfigPageDifficulty(QWidget* parent);
@@ -23,3 +25,5 @@ public:
     }
     KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
+
+}

@@ -11,6 +11,8 @@
 #include <QSlider>
 #include <QBoxLayout>
 
+namespace D2ModGen {
+
 namespace {
 constexpr int s_sliderAverage  = 500;
 constexpr int s_spinboxAverage = 100;
@@ -211,4 +213,6 @@ void SliderWidgetMinMax::sliderToSpinbox()
 void SliderWidgetMinMax::spinboxToSlider()
 {
     m_slider->setValue(m_valueBox->value());
+}
+
 }

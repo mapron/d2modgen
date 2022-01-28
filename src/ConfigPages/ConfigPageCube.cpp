@@ -5,6 +5,8 @@
  */
 #include "ConfigPageCube.hpp"
 
+namespace D2ModGen {
+
 ConfigPageCube::ConfigPageCube(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
@@ -171,4 +173,6 @@ KeySet ConfigPageCube::generate(GenOutput& output, QRandomGenerator& rng, const 
     }
 
     return result;
+}
+
 }

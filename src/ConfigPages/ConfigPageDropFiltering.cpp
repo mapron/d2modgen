@@ -9,6 +9,8 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
+namespace D2ModGen {
+
 namespace {
 const QString s_itemnamesJson  = "data\\local\\lng\\strings\\item-names.json";
 const QString s_affixnamesJson = "data\\local\\lng\\strings\\item-nameaffixes.json";
@@ -138,4 +140,6 @@ KeySet ConfigPageDropFiltering::generate(GenOutput& output, QRandomGenerator& rn
     replaceJson(replacementsAffix, s_affixnamesJson);
 
     return result;
+}
+
 }
