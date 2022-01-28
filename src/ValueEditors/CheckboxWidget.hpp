@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
+#include "IValueWidget.hpp"
 
 class QCheckBox;
 class CheckboxWidget : public IValueWidget {

@@ -4,7 +4,3 @@
  * See LICENSE file for details.
  */
 #pragma once
-
-#include "IConfigPage.hpp"
-
-QList<IConfigPage*> CreateConfigPages(QWidget* parent);

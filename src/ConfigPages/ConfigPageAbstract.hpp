@@ -6,8 +6,10 @@
 #pragma once
 
 #include "ConfigPages.hpp"
-#include "SliderWidget.hpp"
-#include "CheckboxWidget.hpp"
+#include "TableUtils.hpp"
+
+#include "../ValueEditors/SliderWidget.hpp"
+#include "../ValueEditors/CheckboxWidget.hpp"
 
 #include <functional>
 

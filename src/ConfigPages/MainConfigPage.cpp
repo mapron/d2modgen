@@ -6,6 +6,7 @@
 #include "MainConfigPage.hpp"
 #include "FileIOUtils.hpp"
 #include "WinSpecific.hpp"
+#include "TableUtils.hpp"
 
 #include <QLayout>
 #include <QLineEdit>

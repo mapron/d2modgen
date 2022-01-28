@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
+#include "IValueWidget.hpp"
 
 class QSpinBox;
 class QSlider;

@@ -348,6 +348,8 @@ file(GLOB src
 	${sourceRoot}/Storage/*.cpp
 	${sourceRoot}/ConfigPages/*.hpp 
 	${sourceRoot}/ConfigPages/*.cpp
+	${sourceRoot}/ValueEditors/*.hpp 
+	${sourceRoot}/ValueEditors/*.cpp
 	)
 
 if (WIN32 AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))

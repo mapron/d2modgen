@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
+#include "IConfigPage.hpp"
 
 class MainConfigPage : public IConfigPage {
     Q_OBJECT
