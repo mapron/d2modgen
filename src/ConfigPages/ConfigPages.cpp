@@ -18,19 +18,34 @@
 
 namespace D2ModGen {
 
-QList<IConfigPage*> CreateConfigPages(QWidget* parent)
+QList<PageGroup> CreateConfigPages(QWidget* parent)
 {
-    return QList<IConfigPage*>{
-        new ConfigPageDifficulty(parent),
-        new ConfigPageChallenge(parent),
-        new ConfigPageDrops(parent),
-        new ConfigPageDropFiltering(parent),
-        new ConfigPageRandomizer(parent),
-        new ConfigPageMonRandomizer(parent),
-        new ConfigPageCube(parent),
-        new ConfigPageGambling(parent),
-        new ConfigPageCharacter(parent),
-        new ConfigPageQol(parent),
+    return QList<PageGroup>{
+        PageGroup{
+            "Randomizers",
+            QList<IConfigPage*>{
+                new ConfigPageRandomizer(parent),
+                new ConfigPageMonRandomizer(parent),
+            },
+        },
+        PageGroup{
+            "Make harder",
+            QList<IConfigPage*>{
+                new ConfigPageDifficulty(parent),
+                new ConfigPageChallenge(parent),
+            },
+        },
+        PageGroup{
+            "Make easier",
+            QList<IConfigPage*>{
+                new ConfigPageCube(parent),
+                new ConfigPageGambling(parent),
+                new ConfigPageCharacter(parent),
+                new ConfigPageQol(parent),
+                new ConfigPageDrops(parent),
+                new ConfigPageDropFiltering(parent),
+            },
+        },
     };
 }
 

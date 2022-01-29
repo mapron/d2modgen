@@ -58,63 +58,75 @@ MainWindow::MainWindow(bool autoSave)
     auto* pageGroup    = new QButtonGroup(this);
     auto* buttonPanel  = new QWidget(this);
 
-    QVBoxLayout* buttonPanelLayout = new QVBoxLayout(buttonPanel);
-    m_pages << m_mainPage;
-    m_pages << CreateConfigPages(this);
-    m_pages << modMergePage;
+    QVBoxLayout*     buttonPanelLayout = new QVBoxLayout(buttonPanel);
+    QList<PageGroup> pageGroups;
+    pageGroups << PageGroup{
+        "", QList<IConfigPage*>{ m_mainPage, modMergePage }
+    };
+    pageGroups << CreateConfigPages(this);
 
-    for (IConfigPage* page : m_pages) {
-        QPushButton* pageButton = new QPushButton(page->caption(), this);
-        pageButton->setCheckable(true);
-        pageGroup->addButton(pageButton);
-        increaseFontSize(pageButton, 2, false);
-
-        QPushButton* resetButton   = new QPushButton("Reset to default", this);
-        QCheckBox*   headerEnabler = new QCheckBox("Enable this tab", this);
-        QCheckBox*   sideEnabler   = new QCheckBox("", this);
-        headerEnabler->setChecked(true);
-        sideEnabler->setChecked(true);
-        if (!page->canBeDisabled()) {
-            headerEnabler->hide();
-            sideEnabler->hide();
+    for (const auto& group : pageGroups) {
+        if (!group.title.isEmpty()) {
+            auto* groupTitle = new QLabel(group.title, this);
+            groupTitle->setStyleSheet("QLabel { padding-left: 20px; margin-top:8px; }");
+            increaseFontSize(groupTitle, 2, true);
+            buttonPanelLayout->addWidget(groupTitle);
         }
 
-        QWidget* pageWrapper = new QWidget(this);
-        pageWrapper->setContentsMargins(0, 0, 0, 0);
-        auto* caption = new QLabel(page->caption(), this);
-        increaseFontSize(caption, 2, true);
+        for (IConfigPage* page : group.pages) {
+            m_pages << page;
+            QPushButton* pageButton = new QPushButton(page->caption(), this);
+            pageButton->setCheckable(true);
+            pageGroup->addButton(pageButton);
+            increaseFontSize(pageButton, 2, false);
 
-        QVBoxLayout* pageWrapperMain = new QVBoxLayout(pageWrapper);
-        pageWrapperMain->setMargin(8);
-        pageWrapperMain->setSpacing(10);
-        QHBoxLayout* pageWrapperHeader = new QHBoxLayout();
-        pageWrapperHeader->addWidget(caption);
-        pageWrapperHeader->addStretch();
-        pageWrapperHeader->addWidget(headerEnabler);
-        pageWrapperHeader->addWidget(resetButton);
-        pageWrapperMain->addLayout(pageWrapperHeader);
-        pageWrapperMain->addWidget(page);
-        stackedWidget->addWidget(pageWrapper);
+            QPushButton* resetButton   = new QPushButton("Reset to default", this);
+            QCheckBox*   headerEnabler = new QCheckBox("Enable this tab", this);
+            QCheckBox*   sideEnabler   = new QCheckBox("", this);
+            headerEnabler->setChecked(true);
+            sideEnabler->setChecked(true);
+            if (!page->canBeDisabled()) {
+                headerEnabler->hide();
+                sideEnabler->hide();
+            }
 
-        QHBoxLayout* buttonPanelRow = new QHBoxLayout();
-        buttonPanelRow->setMargin(0);
-        buttonPanelRow->setSpacing(3);
-        buttonPanelRow->addWidget(sideEnabler);
-        buttonPanelRow->addWidget(pageButton, 1);
-        buttonPanelLayout->addLayout(buttonPanelRow);
+            QWidget* pageWrapper = new QWidget(this);
+            pageWrapper->setContentsMargins(0, 0, 0, 0);
+            auto* caption = new QLabel(page->caption(), this);
+            increaseFontSize(caption, 2, true);
 
-        connect(pageButton, &QPushButton::clicked, this, [pageWrapper, stackedWidget]() {
-            stackedWidget->setCurrentWidget(pageWrapper);
-        });
-        connect(resetButton, &QPushButton::clicked, this, [page]() {
-            page->readSettings({});
-        });
-        connect(headerEnabler, &QCheckBox::toggled, sideEnabler, &QCheckBox::setChecked);
-        connect(sideEnabler, &QCheckBox::toggled, headerEnabler, &QCheckBox::setChecked);
-        connect(headerEnabler, &QCheckBox::toggled, page, &IConfigPage::setConfigEnabled);
-        if (page->canBeDisabled())
-            connect(headerEnabler, &QCheckBox::toggled, page, &QWidget::setEnabled);
-        m_enableButtons[page] = headerEnabler;
+            QVBoxLayout* pageWrapperMain = new QVBoxLayout(pageWrapper);
+            pageWrapperMain->setMargin(8);
+            pageWrapperMain->setSpacing(10);
+            QHBoxLayout* pageWrapperHeader = new QHBoxLayout();
+            pageWrapperHeader->addWidget(caption);
+            pageWrapperHeader->addStretch();
+            pageWrapperHeader->addWidget(headerEnabler);
+            pageWrapperHeader->addWidget(resetButton);
+            pageWrapperMain->addLayout(pageWrapperHeader);
+            pageWrapperMain->addWidget(page);
+            stackedWidget->addWidget(pageWrapper);
+
+            QHBoxLayout* buttonPanelRow = new QHBoxLayout();
+            buttonPanelRow->setMargin(0);
+            buttonPanelRow->setSpacing(3);
+            buttonPanelRow->addWidget(sideEnabler);
+            buttonPanelRow->addWidget(pageButton, 1);
+            buttonPanelLayout->addLayout(buttonPanelRow);
+
+            connect(pageButton, &QPushButton::clicked, this, [pageWrapper, stackedWidget]() {
+                stackedWidget->setCurrentWidget(pageWrapper);
+            });
+            connect(resetButton, &QPushButton::clicked, this, [page]() {
+                page->readSettings({});
+            });
+            connect(headerEnabler, &QCheckBox::toggled, sideEnabler, &QCheckBox::setChecked);
+            connect(sideEnabler, &QCheckBox::toggled, headerEnabler, &QCheckBox::setChecked);
+            connect(headerEnabler, &QCheckBox::toggled, page, &IConfigPage::setConfigEnabled);
+            if (page->canBeDisabled())
+                connect(headerEnabler, &QCheckBox::toggled, page, &QWidget::setEnabled);
+            m_enableButtons[page] = headerEnabler;
+        }
     }
 
     QMenuBar* mainMenu         = menuBar();

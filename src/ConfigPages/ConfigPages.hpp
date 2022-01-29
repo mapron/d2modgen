@@ -9,6 +9,11 @@
 
 namespace D2ModGen {
 
-QList<IConfigPage*> CreateConfigPages(QWidget* parent);
+struct PageGroup {
+    QString title;
+    QList<IConfigPage*> pages;
+};
+
+QList<PageGroup> CreateConfigPages(QWidget* parent);
 
 }
