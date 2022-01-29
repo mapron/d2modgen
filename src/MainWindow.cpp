@@ -55,7 +55,7 @@ MainWindow::MainWindow(bool autoSave)
 
     // widgets
     QStackedWidget* stackedWidget    = new QStackedWidget(this);
-    QPushButton*    genButton        = new QPushButton("Generate", this);
+    QPushButton*    genButton        = new QPushButton(tr("Generate"), this);
     auto            increaseFontSize = [](QWidget* w, int pointPlus, bool bold) {
         auto f = w->font();
         f.setPointSize(f.pointSize() + pointPlus);
@@ -97,8 +97,8 @@ MainWindow::MainWindow(bool autoSave)
             pageGroup->addButton(pageButton);
             increaseFontSize(pageButton, 2, false);
 
-            QPushButton* resetButton   = new QPushButton("Reset to default", this);
-            QCheckBox*   headerEnabler = new QCheckBox("Enable this tab", this);
+            QPushButton* resetButton   = new QPushButton(tr("Reset to default"), this);
+            QCheckBox*   headerEnabler = new QCheckBox(tr("Enable this tab"), this);
             QCheckBox*   sideEnabler   = new QCheckBox("", this);
             headerEnabler->setChecked(true);
             sideEnabler->setChecked(true);
@@ -150,20 +150,20 @@ MainWindow::MainWindow(bool autoSave)
     }
 
     QMenuBar* mainMenu         = menuBar();
-    QMenu*    fileMenu         = mainMenu->addMenu("File");
-    QMenu*    actionsMenu      = mainMenu->addMenu("Actions");
-    QAction*  about            = mainMenu->addAction("About");
-    QAction*  saveConfigAction = fileMenu->addAction("Save config...");
-    QAction*  loadConfigAction = fileMenu->addAction("Load config...");
-    QAction*  clearConfig      = fileMenu->addAction("Clear config");
-    QAction*  browseToSettings = fileMenu->addAction("Browse to settings folder");
+    QMenu*    fileMenu         = mainMenu->addMenu(tr("File"));
+    QMenu*    actionsMenu      = mainMenu->addMenu(tr("Actions"));
+    QAction*  about            = mainMenu->addAction(tr("About"));
+    QAction*  saveConfigAction = fileMenu->addAction(tr("Save config..."));
+    QAction*  loadConfigAction = fileMenu->addAction(tr("Load config..."));
+    QAction*  clearConfig      = fileMenu->addAction(tr("Clear config"));
+    QAction*  browseToSettings = fileMenu->addAction(tr("Browse to settings folder"));
     fileMenu->addSeparator();
-    QAction* quitNoSaveAction = fileMenu->addAction("Quit without saving");
-    QAction* quitAction       = fileMenu->addAction("Save and quit");
-    QAction* generateMod      = actionsMenu->addAction("Generate mod");
-    QAction* newSeed          = actionsMenu->addAction("Create seed");
-    QMenu*   themeMenu        = actionsMenu->addMenu("Theme");
-    QMenu*   langMenu         = actionsMenu->addMenu("Language");
+    QAction* quitNoSaveAction = fileMenu->addAction(tr("Quit without saving"));
+    QAction* quitAction       = fileMenu->addAction(tr("Save and quit"));
+    QAction* generateMod      = actionsMenu->addAction(tr("Generate mod"));
+    QAction* newSeed          = actionsMenu->addAction(tr("Create seed"));
+    QMenu*   themeMenu        = actionsMenu->addMenu(tr("Theme"));
+    QMenu*   langMenu         = actionsMenu->addMenu(tr("Language"));
     QAction* themeActionLight = themeMenu->addAction("Light");
     QAction* themeActionDark  = themeMenu->addAction("Dark");
     QAction* langActionEn     = langMenu->addAction("English");
@@ -191,7 +191,7 @@ MainWindow::MainWindow(bool autoSave)
     auto setNewAppValue = [updateMenuState, this](const QString& key, const QString& val) {
         auto ini = makeAppSettings();
         ini.setValue(key, val);
-        QMessageBox::information(this, "Notice", "You need to restart for changes apply.");
+        QMessageBox::information(this, "Notice", tr("You need to restart for changes apply."));
     };
     updateMenuState();
 
@@ -303,7 +303,7 @@ void MainWindow::generate()
 
     FolderStorage outStorage(env.outPath, storageOut, env.modName);
     if (!outStorage.prepareForWrite()) {
-        QMessageBox::warning(this, "error", "Failed to write data in destination folder; try to launch as admin.");
+        QMessageBox::warning(this, "error", tr("Failed to write data in destination folder; try to launch as admin."));
         return;
     }
 
@@ -321,7 +321,7 @@ void MainWindow::generate()
     {
         output = m_mainStorageCache->Load(storage, env.d2rPath, g_tableNames, requiredFiles);
         if (!output) {
-            QMessageBox::warning(this, "error", "Failed to read csv data from D2R folder.");
+            QMessageBox::warning(this, "error", tr("Failed to read csv data from D2R folder."));
             return;
         }
         if (env.exportAllTables)
@@ -355,7 +355,7 @@ void MainWindow::generate()
         const QString src  = copyFile.srcModRoot + copyFile.relativePath;
         const QString dest = copyFile.relativePath;
         if (existent.contains(dest)) {
-            QMessageBox::warning(this, "error", QString("Merge conflict in file: %1").arg(dest));
+            QMessageBox::warning(this, "error", tr("Merge conflict in file: %1").arg(dest));
             return;
         }
         existent << dest;
@@ -365,7 +365,7 @@ void MainWindow::generate()
     outStorage.writeData(outData);
 
     qDebug() << "generation ends.";
-    m_status->setText(QString("Mod '%1' successfully updated (%2).").arg(env.modName, QTime::currentTime().toString("mm:ss")));
+    m_status->setText(tr("Mod '%1' successfully updated (%2).").arg(env.modName, QTime::currentTime().toString("mm:ss")));
 }
 
 bool MainWindow::saveConfig(const QString& filename) const

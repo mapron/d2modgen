@@ -84,7 +84,7 @@ MainConfigPage::MainConfigPage(QWidget* parent)
     QValidator* validator = new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9_]+"), this);
     m_impl->modName->setValidator(validator);
 
-    m_impl->d2legacyMode = new QCheckBox("Use Diablo II legacy installation", this);
+    m_impl->d2legacyMode = new QCheckBox(tr("Use Diablo II legacy installation"), this);
 
     m_impl->d2rPath      = new QLineEdit(this);
     m_impl->d2legacyPath = new QLineEdit(this);
@@ -102,16 +102,16 @@ MainConfigPage::MainConfigPage(QWidget* parent)
 
     m_impl->outPath = new QLineEdit(this);
 
-    m_impl->addKeys = new QCheckBox("Add key to new char inventory (Basic mod test)", this);
+    m_impl->addKeys = new QCheckBox(tr("Add key to new char inventory (Basic mod test)"), this);
 
-    m_impl->exportAll = new QCheckBox("Export all *.txt (for further manual edit)", this);
+    m_impl->exportAll = new QCheckBox(tr("Export all *.txt (for further manual edit)"), this);
     m_impl->exportAll->setChecked(false);
 
-    QPushButton* copySettings = new QPushButton("Copy Settings.json", this);
+    QPushButton* copySettings = new QPushButton(tr("Copy Settings.json"), this);
 
-    QPushButton* launchArgs      = new QPushButton("Set launch to mod", this);
-    QPushButton* launchArgsClear = new QPushButton("Reset launch to unmodded", this);
-    QPushButton* makeShortcut    = new QPushButton("Make shortcut on Desktop", this);
+    QPushButton* launchArgs      = new QPushButton(tr("Set launch to mod"), this);
+    QPushButton* launchArgsClear = new QPushButton(tr("Reset launch to unmodded"), this);
+    QPushButton* makeShortcut    = new QPushButton(tr("Make shortcut on Desktop"), this);
 
     QList<QWidget*> d2resurrectedWidgets;
     QList<QWidget*> d2legacyWidgets;
@@ -126,7 +126,7 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         QHBoxLayout* rowLayout = new QHBoxLayout();
         rowLayout->setSpacing(15);
         mainLayout->addLayout(rowLayout);
-        rowLayout->addWidget(new QLabel("Mod id:", this));
+        rowLayout->addWidget(new QLabel(tr("Mod id:"), this));
         rowLayout->addWidget(m_impl->modName);
     }
     {
@@ -141,7 +141,7 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         rowLayout->setSpacing(5);
         rowLayout->setMargin(0);
         mainLayout->addWidget(rowWidget);
-        rowLayout->addWidget(new QLabel("D2R path:", this));
+        rowLayout->addWidget(new QLabel(tr("D2R path:"), this));
         rowLayout->addWidget(m_impl->d2rPath);
         d2resurrectedWidgets << rowWidget;
     }
@@ -152,7 +152,7 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         rowLayout->setSpacing(5);
         rowLayout->setMargin(0);
         mainLayout->addWidget(rowWidget);
-        rowLayout->addWidget(new QLabel("D2 legacy path:", this));
+        rowLayout->addWidget(new QLabel(tr("D2 legacy path:"), this));
         rowLayout->addWidget(m_impl->d2legacyPath);
         d2legacyWidgets << rowWidget;
     }
@@ -163,12 +163,12 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         rowLayout->setSpacing(5);
         rowLayout->setMargin(0);
         mainLayout->addWidget(rowWidget);
-        rowLayout->addWidget(new QLabel("D2R save and user settings root:", this));
+        rowLayout->addWidget(new QLabel(tr("D2R save and user settings root:"), this));
         rowLayout->addWidget(m_impl->d2rSaves);
         QHBoxLayout* rowLayoutButtons = new QHBoxLayout();
         rowLayout->addLayout(rowLayoutButtons);
         rowLayoutButtons->addWidget(copySettings);
-        rowLayoutButtons->addWidget(new QLabel("(this will copy default settings to mod folder)", this));
+        rowLayoutButtons->addWidget(new QLabel(tr("(this will copy default settings to mod folder)"), this));
         rowLayoutButtons->addStretch();
         d2resurrectedWidgets << rowWidget;
     }
@@ -177,7 +177,7 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         QVBoxLayout* rowLayout = new QVBoxLayout();
         rowLayout->setSpacing(5);
         mainLayout->addLayout(rowLayout);
-        rowLayout->addWidget(new QLabel("D2R command arguments (read-only):", this));
+        rowLayout->addWidget(new QLabel(tr("D2R command arguments (read-only):"), this));
         rowLayout->addWidget(m_impl->d2rArgs);
         QHBoxLayout* rowLayoutButtonShortcut = new QHBoxLayout();
         rowLayout->addLayout(rowLayoutButtonShortcut);
@@ -189,7 +189,7 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         rowLayoutButtons->setMargin(0);
         rowLayoutButtons->addWidget(launchArgsClear);
         rowLayoutButtons->addWidget(launchArgs);
-        rowLayoutButtons->addWidget(new QLabel("(<b>Close Battlenet launcher before actions!</b>)", this));
+        rowLayoutButtons->addWidget(new QLabel(tr("(<b>Close Battlenet launcher before actions!</b>)"), this));
         rowLayoutButtons->addStretch();
         d2resurrectedWidgets << rowWidget;
     }
@@ -207,7 +207,7 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         QVBoxLayout* rowLayout = new QVBoxLayout();
         rowLayout->setSpacing(5);
         mainLayout->addLayout(rowLayout);
-        rowLayout->addWidget(new QLabel("Output directory (leave empty to output to D2R path):", this));
+        rowLayout->addWidget(new QLabel(tr("Output directory (leave empty to output to D2R path):"), this));
         rowLayout->addWidget(m_impl->outPath);
     }
 
@@ -314,7 +314,7 @@ bool MainConfigPage::canBeDisabled() const
 
 QString MainConfigPage::caption() const
 {
-    return "Main";
+    return tr("Main");
 }
 
 QString MainConfigPage::settingKey() const

@@ -9,6 +9,8 @@
 namespace D2ModGen {
 
 class ConfigPageChallenge : public ConfigPageAbstract {
+    Q_OBJECT
+
     struct Item {
         QSet<QString> internalIds;
         QString       settingKey;
@@ -23,7 +25,7 @@ public:
 public:
     QString caption() const override
     {
-        return "Challenge";
+        return tr("Challenge");
     }
     QString settingKey() const override
     {

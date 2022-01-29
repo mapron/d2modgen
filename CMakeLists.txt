@@ -11,11 +11,12 @@ cmake_minimum_required(VERSION 3.12...3.19)
 
 project(modgen)
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/targets.cmake)
+
 
 # Qt Setup
-# QtNetwork is only for QtMultimedia
 set(QT_MODULE_LIST Core Gui Widgets)
-find_package(Qt5 COMPONENTS ${QT_MODULE_LIST} REQUIRED)
+find_package(Qt5 COMPONENTS ${QT_MODULE_LIST} LinguistTools REQUIRED)
 add_definitions(-DCASCLIB_NO_AUTO_LINK_LIBRARY -DSTORMLIB_NO_AUTO_LINK)
 
 # casclib
@@ -355,7 +356,10 @@ file(GLOB src
 if (WIN32 AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
 	set(w32 "WIN32")
 endif()
-add_executable(modgen ${w32} ${src} theme/breeze.qrc)
+
+GenerateQrcWithTranslations(Translations ${CMAKE_CURRENT_SOURCE_DIR}/translations qrcName)
+
+add_executable(modgen ${w32} ${src} theme/breeze.qrc ${qrcName})
 set_target_properties(modgen PROPERTIES AUTOMOC ON AUTOUIC OFF AUTORCC ON)
 target_include_directories(modgen PRIVATE ${sourceRoot})
 target_link_libraries(modgen PRIVATE Qt5::Widgets casclib stormlib)

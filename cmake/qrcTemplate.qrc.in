@@ -1,0 +1,5 @@
+<RCC>
+	<qresource prefix="/@QRC_PREFIX@">
+		@QRC_FILES@
+	</qresource>
+</RCC>

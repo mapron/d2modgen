@@ -10,21 +10,21 @@ namespace D2ModGen {
 ConfigPageChallenge::ConfigPageChallenge(QWidget* parent)
     : ConfigPageAbstract(parent)
     , m_items{
-        { { "hp1", "hp2", "hp3", "hp4", "hp5" }, "hpsa", "All Health pots" },
-        { { "mp1", "mp2", "mp3", "mp4", "mp5" }, "mpsa", "All Mana pots" },
-        { { "rvs", "rvl" }, "rvs", "Rejuv & Full Rejuv pots" },
+        { { "hp1", "hp2", "hp3", "hp4", "hp5" }, "hpsa", tr("All Health pots") },
+        { { "mp1", "mp2", "mp3", "mp4", "mp5" }, "mpsa", tr("All Mana pots") },
+        { { "rvs", "rvl" }, "rvs", tr("Rejuv and Full Rejuv pots") },
     }
 {
     for (auto& item : m_items)
         addEditors(QList<IValueWidget*>()
-                   << new CheckboxWidget("Disable drop: " + item.title, "nodrop_" + item.settingKey, false, this));
+                   << new CheckboxWidget(tr("Disable drop: ") + item.title, "nodrop_" + item.settingKey, false, this));
 
     addEditors(QList<IValueWidget*>()
-               << new SliderWidgetMinMax("Normal difficulty resistance penalty, -all%", "normal_minus_res", 0, 250, 0, this)
-               << new SliderWidgetMinMax("Nightmare difficulty resistance penalty, -all%", "nightmare_minus_res", 0, 250, 40, this)
-               << new SliderWidgetMinMax("Hell difficulty resistance penalty, -all%", "hell_minus_res", 0, 250, 100, this)
-               << new SliderWidgetMinMax("Increase Nightmare area levels, +levels", "levelIncreaseNightmare", 0, 20, 0, this)
-               << new SliderWidgetMinMax("Increase Hell area levels, +levels", "levelIncreaseHell", 0, 20, 0, this));
+               << new SliderWidgetMinMax(tr("Normal difficulty resistance penalty, -all%"), "normal_minus_res", 0, 250, 0, this)
+               << new SliderWidgetMinMax(tr("Nightmare difficulty resistance penalty, -all%"), "nightmare_minus_res", 0, 250, 40, this)
+               << new SliderWidgetMinMax(tr("Hell difficulty resistance penalty, -all%"), "hell_minus_res", 0, 250, 100, this)
+               << new SliderWidgetMinMax(tr("Increase Nightmare area levels, +levels"), "levelIncreaseNightmare", 0, 20, 0, this)
+               << new SliderWidgetMinMax(tr("Increase Hell area levels, +levels"), "levelIncreaseHell", 0, 20, 0, this));
 
     closeLayout();
 }

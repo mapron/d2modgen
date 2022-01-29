@@ -31,6 +31,7 @@ private:
 };
 
 class ConfigPageMergeModsPreload : public ConfigPageMergeMods {
+    Q_OBJECT
 public:
     using ConfigPageMergeMods::ConfigPageMergeMods;
 
@@ -47,6 +48,7 @@ public:
 };
 
 class ConfigPageMergeModsPostGen : public ConfigPageMergeMods {
+    Q_OBJECT
 public:
     using ConfigPageMergeMods::ConfigPageMergeMods;
 

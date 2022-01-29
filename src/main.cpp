@@ -11,6 +11,7 @@
 #include <QFile>
 #include <QStandardPaths>
 #include <QFileInfo>
+#include <QTranslator>
 
 namespace {
 QFile*  g_logFile = nullptr;
@@ -20,6 +21,23 @@ QString stripDir(QString s)
     s = s.mid(s.lastIndexOf('/') + 1);
     return s;
 }
+
+class RAIITranslator {
+    std::unique_ptr<QTranslator> m_tr;
+
+public:
+    RAIITranslator(const QString& localeId)
+        : m_tr(std::make_unique<QTranslator>())
+    {
+        m_tr->load(QString(":/Translations/modgen_%1.qm").arg(localeId));
+        QApplication::installTranslator(m_tr.get());
+    }
+    ~RAIITranslator()
+    {
+        QApplication::removeTranslator(m_tr.get());
+    }
+};
+
 }
 
 void customMessageOutput(QtMsgType type, const QMessageLogContext& context, const QString& msg)
@@ -90,6 +108,9 @@ int main(int argc, char* argv[])
         QTextStream stream(&file);
         app.setStyleSheet(stream.readAll());
     }
+
+    Q_INIT_RESOURCE(Translations);
+    RAIITranslator trans(langId);
 
     D2ModGen::MainWindow w(true);
     qDebug() << "main window created";
