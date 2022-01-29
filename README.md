@@ -3,10 +3,16 @@
 Generator is inspired by [d2modmaker](https://github.com/tlentz/d2modmaker). It provides fast and easy way to create mod without any modding knowledge.  
 Features included:  
 - GUI-based desktop application with "one click and go" solution;
-- Ability to adjust monster stats;
-- Tune options to increase Set/Unique/Rare drops;
+- Item randomizer - create new properties for Uniques, Runewords, Sets, Magic/Rare and even gems and runes!
+- Monster randomizer - now any zone can have any monster! (balance taken into account);
 - Increase monster density and boss pack count to insane numbers;
-- Last but not least, item randomizer - switch magic properties between Uniques, Runewords, Sets, Magic/Rare and even gems and runes!
+- Tired of finding High Runes? Bring drop levels to crazy amounts, adjust uniques, Runes and more;
+- Ability to adjust monster stats;
+- Make you life easier with dozens of quality-of-life features;  
+  
+  
+See screenshots below to have a look what d2modgen supports - and you can get comprehensive help on each page by clicking help icon.  
+If you interested in history of changes, [changelog is here](Changelog.md)
 
 # Quick start
 ![mainwindow](docs/mainwindow.png "Main Window")  
