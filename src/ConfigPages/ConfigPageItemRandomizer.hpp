@@ -10,9 +10,9 @@
 
 namespace D2ModGen {
 
-class ConfigPageRandomizer : public ConfigPageAbstract {
+class ConfigPageItemRandomizer : public ConfigPageAbstract {
 public:
-    ConfigPageRandomizer(QWidget* parent);
+    ConfigPageItemRandomizer(QWidget* parent);
 
     using ItemCode    = uint32_t;
     using ItemCodeSet = QSet<uint32_t>;

@@ -22,7 +22,9 @@ ConfigPageChallenge::ConfigPageChallenge(QWidget* parent)
     addEditors(QList<IValueWidget*>()
                << new SliderWidgetMinMax("Normal difficulty resistance penalty, -all%", "normal_minus_res", 0, 250, 0, this)
                << new SliderWidgetMinMax("Nightmare difficulty resistance penalty, -all%", "nightmare_minus_res", 0, 250, 40, this)
-               << new SliderWidgetMinMax("Hell difficulty resistance penalty, -all%", "hell_minus_res", 0, 250, 100, this));
+               << new SliderWidgetMinMax("Hell difficulty resistance penalty, -all%", "hell_minus_res", 0, 250, 100, this)
+               << new SliderWidgetMinMax("Increase Nightmare area levels, +levels", "levelIncreaseNightmare", 0, 20, 0, this)
+               << new SliderWidgetMinMax("Increase Hell area levels, +levels", "levelIncreaseHell", 0, 20, 0, this));
 
     closeLayout();
 }
@@ -76,6 +78,30 @@ KeySet ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng,
         checkPenalty("normal_minus_res", "Normal");
         checkPenalty("nightmare_minus_res", "Nightmare");
         checkPenalty("hell_minus_res", "Hell");
+    }
+
+    const int levelIncreaseNightmare = getWidgetValue("levelIncreaseNightmare");
+    const int levelIncreaseHell      = getWidgetValue("levelIncreaseHell");
+
+    if (levelIncreaseNightmare || levelIncreaseHell) {
+        result << "levels";
+        TableView view(output.tableSet.tables["levels"]);
+
+        const QString nighLevelKey = view.hasColumn("MonLvlEx(N)") ? "MonLvlEx(N)" : "MonLvl2Ex";
+        const QString hellLevelKey = view.hasColumn("MonLvlEx(H)") ? "MonLvlEx(H)" : "MonLvl3Ex";
+
+        auto adjustLevel = [&nighLevelKey, &hellLevelKey](TableView::RowView& row, const QString& key, const int levelIncrease) {
+            QString& lev   = row[key];
+            int      level = lev.toInt();
+            if (!level || level > 85)
+                return;
+            lev = QString("%1").arg(std::min(85, level + levelIncrease));
+        };
+
+        for (auto& row : view) {
+            adjustLevel(row, nighLevelKey, levelIncreaseNightmare);
+            adjustLevel(row, hellLevelKey, levelIncreaseHell);
+        }
     }
 
     return result;

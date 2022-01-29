@@ -334,8 +334,10 @@ bool MainWindow::loadConfig(const QString& filename)
 {
     qDebug() << "Load:" << filename;
     QJsonDocument doc;
-    if (!readJsonFile(filename, doc))
+    if (!readJsonFile(filename, doc)) {
+        loadConfig(QJsonObject{});
         return false;
+    }
     QJsonObject data = doc.object();
     return loadConfig(data);
 }

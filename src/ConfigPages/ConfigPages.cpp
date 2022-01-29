@@ -8,13 +8,14 @@
 #include "ConfigPageChallenge.hpp"
 #include "ConfigPageCharacter.hpp"
 #include "ConfigPageCube.hpp"
-#include "ConfigPageDifficulty.hpp"
 #include "ConfigPageDropFiltering.hpp"
 #include "ConfigPageDrops.hpp"
 #include "ConfigPageGambling.hpp"
+#include "ConfigPageItemRandomizer.hpp"
+#include "ConfigPageMonDensity.hpp"
 #include "ConfigPageMonRandomizer.hpp"
+#include "ConfigPageMonStats.hpp"
 #include "ConfigPageQol.hpp"
-#include "ConfigPageRandomizer.hpp"
 
 namespace D2ModGen {
 
@@ -24,14 +25,15 @@ QList<PageGroup> CreateConfigPages(QWidget* parent)
         PageGroup{
             "Randomizers",
             QList<IConfigPage*>{
-                new ConfigPageRandomizer(parent),
+                new ConfigPageItemRandomizer(parent),
                 new ConfigPageMonRandomizer(parent),
             },
         },
         PageGroup{
             "Make harder",
             QList<IConfigPage*>{
-                new ConfigPageDifficulty(parent),
+                new ConfigPageMonStats(parent),
+                new ConfigPageMonDensity(parent),
                 new ConfigPageChallenge(parent),
             },
         },

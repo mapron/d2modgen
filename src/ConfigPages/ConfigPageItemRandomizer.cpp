@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  * See LICENSE file for details.
  */
-#include "ConfigPageRandomizer.hpp"
+#include "ConfigPageItemRandomizer.hpp"
 #include "AttributeHelper.hpp"
 
 #include <QBoxLayout>
@@ -16,7 +16,7 @@ constexpr const int s_maxBalanceLevel = 99;
 constexpr const int s_maxIngameLevel  = 110;
 }
 
-void ConfigPageRandomizer::MagicPropBucket::postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock)
+void ConfigPageItemRandomizer::MagicPropBucket::postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock)
 {
     if (!replaceSkills && !replaceCharges)
         return;
@@ -51,7 +51,7 @@ void ConfigPageRandomizer::MagicPropBucket::postProcess(bool replaceSkills, bool
     }
 }
 
-void ConfigPageRandomizer::MagicPropBucket::sortByLevel()
+void ConfigPageItemRandomizer::MagicPropBucket::sortByLevel()
 {
     std::sort(bundles.begin(), bundles.end(), [](const MagicPropBundle& l, const MagicPropBundle& r) { return l.level < r.level; });
     int lastLevel = -1;
@@ -66,7 +66,7 @@ void ConfigPageRandomizer::MagicPropBucket::sortByLevel()
         lowerLevelBounds[lastLevel] = bundles.size();
 }
 
-std::pair<int, int> ConfigPageRandomizer::MagicPropBucket::getBounds(int level, int balance, int minRange) const
+std::pair<int, int> ConfigPageItemRandomizer::MagicPropBucket::getBounds(int level, int balance, int minRange) const
 {
     if (balance >= s_maxBalanceLevel)
         return { 0, static_cast<int>(bundles.size()) };
@@ -84,14 +84,14 @@ std::pair<int, int> ConfigPageRandomizer::MagicPropBucket::getBounds(int level, 
     return { 0, static_cast<int>(bundles.size()) };
 }
 
-const ConfigPageRandomizer::MagicPropBundle& ConfigPageRandomizer::MagicPropBucket::getRandomBundle(QRandomGenerator& rng, int level, int balance) const
+const ConfigPageItemRandomizer::MagicPropBundle& ConfigPageItemRandomizer::MagicPropBucket::getRandomBundle(QRandomGenerator& rng, int level, int balance) const
 {
     const auto [lowerBound, upperBound] = getBounds(level, balance, 2);
     const int index                     = rng.bounded(lowerBound, upperBound);
     return bundles[index];
 }
 
-void ConfigPageRandomizer::MagicPropBucket::addParsedBundle(MagicPropBundle inBundle)
+void ConfigPageItemRandomizer::MagicPropBucket::addParsedBundle(MagicPropBundle inBundle)
 {
     if (inBundle.props.empty())
         return;
@@ -136,7 +136,7 @@ void ConfigPageRandomizer::MagicPropBucket::addParsedBundle(MagicPropBundle inBu
     }
 }
 
-void ConfigPageRandomizer::MagicPropSet::addParsedBundle(MagicPropBundle inBundle)
+void ConfigPageItemRandomizer::MagicPropSet::addParsedBundle(MagicPropBundle inBundle)
 {
     if (inBundle.props.empty())
         return;
@@ -168,7 +168,7 @@ void ConfigPageRandomizer::MagicPropSet::addParsedBundle(MagicPropBundle inBundl
     bucketByType[AttributeFlag::ANY].addParsedBundle(std::move(inBundle));
 }
 
-void ConfigPageRandomizer::MagicPropSet::postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock)
+void ConfigPageItemRandomizer::MagicPropSet::postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock)
 {
     for (auto&& bucket : bucketByType) {
         bucket.second.postProcess(replaceSkills, replaceCharges, skipKnock);
@@ -176,7 +176,7 @@ void ConfigPageRandomizer::MagicPropSet::postProcess(bool replaceSkills, bool re
     }
 }
 
-QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicPropSet::getRandomBundles(const AttributeFlagSet& allowedTypes,
+QList<const ConfigPageItemRandomizer::MagicPropBundle*> ConfigPageItemRandomizer::MagicPropSet::getRandomBundles(const AttributeFlagSet& allowedTypes,
                                                                                                          QRandomGenerator&       rng,
                                                                                                          int                     count,
                                                                                                          int                     level,
@@ -185,7 +185,7 @@ QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicP
     if (!count)
         return {};
 
-    QList<const ConfigPageRandomizer::MagicPropBundle*> result;
+    QList<const ConfigPageItemRandomizer::MagicPropBundle*> result;
 
     std::vector<BucketRange> branges;
     int                      totalSize = 0;
@@ -218,7 +218,7 @@ QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicP
     return result;
 }
 
-QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicPropUniverse::getRandomBundles(const AttributeFlagSet& allowedTypes,
+QList<const ConfigPageItemRandomizer::MagicPropBundle*> ConfigPageItemRandomizer::MagicPropUniverse::getRandomBundles(const AttributeFlagSet& allowedTypes,
                                                                                                               const ItemCodeFilter&   query,
                                                                                                               int                     specificItemUsage,
                                                                                                               QRandomGenerator&       rng,
@@ -229,7 +229,7 @@ QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicP
     if (!specificItemUsage)
         return all.getRandomBundles(allowedTypes, rng, count, level, balance);
 
-    QList<const ConfigPageRandomizer::MagicPropBundle*> result;
+    QList<const ConfigPageItemRandomizer::MagicPropBundle*> result;
     const ItemCodeSet                                   codeSet       = query.include;
     const ItemCode                                      code          = (*codeSet.begin());
     int                                                 specificCount = 0;
@@ -238,13 +238,13 @@ QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicP
             specificCount++;
     }
     {
-        QList<const ConfigPageRandomizer::MagicPropBundle*> resultSpec;
+        QList<const ConfigPageItemRandomizer::MagicPropBundle*> resultSpec;
         for (auto code : codeSet) {
             if (!propSetByCode.contains(code))
                 continue;
             resultSpec += propSetByCode.at(code).getRandomBundles(allowedTypes, rng, specificCount, level, balance);
         }
-        QSet<const ConfigPageRandomizer::MagicPropBundle*> resultSpecSet;
+        QSet<const ConfigPageItemRandomizer::MagicPropBundle*> resultSpecSet;
         if (!resultSpec.isEmpty()) {
             for (int i = 0; i < specificCount; ++i)
                 resultSpecSet << resultSpec[rng.bounded(resultSpec.size())];
@@ -256,7 +256,7 @@ QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicP
     return result;
 }
 
-ConfigPageRandomizer::ItemCodeSet ConfigPageRandomizer::MagicPropUniverse::processQuery(const ItemCodeFilter& query) const
+ConfigPageItemRandomizer::ItemCodeSet ConfigPageItemRandomizer::MagicPropUniverse::processQuery(const ItemCodeFilter& query) const
 {
     ItemCodeSet codeSet;
     codeSet += query.include;
@@ -268,7 +268,7 @@ ConfigPageRandomizer::ItemCodeSet ConfigPageRandomizer::MagicPropUniverse::proce
     return codeSet;
 }
 
-void ConfigPageRandomizer::MagicPropUniverse::fillPropSets()
+void ConfigPageItemRandomizer::MagicPropUniverse::fillPropSets()
 {
     for (const auto& bucket : all.bucketByType) {
         for (const MagicPropBundle& bundle : bucket.second.bundles) {
@@ -281,7 +281,7 @@ void ConfigPageRandomizer::MagicPropUniverse::fillPropSets()
     }
 }
 
-ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
+ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
@@ -324,7 +324,7 @@ ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     auto&  tableSet = output.tableSet;
     KeySet result;

@@ -9,19 +9,19 @@
 
 namespace D2ModGen {
 
-class ConfigPageDifficulty : public ConfigPageAbstract {
+class ConfigPageMonStats : public ConfigPageAbstract {
 public:
-    ConfigPageDifficulty(QWidget* parent);
+    ConfigPageMonStats(QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
-        return "Difficulty";
+        return "Monster stats";
     }
     QString settingKey() const override
     {
-        return "difficulty";
+        return "monster_stats";
     }
     KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };

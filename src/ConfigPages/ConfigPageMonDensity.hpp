@@ -9,19 +9,19 @@
 
 namespace D2ModGen {
 
-class ConfigPageDrops : public ConfigPageAbstract {
+class ConfigPageMonDensity : public ConfigPageAbstract {
 public:
-    ConfigPageDrops(QWidget* parent);
+    ConfigPageMonDensity(QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
-        return "Increase Item/Rune drops";
+        return "Monster density";
     }
     QString settingKey() const override
     {
-        return "drops";
+        return "density";
     }
     KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
