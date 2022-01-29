@@ -23,14 +23,14 @@ QList<PageGroup> CreateConfigPages(QWidget* parent)
 {
     return QList<PageGroup>{
         PageGroup{
-            "Randomizers",
+            QObject::tr("Randomizers"),
             QList<IConfigPage*>{
                 new ConfigPageItemRandomizer(parent),
                 new ConfigPageMonRandomizer(parent),
             },
         },
         PageGroup{
-            "Make harder",
+            QObject::tr("Make harder"),
             QList<IConfigPage*>{
                 new ConfigPageMonStats(parent),
                 new ConfigPageMonDensity(parent),
@@ -38,7 +38,7 @@ QList<PageGroup> CreateConfigPages(QWidget* parent)
             },
         },
         PageGroup{
-            "Make easier",
+            QObject::tr("Make easier"),
             QList<IConfigPage*>{
                 new ConfigPageCube(parent),
                 new ConfigPageGambling(parent),
@@ -48,7 +48,7 @@ QList<PageGroup> CreateConfigPages(QWidget* parent)
             },
         },
         PageGroup{
-            "Misc",
+            QObject::tr("Misc"),
             QList<IConfigPage*>{
                 new ConfigPageDropFiltering(parent),
             },
