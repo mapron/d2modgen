@@ -6,6 +6,8 @@
 #include "ConfigPageItemRandomizer.hpp"
 #include "AttributeHelper.hpp"
 
+#include "HelpToolButton.hpp"
+
 #include <QBoxLayout>
 #include <QLabel>
 
@@ -285,13 +287,26 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new SliderWidgetMinMax(tr("Balance level (lower = more balance, 99=chaos)"), "balance", 5, s_maxBalanceLevel, s_maxBalanceLevel, this)
-               << new SliderWidgetMinMax(tr("Item type fit percent (0% = all affixes fully random, 100% = all according to item type)"), "itemFitPercent", 0, 100, 0, this)
-               << new SliderWidgetMinMax(tr("Number of versions of each unique (you will have N different uniques with differnet stats)"), "repeat_uniques", 1, 20, 10, this));
+               << addHelp(new SliderWidgetMinMax(tr("Balance level (lower = more balance, 99=chaos)"), "balance", 5, s_maxBalanceLevel, s_maxBalanceLevel, this),
+                          tr("Balance level - determine level difference to be used when selecting new properties for item/rune/etc.\n"
+                             "With '10' it will select between level-10 and level+5 at first, if there are few candidates,\n"
+                             "then it will select 0..level+5, and finally it will try fully random. \n"
+                             "In short, lower value = more balance in terms of original affix level and item level."))
+               << addHelp(new SliderWidgetMinMax(tr("Item type fit percent (0% = fully random, 100% = all according to item type)"), "itemFitPercent", 0, 100, 0, this),
+                          tr("Item fit slider allow you to select how much item affixes will be related to original item type.\n"
+                             "For example, if you choose 80%, then 4 of 5 affixes will be selected to pool for specific item type\n"
+                             "Item can have have several pools related to its type - say, scepter is a rod and a melee weapon.\n"
+                             "Item type-specific properties will be picked in proportion to all types."))
+               << addHelp(new SliderWidgetMinMax(tr("Number of versions of each unique"), "repeat_uniques", 1, 20, 10, this),
+                          tr("allow you to have different uniques with same name and level, but different properties, \n"
+                             "you will have N different uniques with differnet stats;\n"
+                             "so you have an opportunity to pick same item again to check it out.\n"
+                             "This works only with Uniques, not Sets.")));
 
     auto* keepCount = new CheckboxWidget(tr("Keep original property count"), "keepCount", false, this);
+    keepCount       = addHelp(keepCount, tr("You can select this to make all items having same property count, or customize it with settings below."));
     addEditors(QList<IValueWidget*>() << keepCount);
-    auto addMinimax = [this, keepCount](int minValue, int maxValue, int midValue, const QString& minKey, const QString& maxKey, const QString& overallTitle) {
+    auto addMinimax = [this, keepCount](int minValue, int maxValue, int midValue, const QString& minKey, const QString& maxKey, const QString& overallTitle, const QString& help) {
         IValueWidget* minw = new SliderWidgetMinMax("Min", minKey, minValue, maxValue, midValue, true, this);
         IValueWidget* maxw = new SliderWidgetMinMax("Max", maxKey, minValue, maxValue, maxValue, true, this);
 
@@ -302,6 +317,12 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
         auto*        l      = new QLabel(overallTitle, this);
         l->setMinimumWidth(110);
         mainLayout->addWidget(l);
+        if (!help.isEmpty()) {
+            auto* b = new HelpToolButton(help, this);
+            mainLayout->addWidget(b);
+        } else {
+            mainLayout->addSpacing(22);
+        }
         mainLayout->addLayout(bottom);
         bottom->addWidget(minw);
         bottom->addWidget(maxw);
@@ -310,35 +331,36 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
         addEditorsPlain({ minw, maxw });
         connect(keepCount, &CheckboxWidget::toggled, wrapper, &QWidget::setDisabled);
     };
-    addMinimax(1, 12, 3, "min_uniq_props", "max_uniq_props", tr("Unique properties"));
-    addMinimax(1, 7, 3, "min_rw_props", "max_rw_props", tr("RW properties"));
-    addMinimax(1, 19, 3, "min_set_props", "max_set_props", tr("Set items properties"));
+    addMinimax(1, 12, 3, "min_uniq_props", "max_uniq_props", tr("Unique properties"), tr("Next three pairs of sliders set min/max amount of affixes on Uniques, RuneWords and Sets.\n"
+                                                                                         "Sets (not items)/gems/runes will have 1 as minimum and maximum possible as maximum."));
+    addMinimax(1, 7, 3, "min_rw_props", "max_rw_props", tr("RW properties"), "");
+    addMinimax(1, 19, 3, "min_set_props", "max_set_props", tr("Set items properties"), "");
 
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget(tr("Always perfect rolls"), "perfectRoll", false, this)
-               << new CheckboxWidget(tr("Randomize magix/rare affixes"), "affixRandom", false, this)
-               << new CheckboxWidget(tr("Randomize gem and runes properties"), "gemsRandom", false, this)
-               << new CheckboxWidget(tr("Replace skills with oskills"), "replaceSkills", false, this)
-               << new CheckboxWidget(tr("Replace charges with oskills"), "replaceCharges", false, this)
-               << new CheckboxWidget(tr("Remove Knockback/Monster flee"), "removeKnock", false, this));
+               << addHelp(new CheckboxWidget(tr("Always perfect rolls"), "perfectRoll", false, this),
+                          tr("Always perfect means simply minimum roll becomes maximum (where it makes sense)."))
+               << addHelp(new CheckboxWidget(tr("Randomize magix/rare affixes"), "affixRandom", false, this),
+                          tr("This will modify rare and magic suffixes - \n"
+                             "so they can include properties of any other item in the game. \n"
+                             "Note that their properties are read even without this option."))
+               << addHelp(new CheckboxWidget(tr("Randomize gem and runes properties"), "gemsRandom", false, this),
+                          tr("This will modify gem and rune properties - \n"
+                             "so they can include properties of any other item in the game. \n"
+                             "Note that their properties are read even without this option."))
+               << addHelp(new CheckboxWidget(tr("Replace skills with oskills"), "replaceSkills", false, this),
+                          tr(""))
+               << addHelp(new CheckboxWidget(tr("Replace charges with oskills"), "replaceCharges", false, this),
+                          tr(""))
+               << addHelp(new CheckboxWidget(tr("Remove Knockback/Monster flee"), "removeKnock", false, this),
+                          tr("")));
     closeLayout();
 }
 
 QString ConfigPageItemRandomizer::pageHelp() const
 {
-    return tr("First you need to set topmost checkbox to enable everything.\n"
-              "Balance level - determine level difference to be used when selecting new properties for item/rune/etc.\n"
-              "With '10' it will select between level-10 and level+5 at first, if there are few candidates,\n"
-              "then it will select 0..level+5, and finally it will try fully random. \n"
-              "In short, lower value = more balance in terms of original affix level and item level. \n"
-              "Item fit slider allow you to select how much item affixes will be related to original item type.\n"
-              "\"Number of version\" allow you to have different uniques with same name and level, but different properties.\n"
-              "You can select \"Keep original property count\" to make all items having same property count, or customize it with settings below.\n"
-              "Next three pairs of sliders set min/max amount of affixes on Uniques, RuneWords and Sets.\n"
-              "Sets (not items)/gems/runes will have 1 as minimum and maximum possible as maximum. \n"
-              "Always perfect means simply minimum roll becomes maximum (where it makes sense).  \n"
-              "Randomize magic/rare include modification of regular affixes - so they can include properties of any other item in the game.  \n"
-              "Same for the option for gems.");
+    return tr("What item randomizer does in short - it reads all possible item properties from Uniques, Sets, etc, \n"
+              "And then reassign properties back, but in random order (also it does not mean every original will be used).\n"
+              "For details, check descriptions of every option.");
 }
 
 KeySet ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const

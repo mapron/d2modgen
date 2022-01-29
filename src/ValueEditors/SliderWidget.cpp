@@ -5,6 +5,7 @@
  */
 #define _USE_MATH_DEFINES
 #include "SliderWidget.hpp"
+#include "HelpToolButton.hpp"
 
 #include <QLabel>
 #include <QSpinBox>
@@ -61,11 +62,19 @@ SliderWidget::SliderWidget(const QString& caption,
     m_slider->setMaximumHeight(15);
     m_slider->setValue(s_sliderAverage);
 
+    m_helpButton = new HelpToolButton("", this);
+    m_helpButton->hide();
+
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(4);
+    QHBoxLayout* captionLayout = new QHBoxLayout();
+    captionLayout->setMargin(0);
+    captionLayout->addWidget(new QLabel(caption, this));
+    captionLayout->addWidget(m_helpButton);
+    captionLayout->addStretch(0);
+    mainLayout->addLayout(captionLayout);
     QHBoxLayout* bottomLayout = new QHBoxLayout();
-    mainLayout->addWidget(new QLabel(caption, this));
     mainLayout->addLayout(bottomLayout);
     bottomLayout->addWidget(m_slider);
     bottomLayout->addWidget(m_valueBox);
@@ -95,6 +104,14 @@ int SliderWidget::getValue() const
 bool SliderWidget::isDefault() const
 {
     return getValue() == s_spinboxAverage;
+}
+
+void SliderWidget::addHelp(const QString& helpToolTip)
+{
+    if (helpToolTip.isEmpty())
+        return;
+    m_helpButton->setToolTip(helpToolTip);
+    m_helpButton->show();
 }
 
 void SliderWidget::sliderToSpinbox()
@@ -164,6 +181,9 @@ SliderWidgetMinMax::SliderWidgetMinMax(const QString& caption,
     m_slider->setMaximumHeight(15);
     m_slider->setValue(m_defaultValue);
 
+    m_helpButton = new HelpToolButton("", this);
+    m_helpButton->hide();
+
     QBoxLayout* mainLayout;
     if (compact)
         mainLayout = new QHBoxLayout(this);
@@ -171,8 +191,13 @@ SliderWidgetMinMax::SliderWidgetMinMax(const QString& caption,
         mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(4);
+    QHBoxLayout* captionLayout = new QHBoxLayout();
+    captionLayout->setMargin(0);
+    captionLayout->addWidget(new QLabel(caption, this));
+    captionLayout->addWidget(m_helpButton);
+    captionLayout->addStretch(0);
+    mainLayout->addLayout(captionLayout);
     QHBoxLayout* bottomLayout = new QHBoxLayout();
-    mainLayout->addWidget(new QLabel(caption, this));
     mainLayout->addLayout(bottomLayout);
     bottomLayout->addWidget(m_slider);
     bottomLayout->addWidget(m_valueBox);
@@ -201,6 +226,14 @@ int SliderWidgetMinMax::getValue() const
 bool SliderWidgetMinMax::isDefault() const
 {
     return getValue() == m_defaultValue;
+}
+
+void SliderWidgetMinMax::addHelp(const QString& helpToolTip)
+{
+    if (helpToolTip.isEmpty())
+        return;
+    m_helpButton->setToolTip(helpToolTip);
+    m_helpButton->show();
 }
 
 void SliderWidgetMinMax::sliderToSpinbox()

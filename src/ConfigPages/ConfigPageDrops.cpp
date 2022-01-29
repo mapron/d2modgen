@@ -15,29 +15,39 @@ ConfigPageDrops::ConfigPageDrops(QWidget* parent)
                << new SliderWidgetMinMax(tr("Increase Unique Chance"), "chance_uni", 1, 50, 1, this)
                << new SliderWidgetMinMax(tr("Increase Set Chance"), "chance_set", 1, 30, 1, this)
                << new SliderWidgetMinMax(tr("Increase Rare Chance"), "chance_rare", 1, 15, 1, this)
-               << new SliderWidgetMinMax(tr("NoDrop reduce % (higher=more drops)"), "nodrop_factor", 1, 10, 1, this)
-               << new CheckboxWidget(tr("Increase Champion/Unique item count"), "high_elite_drops", false, this)
-               << new SliderWidgetMinMax(tr("Increase Good TC (Runes/Gems/Jewellery)"), "good_factor", 1, 10, 1, this)
-               << new SliderWidgetMinMax(tr("Increase Runes chance in Good TC"), "rune_factor", 1, 10, 1, this)
-               << new CheckboxWidget(tr("Switch Ber,Jah with Cham,Zod in rarity"), "highrune_switch", false, this)
-               << new SliderWidgetMinMax(tr("Increase Rare Rune drops<br>This is increase of dropping Zod in 'Runes 17' TC<br>Rarity of other runes will change proportionally."), "zod_factor", 1, 1000, 1, this)
-               << new CheckboxWidget(tr("Make all Uniques have equal rarity on same base (including rings)"), "equal_uniques", false, this)
-               << new CheckboxWidget(tr("Always perfect rolls (independent from Randomizer)"), "perfect_rolls", false, this));
+               << addHelp(new SliderWidgetMinMax(tr("NoDrop reduce % (higher=more drops)"), "nodrop_factor", 1, 10, 1, this),
+                          tr("NoDrop slider provides ability to gradually reduce NoDrop picks \n"
+                             "(it basically similar to increasing players count in the game)"))
+               << addHelp(new CheckboxWidget(tr("Increase Champion/Unique item count"), "high_elite_drops", false, this),
+                          tr("This will make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one.\n"
+                             "Note that potion drops are slightly reduced."))
+               << addHelp(new SliderWidgetMinMax(tr("Increase Good TC (Runes/Gems/Jewellery)"), "good_factor", 1, 10, 1, this),
+                          tr("That will make Gems/Runes/Rings/Amulets/Charms drop far more often \n"
+                             "compared to equipment (armor/weapons)."))
+               << addHelp(new SliderWidgetMinMax(tr("Increase Runes chance in Good TC"), "rune_factor", 1, 10, 1, this),
+                          tr("When dropping from Good TC, that will make Runes drop more often \n"
+                             "compared to other jewellery (Gems/Rings/Amulets/Charms)"))
+               << addHelp(new CheckboxWidget(tr("Switch (Ber,Jah) with (Cham,Zod) in rarity"), "highrune_switch", false, this),
+                          tr("When game desides to drop Jah rune, it drops Zod instead. And vice versa."))
+               << addHelp(new SliderWidgetMinMax(tr("Increase Rare Rune drops"), "zod_factor", 1, 1000, 1, this),
+                          tr("That will drastically improve High Rune drop rates! You probably don't need more than 50x.\n"
+                             "Value here increases chance of dropping Zod in 'Runes 17' TC\n"
+                             "Rarity of other runes will change proportionally \n"
+                             "(so High Runes still be more rare in the same manner)."))
+               << addHelp(new CheckboxWidget(tr("Make all Uniques have equal rarity on same base"), "equal_uniques", false, this),
+                          tr("Now Uniques with equal item base will have equal chance to drop.\n"
+                             "For example Tyrael's and Templar's will have equal chance. (and all rings too)"))
+               << addHelp(new CheckboxWidget(tr("Always perfect rolls"), "perfect_rolls", false, this),
+                          tr("That will make all properties be perfect (where it make sense), (independent from Randomizer).")));
     closeLayout();
 }
 
 QString ConfigPageDrops::pageHelp() const
 {
-    return tr("First 3 sliders are for increasing chance for Uniques/Sets/Rares. \n"
-              "Note that it's not that accurate when you have already high chance (like killing low level monster with high MF). \n"
-              "NoDrop slider provides ability to gradually reduce NoDrop parts (it basically similar to increasing players count in the game). \n"
-              "\"Increase Champion/Unique item count\" make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one. \n"
-              "\"Increase Good TC\" slider makes Gems/Runes/Rings/Amulets/Charms drop far more often compare to equipment.  \n"
-              "\"Increase Runes chance\" tunes Runes specifically compared to other jewellery.  \n"
-              "Switch Ber/Jah with Cham/Zod pretty descriptive: when game deside to drop Jah rune, it drops Zod instead.  \n"
-              "Final slider is when everything above is not satisfying and you really really want high runes to be more common. Please don't do that :).  \n"
-              "\"Make all Uniques have same rarity\" option for making, for example Tyrael's and Templar's have same chance.  "
-              "\"Always perfect rolls\" for those who want perfect rolls without Randomizer.  ");
+    return tr("All help and explanation on this page assume you are familiar with Treasure Class (TC) and NoDrop terminology.\n"
+              "Basically all options here modifying TC pick weights - so one preferred option become less rare.\n"
+              "First 3 sliders are for increasing chance for Uniques/Sets/Rares. \n"
+              "Note that increase is accurate when your chances are low, but with high MF it can have diminishing return.");
 }
 
 KeySet ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const

@@ -12,6 +12,8 @@ class QSlider;
 
 namespace D2ModGen {
 
+class HelpToolButton;
+
 class SliderWidget : public IValueWidget {
 public:
     SliderWidget(const QString& caption,
@@ -26,17 +28,20 @@ public:
     int  getValue() const override;
     bool isDefault() const override;
 
+    void addHelp(const QString& helpToolTip);
+
 private:
     void sliderToSpinbox();
     void spinboxToSlider();
 
 private:
-    const double m_denom;
-    const double m_mult;
-    const double m_min;
-    const double m_max;
-    QSpinBox*    m_valueBox;
-    QSlider*     m_slider;
+    const double    m_denom;
+    const double    m_mult;
+    const double    m_min;
+    const double    m_max;
+    QSpinBox*       m_valueBox;
+    QSlider*        m_slider;
+    HelpToolButton* m_helpButton;
 };
 
 class SliderWidgetMinMax : public IValueWidget {
@@ -69,16 +74,31 @@ public:
     int  getValue() const override;
     bool isDefault() const override;
 
+    void addHelp(const QString& helpToolTip);
+
 private:
     void sliderToSpinbox();
     void spinboxToSlider();
 
 private:
-    const int m_minValue;
-    const int m_maxValue;
-    const int m_defaultValue;
-    QSpinBox* m_valueBox;
-    QSlider*  m_slider;
+    const int       m_minValue;
+    const int       m_maxValue;
+    const int       m_defaultValue;
+    QSpinBox*       m_valueBox;
+    QSlider*        m_slider;
+    HelpToolButton* m_helpButton;
 };
+
+static inline SliderWidget* addHelp(SliderWidget* slider, const QString& helpToolTip)
+{
+    slider->addHelp(helpToolTip);
+    return slider;
+}
+
+static inline SliderWidgetMinMax* addHelp(SliderWidgetMinMax* slider, const QString& helpToolTip)
+{
+    slider->addHelp(helpToolTip);
+    return slider;
+}
 
 }

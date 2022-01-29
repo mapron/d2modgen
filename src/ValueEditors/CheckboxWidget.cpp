@@ -5,6 +5,8 @@
  */
 #include "CheckboxWidget.hpp"
 
+#include "HelpToolButton.hpp"
+
 #include <QCheckBox>
 #include <QBoxLayout>
 
@@ -22,10 +24,15 @@ CheckboxWidget::CheckboxWidget(const QString& caption,
     m_checkBox->setChecked(m_default);
     connect(m_checkBox, &QCheckBox::toggled, this, &CheckboxWidget::toggled);
 
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    m_helpButton = new HelpToolButton("", this);
+    m_helpButton->hide();
+
+    QHBoxLayout* mainLayout = new QHBoxLayout(this);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(4);
     mainLayout->addWidget(m_checkBox);
+    mainLayout->addWidget(m_helpButton);
+    mainLayout->addStretch();
 }
 
 CheckboxWidget::~CheckboxWidget() = default;
@@ -48,6 +55,15 @@ int CheckboxWidget::getValue() const
 bool CheckboxWidget::isDefault() const
 {
     return m_checkBox->isChecked() == m_default;
+}
+
+void CheckboxWidget::addHelp(const QString& helpToolTip)
+{
+    if (helpToolTip.isEmpty())
+        return;
+
+    m_helpButton->setToolTip(helpToolTip);
+    m_helpButton->show();
 }
 
 }
