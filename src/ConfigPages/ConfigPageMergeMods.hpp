@@ -19,14 +19,6 @@ public:
 
     // IConfigPage interface
 public:
-    QString caption() const override
-    {
-        return "Merge mods";
-    }
-    QString settingKey() const override
-    {
-        return "merging";
-    }
     void   readSettings(const QJsonObject& data) override;
     void   writeSettings(QJsonObject& data) const override;
     KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
@@ -36,6 +28,38 @@ private:
 
 private:
     QListWidget* m_modList;
+};
+
+class ConfigPageMergeModsPreload : public ConfigPageMergeMods {
+public:
+    using ConfigPageMergeMods::ConfigPageMergeMods;
+
+    // IConfigPage interface
+public:
+    QString caption() const override
+    {
+        return tr("Pre-gen data");
+    }
+    QString settingKey() const override
+    {
+        return "mergePregen";
+    }
+};
+
+class ConfigPageMergeModsPostGen : public ConfigPageMergeMods {
+public:
+    using ConfigPageMergeMods::ConfigPageMergeMods;
+
+    // IConfigPage interface
+public:
+    QString caption() const override
+    {
+        return tr("Post-gen data");
+    }
+    QString settingKey() const override
+    {
+        return "mergePostgen";
+    }
 };
 
 }

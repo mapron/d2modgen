@@ -156,6 +156,7 @@ If requirements are met, then go "cmake/build/build install". For windows platfo
 - (MIT) CascLib (https://github.com/ladislav-zezula/CascLib) is used for Blizzard CASC data storage read;
 - (Zlib) Zlib library used internally by CascLib;
 - (MIT) StormLib (https://github.com/ladislav-zezula/StormLib) is used for reading MPQ files.
+- (MIT) BreezeStylesheet (https://github.com/Alexhuszagh/BreezeStyleSheets) for theme support.
 
 # Third party components as non-distributed dependency
 - Qt , https://www.qt.io/, GPL/LGPL/Commercial; components utilized by d2modgen are available under LGPL.

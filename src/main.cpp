@@ -68,15 +68,27 @@ int main(int argc, char* argv[])
     QFile        file(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/applog.txt");
     file.open(QIODevice::WriteOnly | QIODevice::Truncate);
     g_logFile = &file;
-    
+
     auto args = app.arguments();
     if (args.value(1) == "--generate") {
         D2ModGen::MainWindow w(false);
-        QString file = args.value(2);
+        QString              file = args.value(2);
         if (!file.isEmpty())
             w.loadConfig(file);
         w.generate();
         return 0;
+    }
+
+    auto [langId, themeId] = D2ModGen::MainWindow::getAppSettings();
+    qDebug() << "langId=" << langId;
+    qDebug() << "themeId=" << themeId;
+
+    {
+        Q_INIT_RESOURCE(breeze);
+        QFile file(QString(":/%1/stylesheet.qss").arg(themeId));
+        file.open(QFile::ReadOnly | QFile::Text);
+        QTextStream stream(&file);
+        app.setStyleSheet(stream.readAll());
     }
 
     D2ModGen::MainWindow w(true);

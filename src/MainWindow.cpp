@@ -30,8 +30,18 @@
 #include <QDesktopServices>
 #include <QButtonGroup>
 #include <QCheckBox>
+#include <QSettings>
 
 namespace D2ModGen {
+
+namespace {
+
+QSettings makeAppSettings()
+{
+    return QSettings(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/settings.ini", QSettings::IniFormat);
+}
+
+}
 
 MainWindow::MainWindow(bool autoSave)
     : QMainWindow(nullptr)
@@ -54,16 +64,20 @@ MainWindow::MainWindow(bool autoSave)
     m_status = new QLabel("Status label.", this);
 
     m_mainPage         = new MainConfigPage(this);
-    auto* modMergePage = new ConfigPageMergeMods(this);
+    auto* modMergePre  = new ConfigPageMergeModsPreload(this);
+    auto* modMergePost = new ConfigPageMergeModsPostGen(this);
     auto* pageGroup    = new QButtonGroup(this);
     auto* buttonPanel  = new QWidget(this);
 
     QVBoxLayout*     buttonPanelLayout = new QVBoxLayout(buttonPanel);
     QList<PageGroup> pageGroups;
     pageGroups << PageGroup{
-        "", QList<IConfigPage*>{ m_mainPage, modMergePage }
+        "", QList<IConfigPage*>{ m_mainPage }
     };
     pageGroups << CreateConfigPages(this);
+    pageGroups << PageGroup{
+        "", QList<IConfigPage*>{ modMergePre, modMergePost }
+    };
 
     for (const auto& group : pageGroups) {
         if (!group.title.isEmpty()) {
@@ -142,12 +156,38 @@ MainWindow::MainWindow(bool autoSave)
     QAction* quitAction       = fileMenu->addAction("Save and quit");
     QAction* generateMod      = actionsMenu->addAction("Generate mod");
     QAction* newSeed          = actionsMenu->addAction("Create seed");
+    QMenu*   themeMenu        = actionsMenu->addMenu("Theme");
+    QMenu*   langMenu         = actionsMenu->addMenu("Language");
+    QAction* themeActionLight = themeMenu->addAction("Light");
+    QAction* themeActionDark  = themeMenu->addAction("Dark");
+    QAction* langActionEn     = langMenu->addAction("English");
+    QAction* langActionRu     = langMenu->addAction("Russian");
 
     saveConfigAction->setShortcuts(QKeySequence::Save);
     loadConfigAction->setShortcuts(QKeySequence::Open);
     clearConfig->setShortcuts(QKeySequence::New);
     newSeed->setShortcuts(QKeySequence::Refresh);
     generateMod->setShortcut(QKeySequence(Qt::Key_F9));
+
+    auto updateMenuState = [themeActionLight, themeActionDark, langActionEn, langActionRu]() {
+        auto       appSettings = getAppSettings();
+        const bool themeLight  = appSettings.m_themeId == "light";
+        const bool langEn      = appSettings.m_langId == "en_US";
+        themeActionLight->setCheckable(true);
+        themeActionDark->setCheckable(true);
+        langActionEn->setCheckable(true);
+        langActionRu->setCheckable(true);
+        themeActionLight->setChecked(themeLight);
+        themeActionDark->setChecked(!themeLight);
+        langActionEn->setChecked(langEn);
+        langActionRu->setChecked(!langEn);
+    };
+    auto setNewAppValue = [updateMenuState, this](const QString& key, const QString& val) {
+        auto ini = makeAppSettings();
+        ini.setValue(key, val);
+        QMessageBox::information(this, "Notice", "You need to restart for changes apply.");
+    };
+    updateMenuState();
 
     // layouts
 
@@ -211,10 +251,16 @@ MainWindow::MainWindow(bool autoSave)
     });
     connect(generateMod, &QAction::triggered, this, &MainWindow::generate);
     connect(newSeed, &QAction::triggered, m_mainPage, &MainConfigPage::createNewSeed);
-    auto updateModList = [modMergePage, this] {
-        modMergePage->setModList(m_mainPage->getOtherMods());
+    auto updateModList = [modMergePre, modMergePost, this] {
+        modMergePre->setModList(m_mainPage->getOtherMods());
+        modMergePost->setModList(m_mainPage->getOtherMods());
     };
     connect(m_mainPage, &MainConfigPage::updateModList, this, updateModList);
+
+    connect(themeActionLight, &QAction::triggered, this, [setNewAppValue] { setNewAppValue("themeId", "light"); });
+    connect(themeActionDark, &QAction::triggered, this, [setNewAppValue] { setNewAppValue("themeId", "dark"); });
+    connect(langActionEn, &QAction::triggered, this, [setNewAppValue] { setNewAppValue("langId", "en_US"); });
+    connect(langActionRu, &QAction::triggered, this, [setNewAppValue] { setNewAppValue("langId", "ru_RU"); });
 
     // misc
     updateModList();
@@ -351,6 +397,12 @@ bool MainWindow::loadConfig(const QJsonObject& data)
     }
 
     return true;
+}
+
+MainWindow::AppSettings MainWindow::getAppSettings()
+{
+    auto ini = makeAppSettings();
+    return { ini.value("langId", "en_US").toString(), ini.value("themeId", "light").toString() };
 }
 
 }

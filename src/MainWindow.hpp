@@ -30,6 +30,14 @@ public:
     bool saveConfig(const QString& filename) const;
     bool loadConfig(const QString& filename);
     bool loadConfig(const QJsonObject& data);
+    
+    struct AppSettings
+    {
+        QString m_langId;
+        QString m_themeId;
+    };
+
+    static AppSettings getAppSettings();
 
 private:
     QString                        m_defaultConfig;

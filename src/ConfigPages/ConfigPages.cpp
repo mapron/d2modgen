@@ -45,6 +45,11 @@ QList<PageGroup> CreateConfigPages(QWidget* parent)
                 new ConfigPageCharacter(parent),
                 new ConfigPageQol(parent),
                 new ConfigPageDrops(parent),
+            },
+        },
+        PageGroup{
+            "Misc",
+            QList<IConfigPage*>{
                 new ConfigPageDropFiltering(parent),
             },
         },
