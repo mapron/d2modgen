@@ -15,7 +15,4 @@ bool writeJsonFile(const QString& file, const QJsonDocument& data, bool escape =
 bool readCSV(const QString& csvData, Table& table);
 bool writeCSV(QString& csvData, const Table& table);
 
-bool readCSVfile(const QString& csvFilename, Table& table);
-bool writeCSVfile(const QString& csvFilename, const Table& table);
-
 }

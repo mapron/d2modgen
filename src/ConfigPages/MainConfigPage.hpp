@@ -30,7 +30,7 @@ public:
     bool        isConfigEnabled() const override;
     void        setConfigEnabled(bool state) override;
 
-    KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 
 signals:
     void updateModList();

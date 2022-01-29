@@ -372,7 +372,7 @@ void MainConfigPage::setConfigEnabled(bool state)
 {
 }
 
-KeySet MainConfigPage::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet MainConfigPage::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (!m_impl->addKeys->isChecked())
         return {};

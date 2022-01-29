@@ -20,7 +20,7 @@ ConfigPageGambling::ConfigPageGambling(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageGambling::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageGambling::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     auto&      tableSet = output.tableSet;
     KeySet     result;

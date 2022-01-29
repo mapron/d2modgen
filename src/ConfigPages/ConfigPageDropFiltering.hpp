@@ -31,7 +31,7 @@ public:
         return "drop_filter";
     }
     JsonFileSet extraFiles() const override;
-    KeySet      generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    KeySet      generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 
 }

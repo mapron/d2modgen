@@ -77,7 +77,7 @@ JsonFileSet ConfigPageDropFiltering::extraFiles() const
     return { s_itemnamesJson, s_affixnamesJson };
 }
 
-KeySet ConfigPageDropFiltering::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageDropFiltering::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};

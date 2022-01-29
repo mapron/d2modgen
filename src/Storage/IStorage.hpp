@@ -14,7 +14,21 @@ namespace D2ModGen {
 
 class IStorage {
 public:
-    using Ptr = std::shared_ptr<const IStorage>;
+    static QString makeTableRelativePath(const QString& id, bool backslash);
+public:
+    virtual ~IStorage() = default;
+};
+
+class IInputStorage : public IStorage {
+public:
+    using Ptr = std::shared_ptr<const IInputStorage>;
+
+    struct StoredFile {
+        QByteArray data; // can be empty for enumeration.
+        QString    relFilepath;
+        QString    id;
+    };
+    using StoredFileList = QList<StoredFile>;
 
     struct RequestFile {
         QString relFilepath;
@@ -22,23 +36,32 @@ public:
     };
     using RequestFileList = QList<RequestFile>;
 
-    struct StoredFile {
-        QByteArray data; // can be empty for enumeration.
-        QString    relFilepath;
-        QString    id;
-    };
-
     struct Result {
-        bool              success = false;
-        QList<StoredFile> files;
+        bool           success = false;
+        StoredFileList files;
     };
 
 public:
-    virtual ~IStorage() = default;
+    virtual Result readData(const QString& storageRoot, const RequestFileList& filenames) const noexcept = 0;
 
-    virtual Result ReadData(const QString& storageRoot, const RequestFileList& filenames) const noexcept = 0;
+    virtual Result listContents(const QString& storageRoot) const noexcept = 0;
+};
 
-    virtual Result ListContents(const QString& storageRoot) const noexcept = 0;
+class IOutputStorage : public IStorage {
+public:
+    using Ptr = std::shared_ptr<const IOutputStorage>;
+
+    struct OutFile {
+        QByteArray data; // can be empty for enumeration.
+        QString    relFilepath;
+        QString    srcAbsFilepath;
+    };
+    using OutFileList = QList<OutFile>;
+
+public:
+    virtual bool prepareForWrite() const noexcept = 0;
+
+    virtual bool writeData(const OutFileList& files) const noexcept = 0;
 };
 
 }

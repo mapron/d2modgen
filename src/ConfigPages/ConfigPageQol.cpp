@@ -25,7 +25,7 @@ ConfigPageQol::ConfigPageQol(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageQol::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageQol::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};

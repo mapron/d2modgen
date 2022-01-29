@@ -38,7 +38,7 @@ ConfigPageCube::ConfigPageCube(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageCube::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};

@@ -72,7 +72,7 @@ ConfigPageCharacter::ConfigPageCharacter(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageCharacter::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageCharacter::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};

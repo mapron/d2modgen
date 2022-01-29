@@ -31,7 +31,7 @@ ConfigPageDifficulty::ConfigPageDifficulty(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageDifficulty::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageDifficulty::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     auto&  tableSet = output.tableSet;
     KeySet result;

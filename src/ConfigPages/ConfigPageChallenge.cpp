@@ -27,7 +27,7 @@ ConfigPageChallenge::ConfigPageChallenge(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageChallenge::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};

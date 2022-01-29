@@ -9,11 +9,11 @@
 
 namespace D2ModGen {
 
-class StormStorage : public IStorage {
+class StormStorage : public IInputStorage {
 public:
-    Result ReadData(const QString& storageRoot, const RequestFileList& filenames) const noexcept override;
+    Result readData(const QString& storageRoot, const RequestFileList& filenames) const noexcept override;
 
-    Result ListContents(const QString& storageRoot) const noexcept override { return {}; }
+    Result listContents(const QString& storageRoot) const noexcept override { return {}; }
 };
 
 }

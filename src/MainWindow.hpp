@@ -16,7 +16,7 @@ class QCheckBox;
 namespace D2ModGen {
 
 class IConfigPage;
-struct GenOutput;
+class StorageCache;
 struct GenerationEnvironment;
 
 class MainWindow : public QMainWindow {
@@ -36,8 +36,7 @@ private:
     QList<IConfigPage*>            m_pages;
     QMap<IConfigPage*, QCheckBox*> m_enableButtons;
     QLabel*                        m_status;
-    QScopedPointer<GenOutput>      m_outputCache;
-    QSet<QString>                  m_cachedFilenames;
+    QScopedPointer<StorageCache>   m_mainStorageCache;
 };
 
 }

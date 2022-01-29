@@ -13,7 +13,7 @@
 
 namespace D2ModGen {
 
-IStorage::Result CascStorage::ReadData(const QString& storageRoot, const RequestFileList& filenames) const noexcept
+IInputStorage::Result CascStorage::readData(const QString& storageRoot, const RequestFileList& filenames) const noexcept
 {
     const std::string utf8path = storageRoot.toStdString();
     HANDLE            storage;
@@ -44,7 +44,7 @@ IStorage::Result CascStorage::ReadData(const QString& storageRoot, const Request
         return true;
     };
 
-    IStorage::Result result{ true };
+    IInputStorage::Result result{ true };
 
     for (const auto& filename : filenames) {
         QByteArray buffer;

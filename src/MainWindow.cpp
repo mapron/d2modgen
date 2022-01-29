@@ -11,9 +11,9 @@
 #include "ConfigPages/ConfigPages.hpp"
 #include "ConfigPages/ConfigPageMergeMods.hpp"
 
-#include "Storage/CascStorage.hpp"
-#include "Storage/StormStorage.hpp"
 #include "Storage/StorageConstants.hpp"
+#include "Storage/StorageCache.hpp"
+#include "Storage/FolderStorage.hpp"
 
 #include <QDebug>
 #include <QLayout>
@@ -35,6 +35,7 @@ namespace D2ModGen {
 
 MainWindow::MainWindow()
     : QMainWindow(nullptr)
+    , m_mainStorageCache(new StorageCache())
 {
     setWindowTitle("Diablo II Resurrected mod generator by mapron");
 
@@ -220,100 +221,44 @@ void MainWindow::generate(const GenerationEnvironment& env)
         qWarning() << "D2R path is empty";
         return;
     }
-    const QString modRoot = env.isLegacy ? env.outPath : env.outPath + QString("mods/%1/%1.mpq/").arg(env.modName);
-    IStorage::Ptr storage;
-    if (env.isLegacy)
-        storage = std::make_shared<StormStorage>();
-    else
-        storage = std::make_shared<CascStorage>();
-    m_status->setText("Start...");
-    m_status->repaint();
-    qDebug() << "started generation in " << modRoot;
-    if (!env.isLegacy && QFileInfo::exists(modRoot))
-        QDir(modRoot).removeRecursively();
 
-    if (!QFileInfo::exists(modRoot))
-        QDir().mkpath(modRoot);
-    if (!QFileInfo::exists(modRoot)) {
-        QMessageBox::warning(this, "error", "Failed to create mod folder in D2R installation; try to launch as admin.");
+    StorageType storage;
+    if (env.isLegacy)
+        storage = StorageType::D2LegacyInternal;
+    else
+        storage = StorageType::D2ResurrectedInternal;
+
+    StorageType storageOut;
+    if (env.isLegacy)
+        storageOut = StorageType::D2LegacyFolder;
+    else
+        storageOut = StorageType::D2ResurrectedModFolder;
+
+    FolderStorage outStorage(env.outPath, storageOut, env.modName);
+    if (!outStorage.prepareForWrite()) {
+        QMessageBox::warning(this, "error", "Failed to write data in destination folder; try to launch as admin.");
         return;
     }
-    if (!env.isLegacy) {
-        QJsonObject modinfo;
-        modinfo["name"]     = env.modName;
-        modinfo["savepath"] = env.modName + "/";
-        if (!writeJsonFile(modRoot + "modinfo.json", QJsonDocument(modinfo))) {
-            QMessageBox::warning(this, "error", "Failed to write modinfo.");
-            return;
-        }
-    }
-    const QString excelRoot = modRoot + "data/global/excel/";
-    if (env.isLegacy && QFileInfo::exists(excelRoot))
-        QDir(excelRoot).removeRecursively();
-    if (!QFileInfo::exists(excelRoot))
-        QDir().mkpath(excelRoot);
-    for (auto path : QDir(excelRoot).entryInfoList(QStringList() << "*.txt")) {
-        QFile::remove(path.absoluteFilePath());
-    }
 
-    KeySet      keySet;
-    GenOutput   output;
-    JsonFileSet requiredFiles;
+    m_status->setText("Start...");
+    m_status->repaint();
+
+    KeySet         keySet;
+    DataContextPtr output;
+    JsonFileSet    requiredFiles;
     {
         for (auto* page : m_pages)
             if (page->isConfigEnabled())
                 requiredFiles += page->extraFiles();
     }
     {
-        if (m_outputCache && m_cachedFilenames == requiredFiles) {
-            output = *m_outputCache;
-        } else {
-            auto extractTables = [&storage, &env, &output, &requiredFiles]() -> bool {
-                IStorage::RequestFileList filenames;
-                for (const QString& id : g_tableNames)
-                    filenames << IStorage::RequestFile{ QString("data\\global\\excel\\%1.txt").arg(id), id };
-                for (const QString& path : requiredFiles)
-                    filenames << IStorage::RequestFile{ path };
-
-                auto result = storage->ReadData(env.d2rPath, filenames);
-                if (!result.success)
-                    return false;
-
-                for (const auto& fileData : result.files) {
-                    if (!fileData.id.isEmpty()) {
-                        QString data = QString::fromUtf8(fileData.data);
-                        Table   table;
-                        table.id = fileData.id;
-                        if (!readCSV(data, table)) {
-                            qWarning() << "failed to parse csv:" << fileData.relFilepath;
-                            return false;
-                        }
-                        output.tableSet.tables[fileData.id] = std::move(table);
-                    } else if (requiredFiles.contains(fileData.relFilepath)) {
-                        QJsonParseError err;
-                        auto            loadDoc(QJsonDocument::fromJson(fileData.data, &err));
-                        if (loadDoc.isNull()) {
-                            qWarning() << "failed to parse json:" << fileData.relFilepath << ", " << err.errorString();
-                            return false;
-                        }
-                        output.jsonFiles[fileData.relFilepath] = loadDoc;
-                    } else {
-                        qWarning() << "Unexpected file got from Read(): " << fileData.relFilepath;
-                    }
-                }
-
-                return true;
-            };
-
-            if (!extractTables()) {
-                QMessageBox::warning(this, "error", "Failed to read csv data from D2R folder.");
-                return;
-            }
-            m_cachedFilenames = requiredFiles;
-            m_outputCache.reset(new GenOutput(output));
+        output = m_mainStorageCache->Load(storage, env.d2rPath, g_tableNames, requiredFiles);
+        if (!output) {
+            QMessageBox::warning(this, "error", "Failed to read csv data from D2R folder.");
+            return;
         }
         if (env.exportAllTables)
-            for (auto id : output.tableSet.tables.keys())
+            for (auto id : output->tableSet.tables.keys())
                 keySet << id;
     }
     qDebug() << "prepare ended; modifying tables. seed=" << env.seed;
@@ -322,32 +267,38 @@ void MainWindow::generate(const GenerationEnvironment& env)
         rng.seed(env.seed);
         for (auto* page : m_pages)
             if (page->isConfigEnabled())
-                keySet += page->generate(output, rng, env);
+                keySet += page->generate(*output, rng, env);
     }
-    qDebug() << "writing output.";
-    for (const auto& key : keySet)
-        writeCSVfile(excelRoot + key + ".txt", output.tableSet.tables[key]);
-    auto iter = QMapIterator(output.jsonFiles);
+    qDebug() << "prepare output data.";
+    IOutputStorage::OutFileList outData;
+    for (const auto& key : keySet) {
+        QString data;
+        writeCSV(data, output->tableSet.tables[key]);
+        outData << IOutputStorage::OutFile{ data.toUtf8(), IStorage::makeTableRelativePath(key, false) };
+    }
+    auto iter = QMapIterator(output->jsonFiles);
     while (iter.hasNext()) {
         iter.next();
-        const QString folder = QFileInfo(modRoot + iter.key()).absolutePath();
-        if (!QFileInfo::exists(folder))
-            QDir().mkpath(folder);
-        writeJsonFile(modRoot + iter.key(), iter.value());
+        QByteArray datastr = iter.value().toJson(QJsonDocument::Indented);
+        datastr.replace(QByteArray("\xC3\x83\xC2\xBF\x63"), QByteArray("\xC3\xBF\x63")); // hack: replace color codes converter to UTF-8 from latin-1.
+        outData << IOutputStorage::OutFile{ datastr, iter.key() };
     }
-    for (auto& copyFile : output.copyFiles) {
+    QSet<QString> existent;
+    for (auto& copyFile : output->copyFiles) {
         const QString src  = copyFile.srcModRoot + copyFile.relativePath;
-        const QString dest = modRoot + copyFile.relativePath;
-        if (QFile::exists(dest)) {
-            QMessageBox::warning(this, "error", QString("Merge conflict in file: %1").arg(copyFile.relativePath));
+        const QString dest = copyFile.relativePath;
+        if (existent.contains(dest)) {
+            QMessageBox::warning(this, "error", QString("Merge conflict in file: %1").arg(dest));
             return;
         }
-        QDir().mkpath(QFileInfo(dest).absolutePath());
-        QFile::copy(src, dest);
+        existent << dest;
+        outData << IOutputStorage::OutFile{ {}, dest, src };
     }
+    qDebug() << "writing output to disk.";
+    outStorage.writeData(outData);
 
     qDebug() << "generation ends.";
-    m_status->setText(QString("Mod '%1' successfully updated (%2).").arg(env.modName).arg(QTime::currentTime().toString("mm:ss")));
+    m_status->setText(QString("Mod '%1' successfully updated (%2).").arg(env.modName, QTime::currentTime().toString("mm:ss")));
 }
 
 bool MainWindow::saveConfig(const QString& filename) const

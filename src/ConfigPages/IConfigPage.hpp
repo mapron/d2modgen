@@ -26,7 +26,7 @@ public:
     virtual bool        isConfigEnabled() const                = 0;
     virtual void        setConfigEnabled(bool state)           = 0;
 
-    virtual KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const = 0;
+    virtual KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const = 0;
 };
 
 }

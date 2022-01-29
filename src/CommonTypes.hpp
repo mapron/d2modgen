@@ -41,6 +41,14 @@ struct TableSet {
     QMap<QString, Table> tables;
 };
 
+enum class StorageType {
+    D2ResurrectedInternal, // using CASC storage from D2R Installation,
+    D2LegacyInternal, // using Storm storage from D2 Legacy Installation (patch_d2.mpq)
+    D2ResurrectedModFolder, // folder containing D2R mod structure (usually in mods/name/name.mpq)
+    D2LegacyFolder, // Folder containing 'data' folder where data can be extracted.
+    CsvFolder, // Folder containing plain 'txt' files. Can not be selected as output.
+};
+
 struct GenerationEnvironment {
     QString  modName;
     QString  d2rPath;
@@ -59,10 +67,11 @@ struct CopyFileInfo {
     QString relativePath;
 };
 
-struct GenOutput {
-    TableSet                     tableSet;
-    QMap<QString, QJsonDocument> jsonFiles;
-    QList<CopyFileInfo>          copyFiles;
+struct DataContext {
+    TableSet                     tableSet;  // txt tables parsed into csv-like tables.
+    QMap<QString, QJsonDocument> jsonFiles; // data of extra json files
+    QList<CopyFileInfo>          copyFiles; // extra files - not loaded into memory, just plain copy to the destination.
 };
+using DataContextPtr = std::shared_ptr<DataContext>;
 
 }

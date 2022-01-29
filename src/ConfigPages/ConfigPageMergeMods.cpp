@@ -45,7 +45,7 @@ void ConfigPageMergeMods::writeSettings(QJsonObject& data) const
     data["modList"] = mods.join(';');
 }
 
-KeySet ConfigPageMergeMods::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageMergeMods::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (env.isLegacy)
         return {};

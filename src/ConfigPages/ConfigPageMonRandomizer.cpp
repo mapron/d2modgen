@@ -157,7 +157,7 @@ JsonFileSet ConfigPageMonRandomizer::extraFiles() const
     return { s_monstersJson };
 }
 
-KeySet ConfigPageMonRandomizer::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
         return {};

@@ -310,7 +310,7 @@ ConfigPageRandomizer::ConfigPageRandomizer(QWidget* parent)
     closeLayout();
 }
 
-KeySet ConfigPageRandomizer::generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+KeySet ConfigPageRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     auto&  tableSet = output.tableSet;
     KeySet result;

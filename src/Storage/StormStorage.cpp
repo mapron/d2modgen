@@ -13,7 +13,7 @@
 
 namespace D2ModGen {
 
-IStorage::Result StormStorage::ReadData(const QString& storageRoot, const RequestFileList& filenames) const noexcept
+IInputStorage::Result StormStorage::readData(const QString& storageRoot, const RequestFileList& filenames) const noexcept
 {
     const std::string utf8path = storageRoot.toStdString() + "patch_d2.mpq";
     HANDLE            mpq;
@@ -46,7 +46,7 @@ IStorage::Result StormStorage::ReadData(const QString& storageRoot, const Reques
         return true;
     };
 
-    IStorage::Result result{ true };
+    IInputStorage::Result result{ true };
 
     for (const auto& filename : filenames) {
         QByteArray buffer;

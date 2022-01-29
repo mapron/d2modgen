@@ -23,7 +23,7 @@ public:
     {
         return "gambling";
     }
-    KeySet generate(GenOutput& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 
 }
