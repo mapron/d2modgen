@@ -63,13 +63,21 @@ ConfigPageCharacter::ConfigPageCharacter(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget("Add Horadric Cube as starting item", "addCube", false, this)
-               << new CheckboxWidget("Replace ID scroll with ID tome", "idTome", false, this)
-               << new CheckboxWidget("Replace starting Health pots with Mana", "manaPots", false, this)
-               << new SliderWidgetMinMax("Stat points gain per level", "statPerLevel", 1, 25, 5, this)
-               << new SliderWidgetMinMax("Skill points gain per level (D2R only!)", "skillPerLevel", 1, 5, 1, this)
-               << new SliderWidgetMinMax("Lower Strength/Dexterity requirements on items, %", "statLower", 10, 100, 100, this));
+               << new CheckboxWidget(tr("Add Horadric Cube as starting item"), "addCube", false, this)
+               << new CheckboxWidget(tr("Replace ID scroll with ID tome"), "idTome", false, this)
+               << new CheckboxWidget(tr("Replace starting Health pots with Mana"), "manaPots", false, this)
+               << new SliderWidgetMinMax(tr("Stat points gain per level"), "statPerLevel", 1, 25, 5, this)
+               << new SliderWidgetMinMax(tr("Skill points gain per level (D2R only!)"), "skillPerLevel", 1, 5, 1, this)
+               << new SliderWidgetMinMax(tr("Lower Strength/Dexterity requirements on items, %"), "statLower", 10, 100, 100, this));
     closeLayout();
+}
+
+QString ConfigPageCharacter::pageHelp() const
+{
+    return tr("First three options allow you to change starting items for characters: \n"
+              "add Cube, replace id scroll with Tome (useful for No-town runs), and replace health with mana potions. \n"
+              "Next two sliders allow you to change how many skill and stat poits you get on levelup. \n "
+              "Last slider allow you to lower Strength and Dexterity requirements on all items.  ");
 }
 
 KeySet ConfigPageCharacter::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const

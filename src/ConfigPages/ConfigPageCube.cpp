@@ -11,31 +11,37 @@ ConfigPageCube::ConfigPageCube(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget("Remove gem component from Rune upgrade recipes (Rune x3,x2 => next Rune)", "noGemUpgrade", false, this)
-               << new CheckboxWidget("Add quick portal access recipes:\n"
-                                     "1. TP book + Id scroll = Cow Portal\n"
-                                     "2. TP book + Id scroll x2 = Minor Uber Portal\n"
-                                     "3. TP book + Id scroll x3 = Uber Tristram Portal\n",
+               << new CheckboxWidget(tr("Remove gem component from Rune upgrade recipes (Rune x3,x2 => next Rune)"), "noGemUpgrade", false, this)
+               << new CheckboxWidget(tr("Add quick portal access recipes:") + "\n"
+                                                                              "1. TP book + Id scroll = Cow Portal\n"
+                                                                              "2. TP book + Id scroll x2 = Minor Uber Portal\n"
+                                                                              "3. TP book + Id scroll x3 = Uber Tristram Portal",
                                      "quickPortals",
                                      false,
                                      this)
-               << new CheckboxWidget("Add quick quest recipes:\n"
-                                     "1. key + Id scroll = Horadric Staff\n"
-                                     "2. key + TP scroll = Khalim Will\n",
+               << new CheckboxWidget(tr("Add quick quest recipes:") + "\n"
+                                                                      "1. key + Id scroll = Horadric Staff\n"
+                                                                      "2. key + TP scroll = Khalim Will",
                                      "quickQuests",
                                      false,
                                      this)
-               << new CheckboxWidget("Add socketing recipes:\n"
-                                     "1. Normal item + TP scroll x1 + Id scroll x1 = Add 3 sockets\n"
-                                     "2. Normal item + TP scroll x1 + Id scroll x2 = Add 4 sockets\n"
-                                     "3. Normal item + TP scroll x2 + Id scroll x1 = Add 5 sockets\n"
-                                     "4. Normal item + TP scroll x2 + Id scroll x2 = Add 6 sockets\n"
-                                     "5. Unique item + TP scroll x1 + Id scroll x1 = Add 1 socket\n"
-                                     "6. Socketed item + TP scroll x1 = Clear sockets\n",
+               << new CheckboxWidget(tr("Add socketing recipes:") + "\n"
+                                                                    "1. Normal item + TP scroll x1 + Id scroll x1 = Add 3 sockets\n"
+                                                                    "2. Normal item + TP scroll x1 + Id scroll x2 = Add 4 sockets\n"
+                                                                    "3. Normal item + TP scroll x2 + Id scroll x1 = Add 5 sockets\n"
+                                                                    "4. Normal item + TP scroll x2 + Id scroll x2 = Add 6 sockets\n"
+                                                                    "5. Unique item + TP scroll x1 + Id scroll x1 = Add 1 socket\n"
+                                                                    "6. Socketed item + TP scroll x1 = Clear sockets",
                                      "socketing",
                                      false,
                                      this));
     closeLayout();
+}
+
+QString ConfigPageCube::pageHelp() const
+{
+    return tr("Create some recipes to cheese/cut corners around the game. \n"
+              "Input and results are self-explanatory.  ");
 }
 
 KeySet ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const

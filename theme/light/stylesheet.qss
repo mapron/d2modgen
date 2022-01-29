@@ -48,7 +48,7 @@ QToolTip
     alternate-background-color: #eaebec;
     color: #31363b;
     padding: 0.1em;
-    opacity: 200;
+    opacity: 250;
 }
 
 QWidget

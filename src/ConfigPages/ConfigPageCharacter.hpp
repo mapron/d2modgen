@@ -9,6 +9,7 @@
 namespace D2ModGen {
 
 class ConfigPageCharacter : public ConfigPageAbstract {
+    Q_OBJECT
 public:
     ConfigPageCharacter(QWidget* parent);
 
@@ -16,12 +17,13 @@ public:
 public:
     QString caption() const override
     {
-        return "Character";
+        return tr("Character");
     }
     QString settingKey() const override
     {
         return "character";
     }
+    QString pageHelp() const override;
     KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 

@@ -10,6 +10,7 @@
 namespace D2ModGen {
 
 class ConfigPageMonDensity : public ConfigPageAbstract {
+    Q_OBJECT
 public:
     ConfigPageMonDensity(QWidget* parent);
 
@@ -17,12 +18,13 @@ public:
 public:
     QString caption() const override
     {
-        return "Monster density";
+        return tr("Monster density");
     }
     QString settingKey() const override
     {
         return "density";
     }
+    QString pageHelp() const override;
     KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 

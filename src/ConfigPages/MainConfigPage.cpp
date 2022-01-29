@@ -324,7 +324,15 @@ QString MainConfigPage::settingKey() const
 
 QString MainConfigPage::pageHelp() const
 {
-    return tr("Some help\nnext help line");
+    return tr("This page allow you to select most important options:\n"
+              "-Where input and output data is (D2 installation - Resurrected or Legacy);\n"
+              "-Create new D2R save folder with global settings;\n"
+              "-Create desktop shortcut to launch mod.\n"
+              "However, there are some less important abilities: \n"
+              "-Seed number (max 2^32) determines how random generation behaves. \n"
+              "If seed is unchaged, then all generation will be the same every time \n"
+              "You can edit seed manually or press F5 to generate new one.\n"
+              "-Add key to character inventory for fresh character - now you are sure you started modded version.");
 }
 
 void MainConfigPage::readSettings(const QJsonObject& data)

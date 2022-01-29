@@ -31,6 +31,7 @@ public:
     {
         return "challenge";
     }
+    QString pageHelp() const override;
     KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 

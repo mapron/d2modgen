@@ -29,6 +29,14 @@ ConfigPageChallenge::ConfigPageChallenge(QWidget* parent)
     closeLayout();
 }
 
+QString ConfigPageChallenge::pageHelp() const
+{
+    return tr("First, you can disable potion drops entirely (that's not the same as drop filter).\n"
+              "Second, you can change resistance penalty for each difficulty from default 0/40/100.\n"
+              "And the last, you can adjust level area on all maps; \n"
+              "note that max value of 85 is still used (so set to 20 to basically make all Hell areas lvl 85).  ");
+}
+
 KeySet ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())

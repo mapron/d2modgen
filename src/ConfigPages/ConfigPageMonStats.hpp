@@ -10,6 +10,7 @@
 namespace D2ModGen {
 
 class ConfigPageMonStats : public ConfigPageAbstract {
+    Q_OBJECT
 public:
     ConfigPageMonStats(QWidget* parent);
 
@@ -17,12 +18,13 @@ public:
 public:
     QString caption() const override
     {
-        return "Monster stats";
+        return tr("Monster stats");
     }
     QString settingKey() const override
     {
         return "monster_stats";
     }
+    QString pageHelp() const override;
     KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 

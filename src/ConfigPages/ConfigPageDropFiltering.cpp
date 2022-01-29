@@ -31,42 +31,64 @@ const QLatin1String s_colorWhite("\xC3\xBF\x63\x2F");       //  (Brighter than L
 
 const QString s_hidden = QString("%1").arg(s_colorTransparent);
 
+const QStringList s_locales{
+    "deDE",
+    "enUS",
+    "esES",
+    "esMX",
+    "frFR",
+    "itIT",
+    "jaJP",
+    "koKR",
+    "plPL",
+    "ptBR",
+    "ruRU",
+    "zhCN",
+    "zhTW",
+};
+
 }
 
 ConfigPageDropFiltering::ConfigPageDropFiltering(QWidget* parent)
     : ConfigPageAbstract(parent)
     , m_items{
-        { { "isc" }, "isc", "ID scroll" },
-        { { "tsc" }, "tsc", "TP scroll" },
-        { { "hp1", "hp2", "hp3" }, "hps", "Health pots 1-3" },
-        { { "hp1", "hp2", "hp3", "hp4", "hp5" }, "hpsa", "All Health pots" },
-        { { "mp1", "mp2", "mp3" }, "mps", "Mana pots 1-3" },
-        { { "mp1", "mp2", "mp3", "mp4", "mp5" }, "mpsa", "All Mana pots" },
-        { { "rvs" }, "rvs", "Rejuv pots" },
-        { { "rvl" }, "rvl", "Full Rejuv pots" },
-        { { "aqv", "cqv" }, "ammo", "Bolts/Arrows" },
-        { { "vps", "yps", "wms" }, "stam", "Stamina/Antidote/Thawing" },
-        { { "key", "opl", "opm", "ops", "gpl", "gpm", "gps" }, "junks", "Keys,Fire/Poison pots" },
+        { { "isc" }, "isc", tr("ID scroll") },
+        { { "tsc" }, "tsc", tr("TP scroll") },
+        { { "hp1", "hp2", "hp3" }, "hps", tr("Health pots 1-3") },
+        { { "hp1", "hp2", "hp3", "hp4", "hp5" }, "hpsa", tr("All Health pots") },
+        { { "mp1", "mp2", "mp3" }, "mps", tr("Mana pots 1-3") },
+        { { "mp1", "mp2", "mp3", "mp4", "mp5" }, "mpsa", tr("All Mana pots") },
+        { { "rvs" }, "rvs", tr("Rejuv pots") },
+        { { "rvl" }, "rvl", tr("Full Rejuv pots") },
+        { { "aqv", "cqv" }, "ammo", tr("Bolts/Arrows") },
+        { { "vps", "yps", "wms" }, "stam", tr("Stamina/Antidote/Thawing") },
+        { { "key", "opl", "opm", "ops", "gpl", "gpm", "gps" }, "junks", tr("Keys,Fire/Poison pots") },
     }
 
 {
-    addWidget(new QLabel("<b>Make item names compact</b>: this will make item names take less space, e.g. '!HP2' for health potion.",
+    addWidget(new QLabel(tr("<b>Make item names compact</b>: this will make item names take less space, e.g. '!HP2' for health potion."),
                          this));
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget("Compact potion names", "compact_pots", false, this)
-               << new CheckboxWidget("Compact TP/ID scrolls", "compact_scrolls", false, this));
+               << new CheckboxWidget(tr("Compact potion names"), "compact_pots", false, this)
+               << new CheckboxWidget(tr("Compact TP/ID scrolls"), "compact_scrolls", false, this));
 
-    addWidget(new QLabel("<b>Hide items on the ground</b>: this will make item names transparent; <br>"
-                         "you still can pickup them, but their labels will be invisible on Alt press.<br>"
-                         "<b>Note</b>: affects only en-US locale.",
+    addWidget(new QLabel(tr("<b>Hide items on the ground</b>: this will make item names transparent; <br>"
+                            "you still can pickup them, but their labels will be invisible on Alt press."),
                          this));
     for (auto& item : m_items)
         addEditors(QList<IValueWidget*>()
-                   << new CheckboxWidget("Hide " + item.title, "hide_" + item.settingKey, false, this));
+                   << new CheckboxWidget(tr("Hide ") + item.title, "hide_" + item.settingKey, false, this));
 
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget("Hide low quality/damaged/cracked items", "hide_lowq", false, this));
+               << new CheckboxWidget(tr("Hide low quality/damaged/cracked items"), "hide_lowq", false, this));
     closeLayout();
+}
+
+QString ConfigPageDropFiltering::pageHelp() const
+{
+    return tr("This tab consists of two sections:\n"
+              "1. Make some items have compact names, like \"!MP5\" for Super Mana Potion. \n"
+              "2. Hide item labels on the ground (you still be able to pick them). ");
 }
 
 JsonFileSet ConfigPageDropFiltering::extraFiles() const
@@ -91,8 +113,11 @@ KeySet ConfigPageDropFiltering::generate(DataContext& output, QRandomGenerator& 
         for (QJsonValueRef lang : jsonArray) {
             QJsonObject   obj = lang.toObject();
             const QString key = obj["Key"].toString();
-            if (replacements.contains(key))
-                obj["enUS"] = replacements[key];
+            if (replacements.contains(key)) {
+                auto val = replacements[key];
+                for (const QString& loc : s_locales)
+                    obj[loc] = val;
+            }
             lang = obj;
         }
         jsonDoc.setArray(jsonArray);

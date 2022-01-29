@@ -11,12 +11,19 @@ ConfigPageMonStats::ConfigPageMonStats(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new SliderWidget("Monster Attack Rating, multiply by", "mon_ar", 10, 10, this)
-               << new SliderWidget("Monster Defense, multiply by", "mon_def", 10, 10, this)
-               << new SliderWidget("Monster HP, multiply by", "mon_hp", 10, 10, this)
-               << new SliderWidget("Monster Damage, multiply by", "mon_dam", 10, 10, this)
-               << new SliderWidget("Monster XP, multiply by", "mon_xp", 10, 10, this));
+               << new SliderWidget(tr("Monster Attack Rating, multiply by"), "mon_ar", 10, 10, this)
+               << new SliderWidget(tr("Monster Defense, multiply by"), "mon_def", 10, 10, this)
+               << new SliderWidget(tr("Monster HP, multiply by"), "mon_hp", 10, 10, this)
+               << new SliderWidget(tr("Monster Damage, multiply by"), "mon_dam", 10, 10, this)
+               << new SliderWidget(tr("Monster EXP gain, multiply by"), "mon_xp", 10, 10, this));
     closeLayout();
+}
+
+QString ConfigPageMonStats::pageHelp() const
+{
+    return tr("Sliders allow you to change monster stats on all difficulties.\n"
+              "You can either lower or raise stats up 10x or 10x times.\n"
+              "That is orthogonal to /playersX setting - it will multiply stats independent.");
 }
 
 KeySet ConfigPageMonStats::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const

@@ -12,18 +12,32 @@ ConfigPageDrops::ConfigPageDrops(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new SliderWidgetMinMax("Increase Unique Chance", "chance_uni", 1, 50, 1, this)
-               << new SliderWidgetMinMax("Increase Set Chance", "chance_set", 1, 30, 1, this)
-               << new SliderWidgetMinMax("Increase Rare Chance", "chance_rare", 1, 15, 1, this)
-               << new SliderWidgetMinMax("NoDrop reduce % (higher=more drops)", "nodrop_factor", 1, 10, 1, this)
-               << new CheckboxWidget("Increase Champion/Unique item count", "high_elite_drops", false, this)
-               << new SliderWidgetMinMax("Increase Good TC (Runes/Gems/Jewellery)", "good_factor", 1, 10, 1, this)
-               << new SliderWidgetMinMax("Increase Runes chance in Good TC", "rune_factor", 1, 10, 1, this)
-               << new CheckboxWidget("Switch Ber,Jah with Cham,Zod in rarity", "highrune_switch", false, this)
-               << new SliderWidgetMinMax("Increase Rare Rune drops<br>This is increase of dropping Zod in 'Runes 17' TC<br>Rarity of other runes will change proportionally.", "zod_factor", 1, 1000, 1, this)
-               << new CheckboxWidget("Make all Uniques have equal rarity on same base (including rings)", "equal_uniques", false, this)
-               << new CheckboxWidget("Always perfect rolls (independent from Randomizer)", "perfect_rolls", false, this));
+               << new SliderWidgetMinMax(tr("Increase Unique Chance"), "chance_uni", 1, 50, 1, this)
+               << new SliderWidgetMinMax(tr("Increase Set Chance"), "chance_set", 1, 30, 1, this)
+               << new SliderWidgetMinMax(tr("Increase Rare Chance"), "chance_rare", 1, 15, 1, this)
+               << new SliderWidgetMinMax(tr("NoDrop reduce % (higher=more drops)"), "nodrop_factor", 1, 10, 1, this)
+               << new CheckboxWidget(tr("Increase Champion/Unique item count"), "high_elite_drops", false, this)
+               << new SliderWidgetMinMax(tr("Increase Good TC (Runes/Gems/Jewellery)"), "good_factor", 1, 10, 1, this)
+               << new SliderWidgetMinMax(tr("Increase Runes chance in Good TC"), "rune_factor", 1, 10, 1, this)
+               << new CheckboxWidget(tr("Switch Ber,Jah with Cham,Zod in rarity"), "highrune_switch", false, this)
+               << new SliderWidgetMinMax(tr("Increase Rare Rune drops<br>This is increase of dropping Zod in 'Runes 17' TC<br>Rarity of other runes will change proportionally."), "zod_factor", 1, 1000, 1, this)
+               << new CheckboxWidget(tr("Make all Uniques have equal rarity on same base (including rings)"), "equal_uniques", false, this)
+               << new CheckboxWidget(tr("Always perfect rolls (independent from Randomizer)"), "perfect_rolls", false, this));
     closeLayout();
+}
+
+QString ConfigPageDrops::pageHelp() const
+{
+    return tr("First 3 sliders are for increasing chance for Uniques/Sets/Rares. \n"
+              "Note that it's not that accurate when you have already high chance (like killing low level monster with high MF). \n"
+              "NoDrop slider provides ability to gradually reduce NoDrop parts (it basically similar to increasing players count in the game). \n"
+              "\"Increase Champion/Unique item count\" make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one. \n"
+              "\"Increase Good TC\" slider makes Gems/Runes/Rings/Amulets/Charms drop far more often compare to equipment.  \n"
+              "\"Increase Runes chance\" tunes Runes specifically compared to other jewellery.  \n"
+              "Switch Ber/Jah with Cham/Zod pretty descriptive: when game deside to drop Jah rune, it drops Zod instead.  \n"
+              "Final slider is when everything above is not satisfying and you really really want high runes to be more common. Please don't do that :).  \n"
+              "\"Make all Uniques have same rarity\" option for making, for example Tyrael's and Templar's have same chance.  "
+              "\"Always perfect rolls\" for those who want perfect rolls without Randomizer.  ");
 }
 
 KeySet ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const

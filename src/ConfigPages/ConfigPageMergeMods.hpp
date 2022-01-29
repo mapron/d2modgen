@@ -12,6 +12,7 @@ class QListWidget;
 namespace D2ModGen {
 
 class ConfigPageMergeMods : public ConfigPageAbstract {
+    Q_OBJECT
 public:
     ConfigPageMergeMods(QWidget* parent);
 

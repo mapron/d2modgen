@@ -145,9 +145,20 @@ ConfigPageMonRandomizer::ConfigPageMonRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new SliderWidgetMinMax("Spawned different types in one area", "spawnedCount", 3, 10, 3, this)
-               << new SliderWidgetMinMax("Maximum possible monster types in one area (population variety)", "maxTypes", 6, 25, 25, this));
+               << new SliderWidgetMinMax(tr("Spawned different types in one area"), "spawnedCount", 3, 10, 3, this)
+               << new SliderWidgetMinMax(tr("Maximum possible monster types in one area (population variety)"), "maxTypes", 6, 25, 25, this));
     closeLayout();
+}
+
+QString ConfigPageMonRandomizer::pageHelp() const {
+    return tr("When this feature enabled, now any area in the game can spawn any basic monsters (Super Uniques, Act bosses etc not affected). \n"
+              "For normal difficulty, each monster will have a \"level-adjusted\" copy which corresponds \n"
+              "to area's level (so you will have adequate monster stats in Act 1 for guest from Act 5).  \n"
+              "For Nightmare/Hell, adjustment is done by area level.  \n"
+              "Monster will have adjusted their minion spawns and skill levels, too.  \n"
+              "First option choose how many different types will spawn at once (default is 3).  \n"
+              "Second option defines how many possibilites for monster types are exist; \n"
+              "Make this value lower if you want less variety on game restart.");
 }
 
 JsonFileSet ConfigPageMonRandomizer::extraFiles() const
@@ -165,9 +176,6 @@ KeySet ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& 
     result << "levels";
     result << "monstats";
     auto& tableSet = output.tableSet;
-
-    const int spawnedCount = getWidgetValue("spawnedCount");
-    const int maxTypes     = getWidgetValue("maxTypes");
 
     MotTypeTable typeTable;
     TCTable      tcTable;
@@ -199,6 +207,8 @@ KeySet ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& 
                     break;
                 }
         }
+        const int spawnedCount = getWidgetValue("spawnedCount");
+        const int maxTypes     = std::min(getWidgetValue("maxTypes"), cols);
         for (auto& row : tableView) {
             if (row["Name"] == "Act 5 - Mountain Top")
                 continue;

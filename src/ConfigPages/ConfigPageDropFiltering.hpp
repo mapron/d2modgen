@@ -10,6 +10,7 @@
 namespace D2ModGen {
 
 class ConfigPageDropFiltering : public ConfigPageAbstract {
+    Q_OBJECT
 public:
     struct Item {
         QSet<QString> internalIds;
@@ -24,12 +25,13 @@ public:
 public:
     QString caption() const override
     {
-        return "Drops filtering";
+        return tr("Drops filtering");
     }
     QString settingKey() const override
     {
         return "drop_filter";
     }
+    QString pageHelp() const override;
     JsonFileSet extraFiles() const override;
     KeySet      generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };

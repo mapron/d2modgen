@@ -10,6 +10,7 @@
 namespace D2ModGen {
 
 class ConfigPageDrops : public ConfigPageAbstract {
+    Q_OBJECT
 public:
     ConfigPageDrops(QWidget* parent);
 
@@ -17,12 +18,13 @@ public:
 public:
     QString caption() const override
     {
-        return "Increase Item/Rune drops";
+        return tr("Increase Item/Rune drops");
     }
     QString settingKey() const override
     {
         return "drops";
     }
+    QString pageHelp() const override;
     KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 

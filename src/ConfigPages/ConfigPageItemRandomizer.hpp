@@ -11,6 +11,7 @@
 namespace D2ModGen {
 
 class ConfigPageItemRandomizer : public ConfigPageAbstract {
+    Q_OBJECT
 public:
     ConfigPageItemRandomizer(QWidget* parent);
 
@@ -137,12 +138,13 @@ public:
 public:
     QString caption() const override
     {
-        return "Item Randomizer";
+        return tr("Item Randomizer");
     }
     QString settingKey() const override
     {
         return "randomizer";
     }
+    QString pageHelp() const override;
     KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 

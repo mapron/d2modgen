@@ -177,10 +177,10 @@ void ConfigPageItemRandomizer::MagicPropSet::postProcess(bool replaceSkills, boo
 }
 
 QList<const ConfigPageItemRandomizer::MagicPropBundle*> ConfigPageItemRandomizer::MagicPropSet::getRandomBundles(const AttributeFlagSet& allowedTypes,
-                                                                                                         QRandomGenerator&       rng,
-                                                                                                         int                     count,
-                                                                                                         int                     level,
-                                                                                                         int                     balance) const
+                                                                                                                 QRandomGenerator&       rng,
+                                                                                                                 int                     count,
+                                                                                                                 int                     level,
+                                                                                                                 int                     balance) const
 {
     if (!count)
         return {};
@@ -219,20 +219,20 @@ QList<const ConfigPageItemRandomizer::MagicPropBundle*> ConfigPageItemRandomizer
 }
 
 QList<const ConfigPageItemRandomizer::MagicPropBundle*> ConfigPageItemRandomizer::MagicPropUniverse::getRandomBundles(const AttributeFlagSet& allowedTypes,
-                                                                                                              const ItemCodeFilter&   query,
-                                                                                                              int                     specificItemUsage,
-                                                                                                              QRandomGenerator&       rng,
-                                                                                                              int                     count,
-                                                                                                              int                     level,
-                                                                                                              int                     balance) const
+                                                                                                                      const ItemCodeFilter&   query,
+                                                                                                                      int                     specificItemUsage,
+                                                                                                                      QRandomGenerator&       rng,
+                                                                                                                      int                     count,
+                                                                                                                      int                     level,
+                                                                                                                      int                     balance) const
 {
     if (!specificItemUsage)
         return all.getRandomBundles(allowedTypes, rng, count, level, balance);
 
     QList<const ConfigPageItemRandomizer::MagicPropBundle*> result;
-    const ItemCodeSet                                   codeSet       = query.include;
-    const ItemCode                                      code          = (*codeSet.begin());
-    int                                                 specificCount = 0;
+    const ItemCodeSet                                       codeSet       = query.include;
+    const ItemCode                                          code          = (*codeSet.begin());
+    int                                                     specificCount = 0;
     for (int i = 0; i < count; ++i) {
         if (rng.bounded(100) < specificItemUsage)
             specificCount++;
@@ -285,11 +285,11 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new SliderWidgetMinMax("Balance level (lower = more balance, 99=chaos)", "balance", 5, s_maxBalanceLevel, s_maxBalanceLevel, this)
-               << new SliderWidgetMinMax("Item type fit percent (0% = all affixes fully random, 100% = all according to item type)", "itemFitPercent", 0, 100, 0, this)
-               << new SliderWidgetMinMax("Number of versions of each unique (you will have N different uniques with differnet stats)", "repeat_uniques", 1, 20, 10, this));
+               << new SliderWidgetMinMax(tr("Balance level (lower = more balance, 99=chaos)"), "balance", 5, s_maxBalanceLevel, s_maxBalanceLevel, this)
+               << new SliderWidgetMinMax(tr("Item type fit percent (0% = all affixes fully random, 100% = all according to item type)"), "itemFitPercent", 0, 100, 0, this)
+               << new SliderWidgetMinMax(tr("Number of versions of each unique (you will have N different uniques with differnet stats)"), "repeat_uniques", 1, 20, 10, this));
 
-    auto* keepCount = new CheckboxWidget("Keep original property count", "keepCount", false, this);
+    auto* keepCount = new CheckboxWidget(tr("Keep original property count"), "keepCount", false, this);
     addEditors(QList<IValueWidget*>() << keepCount);
     auto addMinimax = [this, keepCount](int minValue, int maxValue, int midValue, const QString& minKey, const QString& maxKey, const QString& overallTitle) {
         IValueWidget* minw = new SliderWidgetMinMax("Min", minKey, minValue, maxValue, midValue, true, this);
@@ -310,18 +310,35 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
         addEditorsPlain({ minw, maxw });
         connect(keepCount, &CheckboxWidget::toggled, wrapper, &QWidget::setDisabled);
     };
-    addMinimax(1, 12, 3, "min_uniq_props", "max_uniq_props", "Unique properties");
-    addMinimax(1, 7, 3, "min_rw_props", "max_rw_props", "RW properties");
-    addMinimax(1, 19, 3, "min_set_props", "max_set_props", "Set items properties");
+    addMinimax(1, 12, 3, "min_uniq_props", "max_uniq_props", tr("Unique properties"));
+    addMinimax(1, 7, 3, "min_rw_props", "max_rw_props", tr("RW properties"));
+    addMinimax(1, 19, 3, "min_set_props", "max_set_props", tr("Set items properties"));
 
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget("Always perfect rolls", "perfectRoll", false, this)
-               << new CheckboxWidget("Randomize magix/rare affixes", "affixRandom", false, this)
-               << new CheckboxWidget("Randomize gem and runes properties", "gemsRandom", false, this)
-               << new CheckboxWidget("Replace skills with oskills", "replaceSkills", false, this)
-               << new CheckboxWidget("Replace charges with oskills", "replaceCharges", false, this)
-               << new CheckboxWidget("Remove Knockback/Monster flee", "removeKnock", false, this));
+               << new CheckboxWidget(tr("Always perfect rolls"), "perfectRoll", false, this)
+               << new CheckboxWidget(tr("Randomize magix/rare affixes"), "affixRandom", false, this)
+               << new CheckboxWidget(tr("Randomize gem and runes properties"), "gemsRandom", false, this)
+               << new CheckboxWidget(tr("Replace skills with oskills"), "replaceSkills", false, this)
+               << new CheckboxWidget(tr("Replace charges with oskills"), "replaceCharges", false, this)
+               << new CheckboxWidget(tr("Remove Knockback/Monster flee"), "removeKnock", false, this));
     closeLayout();
+}
+
+QString ConfigPageItemRandomizer::pageHelp() const
+{
+    return tr("First you need to set topmost checkbox to enable everything.\n"
+              "Balance level - determine level difference to be used when selecting new properties for item/rune/etc.\n"
+              "With '10' it will select between level-10 and level+5 at first, if there are few candidates,\n"
+              "then it will select 0..level+5, and finally it will try fully random. \n"
+              "In short, lower value = more balance in terms of original affix level and item level. \n"
+              "Item fit slider allow you to select how much item affixes will be related to original item type.\n"
+              "\"Number of version\" allow you to have different uniques with same name and level, but different properties.\n"
+              "You can select \"Keep original property count\" to make all items having same property count, or customize it with settings below.\n"
+              "Next three pairs of sliders set min/max amount of affixes on Uniques, RuneWords and Sets.\n"
+              "Sets (not items)/gems/runes will have 1 as minimum and maximum possible as maximum. \n"
+              "Always perfect means simply minimum roll becomes maximum (where it makes sense).  \n"
+              "Randomize magic/rare include modification of regular affixes - so they can include properties of any other item in the game.  \n"
+              "Same for the option for gems.");
 }
 
 KeySet ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const

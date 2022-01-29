@@ -10,6 +10,7 @@
 namespace D2ModGen {
 
 class ConfigPageGambling : public ConfigPageAbstract {
+    Q_OBJECT
 public:
     ConfigPageGambling(QWidget* parent);
 
@@ -17,12 +18,13 @@ public:
 public:
     QString caption() const override
     {
-        return "Gambling";
+        return tr("Gambling");
     }
     QString settingKey() const override
     {
         return "gambling";
     }
+    QString pageHelp() const override;
     KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 

@@ -10,6 +10,7 @@
 namespace D2ModGen {
 
 class ConfigPageCube : public ConfigPageAbstract {
+    Q_OBJECT
 public:
     ConfigPageCube(QWidget* parent);
 
@@ -17,12 +18,13 @@ public:
 public:
     QString caption() const override
     {
-        return "Horadric Cube";
+        return tr("Horadric Cube");
     }
     QString settingKey() const override
     {
         return "cube";
     }
+    QString pageHelp() const override;
     KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 
