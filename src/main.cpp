@@ -42,7 +42,7 @@ void customMessageOutput(QtMsgType type, const QMessageLogContext& context, cons
             typeStr = "Fatal";
     }
     auto       time      = QTime::currentTime().toString("HH:mm:ss.zzz");
-    QString    formatted = QString("[%1] %2: %3 (%4:%5)\n").arg(time).arg(typeStr).arg(msg).arg(stripDir(context.file)).arg(context.line);
+    QString    formatted = QString("[%1] %2: %3 (%4:%5)\n").arg(time, typeStr, msg, stripDir(context.file)).arg(context.line);
     QByteArray localMsg  = formatted.toUtf8();
     fprintf(stderr, "%s", localMsg.constData());
     if (g_logFile) {
@@ -68,8 +68,18 @@ int main(int argc, char* argv[])
     QFile        file(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/applog.txt");
     file.open(QIODevice::WriteOnly | QIODevice::Truncate);
     g_logFile = &file;
+    
+    auto args = app.arguments();
+    if (args.value(1) == "--generate") {
+        D2ModGen::MainWindow w(false);
+        QString file = args.value(2);
+        if (!file.isEmpty())
+            w.loadConfig(file);
+        w.generate();
+        return 0;
+    }
 
-    D2ModGen::MainWindow w;
+    D2ModGen::MainWindow w(true);
     qDebug() << "main window created";
     w.show();
     auto res = app.exec();

@@ -17,15 +17,15 @@ namespace D2ModGen {
 
 class IConfigPage;
 class StorageCache;
-struct GenerationEnvironment;
+class MainConfigPage;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
-    MainWindow();
+    MainWindow(bool autoSave);
     ~MainWindow();
 
-    void generate(const GenerationEnvironment& env);
+    void generate();
 
     bool saveConfig(const QString& filename) const;
     bool loadConfig(const QString& filename);
@@ -36,7 +36,9 @@ private:
     QList<IConfigPage*>            m_pages;
     QMap<IConfigPage*, QCheckBox*> m_enableButtons;
     QLabel*                        m_status;
+    MainConfigPage*                m_mainPage;
     QScopedPointer<StorageCache>   m_mainStorageCache;
+    bool                           m_autoSave = true;
 };
 
 }

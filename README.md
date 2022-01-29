@@ -122,6 +122,14 @@ Tiny quality things to make you life easier:
 3. Allow usage of some skills in the town;
 4. Reduce item costs. 
 
+# Using commandline
+You also can run d2modgen in commandline mode (without UI). Two commands are supported:  
+```d2modgen.exe --generate /path/to/config.json```  
+will run generation using specific json file;  
+```d2modgen.exe --generate```  
+will generate output using default application config.  
+Warning: please note, if any error dialog appear, it willbe shown and block execution. So use this with already well formed configuration.
+
 # KnownIssues
 1. If there is many dead bodies on the screen, some portals won't open (e.g. near Summoner). Workaround - go far away to another location, wait while corpses disappeared and then trigger the portal.
 2. If charges spawned on a gem/rune, it will constantly update count on gem mouse hover. This glitch is fixes after gem is inserted in socket.

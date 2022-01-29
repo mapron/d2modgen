@@ -33,9 +33,10 @@
 
 namespace D2ModGen {
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(bool autoSave)
     : QMainWindow(nullptr)
     , m_mainStorageCache(new StorageCache())
+    , m_autoSave(autoSave)
 {
     setWindowTitle("Diablo II Resurrected mod generator by mapron");
 
@@ -52,13 +53,13 @@ MainWindow::MainWindow()
 
     m_status = new QLabel("Status label.", this);
 
-    auto* mainPage     = new MainConfigPage(this);
+    m_mainPage         = new MainConfigPage(this);
     auto* modMergePage = new ConfigPageMergeMods(this);
     auto* pageGroup    = new QButtonGroup(this);
     auto* buttonPanel  = new QWidget(this);
 
     QVBoxLayout* buttonPanelLayout = new QVBoxLayout(buttonPanel);
-    m_pages << mainPage;
+    m_pages << m_mainPage;
     m_pages << CreateConfigPages(this);
     m_pages << modMergePage;
 
@@ -124,9 +125,11 @@ MainWindow::MainWindow()
     QAction*  loadConfigAction = fileMenu->addAction("Load config...");
     QAction*  clearConfig      = fileMenu->addAction("Clear config");
     QAction*  browseToSettings = fileMenu->addAction("Browse to settings folder");
-    QAction*  quitAction       = fileMenu->addAction("Quit");
-    QAction*  generateMod      = actionsMenu->addAction("Generate mod");
-    QAction*  newSeed          = actionsMenu->addAction("Create seed");
+    fileMenu->addSeparator();
+    QAction* quitNoSaveAction = fileMenu->addAction("Quit without saving");
+    QAction* quitAction       = fileMenu->addAction("Save and quit");
+    QAction* generateMod      = actionsMenu->addAction("Generate mod");
+    QAction* newSeed          = actionsMenu->addAction("Create seed");
 
     saveConfigAction->setShortcuts(QKeySequence::Save);
     loadConfigAction->setShortcuts(QKeySequence::Open);
@@ -165,9 +168,7 @@ MainWindow::MainWindow()
 
     // connections
 
-    connect(genButton, &QPushButton::clicked, this, [this, mainPage] {
-        generate(mainPage->getEnv());
-    });
+    connect(genButton, &QPushButton::clicked, this, &MainWindow::generate);
 
     connect(about, &QAction::triggered, this, [this] {
         QDesktopServices::openUrl(QUrl("https://github.com/mapron/d2modgen"));
@@ -185,38 +186,40 @@ MainWindow::MainWindow()
     connect(clearConfig, &QAction::triggered, this, [this] {
         loadConfig(QJsonObject{});
     });
-    connect(browseToSettings, &QAction::triggered, this, [mainPage] {
-        QFileInfo dir = mainPage->getEnv().appData;
+    connect(browseToSettings, &QAction::triggered, this, [this] {
+        QFileInfo dir = m_mainPage->getEnv().appData;
         QProcess::startDetached("explorer.exe", QStringList() << QDir::toNativeSeparators(dir.canonicalFilePath()));
     });
     connect(quitAction, &QAction::triggered, this, [this] {
         close();
     });
-    connect(generateMod, &QAction::triggered, this, [this, mainPage] {
-        generate(mainPage->getEnv());
+    connect(quitNoSaveAction, &QAction::triggered, this, [this] {
+        m_autoSave = false;
+        close();
     });
-    connect(newSeed, &QAction::triggered, this, [mainPage] {
-        mainPage->createNewSeed();
-    });
-    auto updateModList = [modMergePage, mainPage] {
-        modMergePage->setModList(mainPage->getOtherMods());
+    connect(generateMod, &QAction::triggered, this, &MainWindow::generate);
+    connect(newSeed, &QAction::triggered, m_mainPage, &MainConfigPage::createNewSeed);
+    auto updateModList = [modMergePage, this] {
+        modMergePage->setModList(m_mainPage->getOtherMods());
     };
-    connect(mainPage, &MainConfigPage::updateModList, this, updateModList);
+    connect(m_mainPage, &MainConfigPage::updateModList, this, updateModList);
 
     // misc
     updateModList();
 
-    m_defaultConfig = mainPage->getEnv().appData + "config.json";
+    m_defaultConfig = m_mainPage->getEnv().appData + "config.json";
     loadConfig(m_defaultConfig);
 }
 
 MainWindow::~MainWindow()
 {
-    saveConfig(m_defaultConfig);
+    if (m_autoSave)
+        saveConfig(m_defaultConfig);
 }
 
-void MainWindow::generate(const GenerationEnvironment& env)
+void MainWindow::generate()
 {
+    const GenerationEnvironment& env = m_mainPage->getEnv();
     if (env.d2rPath.isEmpty()) {
         qWarning() << "D2R path is empty";
         return;
@@ -303,6 +306,7 @@ void MainWindow::generate(const GenerationEnvironment& env)
 
 bool MainWindow::saveConfig(const QString& filename) const
 {
+    qDebug() << "Save:" << filename;
     QJsonObject data;
     for (auto* page : m_pages) {
         QJsonObject pageData;
@@ -316,6 +320,7 @@ bool MainWindow::saveConfig(const QString& filename) const
 
 bool MainWindow::loadConfig(const QString& filename)
 {
+    qDebug() << "Load:" << filename;
     QJsonDocument doc;
     if (!readJsonFile(filename, doc))
         return false;
