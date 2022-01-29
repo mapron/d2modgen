@@ -46,6 +46,9 @@ KeySet ConfigPageDifficulty::generate(DataContext& output, QRandomGenerator& rng
                 if (row["Level"] == "0")
                     continue;
                 for (auto& col : cols) {
+                    if (!row.hasColumn(col))
+                        continue;
+
                     QString& value = row[col];
                     value          = QString("%1").arg(value.toInt() * percent / 100);
                 }

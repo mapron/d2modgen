@@ -50,7 +50,7 @@ IInputStorage::Result CascStorage::readData(const QString& storageRoot, const Re
         QByteArray buffer;
         if (!readCascFile(buffer, filename.relFilepath))
             return {};
-        result.files << StoredFile{ buffer, filename.relFilepath, filename.id };
+        result.files << StoredFile{ std::move(buffer), filename.relFilepath, filename.id };
     }
     return result;
 }

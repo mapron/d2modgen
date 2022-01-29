@@ -206,6 +206,8 @@ KeySet ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, con
         }
         {
             for (const char* table : { "magicprefix", "magicsuffix", "automagic" }) {
+                if (!tableSet.tables.contains(table))
+                    continue;
                 TableView view(tableSet.tables[table]);
                 updateMinParam(view, ColumnsDesc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3));
             }

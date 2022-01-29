@@ -191,10 +191,18 @@ KeySet ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& 
         Table&        table = tableSet.tables["levels"];
         TableView     tableView(table);
         QSet<QString> baseIds, ubaseIds, nonUniqueBaseIds;
+        int           cols = 25;
+        for (const char* colTpl : { "mon%1", "nmon%1", "umon%1" }) {
+            for (int i = 1; i <= cols; ++i)
+                if (!tableView.hasColumn(QString(colTpl).arg(i))) {
+                    cols = i - 1;
+                    break;
+                }
+        }
         for (auto& row : tableView) {
             if (row["Name"] == "Act 5 - Mountain Top")
                 continue;
-            for (int i = 1; i < 25; ++i) {
+            for (int i = 1; i <= cols; ++i) {
                 QString& id = row[QString("mon%1").arg(i)];
                 if (id.isEmpty())
                     break;
@@ -202,7 +210,7 @@ KeySet ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& 
                 if (!base.isEmpty())
                     baseIds << base;
             }
-            for (int i = 1; i < 25; ++i) {
+            for (int i = 1; i <= cols; ++i) {
                 QString& id = row[QString("nmon%1").arg(i)];
                 if (id.isEmpty())
                     break;
@@ -210,7 +218,7 @@ KeySet ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& 
                 if (!base.isEmpty())
                     baseIds << base;
             }
-            for (int i = 1; i < 25; ++i) {
+            for (int i = 1; i <= cols; ++i) {
                 QString& id = row[QString("umon%1").arg(i)];
                 if (id.isEmpty())
                     break;
@@ -247,7 +255,7 @@ KeySet ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& 
                     uniques << id;
             }
 
-            for (int i = 1; i < 25; ++i) {
+            for (int i = 1; i <= cols; ++i) {
                 row[QString("mon%1").arg(i)]  = normalSetList.value(i - 1);
                 row[QString("nmon%1").arg(i)] = normalSetList.value(i - 1);
                 row[QString("umon%1").arg(i)] = uniques.value(i - 1);

@@ -28,7 +28,7 @@ DataContextPtr StorageCache::LoadImpl(const Context& context)
         for (const QString& path : jsonFiles)
             filenames << IInputStorage::RequestFile{ path };
 
-        auto result = storage.readData(root, filenames);
+        const auto result = storage.readData(root, filenames);
         if (!result.success)
             return false;
 

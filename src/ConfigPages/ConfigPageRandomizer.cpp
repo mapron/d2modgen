@@ -196,7 +196,7 @@ QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicP
         const auto p          = bucketByType.at(type).getBounds(level, balance, 2);
         const auto lowerBound = p.first;
         const auto upperBound = p.second;
-        const auto size       = upperBound - lowerBound - 1;
+        const auto size       = upperBound - lowerBound;
         if (size <= 0)
             continue;
         branges.push_back(BucketRange{ type, lowerBound, size });
@@ -230,15 +230,29 @@ QList<const ConfigPageRandomizer::MagicPropBundle*> ConfigPageRandomizer::MagicP
         return all.getRandomBundles(allowedTypes, rng, count, level, balance);
 
     QList<const ConfigPageRandomizer::MagicPropBundle*> result;
-    const ItemCodeSet                                   codeSet       = query.include; //processQuery(query);
+    const ItemCodeSet                                   codeSet       = query.include;
     const ItemCode                                      code          = (*codeSet.begin());
     int                                                 specificCount = 0;
     for (int i = 0; i < count; ++i) {
         if (rng.bounded(100) < specificItemUsage)
             specificCount++;
     }
-    result += propSetByCode.at(code).getRandomBundles(allowedTypes, rng, count, level, balance);
-    result += all.getRandomBundles(allowedTypes, rng, count - specificCount, level, balance);
+    {
+        QList<const ConfigPageRandomizer::MagicPropBundle*> resultSpec;
+        for (auto code : codeSet) {
+            if (!propSetByCode.contains(code))
+                continue;
+            resultSpec += propSetByCode.at(code).getRandomBundles(allowedTypes, rng, specificCount, level, balance);
+        }
+        QSet<const ConfigPageRandomizer::MagicPropBundle*> resultSpecSet;
+        if (!resultSpec.isEmpty()) {
+            for (int i = 0; i < specificCount; ++i)
+                resultSpecSet << resultSpec[rng.bounded(resultSpec.size())];
+        }
+        for (auto* bundle : resultSpecSet)
+            result << bundle;
+    }
+    result += all.getRandomBundles(allowedTypes, rng, count - result.size(), level, balance);
     return result;
 }
 
@@ -479,7 +493,10 @@ KeySet ConfigPageRandomizer::generate(DataContext& output, QRandomGenerator& rng
     auto affixTypes = [](const TableView::RowView& row) -> ItemCodeFilter {
         ItemCodeFilter result;
         for (int i = 1; i <= 7; ++i) {
-            const QString& itype = row[QString("itype%1").arg(i)];
+            const auto col = QString("itype%1").arg(i);
+            if (!row.hasColumn(col))
+                break;
+            const QString& itype = row[col];
             if (itype.isEmpty())
                 break;
             auto tc = makeCode(itype);
@@ -487,7 +504,10 @@ KeySet ConfigPageRandomizer::generate(DataContext& output, QRandomGenerator& rng
             result.include += tc;
         }
         for (int i = 1; i <= 5; ++i) {
-            const QString& itype = row[QString("etype%1").arg(i)];
+            const auto col = QString("etype%1").arg(i);
+            if (!row.hasColumn(col))
+                break;
+            const QString& itype = row[col];
             if (itype.isEmpty())
                 break;
             auto tc = makeCode(itype);

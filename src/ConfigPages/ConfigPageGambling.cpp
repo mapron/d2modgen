@@ -11,7 +11,7 @@ ConfigPageGambling::ConfigPageGambling(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               //<< new CheckboxWidget("Allow gambling for charms and jewels (Legacy only)\nNote: crashes D2R - so enabled only for D2.", "charmGamble", false, this)
+               << new CheckboxWidget("Allow gambling for charms and jewels (Legacy only)\nNote: crashes D2R - so enabled only for D2.", "charmGamble", false, this)
                << new SliderWidgetMinMax("Increase Unique chance, times<br>Note: you still can get a lot of failed uniques for no known reason.", "ratioUnique", 1, 500, 1, this)
                << new SliderWidgetMinMax("Increase Set chance, times", "ratioSet", 1, 250, 1, this)
                << new SliderWidgetMinMax("Increase Rare chance, times", "ratioRare", 1, 4, 1, this)
@@ -24,7 +24,7 @@ KeySet ConfigPageGambling::generate(DataContext& output, QRandomGenerator& rng, 
 {
     auto&      tableSet = output.tableSet;
     KeySet     result;
-    const bool charmGamble = false; //getWidgetValue("charmGamble") && env.isLegacy; // disabled for D2R now; it crashes the game.
+    const bool charmGamble = getWidgetValue("charmGamble") && env.isLegacy; // disabled for D2R now; it crashes the game.
     if (charmGamble) {
         result << "gamble";
         auto& table = tableSet.tables["gamble"];

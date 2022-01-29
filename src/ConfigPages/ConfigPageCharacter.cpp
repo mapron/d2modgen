@@ -116,6 +116,8 @@ KeySet ConfigPageCharacter::generate(DataContext& output, QRandomGenerator& rng,
             TableView tableView(table);
             for (auto& row : tableView) {
                 for (const char* col : { "reqstr", "reqdex" }) {
+                    if (!tableView.hasColumn(col))
+                        continue;
                     QString& value = row[col];
                     if (value.isEmpty())
                         continue;
