@@ -410,7 +410,6 @@ QSlider:focus
 QLineEdit
 {
     background-color: #1d2023;
-    padding: 0.23em;
     border-style: solid;
     border: 0.04em solid #76797c;
     border-radius: 0.09em;
@@ -900,7 +899,6 @@ QComboBox::down-arrow:focus
 
 QAbstractSpinBox
 {
-    padding: 0.23em;
     border: 0.09em solid #76797c;
     background-color: #1d2023;
     color: #eff0f1;
@@ -1960,4 +1958,25 @@ QMessageBox QPushButton
 {
     min-height: 1.1em;
     min-width: 5em;
+}
+
+QToolButton#helpTooltipButton
+{
+	min-width: 16px;
+	max-width: 16px;
+	min-height: 16px;
+	max-height: 16px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: url(:/help_icon.png);
+}
+QToolButton#helpTooltipButton:hover
+{
+	background: url(:/help_icon_hover.png);
+}
+QLabel#groupTitleLabel
+{
+	padding-left: 20px;
+	margin-top:8px;
 }

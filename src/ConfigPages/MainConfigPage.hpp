@@ -24,6 +24,7 @@ public:
     bool        canBeDisabled() const override;
     QString     caption() const override;
     QString     settingKey() const override;
+    QString     pageHelp() const override;
     void        readSettings(const QJsonObject& data) override;
     void        writeSettings(QJsonObject& data) const override;
     JsonFileSet extraFiles() const override;

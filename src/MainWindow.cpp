@@ -15,6 +15,8 @@
 #include "Storage/StorageCache.hpp"
 #include "Storage/FolderStorage.hpp"
 
+#include "HelpToolButton.hpp"
+
 #include <QDebug>
 #include <QLayout>
 #include <QStackedWidget>
@@ -31,6 +33,7 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QSettings>
+#include <QToolButton>
 
 namespace D2ModGen {
 
@@ -82,7 +85,7 @@ MainWindow::MainWindow(bool autoSave)
     for (const auto& group : pageGroups) {
         if (!group.title.isEmpty()) {
             auto* groupTitle = new QLabel(group.title, this);
-            groupTitle->setStyleSheet("QLabel { padding-left: 20px; margin-top:8px; }");
+            groupTitle->setObjectName("groupTitleLabel");
             increaseFontSize(groupTitle, 2, true);
             buttonPanelLayout->addWidget(groupTitle);
         }
@@ -109,10 +112,13 @@ MainWindow::MainWindow(bool autoSave)
             auto* caption = new QLabel(page->caption(), this);
             increaseFontSize(caption, 2, true);
 
+            auto* pageHelp = new HelpToolButton(page->pageHelp(), this);
+
             QVBoxLayout* pageWrapperMain = new QVBoxLayout(pageWrapper);
             pageWrapperMain->setMargin(8);
             pageWrapperMain->setSpacing(10);
             QHBoxLayout* pageWrapperHeader = new QHBoxLayout();
+            pageWrapperHeader->addWidget(pageHelp);
             pageWrapperHeader->addWidget(caption);
             pageWrapperHeader->addStretch();
             pageWrapperHeader->addWidget(headerEnabler);

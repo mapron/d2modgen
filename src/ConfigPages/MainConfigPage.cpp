@@ -322,6 +322,11 @@ QString MainConfigPage::settingKey() const
     return "main";
 }
 
+QString MainConfigPage::pageHelp() const
+{
+    return tr("Some help\nnext help line");
+}
+
 void MainConfigPage::readSettings(const QJsonObject& data)
 {
     if (data.contains("modname"))

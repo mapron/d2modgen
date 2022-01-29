@@ -114,5 +114,7 @@
     <file>light/vline.svg</file>
     <file>light/vmovetoolbar.svg</file>
     <file>light/vseptoolbar.svg</file>
+    <file>help_icon.png</file>
+    <file>help_icon_hover.png</file>
   </qresource>
 </RCC>

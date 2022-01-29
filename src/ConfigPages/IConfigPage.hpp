@@ -20,6 +20,7 @@ public:
     virtual bool        canBeDisabled() const                  = 0;
     virtual QString     caption() const                        = 0;
     virtual QString     settingKey() const                     = 0;
+    virtual QString     pageHelp() const                       = 0;
     virtual void        readSettings(const QJsonObject& data)  = 0;
     virtual void        writeSettings(QJsonObject& data) const = 0;
     virtual JsonFileSet extraFiles() const                     = 0;

@@ -409,8 +409,7 @@ QSlider:focus
 
 QLineEdit
 {
-    background-color: #eff0f1;
-    padding: 0.23em;
+    background-color: #ffffff;
     border-style: solid;
     border: 0.04em solid #bab9b8;
     border-radius: 0.09em;
@@ -602,14 +601,14 @@ QScrollBar::sub-page:vertical
 
 QTextEdit
 {
-    background-color: #eff0f1;
+    background-color: #ffffff;
     color: #31363b;
     border: 0.04em solid #bab9b8;
 }
 
 QPlainTextEdit
 {
-    background-color: #eff0f1;
+    background-color: #ffffff;
     color: #31363b;
     border-radius: 0.09em;
     border: 0.04em solid #bab9b8;
@@ -741,7 +740,7 @@ QToolBar QToolButton:pressed
 QPushButton
 {
     color: #31363b;
-    background-color: #eaebec;
+    background-color: #DBDBDB;
     border: 0.04em solid #bab9b8;
     padding: 0.23em;
     border-radius: 0.09em;
@@ -800,7 +799,7 @@ QComboBox
 
 QComboBox:editable
 {
-    background-color: #eff0f1;
+    background-color: #ffffff;
 }
 
 QPushButton:checked
@@ -900,9 +899,8 @@ QComboBox::down-arrow:focus
 
 QAbstractSpinBox
 {
-    padding: 0.23em;
     border: 0.09em solid #bab9b8;
-    background-color: #eff0f1;
+    background-color: #ffffff;
     color: #31363b;
     border-radius: 0.09em;
     min-width: 3em;
@@ -1960,4 +1958,25 @@ QMessageBox QPushButton
 {
     min-height: 1.1em;
     min-width: 5em;
+}
+
+QToolButton#helpTooltipButton
+{
+	min-width: 16px;
+	max-width: 16px;
+	min-height: 16px;
+	max-height: 16px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: url(:/help_icon.png);
+}
+QToolButton#helpTooltipButton:hover
+{
+	background: url(:/help_icon_hover.png);
+}
+QLabel#groupTitleLabel
+{
+	padding-left: 20px;
+	margin-top:8px;
 }
