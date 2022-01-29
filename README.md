@@ -51,37 +51,41 @@ A lot of features enabled here - more Boss drops, increased Uniques/drop count/R
 4. You can check "Export all .txt" checkbox, and have you own mod setup instead (mod folder is filled by D2R internal files).
 
 # Feature tabs
-For each tab, just click or hover over question button (?) to get help about features on each page.
+For each tab, just click or hover over question button (?) to get help about features on each page.  
+Also, as you noticed, support for Dark and Light theme is available - choose what you prefer in Actions -> Theme.
 
-#### Difficulty settings.  
-![Difficulty](docs/tab_difficulty.png)  
+#### Randomize items  
+![Randomize items](docs/tab_random_items.png)  
 
-#### Challenge difficulty.  
-![Challenge](docs/tab_challenge.png)  
+#### Randomize monsters  
+![Randomize monsters](docs/tab_random_monsters.png)  
 
-#### Drops improvement.  
-![Drops](docs/tab_drops.png)  
+#### Change monster stats  
+![monster stats](docs/tab_harder_stats.png)  
 
-#### Drop filter.  
-![Drop filter](docs/tab_drop_filtering.png)  
+#### Increase monster and elites density
+![monster density](docs/tab_harder_density.png)  
 
-#### Item randomizer.
-![Randomizer](docs/tab_random.png)  
+#### Challenge difficulty  
+![Challenge](docs/tab_harder_challenge.png)  
 
-#### Monster randomizer.
-![MonsterRandomizer](docs/tab_random_monsters.png)  
+#### Cube recipes to blaze through  
+![Horadric Cube](docs/tab_easy_cube.png)  
 
-#### Horadric cube.
-![Horadric](docs/tab_horadric.png)  
+#### Easier Gambling
+![Gambling](docs/tab_easy_gamble.png)  
 
-#### Gambling.
-![Gambling](docs/tab_gamble.png)  
+#### Character
+![Character](docs/tab_easy_character.png)  
 
-#### Character.
-![Character](docs/tab_char.png)  
+#### Quality of life
+![Qol](docs/tab_easy_qol.png)  
 
-#### Quality of life.
-![Qol](docs/tab_qol.png)  
+#### Increase item drops
+![Drops](docs/tab_easy_drops.png)  
+
+#### Filter your drops
+![Drops filter](docs/tab_misc_filter.png)  
 
 
 # Using commandline
