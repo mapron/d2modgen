@@ -63,7 +63,7 @@ MainWindow::MainWindow(bool autoSave)
     };
     increaseFontSize(genButton, 4, false);
 
-    m_status = new QLabel("Status label.", this);
+    m_status = new QLabel(tr("Status label."), this);
 
     m_mainPage         = new MainConfigPage(this);
     auto* modMergePre  = new ConfigPageMergeModsPreload(this);
@@ -319,7 +319,7 @@ void MainWindow::generate()
         return true;
     };
 
-    m_status->setText("Start...");
+    m_status->setText(tr("Start..."));
     m_status->repaint();
 
     DataContext output;

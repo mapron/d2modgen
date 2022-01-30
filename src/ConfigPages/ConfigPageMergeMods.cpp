@@ -190,6 +190,16 @@ void ConfigPageMergeMods::writeSettings(QJsonObject& data) const
     }
 }
 
+QString ConfigPageMergeMods::pageHelp() const
+{
+    return tr("You can add aditional steps to mod generation, prior or after the d2modgen work\n"
+              "Two additional type of sources are supported:\n"
+              "1. folder with .txt files\n"
+              "2. another D2R mod\n"
+              "After selecting source type, you need to specify conflict resolution, \n"
+              "for the case additional source contains a file which already been generated.");
+}
+
 void ConfigPageMergeMods::gatherInfoInternal(ExtraDependencies& output, const GenerationEnvironment& env) const
 {
     for (auto* item : m_items) {

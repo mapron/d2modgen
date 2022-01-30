@@ -541,9 +541,96 @@ For details, check descriptions of every option.</source>
     </message>
 </context>
 <context>
+    <name>D2ModGen::ConfigPageMergeMods</name>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="141"/>
+        <source>Overall order of data load is: D2 source from Main settings -&gt;
+-&gt; Pre-gen data -&gt; modgen features -&gt; Post-gen data -&gt; output folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="195"/>
+        <source>You can add aditional steps to mod generation, prior or after the d2modgen work
+Two additional type of sources are supported:
+1. folder with .txt files
+2. another D2R mod
+After selecting source type, you need to specify conflict resolution, 
+for the case additional source contains a file which already been generated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>D2ModGen::ConfigPageMergeModsItem</name>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="41"/>
+        <source>CSV files folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="41"/>
+        <source>D2R mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="46"/>
+        <source>Replace - clear previous data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="47"/>
+        <source>Append - place all data at the end</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="48"/>
+        <source>Update - overwrite records with same key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="49"/>
+        <source>AppendNew - add non-existent data to the end</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="50"/>
+        <source>Merge - try Update, then AppendNew</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="51"/>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="52"/>
+        <source>Raise error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="60"/>
+        <source>Mod name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="69"/>
+        <source>Folder with .txt files:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="72"/>
+        <source>Type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="75"/>
+        <source>Action on conflict:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>D2ModGen::ConfigPageMergeModsPostGen</name>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMergeMods.hpp" line="60"/>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.hpp" line="103"/>
         <source>Post-gen data</source>
         <translation type="unfinished"></translation>
     </message>
@@ -551,7 +638,7 @@ For details, check descriptions of every option.</source>
 <context>
     <name>D2ModGen::ConfigPageMergeModsPreload</name>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMergeMods.hpp" line="43"/>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.hpp" line="82"/>
         <source>Pre-gen data</source>
         <translation type="unfinished"></translation>
     </message>
@@ -722,87 +809,87 @@ That is orthogonal to /playersX setting - it will multiply stats independent.</s
 <context>
     <name>D2ModGen::MainConfigPage</name>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="87"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="76"/>
         <source>Use Diablo II legacy installation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="105"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="94"/>
         <source>Add key to new char inventory (Basic mod test)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="107"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="96"/>
         <source>Export all *.txt (for further manual edit)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="110"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="99"/>
         <source>Copy Settings.json</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="112"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="101"/>
         <source>Set launch to mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="113"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="102"/>
         <source>Reset launch to unmodded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="114"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="103"/>
         <source>Make shortcut on Desktop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="129"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="118"/>
         <source>Mod id:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="144"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="133"/>
         <source>D2R path:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="155"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="144"/>
         <source>D2 legacy path:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="166"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="155"/>
         <source>D2R save and user settings root:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="171"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="160"/>
         <source>(this will copy default settings to mod folder)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="180"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="169"/>
         <source>D2R command arguments (read-only):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="192"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="181"/>
         <source>(&lt;b&gt;Close Battlenet launcher before actions!&lt;/b&gt;)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="210"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="199"/>
         <source>Output directory (leave empty to output to D2R path):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="317"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="306"/>
         <source>Main</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="327"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="316"/>
         <source>This page allow you to select most important options:
 -Where input and output data is (D2 installation - Resurrected or Legacy);
 -Create new D2R save folder with global settings;
@@ -818,107 +905,128 @@ You can edit seed manually or press F5 to generate new one.
 <context>
     <name>D2ModGen::MainWindow</name>
     <message>
-        <location filename="../src/MainWindow.cpp" line="58"/>
+        <location filename="../src/MainWindow.cpp" line="57"/>
         <source>Generate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="100"/>
+        <location filename="../src/MainWindow.cpp" line="66"/>
+        <source>Status label.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/MainWindow.cpp" line="99"/>
         <source>Reset to default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="101"/>
+        <location filename="../src/MainWindow.cpp" line="100"/>
         <source>Enable this tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="153"/>
+        <location filename="../src/MainWindow.cpp" line="152"/>
         <source>File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="154"/>
+        <location filename="../src/MainWindow.cpp" line="153"/>
         <source>Actions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="155"/>
+        <location filename="../src/MainWindow.cpp" line="154"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="156"/>
+        <location filename="../src/MainWindow.cpp" line="155"/>
         <source>Save config...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="157"/>
+        <location filename="../src/MainWindow.cpp" line="156"/>
         <source>Load config...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="158"/>
+        <location filename="../src/MainWindow.cpp" line="157"/>
         <source>Clear config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="159"/>
+        <location filename="../src/MainWindow.cpp" line="158"/>
         <source>Browse to settings folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="161"/>
+        <location filename="../src/MainWindow.cpp" line="160"/>
         <source>Quit without saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="162"/>
+        <location filename="../src/MainWindow.cpp" line="161"/>
         <source>Save and quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="163"/>
+        <location filename="../src/MainWindow.cpp" line="162"/>
         <source>Generate mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="164"/>
+        <location filename="../src/MainWindow.cpp" line="163"/>
         <source>Create seed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="165"/>
+        <location filename="../src/MainWindow.cpp" line="164"/>
         <source>Theme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="166"/>
+        <location filename="../src/MainWindow.cpp" line="165"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="194"/>
+        <location filename="../src/MainWindow.cpp" line="193"/>
         <source>You need to restart for changes apply.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="306"/>
+        <location filename="../src/MainWindow.cpp" line="296"/>
         <source>Failed to write data in destination folder; try to launch as admin.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="324"/>
-        <source>Failed to read csv data from D2R folder.</source>
+        <location filename="../src/MainWindow.cpp" line="322"/>
+        <source>Start...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="358"/>
-        <source>Merge conflict in file: %1</source>
+        <location filename="../src/MainWindow.cpp" line="336"/>
+        <source>Failed to read data files from D2 folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="368"/>
+        <location filename="../src/MainWindow.cpp" line="340"/>
+        <source>Failed parse D2 data files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/MainWindow.cpp" line="351"/>
+        <location filename="../src/MainWindow.cpp" line="367"/>
+        <source>Failed to merge with source: %1 / %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/MainWindow.cpp" line="381"/>
+        <source>Failed write output data to disk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/MainWindow.cpp" line="386"/>
         <source>Mod &apos;%1&apos; successfully updated (%2).</source>
         <translation type="unfinished"></translation>
     </message>

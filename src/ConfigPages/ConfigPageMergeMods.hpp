@@ -51,6 +51,8 @@ public:
 public:
     void readSettings(const QJsonObject& data) override;
     void writeSettings(QJsonObject& data) const override;
+    
+    QString pageHelp() const override;
 
     void generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override {}
 

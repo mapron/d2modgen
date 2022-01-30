@@ -37,7 +37,6 @@ public:
 
     // IConfigPage interface
 public:
-    QString pageHelp() const override { return ""; }
     bool    canBeDisabled() const override;
     void    readSettings(const QJsonObject& data) override;
     void    writeSettings(QJsonObject& data) const override;
