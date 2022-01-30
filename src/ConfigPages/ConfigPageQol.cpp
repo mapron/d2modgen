@@ -34,12 +34,10 @@ QString ConfigPageQol::pageHelp() const
               "4. Reduce item costs. ");
 }
 
-KeySet ConfigPageQol::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void ConfigPageQol::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
-        return {};
-    KeySet result;
-    auto&  tableSet = output.tableSet;
+        return;
 
     const bool tomeSize         = getWidgetValue("tomeSize");
     const bool keySize          = getWidgetValue("keySize");
@@ -48,9 +46,8 @@ KeySet ConfigPageQol::generate(DataContext& output, QRandomGenerator& rng, const
     const bool weakenTownSkills = getWidgetValue("weakenTownSkills");
     const int  reduceCost       = getWidgetValue("reduceCost");
     if (tomeSize || keySize || quiverSize) {
-        result << "misc";
-        Table&    table = tableSet.tables["misc"];
-        TableView tableView(table);
+        Table&    table = output.tableSet.tables["misc"];
+        TableView tableView(table, true);
         for (auto& row : tableView) {
             auto& code     = row["code"];
             auto& maxstack = row["maxstack"];
@@ -63,29 +60,25 @@ KeySet ConfigPageQol::generate(DataContext& output, QRandomGenerator& rng, const
         }
     }
     if (uniqueCharmLimit) {
-        result << "uniqueitems";
-        Table&    table = tableSet.tables["uniqueitems"];
-        TableView tableView(table);
+        Table&    table = output.tableSet.tables["uniqueitems"];
+        TableView tableView(table, true);
         for (auto& row : tableView) {
             row["carry1"] = "";
         }
     }
     if (weakenTownSkills) {
         static const QSet<QString> s_exceptions{ "Teleport", "Battle Orders", "Battle Command" };
-        result << "skills";
-        Table&    table = tableSet.tables["skills"];
-        TableView tableView(table);
+        Table&    table = output.tableSet.tables["skills"];
+        TableView tableView(table, true);
         for (auto& row : tableView) {
             if (s_exceptions.contains(row["skill"]))
                 row["InTown"] = "1";
         }
     }
     if (reduceCost != 100) {
-        result << "skills"
-               << "itemstatcost";
         {
-            Table&    table = tableSet.tables["skills"];
-            TableView tableView(table);
+            Table&    table = output.tableSet.tables["skills"];
+            TableView tableView(table, true);
             for (auto& row : tableView) {
                 QString& mult = row["cost mult"];
                 QString& add  = row["cost add"];
@@ -96,8 +89,8 @@ KeySet ConfigPageQol::generate(DataContext& output, QRandomGenerator& rng, const
             }
         }
         {
-            Table&    table = tableSet.tables["itemstatcost"];
-            TableView tableView(table);
+            Table&    table = output.tableSet.tables["itemstatcost"];
+            TableView tableView(table, true);
             for (auto& row : tableView) {
                 QString& mult = row["Multiply"];
                 QString& add  = row["Add"];
@@ -108,7 +101,6 @@ KeySet ConfigPageQol::generate(DataContext& output, QRandomGenerator& rng, const
             }
         }
     }
-    return result;
 }
 
 }

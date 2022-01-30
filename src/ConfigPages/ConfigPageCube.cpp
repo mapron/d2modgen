@@ -44,12 +44,10 @@ QString ConfigPageCube::pageHelp() const
               "Input and results are self-explanatory.  ");
 }
 
-KeySet ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
-        return {};
-    KeySet result;
-    result << "cubemain";
+        return;
 
     const bool noGemUpgrade = getWidgetValue("noGemUpgrade");
     const bool quickPortals = getWidgetValue("quickPortals");
@@ -57,7 +55,7 @@ KeySet ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, cons
     const bool newSocketing = getWidgetValue("socketing");
 
     auto&     tableSet = output.tableSet;
-    TableView view(tableSet.tables["cubemain"]);
+    TableView view(tableSet.tables["cubemain"], true);
     for (auto& row : view) {
         QString& description = row["description"];
         QString& numinputs   = row["numinputs"];
@@ -70,8 +68,8 @@ KeySet ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, cons
             input2    = "";
         }
     }
+    using StringMap = TableView::RowValues;
     if (quickPortals) {
-        using StringMap = QMap<QString, QString>;
         const StringMap base{
             { "description", "Quick Portal" },
             { "enabled", "1" },
@@ -101,7 +99,6 @@ KeySet ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, cons
         view.appendRow(uber2);
     }
     if (quickQuests) {
-        using StringMap = QMap<QString, QString>;
         const StringMap base{
             { "description", "Quick Quest" },
             { "enabled", "1" },
@@ -124,7 +121,6 @@ KeySet ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, cons
         view.appendRow(khalim);
     }
     if (newSocketing) {
-        using StringMap = QMap<QString, QString>;
         const StringMap base{
             { "description", "Quick Sockets" },
             { "enabled", "1" },
@@ -177,8 +173,6 @@ KeySet ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, cons
         view.appendRow(socket1);
         view.appendRow(socketClear);
     }
-
-    return result;
 }
 
 }

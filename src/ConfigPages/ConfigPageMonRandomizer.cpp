@@ -164,20 +164,19 @@ QString ConfigPageMonRandomizer::pageHelp() const
               "Monster will have adjusted their minion spawns and skill levels, too. ");
 }
 
-JsonFileSet ConfigPageMonRandomizer::extraFiles() const
+void ConfigPageMonRandomizer::gatherInfo(PreGenerationContext& output, const GenerationEnvironment& env) const
 {
-    if (isAllDefault())
-        return {};
-    return { s_monstersJson };
+    if (env.isLegacy || isAllDefault())
+        return;
+
+    output.m_extraJson << s_monstersJson;
 }
 
-KeySet ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
-        return {};
-    KeySet result;
-    result << "levels";
-    result << "monstats";
+        return;
+
     auto& tableSet = output.tableSet;
 
     MotTypeTable typeTable;
@@ -200,7 +199,7 @@ KeySet ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& 
     }
     {
         Table&        table = tableSet.tables["levels"];
-        TableView     tableView(table);
+        TableView     tableView(table, true);
         QSet<QString> baseIds, ubaseIds, nonUniqueBaseIds;
         int           cols = 25;
         for (const char* colTpl : { "mon%1", "nmon%1", "umon%1" }) {
@@ -277,7 +276,8 @@ KeySet ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& 
         }
     }
     {
-        Table&                    table = tableSet.tables["monstats"];
+        Table& table   = tableSet.tables["monstats"];
+        table.modified = true;
         MotTypeTable::MonCopyList newCopies;
         auto                      insertNewRows = [&table, &rng, &newCopies, &typeTable, &tcTable]() {
             MotTypeTable::MonCopyList tmpList = std::move(typeTable.newCopies);
@@ -359,8 +359,6 @@ KeySet ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& 
         }
         jsonDoc.setObject(jsonObject);
     }
-
-    return result;
 }
 
 }

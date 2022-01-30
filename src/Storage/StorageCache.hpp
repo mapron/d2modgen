@@ -7,57 +7,52 @@
 
 #include "CommonTypes.hpp"
 
+#include "IStorage.hpp"
+
 namespace D2ModGen {
 
 class StorageCache {
 public:
+    using RequestList = IInputStorage::RequestInMemoryList;
     struct Context {
         StorageType m_storage;
         QString     m_root;
-        QStringList m_tableIds;
-        JsonFileSet m_jsonFiles;
+        RequestList m_inMemoryFiles;
 
         bool operator==(const Context& rh) const noexcept
         {
             return m_storage == rh.m_storage
                    && m_root == rh.m_root
-                   && m_tableIds == rh.m_tableIds
-                   && m_jsonFiles == rh.m_jsonFiles;
+                   && m_inMemoryFiles == rh.m_inMemoryFiles;
         }
     };
 
 public:
-    DataContextPtr Load(const Context& context)
+    IStorage::StoredData load(const Context& context)
     {
         if (context == m_prev)
-            return CloneCache();
+            return m_cache;
 
-        m_cache = LoadImpl(context);
+        m_cache = loadImpl(context);
         m_prev  = context;
-        return CloneCache();
+        return m_cache;
     }
 
-    DataContextPtr Load(StorageType        storage,
-                        const QString&     root,
-                        const QStringList& tableIds,
-                        const JsonFileSet& jsonFiles)
+    IStorage::StoredData load(StorageType        storage,
+                              const QString&     root,
+                              const RequestList& inMemoryFiles)
     {
-        return Load({ storage,
+        return load({ storage,
                       root,
-                      tableIds,
-                      jsonFiles });
+                      inMemoryFiles });
     }
 
 private:
-    DataContextPtr CloneCache() const
-    {
-        return m_cache ? std::make_shared<DataContext>(*m_cache) : nullptr;
-    }
-    static DataContextPtr LoadImpl(const Context& context);
+    static IStorage::StoredData loadImpl(const Context& context);
 
 private:
-    DataContextPtr m_cache;
-    Context        m_prev;
+    IStorage::StoredData m_cache;
+    Context              m_prev;
 };
 
 }

@@ -25,17 +25,6 @@ namespace D2ModGen {
 
 namespace {
 
-QString ensureTrailingSlash(QString path)
-{
-    if (path.isEmpty())
-        return {};
-
-    const bool hasSlash = path.endsWith("\\") || path.endsWith("/");
-    if (!hasSlash)
-        path += "/";
-    return path;
-}
-
 QString getInstallLocationFromRegistry(bool resurrected)
 {
     static const QString base("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II");
@@ -371,11 +360,6 @@ void MainConfigPage::writeSettings(QJsonObject& data) const
     data["isLegacy"]     = m_impl->d2legacyMode->isChecked();
 }
 
-JsonFileSet MainConfigPage::extraFiles() const
-{
-    return {};
-}
-
 bool MainConfigPage::isConfigEnabled() const
 {
     return true;
@@ -385,12 +369,17 @@ void MainConfigPage::setConfigEnabled(bool state)
 {
 }
 
-KeySet MainConfigPage::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void MainConfigPage::gatherInfo(PreGenerationContext& output, const GenerationEnvironment& env) const
+{
+}
+
+void MainConfigPage::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (!m_impl->addKeys->isChecked())
-        return {};
+        return;
+
     Table&    charTable = output.tableSet.tables["charstats"];
-    TableView charTableView(charTable);
+    TableView charTableView(charTable, true);
 
     for (auto& rowView : charTableView) {
         if (rowView["class"] == "Expansion")
@@ -408,7 +397,6 @@ KeySet MainConfigPage::generate(DataContext& output, QRandomGenerator& rng, cons
             }
         }
     }
-    return { "charstats" };
 }
 
 void MainConfigPage::setLaunch(QString arg)

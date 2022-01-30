@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QDir>
+#include <QDirIterator>
 #include <QFile>
 #include <QJsonDocument>
 
@@ -28,65 +29,139 @@ QString IStorage::makeTableRelativePath(const QString& id, bool backslash)
 }
 
 FolderStorage::FolderStorage(const QString& storageRoot, StorageType storage, const QString& modname)
-    : m_storage(storage)
+    : m_storageType(storage)
     , m_modName(modname)
-    , m_modRoot(storage == StorageType::D2ResurrectedModFolder ? storageRoot + s_modSubfolderTemplate.arg(modname) : storageRoot)
-{}
+    , m_root(storage == StorageType::D2ResurrectedModFolder ? storageRoot + s_modSubfolderTemplate.arg(modname) : storageRoot)
+{
+    assert(m_root.endsWith('/') || m_root.endsWith('\\'));
+}
+
+IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filenames) const noexcept
+{
+    StoredData result{ true };
+
+    QDir         rootDir(m_root);
+    QDirIterator it(m_root, QDir::NoDotAndDotDot | QDir::Files, QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        it.next();
+        auto fi = it.fileInfo();
+        if (fi.isFile()) {
+            const QString absPath = fi.absoluteFilePath();
+            if (fi.completeSuffix().toLower() == "txt" && (fi.dir().dirName().toLower() == "excel" || fi.dir() == rootDir)) { // not a best guess, but however...
+                auto  id = fi.completeBaseName().toLower();
+                QFile loadFile(absPath);
+                if (!loadFile.open(QIODevice::ReadOnly))
+                    return {};
+
+                result.tables.push_back(StoredFileTable{ loadFile.readAll(), id });
+            } else {
+                QString relPath = rootDir.relativeFilePath(fi.absoluteFilePath());
+                if (filenames.contains(relPath)) {
+                    QFile loadFile(absPath);
+                    if (!loadFile.open(QIODevice::ReadOnly))
+                        return {};
+
+                    result.inMemoryFiles.push_back(StoredFileMemory{ loadFile.readAll(), relPath });
+                } else {
+                    result.refFiles.push_back(StoredFileRef{ absPath, relPath });
+                }
+            }
+        }
+    }
+    return result;
+}
 
 bool FolderStorage::prepareForWrite() const noexcept
 {
-    qDebug() << "started generation in " << m_modRoot;
-    if (QFileInfo::exists(m_modRoot + "data/"))
-        QDir(m_modRoot + "data/").removeRecursively();
+    qDebug() << "started generation in " << m_root;
+    if (QFileInfo::exists(m_root + "data/"))
+        QDir(m_root + "data/").removeRecursively();
 
-    if (!QFileInfo::exists(m_modRoot))
-        QDir().mkpath(m_modRoot);
-    if (!QFileInfo::exists(m_modRoot)) {
-        qDebug() << "Failed to create: " << m_modRoot;
+    if (!QFileInfo::exists(m_root))
+        QDir().mkpath(m_root);
+    if (!QFileInfo::exists(m_root)) {
+        qDebug() << "Failed to create: " << m_root;
         return false;
     }
-    if (m_storage == StorageType::D2ResurrectedModFolder) {
-        if (QFileInfo::exists(m_modRoot + "modinfo.json"))
-            QFile::remove(m_modRoot + "modinfo.json");
+    if (m_storageType == StorageType::D2ResurrectedModFolder) {
+        if (QFileInfo::exists(m_root + "modinfo.json"))
+            QFile::remove(m_root + "modinfo.json");
         QJsonObject modinfo;
         modinfo["name"]     = m_modName;
         modinfo["savepath"] = m_modName + "/";
-        if (!writeJsonFile(m_modRoot + "modinfo.json", QJsonDocument(modinfo))) {
-            qDebug() << "Failed to write: " << (m_modRoot + "modinfo.json");
+        if (!writeJsonFile(m_root + "modinfo.json", QJsonDocument(modinfo))) {
+            qDebug() << "Failed to write: " << (m_root + "modinfo.json");
             return false;
         }
     }
-    const QString excelRoot = m_modRoot + s_tableSubfolder;
-    if (!QFileInfo::exists(excelRoot))
-        QDir().mkpath(excelRoot);
+    if (m_storageType != StorageType::CsvFolder) {
+        const QString excelRoot = m_root + s_tableSubfolder;
+        if (!QFileInfo::exists(excelRoot))
+            QDir().mkpath(excelRoot);
+    }
 
     return true;
 }
 
-bool FolderStorage::writeData(const OutFileList& files) const noexcept
+bool FolderStorage::writeData(const StoredData& data) const noexcept
 {
-    for (const auto& file : files) {
-        assert(!file.relFilepath.isEmpty());
-        const QString dest   = m_modRoot + file.relFilepath;
-        const QString folder = QFileInfo(dest).absolutePath();
+    auto writeData = [](const QByteArray& data, const QString& absPath) {
+        const QString folder = QFileInfo(absPath).absolutePath();
         if (!QFileInfo::exists(folder))
             QDir().mkpath(folder);
+        if (!QFileInfo::exists(folder))
+            return false;
+        QFile saveFile(absPath);
+        if (!saveFile.open(QIODevice::WriteOnly))
+            return false;
 
-        if (!file.srcAbsFilepath.isEmpty()) {
-            assert(file.data.isEmpty());
-            QFile::copy(file.srcAbsFilepath, dest);
-        } else if (!file.data.isEmpty()) {
-            assert(file.srcAbsFilepath.isEmpty());
-            QFile saveFile(dest);
-
-            if (!saveFile.open(QIODevice::WriteOnly))
+        if (!data.isEmpty()) {
+            if (saveFile.write(data) <= 0)
                 return false;
+        }
 
-            saveFile.write(file.data);
-        } else {
-            assert(!"Invalid logic, empty file?");
+        return true;
+    };
+    auto copyFile = [](const QString& absSrc, const QString& absDest) {
+        const QString folder = QFileInfo(absDest).absolutePath();
+        if (!QFileInfo::exists(folder))
+            QDir().mkpath(folder);
+        if (!QFileInfo::exists(folder))
+            return false;
+
+        if (QFileInfo::exists(absDest))
+            QFile::remove(absDest);
+        if (QFileInfo::exists(absDest))
+            return false;
+
+        if (!QFile::copy(absSrc, absDest))
+            return false;
+
+        return true;
+    };
+    for (const auto& tableData : data.tables) {
+        const QString relPath = m_storageType == StorageType::CsvFolder ? tableData.id + ".txt" : makeTableRelativePath(tableData.id, false);
+        const QString absPath = m_root + relPath;
+        if (!writeData(tableData.data, absPath)) {
+            qWarning() << "failed to write to:" << absPath;
+            return false;
         }
     }
+    for (const auto& memoryData : data.inMemoryFiles) {
+        const QString absPath = m_root + memoryData.relFilepath;
+        if (!writeData(memoryData.data, absPath)) {
+            qWarning() << "failed to write to:" << absPath;
+            return false;
+        }
+    }
+    for (const auto& refData : data.refFiles) {
+        const QString absPathDest = m_root + refData.relFilepath;
+        if (!copyFile(refData.absSrcFilepath, absPathDest)) {
+            qWarning() << "failed to copy file:" << refData.absSrcFilepath << " -> " << absPathDest;
+            return false;
+        }
+    }
+
     return true;
 }
 

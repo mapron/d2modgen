@@ -80,15 +80,14 @@ QString ConfigPageCharacter::pageHelp() const
               "Last slider allow you to lower Strength and Dexterity requirements on all items.  ");
 }
 
-KeySet ConfigPageCharacter::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void ConfigPageCharacter::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
-        return {};
-    KeySet result;
-    result << "charstats";
+        return;
+
     auto&     tableSet  = output.tableSet;
     Table&    charTable = tableSet.tables["charstats"];
-    TableView charTableView(charTable);
+    TableView charTableView(charTable, true);
 
     const int statPerLevel  = getWidgetValue("statPerLevel");
     const int skillPerLevel = getWidgetValue("skillPerLevel");
@@ -117,11 +116,9 @@ KeySet ConfigPageCharacter::generate(DataContext& output, QRandomGenerator& rng,
             row["SkillsPerLevel"] = QString("%1").arg(skillPerLevel);
     }
     if (statLower != 100) {
-        result << "armor"
-               << "weapons";
         for (const char* tableName : { "armor", "weapons" }) {
             Table&    table = tableSet.tables[tableName];
-            TableView tableView(table);
+            TableView tableView(table, true);
             for (auto& row : tableView) {
                 for (const char* col : { "reqstr", "reqdex" }) {
                     if (!tableView.hasColumn(col))
@@ -135,7 +132,6 @@ KeySet ConfigPageCharacter::generate(DataContext& output, QRandomGenerator& rng,
             }
         }
     }
-    return result;
 }
 
 }

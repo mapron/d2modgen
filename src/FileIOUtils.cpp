@@ -19,8 +19,14 @@ bool readJsonFile(const QString& file, QJsonDocument& data)
     }
 
     QByteArray saveData = loadFile.readAll();
+    
+    QJsonParseError err;
 
-    QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
+    QJsonDocument loadDoc(QJsonDocument::fromJson(saveData, &err));
+    if (loadDoc.isNull()) {
+        qWarning() << "failed to parse json:" << file << ", " << err.errorString();
+        return false;
+    }
 
     data = loadDoc;
 
@@ -43,33 +49,5 @@ bool writeJsonFile(const QString& file, const QJsonDocument& data, bool escape)
     return true;
 }
 
-bool readCSV(const QString& csvData, Table& table)
-{
-    QStringList rows = csvData.split("\r\n", Qt::SkipEmptyParts);
-    if (rows.isEmpty())
-        return false;
-    const QString header = rows.takeFirst();
-    table.columns        = header.split('\t', Qt::KeepEmptyParts);
-    for (const QString& row : rows) {
-        const QStringList cells = row.split('\t', Qt::KeepEmptyParts);
-        table.rows << TableRow{ cells };
-    }
-#ifndef NDEBUG
-    {
-        QString check;
-        writeCSV(check, table);
-        Q_ASSERT(check == csvData);
-    }
-#endif
-    return true;
-}
-
-bool writeCSV(QString& csvData, const Table& table)
-{
-    csvData += table.columns.join('\t') + "\r\n";
-    for (const auto& row : table.rows)
-        csvData += row.data.join('\t') + "\r\n";
-    return true;
-}
 
 }

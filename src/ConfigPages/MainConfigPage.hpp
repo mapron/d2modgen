@@ -27,11 +27,11 @@ public:
     QString     pageHelp() const override;
     void        readSettings(const QJsonObject& data) override;
     void        writeSettings(QJsonObject& data) const override;
-    JsonFileSet extraFiles() const override;
     bool        isConfigEnabled() const override;
     void        setConfigEnabled(bool state) override;
 
-    KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    void gatherInfo(PreGenerationContext& output, const GenerationEnvironment& env) const override;
+    void generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 
 signals:
     void updateModList();

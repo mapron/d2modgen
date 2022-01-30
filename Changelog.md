@@ -1,4 +1,4 @@
-#### 0.3
+## 0.3
 New features:  
 * Overall UI rework;
 * added Light/Dark theme support;
@@ -7,20 +7,20 @@ New features:
 * added context help buttons, documentation moved from Readme.MD to UI context (nobody read github docs);
 * added commandline support;
 
-#### 0.2.7
+## 0.2.7
 New features:  
 * Eeach tab have separate enable control and reset button;
 * Randomizer introduces new option: fit properties to item type. Now you can select percent, how much you wish to new generated items resemble old item classes (rings - old rings, belts - old belts etc).
 
-#### 0.2.6
+## 0.2.6
 Bug fixes:  
 * Fixed crashes when generate for legacy D2 and ProjectD2.
 
-#### 0.2.5
+## 0.2.5
 
 Critical fix: fixed bug when D2 legacy dir was wiped out.
 
-#### 0.2.4
+## 0.2.4
 New Features:  
 * Added new "Challenge" tab to allow extra resistance penalty for character;
 * Perfect rolls option now tweak automods too.
@@ -34,7 +34,7 @@ Documentation:
 *  Updated docs to include latest features;
 
 
-#### 0.2.3
+## 0.2.3
 New Features:  
 * New feature: mod merge tab; allows to include other mods contents on generate;
 * Reworked item filters - instead modifying droptables, now it shortens labels or hide them, items still available for pickup.  
@@ -44,7 +44,7 @@ Bug fixes:
 * Quest items do not randomize their stats now;
 * Monster randomiser is rewritten form scratch; more balanced spawns, minions, skills and TCs now fixed;
 
-#### 0.2.2
+## 0.2.2
 New Features:  
 * Added Monster Randomizer! 
 * Gambling tuning experimental support (still have quirks);
@@ -55,7 +55,7 @@ New Features:
 Bug fixes:  
 * Fixed issue that 'unbalanced' (=99) mode was not 'crazy enough';
 
-#### 0.2.1
+## 0.2.1
 New Features:  
 * Added Horadric cube tab with a few recipes handy for testing purpose;
 * Option to make uniqes with same base equal rarity (for randomizer that does not make sense anyway)
@@ -68,20 +68,20 @@ Bug Fixes:
 * Fixed issue with spawning "defence on time" affix.
 
 
-#### 0.2
+## 0.2
 New features:  
 * Added Legacy D2 support;
 * Improved options for Drop rates;
 * Added ability to generate different uniques.
 
-#### 0.1.1
+## 0.1.1
 
 Patch release with minor UI improvements:  
 * Added function to create shortcut;
 * Sliders now more reliable;
 * Some styles enhancement.
 
-#### 0.1
+## 0.1
 First public release, features included:  
 * Monster balance;
 * Density adjust;

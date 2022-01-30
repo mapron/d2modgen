@@ -363,14 +363,9 @@ QString ConfigPageItemRandomizer::pageHelp() const
               "For details, check descriptions of every option.");
 }
 
-KeySet ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
-    auto&  tableSet = output.tableSet;
-    KeySet result;
-    result << "uniqueitems"
-           << "runes"
-           << "setitems"
-           << "sets";
+    auto& tableSet = output.tableSet;
 
     MagicPropUniverse props;
     {
@@ -633,6 +628,7 @@ KeySet ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator&
                                                         const int                itemFitPercent,
                                                         const bool               isPerfect,
                                                         const bool               commonSkip) {
+        view.markModified();
         for (auto& row : view) {
             QString& firstPar = row[columns.m_cols[0].code];
             if (commonSkip && firstPar.isEmpty())
@@ -737,7 +733,6 @@ KeySet ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator&
                 true,
                 true);
         }
-        result << "gems";
     }
     if (getWidgetValue("affixRandom")) {
         const int minProps = 1;
@@ -757,8 +752,6 @@ KeySet ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator&
                 perfectRoll,
                 true);
         }
-        result << "magicprefix"
-               << "magicsuffix";
     }
     {
         TableView view(tableSet.tables["sets"]);
@@ -767,7 +760,6 @@ KeySet ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator&
         fillProps(view, ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2), commonSetReq, commonTypeAll, setsTypes, 1, 5, itemFitPercent, true, false);
         fillProps(view, ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8), commonSetReq, commonTypeAll, setsTypes, 3, 8, itemFitPercent, true, false);
     }
-    return result;
 }
 
 }

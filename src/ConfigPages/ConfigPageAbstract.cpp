@@ -82,11 +82,6 @@ void ConfigPageAbstract::writeSettings(QJsonObject& data) const
     }
 }
 
-JsonFileSet ConfigPageAbstract::extraFiles() const
-{
-    return {};
-}
-
 bool ConfigPageAbstract::isConfigEnabled() const
 {
     return m_enabled;

@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
+#include "DataContext.hpp"
 
 #include <QWidget>
 
@@ -17,17 +17,18 @@ public:
         : QWidget(parent)
     {}
 
-    virtual bool        canBeDisabled() const                  = 0;
-    virtual QString     caption() const                        = 0;
-    virtual QString     settingKey() const                     = 0;
-    virtual QString     pageHelp() const                       = 0;
-    virtual void        readSettings(const QJsonObject& data)  = 0;
-    virtual void        writeSettings(QJsonObject& data) const = 0;
-    virtual JsonFileSet extraFiles() const                     = 0;
-    virtual bool        isConfigEnabled() const                = 0;
-    virtual void        setConfigEnabled(bool state)           = 0;
+    virtual bool    canBeDisabled() const                  = 0;
+    virtual QString caption() const                        = 0;
+    virtual QString settingKey() const                     = 0;
+    virtual QString pageHelp() const                       = 0;
+    virtual void    readSettings(const QJsonObject& data)  = 0;
+    virtual void    writeSettings(QJsonObject& data) const = 0;
 
-    virtual KeySet generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const = 0;
+    virtual bool isConfigEnabled() const      = 0;
+    virtual void setConfigEnabled(bool state) = 0;
+
+    virtual void gatherInfo(PreGenerationContext& output, const GenerationEnvironment& env) const             = 0;
+    virtual void generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const = 0;
 };
 
 }

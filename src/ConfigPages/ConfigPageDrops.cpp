@@ -50,11 +50,11 @@ QString ConfigPageDrops::pageHelp() const
               "Note that increase is accurate when your chances are low, but with high MF it can have diminishing return.");
 }
 
-KeySet ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault({ "chance_uni", "chance_set", "chance_rare", "nodrop_factor", "high_elite_drops", "good_factor", "rune_factor", "zod_factor", "highrune_switch", "equal_uniques", "perfect_rolls" }))
-        return {};
-    KeySet                     result{ "treasureclassex" };
+        return;
+
     static const QSet<int>     s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
     static const QSet<QString> s_modifyNames{
         "Cow",
@@ -63,7 +63,7 @@ KeySet ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, con
     };
     auto& tableSet = output.tableSet;
     {
-        TableView view(tableSet.tables["treasureclassex"]);
+        TableView view(tableSet.tables["treasureclassex"], true);
 
         const int  factorUnique    = getWidgetValue("chance_uni");
         const int  factorSet       = getWidgetValue("chance_set");
@@ -186,8 +186,7 @@ KeySet ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, con
 
     const bool equalRarity = getWidgetValue("equal_uniques");
     if (equalRarity) {
-        result << "uniqueitems";
-        TableView view(tableSet.tables["uniqueitems"]);
+        TableView view(tableSet.tables["uniqueitems"], true);
         for (auto& row : view) {
             QString& rarity = row["rarity"];
             if (!rarity.isEmpty())
@@ -196,14 +195,9 @@ KeySet ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, con
     }
     const bool perfectRolls = getWidgetValue("perfect_rolls");
     if (perfectRolls) {
-        result << "uniqueitems"
-               << "runes"
-               << "setitems"
-               << "magicprefix"
-               << "magicsuffix"
-               << "automagic";
         auto updateMinParam = [](TableView&         view,
                                  const ColumnsDesc& columns) {
+            view.markModified();
             for (auto& row : view) {
                 for (const auto& col : columns.m_cols) {
                     auto& min = row[col.min];
@@ -232,13 +226,11 @@ KeySet ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, con
             for (const char* table : { "magicprefix", "magicsuffix", "automagic" }) {
                 if (!tableSet.tables.contains(table))
                     continue;
-                TableView view(tableSet.tables[table]);
+                TableView view(tableSet.tables[table], true);
                 updateMinParam(view, ColumnsDesc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3));
             }
         }
     }
-
-    return result;
 }
 
 }

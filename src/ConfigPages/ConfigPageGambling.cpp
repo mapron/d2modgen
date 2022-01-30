@@ -26,21 +26,19 @@ QString ConfigPageGambling::pageHelp() const
               "Next sliders allow you increase basic chance of getting Unique/Rare/Set/High-quality item.  ");
 }
 
-KeySet ConfigPageGambling::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void ConfigPageGambling::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
-    auto&      tableSet = output.tableSet;
-    KeySet     result;
     const bool charmGamble = getWidgetValue("charmGamble") && env.isLegacy; // disabled for D2R now; it crashes the game.
     if (charmGamble) {
-        result << "gamble";
-        auto& table = tableSet.tables["gamble"];
+        auto& table    = output.tableSet.tables["gamble"];
+        table.modified = true;
         table.rows << TableRow({ "Charm Small", "cm1" });
         table.rows << TableRow({ "Charm Medium", "cm2" });
         table.rows << TableRow({ "Charm Large", "cm3" });
         table.rows << TableRow({ "Jewel", "jew" });
     }
     if (isAllDefault({ "ratioUnique", "ratioSet", "ratioRare", "ratioExc", "ratioElite" }))
-        return result;
+        return;
 
     static const QVector<QPair<QString, QString>> s_columns{
         { "GambleRare", "ratioRare" },
@@ -50,9 +48,8 @@ KeySet ConfigPageGambling::generate(DataContext& output, QRandomGenerator& rng, 
         { "GambleUltra", "ratioElite" },
     };
 
-    result << "difficultylevels";
     {
-        TableView view(tableSet.tables["difficultylevels"]);
+        TableView view(output.tableSet.tables["difficultylevels"], true);
         for (auto& row : view) {
             for (auto& p : s_columns) {
                 QString&  col      = row[p.first];
@@ -61,8 +58,6 @@ KeySet ConfigPageGambling::generate(DataContext& output, QRandomGenerator& rng, 
             }
         }
     }
-
-    return result;
 }
 
 }

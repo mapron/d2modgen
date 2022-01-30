@@ -26,12 +26,12 @@ QString ConfigPageMonStats::pageHelp() const
               "That is orthogonal to /playersX setting - it will multiply stats independent.");
 }
 
-KeySet ConfigPageMonStats::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void ConfigPageMonStats::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
-    auto&  tableSet = output.tableSet;
-    KeySet result;
-    result << "monlvl";
-    TableView view(tableSet.tables["monlvl"]);
+    if (isAllDefault())
+        return;
+
+    TableView view(output.tableSet.tables["monlvl"], true);
     auto      proceedMonParam = [&view, this](QString key, QStringList cols) {
         if (isWidgetValueDefault(key))
             return;
@@ -53,8 +53,6 @@ KeySet ConfigPageMonStats::generate(DataContext& output, QRandomGenerator& rng, 
     proceedMonParam("mon_def", { "AC", "AC(N)", "AC(H)", "L-AC", "L-AC(N)", "L-AC(H)" });
     proceedMonParam("mon_hp", { "HP", "HP(N)", "HP(H)", "L-HP", "L-HP(N)", "L-HP(H)" });
     proceedMonParam("mon_dam", { "DM", "DM(N)", "DM(H)", "L-DM", "L-DM(N)", "L-DM(H)" });
-
-    return result;
 }
 
 }

@@ -11,7 +11,6 @@
 #include "ConfigPages/ConfigPages.hpp"
 #include "ConfigPages/ConfigPageMergeMods.hpp"
 
-#include "Storage/StorageConstants.hpp"
 #include "Storage/StorageCache.hpp"
 #include "Storage/FolderStorage.hpp"
 
@@ -289,17 +288,8 @@ void MainWindow::generate()
         return;
     }
 
-    StorageType storage;
-    if (env.isLegacy)
-        storage = StorageType::D2LegacyInternal;
-    else
-        storage = StorageType::D2ResurrectedInternal;
-
-    StorageType storageOut;
-    if (env.isLegacy)
-        storageOut = StorageType::D2LegacyFolder;
-    else
-        storageOut = StorageType::D2ResurrectedModFolder;
+    const StorageType storage    = (env.isLegacy) ? StorageType::D2LegacyInternal : StorageType::D2ResurrectedInternal;
+    const StorageType storageOut = (env.isLegacy) ? StorageType::D2LegacyFolder : StorageType::D2ResurrectedModFolder;
 
     FolderStorage outStorage(env.outPath, storageOut, env.modName);
     if (!outStorage.prepareForWrite()) {
@@ -307,62 +297,90 @@ void MainWindow::generate()
         return;
     }
 
+    auto mergeContext = [this, &env](DataContext& targetContext, const ExtraDependencies::Source& source) -> bool {
+        const auto    logInfo = source.srcRoot + " / " + source.modname;
+        const bool    isMod   = source.type == StorageType::D2ResurrectedModFolder;
+        const auto    root    = isMod ? env.outPath : source.srcRoot;
+        FolderStorage inStorage(root, source.type, isMod ? source.modname : "");
+        auto          storedData = inStorage.readData({});
+        if (!storedData.valid) {
+            qWarning() << "Failed to read data files from D2 folder:" << logInfo;
+            return false;
+        }
+        DataContext dataContext;
+        if (!dataContext.readData(storedData)) {
+            qWarning() << "Failed to parse files into context:" << logInfo;
+            return false;
+        }
+        if (!targetContext.mergeWith(dataContext, source.policy)) {
+            qWarning() << "Merge failed:" << logInfo;
+            return false;
+        }
+        return true;
+    };
+
     m_status->setText("Start...");
     m_status->repaint();
 
-    KeySet         keySet;
-    DataContextPtr output;
-    JsonFileSet    requiredFiles;
+    DataContext output;
+
+    PreGenerationContext pregenContext;
     {
         for (auto* page : m_pages)
             if (page->isConfigEnabled())
-                requiredFiles += page->extraFiles();
+                page->gatherInfo(pregenContext, env);
     }
     {
-        output = m_mainStorageCache->Load(storage, env.d2rPath, g_tableNames, requiredFiles);
-        if (!output) {
-            QMessageBox::warning(this, "error", tr("Failed to read csv data from D2R folder."));
+        const IStorage::StoredData data = m_mainStorageCache->load(storage, env.d2rPath, pregenContext.m_extraJson);
+        if (!data.valid) {
+            QMessageBox::warning(this, "error", tr("Failed to read data files from D2 folder."));
+            return;
+        }
+        if (!output.readData(data)) {
+            QMessageBox::warning(this, "error", tr("Failed parse D2 data files."));
             return;
         }
         if (env.exportAllTables)
-            for (auto id : output->tableSet.tables.keys())
-                keySet << id;
+            for (auto& p : output.tableSet.tables)
+                p.second.forceOutput = true;
     }
-    qDebug() << "prepare ended; modifying tables. seed=" << env.seed;
+    qDebug() << "Loading pre-gen data.";
+    {
+        for (const auto& source : pregenContext.m_preGen.m_sources)
+            if (!mergeContext(output, source)) {
+                QMessageBox::warning(this, "error", tr("Failed to merge with source: %1 / %2").arg(source.srcRoot, source.modname));
+                return;
+            }
+    }
+    qDebug() << "prepare ended; Starting generate phase. seed=" << env.seed;
     {
         QRandomGenerator rng;
         rng.seed(env.seed);
         for (auto* page : m_pages)
             if (page->isConfigEnabled())
-                keySet += page->generate(*output, rng, env);
+                page->generate(output, rng, env);
+    }
+    qDebug() << "Loading post-gen data.";
+    {
+        for (const auto& source : pregenContext.m_postGen.m_sources)
+            if (!mergeContext(output, source)) {
+                QMessageBox::warning(this, "error", tr("Failed to merge with source: %1 / %2").arg(source.srcRoot, source.modname));
+                return;
+            }
     }
     qDebug() << "prepare output data.";
-    IOutputStorage::OutFileList outData;
-    for (const auto& key : keySet) {
-        QString data;
-        writeCSV(data, output->tableSet.tables[key]);
-        outData << IOutputStorage::OutFile{ data.toUtf8(), IStorage::makeTableRelativePath(key, false) };
+
+    IStorage::StoredData outData;
+    if (!output.writeData(outData)) {
+        qDebug() << "Failed to prepare data buffers"; // highly unlikely.
+        return;
     }
-    auto iter = QMapIterator(output->jsonFiles);
-    while (iter.hasNext()) {
-        iter.next();
-        QByteArray datastr = iter.value().toJson(QJsonDocument::Indented);
-        datastr.replace(QByteArray("\xC3\x83\xC2\xBF\x63"), QByteArray("\xC3\xBF\x63")); // hack: replace color codes converter to UTF-8 from latin-1.
-        outData << IOutputStorage::OutFile{ datastr, iter.key() };
-    }
-    QSet<QString> existent;
-    for (auto& copyFile : output->copyFiles) {
-        const QString src  = copyFile.srcModRoot + copyFile.relativePath;
-        const QString dest = copyFile.relativePath;
-        if (existent.contains(dest)) {
-            QMessageBox::warning(this, "error", tr("Merge conflict in file: %1").arg(dest));
-            return;
-        }
-        existent << dest;
-        outData << IOutputStorage::OutFile{ {}, dest, src };
-    }
+
     qDebug() << "writing output to disk.";
-    outStorage.writeData(outData);
+    if (!outStorage.writeData(outData)) {
+        QMessageBox::warning(this, "error", tr("Failed write output data to disk"));
+        return;
+    }
 
     qDebug() << "generation ends.";
     m_status->setText(tr("Mod '%1' successfully updated (%2).").arg(env.modName, QTime::currentTime().toString("mm:ss")));

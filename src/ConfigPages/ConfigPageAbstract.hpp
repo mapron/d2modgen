@@ -37,13 +37,14 @@ public:
 
     // IConfigPage interface
 public:
-    QString     pageHelp() const override { return ""; }
-    bool        canBeDisabled() const override;
-    void        readSettings(const QJsonObject& data) override;
-    void        writeSettings(QJsonObject& data) const override;
-    JsonFileSet extraFiles() const override;
-    bool        isConfigEnabled() const override;
-    void        setConfigEnabled(bool state) override;
+    QString pageHelp() const override { return ""; }
+    bool    canBeDisabled() const override;
+    void    readSettings(const QJsonObject& data) override;
+    void    writeSettings(QJsonObject& data) const override;
+    bool    isConfigEnabled() const override;
+    void    setConfigEnabled(bool state) override;
+
+    void gatherInfo(PreGenerationContext& output, const GenerationEnvironment& env) const override {}
 
     bool isAllDefault() const;
     bool isAllDefault(const QStringList& keys) const;

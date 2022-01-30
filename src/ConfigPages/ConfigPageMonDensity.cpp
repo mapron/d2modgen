@@ -33,15 +33,12 @@ QString ConfigPageMonDensity::pageHelp() const
               "Last Checkbox can be used to quickly setup boss count on Normal and Nightmare exactly equal to Hell count.");
 }
 
-KeySet ConfigPageMonDensity::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void ConfigPageMonDensity::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
-    auto&  tableSet = output.tableSet;
-    KeySet result;
     {
         const int groupIncrease = getWidgetValue("mon_groups");
-        TableView view(tableSet.tables["monstats"]);
         if (groupIncrease > 0) {
-            result << "monstats";
+            TableView view(output.tableSet.tables["monstats"], true);
             for (auto& row : view) {
                 if (row["Level"].isEmpty())
                     continue;
@@ -60,8 +57,7 @@ KeySet ConfigPageMonDensity::generate(DataContext& output, QRandomGenerator& rng
         }
     }
     if (!isAllDefault({ "density", "packs", "hellPacks" })) {
-        result << "levels";
-        TableView view(tableSet.tables["levels"]);
+        TableView view(output.tableSet.tables["levels"], true);
         auto      isEmptyCell = [](const QString& value) {
             return value.isEmpty() || value == "0";
         };
@@ -118,7 +114,6 @@ KeySet ConfigPageMonDensity::generate(DataContext& output, QRandomGenerator& rng
             }
         }
     }
-    return result;
 }
 
 }

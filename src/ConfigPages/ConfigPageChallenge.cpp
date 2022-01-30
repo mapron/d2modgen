@@ -37,12 +37,10 @@ QString ConfigPageChallenge::pageHelp() const
               "note that max value of 85 is still used (so set to 20 to basically make all Hell areas lvl 85).  ");
 }
 
-KeySet ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
-        return {};
-
-    KeySet result;
+        return;
 
     {
         TableView view(output.tableSet.tables["treasureclassex"]);
@@ -54,7 +52,7 @@ KeySet ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng,
                 disabledIds += item.internalIds;
         }
         if (!disabledIds.empty()) {
-            result << "treasureclassex";
+            view.markModified();
             for (auto& row : view) {
                 DropSet dropSet;
                 dropSet.readRow(row);
@@ -72,11 +70,11 @@ KeySet ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng,
     }
     {
         TableView view(output.tableSet.tables["difficultylevels"]);
-        auto      checkPenalty = [this, &result, &view](const QString& key, const QString& name) {
+        auto      checkPenalty = [this, &output, &view](const QString& key, const QString& name) {
             if (isAllDefault({ key }))
                 return;
             const int penalty = getWidgetValue(key);
-            result << "difficultylevels";
+            view.markModified();
             for (auto& row : view) {
                 if (row["Name"] == name) {
                     row["ResistPenalty"] = QString("-%1").arg(penalty);
@@ -92,8 +90,7 @@ KeySet ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng,
     const int levelIncreaseHell      = getWidgetValue("levelIncreaseHell");
 
     if (levelIncreaseNightmare || levelIncreaseHell) {
-        result << "levels";
-        TableView view(output.tableSet.tables["levels"]);
+        TableView view(output.tableSet.tables["levels"], true);
 
         const QString nighLevelKey = view.hasColumn("MonLvlEx(N)") ? "MonLvlEx(N)" : "MonLvl2Ex";
         const QString hellLevelKey = view.hasColumn("MonLvlEx(H)") ? "MonLvlEx(H)" : "MonLvl3Ex";
@@ -111,8 +108,6 @@ KeySet ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng,
             adjustLevel(row, hellLevelKey, levelIncreaseHell);
         }
     }
-
-    return result;
 }
 
 }

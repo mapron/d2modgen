@@ -23,9 +23,10 @@ public:
     {
         return "monRandomizer";
     }
-    QString pageHelp() const override;
-    JsonFileSet extraFiles() const override;
-    KeySet      generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    QString     pageHelp() const override;
+
+    void gatherInfo(PreGenerationContext& output, const GenerationEnvironment& env) const override;
+    void generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 
 }

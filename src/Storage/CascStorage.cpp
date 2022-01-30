@@ -6,6 +6,7 @@
 #include "CascStorage.hpp"
 
 #include "RAIIUtils.hpp"
+#include "StorageConstants.hpp"
 
 #include <CascLib.h>
 
@@ -13,9 +14,9 @@
 
 namespace D2ModGen {
 
-IInputStorage::Result CascStorage::readData(const QString& storageRoot, const RequestFileList& filenames) const noexcept
+IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames) const noexcept
 {
-    const std::string utf8path = storageRoot.toStdString();
+    const std::string utf8path = m_storageRoot.toStdString();
     HANDLE            storage;
     if (!CascOpenStorage(utf8path.c_str(), 0, &storage)) {
         qWarning() << "failed to open storage:" << utf8path.c_str();
@@ -44,13 +45,21 @@ IInputStorage::Result CascStorage::readData(const QString& storageRoot, const Re
         return true;
     };
 
-    IInputStorage::Result result{ true };
+    IStorage::StoredData result{ true };
 
-    for (const auto& filename : filenames) {
+    for (const QString& id : g_tableNames) {
         QByteArray buffer;
-        if (!readCascFile(buffer, filename.relFilepath))
-            return {};
-        result.files << StoredFile{ std::move(buffer), filename.relFilepath, filename.id };
+        if (!readCascFile(buffer, IStorage::makeTableRelativePath(id, true)))
+            continue;
+
+        result.tables.push_back(StoredFileTable{ std::move(buffer), id });
+    }
+    for (const QString& relativePath : filenames) {
+        QByteArray buffer;
+        if (!readCascFile(buffer, relativePath))
+            continue;
+
+        result.inMemoryFiles.push_back(StoredFileMemory{ std::move(buffer), relativePath });
     }
     return result;
 }

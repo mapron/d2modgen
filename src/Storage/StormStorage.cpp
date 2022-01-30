@@ -6,6 +6,7 @@
 #include "StormStorage.hpp"
 
 #include "RAIIUtils.hpp"
+#include "StorageConstants.hpp"
 
 #include <StormLib.h>
 
@@ -13,10 +14,10 @@
 
 namespace D2ModGen {
 
-IInputStorage::Result StormStorage::readData(const QString& storageRoot, const RequestFileList& filenames) const noexcept
+IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames) const noexcept
 {
-    const std::string utf8data  = storageRoot.toStdString() + "d2data.mpq";
-    const std::string utf8patch = storageRoot.toStdString() + "patch_d2.mpq";
+    const std::string utf8data  = m_storageRoot.toStdString() + "d2data.mpq";
+    const std::string utf8patch = m_storageRoot.toStdString() + "patch_d2.mpq";
     bool              hasData   = true;
     HANDLE            mpq;
     if (!SFileOpenArchive(utf8data.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
@@ -60,13 +61,21 @@ IInputStorage::Result StormStorage::readData(const QString& storageRoot, const R
         return true;
     };
 
-    IInputStorage::Result result{ true };
+    StoredData result{ true };
 
-    for (const auto& filename : filenames) {
+    for (const QString& id : g_tableNames) {
         QByteArray buffer;
-        if (!readStormFile(buffer, filename.relFilepath))
+        if (!readStormFile(buffer, IStorage::makeTableRelativePath(id, true)))
             continue;
-        result.files << StoredFile{ std::move(buffer), filename.relFilepath, filename.id };
+
+        result.tables.push_back(StoredFileTable{ std::move(buffer), id });
+    }
+    for (const QString& relativePath : filenames) {
+        QByteArray buffer;
+        if (!readStormFile(buffer, relativePath))
+            continue;
+
+        result.inMemoryFiles.push_back(StoredFileMemory{ std::move(buffer), relativePath });
     }
     return result;
 }

@@ -91,22 +91,21 @@ QString ConfigPageDropFiltering::pageHelp() const
               "2. Hide item labels on the ground (you still be able to pick them). ");
 }
 
-JsonFileSet ConfigPageDropFiltering::extraFiles() const
+void ConfigPageDropFiltering::gatherInfo(PreGenerationContext& output, const GenerationEnvironment& env) const
 {
-    if (isAllDefault())
-        return {};
+    if (env.isLegacy || isAllDefault())
+        return;
 
-    return { s_itemnamesJson, s_affixnamesJson };
+    output.m_extraJson << s_itemnamesJson << s_affixnamesJson;
 }
 
-KeySet ConfigPageDropFiltering::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
+void ConfigPageDropFiltering::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())
-        return {};
-    KeySet result;
+        return;
 
     auto replaceJson = [&output](const QMap<QString, QString>& replacements, const QString& name) {
-        if (replacements.isEmpty())
+        if (replacements.isEmpty() || !output.jsonFiles.contains(name))
             return;
         auto& jsonDoc   = output.jsonFiles[name];
         auto  jsonArray = jsonDoc.array();
@@ -163,8 +162,6 @@ KeySet ConfigPageDropFiltering::generate(DataContext& output, QRandomGenerator& 
 
     replaceJson(replacementsItems, s_itemnamesJson);
     replaceJson(replacementsAffix, s_affixnamesJson);
-
-    return result;
 }
 
 }

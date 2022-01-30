@@ -15,53 +15,58 @@ namespace D2ModGen {
 class IStorage {
 public:
     static QString makeTableRelativePath(const QString& id, bool backslash);
+
+    struct StoredFileTable {
+        QByteArray data;
+        QString    id;
+    };
+    using StoredFileTableList = std::vector<StoredFileTable>;
+
+    struct StoredFileMemory {
+        QByteArray data;
+        QString    relFilepath;
+    };
+    using StoredFileMemoryList = std::vector<StoredFileMemory>;
+
+    struct StoredFileRef {
+        QString absSrcFilepath;
+        QString relFilepath;
+    };
+    using StoredFileRefList = std::vector<StoredFileRef>;
+
+    struct StoredData {
+        bool                 valid = false;
+        StoredFileTableList  tables;
+        StoredFileMemoryList inMemoryFiles;
+        StoredFileRefList    refFiles;
+    };
+
 public:
     virtual ~IStorage() = default;
 };
 
-class IInputStorage : public IStorage {
+class IInputStorage : virtual public IStorage {
 public:
     using Ptr = std::shared_ptr<const IInputStorage>;
 
-    struct StoredFile {
-        QByteArray data; // can be empty for enumeration.
-        QString    relFilepath;
-        QString    id;
-    };
-    using StoredFileList = QList<StoredFile>;
-
-    struct RequestFile {
-        QString relFilepath;
-        QString id; // if present, will be kept in StoredFile
-    };
-    using RequestFileList = QList<RequestFile>;
-
-    struct Result {
-        bool           success = false;
-        StoredFileList files;
-    };
+    using RequestInMemoryList = QSet<QString>;
 
 public:
-    virtual Result readData(const QString& storageRoot, const RequestFileList& filenames) const noexcept = 0;
+    virtual ~IInputStorage() = default;
 
-    virtual Result listContents(const QString& storageRoot) const noexcept = 0;
+    virtual StoredData readData(const RequestInMemoryList& filenames) const noexcept = 0;
 };
 
-class IOutputStorage : public IStorage {
+class IOutputStorage : virtual public IStorage {
 public:
     using Ptr = std::shared_ptr<const IOutputStorage>;
 
-    struct OutFile {
-        QByteArray data; // can be empty for enumeration.
-        QString    relFilepath;
-        QString    srcAbsFilepath;
-    };
-    using OutFileList = QList<OutFile>;
-
 public:
+    virtual ~IOutputStorage() = default;
+
     virtual bool prepareForWrite() const noexcept = 0;
 
-    virtual bool writeData(const OutFileList& files) const noexcept = 0;
+    virtual bool writeData(const StoredData& data) const noexcept = 0;
 };
 
 }
