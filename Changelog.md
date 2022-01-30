@@ -1,5 +1,6 @@
 ## 0.3
 New features:  
+* Post-gen and pre-gen steps now a more powerful replacement than 'mod merge' - you can merge different mods and resolve conflicts automatically!
 * Overall UI rework;
 * added Light/Dark theme support;
 * ability to change language (English/Russian for now);

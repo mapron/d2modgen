@@ -93,6 +93,9 @@ Also, as you noticed, support for Dark and Light theme is available - choose wha
 #### Filter your drops
 ![Drops filter](docs/tab_misc_filter.png)  
 
+#### Merge with other mods or custom files
+![Merge](docs/tab_misc_merge.png)  
+
 
 # Using commandline
 You also can run d2modgen in commandline mode (without UI). Two commands are supported:  

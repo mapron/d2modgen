@@ -92,10 +92,7 @@ void ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng, c
     if (levelIncreaseNightmare || levelIncreaseHell) {
         TableView view(output.tableSet.tables["levels"], true);
 
-        const QString nighLevelKey = view.hasColumn("MonLvlEx(N)") ? "MonLvlEx(N)" : "MonLvl2Ex";
-        const QString hellLevelKey = view.hasColumn("MonLvlEx(H)") ? "MonLvlEx(H)" : "MonLvl3Ex";
-
-        auto adjustLevel = [&nighLevelKey, &hellLevelKey](TableView::RowView& row, const QString& key, const int levelIncrease) {
+        auto adjustLevel = [](TableView::RowView& row, const QString& key, const int levelIncrease) {
             QString& lev   = row[key];
             int      level = lev.toInt();
             if (!level || level > 85)
@@ -104,8 +101,8 @@ void ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng, c
         };
 
         for (auto& row : view) {
-            adjustLevel(row, nighLevelKey, levelIncreaseNightmare);
-            adjustLevel(row, hellLevelKey, levelIncreaseHell);
+            adjustLevel(row, "MonLvlEx(N)", levelIncreaseNightmare);
+            adjustLevel(row, "MonLvlEx(H)", levelIncreaseHell);
         }
     }
 }

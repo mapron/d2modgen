@@ -28,21 +28,41 @@ static const std::map<QString, QStringList> s_tableKeys{
     { "armor", { "code" } },
 };
 
+using AliasConfig = std::map<QString, QStringList>;
+static const std::map<QString, AliasConfig> s_tableColumnAliases{
+    { "itemtypes", AliasConfig{ { "MaxSockets3", { "MaxSock40" } } } },
+    { "levels", AliasConfig{
+                    { "MonLvlEx(N)", { "MonLvl2Ex" } },
+                    { "MonLvlEx(H)", { "MonLvl3Ex" } },
+                } },
+};
+
 }
 
 TableView::TableView(Table& table, bool markModified)
     : m_table(table)
 {
-    for (int i = 0; i < m_table.columns.size(); ++i)
-        m_columnIndex[m_table.columns[i]] = i;
+    auto itAlias = s_tableColumnAliases.find(table.id);
+    for (int i = 0; i < m_table.columns.size(); ++i) {
+        const QString& col = m_table.columns[i];
+        m_columnIndex[col] = i;
+
+        if (itAlias != s_tableColumnAliases.cend()) {
+            auto itCol = itAlias->second.find(col);
+            if (itCol != itAlias->second.cend()) {
+                for (const QString& aliasCol : itCol->second)
+                    m_columnIndex[aliasCol] = i;
+            }
+        }
+    }
     for (int i = 0; i < m_table.rows.size(); ++i)
         m_rows.emplace_back(i, *this);
     if (markModified)
         m_table.modified = true;
 
-    auto it = s_tableKeys.find(table.id);
-    if (it != s_tableKeys.cend()) {
-        for (const QString& col : it->second) {
+    auto itKey = s_tableKeys.find(table.id);
+    if (itKey != s_tableKeys.cend()) {
+        for (const QString& col : itKey->second) {
             const int colIndex = m_columnIndex.value(col, -1);
             assert(colIndex != -1);
             if (colIndex < 0)

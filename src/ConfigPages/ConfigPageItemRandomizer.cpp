@@ -380,8 +380,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
             else if (row["Repair"] == "1")
                 info.flags << AttributeFlag::Durability;
 
-            if (row.hasColumn("MaxSockets3") && row["MaxSockets3"] != "0"
-                || row.hasColumn("MaxSock40") && row["MaxSock40"] != "0")
+            if (row["MaxSockets3"] != "0")
                 info.flags << AttributeFlag::Sockets;
             if (!row["Shoots"].isEmpty())
                 info.flags << AttributeFlag::Missile;
