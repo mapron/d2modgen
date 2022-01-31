@@ -15,7 +15,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/targets.cmake)
 
 
 # Qt Setup
-set(QT_MODULE_LIST Core Gui Widgets)
+set(QT_MODULE_LIST Core Gui Widgets Svg)
 find_package(Qt5 COMPONENTS ${QT_MODULE_LIST} LinguistTools REQUIRED)
 add_definitions(-DCASCLIB_NO_AUTO_LINK_LIBRARY -DSTORMLIB_NO_AUTO_LINK)
 
@@ -372,7 +372,7 @@ install(TARGETS modgen RUNTIME DESTINATION bin)
 
 if(WIN32)
 # Qt install - plugins
-set(QtPluginsList)
+set(QtPluginsList Qt5::QSvgPlugin)
 if(APPLE)
     list(APPEND QtPluginsList Qt5::QCocoaIntegrationPlugin)
 elseif(WIN32)

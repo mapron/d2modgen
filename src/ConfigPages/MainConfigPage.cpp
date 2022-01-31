@@ -336,8 +336,8 @@ void MainConfigPage::readSettings(const QJsonObject& data)
     else
         createNewSeed();
 
-    if (data.contains("d2rpath"))
-        m_impl->d2rPath->setText(data["d2rpath"].toString());
+    if (data.contains("d2rPath"))
+        m_impl->d2rPath->setText(data["d2rPath"].toString());
     else
         m_impl->d2rPath->setText(getInstallLocationFromRegistry(true));
 
