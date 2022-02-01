@@ -24,7 +24,8 @@ ConfigPageChallenge::ConfigPageChallenge(QWidget* parent)
                << new SliderWidgetMinMax(tr("Nightmare difficulty resistance penalty, -all%"), "nightmare_minus_res", 0, 250, 40, this)
                << new SliderWidgetMinMax(tr("Hell difficulty resistance penalty, -all%"), "hell_minus_res", 0, 250, 100, this)
                << new SliderWidgetMinMax(tr("Increase Nightmare area levels, +levels"), "levelIncreaseNightmare", 0, 20, 0, this)
-               << new SliderWidgetMinMax(tr("Increase Hell area levels, +levels"), "levelIncreaseHell", 0, 20, 0, this));
+               << new SliderWidgetMinMax(tr("Increase Hell area levels, +levels"), "levelIncreaseHell", 0, 30, 0, this)
+               << new CheckboxWidget(tr("Go beyond 85 level for areas\nWarning! It's only briefly tested."), "levelIncreaseUltra", false, this));
 
     closeLayout();
 }
@@ -91,13 +92,14 @@ void ConfigPageChallenge::generate(DataContext& output, QRandomGenerator& rng, c
 
     if (levelIncreaseNightmare || levelIncreaseHell) {
         TableView view(output.tableSet.tables["levels"], true);
+        const int levelIncreaseUltra = getWidgetValue("levelIncreaseUltra") ? 105 : 85;
 
-        auto adjustLevel = [](TableView::RowView& row, const QString& key, const int levelIncrease) {
+        auto adjustLevel = [levelIncreaseUltra](TableView::RowView& row, const QString& key, const int levelIncrease) {
             QString& lev   = row[key];
             int      level = lev.toInt();
             if (!level || level > 85)
                 return;
-            lev = QString("%1").arg(std::min(85, level + levelIncrease));
+            lev = QString("%1").arg(std::min(levelIncreaseUltra, level + levelIncrease));
         };
 
         for (auto& row : view) {
