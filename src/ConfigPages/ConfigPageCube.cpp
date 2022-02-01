@@ -30,9 +30,17 @@ ConfigPageCube::ConfigPageCube(QWidget* parent)
                                                                     "2. Normal item + TP scroll x1 + Id scroll x2 = Add 4 sockets\n"
                                                                     "3. Normal item + TP scroll x2 + Id scroll x1 = Add 5 sockets\n"
                                                                     "4. Normal item + TP scroll x2 + Id scroll x2 = Add 6 sockets\n"
-                                                                    "5. Unique item + TP scroll x1 + Id scroll x1 = Add 1 socket\n"
+                                                                    "5. Unique/Set/Rare item + TP scroll x1 + Id scroll x1 = Add 1 socket\n"
                                                                     "6. Socketed item + TP scroll x1 = Clear sockets",
                                      "socketing",
+                                     false,
+                                     this)
+               << new CheckboxWidget(tr("Add upgrade recipes:") + "\n"
+                                                                  "1. Normal item (normal,magic,rare,unique,set) + Antidote = Exceptional item\n"
+                                                                  "2. Exceptional item (normal,magic,rare,unique,set) + Antidote = Elite item\n"
+                                                                  "3. Any item + Stamina x2 = Add Ethereal\n"
+                                                                  "4. Magic (magic,rare,unique,set) item  + Stamina = Normal item of same type\n",
+                                     "upgrading",
                                      false,
                                      this));
     closeLayout();
@@ -53,6 +61,7 @@ void ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const 
     const bool quickPortals = getWidgetValue("quickPortals");
     const bool quickQuests  = getWidgetValue("quickQuests");
     const bool newSocketing = getWidgetValue("socketing");
+    const bool upgrading    = getWidgetValue("upgrading");
 
     auto&     tableSet = output.tableSet;
     TableView view(tableSet.tables["cubemain"], true);
@@ -160,6 +169,12 @@ void ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const 
         socket1["input 3"]   = "isc";
         socket1["output"]    = "\"useitem,sock=1\"";
 
+        StringMap socket1a  = socket1;
+        socket1a["input 1"] = "\"any,rar,nos\"";
+
+        StringMap socket1b  = socket1;
+        socket1b["input 1"] = "\"any,set,nos\"";
+
         StringMap socketClear    = base;
         socketClear["numinputs"] = "2";
         socketClear["input 1"]   = "\"any,sock\"";
@@ -171,7 +186,70 @@ void ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const 
         view.appendRow(socket5);
         view.appendRow(socket6);
         view.appendRow(socket1);
+        view.appendRow(socket1a);
+        view.appendRow(socket1b);
         view.appendRow(socketClear);
+    }
+
+    if (upgrading) {
+        const StringMap base{
+            { "description", "Quick Upgrading" },
+            { "enabled", "1" },
+            { "version", "100" },
+            { "*eol", "0" },
+            { "numinputs", "2" },
+            { "ilvl", "100" },
+            { "input 2", "yps" },
+
+        };
+        StringMap armo1  = base;
+        armo1["input 1"] = "\"armo,bas\"";
+        armo1["output"]  = "\"useitem,mod,exc\"";
+
+        StringMap weap1  = armo1;
+        weap1["input 1"] = "\"weap,bas\"";
+
+        StringMap armo2  = base;
+        armo2["input 1"] = "\"armo,exc\"";
+        armo2["output"]  = "\"useitem,mod,eli\"";
+
+        StringMap weap2  = armo2;
+        weap2["input 1"] = "\"weap,exc\"";
+
+        StringMap armoEth      = base;
+        armoEth["numinputs"]   = "3";
+        armoEth["input 1"]     = "\"armo,noe\"";
+        armoEth["input 2"]     = "\"vps,qty=2\"";
+        armoEth["output"]      = "\"useitem\"";
+        armoEth["mod 1"]       = "ethereal";
+        armoEth["mod 1 param"] = "1";
+        armoEth["mod 1 min"]   = "1";
+        armoEth["mod 1 max"]   = "1";
+
+        armoEth["mod 2"]     = "ac%";
+        armoEth["mod 2 min"] = "50";
+        armoEth["mod 2 max"] = "50";
+
+        StringMap weapEth  = armoEth;
+        weapEth["input 1"] = "\"weap,noe\"";
+        weapEth["mod 2"]   = "dmg %";
+
+        StringMap armoNor  = base;
+        armoNor["input 1"] = "armo";
+        armoNor["input 2"] = "vps";
+        armoNor["output"]  = "\"usetype,nor\"";
+
+        StringMap weapNor  = armoNor;
+        weapNor["input 1"] = "weap";
+
+        view.appendRow(armo1);
+        view.appendRow(weap1);
+        view.appendRow(armo2);
+        view.appendRow(weap2);
+        view.appendRow(armoEth);
+        view.appendRow(weapEth);
+        view.appendRow(armoNor);
+        view.appendRow(weapNor);
     }
 }
 
