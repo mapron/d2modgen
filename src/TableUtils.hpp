@@ -66,6 +66,27 @@ public:
             return v.join("###");
         }
 
+        template<class T>
+        void applyIntTransform(const int index, const T& transform)
+        {
+            QString& value = (*this)[index];
+            if (value.isEmpty())
+                return;
+
+            const int newValue = transform(value.toInt());
+            value              = QString("%1").arg(newValue);
+        }
+
+        template<class T>
+        void applyIntTransform(const QString& key, const T& transform)
+        {
+            const int index = ind(key);
+            if (index < 0)
+                return;
+
+            applyIntTransform(index, transform);
+        }
+
     private:
         int        ind(const QString& index) const { return parent.m_columnIndex.value(index, -1); }
         int        i;
@@ -108,10 +129,45 @@ public:
 
     int rowCount() const { return m_table.rows.size(); }
 
+    template<class T>
+    void applyIntTransform(const std::vector<int>& cols, const T& transform)
+    {
+        for (RowView& row : m_rows) {
+            for (int index : cols)
+                row.applyIntTransform(index, transform);
+        }
+    }
+
+    template<class T>
+    void applyIntTransform(const int index, const T& transform)
+    {
+        applyIntTransform({ index }, transform);
+    }
+
+    template<class T>
+    void applyIntTransform(const QStringList& keys, const T& transform)
+    {
+        std::vector<int> cols;
+        for (const QString& key : keys) {
+            const int index = m_columnIndex.value(key, -1);
+            if (index < 0)
+                continue;
+            cols.push_back(index);
+        }
+
+        applyIntTransform(cols, transform);
+    }
+
+    template<class T>
+    void applyIntTransform(const QString& key, const T& transform)
+    {
+        applyIntTransform({ key }, transform);
+    }
+
 private:
     Table&               m_table;
     std::vector<RowView> m_rows;
-    QList<int>           m_primaryKey;
+    std::vector<int>     m_primaryKey;
     QHash<QString, int>  m_columnIndex;
     QHash<QString, int>  m_pkIndex;
     bool                 isWriteable = true;

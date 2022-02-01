@@ -67,7 +67,7 @@ TableView::TableView(Table& table, bool markModified)
             assert(colIndex != -1);
             if (colIndex < 0)
                 continue;
-            m_primaryKey << colIndex;
+            m_primaryKey.push_back(colIndex);
         }
     }
 }
@@ -86,7 +86,7 @@ void D2ModGen::TableView::markModified()
 
 bool TableView::createRowIndex()
 {
-    if (m_primaryKey.isEmpty())
+    if (m_primaryKey.empty())
         return false;
     for (int i = 0; i < m_rows.size(); ++i)
         m_pkIndex[m_rows[i].makeKey()] = i;

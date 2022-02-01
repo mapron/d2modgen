@@ -68,7 +68,9 @@ ConfigPageCharacter::ConfigPageCharacter(QWidget* parent)
                << new CheckboxWidget(tr("Replace starting Health pots with Mana"), "manaPots", false, this)
                << new SliderWidgetMinMax(tr("Stat points gain per level"), "statPerLevel", 1, 25, 5, this)
                << new SliderWidgetMinMax(tr("Skill points gain per level (D2R only!)"), "skillPerLevel", 1, 5, 1, this)
-               << new SliderWidgetMinMax(tr("Lower Strength/Dexterity requirements on items, %"), "statLower", 10, 100, 100, this));
+               << new SliderWidgetMinMax(tr("Lower Strength/Dexterity requirements on items, %"), "statLower", 10, 100, 100, this)
+               << new SliderWidget(tr("Change mercenaries Health, multiply by"), "mercHP", 5, 10, this)
+               << new SliderWidget(tr("Change mercenaries Damage, multiply by"), "mercDam", 5, 10, this));
     closeLayout();
 }
 
@@ -89,9 +91,11 @@ void ConfigPageCharacter::generate(DataContext& output, QRandomGenerator& rng, c
     Table&    charTable = tableSet.tables["charstats"];
     TableView charTableView(charTable, true);
 
-    const int statPerLevel  = getWidgetValue("statPerLevel");
-    const int skillPerLevel = getWidgetValue("skillPerLevel");
-    const int statLower     = getWidgetValue("statLower");
+    const int statPerLevel   = getWidgetValue("statPerLevel");
+    const int skillPerLevel  = getWidgetValue("skillPerLevel");
+    const int statLower      = getWidgetValue("statLower");
+    const int mercHPpercent  = getWidgetValue("mercHP");
+    const int mercDampercent = getWidgetValue("mercDam");
 
     for (auto& row : charTableView) {
         if (row["class"] == "Expansion")
@@ -115,22 +119,26 @@ void ConfigPageCharacter::generate(DataContext& output, QRandomGenerator& rng, c
         if (!env.isLegacy)
             row["SkillsPerLevel"] = QString("%1").arg(skillPerLevel);
     }
+
     if (statLower != 100) {
+        auto trans = [statLower](const int value) {
+            const int newStat = value * statLower / 100;
+            return newStat < 10 ? 0 : newStat;
+        };
         for (const char* tableName : { "armor", "weapons" }) {
             Table&    table = tableSet.tables[tableName];
-            TableView tableView(table, true);
-            for (auto& row : tableView) {
-                for (const char* col : { "reqstr", "reqdex" }) {
-                    if (!tableView.hasColumn(col))
-                        continue;
-                    QString& value = row[col];
-                    if (value.isEmpty())
-                        continue;
-                    const int newStat = value.toInt() * statLower / 100;
-                    value             = QString("%1").arg(newStat < 10 ? 0 : newStat);
-                }
-            }
+            TableView view(table, true);
+            view.applyIntTransform(QStringList{ "reqstr", "reqdex" }, trans);
         }
+    }
+    if (mercHPpercent != 100 || mercDampercent != 100) {
+        TableView view(tableSet.tables["hireling"], true);
+        view.applyIntTransform(QStringList{ "HP", "HP/Lvl" }, [mercHPpercent](const int value) -> int {
+            return value * mercHPpercent / 100;
+        });
+        view.applyIntTransform(QStringList{ "Dmg-Min", "Dmg-Max", "Dmg/Lvl" }, [mercDampercent](const int value) -> int {
+            return value * mercDampercent / 100;
+        });
     }
 }
 
