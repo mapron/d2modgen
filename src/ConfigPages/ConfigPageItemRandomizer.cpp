@@ -228,6 +228,8 @@ QList<const ConfigPageItemRandomizer::MagicPropBundle*> ConfigPageItemRandomizer
                                                                                                                       int                     level,
                                                                                                                       int                     balance) const
 {
+    if (count <= 0)
+        return {};
     if (!specificItemUsage)
         return all.getRandomBundles(allowedTypes, rng, count, level, balance);
 
@@ -306,6 +308,11 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
     auto* keepCount = new CheckboxWidget(tr("Keep original property count"), "keepCount", false, this);
     keepCount       = addHelp(keepCount, tr("You can select this to make all items having same property count, or customize it with settings below."));
     addEditors(QList<IValueWidget*>() << keepCount);
+    auto* onlyAddition = new CheckboxWidget(tr("Keep original propertis, and randomize ONLY additional"), "onlyAddition", false, this);
+    onlyAddition       = addHelp(onlyAddition, tr("Adding new randomized properties to items, keeping original.\n"
+                                            "Can't be used at same time as 'keepCount' for obvious reasons:\n"
+                                            "Properties will be added when new count is more than original."));
+    addEditors(QList<IValueWidget*>() << onlyAddition);
     auto addMinimax = [this, keepCount](int minValue, int maxValue, int midValue, const QString& minKey, const QString& maxKey, const QString& overallTitle, const QString& help) {
         IValueWidget* minw = new SliderWidgetMinMax("Min", minKey, minValue, maxValue, midValue, true, this);
         IValueWidget* maxw = new SliderWidgetMinMax("Max", maxKey, minValue, maxValue, maxValue, true, this);
@@ -614,19 +621,20 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
     const int  itemFitPercent = getWidgetValue("itemFitPercent");
     const bool perfectRoll    = getWidgetValue("perfectRoll");
     const bool keepCount      = getWidgetValue("keepCount");
+    const bool onlyAddition   = getWidgetValue("onlyAddition");
     if (itemFitPercent)
         props.fillPropSets();
 
-    auto fillProps = [&props, &rng, balance, keepCount](TableView&               view,
-                                                        const ColumnsDesc&       columns,
-                                                        const LevelCallback&     levelCb,
-                                                        const FlagsCallback&     flagsCb,
-                                                        const ItemTypesCallback& typesCb,
-                                                        const int                minProps,
-                                                        const int                maxProps,
-                                                        const int                itemFitPercent,
-                                                        const bool               isPerfect,
-                                                        const bool               commonSkip) {
+    auto fillProps = [&props, &rng, balance, keepCount, onlyAddition](TableView&               view,
+                                                                      const ColumnsDesc&       columns,
+                                                                      const LevelCallback&     levelCb,
+                                                                      const FlagsCallback&     flagsCb,
+                                                                      const ItemTypesCallback& typesCb,
+                                                                      const int                minProps,
+                                                                      const int                maxProps,
+                                                                      const int                itemFitPercent,
+                                                                      const bool               isPerfect,
+                                                                      const bool               commonSkip) {
         view.markModified();
         for (auto& row : view) {
             QString& firstPar = row[columns.m_cols[0].code];
@@ -643,12 +651,15 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                     break;
                 originalCount++;
             }
-            const auto allowedTypes = flagsCb(row);
-            const auto filter       = typesCb(row);
-            const int  newCnt       = keepCount ? originalCount : rng.bounded(minProps, maxProps + 1);
-            const auto bundles      = props.getRandomBundles(allowedTypes, filter, itemFitPercent, rng, newCnt, level, balance);
+            const auto allowedTypes   = flagsCb(row);
+            const auto filter         = typesCb(row);
+            const int  newCnt         = keepCount ? originalCount : rng.bounded(minProps, maxProps + 1);
+            const int  generatedCount = onlyAddition ? newCnt - originalCount : newCnt;
+            const auto bundles        = props.getRandomBundles(allowedTypes, filter, itemFitPercent, rng, generatedCount, level, balance);
+            if (onlyAddition && generatedCount < 0)
+                continue;
 
-            int col = 0;
+            int col = onlyAddition ? originalCount : 0;
             for (auto* bundle : bundles) {
                 for (int j = 0; j < bundle->props.size(); ++j) {
                     if (col >= columns.m_cols.size())
