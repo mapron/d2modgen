@@ -298,7 +298,7 @@ const QHash<QString, int> s_attributesIndex = [] {
 
 bool isUnusedAttribute(const QString& code)
 {
-    if (code.startsWith('*'))
+    if (code.isEmpty() || code.startsWith('*'))
         return true;
     const bool result = s_attributesIndex.value(code, -1) == -1;
     if (!result)

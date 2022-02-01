@@ -5,7 +5,57 @@
  */
 #include "ConfigPageCube.hpp"
 
+#include "AttributeHelper.hpp"
+
+#include <QLabel>
+
 namespace D2ModGen {
+
+namespace {
+const QMap<QString, QString> s_craftedTypeReplace{
+    { "\"fhl,mag,upg\"", "\"helm,mag\"" },
+    { "\"mbt,mag,upg\"", "\"boot,mag\"" },
+    { "\"mgl,mag,upg\"", "\"glov,mag\"" },
+    { "\"tbl,mag,upg\"", "\"belt,mag\"" },
+    { "\"gts,mag,upg\"", "\"shld,mag\"" },
+    { "\"fld,mag,upg\"", "\"tors,mag\"" },
+    { "\"blun,mag\"", "\"weap,mag\"" },
+
+    { "\"hlm,mag,upg\"", "\"helm,mag\"" },
+    { "\"tbt,mag,upg\"", "\"boot,mag\"" },
+    { "\"vgl,mag,upg\"", "\"glov,mag\"" },
+    { "\"mbl,mag,upg\"", "\"belt,mag\"" },
+    { "\"spk,mag,upg\"", "\"shld,mag\"" },
+    { "\"plt,mag,upg\"", "\"tors,mag\"" },
+    { "\"axe,mag\"", "\"weap,mag\"" },
+
+    { "\"msk,mag,upg\"", "\"helm,mag\"" },
+    { "\"lbt,mag,upg\"", "\"boot,mag\"" },
+    { "\"lgl,mag,upg\"", "\"glov,mag\"" },
+    { "\"vbl,mag,upg\"", "\"belt,mag\"" },
+    { "\"sml,mag,upg\"", "\"shld,mag\"" },
+    { "\"ltp,mag,upg\"", "\"tors,mag\"" },
+    { "\"rod,mag\"", "\"weap,mag\"" },
+
+    { "\"crn,mag,upg\"", "\"helm,mag\"" },
+    { "\"hbt,mag,upg\"", "\"boot,mag\"" },
+    { "\"hgl,mag,upg\"", "\"glov,mag\"" },
+    { "\"lbl,mag,upg\"", "\"belt,mag\"" },
+    { "\"kit,mag,upg\"", "\"shld,mag\"" },
+    { "\"brs,mag,upg\"", "\"tors,mag\"" },
+    { "\"spea,mag\"", "\"miss,mag\"" },
+};
+
+const QMap<QString, QString> s_craftedGemReplace{
+    { "gpb", "gems" },
+    { "gpr", "gemr" },
+    { "gpv", "gema" },
+    { "gpg", "geme" },
+    { "gpy", "gemt" },
+    { "skz", "gemz" },
+};
+
+}
 
 ConfigPageCube::ConfigPageCube(QWidget* parent)
     : ConfigPageAbstract(parent)
@@ -39,10 +89,26 @@ ConfigPageCube::ConfigPageCube(QWidget* parent)
                                                                   "1. Normal item (normal,magic,rare,unique,set) + Antidote = Exceptional item\n"
                                                                   "2. Exceptional item (normal,magic,rare,unique,set) + Antidote = Elite item\n"
                                                                   "3. Any item + Stamina x2 = Add Ethereal\n"
-                                                                  "4. Magic (magic,rare,unique,set) item  + Stamina = Normal item of same type\n",
+                                                                  "4. Magic (magic,rare,unique,set) item  + Stamina = Normal item of same type",
                                      "upgrading",
                                      false,
+                                     this)
+               << new CheckboxWidget(tr("Add Rune downgrade:") + "\n"
+                                                                 "1. Rune + key + key = Lower rune",
+                                     "runeDowngrade",
+                                     false,
                                      this));
+    addWidget(new QLabel(tr("Simplyfy crafting:"), this));
+    addEditors(QList<IValueWidget*>()
+               << new CheckboxWidget(tr("Remove strict item types for Crafted (any helm, any gloves etc)"), "craftNoStrict", false, this)
+               << new CheckboxWidget(tr("Remove Rune/Jewel requirement for Crafted\n"
+                                        "(So any recipe is 'item + gem')"),
+                                     "craftNoRunes",
+                                     false,
+                                     this)
+               << new CheckboxWidget(tr("Perfect rolls"), "craftPerfect", false, this)
+               << new CheckboxWidget(tr("Make Item Level always 99"), "craftHighIlvl", false, this)
+               << new SliderWidgetMinMax(tr("Multiply crafted item bonuses by"), "craftMultBonus", 1, 5, 1, this));
     closeLayout();
 }
 
@@ -57,24 +123,69 @@ void ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const 
     if (isAllDefault())
         return;
 
-    const bool noGemUpgrade = getWidgetValue("noGemUpgrade");
-    const bool quickPortals = getWidgetValue("quickPortals");
-    const bool quickQuests  = getWidgetValue("quickQuests");
-    const bool newSocketing = getWidgetValue("socketing");
-    const bool upgrading    = getWidgetValue("upgrading");
+    const bool noGemUpgrade   = getWidgetValue("noGemUpgrade");
+    const bool quickPortals   = getWidgetValue("quickPortals");
+    const bool quickQuests    = getWidgetValue("quickQuests");
+    const bool newSocketing   = getWidgetValue("socketing");
+    const bool upgrading      = getWidgetValue("upgrading");
+    const bool craftNoStrict  = getWidgetValue("craftNoStrict");
+    const bool craftNoRunes   = getWidgetValue("craftNoRunes");
+    const bool craftPerfect   = getWidgetValue("craftPerfect");
+    const bool craftHighIlvl  = getWidgetValue("craftHighIlvl");
+    const int  craftMultBonus = getWidgetValue("craftMultBonus");
+    const bool runeDowngrade  = getWidgetValue("runeDowngrade");
 
     auto&     tableSet = output.tableSet;
     TableView view(tableSet.tables["cubemain"], true);
     for (auto& row : view) {
-        QString& description = row["description"];
-        QString& numinputs   = row["numinputs"];
-        QString& input1      = row["input 1"];
-        QString& input2      = row["input 2"];
-        QString& input3      = row["input 3"];
+        QString&   description = row["description"];
+        QString&   numinputs   = row["numinputs"];
+        QString&   input1      = row["input 1"];
+        QString&   input2      = row["input 2"];
+        QString&   input3      = row["input 3"];
+        QString&   input4      = row["input 4"];
+        const bool isCrafted   = row["output"] == "\"usetype,crf\"";
 
         if (noGemUpgrade && description.contains("->") && description.endsWith(" Rune") && !input2.isEmpty()) {
             numinputs = QString("%1").arg(numinputs.toInt() - 1);
             input2    = "";
+        }
+        if (craftHighIlvl && (isCrafted || !row["ilvl"].isEmpty() || !row["plvl"].isEmpty() || !row["lvl"].isEmpty())) {
+            row["ilvl"] = "";
+            row["plvl"] = "";
+            row["lvl"]  = "99";
+        }
+        if (isCrafted) {
+            if (craftNoStrict)
+                input1 = s_craftedTypeReplace.value(input1, input1);
+
+            if (craftNoRunes) {
+                input2 = input4;
+                input3 = input4 = "";
+                numinputs       = "2";
+                input2          = s_craftedGemReplace.value(input2, input2);
+            }
+            if (craftPerfect) {
+                for (int i = 1; i <= 5; ++i) {
+                    QString& mod = row[QString("mod %1").arg(i)];
+                    if (isMinMaxRange(mod)) {
+                        QString& modMin = row[QString("mod %1 min").arg(i)];
+                        QString& modMax = row[QString("mod %1 max").arg(i)];
+                        modMin          = modMax;
+                    }
+                }
+            }
+            if (craftMultBonus > 1) {
+                for (int i = 1; i <= 5; ++i) {
+                    QString& mod = row[QString("mod %1").arg(i)];
+                    if (isMinMaxRange(mod)) {
+                        QString& modMin = row[QString("mod %1 min").arg(i)];
+                        QString& modMax = row[QString("mod %1 max").arg(i)];
+                        modMin          = QString("%1").arg(modMin.toInt() * craftMultBonus);
+                        modMax          = QString("%1").arg(modMax.toInt() * craftMultBonus);
+                    }
+                }
+            }
         }
     }
     using StringMap = TableView::RowValues;
@@ -146,20 +257,20 @@ void ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const 
 
         StringMap socket4    = base;
         socket4["numinputs"] = "4";
-        socket4["input 2"]   = "\"tsc,qty=2\"";
-        socket4["input 3"]   = "isc";
+        socket4["input 2"]   = "tsc";
+        socket4["input 3"]   = "\"isc,qty=2\"";
         socket4["output"]    = "\"useitem,sock=4\"";
 
         StringMap socket5    = base;
         socket5["numinputs"] = "4";
-        socket5["input 2"]   = "\"isc,qty=2\"";
-        socket5["input 3"]   = "tsc";
+        socket5["input 2"]   = "\"tsc,qty=2\"";
+        socket5["input 3"]   = "isc";
         socket5["output"]    = "\"useitem,sock=5\"";
 
         StringMap socket6    = base;
         socket6["numinputs"] = "5";
-        socket6["input 2"]   = "\"isc,qty=2\"";
-        socket6["input 3"]   = "\"tsc,qty=2\"";
+        socket6["input 2"]   = "\"tsc,qty=2\"";
+        socket6["input 3"]   = "\"isc,qty=2\"";
         socket6["output"]    = "\"useitem,sock=6\"";
 
         StringMap socket1    = base;
@@ -192,7 +303,7 @@ void ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const 
     }
 
     if (upgrading) {
-        const StringMap base{
+        StringMap base{
             { "description", "Quick Upgrading" },
             { "enabled", "1" },
             { "version", "100" },
@@ -202,6 +313,11 @@ void ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const 
             { "input 2", "yps" },
 
         };
+        if (craftHighIlvl) {
+            base["ilvl"] = "";
+            base["plvl"] = "";
+            base["lvl"]  = "99";
+        }
         StringMap armo1  = base;
         armo1["input 1"] = "\"armo,bas\"";
         armo1["output"]  = "\"useitem,mod,exc\"";
@@ -250,6 +366,22 @@ void ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const 
         view.appendRow(weapEth);
         view.appendRow(armoNor);
         view.appendRow(weapNor);
+    }
+
+    if (runeDowngrade) {
+        for (int i = 2; i <= 33; ++i) {
+            StringMap rune{
+                { "description", "Rune downgrade" },
+                { "enabled", "1" },
+                { "version", "100" },
+                { "*eol", "0" },
+                { "numinputs", "3" },
+                { "input 1", QString("r%1").arg(i, 2, 10, QLatin1Char('0')) },
+                { "input 2", "\"key,qty=2\"" },
+                { "output", QString("r%1").arg(i - 1, 2, 10, QLatin1Char('0')) },
+            };
+            view.appendRow(rune);
+        }
     }
 }
 

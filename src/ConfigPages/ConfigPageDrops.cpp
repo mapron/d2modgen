@@ -34,6 +34,9 @@ ConfigPageDrops::ConfigPageDrops(QWidget* parent)
                              "Value here increases chance of dropping Zod in 'Runes 17' TC\n"
                              "Rarity of other runes will change proportionally \n"
                              "(so High Runes still be more rare in the same manner)."))
+               << addHelp(new SliderWidgetMinMax(tr("Increase Countess Runes TC level"), "countess_rune_upgrade", 0, 5, 0, this),
+                          tr("Upgrade countess Rune drops from 'Runes 4', 'Runes 8', 'Runes 12' \n"
+                             "to higher rune TC's, up to Runes 17 (Zod Rune)"))
                << addHelp(new CheckboxWidget(tr("Make all Uniques have equal rarity on same base"), "equal_uniques", false, this),
                           tr("Now Uniques with equal item base will have equal chance to drop.\n"
                              "For example Tyrael's and Templar's will have equal chance. (and all rings too)"))
@@ -52,7 +55,7 @@ QString ConfigPageDrops::pageHelp() const
 
 void ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
-    if (isAllDefault({ "chance_uni", "chance_set", "chance_rare", "nodrop_factor", "high_elite_drops", "good_factor", "rune_factor", "zod_factor", "highrune_switch", "equal_uniques", "perfect_rolls" }))
+    if (isAllDefault())
         return;
 
     static const QSet<int>     s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
@@ -73,6 +76,7 @@ void ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const
         const int  factorGoodTC    = getWidgetValue("good_factor");
         const int  factorRune      = getWidgetValue("rune_factor");
         const int  factorZod       = getWidgetValue("zod_factor");
+        const int  countessUpg     = getWidgetValue("countess_rune_upgrade");
         const bool switchHighRunes = getWidgetValue("highrune_switch");
         auto       factorAdjust    = [](QString& value, double factor, int maxFact) {
             const double prev           = value.toInt();
@@ -171,6 +175,17 @@ void ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const
                         continue;
                     const int newProb = static_cast<int>(item.prob / runesReplaceFactor[tcName]);
                     item.prob         = std::max(newProb, 5);
+                    break;
+                }
+            }
+            if (countessUpg > 0 && className.startsWith("Countess Rune")) {
+                for (auto& item : dropSet.m_items) {
+                    QString& tcName = item.tc;
+                    if (!tcName.startsWith("Runes "))
+                        continue;
+                    const int oldTC = tcName.midRef(6).toInt();
+                    const int newTC = oldTC + countessUpg;
+                    tcName          = QString("Runes %1").arg(newTC);
                     break;
                 }
             }
