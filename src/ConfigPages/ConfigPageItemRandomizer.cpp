@@ -74,11 +74,11 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
                << addHelp(new CheckboxWidget(tr("Always perfect rolls"), "perfectRoll", false, this),
                           tr("Always perfect means simply minimum roll becomes maximum (where it makes sense)."))
                << new CheckboxWidget(tr("Prevent duplicate properties on items"), "noDuplicates", true, this)
-               << addHelp(new CheckboxWidget(tr("Randomize magix/rare affixes"), "affixRandom", false, this),
+               << addHelp(new CheckboxWidget(tr("Randomize magix/rare affixes"), "affixRandom", true, this),
                           tr("This will modify rare and magic suffixes - \n"
                              "so they can include properties of any other item in the game. \n"
                              "Note that their properties are read even without this option."))
-               << addHelp(new CheckboxWidget(tr("Randomize gem and runes properties"), "gemsRandom", false, this),
+               << addHelp(new CheckboxWidget(tr("Randomize gem and runes properties"), "gemsRandom", true, this),
                           tr("This will modify gem and rune properties - \n"
                              "so they can include properties of any other item in the game. \n"
                              "Note that their properties are read even without this option."))
@@ -205,11 +205,11 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
         if (makePerfect)
             rawList.makePerfect();
     };
-    auto grabProps = [&props, &postProcessRawList](TableView&                      view,
-                                                   const std::vector<ColumnsDesc>& columnsList,
-                                                   const LevelCallback&            levelCb,
-                                                   const ItemCodeFilterCallback&   codeFilterCb,
-                                                   bool                            makePerfect) {
+    auto grabProps = [&props, &postProcessRawList, perfectRoll](TableView&                      view,
+                                                                const std::vector<ColumnsDesc>& columnsList,
+                                                                const LevelCallback&            levelCb,
+                                                                const ItemCodeFilterCallback&   codeFilterCb,
+                                                                bool                            supportMinMax) {
         for (auto& row : view) {
             const int level = levelCb(row);
             if (level <= 0)
@@ -221,7 +221,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                 MagicPropRawList rawList;
 
                 rawList.readFromRow(row, columns);
-                postProcessRawList(rawList, makePerfect);
+                postProcessRawList(rawList, perfectRoll || !supportMinMax);
 
                 props.add(std::move(rawList), types, level);
             }
@@ -279,7 +279,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
     {
         auto&     table = tableSet.tables["uniqueitems"];
         TableView view(table);
-        grabProps(view, s_descUniques, commonLvlReq, uniqueType, perfectRoll);
+        grabProps(view, s_descUniques, commonLvlReq, uniqueType, true);
         const int repeatUniques = getWidgetValue("repeat_uniques");
         if (repeatUniques > 1) {
             auto rows = table.rows;
@@ -292,11 +292,11 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
 
     {
         TableView view(tableSet.tables["runes"]);
-        grabProps(view, s_descRunewords, commonRWreq, rwTypes, perfectRoll);
+        grabProps(view, s_descRunewords, commonRWreq, rwTypes, true);
     }
     {
         TableView view(tableSet.tables["setitems"]);
-        grabProps(view, s_descSetItems, commonLvlReq, setitemType, perfectRoll);
+        grabProps(view, s_descSetItems, commonLvlReq, setitemType, true);
         for (auto& row : view) {
             QString& setId   = row["set"];
             QString& lvl     = row["lvl"];
@@ -311,7 +311,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                 return miscItemsLevels.value(row["code"]);
             },
             uniqueType,
-            true);
+            false);
     }
     {
         for (const char* table : { "magicprefix", "magicsuffix" }) {
@@ -322,13 +322,12 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                     return row["spawnable"] == "1" ? row["level"].toInt() : 0; // utilize maxLevel ?
                 },
                 affixTypes,
-                perfectRoll);
+                true);
         }
     }
     {
         TableView view(tableSet.tables["sets"]);
-
-        grabProps(view, s_descSets, commonSetReq, setsTypes, true);
+        grabProps(view, s_descSets, commonSetReq, setsTypes, false);
     }
 
     const int  unbalance           = getWidgetValue("crazyLevel");
@@ -375,12 +374,14 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                       &calcNewCount,
                       itemFitPercent,
                       unbalance,
-                      noDuplicates](TableView&                         view,
-                                    const ColumnsDescList&             columnsList,
-                                    const LevelCallback&               levelCb,
-                                    const SupportedAttributesCallback& supportedAttributesCb,
-                                    const ItemCodeFilterCallback&      codeFilterCb,
-                                    const bool                         skipEmptyList) {
+                      noDuplicates,
+                      perfectRoll](TableView&                         view,
+                                   const ColumnsDescList&             columnsList,
+                                   const LevelCallback&               levelCb,
+                                   const SupportedAttributesCallback& supportedAttributesCb,
+                                   const ItemCodeFilterCallback&      codeFilterCb,
+                                   const bool                         skipEmptyList,
+                                   const bool                         supportMinMax) {
         view.markModified();
         for (auto& row : view) {
             const int level = levelCb(row);
@@ -396,7 +397,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                 if (skipEmptyList && rawList.parsedProps.empty())
                     continue;
 
-                postProcessRawList(rawList, false);
+                postProcessRawList(rawList, perfectRoll || !supportMinMax);
 
                 const int originalCount  = rawList.getTotalSize();
                 auto [keepCnt, genCount] = calcNewCount(originalCount, columns.m_cols.size());
@@ -435,12 +436,12 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
             assert(props.itemTypeInfo.contains(type));
             return props.itemTypeInfo.at(type).flags;
         };
-        fillProps(view, s_descUniques, commonLvlReq, code2flags, uniqueType, true);
+        fillProps(view, s_descUniques, commonLvlReq, code2flags, uniqueType, true, true);
     }
 
     {
         TableView view(tableSet.tables["runes"]);
-        fillProps(view, s_descRunewords, commonRWreq, commonTypeEquipNoSock, rwTypes, true);
+        fillProps(view, s_descRunewords, commonRWreq, commonTypeEquipNoSock, rwTypes, true, false);
     }
     {
         TableView view(tableSet.tables["setitems"]);
@@ -449,7 +450,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
             assert(props.itemTypeInfo.contains(type));
             return props.itemTypeInfo.at(type).flags;
         };
-        fillProps(view, s_descSetItems, commonLvlReq, code2flags, setitemType, false);
+        fillProps(view, s_descSetItems, commonLvlReq, code2flags, setitemType, false, false);
     }
     if (getWidgetValue("gemsRandom")) {
         TableView view(tableSet.tables["gems"]);
@@ -460,7 +461,8 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                 },
                 commonTypeEquipNoSock,
                 uniqueType,
-                true);
+                true,
+                false);
         }
     }
     if (getWidgetValue("affixRandom")) {
@@ -473,12 +475,13 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                 },
                 commonTypeAll,
                 affixTypes,
+                true,
                 true);
         }
     }
     {
         TableView view(tableSet.tables["sets"]);
-        fillProps(view, s_descSets, commonSetReq, commonTypeAll, setsTypes, false);
+        fillProps(view, s_descSets, commonSetReq, commonTypeAll, setsTypes, false, false);
     }
     qDebug() << "generate() take:" << (QDateTime::currentMSecsSinceEpoch() - start) << " ms.";
 }
