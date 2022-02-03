@@ -202,5 +202,6 @@ struct ColumnsDesc {
         }
     }
 };
+using ColumnsDescList = std::vector<ColumnsDesc>;
 
 }

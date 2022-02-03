@@ -20,6 +20,12 @@ public:
                  const QString& id,
                  double         denom,
                  double         mult,
+                 int            defaultValue,
+                 QWidget*       parent);
+    SliderWidget(const QString& caption,
+                 const QString& id,
+                 double         denom,
+                 double         mult,
                  QWidget*       parent);
     ~SliderWidget();
 
@@ -39,6 +45,7 @@ private:
     const double    m_mult;
     const double    m_min;
     const double    m_max;
+    const int       m_default;
     QSpinBox*       m_valueBox;
     QSlider*        m_slider;
     HelpToolButton* m_helpButton;

@@ -41,12 +41,14 @@ SliderWidget::SliderWidget(const QString& caption,
                            const QString& id,
                            double         denom,
                            double         mult,
+                           int            defaultValue,
                            QWidget*       parent)
     : IValueWidget(parent)
     , m_denom(denom)
     , m_mult(mult)
     , m_min(static_cast<int>(static_cast<double>(s_spinboxAverage) / denom))
     , m_max(static_cast<int>(static_cast<double>(s_spinboxAverage) * mult))
+    , m_default(defaultValue)
 {
     setObjectName(id);
     m_valueBox = new QSpinBox(this);
@@ -60,7 +62,7 @@ SliderWidget::SliderWidget(const QString& caption,
     m_slider->setMinimum(0);
     m_slider->setMaximum(1000);
     m_slider->setMaximumHeight(15);
-    m_slider->setValue(s_sliderAverage);
+    m_slider->setValue(m_default);
 
     m_helpButton = new HelpToolButton("", this);
     m_helpButton->hide();
@@ -86,9 +88,14 @@ SliderWidget::SliderWidget(const QString& caption,
 
 SliderWidget::~SliderWidget() = default;
 
+SliderWidget::SliderWidget(const QString& caption, const QString& id, double denom, double mult, QWidget* parent)
+    : SliderWidget(caption, id, denom, mult, s_spinboxAverage, parent)
+{
+}
+
 void SliderWidget::resetValue()
 {
-    m_valueBox->setValue(s_spinboxAverage);
+    m_valueBox->setValue(m_default);
 }
 
 void SliderWidget::setValue(int value)
@@ -103,7 +110,7 @@ int SliderWidget::getValue() const
 
 bool SliderWidget::isDefault() const
 {
-    return getValue() == s_spinboxAverage;
+    return getValue() == m_default;
 }
 
 void SliderWidget::addHelp(const QString& helpToolTip)
