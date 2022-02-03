@@ -49,7 +49,14 @@
         <translation>Увеличить уровень зон на сложности Hell, +уровней</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageChallenge.cpp" line="34"/>
+        <location filename="../src/ConfigPages/ConfigPageChallenge.cpp" line="28"/>
+        <source>Go beyond 85 level for areas
+Warning! It&apos;s only briefly tested.</source>
+        <translation>Позволить генерацию зон выше 85 уровня
+Внимание! Почти не тестилось.</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageChallenge.cpp" line="35"/>
         <source>First, you can disable potion drops entirely (that&apos;s not the same as drop filter).
 Second, you can change resistance penalty for each difficulty from default 0/40/100.
 And the last, you can adjust level area on all maps; 
@@ -98,7 +105,17 @@ note that max value of 85 is still used (so set to 20 to basically make all Hell
         <translation>Снизить требования Силы/Ловкости на предметах, %</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCharacter.cpp" line="77"/>
+        <location filename="../src/ConfigPages/ConfigPageCharacter.cpp" line="72"/>
+        <source>Change mercenaries Health, multiply by</source>
+        <translation>Изменить Здоровье наёмников, множитель</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageCharacter.cpp" line="73"/>
+        <source>Change mercenaries Damage, multiply by</source>
+        <translation>Изменить Урон наёмников, множитель</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageCharacter.cpp" line="79"/>
         <source>First three options allow you to change starting items for characters: 
 add Cube, replace id scroll with Tome (useful for No-town runs), and replace health with mana potions. 
 Next two sliders allow you to change how many skill and stat poits you get on levelup. 
@@ -117,27 +134,69 @@ Next two sliders allow you to change how many skill and stat poits you get on le
 <context>
     <name>D2ModGen::ConfigPageCube</name>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="14"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="64"/>
         <source>Remove gem component from Rune upgrade recipes (Rune x3,x2 =&gt; next Rune)</source>
         <translation>Убрать требования дракоценных камней для рецептов апгрейда рун (для апгрейда достаточно 2 или 3 руны)</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="15"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="65"/>
         <source>Add quick portal access recipes:</source>
         <translation>Добавить рецепты создания порталов для быстрого доступа:</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="22"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="72"/>
         <source>Add quick quest recipes:</source>
         <translation>Рецепты для быстрого получения квестовых предметов:</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="28"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="78"/>
         <source>Add socketing recipes:</source>
         <translation>Добавить рецепты для получения точного числа сокетов:</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="43"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="88"/>
+        <source>Add upgrade recipes:</source>
+        <translation>Добавить рецепты на апгрейд предметов:</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="96"/>
+        <source>Add Rune downgrade:</source>
+        <translation>Добавить понижение рун:</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="101"/>
+        <source>Simplyfy crafting:</source>
+        <translation>Упростить рецепты для крафта:</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="103"/>
+        <source>Remove strict item types for Crafted (any helm, any gloves etc)</source>
+        <translation>Убрать жесткие требования по типу предмета (=любой шлем, любые перчатки и тд)</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="104"/>
+        <source>Remove Rune/Jewel requirement for Crafted
+(So any recipe is &apos;item + gem&apos;)</source>
+        <translation>Убрать необходимость рун и драгоценностей для крафта
+(т.о. достаточно предмета и камня)</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="109"/>
+        <source>Perfect rolls</source>
+        <translation>Всегда идеальный ролл</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="110"/>
+        <source>Make Item Level always 99</source>
+        <translation>Генерировать item level равный 99</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="111"/>
+        <source>Multiply crafted item bonuses by</source>
+        <translation>Умножить все бонусы от крафтинга предмета на</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="117"/>
         <source>Create some recipes to cheese/cut corners around the game. 
 Input and results are self-explanatory.  </source>
         <translation>Позволяет включить рецепты которые ускоряют прохождение игры.
@@ -345,28 +404,40 @@ Rarity of other runes will change proportionally
     </message>
     <message>
         <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="37"/>
+        <source>Increase Countess Runes TC level</source>
+        <translation>Увеличить уровень Runes TC для Countess</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="38"/>
+        <source>Upgrade countess Rune drops from &apos;Runes 4&apos;, &apos;Runes 8&apos;, &apos;Runes 12&apos; 
+to higher rune TC&apos;s, up to Runes 17 (Zod Rune)</source>
+        <translation>Повысить Руны от Графини (Countess) от Rune 4/Rune 8/Rune 12
+до более высокого TC, вплоть до Runes 17 (Zod руна)</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="40"/>
         <source>Make all Uniques have equal rarity on same base</source>
         <translation>Все Уникальные предметы имеют одинаковую редкость для общей базы</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="38"/>
+        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="41"/>
         <source>Now Uniques with equal item base will have equal chance to drop.
 For example Tyrael&apos;s and Templar&apos;s will have equal chance. (and all rings too)</source>
         <translation>Если у предметов одинаковая база, то шанс выпадения у всех становится равный.
 Например Tyrael&apos;s и  Templar&apos;s имеют равный шанс. (и все кольца/амулеты)</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="40"/>
+        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="43"/>
         <source>Always perfect rolls</source>
         <translation>Всегда идеальные свойства</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="41"/>
+        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="44"/>
         <source>That will make all properties be perfect (where it make sense), (independent from Randomizer).</source>
         <translation>Свойства предметов не будут иметь разброса (и всегда максимальны), (независимо от Рандомайзера)</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="47"/>
+        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="50"/>
         <source>All help and explanation on this page assume you are familiar with Treasure Class (TC) and NoDrop terminology.
 Basically all options here modifying TC pick weights - so one preferred option become less rare.
 First 3 sliders are for increasing chance for Uniques/Sets/Rares. 
@@ -432,28 +503,12 @@ Next sliders allow you increase basic chance of getting Unique/Rare/Set/High-qua
 <context>
     <name>D2ModGen::ConfigPageItemRandomizer</name>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="290"/>
-        <source>Balance level (lower = more balance, 99=chaos)</source>
-        <translation>Уровень баланса (ниже=больше баланса,99=хаос)</translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="291"/>
-        <source>Balance level - determine level difference to be used when selecting new properties for item/rune/etc.
-With &apos;10&apos; it will select between level-10 and level+5 at first, if there are few candidates,
-then it will select 0..level+5, and finally it will try fully random. 
-In short, lower value = more balance in terms of original affix level and item level.</source>
-        <translation>Уровень баланса определяет какая разница допустима в уровнях при выборке параметра из пула.
-С &apos;10&apos; выбор будет от level-10 до  level+5 затем,
-отt 0..level+5, и затем вообще из всех вариантов. 
-Чем ниже = больше баланса с оригиналом.</translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="295"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="51"/>
         <source>Item type fit percent (0% = fully random, 100% = all according to item type)</source>
         <translation>Доля параметров соответствия типу(0%=рандом, 100% = все параметры специфичны)</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="296"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="52"/>
         <source>Item fit slider allow you to select how much item affixes will be related to original item type.
 For example, if you choose 80%, then 4 of 5 affixes will be selected to pool for specific item type
 Item can have have several pools related to its type - say, scepter is a rod and a melee weapon.
@@ -464,12 +519,12 @@ Item type-specific properties will be picked in proportion to all types.</source
 то аффиксы будут выбраны равномерно из всех их них.</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="300"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="67"/>
         <source>Number of versions of each unique</source>
         <translation>Количество версий каждого уникального предмета</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="301"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="68"/>
         <source>allow you to have different uniques with same name and level, but different properties, 
 you will have N different uniques with differnet stats;
 so you have an opportunity to pick same item again to check it out.
@@ -480,54 +535,74 @@ This works only with Uniques, not Sets.</source>
 К сожалению работает только с Уникальнными, не наборными предметами.</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="306"/>
-        <source>Keep original property count</source>
-        <translation>Сохранять оригинальное кол-во свойств</translation>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="46"/>
+        <source>Crazy-ness (or &apos;NON-balance level&apos;, lower = more balance, 100=chaos)</source>
+        <translation>Уровень безумия (или имбалансности, ниже=больше баланса, 100=хаос)</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="307"/>
-        <source>You can select this to make all items having same property count, or customize it with settings below.</source>
-        <translation>Вы можете выбрать эту опцию, чтобы предмет имел столько же аффиксов, как и оригинал, либо настроить опции ниже.</translation>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="47"/>
+        <source>Crazyness level - determine level difference to be used when selecting new properties for item/rune/etc.
+With &apos;10&apos; it will select between level-10 and level+10 at first, if there are &lt;50 candidates,
+then it will select level-30..level+30, and finally it will try fully random. 
+In short, lower value = more balance in terms of original affix level and item level.</source>
+        <translation>Безумие определяет насколько сильная будет велика разница в уровнях для подбора новых свойств.
+С &apos;10 начнется выбор от исходный_уровень-10, исходный_уровень+10, и если выборка меньше 50,
+то попробовать +-30, и если и этого не хватит, то уже полный диапазон. 
+Вкратце, чем ниже значение, тем более балансный результат.</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="334"/>
-        <source>Unique properties</source>
-        <translation>Уникальные свойства</translation>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="56"/>
+        <source>How many original properties to keep, percent</source>
+        <translation>Как много исходных свойств предмета сохранять, процент</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="334"/>
-        <source>Next three pairs of sliders set min/max amount of affixes on Uniques, RuneWords and Sets.
-Sets (not items)/gems/runes will have 1 as minimum and maximum possible as maximum.</source>
-        <translation>Следущие три пары слайдеров устанавливают min/max кол-во аффиксов на Уникальных, Рунных словах и наборных предметов.
-Сами наборы, камни и руны не имеют настроек и будут иметь 1..max в любом случае.</translation>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="57"/>
+        <source>You can select how many properties of original item you want to keep.
+If 0, then every item will be fully randomized.
+If 50, then half of genereted properties will be original, and half randomized.
+If 100, then every property will be property of original item. (you can reduce an amount of props)</source>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="336"/>
-        <source>RW properties</source>
-        <translation>Свойства рунных слов</translation>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="61"/>
+        <source>Minimum relative property count, compared to the original</source>
+        <translation>Минимальное относительное число свойств, по сравнению с оригиналом</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="337"/>
-        <source>Set items properties</source>
-        <translation>Свойства наборных предметов</translation>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="62"/>
+        <source>This and the next options determine new property count will be after generation.
+If Min=Max=100%%, then property count will be exactly as original (except rare corner cases).
+If Min=50%% and Max=200%%, then new property count will be at least half as original, and twice at best.
+For example, if item has 5 properties, then worst case is 2, and best case is 9 (because 9 is maximum for Uniques)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="340"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="66"/>
+        <source>Maximum relative property count, compared to the original</source>
+        <translation>Максимальное относительное число свойств, по сравнению с оригиналом</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="74"/>
         <source>Always perfect rolls</source>
         <translation>Всегда идеальные параметры</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="341"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="75"/>
         <source>Always perfect means simply minimum roll becomes maximum (where it makes sense).</source>
         <translation>Т.е. минимум для возможного разброса становится равен максимуму (где это имеет смысл).</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="342"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="76"/>
+        <source>Prevent duplicate properties on items</source>
+        <translation>Предотвращать дубликаты свойств на предметах</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="77"/>
         <source>Randomize magix/rare affixes</source>
         <translation>Рандомизация аффиксов редких и магических предметов</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="343"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="78"/>
         <source>This will modify rare and magic suffixes - 
 so they can include properties of any other item in the game. 
 Note that their properties are read even without this option.</source>
@@ -536,12 +611,12 @@ Note that their properties are read even without this option.</source>
 Примечание, свойства читаются в общий пул независимо от этой опции.</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="346"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="81"/>
         <source>Randomize gem and runes properties</source>
         <translation>Рандомизировать свойства камней и рун</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="347"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="82"/>
         <source>This will modify gem and rune properties - 
 so they can include properties of any other item in the game. 
 Note that their properties are read even without this option.</source>
@@ -549,22 +624,22 @@ Note that their properties are read even without this option.</source>
 Примечание, их свойства читаются в общий пул независимо от этой опции.</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="350"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="85"/>
         <source>Replace skills with oskills</source>
         <translation>Заменить бонус навыков для класса на отвязанные от класса</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="352"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="87"/>
         <source>Replace charges with oskills</source>
         <translation>Заменить заряды на бонус к навыкам</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="354"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="89"/>
         <source>Remove Knockback/Monster flee</source>
         <translation>Убрать свойства Отбрасывания и Обращения в бегство</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="361"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="96"/>
         <source>What item randomizer does in short - it reads all possible item properties from Uniques, Sets, etc, 
 And then reassign properties back, but in random order (also it does not mean every original will be used).
 For details, check descriptions of every option.</source>
@@ -573,7 +648,7 @@ For details, check descriptions of every option.</source>
 Для подробностей, смотрите подсказки к разным опциям.</translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.hpp" line="141"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.hpp" line="23"/>
         <source>Item Randomizer</source>
         <translation>Рандомайзер предметов</translation>
     </message>

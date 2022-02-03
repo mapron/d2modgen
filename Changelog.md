@@ -1,3 +1,19 @@
+## 0.3.2
+New Features:
+* Rework of randomizer tab. Prop sliders are removed, added tow new relative count sliders.
+Bug fixes:
+* Fixed randomizer being unreliable with balance + item fit.
+
+## 0.3.1
+New Features:
+* Randomizer now support 'addition only' mode for properties.
+* New Horadric Cube cheese added.
+* Added sliders to tweak mercenary HP/dmg
+
+Bug fixes:
+* Fixed various tiny config or generation erorrs (not important for user experience).
+
+
 ## 0.3
 New features:  
 * Post-gen and pre-gen steps now a more powerful replacement than 'mod merge' - you can merge different mods and resolve conflicts automatically!

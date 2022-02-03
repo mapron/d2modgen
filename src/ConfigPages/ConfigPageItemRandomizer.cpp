@@ -53,7 +53,7 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
                              "For example, if you choose 80%, then 4 of 5 affixes will be selected to pool for specific item type\n"
                              "Item can have have several pools related to its type - say, scepter is a rod and a melee weapon.\n"
                              "Item type-specific properties will be picked in proportion to all types."))
-               << addHelp(new SliderWidgetMinMax(tr("How many original properties to keep, percent"), "keepOriginalPercent", 0, 100, 50, this),
+               << addHelp(new SliderWidgetMinMax(tr("How many original properties to keep, percent"), "keepOriginalPercent", 0, 100, 70, this),
                           tr("You can select how many properties of original item you want to keep.\n"
                              "If 0, then every item will be fully randomized.\n"
                              "If 50, then half of genereted properties will be original, and half randomized.\n"
@@ -78,7 +78,7 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
                           tr("This will modify rare and magic suffixes - \n"
                              "so they can include properties of any other item in the game. \n"
                              "Note that their properties are read even without this option."))
-               << addHelp(new CheckboxWidget(tr("Randomize gem and runes properties"), "gemsRandom", true, this),
+               << addHelp(new CheckboxWidget(tr("Randomize gem and runes properties"), "gemsRandom", false, this),
                           tr("This will modify gem and rune properties - \n"
                              "so they can include properties of any other item in the game. \n"
                              "Note that their properties are read even without this option."))
@@ -86,7 +86,7 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
                           tr(""))
                << addHelp(new CheckboxWidget(tr("Replace charges with oskills"), "replaceCharges", false, this),
                           tr(""))
-               << addHelp(new CheckboxWidget(tr("Remove Knockback/Monster flee"), "removeKnock", false, this),
+               << addHelp(new CheckboxWidget(tr("Remove Knockback/Monster flee"), "removeKnock", true, this),
                           tr("")));
     closeLayout();
 }
