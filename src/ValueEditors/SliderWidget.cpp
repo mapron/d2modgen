@@ -55,14 +55,14 @@ SliderWidget::SliderWidget(const QString& caption,
     m_valueBox->setButtonSymbols(QSpinBox::NoButtons);
     m_valueBox->setMinimum(m_min);
     m_valueBox->setMaximum(m_max);
-    m_valueBox->setValue(s_spinboxAverage);
+    m_valueBox->setValue(m_default);
     m_valueBox->setMinimumWidth(50);
 
     m_slider = new QSlider(Qt::Horizontal, this);
     m_slider->setMinimum(0);
     m_slider->setMaximum(1000);
     m_slider->setMaximumHeight(15);
-    m_slider->setValue(m_default);
+    m_slider->setValue(s_sliderAverage);
 
     m_helpButton = new HelpToolButton("", this);
     m_helpButton->hide();
