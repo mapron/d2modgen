@@ -30,10 +30,15 @@ static const std::map<QString, QStringList> s_tableKeys{
 
 using AliasConfig = std::map<QString, QStringList>;
 static const std::map<QString, AliasConfig> s_tableColumnAliases{
-    { "itemtypes", AliasConfig{ { "MaxSockets3", { "MaxSock40" } } } },
+    { "itemtypes", AliasConfig{
+                       { "MaxSockets3", { "MaxSock40" } },
+                       { "MaxSock40", { "MaxSockets3" } },
+                   } },
     { "levels", AliasConfig{
                     { "MonLvlEx(N)", { "MonLvl2Ex" } },
                     { "MonLvlEx(H)", { "MonLvl3Ex" } },
+                    { "MonLvl2Ex", { "MonLvlEx(N)" } },
+                    { "MonLvl3Ex", { "MonLvlEx(H)" } },
                 } },
 };
 
