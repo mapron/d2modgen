@@ -187,7 +187,7 @@ void MagicPropRawList::append(MagicPropList added)
     }
 }
 
-void MagicPropRawList::truncateRandom(QRandomGenerator &rng, const int newSize)
+void MagicPropRawList::truncateRandom(QRandomGenerator& rng, const int newSize)
 {
     MagicPropList newProps;
     for (int i = 0; i < newSize; ++i) {
@@ -296,16 +296,19 @@ MagicPropList MagicPropUniverse::generate(QRandomGenerator&       rng,
         }
         return specificCount;
     }();
-    const int       generalCount = count - typefitCount;
-    MagicPropIdxSet totalIndices;
-    QSet<QString>   usedCodes = existingCodes;
-    auto            tryAdd    = [&usedCodes, &totalIndices, &rng, noDuplicateCode, this](const std::vector<uint32_t>& indices, bool force) -> bool {
+    const int              generalCount = count - typefitCount;
+    MagicPropIdxSet        totalIndices;
+    UniqueAttributeChecker attrCheck;
+    if (noDuplicateCode)
+        attrCheck.add(existingCodes);
+
+    auto tryAdd = [&attrCheck, &totalIndices, &rng, noDuplicateCode, this](const std::vector<uint32_t>& indices, bool force) -> bool {
         const uint32_t indexOfIndex = rng.bounded(static_cast<uint32_t>(indices.size()));
         const uint32_t index        = indices[indexOfIndex];
         const auto&    code         = props[index].code;
-        if (noDuplicateCode && usedCodes.contains(code))
+        if (noDuplicateCode && attrCheck.contains(code))
             return false;
-        usedCodes << code;
+        attrCheck.add(code);
         totalIndices << index;
         return true;
     };

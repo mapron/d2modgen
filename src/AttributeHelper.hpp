@@ -65,4 +65,14 @@ bool isMinMaxRange(const QString& code);
 
 const AttributeDesc& getAttributeDesc(const QString& code);
 
+class UniqueAttributeChecker {
+    QSet<QString> m_data;
+
+public:
+    void add(const QString& attr);
+    void add(const QSet<QString>& attrs);
+
+    bool contains(const QString& attr) const { return m_data.contains(attr); }
+};
+
 }

@@ -327,4 +327,67 @@ bool isMinMaxRange(const QString& code)
     return !noMinMax && !byLevel;
 }
 
+void UniqueAttributeChecker::add(const QString& attr)
+{
+    m_data << attr;
+    static const QSet<QString> s_aliased{
+        "swing1",
+        "swing2",
+        "swing3",
+        "move1",
+        "move2",
+        "move3",
+        "balance1",
+        "balance2",
+        "balance3",
+        "block1",
+        "block2",
+        "block3",
+        "cast1",
+        "cast2",
+        "cast3",
+    };
+    static const QList<QSet<QString>> s_aliasedGroups{
+        {
+            "swing1",
+            "swing2",
+            "swing3",
+        },
+        {
+            "move1",
+            "move2",
+            "move3",
+        },
+        {
+            "balance1",
+            "balance2",
+            "balance3",
+        },
+        {
+            "block1",
+            "block2",
+            "block3",
+        },
+        {
+            "cast1",
+            "cast2",
+            "cast3",
+        },
+    };
+    if (s_aliased.contains(attr)) {
+        for (const auto & group : s_aliasedGroups) {
+            if (group.contains(attr)) {
+                m_data += group;
+                break;
+            }
+        }
+    }
+}
+
+void UniqueAttributeChecker::add(const QSet<QString>& attrs)
+{
+    for (auto& attr : attrs)
+        add(attr);
+}
+
 }
