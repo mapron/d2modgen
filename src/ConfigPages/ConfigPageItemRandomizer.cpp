@@ -107,6 +107,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
         TableView view(tableSet.tables["itemtypes"]);
         for (auto& row : view) {
             QString& codeStr = row["Code"];
+            QString& itemType = row["ItemType"];
             if (codeStr.isEmpty())
                 continue;
 
@@ -123,6 +124,8 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                 info.flags << AttributeFlag::Sockets;
             if (!row["Shoots"].isEmpty())
                 info.flags << AttributeFlag::Missile;
+            if (itemType.startsWith("Map"))
+                info.flags << AttributeFlag::PD2Map;
 
             if (!parent1.isEmpty()) {
                 info.parents << parent1;

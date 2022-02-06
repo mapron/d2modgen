@@ -178,6 +178,10 @@ const QVector<AttributeDesc> s_attributes{
     { "att-demon", { AttributeFlag::Attack } },                            // +# to Attack Rating against Demons
     { "att-undead", { AttributeFlag::Attack } },                           // +# to Attack Rating against Undead
     { "fireskill", { AttributeFlag::Skills } },                            // +# to Fire Skills
+    { "poisskill", { AttributeFlag::Skills } },
+    { "coldskill", { AttributeFlag::Skills } },
+    { "magskill", { AttributeFlag::Skills } },
+    { "ltngskill", { AttributeFlag::Skills } },
     { "allskills", { AttributeFlag::Skills } },                            // +# to All Skills
     { "light-thorns", {} },                                                // Attacker Takes Lightning Damage of #
     { "freeze", {} },                                                      // Freezes Target +#
@@ -284,6 +288,90 @@ const QVector<AttributeDesc> s_attributes{
     { "oskill", { AttributeFlag::Skills } },                                  // +# to [Skill]
     { "state", {} },                                                          // Applies a State on the unit
     { "randclassskill", { AttributeFlag::Skills, AttributeFlag::NoMinMax } }, // +# to [Class] Skill Levels
+
+    { "map-glob-monsterrarity", { AttributeFlag::PD2Map } },
+    { "map-mon-extra-fire", { AttributeFlag::PD2Map } },
+    { "map-glob-density", { AttributeFlag::PD2Map } },
+    { "map-play-addxp", { AttributeFlag::PD2Map } },
+    { "map-mon-extra-cold", { AttributeFlag::PD2Map } },
+    { "map-play-mag-gold%", { AttributeFlag::PD2Map } },
+    { "map-mon-extra-ltng", { AttributeFlag::PD2Map } },
+    { "map-mon-extra-pois", { AttributeFlag::PD2Map } },
+    { "map-mon-extra-mag", { AttributeFlag::PD2Map } },
+    { "map-glob-arealevel", { AttributeFlag::PD2Map } },
+    { "map-mon-att-pierce", { AttributeFlag::PD2Map } },
+    { "map-mon-att-cast-speed", { AttributeFlag::PD2Map } },
+    { "map-mon-hp%", { AttributeFlag::PD2Map } },
+    { "map-mon-ed%", { AttributeFlag::PD2Map } },
+    { "map-mon-splash", { AttributeFlag::PD2Map } },
+    { "map-mon-openwounds", { AttributeFlag::PD2Map } },
+    { "map-play-regen", { AttributeFlag::PD2Map } },
+    { "map-mon-crush", { AttributeFlag::PD2Map } },
+    { "map-mon-phys-as-extra-ltng", { AttributeFlag::PD2Map } },
+    { "map-mon-phys-as-extra-cold", { AttributeFlag::PD2Map } },
+    { "map-mon-phys-as-extra-fire", { AttributeFlag::PD2Map } },
+    { "map-mon-phys-as-extra-pois", { AttributeFlag::PD2Map } },
+    { "map-mon-phys-as-extra-mag", { AttributeFlag::PD2Map } },
+    { "map-glob-add-mon-doll", { AttributeFlag::PD2Map } },
+    { "map-glob-add-mon-succ", { AttributeFlag::PD2Map } },
+    { "map-glob-add-mon-vamp", { AttributeFlag::PD2Map } },
+    { "map-glob-add-mon-cow", { AttributeFlag::PD2Map } },
+    { "map-glob-add-mon-horde", { AttributeFlag::PD2Map } },
+    { "map-glob-add-mon-ghost", { AttributeFlag::PD2Map } },
+    { "map-glob-add-mon-souls", { AttributeFlag::PD2Map } },
+    { "map-glob-add-mon-fetish", { AttributeFlag::PD2Map } },
+    { "map-mon-ac%", { AttributeFlag::PD2Map } },
+    { "map-mon-abs-fire%", { AttributeFlag::PD2Map } },
+    { "map-mon-abs-ltng%", { AttributeFlag::PD2Map } },
+    { "map-mon-abs-mag%", { AttributeFlag::PD2Map } },
+    { "map-mon-abs-cold%", { AttributeFlag::PD2Map } },
+    { "map-mon-red-dmg", { AttributeFlag::PD2Map } },
+    { "map-mon-velocity%", { AttributeFlag::PD2Map } },
+    { "map-mon-regen", { AttributeFlag::PD2Map } },
+    { "map-mon-lifesteal-hp%", { AttributeFlag::PD2Map } },
+    { "map-mon-balance1", { AttributeFlag::PD2Map } },
+    { "map-play-balance1", { AttributeFlag::PD2Map } },
+    { "map-play-lightradius", { AttributeFlag::PD2Map } },
+    { "map-mon-curseresist-hp%", { AttributeFlag::PD2Map } },
+    { "map-play-res-all", { AttributeFlag::PD2Map } },
+    { "map-play-ac%", { AttributeFlag::PD2Map } },
+    { "map-play-block", { AttributeFlag::PD2Map } },
+
+    { "inc-splash-radius", {} },
+    { "leapspeed", {} },
+    { "blood-warp-life-reduction", {} },
+    { "extra-skele-war", {} },
+    { "extra-skele-mage", {} },
+    { "heal-hit", {} },
+    { "rep-charge", {} },
+    { "grims-extra-skele-mage", {} },
+    { "cast", { AttributeFlag::Speed } },
+    { "inc_splash_radius", {} },
+    { "ias-frw", {} },
+    { "pierce-phys", {} },
+    { "extra-spirits", {} },
+    { "joust-reduction", {} },
+    { "maxcurse", {} },
+    { "extra-revives", {} },
+    { "curse-res", {} },
+    { "randclassskill2", {} },
+    { "randclassskill1", {} },
+    { "gust-reduction", {} },
+    { "dclone-clout", {} },
+    { "maxlevel-clout", {} },
+    { "dev-clout", {} },
+    { "socketed-text", {} },
+    { "silence-fhr-ias", {} },
+    { "extra-hydra", {} },
+    { "extra-valk", {} },
+    { "extra-magi", {} },
+    { "plague-fcr-pierce", {} },
+    { "infinityspeed", {} },
+    { "extra-golem", {} },
+    { "mana-steal", {} },
+
+    { "Light", {} },
+    { "Thorns", {} },
 };
 
 const QHash<QString, int> s_attributesIndex = [] {
@@ -296,14 +384,16 @@ const QHash<QString, int> s_attributesIndex = [] {
 
 }
 
-bool isUnusedAttribute(const QString& code)
+AttributeConsume getAttributeConsume(const QString& code)
 {
     if (code.isEmpty() || code.startsWith('*'))
-        return true;
-    const bool result = s_attributesIndex.value(code, -1) == -1;
-    if (!result)
-        assert(s_unused.contains(code) || "Unknown code");
-    return result;
+        return AttributeConsume::Skip;
+
+    const bool isKnown = s_attributesIndex.value(code, -1) != -1;
+    if (isKnown)
+        return AttributeConsume::Known;
+
+    return AttributeConsume::Keep;
 }
 
 const AttributeDesc& getAttributeDesc(const QString& code)
@@ -318,13 +408,14 @@ const AttributeDesc& getAttributeDesc(const QString& code)
 
 bool isMinMaxRange(const QString& code)
 {
-    if (isUnusedAttribute(code))
+    if (getAttributeConsume(code) != AttributeConsume::Known)
         return false;
 
     const AttributeDesc& desc     = getAttributeDesc(code);
     const bool           noMinMax = desc.flags.contains(AttributeFlag::NoMinMax);
     const bool           byLevel  = desc.flags.contains(AttributeFlag::PerLevel);
-    return !noMinMax && !byLevel;
+    const bool           isMap    = desc.flags.contains(AttributeFlag::PD2Map);
+    return !noMinMax && !byLevel && !isMap;
 }
 
 void UniqueAttributeChecker::add(const QString& attr)
@@ -346,6 +437,7 @@ void UniqueAttributeChecker::add(const QString& attr)
         "cast1",
         "cast2",
         "cast3",
+        "cast",
     };
     static const QList<QSet<QString>> s_aliasedGroups{
         {
@@ -372,10 +464,11 @@ void UniqueAttributeChecker::add(const QString& attr)
             "cast1",
             "cast2",
             "cast3",
+            "cast",
         },
     };
     if (s_aliased.contains(attr)) {
-        for (const auto & group : s_aliasedGroups) {
+        for (const auto& group : s_aliasedGroups) {
             if (group.contains(attr)) {
                 m_data += group;
                 break;

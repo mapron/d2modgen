@@ -14,6 +14,7 @@ static const std::vector<AttributeFlag> s_attFlags{
     AttributeFlag::Quantity,
     AttributeFlag::Sockets,
     AttributeFlag::Missile,
+    AttributeFlag::PD2Map,
 };
 
 }
@@ -122,9 +123,14 @@ void MagicPropRawList::readFromRow(TableView::RowView& row, const ColumnsDesc& c
         mp.max  = row[col.max];
 
         if (mp.code.isEmpty())
-            break;
-        if (isUnusedAttribute(mp.code))
+            continue; // PD2 writes properties to the end of a list.
+        auto cons = getAttributeConsume(mp.code);
+        if (cons == AttributeConsume::Skip)
             continue;
+        if (cons == AttributeConsume::Keep) {
+            keptProps.push_back(std::move(mp));
+            continue;
+        }
         parsedProps.push_back(std::move(mp));
     }
     detectBounded();
@@ -141,8 +147,13 @@ void MagicPropRawList::writeToRow(TableView::RowView& row, const ColumnsDesc& co
         row[colDesc.max]    = prop.max;
         col++;
     };
+    for (const MagicProp& prop : keptProps) {
+        if (col + 1 > columns.m_cols.size())
+            break;
+        consume(prop);
+    }
     for (const MagicProp& prop : parsedProps) {
-        int propSize = 1 + prop.bounded.size();
+        const int propSize = 1 + prop.bounded.size();
         if (col + propSize > columns.m_cols.size())
             break;
         consume(prop);
@@ -158,6 +169,7 @@ int MagicPropRawList::getTotalSize() const
     int result = static_cast<int>(parsedProps.size());
     for (const MagicProp& prop : parsedProps)
         result += static_cast<int>(prop.bounded.size());
+    result += keptProps.size();
     return result;
 }
 
@@ -190,7 +202,8 @@ void MagicPropRawList::append(MagicPropList added)
 void MagicPropRawList::truncateRandom(QRandomGenerator& rng, const int newSize)
 {
     MagicPropList newProps;
-    for (int i = 0; i < newSize; ++i) {
+    const int     kept = keptProps.size();
+    for (int i = 0; i < newSize - kept; ++i) {
         auto r = rng.bounded(static_cast<uint32_t>(parsedProps.size()));
         i += parsedProps[r].bounded.size();
         newProps.push_back(parsedProps[r]);
@@ -279,7 +292,7 @@ MagicPropList MagicPropUniverse::generate(QRandomGenerator&       rng,
     const std::vector<uint32_t> typefitIndexesVec(typefitIndexes.cbegin(), typefitIndexes.cend());
 
     assert(generalIndexes.size() > 1);
-    assert(typefitIndexes.size() > 1);
+    //assert(typefitIndexes.size() > 1);
 
     if (typefitIndexesVec.size() < 2)
         specificItemUsage = 0;

@@ -111,6 +111,7 @@ struct MagicPropIdxSet {
 
 struct MagicPropRawList {
     MagicPropList parsedProps;
+    MagicPropList keptProps;
 
     void detectBounded();
     void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);

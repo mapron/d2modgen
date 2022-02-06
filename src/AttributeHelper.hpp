@@ -29,6 +29,7 @@ enum class AttributeFlag
     Leech,
     OP,
     NoMinMax,
+    PD2Map,
 };
 inline uint qHash(AttributeFlag key, uint seed)
 {
@@ -60,8 +61,15 @@ struct AttributeDesc {
     AttributeItemReqSet items;
 };
 
-bool isUnusedAttribute(const QString& code);
-bool isMinMaxRange(const QString& code);
+enum class AttributeConsume
+{
+    Known,
+    Skip,
+    Keep,
+};
+
+AttributeConsume getAttributeConsume(const QString& code);
+bool             isMinMaxRange(const QString& code);
 
 const AttributeDesc& getAttributeDesc(const QString& code);
 
