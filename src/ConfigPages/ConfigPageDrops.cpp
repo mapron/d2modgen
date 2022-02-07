@@ -217,7 +217,7 @@ void ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const
                 for (const auto& col : columns.m_cols) {
                     auto& min = row[col.min];
                     if (min.isEmpty())
-                        break;
+                        continue;
                     if (isMinMaxRange(row[col.code]))
                         min = row[col.max];
                 }
@@ -234,8 +234,14 @@ void ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const
             updateMinParam(view, ColumnsDesc("T1Code%1", "T1Param%1", "T1Min%1", "T1Max%1", 7));
         }
         {
+            const ColumnsDescList s_descSetItems{
+                ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9),
+                ColumnsDesc("aprop%1a", "apar%1a", "amin%1a", "amax%1a", 5),
+                ColumnsDesc("aprop%1b", "apar%1b", "amin%1b", "amax%1b", 5),
+            };
             TableView view(tableSet.tables["setitems"]);
-            updateMinParam(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9));
+            for (const auto& desc : s_descSetItems)
+                updateMinParam(view, desc);
         }
         {
             for (const char* table : { "magicprefix", "magicsuffix", "automagic" }) {
