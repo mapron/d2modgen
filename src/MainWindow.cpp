@@ -357,8 +357,10 @@ void MainWindow::generate()
         QRandomGenerator rng;
         rng.seed(env.seed);
         for (auto* page : m_pages)
-            if (page->isConfigEnabled())
+            if (page->isConfigEnabled()) {
+                qDebug() << "start page:" << page->settingKey();
                 page->generate(output, rng, env);
+            }
     }
     qDebug() << "Loading post-gen data.";
     {

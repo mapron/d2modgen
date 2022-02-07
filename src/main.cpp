@@ -60,7 +60,7 @@ void customMessageOutput(QtMsgType type, const QMessageLogContext& context, cons
             typeStr = "Fatal";
     }
     auto       time      = QTime::currentTime().toString("HH:mm:ss.zzz");
-    QString    formatted = QString("[%1] %2: %3 (%4:%5)\n").arg(time, typeStr, msg, stripDir(context.file)).arg(context.line);
+    QString    formatted = QString("[%1] %2: %3\n").arg(time, typeStr, msg);
     QByteArray localMsg  = formatted.toUtf8();
     fprintf(stderr, "%s", localMsg.constData());
     if (g_logFile) {

@@ -144,6 +144,7 @@ void SliderWidget::sliderToSpinbox()
 
 void SliderWidget::spinboxToSlider()
 {
+    m_slider->blockSignals(true);
     const int sliderRange = s_sliderAverage; // both high and low;
     const int value       = m_valueBox->value();
     if (value == s_spinboxAverage)
@@ -158,6 +159,7 @@ void SliderWidget::spinboxToSlider()
         const double ratioLog  = expGrowthRev(ratio);
         m_slider->setValue(s_sliderAverage + (ratioLog * sliderRange));
     }
+    m_slider->blockSignals(false);
 }
 
 //----------------------------------------------------------
@@ -252,7 +254,9 @@ void SliderWidgetMinMax::sliderToSpinbox()
 
 void SliderWidgetMinMax::spinboxToSlider()
 {
+    m_slider->blockSignals(true);
     m_slider->setValue(m_valueBox->value());
+    m_slider->blockSignals(false);
 }
 
 }
