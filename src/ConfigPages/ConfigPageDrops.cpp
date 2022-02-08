@@ -34,9 +34,8 @@ ConfigPageDrops::ConfigPageDrops(QWidget* parent)
                              "Value here increases chance of dropping Zod in 'Runes 17' TC\n"
                              "Rarity of other runes will change proportionally \n"
                              "(so High Runes still be more rare in the same manner)."))
-               << addHelp(new SliderWidgetMinMax(tr("Increase Countess Runes TC level"), "countess_rune_upgrade", 0, 5, 0, this),
-                          tr("Upgrade countess Rune drops from 'Runes 4', 'Runes 8', 'Runes 12' \n"
-                             "to higher rune TC's, up to Runes 17 (Zod Rune)"))
+               << new CheckboxWidget(tr("Increase Countess Runes drop count to 5"), "countess_rune_more", false, this)
+               << new CheckboxWidget(tr("Increase Wraiths Runes drop"), "wraith_runes", false, this)
                << addHelp(new CheckboxWidget(tr("Make all Uniques have equal rarity on same base"), "equal_uniques", false, this),
                           tr("Now Uniques with equal item base will have equal chance to drop.\n"
                              "For example Tyrael's and Templar's will have equal chance. (and all rings too)"))
@@ -76,7 +75,9 @@ void ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const
         const int  factorGoodTC    = getWidgetValue("good_factor");
         const int  factorRune      = getWidgetValue("rune_factor");
         const int  factorZod       = getWidgetValue("zod_factor");
-        const int  countessUpg     = getWidgetValue("countess_rune_upgrade");
+        const bool countessMore    = getWidgetValue("countess_rune_more");
+        const int  countessUpg     = countessMore ? 5 : 0;
+        const bool wraithMore      = getWidgetValue("wraith_runes");
         const bool switchHighRunes = getWidgetValue("highrune_switch");
         auto       factorAdjust    = [](QString& value, double factor, int maxFact) {
             const double prev           = value.toInt();
@@ -103,19 +104,15 @@ void ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const
             { "r30", "r32" },
         };
 
-        QMap<QString, double> runesReplaceFactor;
+        QMap<QString, double> runesReplaceMult;
         if (factorZod > 1) {
-            double       startFactor = 1.4;
-            const double iterFactor  = 1.02;
-            if (factorZod > 10)
-                startFactor = 1.3;
-            if (factorZod > 100)
-                startFactor = 1.2;
-            double mult = factorZod;
-            for (int i = 16; i >= 3; --i) {
-                runesReplaceFactor[QString("Runes %1").arg(i)] = mult;
-                mult /= startFactor;
-                startFactor *= iterFactor;
+            const double factor   = factorZod;
+            const double iterMult = std::pow(factor, 0.1);
+            double       mult     = 1. / factor;
+
+            for (int i = 16; i >= 6; --i) {
+                runesReplaceMult[QString("Runes %1").arg(i)] = mult;
+                mult *= iterMult;
             }
         }
 
@@ -171,14 +168,16 @@ void ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const
             if (factorZod > 1 && className.startsWith("Runes ")) {
                 for (auto& item : dropSet.m_items) {
                     QString& tcName = item.tc;
-                    if (!tcName.startsWith("Runes ") || !runesReplaceFactor.contains(tcName))
+                    if (!tcName.startsWith("Runes ") || !runesReplaceMult.contains(tcName))
                         continue;
-                    const int newProb = static_cast<int>(item.prob / runesReplaceFactor[tcName]);
+                    const int newProb = static_cast<int>(item.prob * runesReplaceMult[tcName]);
                     item.prob         = std::max(newProb, 5);
                     break;
                 }
             }
-            if (countessUpg > 0 && className.startsWith("Countess Rune")) {
+            const bool countessRuneTC = className.startsWith("Countess Rune");
+            const bool countessItemTC = className.startsWith("Countess Item");
+            if (countessUpg > 0 && countessRuneTC) {
                 for (auto& item : dropSet.m_items) {
                     QString& tcName = item.tc;
                     if (!tcName.startsWith("Runes "))
@@ -189,10 +188,39 @@ void ConfigPageDrops::generate(DataContext& output, QRandomGenerator& rng, const
                     break;
                 }
             }
+            if (countessMore) {
+                if (countessRuneTC) {
+                    row["Picks"]     = "5";
+                    dropSet.m_noDrop = 1;
+                }
+                if (countessItemTC)
+                    row["Picks"] = "1";
+            }
             if (switchHighRunes && className.startsWith("Runes ")) {
                 for (auto& item : dropSet.m_items) {
                     QString& tcName = item.tc;
                     tcName          = highRuneReplacement.value(tcName, tcName);
+                }
+            }
+            if (wraithMore && className.contains(") Wraith ")) {
+                static const QMap<QString, QString> s_wraithReplacement{
+                    { "Act 1 (N)", "Runes 8" },
+                    { "Act 2 (N)", "Runes 9" },
+                    { "Act 3 (N)", "Runes 10" },
+                    { "Act 4 (N)", "Runes 11" },
+                    { "Act 5 (N)", "Runes 12" },
+                    { "Act 1 (H)", "Runes 13" },
+                    { "Act 2 (H)", "Runes 14" },
+                    { "Act 3 (H)", "Runes 15" },
+                    { "Act 4 (H)", "Runes 16" },
+                    { "Act 5 (H)", "Runes 17" },
+                };
+                for (auto& item : dropSet.m_items) {
+                    QString& tcName = item.tc;
+                    if (!tcName.contains(") Magic "))
+                        continue;
+                    tcName = s_wraithReplacement.value(tcName.mid(0, 9), tcName);
+                    break;
                 }
             }
             dropSet.writeRow(row);
