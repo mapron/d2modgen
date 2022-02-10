@@ -10,6 +10,33 @@
 
 namespace D2ModGen {
 
+namespace {
+
+enum class TCType
+{
+    Equip,
+    Bow,
+    Junk,
+    Other,
+};
+
+const QRegularExpression s_eqRegex("Act [12345]( \\([NH]\\))? Equip [ABC]");
+const QRegularExpression s_bowRegex("Act [12345]( \\([NH]\\))? Bow [ABC]");
+const QRegularExpression s_junkRegex("Act [12345]( \\([NH]\\))? Junk");
+
+TCType getTC(const QString& tc)
+{
+    if (s_eqRegex.match(tc).hasMatch())
+        return TCType::Equip;
+    if (s_bowRegex.match(tc).hasMatch())
+        return TCType::Bow;
+    if (s_junkRegex.match(tc).hasMatch())
+        return TCType::Junk;
+    return TCType::Other;
+}
+
+}
+
 ConfigPageItemDrops::ConfigPageItemDrops(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
@@ -17,6 +44,9 @@ ConfigPageItemDrops::ConfigPageItemDrops(QWidget* parent)
                << new SliderWidgetMinMax(tr("Increase Unique Chance"), "chance_uni", 1, 50, 1, this)
                << new SliderWidgetMinMax(tr("Increase Set Chance"), "chance_set", 1, 30, 1, this)
                << new SliderWidgetMinMax(tr("Increase Rare Chance"), "chance_rare", 1, 15, 1, this)
+               << addHelp(new SliderWidgetMinMax(tr("Increase Chance of High-level equipment"), "chance_highlevel", 1, 15, 1, this),
+                          tr("This will reduce the reduce the chance that equipment of lower level will drop as a fallback.\n"
+                             "For example, for level 85 TC there is a 98% chance that it will drop from 84 level TC, and so on."))
                << addHelp(new CheckboxWidget(tr("Increase Champion/Unique item count"), "high_elite_drops", false, this),
                           tr("This will make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one.\n"
                              "Note that potion drops are slightly reduced.")));
@@ -68,15 +98,16 @@ void ConfigPageItemDrops::generate(DataContext& output, QRandomGenerator& rng, c
     {
         TableView view(tableSet.tables["treasureclassex"], true);
 
-        const int  factorUnique   = getWidgetValue("chance_uni");
-        const int  factorSet      = getWidgetValue("chance_set");
-        const int  factorRare     = getWidgetValue("chance_rare");
-        const int  percentNoDrop  = getWidgetValue("nodrop_percent");
-        const int  percentGoodTC  = getWidgetValue("good_percent");
-        const int  percentGold    = getWidgetValue("gold_percent");
-        const int  percentEquip   = getWidgetValue("equip_percent");
-        const int  percentJunk    = getWidgetValue("junk_percent");
-        const bool highDropsCount = getWidgetValue("high_elite_drops");
+        const int  factorUnique    = getWidgetValue("chance_uni");
+        const int  factorSet       = getWidgetValue("chance_set");
+        const int  factorRare      = getWidgetValue("chance_rare");
+        const int  factorHighlevel = getWidgetValue("chance_highlevel");
+        const int  percentNoDrop   = getWidgetValue("nodrop_percent");
+        const int  percentGoodTC   = getWidgetValue("good_percent");
+        const int  percentGold     = getWidgetValue("gold_percent");
+        const int  percentEquip    = getWidgetValue("equip_percent");
+        const int  percentJunk     = getWidgetValue("junk_percent");
+        const bool highDropsCount  = getWidgetValue("high_elite_drops");
 
         auto factorAdjust = [](QString& value, double factor, int maxFact) {
             const double prev           = value.toInt();
@@ -87,12 +118,12 @@ void ConfigPageItemDrops::generate(DataContext& output, QRandomGenerator& rng, c
             const int next = static_cast<int>(probNew);
             value          = QString("%1").arg(std::min(next, maxFact));
         };
-        auto adjustPick = [](int value, int percent) -> int {
+        auto adjustPick = [](int value, int num, int denum) -> int {
             if (!value)
                 return 0;
-            if (percent == 100)
+            if (num == denum)
                 return value;
-            value = value * percent / 100;
+            value = value * num / denum;
             return std::max(1, value);
         };
 
@@ -113,7 +144,7 @@ void ConfigPageItemDrops::generate(DataContext& output, QRandomGenerator& rng, c
             DropSet dropSet;
             dropSet.readRow(row);
 
-            dropSet.m_noDrop = adjustPick(dropSet.m_noDrop, percentNoDrop);
+            dropSet.m_noDrop = adjustPick(dropSet.m_noDrop, percentNoDrop, 100);
 
             if (highDropsCount) {
                 if (treasureGroup == "15") { // Uniques, insead of 1 item + 2*2 potion, make 4 items + 1*2 potion
@@ -127,21 +158,29 @@ void ConfigPageItemDrops::generate(DataContext& output, QRandomGenerator& rng, c
                     row["Picks"]            = "-3";
                 }
             }
-            static const QRegularExpression s_eqRegex("Act [12345]( \\([NH]\\))? (Equip|Bow) [ABC]");
-            static const QRegularExpression s_junkRegex("Act [12345]( \\([NH]\\))? Junk");
-            if (!s_eqRegex.match(className).hasMatch() && !s_junkRegex.match(className).hasMatch()) {
+
+            const auto rowTC = getTC(className);
+            if (rowTC == TCType::Other) {
                 for (auto& item : dropSet.m_items) {
-                    int percent = 100;
+                    int        percent   = 100;
+                    const auto subItemTC = getTC(item.tc);
                     if (item.tc.endsWith(" Good"))
                         percent = percentGoodTC;
                     else if (item.tc.startsWith("gld") || item.tc.startsWith("\"gld"))
                         percent = percentGold;
-                    else if (s_junkRegex.match(item.tc).hasMatch())
+                    else if (subItemTC == TCType::Junk)
                         percent = percentJunk;
-                    else if (s_eqRegex.match(item.tc).hasMatch())
+                    else if (subItemTC == TCType::Equip || subItemTC == TCType::Bow)
                         percent = percentEquip;
 
-                    item.prob = adjustPick(item.prob, percent);
+                    item.prob = adjustPick(item.prob, percent, 100);
+                }
+            }
+            if (rowTC == TCType::Equip || rowTC == TCType::Bow) {
+                for (auto& item : dropSet.m_items) {
+                    const auto subItemTC = getTC(item.tc);
+                    if (subItemTC == TCType::Equip || subItemTC == TCType::Bow)
+                        item.prob = adjustPick(item.prob, 1, factorHighlevel);
                 }
             }
 
