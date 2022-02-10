@@ -63,7 +63,7 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
                              "If Min=Max=100%%, then property count will be exactly as original (except rare corner cases).\n"
                              "If Min=50%% and Max=200%%, then new property count will be at least half as original, and twice at best.\n"
                              "For example, if item has 5 properties, then worst case is 2, and best case is 9 (because 9 is maximum for Uniques)"))
-               << new SliderWidget(tr("Maximum relative property count, compared to the original"), "relativeCountMax", 4, 10, 1000, this)
+               << new SliderWidget(tr("Maximum relative property count, compared to the original"), "relativeCountMax", 4, 10, 1000, false, this)
                << addHelp(new SliderWidgetMinMax(tr("Number of versions of each unique"), "repeat_uniques", 1, 20, 10, this),
                           tr("allow you to have different uniques with same name and level, but different properties, \n"
                              "you will have N different uniques with differnet stats;\n"

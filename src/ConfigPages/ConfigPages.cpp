@@ -9,13 +9,14 @@
 #include "ConfigPageCharacter.hpp"
 #include "ConfigPageCube.hpp"
 #include "ConfigPageDropFiltering.hpp"
-#include "ConfigPageDrops.hpp"
 #include "ConfigPageGambling.hpp"
+#include "ConfigPageItemDrops.hpp"
 #include "ConfigPageItemRandomizer.hpp"
 #include "ConfigPageMonDensity.hpp"
 #include "ConfigPageMonRandomizer.hpp"
 #include "ConfigPageMonStats.hpp"
 #include "ConfigPageQol.hpp"
+#include "ConfigPageRuneDrops.hpp"
 
 namespace D2ModGen {
 
@@ -44,7 +45,8 @@ QList<PageGroup> CreateConfigPages(QWidget* parent)
                 new ConfigPageGambling(parent),
                 new ConfigPageCharacter(parent),
                 new ConfigPageQol(parent),
-                new ConfigPageDrops(parent),
+                new ConfigPageItemDrops(parent),
+                new ConfigPageRuneDrops(parent),
             },
         },
         PageGroup{

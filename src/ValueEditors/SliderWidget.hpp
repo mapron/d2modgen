@@ -21,6 +21,7 @@ public:
                  double         denom,
                  double         mult,
                  int            defaultValue,
+                 bool           compact,
                  QWidget*       parent);
     SliderWidget(const QString& caption,
                  const QString& id,

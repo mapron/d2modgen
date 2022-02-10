@@ -9,23 +9,23 @@
 
 namespace D2ModGen {
 
-class ConfigPageDrops : public ConfigPageAbstract {
+class ConfigPageItemDrops : public ConfigPageAbstract {
     Q_OBJECT
 public:
-    ConfigPageDrops(QWidget* parent);
+    ConfigPageItemDrops(QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
-        return tr("Increase Item/Rune drops");
+        return tr("Increase Item drops");
     }
     QString settingKey() const override
     {
-        return "drops";
+        return "item_drops";
     }
     QString pageHelp() const override;
-    void generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    void    generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 
 }

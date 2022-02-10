@@ -28,7 +28,7 @@ void DropSet::readRow(const TableView::RowView& row)
 void DropSet::writeRow(TableView::RowView& row) const
 {
     QString& noDrop = row["NoDrop"];
-    noDrop          = QString("%1").arg(m_noDrop);
+    noDrop          = m_noDrop ? QString("%1").arg(m_noDrop) : QString();
     for (int i = 1; i <= 10; ++i) {
         QString& prob   = row[QString("Prob%1").arg(i)];
         QString& tcName = row[QString("Item%1").arg(i)];

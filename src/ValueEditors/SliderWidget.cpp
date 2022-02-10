@@ -42,6 +42,7 @@ SliderWidget::SliderWidget(const QString& caption,
                            double         denom,
                            double         mult,
                            int            defaultValue,
+                           bool           compact,
                            QWidget*       parent)
     : IValueWidget(parent)
     , m_denom(denom)
@@ -67,7 +68,11 @@ SliderWidget::SliderWidget(const QString& caption,
     m_helpButton = new HelpToolButton("", this);
     m_helpButton->hide();
 
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    QBoxLayout* mainLayout;
+    if (compact)
+        mainLayout = new QHBoxLayout(this);
+    else
+        mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(4);
     QHBoxLayout* captionLayout = new QHBoxLayout();
@@ -89,7 +94,7 @@ SliderWidget::SliderWidget(const QString& caption,
 SliderWidget::~SliderWidget() = default;
 
 SliderWidget::SliderWidget(const QString& caption, const QString& id, double denom, double mult, QWidget* parent)
-    : SliderWidget(caption, id, denom, mult, s_spinboxAverage, parent)
+    : SliderWidget(caption, id, denom, mult, s_spinboxAverage, false, parent)
 {
 }
 
