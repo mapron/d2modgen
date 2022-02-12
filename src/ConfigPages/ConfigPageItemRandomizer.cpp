@@ -87,7 +87,8 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
                << addHelp(new CheckboxWidget(tr("Replace charges with oskills"), "replaceCharges", false, this),
                           tr(""))
                << addHelp(new CheckboxWidget(tr("Remove Knockback/Monster flee"), "removeKnock", true, this),
-                          tr("")));
+                          tr(""))
+               << new LineWidget(tr("Add extra attributes to randomize (comma-separated)"), "extraKnown", "", this));
     closeLayout();
 }
 
@@ -238,6 +239,9 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
     const bool removeKnock    = getWidgetValue("removeKnock");
     const bool perfectRoll    = getWidgetValue("perfectRoll");
 
+    const QStringList   extraKnownCodesList = getWidgetValueString("extraKnown").split(",", Qt::SkipEmptyParts);
+    const QSet<QString> extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
+
     using LevelCallback               = std::function<int(const TableView::RowView& row)>;
     using SupportedAttributesCallback = std::function<AttributeFlagSet(const TableView::RowView& row)>;
     using ItemCodeFilterCallback      = std::function<ItemCodeFilter(const TableView::RowView& row)>;
@@ -247,11 +251,11 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
         if (makePerfect)
             rawList.makePerfect();
     };
-    auto grabProps = [&props, &postProcessRawList, perfectRoll](TableView&                      view,
-                                                                const std::vector<ColumnsDesc>& columnsList,
-                                                                const LevelCallback&            levelCb,
-                                                                const ItemCodeFilterCallback&   codeFilterCb,
-                                                                bool                            supportMinMax) {
+    auto grabProps = [&props, &postProcessRawList, perfectRoll, &extraKnownCodes](TableView&                      view,
+                                                                                  const std::vector<ColumnsDesc>& columnsList,
+                                                                                  const LevelCallback&            levelCb,
+                                                                                  const ItemCodeFilterCallback&   codeFilterCb,
+                                                                                  bool                            supportMinMax) {
         for (auto& row : view) {
             const int level = levelCb(row);
             if (level <= 0)
@@ -262,7 +266,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
             for (const ColumnsDesc& columns : columnsList) {
                 MagicPropRawList rawList;
 
-                rawList.readFromRow(row, columns);
+                rawList.readFromRow(row, columns, extraKnownCodes);
                 postProcessRawList(rawList, perfectRoll || !supportMinMax);
 
                 props.add(std::move(rawList), types, level);
@@ -414,6 +418,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                       &postProcessRawList,
                       &rng,
                       &calcNewCount,
+                      &extraKnownCodes,
                       itemFitPercent,
                       unbalance,
                       noDuplicates,
@@ -435,7 +440,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
 
             for (const ColumnsDesc& columns : columnsList) {
                 MagicPropRawList rawList;
-                rawList.readFromRow(row, columns);
+                rawList.readFromRow(row, columns, extraKnownCodes);
                 if (skipEmptyList && rawList.parsedProps.empty())
                     continue;
 

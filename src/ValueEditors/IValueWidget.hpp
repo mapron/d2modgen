@@ -16,10 +16,10 @@ public:
         : QWidget(parent)
     {}
 
-    virtual int  getValue() const    = 0;
-    virtual void setValue(int value) = 0;
-    virtual void resetValue()        = 0;
-    virtual bool isDefault() const   = 0;
+    virtual QVariant getValue() const         = 0;
+    virtual void     setValue(QVariant value) = 0;
+    virtual void     resetValue()             = 0;
+    virtual bool     isDefault() const        = 0;
 
 signals:
     void dataChanged();

@@ -105,14 +105,14 @@ void SliderWidget::resetValue()
     m_settingValue = false;
 }
 
-void SliderWidget::setValue(int value)
+void SliderWidget::setValue(QVariant value)
 {
     m_settingValue = true;
-    m_valueBox->setValue(value);
+    m_valueBox->setValue(value.toInt());
     m_settingValue = false;
 }
 
-int SliderWidget::getValue() const
+QVariant SliderWidget::getValue() const
 {
     return m_valueBox->value();
 }
@@ -237,14 +237,14 @@ void SliderWidgetMinMax::resetValue()
     m_settingValue = false;
 }
 
-void SliderWidgetMinMax::setValue(int value)
+void SliderWidgetMinMax::setValue(QVariant value)
 {
     m_settingValue = true;
-    m_valueBox->setValue(value);
+    m_valueBox->setValue(value.toInt());
     m_settingValue = false;
 }
 
-int SliderWidgetMinMax::getValue() const
+QVariant SliderWidgetMinMax::getValue() const
 {
     return m_valueBox->value();
 }

@@ -30,10 +30,10 @@ public:
                  QWidget*       parent);
     ~SliderWidget();
 
-    void resetValue() override;
-    void setValue(int value) override;
-    int  getValue() const override;
-    bool isDefault() const override;
+    void     resetValue() override;
+    void     setValue(QVariant value) override;
+    QVariant getValue() const override;
+    bool     isDefault() const override;
 
     void addHelp(const QString& helpToolTip);
 
@@ -78,10 +78,10 @@ public:
     {}
     ~SliderWidgetMinMax();
 
-    void resetValue() override;
-    void setValue(int value) override;
-    int  getValue() const override;
-    bool isDefault() const override;
+    void     resetValue() override;
+    void     setValue(QVariant value) override;
+    QVariant getValue() const override;
+    bool     isDefault() const override;
 
     void addHelp(const QString& helpToolTip);
 

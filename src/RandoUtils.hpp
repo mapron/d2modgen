@@ -117,7 +117,7 @@ struct MagicPropRawList {
     void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
     void makePerfect();
 
-    void readFromRow(TableView::RowView& row, const ColumnsDesc& columns);
+    void readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const QSet<QString>& extraKnownCodes);
     void writeToRow(TableView::RowView& row, const ColumnsDesc& columns) const;
 
     int           getTotalSize() const;
@@ -126,8 +126,8 @@ struct MagicPropRawList {
     QString toDebugString() const;
 
     void append(MagicPropList added);
-    
-    void truncateRandom(QRandomGenerator&       rng, const int newSize);
+
+    void truncateRandom(QRandomGenerator& rng, const int newSize);
 };
 
 struct ItemTypeInfo {

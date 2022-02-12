@@ -7,19 +7,19 @@
 
 #include "IValueWidget.hpp"
 
-class QCheckBox;
+class QLineEdit;
 
 namespace D2ModGen {
 
 class HelpToolButton;
-class CheckboxWidget : public IValueWidget {
+class LineWidget : public IValueWidget {
     Q_OBJECT
 public:
-    CheckboxWidget(const QString& caption,
-                   const QString& id,
-                   bool           def,
-                   QWidget*       parent);
-    ~CheckboxWidget();
+    LineWidget(const QString& caption,
+               const QString& id,
+               const QString& def,
+               QWidget*       parent);
+    ~LineWidget();
 
     void     resetValue() override;
     void     setValue(QVariant value) override;
@@ -28,16 +28,13 @@ public:
 
     void addHelp(const QString& helpToolTip);
 
-signals:
-    void toggled(bool);
-
 private:
-    const bool      m_default;
-    QCheckBox*      m_checkBox;
+    const QString   m_default;
+    QLineEdit*      m_lineEdit;
     HelpToolButton* m_helpButton;
 };
 
-static inline CheckboxWidget* addHelp(CheckboxWidget* cb, const QString& helpToolTip)
+static inline LineWidget* addHelp(LineWidget* cb, const QString& helpToolTip)
 {
     cb->addHelp(helpToolTip);
     return cb;

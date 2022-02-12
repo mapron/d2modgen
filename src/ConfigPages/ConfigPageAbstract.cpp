@@ -10,6 +10,28 @@
 
 namespace D2ModGen {
 
+namespace {
+
+QJsonValue varToValue(const QVariant& var)
+{
+    if (var.type() == QVariant::Bool)
+        return var.toBool();
+    if (var.type() == QVariant::Int)
+        return var.toInt();
+    return var.toString();
+}
+
+QVariant valueToVar(const QJsonValue& value)
+{
+    if (value.isBool())
+        return QVariant(value.toBool());
+    if (value.isString())
+        return value.toString();
+    return value.toInt();
+}
+
+}
+
 void DropSet::readRow(const TableView::RowView& row)
 {
     const QString& noDrop = row["NoDrop"];
@@ -72,7 +94,7 @@ void ConfigPageAbstract::readSettings(const QJsonObject& data)
     for (QString key : m_editors.keys()) {
         auto* w = m_editors[key];
         if (data.contains(key))
-            w->setValue(data[key].toInt());
+            w->setValue(valueToVar(data[key]));
         else
             w->resetValue();
     }
@@ -83,7 +105,7 @@ void ConfigPageAbstract::writeSettings(QJsonObject& data) const
     for (QString key : m_editors.keys()) {
         auto* w = m_editors[key];
         if (!w->isDefault())
-            data[key] = w->getValue();
+            data[key] = varToValue(w->getValue());
     }
 }
 
@@ -145,7 +167,12 @@ void ConfigPageAbstract::closeLayout()
 
 int ConfigPageAbstract::getWidgetValue(const QString& id) const
 {
-    return m_editors[id]->getValue();
+    return m_editors[id]->getValue().toInt();
+}
+
+QString ConfigPageAbstract::getWidgetValueString(const QString& id) const
+{
+    return m_editors[id]->getValue().toString();
 }
 
 bool ConfigPageAbstract::isWidgetValueDefault(const QString& id) const

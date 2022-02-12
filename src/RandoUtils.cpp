@@ -113,7 +113,7 @@ void MagicPropRawList::makePerfect()
     }
 }
 
-void MagicPropRawList::readFromRow(TableView::RowView& row, const ColumnsDesc& columns)
+void MagicPropRawList::readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const QSet<QString>& extraKnownCodes)
 {
     for (const auto& col : columns.m_cols) {
         MagicProp mp;
@@ -124,12 +124,14 @@ void MagicPropRawList::readFromRow(TableView::RowView& row, const ColumnsDesc& c
 
         if (mp.code.isEmpty())
             continue; // PD2 writes properties to the end of a list.
-        auto cons = getAttributeConsume(mp.code);
-        if (cons == AttributeConsume::Skip)
-            continue;
-        if (cons == AttributeConsume::Keep) {
-            keptProps.push_back(std::move(mp));
-            continue;
+        if (!extraKnownCodes.contains(mp.code)) {
+            auto cons = getAttributeConsume(mp.code);
+            if (cons == AttributeConsume::Skip)
+                continue;
+            if (cons == AttributeConsume::Keep) {
+                keptProps.push_back(std::move(mp));
+                continue;
+            }
         }
         parsedProps.push_back(std::move(mp));
     }
