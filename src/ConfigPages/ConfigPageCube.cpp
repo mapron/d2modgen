@@ -69,8 +69,8 @@ ConfigPageCube::ConfigPageCube(QWidget* parent)
                                      "quickPortals",
                                      false,
                                      this)
-               << new CheckboxWidget(tr("Add quick quest recipes:") + "\n"
-                                                                      "1. key + Id scroll = Horadric Staff\n"
+               << new CheckboxWidget(tr("Add quick quest recipes:") + " "
+                                                                      "1. key + Id scroll = Horadric Staff "
                                                                       "2. key + TP scroll = Khalim Will",
                                      "quickQuests",
                                      false,
@@ -93,8 +93,7 @@ ConfigPageCube::ConfigPageCube(QWidget* parent)
                                      "upgrading",
                                      false,
                                      this)
-               << new CheckboxWidget(tr("Add Rune downgrade:") + "\n"
-                                                                 "1. Rune + key + key = Lower rune",
+               << new CheckboxWidget(tr("Add Rune downgrade:") + " Rune + key + key = Lower rune",
                                      "runeDowngrade",
                                      false,
                                      this));
@@ -108,7 +107,7 @@ ConfigPageCube::ConfigPageCube(QWidget* parent)
                                      this)
                << new CheckboxWidget(tr("Perfect rolls"), "craftPerfect", false, this)
                << new CheckboxWidget(tr("Make Item Level always 99"), "craftHighIlvl", false, this)
-               << new SliderWidgetMinMax(tr("Multiply crafted item bonuses by"), "craftMultBonus", 1, 5, 1, this));
+               << new SliderWidgetMinMax(tr("Multiply crafted item bonuses by"), "craftMultBonus", 1, 5, 1, true, this));
     closeLayout();
 }
 

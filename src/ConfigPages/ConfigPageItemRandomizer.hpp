@@ -15,7 +15,6 @@ class ConfigPageItemRandomizer : public ConfigPageAbstract {
 public:
     ConfigPageItemRandomizer(QWidget* parent);
 
-   
     // IConfigPage interface
 public:
     QString caption() const override
@@ -26,8 +25,10 @@ public:
     {
         return "randomizer";
     }
-    QString pageHelp() const override;
-    void    generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    QString                 pageHelp() const override;
+    IConfigPage::PresetList pagePresets() const override;
+
+    void generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 
 }

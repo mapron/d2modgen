@@ -324,6 +324,11 @@ QString MainConfigPage::pageHelp() const
               "-Add key to character inventory for fresh character - now you are sure you started modded version.");
 }
 
+IConfigPage::PresetList MainConfigPage::pagePresets() const
+{
+    return {};
+}
+
 void MainConfigPage::readSettings(const QJsonObject& data)
 {
     if (data.contains("modname"))

@@ -79,14 +79,6 @@ struct MotTypeTable {
         return mr.id;
     }
 
-    //    void removeUnused(const QSet<QString>& baseIds)
-    //    {
-    //        QMap<QString, MonType> newTypes;
-    //        for (const QString& id : baseIds)
-    //            newTypes[id] = std::move(types[id]);
-    //        types = std::move(newTypes);
-    //    }
-
     void dump()
     {
         for (auto& type : types) {
@@ -133,19 +125,13 @@ struct TCTable {
     };
 };
 
-//void random_shuffle(QRandomGenerator& rng, QStringList& list)
-//{
-//    for (int i = list.size() - 1; i > 0; --i) {
-//        list.swapItemsAt(i, rng.bounded(i + 1));
-//    }
-//}
 }
 
 ConfigPageMonRandomizer::ConfigPageMonRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << addHelp(new SliderWidgetMinMax(tr("Spawned different types in one area"), "spawnedCount", 3, 10, 3, this),
+               << addHelp(new SliderWidgetMinMax(tr("Spawned different types in one area"), "spawnedCount", 2, 10, 5, this),
                           tr("This option choose how many different types will spawn at once (default is 3, which is D2 original behavior).  \n"
                              "Note that some map tiles have predefined spawns (shaman camps etc) that can not be randomized."))
                << addHelp(new SliderWidgetMinMax(tr("Maximum possible monster types in one area (population variety)"), "maxTypes", 6, 25, 25, this),

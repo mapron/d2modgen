@@ -98,6 +98,45 @@ QString ConfigPageItemRandomizer::pageHelp() const
               "For details, check descriptions of every option.");
 }
 
+IConfigPage::PresetList ConfigPageItemRandomizer::pagePresets() const
+{
+    return {
+        { tr("I want to be overpowered machine!"),
+          QJsonObject({
+              { "crazyLevel", s_maxUnbalanceLevel },
+              { "itemFitPercent", 0 },
+              { "keepOriginalPercent", 0 },
+              { "relativeCountMin", 1000 },
+              { "relativeCountMax", 1000 },
+              { "perfectRoll", 1 },
+              { "affixRandom", 1 },
+              { "gemsRandom", 1 },
+              { "replaceSkills", 1 },
+              { "replaceCharges", 1 },
+          }) },
+        { tr("Want to have some fun without flying to space"),
+          QJsonObject({
+              { "crazyLevel", 30 },
+              { "itemFitPercent", 50 },
+              { "keepOriginalPercent", 20 },
+              { "relativeCountMin", 100 },
+              { "relativeCountMax", 1000 },
+              { "perfectRoll", 1 },
+              { "affixRandom", 1 },
+              { "replaceSkills", 1 },
+              { "replaceCharges", 1 },
+          }) },
+        { tr("Want to have fresh experience but balanced if possible"),
+          QJsonObject({
+              { "crazyLevel", 10 },
+              { "itemFitPercent", 70 },
+              { "keepOriginalPercent", 50 },
+              { "relativeCountMin", 100 },
+              { "relativeCountMax", 120 },
+          }) },
+    };
+}
+
 void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     auto& tableSet = output.tableSet;
@@ -106,7 +145,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
     {
         TableView view(tableSet.tables["itemtypes"]);
         for (auto& row : view) {
-            QString& codeStr = row["Code"];
+            QString& codeStr  = row["Code"];
             QString& itemType = row["ItemType"];
             if (codeStr.isEmpty())
                 continue;

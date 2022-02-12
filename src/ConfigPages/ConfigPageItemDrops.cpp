@@ -83,6 +83,34 @@ QString ConfigPageItemDrops::pageHelp() const
               "Note that increase is accurate when your chances are low, but with high MF it can have diminishing return.");
 }
 
+IConfigPage::PresetList ConfigPageItemDrops::pagePresets() const
+{
+    return {
+        { tr("I want to find Tyrael's today!"),
+          QJsonObject({
+              { "chance_uni", 50 },
+              { "chance_set", 30 },
+              { "chance_highlevel", 15 },
+              { "high_elite_drops", 1 },
+              { "equal_uniques", 1 },
+          }) },
+        { tr("Just tired of finding my first Shako"),
+          QJsonObject({
+              { "chance_uni", 15 },
+              { "chance_set", 10 },
+              { "high_elite_drops", 1 },
+          }) },
+        { tr("A little bit more of good stuff, not crazy"),
+          QJsonObject({
+              { "chance_uni", 5 },
+              { "chance_set", 5 },
+              { "nodrop_percent", 50 },
+              { "gold_percent", 50 },
+              { "junk_percent", 10 },
+          }) },
+    };
+}
+
 void ConfigPageItemDrops::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())

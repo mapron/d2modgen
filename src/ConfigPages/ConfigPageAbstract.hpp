@@ -37,11 +37,14 @@ public:
 
     // IConfigPage interface
 public:
-    bool    canBeDisabled() const override;
-    void    readSettings(const QJsonObject& data) override;
-    void    writeSettings(QJsonObject& data) const override;
-    bool    isConfigEnabled() const override;
-    void    setConfigEnabled(bool state) override;
+    bool       canBeDisabled() const override;
+    PresetList pagePresets() const override;
+
+    void readSettings(const QJsonObject& data) override;
+    void writeSettings(QJsonObject& data) const override;
+
+    bool isConfigEnabled() const override;
+    void setConfigEnabled(bool state) override;
 
     void gatherInfo(PreGenerationContext& output, const GenerationEnvironment& env) const override {}
 

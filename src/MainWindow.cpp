@@ -31,6 +31,7 @@
 #include <QDesktopServices>
 #include <QButtonGroup>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QSettings>
 #include <QToolButton>
 
@@ -99,6 +100,7 @@ MainWindow::MainWindow(bool autoSave)
             QPushButton* resetButton   = new QPushButton(tr("Reset to default"), this);
             QCheckBox*   headerEnabler = new QCheckBox(tr("Enable this tab"), this);
             QCheckBox*   sideEnabler   = new QCheckBox("", this);
+            QComboBox*   presetCombo   = nullptr;
             headerEnabler->setChecked(true);
             sideEnabler->setChecked(true);
             if (!page->canBeDisabled()) {
@@ -116,15 +118,36 @@ MainWindow::MainWindow(bool autoSave)
             QVBoxLayout* pageWrapperMain = new QVBoxLayout(pageWrapper);
             pageWrapperMain->setMargin(8);
             pageWrapperMain->setSpacing(10);
-            QHBoxLayout* pageWrapperHeader = new QHBoxLayout();
+            QHBoxLayout* pageWrapperHeader       = new QHBoxLayout();
+            QHBoxLayout* pageWrapperPresetHeader = new QHBoxLayout();
             pageWrapperHeader->addWidget(pageHelp);
             pageWrapperHeader->addWidget(caption);
             pageWrapperHeader->addStretch();
             pageWrapperHeader->addWidget(headerEnabler);
             pageWrapperHeader->addWidget(resetButton);
             pageWrapperMain->addLayout(pageWrapperHeader);
+            pageWrapperMain->addLayout(pageWrapperPresetHeader);
             pageWrapperMain->addWidget(page);
             stackedWidget->addWidget(pageWrapper);
+
+            auto presets = page->pagePresets();
+
+            if (!presets.isEmpty()) {
+                presetCombo = new QComboBox(this);
+                presetCombo->addItem(tr("Select preset..."));
+                for (const auto& preset : presets) {
+                    presetCombo->addItem(preset.title, preset.data);
+                }
+                connect(presetCombo, qOverload<int>(&QComboBox::currentIndexChanged), presetCombo, [presetCombo, page](int index) {
+                    auto data = presetCombo->itemData(index);
+                    if (!data.isValid())
+                        return;
+                    page->readSettings(data.toJsonObject());
+                });
+                pageWrapperPresetHeader->addStretch();
+                pageWrapperPresetHeader->addWidget(new QLabel(tr("Do not know where to start? Select a preset:"), this));
+                pageWrapperPresetHeader->addWidget(presetCombo);
+            }
 
             QHBoxLayout* buttonPanelRow = new QHBoxLayout();
             buttonPanelRow->setMargin(0);
@@ -133,8 +156,10 @@ MainWindow::MainWindow(bool autoSave)
             buttonPanelRow->addWidget(pageButton, 1);
             buttonPanelLayout->addLayout(buttonPanelRow);
 
-            connect(pageButton, &QPushButton::clicked, this, [pageWrapper, stackedWidget]() {
+            connect(pageButton, &QPushButton::clicked, this, [pageWrapper, stackedWidget, presetCombo]() {
                 stackedWidget->setCurrentWidget(pageWrapper);
+                if (presetCombo)
+                    presetCombo->setCurrentIndex(0);
             });
             connect(resetButton, &QPushButton::clicked, this, [page]() {
                 page->readSettings({});

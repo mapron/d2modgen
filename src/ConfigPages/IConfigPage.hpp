@@ -13,16 +13,25 @@ namespace D2ModGen {
 
 class IConfigPage : public QWidget {
 public:
+    struct Preset {
+        QString     title;
+        QJsonObject data;
+    };
+    using PresetList = QList<Preset>;
+
+public:
     explicit IConfigPage(QWidget* parent)
         : QWidget(parent)
     {}
 
-    virtual bool    canBeDisabled() const                  = 0;
-    virtual QString caption() const                        = 0;
-    virtual QString settingKey() const                     = 0;
-    virtual QString pageHelp() const                       = 0;
-    virtual void    readSettings(const QJsonObject& data)  = 0;
-    virtual void    writeSettings(QJsonObject& data) const = 0;
+    virtual bool       canBeDisabled() const = 0;
+    virtual QString    caption() const       = 0;
+    virtual QString    settingKey() const    = 0;
+    virtual QString    pageHelp() const      = 0;
+    virtual PresetList pagePresets() const   = 0;
+
+    virtual void readSettings(const QJsonObject& data)  = 0;
+    virtual void writeSettings(QJsonObject& data) const = 0;
 
     virtual bool isConfigEnabled() const      = 0;
     virtual void setConfigEnabled(bool state) = 0;

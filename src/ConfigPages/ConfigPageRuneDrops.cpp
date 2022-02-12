@@ -34,6 +34,32 @@ QString ConfigPageRuneDrops::pageHelp() const
               "Basically all options here modifying TC pick weights - so one preferred option become less rare.");
 }
 
+IConfigPage::PresetList ConfigPageRuneDrops::pagePresets() const
+{
+    return {
+        { tr("Gimme pile of Ber runes!"),
+          QJsonObject({
+              { "zod_factor", 200 },
+              { "rune_factor", 10 },
+              { "countess_rune_higher", 1 },
+              { "countess_rune_more", 1 },
+              { "wraith_runes", 1 },
+          }) },
+        { tr("I want to make Infinity at least once in my life"),
+          QJsonObject({
+              { "zod_factor", 10 },
+              { "rune_factor", 3 },
+          }) },
+        { tr("I want high runes to be rare, but want more rune drops overall"),
+          QJsonObject({
+              { "countess_rune_higher", 1 },
+              { "countess_rune_more", 1 },
+              { "wraith_runes", 1 },
+              { "rune_factor", 3 },
+          }) },
+    };
+}
+
 void ConfigPageRuneDrops::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
     if (isAllDefault())

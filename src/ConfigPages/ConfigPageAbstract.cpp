@@ -62,6 +62,11 @@ bool ConfigPageAbstract::canBeDisabled() const
     return true;
 }
 
+IConfigPage::PresetList ConfigPageAbstract::pagePresets() const
+{
+    return {};
+}
+
 void ConfigPageAbstract::readSettings(const QJsonObject& data)
 {
     for (QString key : m_editors.keys()) {

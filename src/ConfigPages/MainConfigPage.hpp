@@ -21,14 +21,17 @@ public:
 
     // IConfigPage interface
 public:
-    bool        canBeDisabled() const override;
-    QString     caption() const override;
-    QString     settingKey() const override;
-    QString     pageHelp() const override;
-    void        readSettings(const QJsonObject& data) override;
-    void        writeSettings(QJsonObject& data) const override;
-    bool        isConfigEnabled() const override;
-    void        setConfigEnabled(bool state) override;
+    bool       canBeDisabled() const override;
+    QString    caption() const override;
+    QString    settingKey() const override;
+    QString    pageHelp() const override;
+    PresetList pagePresets() const override;
+
+    void readSettings(const QJsonObject& data) override;
+    void writeSettings(QJsonObject& data) const override;
+
+    bool isConfigEnabled() const override;
+    void setConfigEnabled(bool state) override;
 
     void gatherInfo(PreGenerationContext& output, const GenerationEnvironment& env) const override;
     void generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;

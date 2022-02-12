@@ -24,8 +24,10 @@ public:
     {
         return "rune_drops";
     }
-    QString pageHelp() const override;
-    void    generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
+    QString    pageHelp() const override;
+    PresetList pagePresets() const override;
+
+    void generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override;
 };
 
 }
