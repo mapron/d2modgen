@@ -12,6 +12,7 @@
 namespace D2ModGen {
 
 class IConfigPage : public QWidget {
+    Q_OBJECT
 public:
     struct Preset {
         QString     title;
@@ -38,6 +39,9 @@ public:
 
     virtual void gatherInfo(PreGenerationContext& output, const GenerationEnvironment& env) const             = 0;
     virtual void generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const = 0;
+
+signals:
+    void dataChanged();
 };
 
 }

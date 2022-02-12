@@ -100,12 +100,16 @@ SliderWidget::SliderWidget(const QString& caption, const QString& id, double den
 
 void SliderWidget::resetValue()
 {
+    m_settingValue = true;
     m_valueBox->setValue(m_default);
+    m_settingValue = false;
 }
 
 void SliderWidget::setValue(int value)
 {
+    m_settingValue = true;
     m_valueBox->setValue(value);
+    m_settingValue = false;
 }
 
 int SliderWidget::getValue() const
@@ -145,6 +149,8 @@ void SliderWidget::sliderToSpinbox()
     }
 
     m_valueBox->blockSignals(false);
+    if (!m_settingValue)
+        emit dataChanged();
 }
 
 void SliderWidget::spinboxToSlider()
@@ -165,6 +171,8 @@ void SliderWidget::spinboxToSlider()
         m_slider->setValue(s_sliderAverage + (ratioLog * sliderRange));
     }
     m_slider->blockSignals(false);
+    if (!m_settingValue)
+        emit dataChanged();
 }
 
 //----------------------------------------------------------
@@ -224,12 +232,16 @@ SliderWidgetMinMax::~SliderWidgetMinMax() = default;
 
 void SliderWidgetMinMax::resetValue()
 {
+    m_settingValue = true;
     m_valueBox->setValue(m_defaultValue);
+    m_settingValue = false;
 }
 
 void SliderWidgetMinMax::setValue(int value)
 {
+    m_settingValue = true;
     m_valueBox->setValue(value);
+    m_settingValue = false;
 }
 
 int SliderWidgetMinMax::getValue() const
@@ -255,6 +267,8 @@ void SliderWidgetMinMax::sliderToSpinbox()
     m_valueBox->blockSignals(true);
     m_valueBox->setValue(m_slider->value());
     m_valueBox->blockSignals(false);
+    if (!m_settingValue)
+        emit dataChanged();
 }
 
 void SliderWidgetMinMax::spinboxToSlider()
@@ -262,6 +276,8 @@ void SliderWidgetMinMax::spinboxToSlider()
     m_slider->blockSignals(true);
     m_slider->setValue(m_valueBox->value());
     m_slider->blockSignals(false);
+    if (!m_settingValue)
+        emit dataChanged();
 }
 
 }

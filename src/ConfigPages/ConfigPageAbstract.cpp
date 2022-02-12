@@ -126,14 +126,16 @@ void ConfigPageAbstract::addEditors(QList<IValueWidget*> editors)
 {
     for (IValueWidget* w : editors) {
         m_layout->addWidget(w);
-        m_editors[w->objectName()] = w;
     }
+    addEditorsPlain(editors);
 }
 
 void ConfigPageAbstract::addEditorsPlain(QList<IValueWidget*> editors)
 {
-    for (IValueWidget* w : editors)
+    for (IValueWidget* w : editors) {
         m_editors[w->objectName()] = w;
+        connect(w, &IValueWidget::dataChanged, this, &IConfigPage::dataChanged);
+    }
 }
 
 void ConfigPageAbstract::closeLayout()

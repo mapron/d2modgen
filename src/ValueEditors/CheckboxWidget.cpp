@@ -23,6 +23,7 @@ CheckboxWidget::CheckboxWidget(const QString& caption,
     m_checkBox = new QCheckBox(caption, this);
     m_checkBox->setChecked(m_default);
     connect(m_checkBox, &QCheckBox::toggled, this, &CheckboxWidget::toggled);
+    connect(m_checkBox, &QCheckBox::clicked, this, &IValueWidget::dataChanged);
 
     m_helpButton = new HelpToolButton("", this);
     m_helpButton->hide();

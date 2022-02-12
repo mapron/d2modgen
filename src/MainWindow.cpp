@@ -46,12 +46,42 @@ QSettings makeAppSettings()
 
 }
 
+DelayedTimer::DelayedTimer(int thresholdMs, std::function<void()> onShot, QObject* parent)
+    : m_delay(thresholdMs)
+    , m_onShot(onShot)
+{
+}
+
+void DelayedTimer::start()
+{
+    if (m_timerId != -1)
+        killTimer(m_timerId);
+    m_timerId = startTimer(m_delay);
+}
+
+void DelayedTimer::stop()
+{
+    if (m_timerId != -1)
+        killTimer(m_timerId);
+    m_timerId = -1;
+}
+
+void DelayedTimer::timerEvent(QTimerEvent*)
+{
+    m_onShot();
+    killTimer(m_timerId);
+    m_timerId = -1;
+}
+
 MainWindow::MainWindow(bool autoSave)
     : QMainWindow(nullptr)
     , m_mainStorageCache(new StorageCache())
     , m_autoSave(autoSave)
 {
     setWindowTitle("Diablo II Resurrected mod generator by mapron");
+
+    m_delayTimer = new DelayedTimer(
+        1000, [this] { pushUndoCurrent(); }, this);
 
     // widgets
     QStackedWidget* stackedWidget    = new QStackedWidget(this);
@@ -167,8 +197,11 @@ MainWindow::MainWindow(bool autoSave)
             connect(headerEnabler, &QCheckBox::toggled, sideEnabler, &QCheckBox::setChecked);
             connect(sideEnabler, &QCheckBox::toggled, headerEnabler, &QCheckBox::setChecked);
             connect(headerEnabler, &QCheckBox::toggled, page, &IConfigPage::setConfigEnabled);
+            connect(headerEnabler, &QCheckBox::clicked, m_delayTimer, &DelayedTimer::start);
+            connect(sideEnabler, &QCheckBox::clicked, m_delayTimer, &DelayedTimer::start);
             if (page->canBeDisabled())
                 connect(headerEnabler, &QCheckBox::toggled, page, &QWidget::setEnabled);
+            connect(page, &IConfigPage::dataChanged, this, [this] { m_delayTimer->start(); });
             m_enableButtons[page] = headerEnabler;
         }
     }
@@ -186,6 +219,7 @@ MainWindow::MainWindow(bool autoSave)
     QAction* quitAction       = fileMenu->addAction(tr("Save and quit"));
     QAction* generateMod      = actionsMenu->addAction(tr("Generate mod"));
     QAction* newSeed          = actionsMenu->addAction(tr("Create seed"));
+    m_undoAction              = actionsMenu->addAction(tr("Undo"));
     QMenu*   themeMenu        = actionsMenu->addMenu(tr("Theme"));
     QMenu*   langMenu         = actionsMenu->addMenu(tr("Language"));
     QAction* themeActionLight = themeMenu->addAction("Light");
@@ -197,6 +231,7 @@ MainWindow::MainWindow(bool autoSave)
     loadConfigAction->setShortcuts(QKeySequence::Open);
     clearConfig->setShortcuts(QKeySequence::New);
     newSeed->setShortcuts(QKeySequence::Refresh);
+    m_undoAction->setShortcut(QKeySequence::Undo);
     generateMod->setShortcut(QKeySequence(Qt::Key_F9));
 
     auto updateMenuState = [themeActionLight, themeActionDark, langActionEn, langActionRu]() {
@@ -262,11 +297,14 @@ MainWindow::MainWindow(bool autoSave)
     });
     connect(loadConfigAction, &QAction::triggered, this, [this] {
         auto file = QFileDialog::getOpenFileName(this, "", "", "*.json");
-        if (!file.isEmpty())
+        if (!file.isEmpty()) {
             loadConfig(file);
+            pushUndoCurrent();
+        }
     });
     connect(clearConfig, &QAction::triggered, this, [this] {
         loadConfig(QJsonObject{});
+        pushUndo(QJsonObject{});
     });
     connect(browseToSettings, &QAction::triggered, this, [this] {
         QFileInfo dir = m_mainPage->getEnv().appData;
@@ -281,6 +319,7 @@ MainWindow::MainWindow(bool autoSave)
     });
     connect(generateMod, &QAction::triggered, this, &MainWindow::generate);
     connect(newSeed, &QAction::triggered, m_mainPage, &MainConfigPage::createNewSeed);
+    connect(m_undoAction, &QAction::triggered, this, &MainWindow::makeUndo);
     auto updateModList = [modMergePre, modMergePost, this] {
         modMergePre->setModList(m_mainPage->getOtherMods());
         modMergePost->setModList(m_mainPage->getOtherMods());
@@ -297,6 +336,7 @@ MainWindow::MainWindow(bool autoSave)
 
     m_defaultConfig = m_mainPage->getEnv().appData + "config.json";
     loadConfig(m_defaultConfig);
+    pushUndoCurrent();
 }
 
 MainWindow::~MainWindow()
@@ -446,7 +486,6 @@ bool MainWindow::loadConfig(const QJsonObject& data)
         page->readSettings(data[page->settingKey()].toObject());
         m_enableButtons[page]->setChecked(page->isConfigEnabled());
     }
-
     return true;
 }
 
@@ -454,6 +493,41 @@ MainWindow::AppSettings MainWindow::getAppSettings()
 {
     auto ini = makeAppSettings();
     return { ini.value("langId", "en_US").toString(), ini.value("themeId", "light").toString() };
+}
+
+void MainWindow::pushUndo(const QJsonObject& data)
+{
+    qDebug() << "pushing undo, current undo size=" << m_undo.size();
+    m_undo << data;
+    while (m_undo.size() > 50)
+        m_undo.removeFirst();
+
+    updateUndoAction();
+}
+
+void MainWindow::pushUndoCurrent()
+{
+    QJsonObject data;
+    for (auto* page : m_pages) {
+        QJsonObject pageData;
+        page->writeSettings(pageData);
+        data[page->settingKey()]              = pageData;
+        data[page->settingKey() + "_enabled"] = page->isConfigEnabled();
+    }
+    pushUndo(data);
+}
+
+void MainWindow::makeUndo()
+{
+    m_delayTimer->stop();
+    m_undo.removeLast();
+    loadConfig(m_undo.last());
+    updateUndoAction();
+}
+
+void MainWindow::updateUndoAction()
+{
+    m_undoAction->setEnabled(m_undo.size() > 1);
 }
 
 }

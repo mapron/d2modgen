@@ -81,7 +81,10 @@ ConfigPageMergeModsItem::ConfigPageMergeModsItem(QWidget* parent)
     connect(m_typeSelect, qOverload<int>(&QComboBox::currentIndexChanged), this, [modSelectWrap, folderSelectWrap, this](int index) {
         modSelectWrap->setVisible(m_typeIndex[index] == StorageType::D2ResurrectedModFolder);
         folderSelectWrap->setVisible(m_typeIndex[index] == StorageType::CsvFolder);
+        checkForChange();
     });
+    connect(m_policySelect, qOverload<int>(&QComboBox::currentIndexChanged), this, &ConfigPageMergeModsItem::checkForChange);
+    connect(m_folderCSV, &QLineEdit::textEdited, this, &ConfigPageMergeModsItem::checkForChange);
 }
 
 void ConfigPageMergeModsItem::setModList(const QStringList& mods)
@@ -96,10 +99,12 @@ void ConfigPageMergeModsItem::setModList(const QStringList& mods)
 
 void ConfigPageMergeModsItem::readSettings(const QJsonObject& data)
 {
+    m_readingSettings = true;
     m_typeSelect->setCurrentIndex(std::max(0, m_typeIndex.indexOf(static_cast<StorageType>(data["type"].toInt()))));
     m_policySelect->setCurrentIndex(std::max(0, m_policyIndex.indexOf(static_cast<ConflictPolicy>(data["policy"].toInt()))));
     setMod(data["mod"].toString());
     m_folderCSV->setText(data["folder"].toString());
+    m_readingSettings = false;
 }
 
 void ConfigPageMergeModsItem::writeSettings(QJsonObject& data) const
@@ -135,6 +140,13 @@ void ConfigPageMergeModsItem::setMod(const QString& mod)
     }
 }
 
+void ConfigPageMergeModsItem::checkForChange()
+{
+    if (m_readingSettings)
+        return;
+    emit dataChanged();
+}
+
 ConfigPageMergeMods::ConfigPageMergeMods(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
@@ -156,6 +168,7 @@ ConfigPageMergeMods::ConfigPageMergeMods(QWidget* parent)
     m_bottomRowLayout  = new QVBoxLayout(bottomRow);
 
     connect(m_countSpinbox, qOverload<int>(&QSpinBox::valueChanged), this, &ConfigPageMergeMods::setItemsCount);
+    connect(m_countSpinbox, qOverload<int>(&QSpinBox::valueChanged), this, &ConfigPageMergeMods::dataChanged);
 
     addWidget(topRow);
     addWidget(bottomRow);
@@ -172,7 +185,10 @@ void ConfigPageMergeMods::setModList(const QStringList& mods)
 void ConfigPageMergeMods::readSettings(const QJsonObject& data)
 {
     const int count = data["sourceCount"].toInt();
+    m_countSpinbox->blockSignals(true);
     m_countSpinbox->setValue(count);
+    m_countSpinbox->blockSignals(false);
+    setItemsCount(count);
     for (int i = 0; i < count; ++i) {
         const QJsonObject& itemData = data[QString("item_%1").arg(i)].toObject();
         m_items[i]->readSettings(itemData);
@@ -214,8 +230,11 @@ void ConfigPageMergeMods::setItemsCount(int count)
 
     while (m_items.size() > count)
         delete m_items.takeLast();
-    while (m_items.size() < count)
-        m_items << new ConfigPageMergeModsItem(this);
+    while (m_items.size() < count) {
+        auto* item = new ConfigPageMergeModsItem(this);
+        m_items << item;
+        connect(item, &ConfigPageMergeModsItem::dataChanged, this, &IConfigPage::dataChanged);
+    }
 
     updateLayout();
 }

@@ -50,6 +50,7 @@ private:
     QSpinBox*       m_valueBox;
     QSlider*        m_slider;
     HelpToolButton* m_helpButton;
+    bool            m_settingValue = false;
 };
 
 class SliderWidgetMinMax : public IValueWidget {
@@ -95,6 +96,7 @@ private:
     QSpinBox*       m_valueBox;
     QSlider*        m_slider;
     HelpToolButton* m_helpButton;
+    bool            m_settingValue = false;
 };
 
 static inline SliderWidget* addHelp(SliderWidget* slider, const QString& helpToolTip)

@@ -228,6 +228,8 @@ MainConfigPage::MainConfigPage(QWidget* parent)
 
     connect(m_impl->d2rPath, &QLineEdit::textChanged, this, &MainConfigPage::updateModList);
     connect(m_impl->modName, &QLineEdit::textChanged, this, updateArgs);
+    connect(m_impl->d2rPath, &QLineEdit::textEdited, this, &IConfigPage::dataChanged);
+    connect(m_impl->modName, &QLineEdit::textEdited, this, &IConfigPage::dataChanged);
     connect(copySettings, &QPushButton::clicked, this, [this] {
         const QString saves = ensureTrailingSlash(m_impl->d2rSaves->text());
         if (saves.isEmpty() || !QFileInfo::exists(saves))
@@ -258,6 +260,7 @@ MainConfigPage::MainConfigPage(QWidget* parent)
             w->setVisible(legacy);
         updateArgs();
     });
+    connect(m_impl->d2legacyMode, &QCheckBox::clicked, this, &IConfigPage::dataChanged);
 
     m_impl->modName->setText("rando");
 }

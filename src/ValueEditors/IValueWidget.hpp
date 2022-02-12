@@ -10,6 +10,7 @@
 namespace D2ModGen {
 
 class IValueWidget : public QWidget {
+    Q_OBJECT
 public:
     explicit IValueWidget(QWidget* parent)
         : QWidget(parent)
@@ -19,6 +20,9 @@ public:
     virtual void setValue(int value) = 0;
     virtual void resetValue()        = 0;
     virtual bool isDefault() const   = 0;
+
+signals:
+    void dataChanged();
 };
 
 }

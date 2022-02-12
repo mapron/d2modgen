@@ -27,8 +27,12 @@ public:
 
     void gatherInfoInternal(ExtraDependencies& output, const GenerationEnvironment& env) const;
 
+signals:
+    void dataChanged();
+
 private:
     void setMod(const QString& mod);
+    void checkForChange();
 
 private:
     const QList<StorageType>    m_typeIndex;
@@ -38,6 +42,7 @@ private:
     QComboBox* m_policySelect;
     QComboBox* m_modSelect;
     QLineEdit* m_folderCSV;
+    bool       m_readingSettings = false;
 };
 
 class ConfigPageMergeMods : public ConfigPageAbstract {
@@ -51,7 +56,7 @@ public:
 public:
     void readSettings(const QJsonObject& data) override;
     void writeSettings(QJsonObject& data) const override;
-    
+
     QString pageHelp() const override;
 
     void generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const override {}
