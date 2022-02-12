@@ -19,7 +19,7 @@ ConfigPageMonStats::ConfigPageMonStats(QWidget* parent)
                << new SliderWidget(tr("Monster Damage, multiply by"), "mon_dam", 10, 10, this)
                << new SliderWidget(tr("Monster EXP gain, multiply by"), "mon_xp", 10, 10, this)
                << addHelp(new SliderWidgetMinMax(tr("Maximum resistance allowed for base monsters, percent:"), "max_resist", 90, 250, 250, this),
-                          tr("If you make this below 100, then regular monsters will have NO RESISTANCES at all!\n"
+                          tr("If you make this below 100, then regular monsters will have NO IMMUNITIES at all!\n"
                              "Use with caution. You can set this to 110-115, to make cold immunes breakable.\n"
                              "Also this do not prevent Enchanted monsters to have immunities."))
                << addHelp(new SliderWidget(tr("Change monster resistances, by multiplying damage from magic they take"), "rel_resist", 10, 10, this),

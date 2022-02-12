@@ -90,6 +90,9 @@ Also, as you noticed, support for Dark and Light theme is available - choose wha
 #### Increase item drops
 ![Drops](docs/tab_easy_drops.png)  
 
+#### Increase Rune drops
+![Drops](docs/tab_easy_drops_runes.png)  
+
 #### Filter your drops
 ![Drops filter](docs/tab_misc_filter.png)  
 

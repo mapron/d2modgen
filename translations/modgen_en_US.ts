@@ -157,38 +157,38 @@ Next two sliders allow you to change how many skill and stat poits you get on le
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="101"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="100"/>
         <source>Simplyfy crafting:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="103"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="102"/>
         <source>Remove strict item types for Crafted (any helm, any gloves etc)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="104"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="103"/>
         <source>Remove Rune/Jewel requirement for Crafted
 (So any recipe is &apos;item + gem&apos;)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="109"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="108"/>
         <source>Perfect rolls</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="110"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="109"/>
         <source>Make Item Level always 99</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="111"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="110"/>
         <source>Multiply crafted item bonuses by</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="117"/>
+        <location filename="../src/ConfigPages/ConfigPageCube.cpp" line="116"/>
         <source>Create some recipes to cheese/cut corners around the game. 
 Input and results are self-explanatory.  </source>
         <translation type="unfinished"></translation>
@@ -300,136 +300,6 @@ Input and results are self-explanatory.  </source>
     </message>
 </context>
 <context>
-    <name>D2ModGen::ConfigPageDrops</name>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="15"/>
-        <source>Increase Unique Chance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="16"/>
-        <source>Increase Set Chance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="17"/>
-        <source>Increase Rare Chance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="18"/>
-        <source>NoDrop reduce % (higher=more drops)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="19"/>
-        <source>NoDrop slider provides ability to gradually reduce NoDrop picks 
-(it basically similar to increasing players count in the game)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="21"/>
-        <source>Increase Champion/Unique item count</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="22"/>
-        <source>This will make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one.
-Note that potion drops are slightly reduced.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="24"/>
-        <source>Increase Good TC (Runes/Gems/Jewellery)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="25"/>
-        <source>That will make Gems/Runes/Rings/Amulets/Charms drop far more often 
-compared to equipment (armor/weapons).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="27"/>
-        <source>Increase Runes chance in Good TC</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="28"/>
-        <source>When dropping from Good TC, that will make Runes drop more often 
-compared to other jewellery (Gems/Rings/Amulets/Charms)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="30"/>
-        <source>Switch (Ber,Jah) with (Cham,Zod) in rarity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="31"/>
-        <source>When game desides to drop Jah rune, it drops Zod instead. And vice versa.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="32"/>
-        <source>Increase Rare Rune drops</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="33"/>
-        <source>That will drastically improve High Rune drop rates! You probably don&apos;t need more than 50x.
-Value here increases chance of dropping Zod in &apos;Runes 17&apos; TC
-Rarity of other runes will change proportionally 
-(so High Runes still be more rare in the same manner).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="37"/>
-        <source>Increase Countess Runes TC level</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="38"/>
-        <source>Upgrade countess Rune drops from &apos;Runes 4&apos;, &apos;Runes 8&apos;, &apos;Runes 12&apos; 
-to higher rune TC&apos;s, up to Runes 17 (Zod Rune)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="40"/>
-        <source>Make all Uniques have equal rarity on same base</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="41"/>
-        <source>Now Uniques with equal item base will have equal chance to drop.
-For example Tyrael&apos;s and Templar&apos;s will have equal chance. (and all rings too)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="43"/>
-        <source>Always perfect rolls</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="44"/>
-        <source>That will make all properties be perfect (where it make sense), (independent from Randomizer).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.cpp" line="50"/>
-        <source>All help and explanation on this page assume you are familiar with Treasure Class (TC) and NoDrop terminology.
-Basically all options here modifying TC pick weights - so one preferred option become less rare.
-First 3 sliders are for increasing chance for Uniques/Sets/Rares. 
-Note that increase is accurate when your chances are low, but with high MF it can have diminishing return.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ConfigPages/ConfigPageDrops.hpp" line="21"/>
-        <source>Increase Item/Rune drops</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>D2ModGen::ConfigPageGambling</name>
     <message>
         <location filename="../src/ConfigPages/ConfigPageGambling.cpp" line="14"/>
@@ -471,6 +341,152 @@ Next sliders allow you increase basic chance of getting Unique/Rare/Set/High-qua
     <message>
         <location filename="../src/ConfigPages/ConfigPageGambling.hpp" line="21"/>
         <source>Gambling</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>D2ModGen::ConfigPageItemDrops</name>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="44"/>
+        <source>Increase Unique Chance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="45"/>
+        <source>Increase Set Chance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="46"/>
+        <source>Increase Rare Chance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="47"/>
+        <source>Increase Chance of High-level equipment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="48"/>
+        <source>This will reduce the reduce the chance that equipment of lower level will drop as a fallback.
+For example, for level 85 TC there is a 98% chance that it will drop from 84 level TC, and so on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="50"/>
+        <source>Increase Champion/Unique item count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="51"/>
+        <source>This will make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one.
+Note that potion drops are slightly reduced.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="54"/>
+        <source>Adjust proportion of main drop classes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="56"/>
+        <source>NoDrop (higher=LESS drops)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="57"/>
+        <source>NoDrop slider provides ability to gradually reduce NoDrop picks 
+(it basically similar to increasing players count in the game)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="59"/>
+        <source>Good TC (Runes/Gems/Jewellery)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="60"/>
+        <source>That will make Gems/Runes/Rings/Amulets/Charms drop far more often 
+compared to equipment (armor/weapons).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="62"/>
+        <source>Equipment (armor/weapons)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="63"/>
+        <source>Relative chance of equipment dropping compared to other items (or NoDrop).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="64"/>
+        <source>Gold (higher=MORE gold)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="65"/>
+        <source>Relative chance of gold compared to other items.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="66"/>
+        <source>Junk (keys/bolts/etc) (higher=MORE junk)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="67"/>
+        <source>Relative chance of junk items compared to other items.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="70"/>
+        <source>Make all Uniques have equal rarity on same base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="71"/>
+        <source>Now Uniques with equal item base will have equal chance to drop.
+For example Tyrael&apos;s and Templar&apos;s will have equal chance. (and all rings too)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="73"/>
+        <source>Always perfect rolls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="74"/>
+        <source>That will make all properties be perfect (where it make sense), (independent from Randomizer).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="80"/>
+        <source>All help and explanation on this page assume you are familiar with Treasure Class (TC) and NoDrop terminology.
+Basically all options here modifying TC pick weights - so one preferred option become less rare.
+First 3 sliders are for increasing chance for Uniques/Sets/Rares. 
+Note that increase is accurate when your chances are low, but with high MF it can have diminishing return.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="89"/>
+        <source>I want to find Tyrael&apos;s today!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="97"/>
+        <source>Just tired of finding my first Shako</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.cpp" line="103"/>
+        <source>A little bit more of good stuff, not crazy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemDrops.hpp" line="21"/>
+        <source>Increase Item drops</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -608,7 +624,22 @@ For details, check descriptions of every option.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.hpp" line="23"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="104"/>
+        <source>I want to be overpowered machine!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="117"/>
+        <source>Want to have some fun without flying to space</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="129"/>
+        <source>Want to have fresh experience but balanced if possible</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.hpp" line="22"/>
         <source>Item Randomizer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -616,13 +647,13 @@ For details, check descriptions of every option.</source>
 <context>
     <name>D2ModGen::ConfigPageMergeMods</name>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="141"/>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="153"/>
         <source>Overall order of data load is: D2 source from Main settings -&gt;
 -&gt; Pre-gen data -&gt; modgen features -&gt; Post-gen data -&gt; output folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="195"/>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.cpp" line="211"/>
         <source>You can add aditional steps to mod generation, prior or after the d2modgen work
 Two additional type of sources are supported:
 1. folder with .txt files
@@ -703,7 +734,7 @@ for the case additional source contains a file which already been generated.</so
 <context>
     <name>D2ModGen::ConfigPageMergeModsPostGen</name>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMergeMods.hpp" line="103"/>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.hpp" line="108"/>
         <source>Post-gen data</source>
         <translation type="unfinished"></translation>
     </message>
@@ -711,7 +742,7 @@ for the case additional source contains a file which already been generated.</so
 <context>
     <name>D2ModGen::ConfigPageMergeModsPreload</name>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMergeMods.hpp" line="82"/>
+        <location filename="../src/ConfigPages/ConfigPageMergeMods.hpp" line="87"/>
         <source>Pre-gen data</source>
         <translation type="unfinished"></translation>
     </message>
@@ -755,30 +786,30 @@ Last Checkbox can be used to quickly setup boss count on Normal and Nightmare ex
 <context>
     <name>D2ModGen::ConfigPageMonRandomizer</name>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMonRandomizer.cpp" line="148"/>
+        <location filename="../src/ConfigPages/ConfigPageMonRandomizer.cpp" line="134"/>
         <source>Spawned different types in one area</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMonRandomizer.cpp" line="149"/>
+        <location filename="../src/ConfigPages/ConfigPageMonRandomizer.cpp" line="135"/>
         <source>This option choose how many different types will spawn at once (default is 3, which is D2 original behavior).  
 Note that some map tiles have predefined spawns (shaman camps etc) that can not be randomized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMonRandomizer.cpp" line="151"/>
+        <location filename="../src/ConfigPages/ConfigPageMonRandomizer.cpp" line="137"/>
         <source>Maximum possible monster types in one area (population variety)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMonRandomizer.cpp" line="152"/>
+        <location filename="../src/ConfigPages/ConfigPageMonRandomizer.cpp" line="138"/>
         <source>This option defines how many possibilites for monster types are exist in one zone; 
 Make this value lower if you want less variety between game restarts.
 Note: D2 legacy support only 12 max, so value will be lowered implicitly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMonRandomizer.cpp" line="160"/>
+        <location filename="../src/ConfigPages/ConfigPageMonRandomizer.cpp" line="146"/>
         <source>When this feature enabled, now any area in the game can spawn any basic monsters (Super Uniques, Act bosses etc not affected). 
 For normal difficulty, each monster will have a &quot;level-adjusted&quot; copy which corresponds 
 to area&apos;s level (so you will have adequate monster stats in Act 1 for guest from Act 5).  
@@ -795,32 +826,64 @@ Monster will have adjusted their minion spawns and skill levels, too. </source>
 <context>
     <name>D2ModGen::ConfigPageMonStats</name>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="14"/>
+        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="16"/>
         <source>Monster Attack Rating, multiply by</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="15"/>
+        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="17"/>
         <source>Monster Defense, multiply by</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="16"/>
+        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="18"/>
         <source>Monster HP, multiply by</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="17"/>
+        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="19"/>
         <source>Monster Damage, multiply by</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="18"/>
+        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="20"/>
         <source>Monster EXP gain, multiply by</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="24"/>
+        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="21"/>
+        <source>Maximum resistance allowed for base monsters, percent:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="22"/>
+        <source>If you make this below 100, then regular monsters will have NO IMMUNITIES at all!
+Use with caution. You can set this to 110-115, to make cold immunes breakable.
+Also this do not prevent Enchanted monsters to have immunities.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="25"/>
+        <source>Change monster resistances, by multiplying damage from magic they take</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="26"/>
+        <source>DO NOT affect IMMUNE monsters and monsters with 0 resistance!
+It affects resistance perent indirectly, through this calculation:
+Lets say you have 200% selected for multiply, and monster has 80% basic Fire resist.
+That means, he has 20% damage taken from fire, and new value will be 40% damage, or 60% resist.
+Damage is capped at 100%, so you won&apos;t get negative reistance.
+Also monster can&apos;t become immune to element, maximum resistance is 99%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="32"/>
+        <source>Apply resistance options to following:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageMonStats.cpp" line="43"/>
         <source>Sliders allow you to change monster stats on all difficulties.
 You can either lower or raise stats up 10x or 10x times.
 That is orthogonal to /playersX setting - it will multiply stats independent.</source>
@@ -876,6 +939,84 @@ That is orthogonal to /playersX setting - it will multiply stats independent.</s
     <message>
         <location filename="../src/ConfigPages/ConfigPageQol.hpp" line="20"/>
         <source>Quality of life</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>D2ModGen::ConfigPageRuneDrops</name>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="15"/>
+        <source>Increase Rare Rune drops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="16"/>
+        <source>That will drastically improve High Rune drop rates! You probably don&apos;t need more than 50x.
+Value here increases chance of dropping Zod in &apos;Runes 17&apos; TC
+Rarity of other runes will change proportionally 
+(so High Runes still be more rare in the same manner).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="20"/>
+        <source>Increase Runes chance in Good TC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="21"/>
+        <source>When dropping from Good TC, that will make Runes drop more often 
+compared to other jewellery (Gems/Rings/Amulets/Charms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="23"/>
+        <source>Switch (Ber,Jah) with (Cham,Zod) in rarity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="24"/>
+        <source>When game desides to drop Jah rune, it drops Zod instead. And vice versa.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="25"/>
+        <source>Make Countess Drop higher runes (up to Runes 17=Zod on Hell)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="26"/>
+        <source>Increase Countess Runes drop count to 5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="27"/>
+        <source>Increase Wraiths Runes drop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="33"/>
+        <source>All help and explanation on this page assume you are familiar with Treasure Class (TC) and NoDrop terminology.
+Basically all options here modifying TC pick weights - so one preferred option become less rare.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="40"/>
+        <source>Gimme pile of Ber runes!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="48"/>
+        <source>I want to make Infinity at least once in my life</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.cpp" line="53"/>
+        <source>I want high runes to be rare, but want more rune drops overall</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageRuneDrops.hpp" line="21"/>
+        <source>Increase Rune drops</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -957,12 +1098,12 @@ That is orthogonal to /playersX setting - it will multiply stats independent.</s
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="306"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="309"/>
         <source>Main</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="316"/>
+        <location filename="../src/ConfigPages/MainConfigPage.cpp" line="319"/>
         <source>This page allow you to select most important options:
 -Where input and output data is (D2 installation - Resurrected or Legacy);
 -Create new D2R save folder with global settings;
@@ -978,128 +1119,143 @@ You can edit seed manually or press F5 to generate new one.
 <context>
     <name>D2ModGen::MainWindow</name>
     <message>
-        <location filename="../src/MainWindow.cpp" line="57"/>
+        <location filename="../src/MainWindow.cpp" line="88"/>
         <source>Generate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="66"/>
+        <location filename="../src/MainWindow.cpp" line="97"/>
         <source>Status label.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="99"/>
+        <location filename="../src/MainWindow.cpp" line="130"/>
         <source>Reset to default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="100"/>
+        <location filename="../src/MainWindow.cpp" line="131"/>
         <source>Enable this tab</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="152"/>
+        <location filename="../src/MainWindow.cpp" line="167"/>
+        <source>Select preset...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/MainWindow.cpp" line="178"/>
+        <source>Do not know where to start? Select a preset:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/MainWindow.cpp" line="210"/>
         <source>File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="153"/>
+        <location filename="../src/MainWindow.cpp" line="211"/>
         <source>Actions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="154"/>
+        <location filename="../src/MainWindow.cpp" line="212"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="155"/>
+        <location filename="../src/MainWindow.cpp" line="213"/>
         <source>Save config...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="156"/>
+        <location filename="../src/MainWindow.cpp" line="214"/>
         <source>Load config...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="157"/>
+        <location filename="../src/MainWindow.cpp" line="215"/>
         <source>Clear config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="158"/>
+        <location filename="../src/MainWindow.cpp" line="216"/>
         <source>Browse to settings folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="160"/>
+        <location filename="../src/MainWindow.cpp" line="218"/>
         <source>Quit without saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="161"/>
+        <location filename="../src/MainWindow.cpp" line="219"/>
         <source>Save and quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="162"/>
+        <location filename="../src/MainWindow.cpp" line="220"/>
         <source>Generate mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="163"/>
+        <location filename="../src/MainWindow.cpp" line="221"/>
         <source>Create seed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="164"/>
+        <location filename="../src/MainWindow.cpp" line="222"/>
+        <source>Undo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/MainWindow.cpp" line="223"/>
         <source>Theme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="165"/>
+        <location filename="../src/MainWindow.cpp" line="224"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="193"/>
+        <location filename="../src/MainWindow.cpp" line="253"/>
         <source>You need to restart for changes apply.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="296"/>
+        <location filename="../src/MainWindow.cpp" line="361"/>
         <source>Failed to write data in destination folder; try to launch as admin.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="322"/>
+        <location filename="../src/MainWindow.cpp" line="387"/>
         <source>Start...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="336"/>
+        <location filename="../src/MainWindow.cpp" line="401"/>
         <source>Failed to read data files from D2 folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="340"/>
+        <location filename="../src/MainWindow.cpp" line="405"/>
         <source>Failed parse D2 data files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="351"/>
-        <location filename="../src/MainWindow.cpp" line="367"/>
+        <location filename="../src/MainWindow.cpp" line="416"/>
+        <location filename="../src/MainWindow.cpp" line="434"/>
         <source>Failed to merge with source: %1 / %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="381"/>
+        <location filename="../src/MainWindow.cpp" line="448"/>
         <source>Failed write output data to disk</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/MainWindow.cpp" line="386"/>
+        <location filename="../src/MainWindow.cpp" line="453"/>
         <source>Mod &apos;%1&apos; successfully updated (%2).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1107,22 +1263,22 @@ You can edit seed manually or press F5 to generate new one.
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/ConfigPages/ConfigPages.cpp" line="26"/>
+        <location filename="../src/ConfigPages/ConfigPages.cpp" line="27"/>
         <source>Randomizers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPages.cpp" line="33"/>
+        <location filename="../src/ConfigPages/ConfigPages.cpp" line="34"/>
         <source>Make harder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPages.cpp" line="41"/>
+        <location filename="../src/ConfigPages/ConfigPages.cpp" line="42"/>
         <source>Make easier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPages.cpp" line="51"/>
+        <location filename="../src/ConfigPages/ConfigPages.cpp" line="53"/>
         <source>Misc</source>
         <translation type="unfinished"></translation>
     </message>
