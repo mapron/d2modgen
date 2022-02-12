@@ -1,3 +1,28 @@
+## 0.4
+New features:
+* Added Undo action.
+* Added quick presets feature (for now on three tabs).
+* Added option to increase high-level drops.
+* Added Rune Drop tab (to make some space on Item Drops).
+* Improved 'Increase Rune drops' slider to be much more smooth.
+* Randomizer can now accept custom properties list to randomize.
+Bug fixes:
+* Fixed a bug when slider value will slowly creep down on eash program start.
+* Fixed 'perfect roll' not perfect rolling some things.
+
+## 0.3.4
+Bug fixes:
+* Fixed crashes when generating randomizer for D2 legacy;
+* Fixed work with attributes for PD2 - not PD2-specific not thrown away when work with randomizer;
+* Also splash modifier always kept when it present (not randomized).
+
+## 0.3.3
+New features:
+* Options to tune monster resistances;
+Bug fixes:
+* fixed XP slider for stats not working.
+
+
 ## 0.3.2
 New Features:
 * Rework of randomizer tab. Prop sliders are removed, added tow new relative count sliders.

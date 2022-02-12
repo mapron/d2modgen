@@ -617,24 +617,29 @@ Note that their properties are read even without this option.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="96"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="91"/>
+        <source>Add extra attributes to randomize (comma-separated)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="97"/>
         <source>What item randomizer does in short - it reads all possible item properties from Uniques, Sets, etc, 
 And then reassign properties back, but in random order (also it does not mean every original will be used).
 For details, check descriptions of every option.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="104"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="105"/>
         <source>I want to be overpowered machine!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="117"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="118"/>
         <source>Want to have some fun without flying to space</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="129"/>
+        <location filename="../src/ConfigPages/ConfigPageItemRandomizer.cpp" line="130"/>
         <source>Want to have fresh experience but balanced if possible</source>
         <translation type="unfinished"></translation>
     </message>
