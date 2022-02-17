@@ -204,4 +204,17 @@ struct ColumnsDesc {
 };
 using ColumnsDescList = std::vector<ColumnsDesc>;
 
+namespace Tables {
+extern const ColumnsDescList s_descUniques;
+extern const ColumnsDescList s_descRunewords;
+extern const ColumnsDescList s_descSetItems;
+
+extern const ColumnsDescList s_descGems;
+
+extern const ColumnsDescList s_descAffix;
+
+extern const ColumnsDescList s_descSets;
+
+}
+
 }

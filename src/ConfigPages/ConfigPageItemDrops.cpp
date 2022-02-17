@@ -69,9 +69,7 @@ ConfigPageItemDrops::ConfigPageItemDrops(QWidget* parent)
     addEditors(QList<IValueWidget*>()
                << addHelp(new CheckboxWidget(tr("Make all Uniques have equal rarity on same base"), "equal_uniques", false, this),
                           tr("Now Uniques with equal item base will have equal chance to drop.\n"
-                             "For example Tyrael's and Templar's will have equal chance. (and all rings too)"))
-               << addHelp(new CheckboxWidget(tr("Always perfect rolls"), "perfect_rolls", false, this),
-                          tr("That will make all properties be perfect (where it make sense), (independent from Randomizer).")));
+                             "For example Tyrael's and Templar's will have equal chance. (and all rings too)")));
     closeLayout();
 }
 
@@ -223,50 +221,6 @@ void ConfigPageItemDrops::generate(DataContext& output, QRandomGenerator& rng, c
             QString& rarity = row["rarity"];
             if (!rarity.isEmpty())
                 rarity = "1";
-        }
-    }
-    const bool perfectRolls = getWidgetValue("perfect_rolls");
-    if (perfectRolls) {
-        auto updateMinParam = [](TableView&         view,
-                                 const ColumnsDesc& columns) {
-            view.markModified();
-            for (auto& row : view) {
-                for (const auto& col : columns.m_cols) {
-                    auto& min = row[col.min];
-                    if (min.isEmpty())
-                        continue;
-                    if (isMinMaxRange(row[col.code]))
-                        min = row[col.max];
-                }
-            }
-        };
-
-        {
-            auto&     table = tableSet.tables["uniqueitems"];
-            TableView view(table);
-            updateMinParam(view, ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 12));
-        }
-        {
-            TableView view(tableSet.tables["runes"]);
-            updateMinParam(view, ColumnsDesc("T1Code%1", "T1Param%1", "T1Min%1", "T1Max%1", 7));
-        }
-        {
-            const ColumnsDescList s_descSetItems{
-                ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9),
-                ColumnsDesc("aprop%1a", "apar%1a", "amin%1a", "amax%1a", 5),
-                ColumnsDesc("aprop%1b", "apar%1b", "amin%1b", "amax%1b", 5),
-            };
-            TableView view(tableSet.tables["setitems"]);
-            for (const auto& desc : s_descSetItems)
-                updateMinParam(view, desc);
-        }
-        {
-            for (const char* table : { "magicprefix", "magicsuffix", "automagic" }) {
-                if (!tableSet.tables.contains(table))
-                    continue;
-                TableView view(tableSet.tables[table], true);
-                updateMinParam(view, ColumnsDesc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3));
-            }
         }
     }
 }

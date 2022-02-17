@@ -105,7 +105,6 @@ ConfigPageCube::ConfigPageCube(QWidget* parent)
                                      "craftNoRunes",
                                      false,
                                      this)
-               << new CheckboxWidget(tr("Perfect rolls"), "craftPerfect", false, this)
                << new CheckboxWidget(tr("Make Item Level always 99"), "craftHighIlvl", false, this)
                << new SliderWidgetMinMax(tr("Multiply crafted item bonuses by"), "craftMultBonus", 1, 5, 1, true, this));
     closeLayout();
@@ -129,7 +128,6 @@ void ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const 
     const bool upgrading      = getWidgetValue("upgrading");
     const bool craftNoStrict  = getWidgetValue("craftNoStrict");
     const bool craftNoRunes   = getWidgetValue("craftNoRunes");
-    const bool craftPerfect   = getWidgetValue("craftPerfect");
     const bool craftHighIlvl  = getWidgetValue("craftHighIlvl");
     const int  craftMultBonus = getWidgetValue("craftMultBonus");
     const bool runeDowngrade  = getWidgetValue("runeDowngrade");
@@ -163,16 +161,6 @@ void ConfigPageCube::generate(DataContext& output, QRandomGenerator& rng, const 
                 input3 = input4 = "";
                 numinputs       = "2";
                 input2          = s_craftedGemReplace.value(input2, input2);
-            }
-            if (craftPerfect) {
-                for (int i = 1; i <= 5; ++i) {
-                    QString& mod = row[QString("mod %1").arg(i)];
-                    if (isMinMaxRange(mod)) {
-                        QString& modMin = row[QString("mod %1 min").arg(i)];
-                        QString& modMax = row[QString("mod %1 max").arg(i)];
-                        modMin          = modMax;
-                    }
-                }
             }
             if (craftMultBonus > 1) {
                 for (int i = 1; i <= 5; ++i) {

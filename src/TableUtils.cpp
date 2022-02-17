@@ -142,4 +142,28 @@ void TableView::clear()
     m_table.modified = true;
 }
 
+namespace Tables {
+const ColumnsDescList s_descUniques{ ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 12) };
+const ColumnsDescList s_descRunewords{ ColumnsDesc("T1Code%1", "T1Param%1", "T1Min%1", "T1Max%1", 7) };
+const ColumnsDescList s_descSetItems{
+    ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9),
+    ColumnsDesc("aprop%1a", "apar%1a", "amin%1a", "amax%1a", 5),
+    ColumnsDesc("aprop%1b", "apar%1b", "amin%1b", "amax%1b", 5),
+};
+
+const ColumnsDescList s_descGems{
+    ColumnsDesc("weaponMod%1Code", "weaponMod%1Param", "weaponMod%1Min", "weaponMod%1Max", 3),
+    ColumnsDesc("helmMod%1Code", "helmMod%1Param", "helmMod%1Min", "helmMod%1Max", 3),
+    ColumnsDesc("shieldMod%1Code", "shieldMod%1Param", "shieldMod%1Min", "shieldMod%1Max", 3),
+};
+
+const ColumnsDescList s_descAffix{ ColumnsDesc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3) };
+
+const ColumnsDescList s_descSets{
+    ColumnsDesc("PCode%1a", "PParam%1a", "PMin%1a", "PMax%1a", 5, 2),
+    ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2),
+    ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8),
+};
+}
+
 }

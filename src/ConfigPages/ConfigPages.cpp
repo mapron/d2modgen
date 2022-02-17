@@ -15,6 +15,7 @@
 #include "ConfigPageMonDensity.hpp"
 #include "ConfigPageMonRandomizer.hpp"
 #include "ConfigPageMonStats.hpp"
+#include "ConfigPagePerfectRoll.hpp"
 #include "ConfigPageQol.hpp"
 #include "ConfigPageRuneDrops.hpp"
 
@@ -47,6 +48,7 @@ QList<PageGroup> CreateConfigPages(QWidget* parent)
                 new ConfigPageQol(parent),
                 new ConfigPageItemDrops(parent),
                 new ConfigPageRuneDrops(parent),
+                new ConfigPagePerfectRoll(parent),
             },
         },
         PageGroup{

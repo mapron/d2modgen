@@ -14,28 +14,7 @@
 namespace D2ModGen {
 
 namespace {
-constexpr const int   s_maxUnbalanceLevel = 100;
-const ColumnsDescList s_descUniques{ ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 12) };
-const ColumnsDescList s_descRunewords{ ColumnsDesc("T1Code%1", "T1Param%1", "T1Min%1", "T1Max%1", 7) };
-const ColumnsDescList s_descSetItems{
-    ColumnsDesc("prop%1", "par%1", "min%1", "max%1", 9),
-    ColumnsDesc("aprop%1a", "apar%1a", "amin%1a", "amax%1a", 5),
-    ColumnsDesc("aprop%1b", "apar%1b", "amin%1b", "amax%1b", 5),
-};
-
-const ColumnsDescList s_descGems{
-    ColumnsDesc("weaponMod%1Code", "weaponMod%1Param", "weaponMod%1Min", "weaponMod%1Max", 3),
-    ColumnsDesc("helmMod%1Code", "helmMod%1Param", "helmMod%1Min", "helmMod%1Max", 3),
-    ColumnsDesc("shieldMod%1Code", "shieldMod%1Param", "shieldMod%1Min", "shieldMod%1Max", 3),
-};
-
-const ColumnsDescList s_descAffix{ ColumnsDesc("mod%1code", "mod%1param", "mod%1min", "mod%1max", 3) };
-
-const ColumnsDescList s_descSets{
-    ColumnsDesc("PCode%1a", "PParam%1a", "PMin%1a", "PMax%1a", 5, 2),
-    ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2),
-    ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8),
-};
+constexpr const int s_maxUnbalanceLevel = 100;
 
 }
 
@@ -71,8 +50,6 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
                              "This works only with Uniques, not Sets.")));
 
     addEditors(QList<IValueWidget*>()
-               << addHelp(new CheckboxWidget(tr("Always perfect rolls"), "perfectRoll", false, this),
-                          tr("Always perfect means simply minimum roll becomes maximum (where it makes sense)."))
                << new CheckboxWidget(tr("Prevent duplicate properties on items"), "noDuplicates", true, this)
                << addHelp(new CheckboxWidget(tr("Randomize magix/rare affixes"), "affixRandom", true, this),
                           tr("This will modify rare and magic suffixes - \n"
@@ -109,7 +86,6 @@ IConfigPage::PresetList ConfigPageItemRandomizer::pagePresets() const
               { "keepOriginalPercent", 0 },
               { "relativeCountMin", 1000 },
               { "relativeCountMax", 1000 },
-              { "perfectRoll", 1 },
               { "affixRandom", 1 },
               { "gemsRandom", 1 },
               { "replaceSkills", 1 },
@@ -122,7 +98,6 @@ IConfigPage::PresetList ConfigPageItemRandomizer::pagePresets() const
               { "keepOriginalPercent", 20 },
               { "relativeCountMin", 100 },
               { "relativeCountMax", 1000 },
-              { "perfectRoll", 1 },
               { "affixRandom", 1 },
               { "replaceSkills", 1 },
               { "replaceCharges", 1 },
@@ -237,7 +212,6 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
     const bool replaceSkills  = getWidgetValue("replaceSkills");
     const bool replaceCharges = getWidgetValue("replaceCharges");
     const bool removeKnock    = getWidgetValue("removeKnock");
-    const bool perfectRoll    = getWidgetValue("perfectRoll");
 
     const QStringList   extraKnownCodesList = getWidgetValueString("extraKnown").split(",", Qt::SkipEmptyParts);
     const QSet<QString> extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
@@ -246,16 +220,13 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
     using SupportedAttributesCallback = std::function<AttributeFlagSet(const TableView::RowView& row)>;
     using ItemCodeFilterCallback      = std::function<ItemCodeFilter(const TableView::RowView& row)>;
 
-    auto postProcessRawList = [replaceSkills, replaceCharges, removeKnock](MagicPropRawList& rawList, bool makePerfect) {
+    auto postProcessRawList = [replaceSkills, replaceCharges, removeKnock](MagicPropRawList& rawList) {
         rawList.postProcess(replaceSkills, replaceCharges, removeKnock);
-        if (makePerfect)
-            rawList.makePerfect();
     };
-    auto grabProps = [&props, &postProcessRawList, perfectRoll, &extraKnownCodes](TableView&                      view,
-                                                                                  const std::vector<ColumnsDesc>& columnsList,
-                                                                                  const LevelCallback&            levelCb,
-                                                                                  const ItemCodeFilterCallback&   codeFilterCb,
-                                                                                  bool                            supportMinMax) {
+    auto grabProps = [&props, &postProcessRawList, &extraKnownCodes](TableView&                      view,
+                                                                     const std::vector<ColumnsDesc>& columnsList,
+                                                                     const LevelCallback&            levelCb,
+                                                                     const ItemCodeFilterCallback&   codeFilterCb) {
         for (auto& row : view) {
             const int level = levelCb(row);
             if (level <= 0)
@@ -267,7 +238,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                 MagicPropRawList rawList;
 
                 rawList.readFromRow(row, columns, extraKnownCodes);
-                postProcessRawList(rawList, perfectRoll || !supportMinMax);
+                postProcessRawList(rawList);
 
                 props.add(std::move(rawList), types, level);
             }
@@ -321,11 +292,11 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
         return result;
     };
     auto setsTypes = [](const TableView::RowView& row) -> ItemCodeFilter { return { { QString("SETS") }, {} }; };
-
+    using namespace Tables;
     {
         auto&     table = tableSet.tables["uniqueitems"];
         TableView view(table);
-        grabProps(view, s_descUniques, commonLvlReq, uniqueType, true);
+        grabProps(view, s_descUniques, commonLvlReq, uniqueType);
         const int repeatUniques = getWidgetValue("repeat_uniques");
         if (repeatUniques > 1) {
             auto rows = table.rows;
@@ -338,11 +309,11 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
 
     {
         TableView view(tableSet.tables["runes"]);
-        grabProps(view, s_descRunewords, commonRWreq, rwTypes, true);
+        grabProps(view, s_descRunewords, commonRWreq, rwTypes);
     }
     {
         TableView view(tableSet.tables["setitems"]);
-        grabProps(view, s_descSetItems, commonLvlReq, setitemType, true);
+        grabProps(view, s_descSetItems, commonLvlReq, setitemType);
         for (auto& row : view) {
             QString& setId   = row["set"];
             QString& lvl     = row["lvl"];
@@ -356,8 +327,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
             view, s_descGems, [&miscItemsLevels](const TableView::RowView& row) {
                 return miscItemsLevels.value(row["code"]);
             },
-            uniqueType,
-            false);
+            uniqueType);
     }
     {
         for (const char* table : { "magicprefix", "magicsuffix" }) {
@@ -367,13 +337,12 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                 view, s_descAffix, [](const TableView::RowView& row) {
                     return row["spawnable"] == "1" ? row["level"].toInt() : 0; // utilize maxLevel ?
                 },
-                affixTypes,
-                true);
+                affixTypes);
         }
     }
     {
         TableView view(tableSet.tables["sets"]);
-        grabProps(view, s_descSets, commonSetReq, setsTypes, false);
+        grabProps(view, s_descSets, commonSetReq, setsTypes);
     }
 
     const int  unbalance           = getWidgetValue("crazyLevel");
@@ -421,14 +390,13 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                       &extraKnownCodes,
                       itemFitPercent,
                       unbalance,
-                      noDuplicates,
-                      perfectRoll](TableView&                         view,
-                                   const ColumnsDescList&             columnsList,
-                                   const LevelCallback&               levelCb,
-                                   const SupportedAttributesCallback& supportedAttributesCb,
-                                   const ItemCodeFilterCallback&      codeFilterCb,
-                                   const bool                         skipEmptyList,
-                                   const bool                         supportMinMax) {
+                      noDuplicates](TableView&                         view,
+                                    const ColumnsDescList&             columnsList,
+                                    const LevelCallback&               levelCb,
+                                    const SupportedAttributesCallback& supportedAttributesCb,
+                                    const ItemCodeFilterCallback&      codeFilterCb,
+                                    const bool                         skipEmptyList,
+                                    const bool                         supportMinMax) {
         view.markModified();
         for (auto& row : view) {
             const int level = levelCb(row);
@@ -444,7 +412,7 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                 if (skipEmptyList && rawList.parsedProps.empty())
                     continue;
 
-                postProcessRawList(rawList, perfectRoll || !supportMinMax);
+                postProcessRawList(rawList);
 
                 const int originalCount  = rawList.getTotalSize();
                 auto [keepCnt, genCount] = calcNewCount(originalCount, columns.m_cols.size());
@@ -468,6 +436,9 @@ void ConfigPageItemRandomizer::generate(DataContext& output, QRandomGenerator& r
                 rawList.append(std::move(newProps));
                 if (rawList.getTotalSize() > columns.m_cols.size())
                     rawList.truncateRandom(rng, columns.m_cols.size());
+
+                if (!supportMinMax)
+                    rawList.makePerfect();
 
                 rawList.writeToRow(row, columns);
             }
