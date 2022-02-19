@@ -492,7 +492,7 @@ bool MainWindow::loadConfig(const QJsonObject& data)
 MainWindow::AppSettings MainWindow::getAppSettings()
 {
     auto ini = makeAppSettings();
-    return { ini.value("langId", "en_US").toString(), ini.value("themeId", "light").toString() };
+    return { ini.value("langId", "en_US").toString(), ini.value("themeId", "dark").toString() };
 }
 
 void MainWindow::pushUndo(const QJsonObject& data)
