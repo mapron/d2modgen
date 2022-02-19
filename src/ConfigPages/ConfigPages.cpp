@@ -18,6 +18,7 @@
 #include "ConfigPagePerfectRoll.hpp"
 #include "ConfigPageQol.hpp"
 #include "ConfigPageRuneDrops.hpp"
+#include "ConfigPageSkillRandomizer.hpp"
 
 namespace D2ModGen {
 
@@ -29,6 +30,7 @@ QList<PageGroup> CreateConfigPages(QWidget* parent)
             QList<IConfigPage*>{
                 new ConfigPageItemRandomizer(parent),
                 new ConfigPageMonRandomizer(parent),
+                new ConfigPageSkillRandomizer(parent),
             },
         },
         PageGroup{
