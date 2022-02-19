@@ -9,6 +9,25 @@ namespace D2ModGen {
 
 namespace {
 
+const QSet<QString> s_skillsOkToRandomizeDamage{
+    "Fire Bolt",
+    "Charged Bolt",
+    "Ice Bolt",
+    "Inferno",
+    "Static Field",
+    "Frost Nova",
+    "Ice Blast",
+    "Blaze",
+    "Nova",
+    "Lightning",
+    "Fire Wall",
+    "Chain Lightning",
+    "Thunder Storm",
+    "Blizzard",
+    "Hydra",
+    "Frozen Orb",
+};
+
 struct SkillLocation {
     int skillPage   = 0;
     int skillRow    = 0;
@@ -17,12 +36,19 @@ struct SkillLocation {
     int reqlevel    = 0;
 };
 
+struct SkillDamageInfo {
+    QString EType;
+    int     ELen;
+    int     HitShift;
+};
+
 struct SkillInfo {
-    QString       uppercaseKey;
-    QString       lowercaseKey;
-    QString       charClass; // ass|bar|...
-    SkillLocation loc;
-    QStringList   reqSkills;
+    QString         uppercaseKey;
+    QString         lowercaseKey;
+    QString         charClass; // ass|bar|...
+    SkillLocation   loc;
+    SkillDamageInfo dmg;
+    QStringList     reqSkills;
 
     void readFromRowMain(const TableView::RowView& row)
     {
@@ -35,6 +61,9 @@ struct SkillInfo {
             if (!req.isEmpty())
                 reqSkills << req;
         }
+        dmg.ELen     = row["ELen"].toInt();
+        dmg.HitShift = row["HitShift"].toInt();
+        dmg.EType    = row["EType"];
     }
     void readFromRowDesc(const TableView::RowView& row)
     {
@@ -50,6 +79,9 @@ struct SkillInfo {
             QString& req = row[QString("reqskill%1").arg(i)];
             req          = reqSkills.value(i - 1);
         }
+        row["ELen"]     = dmg.ELen ? QString("%1").arg(dmg.ELen) : "";
+        row["HitShift"] = QString("%1").arg(dmg.HitShift);
+        row["EType"]    = dmg.EType;
     }
     void writeToRowDesc(TableView::RowView& row)
     {
@@ -112,6 +144,28 @@ struct SkillTree {
         }
     }
 
+    void randomizeDmg(SkillParsedData& data, QRandomGenerator& rng)
+    {
+        const QStringList elements{ "ltng", "fire", "cold", "mag", "pois" };
+
+        for (SkillInfo& skillInfo : data) {
+            if (!s_skillsOkToRandomizeDamage.contains(skillInfo.uppercaseKey))
+                continue;
+            //const bool wasPoison = skillInfo.dmg.EType == "pois";
+            {
+                QStringList elementsTmp = elements;
+                elementsTmp.removeAll(skillInfo.dmg.EType);
+                skillInfo.dmg.EType = elementsTmp[rng.bounded(elementsTmp.size())];
+            }
+            const bool isPoison = skillInfo.dmg.EType == "pois";
+            if (isPoison) {
+                skillInfo.dmg.ELen = 50;
+                skillInfo.dmg.HitShift -= 4;
+                skillInfo.dmg.HitShift = std::max(0, skillInfo.dmg.HitShift);
+            }
+        }
+    }
+
     void writeOutput(SkillParsedData& data) const
     {
         for (const Character& c : chars) {
@@ -133,7 +187,21 @@ ConfigPageSkillRandomizer::ConfigPageSkillRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget(tr("Randomize skill tabs within each character"), "skillTree", true, this));
+               << addHelp(new CheckboxWidget(tr("Randomize skill tabs within each character"), "skillTree", true, this),
+                          tr("That DOES not move skills between characters! What it can do:\n"
+                             "-Move a skill to a different skill tab;\n"
+                             "-Move a skill to a higher/lower level;\n"
+                             "-Change skill requirements. \n"
+                             "So, after level 50 there is not much of a difference. Synergies are also untouched."))
+               << addHelp(new CheckboxWidget(tr("Randomize element types for some damage skills"), "skillDamage", true, this),
+                          tr("For some skills, where it is easy to change damage type, it will randomize between 5 different elements:\n"
+                             "Cold, Fire, Lightning, Magic and Poison\n"
+                             "WARNING! Skill descriptions won't be updated and will be completely wrong!\n"
+                             "Also, character info screen does not show difference between cold and magic correctly.\n"
+                             "You need to find by yourself what damage (magic or cold) was rolled.\n"
+                             "For poison, all damage is dealt over 2 seconds and slightly more than original."))
+
+    );
     closeLayout();
 }
 
@@ -144,7 +212,8 @@ QString ConfigPageSkillRandomizer::pageHelp() const
 
 void ConfigPageSkillRandomizer::generate(DataContext& output, QRandomGenerator& rng, const GenerationEnvironment& env) const
 {
-    const bool skillTreeRandomize = getWidgetValue("skillTree");
+    const bool skillTreeRandomize   = getWidgetValue("skillTree");
+    const bool skillDamageRandomize = getWidgetValue("skillDamage");
 
     Table&          skillsTable = output.tableSet.tables["skills"];
     TableView       skillsTableView(skillsTable, true);
@@ -171,6 +240,8 @@ void ConfigPageSkillRandomizer::generate(DataContext& output, QRandomGenerator& 
     if (skillTreeRandomize)
         charTree.randomizeTabs(rng);
     charTree.writeOutput(skillParsedData);
+    if (skillDamageRandomize)
+        charTree.randomizeDmg(skillParsedData, rng);
     // write out
     for (auto& row : skillsTableView) {
         const auto& skilldescKey = row["skill"].toLower();
