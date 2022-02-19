@@ -66,6 +66,9 @@ Also, as you noticed, support for Dark and Light theme is available - choose wha
 #### Randomize monsters  
 ![Randomize monsters](docs/tab_random_monsters.png)  
 
+#### Randomize some character skills  
+![Randomize skills](docs/tab_random_skills.png)  
+
 #### Change monster stats  
 ![monster stats](docs/tab_harder_stats.png)  
 
@@ -92,6 +95,9 @@ Also, as you noticed, support for Dark and Light theme is available - choose wha
 
 #### Increase Rune drops
 ![Drops](docs/tab_easy_drops_runes.png)  
+
+#### Make everything perfect
+![Perfect](docs/tab_easy_perfect.png)  
 
 #### Filter your drops
 ![Drops filter](docs/tab_misc_filter.png)  

@@ -26,6 +26,37 @@ const QSet<QString> s_skillsOkToRandomizeDamage{
     "Blizzard",
     "Hydra",
     "Frozen Orb",
+
+    "Fire Arrow",
+    "Cold Arrow",
+    "Ice Arrow",
+
+    "Firestorm",
+    "Hurricane",
+    "Molten Boulder",
+    "Arctic Blast",
+    "Eruption",
+
+    "Blessed Hammer",
+    "Fist of the Heavens",
+
+    "Teeth",
+    "Bone Spear",
+    "Bone Spirit",
+    "Poison Dagger",
+    "Poison Nova",
+    "Poison Explosion",
+
+    "Fire Trauma",
+    "Shock Field",
+    "Fists of Fire",
+    "Charged Bolt Sentry",
+    "Wake of Fire Sentry",
+    "Claws of Thunder",
+    "Lightning Sentry",
+    "Inferno Sentry",
+    "Blades of Ice",
+    "Death Sentry",
 };
 
 struct SkillLocation {
@@ -144,17 +175,18 @@ struct SkillTree {
         }
     }
 
-    void randomizeDmg(SkillParsedData& data, QRandomGenerator& rng)
+    void randomizeDmg(SkillParsedData& data, QRandomGenerator& rng, const bool ensureDifferent)
     {
         const QStringList elements{ "ltng", "fire", "cold", "mag", "pois" };
 
         for (SkillInfo& skillInfo : data) {
             if (!s_skillsOkToRandomizeDamage.contains(skillInfo.uppercaseKey))
                 continue;
-            //const bool wasPoison = skillInfo.dmg.EType == "pois";
+            const bool wasPoison = skillInfo.dmg.EType == "pois";
             {
                 QStringList elementsTmp = elements;
-                elementsTmp.removeAll(skillInfo.dmg.EType);
+                if (ensureDifferent)
+                    elementsTmp.removeAll(skillInfo.dmg.EType);
                 skillInfo.dmg.EType = elementsTmp[rng.bounded(elementsTmp.size())];
             }
             const bool isPoison = skillInfo.dmg.EType == "pois";
@@ -162,6 +194,10 @@ struct SkillTree {
                 skillInfo.dmg.ELen = 50;
                 skillInfo.dmg.HitShift -= 4;
                 skillInfo.dmg.HitShift = std::max(0, skillInfo.dmg.HitShift);
+            }
+            if (wasPoison) {
+                skillInfo.dmg.HitShift += 4;
+                skillInfo.dmg.HitShift = std::min(8, skillInfo.dmg.HitShift);
             }
         }
     }
@@ -200,6 +236,9 @@ ConfigPageSkillRandomizer::ConfigPageSkillRandomizer(QWidget* parent)
                              "Also, character info screen does not show difference between cold and magic correctly.\n"
                              "You need to find by yourself what damage (magic or cold) was rolled.\n"
                              "For poison, all damage is dealt over 2 seconds and slightly more than original."))
+               << addHelp(new CheckboxWidget(tr("Ensure that element types are different from original"), "ensureDifferent", true, this),
+                          tr("If the source element is Cold, then new randomized element never should be Cold.\n"
+                             "If this turned off, ~20% of skills will have same behaviour."))
 
     );
     closeLayout();
@@ -214,6 +253,7 @@ void ConfigPageSkillRandomizer::generate(DataContext& output, QRandomGenerator& 
 {
     const bool skillTreeRandomize   = getWidgetValue("skillTree");
     const bool skillDamageRandomize = getWidgetValue("skillDamage");
+    const bool ensureDifferent      = getWidgetValue("ensureDifferent");
 
     Table&          skillsTable = output.tableSet.tables["skills"];
     TableView       skillsTableView(skillsTable, true);
@@ -241,7 +281,7 @@ void ConfigPageSkillRandomizer::generate(DataContext& output, QRandomGenerator& 
         charTree.randomizeTabs(rng);
     charTree.writeOutput(skillParsedData);
     if (skillDamageRandomize)
-        charTree.randomizeDmg(skillParsedData, rng);
+        charTree.randomizeDmg(skillParsedData, rng, ensureDifferent);
     // write out
     for (auto& row : skillsTableView) {
         const auto& skilldescKey = row["skill"].toLower();

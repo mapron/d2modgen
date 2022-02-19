@@ -1,3 +1,10 @@
+## 0.4.1
+New features:
+* Added New Randmoizer tab - Skills Randomizer!
+* Skills Randomizer allow you to shuffle skills within the class.
+* Skills Randomizer allow you to change elemental type of damage randomly.
+* Added new Perfect Rolls page, incorporating different 'perfect' options from other tabs.
+
 ## 0.4
 New features:
 * Added Undo action.
