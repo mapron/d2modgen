@@ -354,8 +354,8 @@ void MainConfigPage::readSettings(const PropertyTree& data)
     else
         m_impl->d2legacyPath->setText(getInstallLocationFromRegistry(false));
 
-    m_impl->addKeys->setChecked(!data.contains("addKeys") || data["addKeys"].toBool());
-    m_impl->d2legacyMode->setChecked(data["isLegacy"].toBool());
+    m_impl->addKeys->setChecked(data.value("addKeys", true).toBool());
+    m_impl->d2legacyMode->setChecked(data.value("isLegacy", false).toBool());
 }
 
 void MainConfigPage::writeSettings(PropertyTree& data) const

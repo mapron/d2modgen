@@ -478,8 +478,11 @@ bool MainWindow::loadConfig(const QString& filename)
 bool MainWindow::loadConfig(const PropertyTree& data)
 {
     for (auto* page : m_pages) {
-        page->setConfigEnabled(data[page->settingKey() + "_enabled"].toBool());
-        page->readSettings(data[page->settingKey()]);
+        page->setConfigEnabled(data.value(page->settingKey() + "_enabled", false).toBool());
+        if (data.contains(page->settingKey()))
+            page->readSettings(data[page->settingKey()]);
+        else
+            page->readSettings(PropertyTree{});
         m_enableButtons[page]->setChecked(page->isConfigEnabled());
     }
     return true;

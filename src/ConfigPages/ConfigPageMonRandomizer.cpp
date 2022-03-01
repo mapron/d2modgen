@@ -134,7 +134,7 @@ ConfigPageMonRandomizer::ConfigPageMonRandomizer(QWidget* parent)
                << addHelp(new SliderWidgetMinMax(tr("Spawned different types in one area"), "spawnedCount", 2, 10, 5, this),
                           tr("This option choose how many different types will spawn at once (default is 3, which is D2 original behavior).  \n"
                              "Note that some map tiles have predefined spawns (shaman camps etc) that can not be randomized."))
-               << addHelp(new SliderWidgetMinMax(tr("Maximum possible monster types in one area (population variety)"), "maxTypes", 6, 25, 25, this),
+               << addHelp(new SliderWidgetMinMax(tr("Maximum possible monster types in one area (population variety)"), "maxTypes", 3, 25, 25, this),
                           tr("This option defines how many possibilites for monster types are exist in one zone; \n"
                              "Make this value lower if you want less variety between game restarts.\n"
                              "Note: D2 legacy support only 12 max, so value will be lowered implicitly.")));

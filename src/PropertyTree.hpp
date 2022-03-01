@@ -68,6 +68,16 @@ public:
             m_data = PropertyTreeMap{};
         return std::get<PropertyTreeMap>(m_data)[key];
     }
+    PropertyTree value(const std::string& key, PropertyTreeScalar defaultValue) const noexcept(false)
+    {
+        if (!isMap())
+            return std::move(defaultValue);
+        const auto& map = std::get<PropertyTreeMap>(m_data);
+        auto        it  = map.find(key);
+        if (it == map.cend())
+            return std::move(defaultValue);
+        return it->second;
+    }
 
     void append(PropertyTree child) noexcept(false);
     void insert(const std::string& key, PropertyTree child) noexcept(false);

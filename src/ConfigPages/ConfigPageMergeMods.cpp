@@ -184,7 +184,7 @@ void ConfigPageMergeMods::setModList(const QStringList& mods)
 
 void ConfigPageMergeMods::readSettings(const PropertyTree& data)
 {
-    const int count = data["sourceCount"].toInt();
+    const int count = data.value("sourceCount", 0).toInt();
     m_countSpinbox->blockSignals(true);
     m_countSpinbox->setValue(count);
     m_countSpinbox->blockSignals(false);
