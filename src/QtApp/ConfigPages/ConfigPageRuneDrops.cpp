@@ -16,19 +16,22 @@ ConfigPageRuneDrops::ConfigPageRuneDrops(QWidget* parent)
 {
     initModule();
     addEditors(QList<IValueWidget*>()
-               << addHelp(new SliderWidgetMinMax(tr("Increase Rare Rune drops"), "zod_factor", 1, 1000, 1, this),
-                          tr("That will drastically improve High Rune drop rates! You probably don't need more than 50x.\n"
-                             "Value here increases chance of dropping Zod in 'Runes 17' TC\n"
-                             "Rarity of other runes will change proportionally \n"
-                             "(so High Runes still be more rare in the same manner)."))
-               << addHelp(new SliderWidgetMinMax(tr("Increase Runes chance in Good TC"), "rune_factor", 1, 10, 1, this),
-                          tr("When dropping from Good TC, that will make Runes drop more often \n"
-                             "compared to other jewellery (Gems/Rings/Amulets/Charms)"))
-               << addHelp(new CheckboxWidget(tr("Switch (Ber,Jah) with (Cham,Zod) in rarity"), "highrune_switch", false, this),
-                          tr("When game desides to drop Jah rune, it drops Zod instead. And vice versa."))
-               << new CheckboxWidget(tr("Make Countess Drop higher runes (up to Runes 17=Zod on Hell)"), "countess_rune_higher", false, this)
-               << new CheckboxWidget(tr("Increase Countess Runes drop count to 5"), "countess_rune_more", false, this)
-               << new CheckboxWidget(tr("Increase Wraiths Runes drop"), "wraith_runes", false, this));
+               << makeEditor("zod_factor",
+                             tr("Increase Rare Rune drops"),
+                             tr("That will drastically improve High Rune drop rates! You probably don't need more than 50x.\n"
+                                "Value here increases chance of dropping Zod in 'Runes 17' TC\n"
+                                "Rarity of other runes will change proportionally \n"
+                                "(so High Runes still be more rare in the same manner)."))
+               << makeEditor("rune_factor",
+                             tr("Increase Runes chance in Good TC"),
+                             tr("When dropping from Good TC, that will make Runes drop more often \n"
+                                "compared to other jewellery (Gems/Rings/Amulets/Charms)"))
+               << makeEditor("highrune_switch",
+                             tr("Switch (Ber,Jah) with (Cham,Zod) in rarity"),
+                             tr("When game desides to drop Jah rune, it drops Zod instead. And vice versa."))
+               << makeEditor("countess_rune_higher", tr("Make Countess Drop higher runes (up to Runes 17=Zod on Hell)"))
+               << makeEditor("countess_rune_more", tr("Increase Countess Runes drop count to 5"))
+               << makeEditor("wraith_runes", tr("Increase Wraiths Runes drop")));
     closeLayout();
 }
 

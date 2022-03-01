@@ -88,11 +88,11 @@ IModule::UiControlHintMap ModuleItemDrops::uiHints() const
         { "chance_set", UiControlHintSliderMinMax(1, 30) },
         { "chance_rare", UiControlHintSliderMinMax(1, 15) },
         { "chance_highlevel", UiControlHintSliderMinMax(1, 15) },
-        { "nodrop_percent", UiControlHintSlider(20, 5) },
-        { "good_percent", UiControlHintSlider(2, 10) },
-        { "equip_percent", UiControlHintSlider(5, 10) },
-        { "gold_percent", UiControlHintSlider(20, 10) },
-        { "junk_percent", UiControlHintSlider(20, 10) },
+        { "nodrop_percent", UiControlHintSlider(20, 5, true) },
+        { "good_percent", UiControlHintSlider(2, 10, true) },
+        { "equip_percent", UiControlHintSlider(5, 10, true) },
+        { "gold_percent", UiControlHintSlider(20, 10, true) },
+        { "junk_percent", UiControlHintSlider(20, 10, true) },
     };
 }
 

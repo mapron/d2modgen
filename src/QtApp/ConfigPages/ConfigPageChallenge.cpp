@@ -22,15 +22,15 @@ ConfigPageChallenge::ConfigPageChallenge(QWidget* parent)
     initModule();
     for (auto& item : m_items)
         addEditors(QList<IValueWidget*>()
-                   << new CheckboxWidget(tr("Disable drop: ") + item.title, "nodrop_" + item.settingKey, false, this));
+                   << makeEditor("nodrop_" + item.settingKey, tr("Disable drop: ") + item.title));
 
     addEditors(QList<IValueWidget*>()
-               << new SliderWidgetMinMax(tr("Normal difficulty resistance penalty, -all%"), "normal_minus_res", 0, 250, 0, this)
-               << new SliderWidgetMinMax(tr("Nightmare difficulty resistance penalty, -all%"), "nightmare_minus_res", 0, 250, 40, this)
-               << new SliderWidgetMinMax(tr("Hell difficulty resistance penalty, -all%"), "hell_minus_res", 0, 250, 100, this)
-               << new SliderWidgetMinMax(tr("Increase Nightmare area levels, +levels"), "levelIncreaseNightmare", 0, 20, 0, this)
-               << new SliderWidgetMinMax(tr("Increase Hell area levels, +levels"), "levelIncreaseHell", 0, 30, 0, this)
-               << new CheckboxWidget(tr("Go beyond 85 level for areas\nWarning! It's only briefly tested."), "levelIncreaseUltra", false, this));
+               << makeEditor("normal_minus_res", tr("Normal difficulty resistance penalty, -all%"))
+               << makeEditor("nightmare_minus_res", tr("Nightmare difficulty resistance penalty, -all%"))
+               << makeEditor("hell_minus_res", tr("Hell difficulty resistance penalty, -all%"))
+               << makeEditor("levelIncreaseNightmare", tr("Increase Nightmare area levels, +levels"))
+               << makeEditor("levelIncreaseHell", tr("Increase Hell area levels, +levels"))
+               << makeEditor("levelIncreaseUltra", tr("Go beyond 85 level for areas\nWarning! It's only briefly tested.")));
 
     closeLayout();
 }
@@ -42,6 +42,5 @@ QString ConfigPageChallenge::pageHelp() const
               "And the last, you can adjust level area on all maps; \n"
               "note that max value of 85 is still used (so set to 20 to basically make all Hell areas lvl 85).  ");
 }
-
 
 }

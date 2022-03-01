@@ -27,50 +27,56 @@ ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
 {
     initModule();
     addEditors(QList<IValueWidget*>()
-               << addHelp(new SliderWidgetMinMax(tr("Crazy-ness (or 'NON-balance level', lower = more balance, 100=chaos)"), "crazyLevel", 5, s_maxUnbalanceLevel, 20, this),
-                          tr("Crazyness level - determine level difference to be used when selecting new properties for item/rune/etc.\n"
-                             "With '10' it will select between level-10 and level+10 at first, if there are <50 candidates,\n"
-                             "then it will select level-30..level+30, and finally it will try fully random. \n"
-                             "In short, lower value = more balance in terms of original affix level and item level."))
-               << addHelp(new SliderWidgetMinMax(tr("Item type fit percent (0% = fully random, 100% = all according to item type)"), "itemFitPercent", 0, 100, 70, this),
-                          tr("Item fit slider allow you to select how much item affixes will be related to original item type.\n"
-                             "For example, if you choose 80%, then 4 of 5 affixes will be selected to pool for specific item type\n"
-                             "Item can have have several pools related to its type - say, scepter is a rod and a melee weapon.\n"
-                             "Item type-specific properties will be picked in proportion to all types."))
-               << addHelp(new SliderWidgetMinMax(tr("How many original properties to keep, percent"), "keepOriginalPercent", 0, 100, 70, this),
-                          tr("You can select how many properties of original item you want to keep.\n"
-                             "If 0, then every item will be fully randomized.\n"
-                             "If 50, then half of genereted properties will be original, and half randomized.\n"
-                             "If 100, then every property will be property of original item. (you can reduce an amount of props)"))
-               << addHelp(new SliderWidget(tr("Minimum relative property count, compared to the original"), "relativeCountMin", 4, 10, this),
-                          tr("This and the next options determine new property count will be after generation.\n"
-                             "If Min=Max=100%%, then property count will be exactly as original (except rare corner cases).\n"
-                             "If Min=50%% and Max=200%%, then new property count will be at least half as original, and twice at best.\n"
-                             "For example, if item has 5 properties, then worst case is 2, and best case is 9 (because 9 is maximum for Uniques)"))
-               << new SliderWidget(tr("Maximum relative property count, compared to the original"), "relativeCountMax", 4, 10, 1000, false, this)
-               << addHelp(new SliderWidgetMinMax(tr("Number of versions of each unique"), "repeat_uniques", 1, 20, 10, this),
-                          tr("allow you to have different uniques with same name and level, but different properties, \n"
-                             "you will have N different uniques with differnet stats;\n"
-                             "so you have an opportunity to pick same item again to check it out.\n"
-                             "This works only with Uniques, not Sets.")));
+               << makeEditor("crazyLevel",
+                             tr("Crazy-ness (or 'NON-balance level', lower = more balance, 100=chaos)"),
+                             tr("Crazyness level - determine level difference to be used when selecting new properties for item/rune/etc.\n"
+                                "With '10' it will select between level-10 and level+10 at first, if there are <50 candidates,\n"
+                                "then it will select level-30..level+30, and finally it will try fully random. \n"
+                                "In short, lower value = more balance in terms of original affix level and item level."))
+               << makeEditor("itemFitPercent",
+                             tr("Item type fit percent (0% = fully random, 100% = all according to item type)"),
+                             tr("Item fit slider allow you to select how much item affixes will be related to original item type.\n"
+                                "For example, if you choose 80%, then 4 of 5 affixes will be selected to pool for specific item type\n"
+                                "Item can have have several pools related to its type - say, scepter is a rod and a melee weapon.\n"
+                                "Item type-specific properties will be picked in proportion to all types."))
+               << makeEditor("keepOriginalPercent",
+                             tr("How many original properties to keep, percent"),
+                             tr("You can select how many properties of original item you want to keep.\n"
+                                "If 0, then every item will be fully randomized.\n"
+                                "If 50, then half of genereted properties will be original, and half randomized.\n"
+                                "If 100, then every property will be property of original item. (you can reduce an amount of props)"))
+               << makeEditor("relativeCountMin",
+                             tr("Minimum relative property count, compared to the original"),
+                             tr("This and the next options determine new property count will be after generation.\n"
+                                "If Min=Max=100%%, then property count will be exactly as original (except rare corner cases).\n"
+                                "If Min=50%% and Max=200%%, then new property count will be at least half as original, and twice at best.\n"
+                                "For example, if item has 5 properties, then worst case is 2, and best case is 9 (because 9 is maximum for Uniques)"))
+               << makeEditor("relativeCountMax",
+                             tr("Maximum relative property count, compared to the original"))
+               << makeEditor("repeat_uniques",
+                             tr("Number of versions of each unique"),
+                             tr("allow you to have different uniques with same name and level, but different properties, \n"
+                                "you will have N different uniques with differnet stats;\n"
+                                "so you have an opportunity to pick same item again to check it out.\n"
+                                "This works only with Uniques, not Sets.")));
 
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget(tr("Prevent duplicate properties on items"), "noDuplicates", true, this)
-               << addHelp(new CheckboxWidget(tr("Randomize magix/rare affixes"), "affixRandom", true, this),
-                          tr("This will modify rare and magic suffixes - \n"
-                             "so they can include properties of any other item in the game. \n"
-                             "Note that their properties are read even without this option."))
-               << addHelp(new CheckboxWidget(tr("Randomize gem and runes properties"), "gemsRandom", false, this),
-                          tr("This will modify gem and rune properties - \n"
-                             "so they can include properties of any other item in the game. \n"
-                             "Note that their properties are read even without this option."))
-               << addHelp(new CheckboxWidget(tr("Replace skills with oskills"), "replaceSkills", false, this),
-                          tr(""))
-               << addHelp(new CheckboxWidget(tr("Replace charges with oskills"), "replaceCharges", false, this),
-                          tr(""))
-               << addHelp(new CheckboxWidget(tr("Remove Knockback/Monster flee"), "removeKnock", true, this),
-                          tr(""))
-               << new LineWidget(tr("Add extra attributes to randomize (comma-separated)"), "extraKnown", "", this));
+               << makeEditor("noDuplicates", tr("Prevent duplicate properties on items"))
+               << makeEditor("affixRandom",
+                             tr("Randomize magix/rare affixes"),
+                             tr("This will modify rare and magic suffixes - \n"
+                                "so they can include properties of any other item in the game. \n"
+                                "Note that their properties are read even without this option."))
+               << makeEditor("gemsRandom",
+                             tr("Randomize gem and runes properties"),
+                             tr("This will modify gem and rune properties - \n"
+                                "so they can include properties of any other item in the game. \n"
+                                "Note that their properties are read even without this option."))
+               << makeEditor("replaceSkills",
+                             tr("Replace skills with oskills"))
+               << makeEditor("replaceCharges", tr("Replace charges with oskills"))
+               << makeEditor("removeKnock", tr("Remove Knockback/Monster flee"))
+               << makeEditor("extraKnown", tr("Add extra attributes to randomize (comma-separated)")));
     closeLayout();
 }
 

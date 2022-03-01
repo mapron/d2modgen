@@ -16,14 +16,14 @@ ConfigPageCharacter::ConfigPageCharacter(QWidget* parent)
 {
     initModule();
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget(tr("Add Horadric Cube as starting item"), "addCube", false, this)
-               << new CheckboxWidget(tr("Replace ID scroll with ID tome"), "idTome", false, this)
-               << new CheckboxWidget(tr("Replace starting Health pots with Mana"), "manaPots", false, this)
-               << new SliderWidgetMinMax(tr("Stat points gain per level"), "statPerLevel", 1, 25, 5, this)
-               << new SliderWidgetMinMax(tr("Skill points gain per level (D2R only!)"), "skillPerLevel", 1, 5, 1, this)
-               << new SliderWidgetMinMax(tr("Lower Strength/Dexterity requirements on items, %"), "statLower", 10, 100, 100, this)
-               << new SliderWidget(tr("Change mercenaries Health, multiply by"), "mercHP", 5, 10, this)
-               << new SliderWidget(tr("Change mercenaries Damage, multiply by"), "mercDam", 5, 10, this));
+               << makeEditor("addCube", tr("Add Horadric Cube as starting item"))
+               << makeEditor("idTome", tr("Replace ID scroll with ID tome"))
+               << makeEditor("manaPots", tr("Replace starting Health pots with Mana"))
+               << makeEditor("statPerLevel", tr("Stat points gain per level"))
+               << makeEditor("skillPerLevel", tr("Skill points gain per level (D2R only!)"))
+               << makeEditor("statLower", tr("Lower Strength/Dexterity requirements on items, %"))
+               << makeEditor("mercHP", tr("Change mercenaries Health, multiply by"))
+               << makeEditor("mercDam", tr("Change mercenaries Damage, multiply by")));
     closeLayout();
 }
 

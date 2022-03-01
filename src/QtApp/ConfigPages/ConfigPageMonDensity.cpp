@@ -16,17 +16,12 @@ ConfigPageMonDensity::ConfigPageMonDensity(QWidget* parent)
 {
     initModule();
     addEditors(QList<IValueWidget*>()
-               << new SliderWidgetMinMax(tr("Increase density, times"), "density", 1, 20, 1, this)
-               << new SliderWidgetMinMax(tr("Increase Boss packs count, times"), "packs", 1, 20, 1, this)
-               << new SliderWidgetMinMax(tr("Increase monster groups population, +count<br>"
-                                            "<b>Beware! This setting have the most impact on getting screen laggy!<b><br>"
-                                            "<b>Having value above +3 will work well only if previous options are not maxed!</b>"),
-                                         "mon_groups",
-                                         0,
-                                         20,
-                                         0,
-                                         this)
-               << new CheckboxWidget(tr("Use Hell elite pack count on Nightmare and Normal"), "hellPacks", false, this));
+               << makeEditor("density", tr("Increase density, times"))
+               << makeEditor("packs", tr("Increase Boss packs count, times"))
+               << makeEditor("mon_groups", tr("Increase monster groups population, +count<br>"
+                                              "<b>Beware! This setting have the most impact on getting screen laggy!<b><br>"
+                                              "<b>Having value above +3 will work well only if previous options are not maxed!</b>"))
+               << makeEditor("hellPacks", tr("Use Hell elite pack count on Nightmare and Normal")));
     closeLayout();
 }
 

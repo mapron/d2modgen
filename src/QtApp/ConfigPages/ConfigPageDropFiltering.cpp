@@ -36,18 +36,18 @@ ConfigPageDropFiltering::ConfigPageDropFiltering(QWidget* parent)
     addWidget(new QLabel(tr("<b>Make item names compact</b>: this will make item names take less space, e.g. '!HP2' for health potion."),
                          this));
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget(tr("Compact potion names"), "compact_pots", false, this)
-               << new CheckboxWidget(tr("Compact TP/ID scrolls"), "compact_scrolls", false, this));
+               << makeEditor("compact_pots", tr("Compact potion names"))
+               << makeEditor("compact_scrolls", tr("Compact TP/ID scrolls")));
 
     addWidget(new QLabel(tr("<b>Hide items on the ground</b>: this will make item names transparent; <br>"
                             "you still can pickup them, but their labels will be invisible on Alt press."),
                          this));
     for (auto& item : m_items)
         addEditors(QList<IValueWidget*>()
-                   << new CheckboxWidget(tr("Hide ") + item.title, "hide_" + item.settingKey, false, this));
+                   << makeEditor("hide_" + item.settingKey, tr("Hide ") + item.title));
 
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget(tr("Hide low quality/damaged/cracked items"), "hide_lowq", false, this));
+               << makeEditor("hide_lowq", tr("Hide low quality/damaged/cracked items")));
     closeLayout();
 }
 

@@ -19,12 +19,12 @@ ConfigPagePerfectRoll::ConfigPagePerfectRoll(QWidget* parent)
 {
     initModule();
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget(tr("Perfect rolls for crafting in the Cube"), "craft", true, this)
-               << new CheckboxWidget(tr("Perfect Uniques"), "uniques", true, this)
-               << new CheckboxWidget(tr("Perfect Rune Word rolls"), "runeWords", true, this)
-               << new CheckboxWidget(tr("Perfect Set items"), "setItems", true, this)
-               << new CheckboxWidget(tr("Perfect Magic/Rare affixes"), "affixes", true, this)
-               << new CheckboxWidget(tr("Always max defense Armor"), "armor", true, this));
+               << makeEditor("craft", tr("Perfect rolls for crafting in the Cube"))
+               << makeEditor("uniques", tr("Perfect Uniques"))
+               << makeEditor("runeWords", tr("Perfect Rune Word rolls"))
+               << makeEditor("setItems", tr("Perfect Set items"))
+               << makeEditor("affixes", tr("Perfect Magic/Rare affixes"))
+               << makeEditor("armor", tr("Always max defense Armor")));
     closeLayout();
 }
 

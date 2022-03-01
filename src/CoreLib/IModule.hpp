@@ -77,23 +77,26 @@ public:
         int     m_max     = 0;
         double  m_num     = 0.;
         double  m_denom   = 0.;
+        bool    m_compact = true;
     };
     struct UiControlHintSlider : public UiControlHint {
         UiControlHintSlider() = default;
-        UiControlHintSlider(double num, double denom)
+        UiControlHintSlider(double num, double denom, bool compact = false)
         {
             m_control = Control::Slider;
             m_num     = num;
             m_denom   = denom;
+            m_compact = compact;
         }
     };
     struct UiControlHintSliderMinMax : public UiControlHint {
         UiControlHintSliderMinMax() = default;
-        UiControlHintSliderMinMax(int min, int max)
+        UiControlHintSliderMinMax(int min, int max, bool compact = false)
         {
             m_control = Control::SliderMinMax;
             m_min     = min;
-            m_max     = min;
+            m_max     = max;
+            m_compact = compact;
         }
     };
     using UiControlHintMap = std::map<std::string, UiControlHint>;

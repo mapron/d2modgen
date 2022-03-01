@@ -76,7 +76,7 @@ IModule::UiControlHintMap ModuleItemRandomizer::uiHints() const
         { "itemFitPercent", UiControlHintSliderMinMax(0, 100) },
         { "keepOriginalPercent", UiControlHintSliderMinMax(0, 100) },
         { "relativeCountMin", UiControlHintSlider(4, 10) },
-        { "relativeCountMin", UiControlHintSlider(4, 10) },
+        { "relativeCountMax", UiControlHintSlider(4, 10) },
         { "repeat_uniques", UiControlHintSliderMinMax(1, 20) },
         { "extraKnown", UiControlHint{ UiControlHint::Control::LineEdit } },
     };

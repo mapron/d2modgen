@@ -16,17 +16,12 @@ ConfigPageQol::ConfigPageQol(QWidget* parent)
 {
     initModule();
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget(tr("Increase tome sizes 20 -> 60"), "tomeSize", false, this)
-               << new CheckboxWidget(tr("Increase key chain 12 -> 50"), "keySize", false, this)
-               << new CheckboxWidget(tr("Increase quivers size (250,350) -> 511"), "quiverSize", false, this)
-               << new CheckboxWidget(tr("Remove limit on Unique charms"), "uniqueCharmLimit", false, this)
-               << new CheckboxWidget(tr("Allow using Teleport, BC, BO in town"), "weakenTownSkills", false, this)
-               << new SliderWidgetMinMax(tr("Reduce costs of skills and stats on items (affects repair cost mostly)"),
-                                         "reduceCost",
-                                         5,
-                                         100,
-                                         100,
-                                         this));
+               << makeEditor("tomeSize", tr("Increase tome sizes 20 -> 60"))
+               << makeEditor("keySize", tr("Increase key chain 12 -> 50"))
+               << makeEditor("quiverSize", tr("Increase quivers size (250,350) -> 511"))
+               << makeEditor("uniqueCharmLimit", tr("Remove limit on Unique charms"))
+               << makeEditor("weakenTownSkills", tr("Allow using Teleport, BC, BO in town"))
+               << makeEditor("reduceCost", tr("Reduce costs of skills and stats on items (affects repair cost mostly)")));
     closeLayout();
 }
 

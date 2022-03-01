@@ -12,8 +12,8 @@ class ConfigPageChallenge : public ConfigPageAbstract {
     Q_OBJECT
 
     struct Item {
-        QString settingKey;
-        QString title;
+        std::string settingKey;
+        QString     title;
     };
     const QList<Item> m_items;
 

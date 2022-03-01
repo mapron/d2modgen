@@ -16,12 +16,12 @@ ConfigPageGambling::ConfigPageGambling(QWidget* parent)
 {
     initModule();
     addEditors(QList<IValueWidget*>()
-               << new CheckboxWidget(tr("Allow gambling for charms and jewels (Legacy only)\nNote: crashes D2R - so enabled only for D2."), "charmGamble", false, this)
-               << new SliderWidgetMinMax(tr("Increase Unique chance, times<br>Note: you still can get a lot of failed uniques for no known reason."), "ratioUnique", 1, 500, 1, this)
-               << new SliderWidgetMinMax(tr("Increase Set chance, times"), "ratioSet", 1, 250, 1, this)
-               << new SliderWidgetMinMax(tr("Increase Rare chance, times"), "ratioRare", 1, 4, 1, this)
-               << new SliderWidgetMinMax(tr("Increase Exceptional upgrade chance, times"), "ratioExc", 1, 4, 1, this)
-               << new SliderWidgetMinMax(tr("Increase Elite upgrade chance, times<br>Note: seems like Exc. check is done beforehead, so if it's high enough, elite won't generate."), "ratioElite", 1, 10, 1, this));
+               << makeEditor("charmGamble", tr("Allow gambling for charms and jewels (Legacy only)\nNote: crashes D2R - so enabled only for D2."))
+               << makeEditor("ratioUnique", tr("Increase Unique chance, times<br>Note: you still can get a lot of failed uniques for no known reason."))
+               << makeEditor("ratioSet", tr("Increase Set chance, times"))
+               << makeEditor("ratioRare", tr("Increase Rare chance, times"))
+               << makeEditor("ratioExc", tr("Increase Exceptional upgrade chance, times"))
+               << makeEditor("ratioElite", tr("Increase Elite upgrade chance, times<br>Note: seems like Exc. check is done beforehead, so if it's high enough, elite won't generate.")));
     closeLayout();
 }
 

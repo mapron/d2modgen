@@ -42,11 +42,12 @@ public:
     virtual QMap<std::string, QString> widgetHelps() const { return {}; };
 
 protected:
-    void addWidget(QWidget* w);
-    void addEditors(QList<IValueWidget*> editors);
-    void addEditorsPlain(QList<IValueWidget*> editors);
-    void closeLayout();
-    void initModule();
+    void          addWidget(QWidget* w);
+    void          addEditors(QList<IValueWidget*> editors);
+    void          addEditorsPlain(QList<IValueWidget*> editors);
+    IValueWidget* makeEditor(const std::string& key, const QString& title, const QString& help = QString());
+    void          closeLayout();
+    void          initModule();
 
 private:
     QMap<std::string, IValueWidget*> m_editors;

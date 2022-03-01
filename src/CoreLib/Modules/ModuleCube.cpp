@@ -77,7 +77,7 @@ PropertyTreeScalarMap ModuleCube::defaultValues() const
 IModule::UiControlHintMap ModuleCube::uiHints() const
 {
     return {
-        { "craftMultBonus", UiControlHintSliderMinMax(1, 5) },
+        { "craftMultBonus", UiControlHintSliderMinMax(1, 5, true) },
     };
 }
 
