@@ -342,15 +342,9 @@ target_include_directories(stormlib PUBLIC ${stormInc})
 
 # source
 set(sourceRoot ${CMAKE_CURRENT_SOURCE_DIR}/src)
-file(GLOB src 
-	${sourceRoot}/*.hpp 
+file(GLOB_RECURSE src 
+	${sourceRoot}/*.hpp
 	${sourceRoot}/*.cpp
-	${sourceRoot}/Storage/*.hpp 
-	${sourceRoot}/Storage/*.cpp
-	${sourceRoot}/ConfigPages/*.hpp 
-	${sourceRoot}/ConfigPages/*.cpp
-	${sourceRoot}/ValueEditors/*.hpp 
-	${sourceRoot}/ValueEditors/*.cpp
 	)
 
 if (WIN32 AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
@@ -361,7 +355,7 @@ GenerateQrcWithTranslations(Translations ${CMAKE_CURRENT_SOURCE_DIR}/translation
 
 add_executable(modgen ${w32} ${src} theme/breeze.qrc ${qrcName})
 set_target_properties(modgen PROPERTIES AUTOMOC ON AUTOUIC OFF AUTORCC ON)
-target_include_directories(modgen PRIVATE ${sourceRoot})
+target_include_directories(modgen PRIVATE ${sourceRoot}/CoreLib ${sourceRoot}/QtApp)
 target_link_libraries(modgen PRIVATE Qt5::Widgets casclib stormlib)
 install(TARGETS modgen RUNTIME DESTINATION bin)
 
