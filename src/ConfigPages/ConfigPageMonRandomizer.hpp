@@ -19,7 +19,7 @@ public:
     {
         return tr("Monster Randomizer");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "monRandomizer";
     }

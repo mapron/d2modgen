@@ -6,7 +6,6 @@
 #include "DataContext.hpp"
 #include "TableUtils.hpp"
 
-#include <QJsonDocument>
 #include <QFile>
 
 namespace D2ModGen {
@@ -78,7 +77,8 @@ bool DataContext::readData(const IStorage::StoredData& data)
             qWarning() << "duplicate json file found:" << fileData.relFilepath;
             return false;
         }
-        jsonFiles[fileData.relFilepath] = loadDoc;
+
+        jsonFiles[fileData.relFilepath] = qjsonToProperty(loadDoc);
     }
     for (const auto& fileData : data.refFiles) {
         if (!QFile::exists(fileData.absSrcFilepath)) {
@@ -116,7 +116,8 @@ bool DataContext::writeData(IStorage::StoredData& data) const
         data.tables.push_back(IStorage::StoredFileTable{ tableStr.toUtf8(), table.id });
     }
     for (const auto& p : jsonFiles) {
-        QByteArray datastr = p.second.toJson(QJsonDocument::Indented);
+        QJsonDocument jdoc    = propertyToDoc(p.second);
+        QByteArray    datastr = jdoc.toJson(QJsonDocument::Indented);
         datastr.replace(QByteArray("\xC3\x83\xC2\xBF\x63"), QByteArray("\xC3\xBF\x63")); // hack: replace color codes converter to UTF-8 from latin-1.
         data.inMemoryFiles.push_back(IStorage::StoredFileMemory{ datastr, p.first });
     }
@@ -224,6 +225,90 @@ bool DataContext::mergeWith(const DataContext& source, ConflictPolicy policy)
     }
 
     return true;
+}
+
+PropertyTree DataContext::qjsonToProperty(const QJsonDocument& doc)
+{
+    if (doc.isNull())
+        return {};
+    return doc.isArray() ? qjsonToProperty(doc.array()) : qjsonToProperty(doc.object());
+}
+
+PropertyTree DataContext::qjsonToProperty(const QJsonObject& value)
+{
+    PropertyTree result;
+    result.convertToMap();
+    for (auto it = value.constBegin(); it != value.constEnd(); ++it)
+        result.insert(it.key().toStdString(), qjsonToProperty(it.value()));
+
+    return result;
+}
+
+PropertyTree DataContext::qjsonToProperty(const QJsonArray& value)
+{
+    PropertyTree result;
+    result.convertToList();
+    for (const QJsonValue& iter : value)
+        result.append(qjsonToProperty(iter));
+
+    return result;
+}
+
+PropertyTree DataContext::qjsonToProperty(const QJsonValue& value)
+{
+    if (value.isNull())
+        return PropertyTree{};
+    if (value.isBool())
+        return PropertyTreeScalar(value.toBool());
+    if (value.isDouble())
+        return PropertyTreeScalar(value.toDouble());
+    if (value.isString())
+        return PropertyTreeScalar(value.toString().toStdString());
+    if (value.isArray())
+        return qjsonToProperty(value.toArray());
+    if (value.isObject())
+        return qjsonToProperty(value.toObject());
+    return {};
+}
+
+QJsonValue DataContext::propertyToQjson(const PropertyTree& value)
+{
+    if (value.isNull())
+        return QJsonValue();
+    if (value.isScalar()) {
+        const auto& sc = value.getScalar();
+        if (const auto* bval = std::get_if<bool>(&sc); bval)
+            return *bval;
+        if (const auto* ival = std::get_if<int64_t>(&sc); ival)
+            return *ival;
+        if (const auto* dval = std::get_if<double>(&sc); dval)
+            return *dval;
+        if (const auto* sval = std::get_if<std::string>(&sc); sval)
+            return QString::fromStdString(*sval);
+    }
+    if (value.isList()) {
+        QJsonArray arr;
+        for (const auto& child : value.getList())
+            arr << propertyToQjson(child);
+        return arr;
+    }
+    if (value.isMap()) {
+        QJsonObject obj;
+        for (const auto& child : value.getMap())
+            obj[child.first.c_str()] = propertyToQjson(child.second);
+        return obj;
+    }
+    return {};
+}
+
+QJsonDocument DataContext::propertyToDoc(const PropertyTree& value)
+{
+    QJsonValue jdata = propertyToQjson(value);
+    if (jdata.isArray())
+        return QJsonDocument(jdata.toArray());
+    else if (jdata.isObject())
+        return QJsonDocument(jdata.toObject());
+    return {};
 }
 
 }

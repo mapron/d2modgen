@@ -97,22 +97,22 @@ void ConfigPageMergeModsItem::setModList(const QStringList& mods)
     setMod(prev);
 }
 
-void ConfigPageMergeModsItem::readSettings(const QJsonObject& data)
+void ConfigPageMergeModsItem::readSettings(const PropertyTree& data)
 {
     m_readingSettings = true;
     m_typeSelect->setCurrentIndex(std::max(0, m_typeIndex.indexOf(static_cast<StorageType>(data["type"].toInt()))));
     m_policySelect->setCurrentIndex(std::max(0, m_policyIndex.indexOf(static_cast<ConflictPolicy>(data["policy"].toInt()))));
-    setMod(data["mod"].toString());
-    m_folderCSV->setText(data["folder"].toString());
+    setMod(QString::fromStdString(data["mod"].toString()));
+    m_folderCSV->setText(QString::fromStdString(data["folder"].toString()));
     m_readingSettings = false;
 }
 
-void ConfigPageMergeModsItem::writeSettings(QJsonObject& data) const
+void ConfigPageMergeModsItem::writeSettings(PropertyTree& data) const
 {
-    data["type"]   = static_cast<int>(m_typeIndex[m_typeSelect->currentIndex()]);
-    data["policy"] = static_cast<int>(m_policyIndex[m_policySelect->currentIndex()]);
-    data["mod"]    = m_modSelect->currentText();
-    data["folder"] = m_folderCSV->text();
+    data["type"]   = PropertyTreeScalar{ static_cast<int64_t>(m_typeIndex[m_typeSelect->currentIndex()]) };
+    data["policy"] = PropertyTreeScalar{ static_cast<int64_t>(m_policyIndex[m_policySelect->currentIndex()]) };
+    data["mod"]    = PropertyTreeScalar{ m_modSelect->currentText().toStdString() };
+    data["folder"] = PropertyTreeScalar{ m_folderCSV->text().toStdString() };
 }
 
 void ConfigPageMergeModsItem::gatherInfoInternal(ExtraDependencies& output, const GenerationEnvironment& env) const
@@ -182,7 +182,7 @@ void ConfigPageMergeMods::setModList(const QStringList& mods)
         item->setModList(mods);
 }
 
-void ConfigPageMergeMods::readSettings(const QJsonObject& data)
+void ConfigPageMergeMods::readSettings(const PropertyTree& data)
 {
     const int count = data["sourceCount"].toInt();
     m_countSpinbox->blockSignals(true);
@@ -190,19 +190,18 @@ void ConfigPageMergeMods::readSettings(const QJsonObject& data)
     m_countSpinbox->blockSignals(false);
     setItemsCount(count);
     for (int i = 0; i < count; ++i) {
-        const QJsonObject& itemData = data[QString("item_%1").arg(i)].toObject();
+        const PropertyTree& itemData = data[QString("item_%1").arg(i).toStdString()];
         m_items[i]->readSettings(itemData);
     }
 }
 
-void ConfigPageMergeMods::writeSettings(QJsonObject& data) const
+void ConfigPageMergeMods::writeSettings(PropertyTree& data) const
 {
-    const int count     = m_countSpinbox->value();
-    data["sourceCount"] = count;
+    const int64_t count = m_countSpinbox->value();
+    data["sourceCount"] = PropertyTreeScalar{ count };
     for (int i = 0; i < count; ++i) {
-        QJsonObject itemData;
+        PropertyTree& itemData = data[QString("item_%1").arg(i).toStdString()];
         m_items[i]->writeSettings(itemData);
-        data[QString("item_%1").arg(i)] = itemData;
     }
 }
 

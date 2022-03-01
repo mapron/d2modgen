@@ -19,7 +19,7 @@ public:
     {
         return tr("Character");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "character";
     }

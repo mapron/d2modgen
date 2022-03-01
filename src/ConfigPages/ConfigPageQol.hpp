@@ -19,7 +19,7 @@ public:
     {
         return tr("Quality of life");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "qol";
     }

@@ -41,8 +41,8 @@ public:
     bool       canBeDisabled() const override;
     PresetList pagePresets() const override;
 
-    void readSettings(const QJsonObject& data) override;
-    void writeSettings(QJsonObject& data) const override;
+    void readSettings(const PropertyTree& data) override;
+    void writeSettings(PropertyTree& data) const override;
 
     bool isConfigEnabled() const override;
     void setConfigEnabled(bool state) override;
@@ -62,9 +62,9 @@ protected:
     bool    isWidgetValueDefault(const QString& id) const;
 
 private:
-    QMap<QString, IValueWidget*> m_editors;
-    QVBoxLayout*                 m_layout;
-    bool                         m_enabled = true;
+    QMap<std::string, IValueWidget*> m_editors;
+    QVBoxLayout*                     m_layout;
+    bool                             m_enabled = true;
 };
 
 }

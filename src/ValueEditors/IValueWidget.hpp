@@ -7,6 +7,8 @@
 
 #include <QWidget>
 
+#include "PropertyTree.hpp"
+
 namespace D2ModGen {
 
 class IValueWidget : public QWidget {
@@ -16,10 +18,10 @@ public:
         : QWidget(parent)
     {}
 
-    virtual QVariant getValue() const         = 0;
-    virtual void     setValue(QVariant value) = 0;
-    virtual void     resetValue()             = 0;
-    virtual bool     isDefault() const        = 0;
+    virtual PropertyTree getValue() const                    = 0;
+    virtual void         setValue(const PropertyTree& value) = 0;
+    virtual void         resetValue()                        = 0;
+    virtual bool         isDefault() const                   = 0;
 
 signals:
     void dataChanged();

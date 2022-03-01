@@ -335,15 +335,14 @@ void ConfigPageMonRandomizer::generate(DataContext& output, QRandomGenerator& rn
     }
     if (output.jsonFiles.contains(s_monstersJson)) {
         auto& jsonDoc    = output.jsonFiles[s_monstersJson];
-        auto  jsonObject = jsonDoc.object();
+        auto& jsonObject = jsonDoc.getMap();
         for (const auto& copy : typeTable.newCopies) {
-            const auto& sourceId  = copy.sourceId;
-            const auto& newId     = copy.newId;
-            const auto  modelName = jsonObject[sourceId].toString();
-            assert(!modelName.isEmpty());
-            jsonObject[newId] = modelName;
+            const std::string sourceId  = copy.sourceId.toStdString();
+            const std::string newId     = copy.newId.toStdString();
+            const std::string modelName = jsonObject[sourceId].toString();
+            assert(!modelName.empty());
+            jsonObject[newId] = PropertyTreeScalar{ modelName };
         }
-        jsonDoc.setObject(jsonObject);
     }
 }
 

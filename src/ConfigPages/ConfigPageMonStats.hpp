@@ -20,7 +20,7 @@ public:
     {
         return tr("Monster stats");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "monster_stats";
     }

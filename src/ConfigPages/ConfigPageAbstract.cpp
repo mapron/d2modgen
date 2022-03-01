@@ -10,28 +10,6 @@
 
 namespace D2ModGen {
 
-namespace {
-
-QJsonValue varToValue(const QVariant& var)
-{
-    if (var.type() == QVariant::Bool)
-        return var.toBool();
-    if (var.type() == QVariant::Int)
-        return var.toInt();
-    return var.toString();
-}
-
-QVariant valueToVar(const QJsonValue& value)
-{
-    if (value.isBool())
-        return QVariant(value.toBool());
-    if (value.isString())
-        return value.toString();
-    return value.toInt();
-}
-
-}
-
 void DropSet::readRow(const TableView::RowView& row)
 {
     const QString& noDrop = row["NoDrop"];
@@ -89,23 +67,23 @@ IConfigPage::PresetList ConfigPageAbstract::pagePresets() const
     return {};
 }
 
-void ConfigPageAbstract::readSettings(const QJsonObject& data)
+void ConfigPageAbstract::readSettings(const PropertyTree& data)
 {
-    for (QString key : m_editors.keys()) {
+    for (const std::string& key : m_editors.keys()) {
         auto* w = m_editors[key];
         if (data.contains(key))
-            w->setValue(valueToVar(data[key]));
+            w->setValue(data[key]);
         else
             w->resetValue();
     }
 }
 
-void ConfigPageAbstract::writeSettings(QJsonObject& data) const
+void ConfigPageAbstract::writeSettings(PropertyTree& data) const
 {
-    for (QString key : m_editors.keys()) {
+    for (const std::string& key : m_editors.keys()) {
         auto* w = m_editors[key];
         if (!w->isDefault())
-            data[key] = varToValue(w->getValue());
+            data.insert(key, w->getValue());
     }
 }
 
@@ -121,7 +99,7 @@ void ConfigPageAbstract::setConfigEnabled(bool state)
 
 bool ConfigPageAbstract::isAllDefault() const
 {
-    for (QString key : m_editors.keys()) {
+    for (const std::string& key : m_editors.keys()) {
         auto* w = m_editors[key];
         if (!w->isDefault())
             return false;
@@ -132,7 +110,7 @@ bool ConfigPageAbstract::isAllDefault() const
 bool ConfigPageAbstract::isAllDefault(const QStringList& keys) const
 {
     for (const QString& key : keys) {
-        auto* w = m_editors[key];
+        auto* w = m_editors[key.toStdString()];
         if (!w->isDefault())
             return false;
     }
@@ -155,7 +133,7 @@ void ConfigPageAbstract::addEditors(QList<IValueWidget*> editors)
 void ConfigPageAbstract::addEditorsPlain(QList<IValueWidget*> editors)
 {
     for (IValueWidget* w : editors) {
-        m_editors[w->objectName()] = w;
+        m_editors[w->objectName().toStdString()] = w;
         connect(w, &IValueWidget::dataChanged, this, &IConfigPage::dataChanged);
     }
 }
@@ -167,17 +145,17 @@ void ConfigPageAbstract::closeLayout()
 
 int ConfigPageAbstract::getWidgetValue(const QString& id) const
 {
-    return m_editors[id]->getValue().toInt();
+    return m_editors[id.toStdString()]->getValue().toInt();
 }
 
 QString ConfigPageAbstract::getWidgetValueString(const QString& id) const
 {
-    return m_editors[id]->getValue().toString();
+    return QString::fromStdString(m_editors[id.toStdString()]->getValue().toString());
 }
 
 bool ConfigPageAbstract::isWidgetValueDefault(const QString& id) const
 {
-    return m_editors[id]->isDefault();
+    return m_editors[id.toStdString()]->isDefault();
 }
 
 }

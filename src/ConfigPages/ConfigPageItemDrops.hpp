@@ -20,7 +20,7 @@ public:
     {
         return tr("Increase Item drops");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "item_drops";
     }

@@ -49,14 +49,14 @@ SliderWidget::SliderWidget(const QString& caption,
     , m_mult(mult)
     , m_min(static_cast<int>(static_cast<double>(s_spinboxAverage) / denom))
     , m_max(static_cast<int>(static_cast<double>(s_spinboxAverage) * mult))
-    , m_default(defaultValue)
+    , m_defaultValue(defaultValue)
 {
     setObjectName(id);
     m_valueBox = new QSpinBox(this);
     m_valueBox->setButtonSymbols(QSpinBox::NoButtons);
     m_valueBox->setMinimum(m_min);
     m_valueBox->setMaximum(m_max);
-    m_valueBox->setValue(m_default);
+    m_valueBox->setValue(m_defaultValue);
     m_valueBox->setMinimumWidth(50);
 
     m_slider = new QSlider(Qt::Horizontal, this);
@@ -101,25 +101,25 @@ SliderWidget::SliderWidget(const QString& caption, const QString& id, double den
 void SliderWidget::resetValue()
 {
     m_settingValue = true;
-    m_valueBox->setValue(m_default);
+    m_valueBox->setValue(m_defaultValue);
     m_settingValue = false;
 }
 
-void SliderWidget::setValue(QVariant value)
+void SliderWidget::setValue(const PropertyTree& value)
 {
     m_settingValue = true;
     m_valueBox->setValue(value.toInt());
     m_settingValue = false;
 }
 
-QVariant SliderWidget::getValue() const
+PropertyTree SliderWidget::getValue() const
 {
-    return m_valueBox->value();
+    return PropertyTreeScalar{ static_cast<int64_t>(m_valueBox->value()) };
 }
 
 bool SliderWidget::isDefault() const
 {
-    return getValue() == m_default;
+    return getValue().getScalar() == PropertyTreeScalar{ m_defaultValue };
 }
 
 void SliderWidget::addHelp(const QString& helpToolTip)
@@ -237,21 +237,21 @@ void SliderWidgetMinMax::resetValue()
     m_settingValue = false;
 }
 
-void SliderWidgetMinMax::setValue(QVariant value)
+void SliderWidgetMinMax::setValue(const PropertyTree& value)
 {
     m_settingValue = true;
     m_valueBox->setValue(value.toInt());
     m_settingValue = false;
 }
 
-QVariant SliderWidgetMinMax::getValue() const
+PropertyTree SliderWidgetMinMax::getValue() const
 {
-    return m_valueBox->value();
+    return PropertyTreeScalar{ static_cast<int64_t>(m_valueBox->value()) };
 }
 
 bool SliderWidgetMinMax::isDefault() const
 {
-    return getValue() == m_defaultValue;
+    return getValue().getScalar() == PropertyTreeScalar{ m_defaultValue };
 }
 
 void SliderWidgetMinMax::addHelp(const QString& helpToolTip)

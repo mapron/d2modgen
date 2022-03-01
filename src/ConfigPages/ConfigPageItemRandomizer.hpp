@@ -21,7 +21,7 @@ public:
     {
         return tr("Item Randomizer");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "randomizer";
     }

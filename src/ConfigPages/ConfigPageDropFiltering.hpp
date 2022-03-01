@@ -27,7 +27,7 @@ public:
     {
         return tr("Drops filtering");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "drop_filter";
     }

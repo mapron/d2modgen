@@ -44,14 +44,14 @@ void LineWidget::resetValue()
     m_lineEdit->setText(m_default);
 }
 
-void LineWidget::setValue(QVariant value)
+void LineWidget::setValue(const PropertyTree& value)
 {
-    m_lineEdit->setText(value.toString());
+    m_lineEdit->setText(QString::fromStdString(value.toString()));
 }
 
-QVariant LineWidget::getValue() const
+PropertyTree LineWidget::getValue() const
 {
-    return m_lineEdit->text();
+    return PropertyTreeScalar{ m_lineEdit->text().toStdString() };
 }
 
 bool LineWidget::isDefault() const

@@ -22,8 +22,8 @@ public:
 
     void setModList(const QStringList& mods);
 
-    void readSettings(const QJsonObject& data);
-    void writeSettings(QJsonObject& data) const;
+    void readSettings(const PropertyTree& data);
+    void writeSettings(PropertyTree& data) const;
 
     void gatherInfoInternal(ExtraDependencies& output, const GenerationEnvironment& env) const;
 
@@ -54,8 +54,8 @@ public:
 
     // IConfigPage interface
 public:
-    void readSettings(const QJsonObject& data) override;
-    void writeSettings(QJsonObject& data) const override;
+    void readSettings(const PropertyTree& data) override;
+    void writeSettings(PropertyTree& data) const override;
 
     QString pageHelp() const override;
 
@@ -86,7 +86,7 @@ public:
     {
         return tr("Pre-gen data");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "mergePregen";
     }
@@ -107,7 +107,7 @@ public:
     {
         return tr("Post-gen data");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "mergePostgen";
     }

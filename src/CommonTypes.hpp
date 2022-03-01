@@ -10,7 +10,6 @@
 #include <QSet>
 #include <QList>
 #include <QWidget>
-#include <QJsonObject>
 #include <QRandomGenerator>
 
 #include <vector>

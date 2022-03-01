@@ -30,10 +30,10 @@ public:
                  QWidget*       parent);
     ~SliderWidget();
 
-    void     resetValue() override;
-    void     setValue(QVariant value) override;
-    QVariant getValue() const override;
-    bool     isDefault() const override;
+    void         resetValue() override;
+    void         setValue(const PropertyTree& value) override;
+    PropertyTree getValue() const override;
+    bool         isDefault() const override;
 
     void addHelp(const QString& helpToolTip);
 
@@ -46,7 +46,7 @@ private:
     const double    m_mult;
     const double    m_min;
     const double    m_max;
-    const int       m_default;
+    const int64_t   m_defaultValue;
     QSpinBox*       m_valueBox;
     QSlider*        m_slider;
     HelpToolButton* m_helpButton;
@@ -78,10 +78,10 @@ public:
     {}
     ~SliderWidgetMinMax();
 
-    void     resetValue() override;
-    void     setValue(QVariant value) override;
-    QVariant getValue() const override;
-    bool     isDefault() const override;
+    void         resetValue() override;
+    void         setValue(const PropertyTree& value) override;
+    PropertyTree getValue() const override;
+    bool         isDefault() const override;
 
     void addHelp(const QString& helpToolTip);
 
@@ -92,7 +92,7 @@ private:
 private:
     const int       m_minValue;
     const int       m_maxValue;
-    const int       m_defaultValue;
+    const int64_t   m_defaultValue;
     QSpinBox*       m_valueBox;
     QSlider*        m_slider;
     HelpToolButton* m_helpButton;

@@ -7,6 +7,12 @@
 
 #include "Storage/IStorage.hpp"
 #include "CommonTypes.hpp"
+#include "PropertyTree.hpp"
+
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QJsonDocument>
 
 #include <set>
 
@@ -41,13 +47,21 @@ struct TableSet {
 
 struct DataContext {
     TableSet                                   tableSet;  // txt tables parsed into csv-like tables.
-    std::map<QString, QJsonDocument>           jsonFiles; // data of extra json files
+    std::map<QString, PropertyTree>            jsonFiles; // data of extra json files
     std::map<QString, IStorage::StoredFileRef> copyFiles; // files for plain copy.
 
     bool readData(const IStorage::StoredData& data);
     bool writeData(IStorage::StoredData& data) const;
 
     bool mergeWith(const DataContext& source, ConflictPolicy policy);
+
+    static PropertyTree qjsonToProperty(const QJsonDocument& doc);
+    static PropertyTree qjsonToProperty(const QJsonObject& value);
+    static PropertyTree qjsonToProperty(const QJsonArray& value);
+    static PropertyTree qjsonToProperty(const QJsonValue& value);
+    static QJsonValue propertyToQjson(const PropertyTree& value);
+    static QJsonDocument propertyToDoc(const PropertyTree& value);
+    
 };
 
 }

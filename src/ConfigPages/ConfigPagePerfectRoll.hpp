@@ -19,7 +19,7 @@ public:
     {
         return tr("Perfect rolls");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "perfect_rolls";
     }

@@ -43,14 +43,14 @@ void CheckboxWidget::resetValue()
     m_checkBox->setChecked(m_default);
 }
 
-void CheckboxWidget::setValue(QVariant value)
+void CheckboxWidget::setValue(const PropertyTree& value)
 {
     m_checkBox->setChecked(value.toBool());
 }
 
-QVariant CheckboxWidget::getValue() const
+PropertyTree CheckboxWidget::getValue() const
 {
-    return QVariant(m_checkBox->isChecked());
+    return PropertyTreeScalar(m_checkBox->isChecked());
 }
 
 bool CheckboxWidget::isDefault() const

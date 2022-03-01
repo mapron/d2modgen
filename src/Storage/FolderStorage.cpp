@@ -13,6 +13,7 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QJsonDocument>
+#include <QJsonObject>
 
 namespace D2ModGen {
 

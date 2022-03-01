@@ -18,6 +18,7 @@ namespace D2ModGen {
 class IConfigPage;
 class StorageCache;
 class MainConfigPage;
+class PropertyTree;
 class DelayedTimer : public QObject {
     Q_OBJECT
 public:
@@ -44,7 +45,7 @@ public:
 
     bool saveConfig(const QString& filename) const;
     bool loadConfig(const QString& filename);
-    bool loadConfig(const QJsonObject& data);
+    bool loadConfig(const PropertyTree& data);
 
     struct AppSettings {
         QString m_langId;
@@ -54,7 +55,7 @@ public:
     static AppSettings getAppSettings();
 
 private:
-    void pushUndo(const QJsonObject& data);
+    void pushUndo(const PropertyTree& data);
     void pushUndoCurrent();
     void makeUndo();
     void updateUndoAction();
@@ -68,7 +69,7 @@ private:
     QScopedPointer<StorageCache>   m_mainStorageCache;
     bool                           m_autoSave = true;
     DelayedTimer*                  m_delayTimer;
-    QList<QJsonObject>             m_undo;
+    QList<PropertyTree>            m_undo;
     QAction*                       m_undoAction;
 };
 

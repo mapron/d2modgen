@@ -309,7 +309,7 @@ QString MainConfigPage::caption() const
     return tr("Main");
 }
 
-QString MainConfigPage::settingKey() const
+std::string MainConfigPage::settingKey() const
 {
     return "main";
 }
@@ -332,25 +332,25 @@ IConfigPage::PresetList MainConfigPage::pagePresets() const
     return {};
 }
 
-void MainConfigPage::readSettings(const QJsonObject& data)
+void MainConfigPage::readSettings(const PropertyTree& data)
 {
     if (data.contains("modname"))
-        m_impl->modName->setText(data["modname"].toString());
+        m_impl->modName->setText(QString::fromStdString(data["modname"].toString()));
     else
         m_impl->modName->setText("rando");
 
     if (data.contains("seed"))
-        m_impl->seed->setText(data["seed"].toString());
+        m_impl->seed->setText(QString::fromStdString(data["seed"].toString()));
     else
         createNewSeed();
 
     if (data.contains("d2rPath"))
-        m_impl->d2rPath->setText(data["d2rPath"].toString());
+        m_impl->d2rPath->setText(QString::fromStdString(data["d2rPath"].toString()));
     else
         m_impl->d2rPath->setText(getInstallLocationFromRegistry(true));
 
     if (data.contains("d2legacyPath"))
-        m_impl->d2legacyPath->setText(data["d2legacyPath"].toString());
+        m_impl->d2legacyPath->setText(QString::fromStdString(data["d2legacyPath"].toString()));
     else
         m_impl->d2legacyPath->setText(getInstallLocationFromRegistry(false));
 
@@ -358,14 +358,14 @@ void MainConfigPage::readSettings(const QJsonObject& data)
     m_impl->d2legacyMode->setChecked(data["isLegacy"].toBool());
 }
 
-void MainConfigPage::writeSettings(QJsonObject& data) const
+void MainConfigPage::writeSettings(PropertyTree& data) const
 {
-    data["modname"]      = m_impl->modName->text();
-    data["seed"]         = m_impl->seed->text();
-    data["d2rPath"]      = m_impl->d2rPath->text();
-    data["d2legacyPath"] = m_impl->d2legacyPath->text();
-    data["addKeys"]      = m_impl->addKeys->isChecked();
-    data["isLegacy"]     = m_impl->d2legacyMode->isChecked();
+    data["modname"]      = PropertyTreeScalar{ m_impl->modName->text().toStdString() };
+    data["seed"]         = PropertyTreeScalar{ m_impl->seed->text().toStdString() };
+    data["d2rPath"]      = PropertyTreeScalar{ m_impl->d2rPath->text().toStdString() };
+    data["d2legacyPath"] = PropertyTreeScalar{ m_impl->d2legacyPath->text().toStdString() };
+    data["addKeys"]      = PropertyTreeScalar{ m_impl->addKeys->isChecked() };
+    data["isLegacy"]     = PropertyTreeScalar{ m_impl->d2legacyMode->isChecked() };
 }
 
 bool MainConfigPage::isConfigEnabled() const

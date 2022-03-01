@@ -20,7 +20,7 @@ public:
     {
         return tr("Horadric Cube");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "cube";
     }

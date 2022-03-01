@@ -19,7 +19,7 @@ public:
     {
         return tr("Skill Randomizer");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "skillRandomizer";
     }

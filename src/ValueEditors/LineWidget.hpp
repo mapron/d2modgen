@@ -21,10 +21,10 @@ public:
                QWidget*       parent);
     ~LineWidget();
 
-    void     resetValue() override;
-    void     setValue(QVariant value) override;
-    QVariant getValue() const override;
-    bool     isDefault() const override;
+    void         resetValue() override;
+    void         setValue(const PropertyTree& value) override;
+    PropertyTree getValue() const override;
+    bool         isDefault() const override;
 
     void addHelp(const QString& helpToolTip);
 

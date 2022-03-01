@@ -27,7 +27,7 @@ public:
     {
         return tr("Challenge");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "challenge";
     }

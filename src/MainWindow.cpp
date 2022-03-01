@@ -43,7 +43,6 @@ QSettings makeAppSettings()
 {
     return QSettings(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/settings.ini", QSettings::IniFormat);
 }
-
 }
 
 DelayedTimer::DelayedTimer(int thresholdMs, std::function<void()> onShot, QObject* parent)
@@ -172,7 +171,7 @@ MainWindow::MainWindow(bool autoSave)
                     auto data = presetCombo->itemData(index);
                     if (!data.isValid())
                         return;
-                    page->readSettings(data.toJsonObject());
+                    page->readSettings(DataContext::qjsonToProperty(data.toJsonObject()));
                 });
                 pageWrapperPresetHeader->addStretch();
                 pageWrapperPresetHeader->addWidget(new QLabel(tr("Do not know where to start? Select a preset:"), this));
@@ -303,8 +302,8 @@ MainWindow::MainWindow(bool autoSave)
         }
     });
     connect(clearConfig, &QAction::triggered, this, [this] {
-        loadConfig(QJsonObject{});
-        pushUndo(QJsonObject{});
+        loadConfig(PropertyTree{});
+        pushUndo(PropertyTree{});
     });
     connect(browseToSettings, &QAction::triggered, this, [this] {
         QFileInfo dir = m_mainPage->getEnv().appData;
@@ -423,7 +422,7 @@ void MainWindow::generate()
         rng.seed(env.seed);
         for (auto* page : m_pages)
             if (page->isConfigEnabled()) {
-                qDebug() << "start page:" << page->settingKey();
+                qDebug() << "start page:" << page->settingKey().c_str();
                 page->generate(output, rng, env);
             }
     }
@@ -456,15 +455,13 @@ void MainWindow::generate()
 bool MainWindow::saveConfig(const QString& filename) const
 {
     qDebug() << "Save:" << filename;
-    QJsonObject data;
+    PropertyTree data;
     for (auto* page : m_pages) {
-        QJsonObject pageData;
-        page->writeSettings(pageData);
-        data[page->settingKey()]              = pageData;
-        data[page->settingKey() + "_enabled"] = page->isConfigEnabled();
+        page->writeSettings(data[page->settingKey()]);
+        data[page->settingKey() + "_enabled"] = PropertyTreeScalar{ page->isConfigEnabled() };
     }
     QDir().mkpath(QFileInfo(filename).absolutePath());
-    return writeJsonFile(filename, QJsonDocument(data));
+    return writeJsonFile(filename, DataContext::propertyToDoc(data));
 }
 
 bool MainWindow::loadConfig(const QString& filename)
@@ -472,18 +469,17 @@ bool MainWindow::loadConfig(const QString& filename)
     qDebug() << "Load:" << filename;
     QJsonDocument doc;
     if (!readJsonFile(filename, doc)) {
-        loadConfig(QJsonObject{});
+        loadConfig(PropertyTree{});
         return false;
     }
-    QJsonObject data = doc.object();
-    return loadConfig(data);
+    return loadConfig(DataContext::qjsonToProperty(doc));
 }
 
-bool MainWindow::loadConfig(const QJsonObject& data)
+bool MainWindow::loadConfig(const PropertyTree& data)
 {
     for (auto* page : m_pages) {
         page->setConfigEnabled(data[page->settingKey() + "_enabled"].toBool());
-        page->readSettings(data[page->settingKey()].toObject());
+        page->readSettings(data[page->settingKey()]);
         m_enableButtons[page]->setChecked(page->isConfigEnabled());
     }
     return true;
@@ -495,7 +491,7 @@ MainWindow::AppSettings MainWindow::getAppSettings()
     return { ini.value("langId", "en_US").toString(), ini.value("themeId", "dark").toString() };
 }
 
-void MainWindow::pushUndo(const QJsonObject& data)
+void MainWindow::pushUndo(const PropertyTree& data)
 {
     qDebug() << "pushing undo, current undo size=" << m_undo.size();
     m_undo << data;
@@ -507,12 +503,12 @@ void MainWindow::pushUndo(const QJsonObject& data)
 
 void MainWindow::pushUndoCurrent()
 {
-    QJsonObject data;
+    PropertyTree data;
     for (auto* page : m_pages) {
-        QJsonObject pageData;
+        PropertyTree pageData;
         page->writeSettings(pageData);
         data[page->settingKey()]              = pageData;
-        data[page->settingKey() + "_enabled"] = page->isConfigEnabled();
+        data[page->settingKey() + "_enabled"] = PropertyTreeScalar{ page->isConfigEnabled() };
     }
     pushUndo(data);
 }

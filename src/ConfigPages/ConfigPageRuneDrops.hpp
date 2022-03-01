@@ -20,7 +20,7 @@ public:
     {
         return tr("Increase Rune drops");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "rune_drops";
     }

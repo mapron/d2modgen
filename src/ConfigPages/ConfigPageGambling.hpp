@@ -20,7 +20,7 @@ public:
     {
         return tr("Gambling");
     }
-    QString settingKey() const override
+    std::string settingKey() const override
     {
         return "gambling";
     }

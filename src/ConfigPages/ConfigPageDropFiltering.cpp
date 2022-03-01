@@ -29,9 +29,9 @@ const QLatin1String s_colorDarkGreen("\xC3\xBF\x63\x3A");   //
 const QLatin1String s_colorPurple("\xC3\xBF\x63\x3B");      //
 const QLatin1String s_colorWhite("\xC3\xBF\x63\x2F");       //  (Brighter than Light Gray)
 
-const QString s_hidden = QString("%1").arg(s_colorTransparent);
+const std::string s_hidden = QString("%1").arg(s_colorTransparent).toStdString();
 
-const QStringList s_locales{
+const std::vector<std::string> s_locales{
     "deDE",
     "enUS",
     "esES",
@@ -104,49 +104,46 @@ void ConfigPageDropFiltering::generate(DataContext& output, QRandomGenerator& rn
     if (isAllDefault())
         return;
 
-    auto replaceJson = [&output](const QMap<QString, QString>& replacements, const QString& name) {
+    auto replaceJson = [&output](const QMap<std::string, std::string>& replacements, const QString& name) {
         if (replacements.isEmpty() || !output.jsonFiles.contains(name))
             return;
         auto& jsonDoc   = output.jsonFiles[name];
-        auto  jsonArray = jsonDoc.array();
-        for (QJsonValueRef lang : jsonArray) {
-            QJsonObject   obj = lang.toObject();
-            const QString key = obj["Key"].toString();
+        auto& jsonArray = jsonDoc.getList();
+        for (PropertyTree& lang : jsonArray) {
+            const std::string key = lang["Key"].toString();
             if (replacements.contains(key)) {
                 auto val = replacements[key];
-                for (const QString& loc : s_locales)
-                    obj[loc] = val;
+                for (const std::string& loc : s_locales)
+                    lang[loc] = PropertyTreeScalar{ val };
             }
-            lang = obj;
         }
-        jsonDoc.setArray(jsonArray);
     };
-    QMap<QString, QString> replacementsItems;
-    QMap<QString, QString> replacementsAffix;
+    QMap<std::string, std::string> replacementsItems;
+    QMap<std::string, std::string> replacementsAffix;
     if (getWidgetValue("compact_pots")) {
-        replacementsItems.insert(QMap<QString, QString>{
-            { "mp1", QString("%1!%2MP1").arg(s_colorBlue).arg(s_colorLightGray) },
-            { "mp2", QString("%1!%2MP2").arg(s_colorBlue).arg(s_colorLightGray) },
-            { "mp3", QString("%1!%2MP3").arg(s_colorBlue).arg(s_colorLightGray) },
-            { "mp4", QString("%1!%2MP4").arg(s_colorBlue).arg(s_colorLightGray) },
-            { "mp5", QString("%1!%2MP5").arg(s_colorBlue).arg(s_colorLightGray) },
-            { "hp1", QString("%1!%2HP1").arg(s_colorRed).arg(s_colorLightGray) },
-            { "hp2", QString("%1!%2HP2").arg(s_colorRed).arg(s_colorLightGray) },
-            { "hp3", QString("%1!%2HP3").arg(s_colorRed).arg(s_colorLightGray) },
-            { "hp4", QString("%1!%2HP4").arg(s_colorRed).arg(s_colorLightGray) },
-            { "hp5", QString("%1!%2HP5").arg(s_colorRed).arg(s_colorLightGray) },
-            { "rvs", QString("%1Rej%2").arg(s_colorPurple).arg(s_colorLightGray) },
-            { "rvl", QString("%1Full%2").arg(s_colorPurple).arg(s_colorLightGray) },
+        replacementsItems.insert(QMap<std::string, std::string>{
+            { "mp1", QString("%1!%2MP1").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
+            { "mp2", QString("%1!%2MP2").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
+            { "mp3", QString("%1!%2MP3").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
+            { "mp4", QString("%1!%2MP4").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
+            { "mp5", QString("%1!%2MP5").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
+            { "hp1", QString("%1!%2HP1").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
+            { "hp2", QString("%1!%2HP2").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
+            { "hp3", QString("%1!%2HP3").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
+            { "hp4", QString("%1!%2HP4").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
+            { "hp5", QString("%1!%2HP5").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
+            { "rvs", QString("%1Rej%2").arg(s_colorPurple).arg(s_colorLightGray).toStdString() },
+            { "rvl", QString("%1Full%2").arg(s_colorPurple).arg(s_colorLightGray).toStdString() },
         });
     }
     if (getWidgetValue("compact_scrolls")) {
-        replacementsItems.insert(QMap<QString, QString>{
-            { "tsc", QString("%1•%2TP").arg(s_colorBlue).arg(s_colorLightGray) },
-            { "isc", QString("%1•%2ID").arg(s_colorRed).arg(s_colorLightGray) },
+        replacementsItems.insert(QMap<std::string, std::string>{
+            { "tsc", QString("%1•%2TP").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
+            { "isc", QString("%1•%2ID").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
         });
     }
     if (getWidgetValue("hide_lowq")) {
-        replacementsAffix.insert(QMap<QString, QString>{
+        replacementsAffix.insert(QMap<std::string, std::string>{
             { "Low Quality", s_hidden },
             { "Damaged", s_hidden },
             { "Cracked", s_hidden },
@@ -156,7 +153,7 @@ void ConfigPageDropFiltering::generate(DataContext& output, QRandomGenerator& rn
     for (const auto& item : m_items) {
         if (getWidgetValue("hide_" + item.settingKey)) {
             for (auto& id : item.internalIds)
-                replacementsItems.insert(id, s_hidden);
+                replacementsItems.insert(id.toStdString(), s_hidden);
         }
     }
 
