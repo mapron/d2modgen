@@ -5,6 +5,8 @@
  */
 #pragma once
 
+#include "CoreExport.hpp"
+
 #include <variant>
 #include <string>
 #include <vector>
@@ -20,7 +22,7 @@ using PropertyTreeList      = std::vector<PropertyTree>;
 using PropertyTreeMap       = std::map<std::string, PropertyTree>;
 using PropertyTreeScalarMap = std::map<std::string, PropertyTreeScalar>;
 
-class PropertyTree {
+class CORE_EXPORT PropertyTree {
 public:
     PropertyTree()                    = default;
     PropertyTree(const PropertyTree&) = default;

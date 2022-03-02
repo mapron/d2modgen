@@ -9,7 +9,6 @@
 #include <QMap>
 #include <QSet>
 #include <QList>
-#include <QWidget>
 #include <QRandomGenerator>
 
 #include <vector>

@@ -8,11 +8,11 @@
 #include "IModule.hpp"
 #include "PropertyTree.hpp"
 
-#include <filesystem>
+#include "CoreExport.hpp"
 
 namespace D2ModGen {
 class StorageCache;
-class ConfigHandler {
+class CORE_EXPORT ConfigHandler {
 public:
     ConfigHandler();
     ConfigHandler(const ConfigHandler&) = delete;

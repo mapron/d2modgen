@@ -7,11 +7,14 @@
 
 #include "IModule.hpp"
 
+#include "CoreExport.hpp"
+
 namespace D2ModGen {
 
-IModule::Ptr    createModule(const std::string& configKey);
-IModule::PtrMap createAllModules();
-void            registerCreator(const std::string& configKey, std::function<IModule::Ptr()> factory);
+CORE_EXPORT IModule::Ptr createModule(const std::string& configKey);
+CORE_EXPORT IModule::PtrMap createAllModules();
+
+void registerCreator(const std::string& configKey, std::function<IModule::Ptr()> factory);
 
 template<class T>
 bool registerHelper()
