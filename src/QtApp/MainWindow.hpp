@@ -19,6 +19,7 @@ class IConfigPage;
 class StorageCache;
 class MainConfigPage;
 class PropertyTree;
+class ConfigHandler;
 class DelayedTimer : public QObject {
     Q_OBJECT
 public:
@@ -38,7 +39,7 @@ private:
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
-    MainWindow(bool autoSave);
+    MainWindow(ConfigHandler& configHandler);
     ~MainWindow();
 
     void generate();
@@ -60,17 +61,19 @@ private:
     void makeUndo();
     void updateUndoAction();
 
+    void updateUIFromSettings();
+
 private:
-    QString                        m_defaultConfig;
-    QList<IConfigPage*>            m_pages;
-    QMap<IConfigPage*, QCheckBox*> m_enableButtons;
-    QLabel*                        m_status;
-    MainConfigPage*                m_mainPage;
-    QScopedPointer<StorageCache>   m_mainStorageCache;
-    bool                           m_autoSave = true;
-    DelayedTimer*                  m_delayTimer;
-    QList<PropertyTree>            m_undo;
-    QAction*                       m_undoAction;
+    QString                               m_defaultConfig;
+    QList<IConfigPage*>                   m_pages;
+    QMap<IConfigPage*, QList<QCheckBox*>> m_enableButtons;
+    QLabel*                               m_status;
+    MainConfigPage*                       m_mainPage;
+    bool                                  m_autoSave = true;
+    DelayedTimer*                         m_delayTimer;
+    QList<PropertyTree>                   m_undo;
+    QAction*                              m_undoAction;
+    ConfigHandler&                        m_configHandler;
 };
 
 }

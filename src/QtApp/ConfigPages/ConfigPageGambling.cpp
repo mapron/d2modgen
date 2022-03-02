@@ -11,10 +11,9 @@ namespace {
 const bool s_init = pageRegisterHelper<ConfigPageGambling>();
 }
 
-ConfigPageGambling::ConfigPageGambling(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageGambling::ConfigPageGambling(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "charmGamble",
         "ratioUnique",

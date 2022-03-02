@@ -13,17 +13,13 @@ class ConfigPageChallenge : public ConfigPageAbstract {
 public:
     static constexpr const std::string_view key = IModule::Key::challenge;
 
-    ConfigPageChallenge(QWidget* parent);
+    ConfigPageChallenge(const IModule::Ptr& module, QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
         return tr("Challenge");
-    }
-    std::string settingKey() const override
-    {
-        return std::string(key);
     }
     QString pageHelp() const override;
     QMap<std::string, QString> widgetTitles() const override;

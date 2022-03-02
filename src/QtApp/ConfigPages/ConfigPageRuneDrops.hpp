@@ -14,17 +14,13 @@ class ConfigPageRuneDrops : public ConfigPageAbstract {
 public:
     static constexpr const std::string_view key = IModule::Key::runeDrops;
 
-    ConfigPageRuneDrops(QWidget* parent);
+    ConfigPageRuneDrops(const IModule::Ptr& module, QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
         return tr("Increase Rune drops");
-    }
-    std::string settingKey() const override
-    {
-        return std::string(key);
     }
     QString    pageHelp() const override;
     PresetList pagePresets() const override;

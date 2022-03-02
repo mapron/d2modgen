@@ -65,11 +65,11 @@ struct MainConfigPage::Impl {
     IModule::Ptr module;
 };
 
-MainConfigPage::MainConfigPage(QWidget* parent)
+MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
     : IConfigPage(parent)
     , m_impl(new Impl())
 {
-    m_impl->module = createModule(std::string(IModule::Key::testConfig));
+    m_impl->module = module;
 
     m_impl->modName       = new QLineEdit(this);
     QValidator* validator = new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9_]+"), this);
@@ -225,10 +225,10 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         if (m_impl->d2legacyMode->isChecked())
             args = "-direct -txt";
         m_impl->d2rArgs->setText(args);
-        emit updateModList();
+        emit needUpdateModList();
     };
 
-    connect(m_impl->d2rPath, &QLineEdit::textChanged, this, &MainConfigPage::updateModList);
+    connect(m_impl->d2rPath, &QLineEdit::textChanged, this, &MainConfigPage::needUpdateModList);
     connect(m_impl->modName, &QLineEdit::textChanged, this, updateArgs);
     connect(m_impl->d2rPath, &QLineEdit::textEdited, this, &IConfigPage::dataChanged);
     connect(m_impl->modName, &QLineEdit::textEdited, this, &IConfigPage::dataChanged);
@@ -250,9 +250,10 @@ MainConfigPage::MainConfigPage(QWidget* parent)
         setLaunch(m_impl->d2rArgs->text());
     });
     connect(makeShortcut, &QPushButton::clicked, this, [this] {
-        auto env  = getEnv();
-        auto desk = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
-        createShortCut(desk + "Diablo II - " + env.modName + " Mod", env.d2rPath + (env.isLegacy ? "Diablo II.exe" : "D2R.exe"), m_impl->d2rArgs->text());
+        const bool legacy  = m_impl->d2legacyMode->isChecked();
+        auto       d2rpath = ensureTrailingSlash(legacy ? m_impl->d2legacyPath->text() : m_impl->d2rPath->text());
+        auto       desk    = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+        createShortCut(desk + "Diablo II - " + m_impl->modName->text() + " Mod", d2rpath + (legacy ? "Diablo II.exe" : "D2R.exe"), m_impl->d2rArgs->text());
     });
     connect(m_impl->d2legacyMode, &QCheckBox::stateChanged, this, [this, d2resurrectedWidgets, d2legacyWidgets, updateArgs](int) {
         const bool legacy = m_impl->d2legacyMode->isChecked();
@@ -268,21 +269,6 @@ MainConfigPage::MainConfigPage(QWidget* parent)
 }
 
 MainConfigPage::~MainConfigPage() = default;
-
-GenerationEnvironment MainConfigPage::getEnv() const
-{
-    GenerationEnvironment env;
-    env.modName         = m_impl->modName->text();
-    env.isLegacy        = m_impl->d2legacyMode->isChecked();
-    env.d2rPath         = ensureTrailingSlash(env.isLegacy ? m_impl->d2legacyPath->text() : m_impl->d2rPath->text());
-    env.exportAllTables = m_impl->exportAll->isChecked();
-    env.appData         = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-    env.seed            = m_impl->seed->text().toUInt();
-    env.outPath         = ensureTrailingSlash(m_impl->outPath->text());
-    if (env.outPath.isEmpty())
-        env.outPath = env.d2rPath;
-    return env;
-}
 
 void MainConfigPage::createNewSeed()
 {
@@ -301,19 +287,9 @@ QStringList MainConfigPage::getOtherMods() const
     return result;
 }
 
-bool MainConfigPage::canBeDisabled() const
-{
-    return false;
-}
-
 QString MainConfigPage::caption() const
 {
     return tr("Main");
-}
-
-std::string MainConfigPage::settingKey() const
-{
-    return "main";
 }
 
 QString MainConfigPage::pageHelp() const
@@ -334,7 +310,17 @@ IConfigPage::PresetList MainConfigPage::pagePresets() const
     return {};
 }
 
-void MainConfigPage::readSettings(const PropertyTree& data)
+void MainConfigPage::updateUIFromSettings(const PropertyTree& data)
+{
+    m_impl->addKeys->setChecked(data.value("addKeys", true).toBool());
+}
+
+void MainConfigPage::writeSettingsFromUI(PropertyTree& data) const
+{
+    data["addKeys"] = PropertyTreeScalar{ m_impl->addKeys->isChecked() };
+}
+
+void MainConfigPage::updateUIFromSettingsMain(const PropertyTree& data)
 {
     if (data.contains("modname"))
         m_impl->modName->setText(QString::fromStdString(data["modname"].toString()));
@@ -356,27 +342,20 @@ void MainConfigPage::readSettings(const PropertyTree& data)
     else
         m_impl->d2legacyPath->setText(getInstallLocationFromRegistry(false));
 
-    m_impl->addKeys->setChecked(data.value("addKeys", true).toBool());
     m_impl->d2legacyMode->setChecked(data.value("isLegacy", false).toBool());
+    m_impl->exportAll->setChecked(data.value("exportAllTables", false).toBool());
+    m_impl->outPath->setText(QString::fromStdString(data.value("outPath", "").toString()));
 }
 
-void MainConfigPage::writeSettings(PropertyTree& data) const
+void MainConfigPage::writeSettingsFromUIMain(PropertyTree& data) const
 {
-    data["modname"]      = PropertyTreeScalar{ m_impl->modName->text().toStdString() };
-    data["seed"]         = PropertyTreeScalar{ m_impl->seed->text().toStdString() };
-    data["d2rPath"]      = PropertyTreeScalar{ m_impl->d2rPath->text().toStdString() };
-    data["d2legacyPath"] = PropertyTreeScalar{ m_impl->d2legacyPath->text().toStdString() };
-    data["addKeys"]      = PropertyTreeScalar{ m_impl->addKeys->isChecked() };
-    data["isLegacy"]     = PropertyTreeScalar{ m_impl->d2legacyMode->isChecked() };
-}
-
-bool MainConfigPage::isConfigEnabled() const
-{
-    return true;
-}
-
-void MainConfigPage::setConfigEnabled(bool state)
-{
+    data["modname"]         = PropertyTreeScalar{ m_impl->modName->text().toStdString() };
+    data["seed"]            = PropertyTreeScalar{ m_impl->seed->text().toUInt() };
+    data["d2rPath"]         = PropertyTreeScalar{ m_impl->d2rPath->text().toStdString() };
+    data["d2legacyPath"]    = PropertyTreeScalar{ m_impl->d2legacyPath->text().toStdString() };
+    data["isLegacy"]        = PropertyTreeScalar{ m_impl->d2legacyMode->isChecked() };
+    data["exportAllTables"] = PropertyTreeScalar{ m_impl->exportAll->isChecked() };
+    data["outPath"]         = PropertyTreeScalar{ m_impl->outPath->text().toStdString() };
 }
 
 const IModule& MainConfigPage::getModule() const

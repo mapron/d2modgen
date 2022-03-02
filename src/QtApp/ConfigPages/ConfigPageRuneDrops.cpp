@@ -11,10 +11,9 @@ namespace {
 const bool s_init = pageRegisterHelper<ConfigPageRuneDrops>();
 }
 
-ConfigPageRuneDrops::ConfigPageRuneDrops(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageRuneDrops::ConfigPageRuneDrops(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "zod_factor",
         "rune_factor",

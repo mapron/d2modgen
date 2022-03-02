@@ -11,12 +11,10 @@
 #include "ConfigPages/ConfigPageMergeMods.hpp"
 #include "ConfigPageFactory.hpp"
 
-#include "Storage/StorageCache.hpp"
-#include "Storage/FolderStorage.hpp"
-
 #include "IModule.hpp"
 
 #include "HelpToolButton.hpp"
+#include "ConfigHandler.hpp"
 
 #include <QDebug>
 #include <QLayout>
@@ -79,12 +77,13 @@ void DelayedTimer::timerEvent(QTimerEvent*)
     m_timerId = -1;
 }
 
-MainWindow::MainWindow(bool autoSave)
+MainWindow::MainWindow(ConfigHandler& configHandler)
     : QMainWindow(nullptr)
-    , m_mainStorageCache(new StorageCache())
-    , m_autoSave(autoSave)
+    , m_configHandler(configHandler)
 {
     setWindowTitle("Diablo II Resurrected mod generator by mapron");
+
+    const auto appData = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
 
     m_delayTimer = new DelayedTimer(
         1000, [this] { pushUndoCurrent(); }, this);
@@ -102,64 +101,65 @@ MainWindow::MainWindow(bool autoSave)
 
     m_status = new QLabel(tr("Status label."), this);
 
-    m_mainPage         = new MainConfigPage(this);
-    auto* modMergePre  = new ConfigPageMergeModsPreload(this);
-    auto* modMergePost = new ConfigPageMergeModsPostGen(this);
-    auto* pageGroup    = new QButtonGroup(this);
-    auto* buttonPanel  = new QWidget(this);
+    m_mainPage        = new MainConfigPage(createModule(std::string(IModule::Key::testConfig)), this);
+    auto* pageGroup   = new QButtonGroup(this);
+    auto* buttonPanel = new QWidget(this);
 
     QVBoxLayout*     buttonPanelLayout = new QVBoxLayout(buttonPanel);
     QList<PageGroup> pageGroups;
     pageGroups << PageGroup{
         "", QList<IConfigPage*>{ m_mainPage }
     };
-    pageGroups << [this]() -> QList<PageGroup> {
+    auto createConfigPages = [this](const std::vector<std::string_view>& keys) -> QList<IConfigPage*> {
+        QList<IConfigPage*> result;
+        for (auto key : keys)
+            result << createConfigPage(m_configHandler.getModule(key), this);
+        return result;
+    };
+    pageGroups << [this, createConfigPages]() -> QList<PageGroup> {
         return QList<PageGroup>{
             PageGroup{
                 QObject::tr("Randomizers"),
-
                 createConfigPages({
-                                      IModule::Key::itemRandomizer,
-                                      IModule::Key::monsterRandomizer,
-                                      IModule::Key::skillRandomizer,
-                                  },
-                                  this),
+                    IModule::Key::itemRandomizer,
+                    IModule::Key::monsterRandomizer,
+                    IModule::Key::skillRandomizer,
+                }),
 
             },
             PageGroup{
                 QObject::tr("Make harder"),
                 createConfigPages({
-                                      IModule::Key::monsterStats,
-                                      IModule::Key::monsterDensity,
-                                      IModule::Key::challenge,
-                                  },
-                                  this),
+                    IModule::Key::monsterStats,
+                    IModule::Key::monsterDensity,
+                    IModule::Key::challenge,
+                }),
 
             },
             PageGroup{
                 QObject::tr("Make easier"),
                 createConfigPages({
-                                      IModule::Key::horadricCube,
-                                      IModule::Key::gambling,
-                                      IModule::Key::character,
-                                      IModule::Key::qualityOfLife,
-                                      IModule::Key::itemDrops,
-                                      IModule::Key::runeDrops,
-                                      IModule::Key::perfectRolls,
-                                  },
-                                  this),
+                    IModule::Key::horadricCube,
+                    IModule::Key::gambling,
+                    IModule::Key::character,
+                    IModule::Key::qualityOfLife,
+                    IModule::Key::itemDrops,
+                    IModule::Key::runeDrops,
+                    IModule::Key::perfectRolls,
+                }),
 
             },
             PageGroup{
                 QObject::tr("Misc"),
-                createConfigPages({ IModule::Key::dropFiltering }, this),
+                createConfigPages({
+                    IModule::Key::dropFiltering,
+                    IModule::Key::mergePregen,
+                    IModule::Key::mergePostgen,
+                }),
 
             },
         };
     }();
-    pageGroups << PageGroup{
-        "", QList<IConfigPage*>{ modMergePre, modMergePost }
-    };
 
     for (const auto& group : pageGroups) {
         if (!group.title.isEmpty()) {
@@ -170,6 +170,7 @@ MainWindow::MainWindow(bool autoSave)
         }
 
         for (IConfigPage* page : group.pages) {
+            const bool isMainPage = page == m_mainPage;
             m_pages << page;
             QPushButton* pageButton = new QPushButton(page->caption(), this);
             pageButton->setCheckable(true);
@@ -182,7 +183,7 @@ MainWindow::MainWindow(bool autoSave)
             QComboBox*   presetCombo   = nullptr;
             headerEnabler->setChecked(true);
             sideEnabler->setChecked(true);
-            if (!page->canBeDisabled()) {
+            if (isMainPage) {
                 headerEnabler->hide();
                 sideEnabler->hide();
             }
@@ -220,10 +221,12 @@ MainWindow::MainWindow(bool autoSave)
                 for (const auto& preset : presetTitles)
                     presetCombo->addItem(preset);
 
-                connect(presetCombo, qOverload<int>(&QComboBox::currentIndexChanged), presetCombo, [presetCombo, page, presets](int index) {
+                connect(presetCombo, qOverload<int>(&QComboBox::currentIndexChanged), presetCombo, [this, presetCombo, page, presets](int index) {
                     if (index <= 0)
                         return;
-                    page->readSettings(presets[index - 1]);
+                    page->updateUIFromSettings(presets[index - 1]);
+                    m_configHandler.m_modules.at(page->getModule().settingKey()).m_currentConfig = presets[index - 1];
+                    m_delayTimer->start();
                 });
                 pageWrapperPresetHeader->addStretch();
                 pageWrapperPresetHeader->addWidget(new QLabel(tr("Do not know where to start? Select a preset:"), this));
@@ -242,18 +245,41 @@ MainWindow::MainWindow(bool autoSave)
                 if (presetCombo)
                     presetCombo->setCurrentIndex(0);
             });
-            connect(resetButton, &QPushButton::clicked, this, [page]() {
-                page->readSettings({});
+            connect(resetButton, &QPushButton::clicked, this, [this, page]() {
+                page->updateUIFromSettings({});
+                m_configHandler.m_modules.at(page->getModule().settingKey()).m_currentConfig = {};
+                m_delayTimer->start();
             });
-            connect(headerEnabler, &QCheckBox::toggled, sideEnabler, &QCheckBox::setChecked);
-            connect(sideEnabler, &QCheckBox::toggled, headerEnabler, &QCheckBox::setChecked);
-            connect(headerEnabler, &QCheckBox::toggled, page, &IConfigPage::setConfigEnabled);
-            connect(headerEnabler, &QCheckBox::clicked, m_delayTimer, &DelayedTimer::start);
-            connect(sideEnabler, &QCheckBox::clicked, m_delayTimer, &DelayedTimer::start);
-            if (page->canBeDisabled())
+            connect(page, &IConfigPage::dataChanged, this, [this, page] {
+                PropertyTree data;
+                page->writeSettingsFromUI(data);
+                m_configHandler.m_modules.at(page->getModule().settingKey()).m_currentConfig = std::move(data);
+                m_delayTimer->start();
+            });
+
+            if (!isMainPage) {
+                connect(headerEnabler, &QCheckBox::toggled, sideEnabler, &QCheckBox::setChecked);
+                connect(sideEnabler, &QCheckBox::toggled, headerEnabler, &QCheckBox::setChecked);
                 connect(headerEnabler, &QCheckBox::toggled, page, &QWidget::setEnabled);
-            connect(page, &IConfigPage::dataChanged, this, [this] { m_delayTimer->start(); });
-            m_enableButtons[page] = headerEnabler;
+
+                connect(headerEnabler, &QCheckBox::clicked, page, [this, page, headerEnabler] {
+                    m_configHandler.m_modules.at(page->getModule().settingKey()).m_enabled = headerEnabler->isChecked();
+                    m_delayTimer->start();
+                });
+                connect(sideEnabler, &QCheckBox::clicked, page, [this, page, sideEnabler] {
+                    m_configHandler.m_modules.at(page->getModule().settingKey()).m_enabled = sideEnabler->isChecked();
+                    m_delayTimer->start();
+                });
+
+                m_enableButtons[page] = { headerEnabler, sideEnabler };
+            } else {
+                connect(page, &IConfigPage::dataChanged, this, [this] {
+                    PropertyTree data;
+                    m_mainPage->writeSettingsFromUIMain(data);
+                    m_configHandler.m_currentMainConfig = std::move(data);
+                    m_delayTimer->start();
+                });
+            }
         }
     }
 
@@ -357,8 +383,8 @@ MainWindow::MainWindow(bool autoSave)
         loadConfig(PropertyTree{});
         pushUndo(PropertyTree{});
     });
-    connect(browseToSettings, &QAction::triggered, this, [this] {
-        QFileInfo dir = m_mainPage->getEnv().appData;
+    connect(browseToSettings, &QAction::triggered, this, [this, appData] {
+        QFileInfo dir = appData;
         QProcess::startDetached("explorer.exe", QStringList() << QDir::toNativeSeparators(dir.canonicalFilePath()));
     });
     connect(quitAction, &QAction::triggered, this, [this] {
@@ -371,11 +397,12 @@ MainWindow::MainWindow(bool autoSave)
     connect(generateMod, &QAction::triggered, this, &MainWindow::generate);
     connect(newSeed, &QAction::triggered, m_mainPage, &MainConfigPage::createNewSeed);
     connect(m_undoAction, &QAction::triggered, this, &MainWindow::makeUndo);
-    auto updateModList = [modMergePre, modMergePost, this] {
-        modMergePre->setModList(m_mainPage->getOtherMods());
-        modMergePost->setModList(m_mainPage->getOtherMods());
+    auto updateModList = [this] {
+        auto mods = m_mainPage->getOtherMods();
+        for (auto* page : m_pages)
+            page->updateModList(mods);
     };
-    connect(m_mainPage, &MainConfigPage::updateModList, this, updateModList);
+    connect(m_mainPage, &MainConfigPage::needUpdateModList, this, updateModList);
 
     connect(themeActionLight, &QAction::triggered, this, [setNewAppValue] { setNewAppValue("themeId", "light"); });
     connect(themeActionDark, &QAction::triggered, this, [setNewAppValue] { setNewAppValue("themeId", "dark"); });
@@ -383,9 +410,9 @@ MainWindow::MainWindow(bool autoSave)
     connect(langActionRu, &QAction::triggered, this, [setNewAppValue] { setNewAppValue("langId", "ru_RU"); });
 
     // misc
-    updateModList();
+    //updateModList();
 
-    m_defaultConfig = m_mainPage->getEnv().appData + "config.json";
+    m_defaultConfig = appData + "config.json";
     loadConfig(m_defaultConfig);
     pushUndoCurrent();
 }
@@ -398,160 +425,38 @@ MainWindow::~MainWindow()
 
 void MainWindow::generate()
 {
-    const GenerationEnvironment& env = m_mainPage->getEnv();
-    if (env.d2rPath.isEmpty()) {
-        qWarning() << "D2R path is empty";
-        return;
-    }
-
-    const StorageType storage    = (env.isLegacy) ? StorageType::D2LegacyInternal : StorageType::D2ResurrectedInternal;
-    const StorageType storageOut = (env.isLegacy) ? StorageType::D2LegacyFolder : StorageType::D2ResurrectedModFolder;
-
-    FolderStorage outStorage(env.outPath, storageOut, env.modName);
-    if (!outStorage.prepareForWrite()) {
-        QMessageBox::warning(this, "error", tr("Failed to write data in destination folder; try to launch as admin."));
-        return;
-    }
-
-    auto mergeContext = [this, &env](DataContext& targetContext, const ExtraDependencies::Source& source) -> bool {
-        const auto    logInfo = source.srcRoot + " / " + source.modname;
-        const bool    isMod   = source.type == StorageType::D2ResurrectedModFolder;
-        const auto    root    = isMod ? env.outPath : source.srcRoot;
-        FolderStorage inStorage(root, source.type, isMod ? source.modname : "");
-        auto          storedData = inStorage.readData({});
-        if (!storedData.valid) {
-            qWarning() << "Failed to read data files from D2 folder:" << logInfo;
-            return false;
-        }
-        DataContext dataContext;
-        if (!dataContext.readData(storedData)) {
-            qWarning() << "Failed to parse files into input:" << logInfo;
-            return false;
-        }
-        if (!targetContext.mergeWith(dataContext, source.policy)) {
-            qWarning() << "Merge failed:" << logInfo;
-            return false;
-        }
-        return true;
-    };
-
     m_status->setText(tr("Start..."));
     m_status->repaint();
 
-    DataContext output;
-
-    PreGenerationContext pregenContext;
-    {
-        for (auto* page : m_pages)
-            if (page->isConfigEnabled()) {
-                PropertyTree pageData;
-                page->writeSettings(pageData);
-                IModule::InputContext input;
-                input.m_env           = env;
-                input.m_settings      = pageData;
-                input.m_defaultValues = page->getModule().defaultValues();
-                page->getModule().gatherInfo(pregenContext, input);
-            }
-    }
-    {
-        const IStorage::StoredData data = m_mainStorageCache->load(storage, env.d2rPath, pregenContext.m_extraJson);
-        if (!data.valid) {
-            QMessageBox::warning(this, "error", tr("Failed to read data files from D2 folder."));
-            return;
-        }
-        if (!output.readData(data)) {
-            QMessageBox::warning(this, "error", tr("Failed parse D2 data files."));
-            return;
-        }
-        if (env.exportAllTables)
-            for (auto& p : output.tableSet.tables)
-                p.second.forceOutput = true;
-    }
-    qDebug() << "Loading pre-gen data.";
-    {
-        for (const auto& source : pregenContext.m_preGen.m_sources)
-            if (!mergeContext(output, source)) {
-                QMessageBox::warning(this, "error", tr("Failed to merge with source: %1 / %2").arg(source.srcRoot, source.modname));
-                return;
-            }
-    }
-    qDebug() << "prepare ended; Starting generate phase. seed=" << env.seed;
-    {
-        QRandomGenerator rng;
-        rng.seed(env.seed);
-        for (auto* page : m_pages)
-            if (page->isConfigEnabled()) {
-                qDebug() << "start page:" << page->settingKey().c_str();
-
-                PropertyTree pageData;
-                page->writeSettings(pageData);
-                IModule::InputContext input;
-                input.m_env           = env;
-                input.m_settings      = pageData;
-                input.m_defaultValues = page->getModule().defaultValues();
-                page->getModule().generate(output, rng, input);
-            }
-    }
-    qDebug() << "Loading post-gen data.";
-    {
-        for (const auto& source : pregenContext.m_postGen.m_sources)
-            if (!mergeContext(output, source)) {
-                QMessageBox::warning(this, "error", tr("Failed to merge with source: %1 / %2").arg(source.srcRoot, source.modname));
-                return;
-            }
-    }
-    qDebug() << "prepare output data.";
-
-    IStorage::StoredData outData;
-    if (!output.writeData(outData)) {
-        qDebug() << "Failed to prepare data buffers"; // highly unlikely.
+    auto result = m_configHandler.generate();
+    if (!result.m_success) {
+        if (!result.m_error.empty())
+            QMessageBox::warning(this, "error", QString::fromStdString(result.m_error));
         return;
     }
 
-    qDebug() << "writing output to disk.";
-    if (!outStorage.writeData(outData)) {
-        QMessageBox::warning(this, "error", tr("Failed write output data to disk"));
-        return;
-    }
-
-    qDebug() << "generation ends.";
-    m_status->setText(tr("Mod '%1' successfully updated (%2).").arg(env.modName, QTime::currentTime().toString("mm:ss")));
+    m_status->setText(tr("Mod '%1' successfully updated (%2).")
+                          .arg(QString::fromStdString(m_configHandler.getEnv().modName), QTime::currentTime().toString("mm:ss")));
 }
 
 bool MainWindow::saveConfig(const QString& filename) const
 {
     qDebug() << "Save:" << filename;
-    PropertyTree data;
-    for (auto* page : m_pages) {
-        page->writeSettings(data[page->settingKey()]);
-        data[page->settingKey() + "_enabled"] = PropertyTreeScalar{ page->isConfigEnabled() };
-    }
-    QDir().mkpath(QFileInfo(filename).absolutePath());
-    return writeJsonFile(filename, DataContext::propertyToDoc(data));
+    return m_configHandler.saveConfig(filename);
 }
 
 bool MainWindow::loadConfig(const QString& filename)
 {
-    qDebug() << "Load:" << filename;
-    QJsonDocument doc;
-    if (!readJsonFile(filename, doc)) {
-        loadConfig(PropertyTree{});
-        return false;
-    }
-    return loadConfig(DataContext::qjsonToProperty(doc));
+    const auto result = m_configHandler.loadConfig(filename);
+    updateUIFromSettings();
+    return result;
 }
 
 bool MainWindow::loadConfig(const PropertyTree& data)
 {
-    for (auto* page : m_pages) {
-        page->setConfigEnabled(data.value(page->settingKey() + "_enabled", false).toBool());
-        if (data.contains(page->settingKey()))
-            page->readSettings(data[page->settingKey()]);
-        else
-            page->readSettings(PropertyTree{});
-        m_enableButtons[page]->setChecked(page->isConfigEnabled());
-    }
-    return true;
+    const auto result = m_configHandler.loadConfig(data);
+    updateUIFromSettings();
+    return result;
 }
 
 MainWindow::AppSettings MainWindow::getAppSettings()
@@ -573,12 +478,7 @@ void MainWindow::pushUndo(const PropertyTree& data)
 void MainWindow::pushUndoCurrent()
 {
     PropertyTree data;
-    for (auto* page : m_pages) {
-        PropertyTree pageData;
-        page->writeSettings(pageData);
-        data[page->settingKey()]              = pageData;
-        data[page->settingKey() + "_enabled"] = PropertyTreeScalar{ page->isConfigEnabled() };
-    }
+    m_configHandler.saveConfig(data);
     pushUndo(data);
 }
 
@@ -593,6 +493,19 @@ void MainWindow::makeUndo()
 void MainWindow::updateUndoAction()
 {
     m_undoAction->setEnabled(m_undo.size() > 1);
+}
+
+void MainWindow::updateUIFromSettings()
+{
+    for (auto* page : m_pages) {
+        auto        key  = page->getModule().settingKey();
+        const auto& mod  = m_configHandler.m_modules[key];
+        const auto& data = mod.m_currentConfig;
+        page->updateUIFromSettings(data);
+        for (auto* cb : m_enableButtons[page])
+            cb->setChecked(mod.m_enabled);
+    }
+    m_mainPage->updateUIFromSettingsMain(m_configHandler.m_currentMainConfig);
 }
 
 }

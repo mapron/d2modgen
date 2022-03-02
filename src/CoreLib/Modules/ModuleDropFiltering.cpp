@@ -5,9 +5,7 @@
  */
 #include "ModuleDropFiltering.hpp"
 
-#include <QLabel>
-#include <QJsonDocument>
-#include <QJsonArray>
+#include "DataContext.hpp"
 
 namespace D2ModGen {
 

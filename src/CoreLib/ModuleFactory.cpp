@@ -44,4 +44,13 @@ void registerCreator(const std::string& configKey, std::function<IModule::Ptr()>
     getFactory()[configKey] = std::move(factory);
 }
 
+IModule::PtrMap createAllModules()
+{
+    IModule::PtrMap result;
+    auto&           fmap = getFactory();
+    for (auto& p : fmap)
+        result[p.first] = p.second();
+    return result;
+}
+
 }

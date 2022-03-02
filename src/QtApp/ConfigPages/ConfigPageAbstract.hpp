@@ -23,20 +23,18 @@ namespace D2ModGen {
 
 class ConfigPageAbstract : public IConfigPage {
 public:
-    ConfigPageAbstract(QWidget* parent);
+    ConfigPageAbstract(const IModule::Ptr& module, QWidget* parent);
 
     // IConfigPage interface
 public:
-    bool       canBeDisabled() const override;
     PresetList pagePresets() const override;
 
-    void readSettings(const PropertyTree& data) override;
-    void writeSettings(PropertyTree& data) const override;
-
-    bool isConfigEnabled() const override;
-    void setConfigEnabled(bool state) override;
+    void updateUIFromSettings(const PropertyTree& data) override;
+    void writeSettingsFromUI(PropertyTree& data) const override;
 
     const IModule& getModule() const override { return *m_module; }
+
+    void updateModList(const QStringList& mods) override{}
 
     virtual QMap<std::string, QString> widgetTitles() const { return {}; };
     virtual QMap<std::string, QString> widgetHelps() const { return {}; };
@@ -48,13 +46,11 @@ protected:
     IValueWidget*        makeEditor(const std::string& key, const QString& title, const QString& help = QString());
     QList<IValueWidget*> makeEditors(const StringVector& keys);
     void                 closeLayout();
-    void                 initModule();
 
 private:
     QMap<std::string, IValueWidget*> m_editors;
     QVBoxLayout*                     m_layout;
-    bool                             m_enabled = true;
-    std::unique_ptr<IModule>         m_module;
+    const IModule::Ptr               m_module;
 };
 
 }

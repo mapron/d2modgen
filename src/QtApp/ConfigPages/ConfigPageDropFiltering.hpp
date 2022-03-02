@@ -20,17 +20,13 @@ public:
     };
     const QList<Item> m_items;
 
-    ConfigPageDropFiltering(QWidget* parent);
+    ConfigPageDropFiltering(const IModule::Ptr& module, QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
         return tr("Drops filtering");
-    }
-    std::string settingKey() const override
-    {
-        return std::string(key);
     }
     QString pageHelp() const override;
 };

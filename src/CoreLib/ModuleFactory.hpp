@@ -9,13 +9,14 @@
 
 namespace D2ModGen {
 
-IModule::Ptr createModule(const std::string& configKey);
-void         registerCreator(const std::string& configKey, std::function<IModule::Ptr()> factory);
+IModule::Ptr    createModule(const std::string& configKey);
+IModule::PtrMap createAllModules();
+void            registerCreator(const std::string& configKey, std::function<IModule::Ptr()> factory);
 
 template<class T>
 bool registerHelper()
 {
-    registerCreator(std::string(T::key), [] { return std::make_unique<T>(); });
+    registerCreator(std::string(T::key), [] { return std::make_shared<T>(); });
     return true;
 }
 }

@@ -12,31 +12,30 @@ namespace D2ModGen {
 class MainConfigPage : public IConfigPage {
     Q_OBJECT
 public:
-    MainConfigPage(QWidget* parent);
+    MainConfigPage(const IModule::Ptr& module, QWidget* parent);
     ~MainConfigPage();
 
-    GenerationEnvironment getEnv() const;
-    void                  createNewSeed();
-    QStringList           getOtherMods() const;
+    void        createNewSeed();
+    QStringList getOtherMods() const;
 
     // IConfigPage interface
 public:
-    bool        canBeDisabled() const override;
-    QString     caption() const override;
-    std::string settingKey() const override;
-    QString     pageHelp() const override;
-    PresetList  pagePresets() const override;
+    QString    caption() const override;
+    QString    pageHelp() const override;
+    PresetList pagePresets() const override;
 
-    void readSettings(const PropertyTree& data) override;
-    void writeSettings(PropertyTree& data) const override;
+    void updateUIFromSettings(const PropertyTree& data) override;
+    void writeSettingsFromUI(PropertyTree& data) const override;
 
-    bool isConfigEnabled() const override;
-    void setConfigEnabled(bool state) override;
+    void updateModList(const QStringList& mods) override {}
+
+    void updateUIFromSettingsMain(const PropertyTree& data);
+    void writeSettingsFromUIMain(PropertyTree& data) const;
 
     const IModule& getModule() const override;
 
 signals:
-    void updateModList();
+    void needUpdateModList();
 
 private:
     void setLaunch(QString arg);

@@ -5,18 +5,15 @@
  */
 #include "ConfigPageMonRandomizer.hpp"
 
-#include <QJsonDocument>
-
 namespace D2ModGen {
 
 namespace {
 const bool s_init = pageRegisterHelper<ConfigPageMonRandomizer>();
 }
 
-ConfigPageMonRandomizer::ConfigPageMonRandomizer(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageMonRandomizer::ConfigPageMonRandomizer(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "spawnedCount",
         "maxTypes",

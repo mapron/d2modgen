@@ -23,17 +23,14 @@ public:
         : QWidget(parent)
     {}
 
-    virtual bool        canBeDisabled() const = 0;
-    virtual QString     caption() const       = 0;
-    virtual std::string settingKey() const    = 0;
-    virtual QString     pageHelp() const      = 0;
-    virtual PresetList  pagePresets() const   = 0;
+    virtual QString    caption() const     = 0;
+    virtual QString    pageHelp() const    = 0;
+    virtual PresetList pagePresets() const = 0;
 
-    virtual void readSettings(const PropertyTree& data)  = 0;
-    virtual void writeSettings(PropertyTree& data) const = 0;
+    virtual void updateUIFromSettings(const PropertyTree& data) = 0;
+    virtual void writeSettingsFromUI(PropertyTree& data) const  = 0;
 
-    virtual bool isConfigEnabled() const      = 0;
-    virtual void setConfigEnabled(bool state) = 0;
+    virtual void updateModList(const QStringList& mods) = 0;
 
     virtual const IModule& getModule() const = 0;
 

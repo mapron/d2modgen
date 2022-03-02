@@ -11,10 +11,9 @@ namespace {
 const bool s_init = pageRegisterHelper<ConfigPageCharacter>();
 }
 
-ConfigPageCharacter::ConfigPageCharacter(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageCharacter::ConfigPageCharacter(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "addCube",
         "idTome",

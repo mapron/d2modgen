@@ -5,11 +5,8 @@
  */
 #include "ConfigPageMergeMods.hpp"
 
-#include "FileIOUtils.hpp"
-
 #include <QLabel>
 #include <QListWidget>
-#include <QDirIterator>
 #include <QSpinBox>
 #include <QComboBox>
 #include <QLineEdit>
@@ -138,8 +135,8 @@ void ConfigPageMergeModsItem::checkForChange()
     emit dataChanged();
 }
 
-ConfigPageMergeMods::ConfigPageMergeMods(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageMergeMods::ConfigPageMergeMods(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
     addWidget(new QLabel(tr("Overall order of data load is: D2 source from Main settings ->\n"
                             "-> Pre-gen data -> modgen features -> Post-gen data -> output folder."),
@@ -166,14 +163,14 @@ ConfigPageMergeMods::ConfigPageMergeMods(QWidget* parent)
     closeLayout();
 }
 
-void ConfigPageMergeMods::setModList(const QStringList& mods)
+void ConfigPageMergeMods::updateModList(const QStringList& mods)
 {
     m_modList = mods;
     for (auto* item : m_items)
         item->setModList(mods);
 }
 
-void ConfigPageMergeMods::readSettings(const PropertyTree& data)
+void ConfigPageMergeMods::updateUIFromSettings(const PropertyTree& data)
 {
     const int count = data.value("sourceCount", 0).toInt();
     m_countSpinbox->blockSignals(true);
@@ -186,7 +183,7 @@ void ConfigPageMergeMods::readSettings(const PropertyTree& data)
     }
 }
 
-void ConfigPageMergeMods::writeSettings(PropertyTree& data) const
+void ConfigPageMergeMods::writeSettingsFromUI(PropertyTree& data) const
 {
     const int64_t count = m_countSpinbox->value();
     data["sourceCount"] = PropertyTreeScalar{ count };

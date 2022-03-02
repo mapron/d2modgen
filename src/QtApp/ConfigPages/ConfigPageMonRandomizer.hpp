@@ -13,17 +13,13 @@ class ConfigPageMonRandomizer : public ConfigPageAbstract {
 public:
     static constexpr const std::string_view key = IModule::Key::monsterRandomizer;
 
-    ConfigPageMonRandomizer(QWidget* parent);
+    ConfigPageMonRandomizer(const IModule::Ptr& module, QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
         return tr("Monster Randomizer");
-    }
-    std::string settingKey() const override
-    {
-        return std::string(key);
     }
     QString pageHelp() const override;
 

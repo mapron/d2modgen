@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include "DataContext.hpp"
+#include "CommonTypes.hpp"
 #include "PropertyTree.hpp"
 
 #include <memory>
@@ -14,9 +14,11 @@
 
 namespace D2ModGen {
 
+class DataContext;
 class IModule {
 public:
-    using Ptr        = std::unique_ptr<IModule>;
+    using Ptr        = std::shared_ptr<const IModule>;
+    using PtrMap     = std::map<std::string, Ptr>;
     using PresetList = std::vector<PropertyTreeScalarMap>;
     struct InputContext {
         PropertyTree          m_settings;
@@ -130,6 +132,7 @@ public:
         static constexpr const std::string_view skillRandomizer{ "skillRandomizer" };
 
         static constexpr const std::string_view testConfig{ "testConfig" };
+        static constexpr const std::string_view main{ "main" };
     };
 };
 

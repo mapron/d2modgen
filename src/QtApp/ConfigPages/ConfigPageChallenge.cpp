@@ -11,10 +11,9 @@ namespace {
 const bool s_init = pageRegisterHelper<ConfigPageChallenge>();
 }
 
-ConfigPageChallenge::ConfigPageChallenge(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageChallenge::ConfigPageChallenge(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "nodrop_hpsa",
         "nodrop_mpsa",

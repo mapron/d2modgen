@@ -15,17 +15,13 @@ class ConfigPageItemRandomizer : public ConfigPageAbstract {
 public:
     static constexpr const std::string_view key = IModule::Key::itemRandomizer;
 
-    ConfigPageItemRandomizer(QWidget* parent);
+    ConfigPageItemRandomizer(const IModule::Ptr& module, QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
         return tr("Item Randomizer");
-    }
-    std::string settingKey() const override
-    {
-        return std::string(key);
     }
     QString                 pageHelp() const override;
     IConfigPage::PresetList pagePresets() const override;

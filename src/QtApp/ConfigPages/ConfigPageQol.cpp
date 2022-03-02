@@ -11,10 +11,9 @@ namespace {
 const bool s_init = pageRegisterHelper<ConfigPageQol>();
 }
 
-ConfigPageQol::ConfigPageQol(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageQol::ConfigPageQol(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "tomeSize",
         "keySize",

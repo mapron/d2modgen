@@ -4,7 +4,6 @@
  * See LICENSE file for details.
  */
 #include "ConfigPageItemDrops.hpp"
-#include "AttributeHelper.hpp"
 
 #include <QLabel>
 
@@ -14,10 +13,9 @@ namespace {
 const bool s_init = pageRegisterHelper<ConfigPageItemDrops>();
 }
 
-ConfigPageItemDrops::ConfigPageItemDrops(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageItemDrops::ConfigPageItemDrops(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "chance_uni",
         "chance_set",

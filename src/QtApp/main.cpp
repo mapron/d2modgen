@@ -5,6 +5,8 @@
  */
 #include "MainWindow.hpp"
 
+#include "ConfigHandler.hpp"
+
 #include <QApplication>
 #include <QDebug>
 #include <QDateTime>
@@ -87,13 +89,14 @@ int main(int argc, char* argv[])
     file.open(QIODevice::WriteOnly | QIODevice::Truncate);
     g_logFile = &file;
 
+    D2ModGen::ConfigHandler configHandler;
+
     auto args = app.arguments();
     if (args.value(1) == "--generate") {
-        D2ModGen::MainWindow w(false);
-        QString              file = args.value(2);
+        QString file = args.value(2);
         if (!file.isEmpty())
-            w.loadConfig(file);
-        w.generate();
+            configHandler.loadConfig(file);
+        configHandler.generate();
         return 0;
     }
 
@@ -112,7 +115,7 @@ int main(int argc, char* argv[])
     Q_INIT_RESOURCE(Translations);
     RAIITranslator trans(langId);
 
-    D2ModGen::MainWindow w(true);
+    D2ModGen::MainWindow w(configHandler);
     qDebug() << "main window created";
     w.show();
     auto res = app.exec();

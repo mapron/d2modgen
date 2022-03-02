@@ -6,8 +6,6 @@
 #include "ConfigPageDropFiltering.hpp"
 
 #include <QLabel>
-#include <QJsonDocument>
-#include <QJsonArray>
 
 namespace D2ModGen {
 
@@ -15,8 +13,8 @@ namespace {
 const bool s_init = pageRegisterHelper<ConfigPageDropFiltering>();
 }
 
-ConfigPageDropFiltering::ConfigPageDropFiltering(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageDropFiltering::ConfigPageDropFiltering(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
     , m_items{
         { "isc", tr("ID scroll") },
         { "tsc", tr("TP scroll") },
@@ -32,7 +30,6 @@ ConfigPageDropFiltering::ConfigPageDropFiltering(QWidget* parent)
     }
 
 {
-    initModule();
     addWidget(new QLabel(tr("<b>Make item names compact</b>: this will make item names take less space, e.g. '!HP2' for health potion."),
                          this));
     addEditors(QList<IValueWidget*>()

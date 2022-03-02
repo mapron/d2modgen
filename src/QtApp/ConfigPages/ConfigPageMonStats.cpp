@@ -13,10 +13,9 @@ namespace {
 const bool s_init = pageRegisterHelper<ConfigPageMonStats>();
 }
 
-ConfigPageMonStats::ConfigPageMonStats(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageMonStats::ConfigPageMonStats(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "mon_ar",
         "mon_def",

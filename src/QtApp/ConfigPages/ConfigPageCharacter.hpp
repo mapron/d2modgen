@@ -13,7 +13,7 @@ class ConfigPageCharacter : public ConfigPageAbstract {
 public:
     static constexpr const std::string_view key = IModule::Key::character;
 
-    ConfigPageCharacter(QWidget* parent);
+    ConfigPageCharacter(const IModule::Ptr& module, QWidget* parent);
 
     // IConfigPage interface
 public:
@@ -21,11 +21,7 @@ public:
     {
         return tr("Character");
     }
-    std::string settingKey() const override
-    {
-        return std::string(key);
-    }
-    QString pageHelp() const override;
+    QString                    pageHelp() const override;
     QMap<std::string, QString> widgetTitles() const override;
 };
 

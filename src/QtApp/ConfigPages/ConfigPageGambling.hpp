@@ -14,17 +14,13 @@ class ConfigPageGambling : public ConfigPageAbstract {
 public:
     static constexpr const std::string_view key = IModule::Key::gambling;
 
-    ConfigPageGambling(QWidget* parent);
+    ConfigPageGambling(const IModule::Ptr& module, QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
         return tr("Gambling");
-    }
-    std::string settingKey() const override
-    {
-        return std::string(key);
     }
     QString                    pageHelp() const override;
     QMap<std::string, QString> widgetTitles() const override;

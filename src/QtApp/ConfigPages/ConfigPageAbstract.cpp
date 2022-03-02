@@ -6,20 +6,15 @@
 #include "ConfigPageAbstract.hpp"
 
 #include <QVBoxLayout>
-#include <QLabel>
 
 namespace D2ModGen {
 
-ConfigPageAbstract::ConfigPageAbstract(QWidget* parent)
+ConfigPageAbstract::ConfigPageAbstract(const IModule::Ptr& module, QWidget* parent)
     : IConfigPage(parent)
+    , m_module(module)
 {
     m_layout = new QVBoxLayout(this);
     m_layout->setMargin(0);
-}
-
-bool ConfigPageAbstract::canBeDisabled() const
-{
-    return true;
 }
 
 IConfigPage::PresetList ConfigPageAbstract::pagePresets() const
@@ -27,7 +22,7 @@ IConfigPage::PresetList ConfigPageAbstract::pagePresets() const
     return {};
 }
 
-void ConfigPageAbstract::readSettings(const PropertyTree& data)
+void ConfigPageAbstract::updateUIFromSettings(const PropertyTree& data)
 {
     for (const std::string& key : m_editors.keys()) {
         auto* w = m_editors[key];
@@ -38,23 +33,13 @@ void ConfigPageAbstract::readSettings(const PropertyTree& data)
     }
 }
 
-void ConfigPageAbstract::writeSettings(PropertyTree& data) const
+void ConfigPageAbstract::writeSettingsFromUI(PropertyTree& data) const
 {
     for (const std::string& key : m_editors.keys()) {
         auto* w = m_editors[key];
         if (!w->isDefault())
             data.insert(key, w->getValue());
     }
-}
-
-bool ConfigPageAbstract::isConfigEnabled() const
-{
-    return m_enabled;
-}
-
-void ConfigPageAbstract::setConfigEnabled(bool state)
-{
-    m_enabled = state;
 }
 
 void ConfigPageAbstract::addWidget(QWidget* w)
@@ -117,11 +102,6 @@ QList<IValueWidget*> ConfigPageAbstract::makeEditors(const StringVector& keys)
 void ConfigPageAbstract::closeLayout()
 {
     m_layout->addStretch();
-}
-
-void ConfigPageAbstract::initModule()
-{
-    m_module = createModule(settingKey());
 }
 
 }

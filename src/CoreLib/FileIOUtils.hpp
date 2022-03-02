@@ -22,5 +22,9 @@ inline QString ensureTrailingSlash(QString path)
         path += "/";
     return path;
 }
+inline std::string ensureTrailingSlash(const std::string& path)
+{
+    return QString::fromStdString(path).toStdString();
+}
 
 }

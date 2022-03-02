@@ -11,10 +11,9 @@ namespace {
 const bool s_init = pageRegisterHelper<ConfigPageMonDensity>();
 }
 
-ConfigPageMonDensity::ConfigPageMonDensity(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageMonDensity::ConfigPageMonDensity(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "density",
         "packs",

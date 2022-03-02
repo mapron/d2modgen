@@ -7,8 +7,6 @@
 #include "AttributeHelper.hpp"
 #include "TableUtils.hpp"
 
-#include <QLabel>
-
 namespace D2ModGen {
 
 namespace {

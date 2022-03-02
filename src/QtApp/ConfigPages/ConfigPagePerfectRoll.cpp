@@ -5,19 +5,15 @@
  */
 #include "ConfigPagePerfectRoll.hpp"
 
-#include "AttributeHelper.hpp"
-#include "TableUtils.hpp"
-
 namespace D2ModGen {
 
 namespace {
 const bool s_init = pageRegisterHelper<ConfigPagePerfectRoll>();
 }
 
-ConfigPagePerfectRoll::ConfigPagePerfectRoll(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPagePerfectRoll::ConfigPagePerfectRoll(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "craft",
         "uniques",

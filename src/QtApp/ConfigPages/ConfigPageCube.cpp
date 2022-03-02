@@ -5,8 +5,6 @@
  */
 #include "ConfigPageCube.hpp"
 
-#include "AttributeHelper.hpp"
-
 #include <QLabel>
 
 namespace D2ModGen {
@@ -15,10 +13,9 @@ namespace {
 const bool s_init = pageRegisterHelper<ConfigPageCube>();
 }
 
-ConfigPageCube::ConfigPageCube(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageCube::ConfigPageCube(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "noGemUpgrade",
         "quickPortals",

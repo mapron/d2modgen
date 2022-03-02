@@ -34,17 +34,10 @@ FactoryMap& getFactory()
 
 }
 
-IConfigPage* createConfigPage(const std::string& configKey, QWidget* parent)
+IConfigPage* createConfigPage(const IModule::Ptr& module, QWidget* parent)
 {
-    return getFactory().at(configKey)(parent);
-}
-
-QList<IConfigPage*> createConfigPages(const std::vector<std::string_view>& keys, QWidget* parent)
-{
-    QList<IConfigPage*> result;
-    for (auto key : keys)
-        result << createConfigPage(std::string(key), parent);
-    return result;
+    const std::string configKey = module->settingKey();
+    return getFactory().at(configKey)(module, parent);
 }
 
 void pageRegisterCreator(const std::string& configKey, ConfigPageCreatorFunc factory)

@@ -7,6 +7,8 @@
 
 #include "ModuleAbstract.hpp"
 
+#include <set>
+
 namespace D2ModGen {
 
 class ModuleDropFiltering : public ModuleAbstract {

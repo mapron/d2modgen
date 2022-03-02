@@ -4,29 +4,16 @@
  * See LICENSE file for details.
  */
 #include "ConfigPageItemRandomizer.hpp"
-#include "RandoUtils.hpp"
-
-#include "HelpToolButton.hpp"
-
-#include <QBoxLayout>
-#include <QLabel>
 
 namespace D2ModGen {
-
-namespace {
-constexpr const int s_maxUnbalanceLevel = 100;
-
-}
 
 namespace {
 const bool s_init = pageRegisterHelper<ConfigPageItemRandomizer>();
 }
 
-ConfigPageItemRandomizer::ConfigPageItemRandomizer(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageItemRandomizer::ConfigPageItemRandomizer(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
-
     addEditors(makeEditors({
         "crazyLevel",
         "itemFitPercent",
@@ -65,16 +52,11 @@ QMap<std::string, QString> ConfigPageItemRandomizer::widgetTitles() const
 {
     return {
         { "crazyLevel", tr("Crazy-ness (or 'NON-balance level', lower = more balance, 100=chaos)") },
-
         { "itemFitPercent", tr("Item type fit percent (0% = fully random, 100% = all according to item type)") },
-
         { "keepOriginalPercent", tr("How many original properties to keep, percent") },
-
         { "relativeCountMin", tr("Minimum relative property count, compared to the original") },
-
         { "relativeCountMax", tr("Maximum relative property count, compared to the original") },
         { "repeat_uniques", tr("Number of versions of each unique") },
-
         { "noDuplicates", tr("Prevent duplicate properties on items") },
         { "affixRandom", tr("Randomize magix/rare affixes") },
         { "gemsRandom", tr("Randomize gem and runes properties") },
@@ -108,7 +90,6 @@ QMap<std::string, QString> ConfigPageItemRandomizer::widgetHelps() const
                                "you will have N different uniques with differnet stats;\n"
                                "so you have an opportunity to pick same item again to check it out.\n"
                                "This works only with Uniques, not Sets.") },
-
         { "affixRandom", tr("This will modify rare and magic suffixes - \n"
                             "so they can include properties of any other item in the game. \n"
                             "Note that their properties are read even without this option.") },

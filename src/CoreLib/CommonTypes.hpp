@@ -28,13 +28,12 @@ enum class StorageType
 };
 
 struct GenerationEnvironment {
-    QString  modName;
-    QString  d2rPath;
-    QString  appData;
-    QString  outPath;
-    bool     exportAllTables;
-    bool     isLegacy;
-    uint32_t seed;
+    std::string modName;
+    std::string d2rPath;
+    std::string outPath;
+    bool        exportAllTables;
+    bool        isLegacy;
+    uint32_t    seed;
 };
 
 enum class ConflictPolicy

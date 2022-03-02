@@ -6,6 +6,8 @@
 #pragma once
 #include "ModuleAbstract.hpp"
 
+#include <set>
+
 namespace D2ModGen {
 
 class ModuleChallenge : public ModuleAbstract {

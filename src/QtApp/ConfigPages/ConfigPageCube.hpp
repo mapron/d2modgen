@@ -14,17 +14,13 @@ class ConfigPageCube : public ConfigPageAbstract {
 public:
     static constexpr const std::string_view key = IModule::Key::horadricCube;
 
-    ConfigPageCube(QWidget* parent);
+    ConfigPageCube(const IModule::Ptr& module, QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
         return tr("Horadric Cube");
-    }
-    std::string settingKey() const override
-    {
-        return std::string(key);
     }
     QString                    pageHelp() const override;
     QMap<std::string, QString> widgetTitles() const override;

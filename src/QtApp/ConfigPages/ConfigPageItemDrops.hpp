@@ -14,17 +14,13 @@ class ConfigPageItemDrops : public ConfigPageAbstract {
 public:
     static constexpr const std::string_view key = IModule::Key::itemDrops;
 
-    ConfigPageItemDrops(QWidget* parent);
+    ConfigPageItemDrops(const IModule::Ptr& module, QWidget* parent);
 
     // IConfigPage interface
 public:
     QString caption() const override
     {
         return tr("Increase Item drops");
-    }
-    std::string settingKey() const override
-    {
-        return std::string(key);
     }
     QString    pageHelp() const override;
     PresetList pagePresets() const override;

@@ -11,10 +11,9 @@ namespace {
 const bool s_init = pageRegisterHelper<ConfigPageSkillRandomizer>();
 }
 
-ConfigPageSkillRandomizer::ConfigPageSkillRandomizer(QWidget* parent)
-    : ConfigPageAbstract(parent)
+ConfigPageSkillRandomizer::ConfigPageSkillRandomizer(const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(module, parent)
 {
-    initModule();
     addEditors(makeEditors({
         "skillTree",
         "skillDamage",
