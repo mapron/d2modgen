@@ -26,7 +26,8 @@ public:
     {
         return std::string(key);
     }
-    QString pageHelp() const override;
+    QString                    pageHelp() const override;
+    QMap<std::string, QString> widgetTitles() const override;
 };
 
 }

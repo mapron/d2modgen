@@ -10,13 +10,6 @@ namespace D2ModGen {
 
 class ConfigPageChallenge : public ConfigPageAbstract {
     Q_OBJECT
-
-    struct Item {
-        std::string settingKey;
-        QString     title;
-    };
-    const QList<Item> m_items;
-
 public:
     static constexpr const std::string_view key = IModule::Key::challenge;
 
@@ -33,6 +26,7 @@ public:
         return std::string(key);
     }
     QString pageHelp() const override;
+    QMap<std::string, QString> widgetTitles() const override;
 };
 
 }

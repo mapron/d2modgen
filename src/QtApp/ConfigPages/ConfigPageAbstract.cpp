@@ -104,6 +104,16 @@ IValueWidget* ConfigPageAbstract::makeEditor(const std::string& key, const QStri
     return nullptr;
 }
 
+QList<IValueWidget*> ConfigPageAbstract::makeEditors(const StringVector& keys)
+{
+    QList<IValueWidget*> result;
+    auto                 titles = widgetTitles();
+    auto                 helps  = widgetHelps();
+    for (const std::string& key : keys)
+        result << makeEditor(key, titles.value(key, QString::fromStdString(key)), helps.value(key));
+    return result;
+}
+
 void ConfigPageAbstract::closeLayout()
 {
     m_layout->addStretch();

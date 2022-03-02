@@ -18,19 +18,32 @@ ConfigPagePerfectRoll::ConfigPagePerfectRoll(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     initModule();
-    addEditors(QList<IValueWidget*>()
-               << makeEditor("craft", tr("Perfect rolls for crafting in the Cube"))
-               << makeEditor("uniques", tr("Perfect Uniques"))
-               << makeEditor("runeWords", tr("Perfect Rune Word rolls"))
-               << makeEditor("setItems", tr("Perfect Set items"))
-               << makeEditor("affixes", tr("Perfect Magic/Rare affixes"))
-               << makeEditor("armor", tr("Always max defense Armor")));
+    addEditors(makeEditors({
+        "craft",
+        "uniques",
+        "runeWords",
+        "setItems",
+        "affixes",
+        "armor",
+    }));
     closeLayout();
 }
 
 QString ConfigPagePerfectRoll::pageHelp() const
 {
     return tr("Remove random effect when rolling between min and max value for something.");
+}
+
+QMap<std::string, QString> ConfigPagePerfectRoll::widgetTitles() const
+{
+    return {
+        { "craft", tr("Perfect rolls for crafting in the Cube") },
+        { "uniques", tr("Perfect Uniques") },
+        { "runeWords", tr("Perfect Rune Word rolls") },
+        { "setItems", tr("Perfect Set items") },
+        { "affixes", tr("Perfect Magic/Rare affixes") },
+        { "armor", tr("Always max defense Armor") },
+    };
 }
 
 }

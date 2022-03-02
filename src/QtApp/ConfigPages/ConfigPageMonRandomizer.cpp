@@ -17,16 +17,10 @@ ConfigPageMonRandomizer::ConfigPageMonRandomizer(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     initModule();
-    addEditors(QList<IValueWidget*>()
-               << makeEditor("spawnedCount",
-                             tr("Spawned different types in one area"),
-                             tr("This option choose how many different types will spawn at once (default is 3, which is D2 original behavior).  \n"
-                                "Note that some map tiles have predefined spawns (shaman camps etc) that can not be randomized."))
-               << makeEditor("maxTypes",
-                             tr("Maximum possible monster types in one area (population variety)"),
-                             tr("This option defines how many possibilites for monster types are exist in one zone; \n"
-                                "Make this value lower if you want less variety between game restarts.\n"
-                                "Note: D2 legacy support only 12 max, so value will be lowered implicitly.")));
+    addEditors(makeEditors({
+        "spawnedCount",
+        "maxTypes",
+    }));
     closeLayout();
 }
 
@@ -37,6 +31,25 @@ QString ConfigPageMonRandomizer::pageHelp() const
               "to area's level (so you will have adequate monster stats in Act 1 for guest from Act 5).  \n"
               "For Nightmare/Hell, adjustment is done by area level.  \n"
               "Monster will have adjusted their minion spawns and skill levels, too. ");
+}
+
+QMap<std::string, QString> ConfigPageMonRandomizer::widgetTitles() const
+{
+    return {
+        { "spawnedCount", tr("Spawned different types in one area") },
+        { "maxTypes", tr("Maximum possible monster types in one area (population variety)") },
+    };
+}
+
+QMap<std::string, QString> ConfigPageMonRandomizer::widgetHelps() const
+{
+    return {
+        { "spawnedCount", tr("This option choose how many different types will spawn at once (default is 3, which is D2 original behavior).  \n"
+                             "Note that some map tiles have predefined spawns (shaman camps etc) that can not be randomized.") },
+        { "maxTypes", tr("This option defines how many possibilites for monster types are exist in one zone; \n"
+                         "Make this value lower if you want less variety between game restarts.\n"
+                         "Note: D2 legacy support only 12 max, so value will be lowered implicitly.") },
+    };
 }
 
 }

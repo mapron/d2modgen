@@ -15,15 +15,16 @@ ConfigPageCharacter::ConfigPageCharacter(QWidget* parent)
     : ConfigPageAbstract(parent)
 {
     initModule();
-    addEditors(QList<IValueWidget*>()
-               << makeEditor("addCube", tr("Add Horadric Cube as starting item"))
-               << makeEditor("idTome", tr("Replace ID scroll with ID tome"))
-               << makeEditor("manaPots", tr("Replace starting Health pots with Mana"))
-               << makeEditor("statPerLevel", tr("Stat points gain per level"))
-               << makeEditor("skillPerLevel", tr("Skill points gain per level (D2R only!)"))
-               << makeEditor("statLower", tr("Lower Strength/Dexterity requirements on items, %"))
-               << makeEditor("mercHP", tr("Change mercenaries Health, multiply by"))
-               << makeEditor("mercDam", tr("Change mercenaries Damage, multiply by")));
+    addEditors(makeEditors({
+        "addCube",
+        "idTome",
+        "manaPots",
+        "statPerLevel",
+        "skillPerLevel",
+        "statLower",
+        "mercHP",
+        "mercDam",
+    }));
     closeLayout();
 }
 
@@ -33,6 +34,20 @@ QString ConfigPageCharacter::pageHelp() const
               "add Cube, replace id scroll with Tome (useful for No-town runs), and replace health with mana potions. \n"
               "Next two sliders allow you to change how many skill and stat poits you get on levelup. \n "
               "Last slider allow you to lower Strength and Dexterity requirements on all items.  ");
+}
+
+QMap<std::string, QString> ConfigPageCharacter::widgetTitles() const
+{
+    return {
+        { "addCube", tr("Add Horadric Cube as starting item") },
+        { "idTome", tr("Replace ID scroll with ID tome") },
+        { "manaPots", tr("Replace starting Health pots with Mana") },
+        { "statPerLevel", tr("Stat points gain per level") },
+        { "skillPerLevel", tr("Skill points gain per level (D2R only!)") },
+        { "statLower", tr("Lower Strength/Dexterity requirements on items, %") },
+        { "mercHP", tr("Change mercenaries Health, multiply by") },
+        { "mercDam", tr("Change mercenaries Damage, multiply by") },
+    };
 }
 
 }

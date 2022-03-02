@@ -29,6 +29,9 @@ public:
     }
     QString                 pageHelp() const override;
     IConfigPage::PresetList pagePresets() const override;
+
+    QMap<std::string, QString> widgetTitles() const override;
+    QMap<std::string, QString> widgetHelps() const override;
 };
 
 }
