@@ -50,7 +50,7 @@ void ModuleMonStats::generate(DataContext& output, QRandomGenerator& rng, const 
 
     {
         TableView view(output.tableSet.tables["monlvl"], true);
-        auto      proceedMonParam = [&view, &input](const std::string& key, QStringList cols) {
+        auto      proceedMonParam = [&view, &input](const std::string& key, const StringVector& cols) {
             if (input.isDefault(key))
                 return;
             const int percent = input.getInt(key);
@@ -61,8 +61,8 @@ void ModuleMonStats::generate(DataContext& output, QRandomGenerator& rng, const 
                     if (!row.hasColumn(col))
                         continue;
 
-                    QString& value = row[col];
-                    value          = QString("%1").arg(value.toInt() * percent / 100);
+                    auto& value = row[col];
+                    value.setInt(value.toInt() * percent / 100);
                 }
             }
         };
@@ -75,18 +75,18 @@ void ModuleMonStats::generate(DataContext& output, QRandomGenerator& rng, const 
     }
 
     {
-        QStringList resColumns;
+        StringVector resColumns;
         if (input.getInt("resist_apply_elem"))
-            resColumns << QStringList{ "ResFi", "ResLi", "ResCo", "ResFi(N)", "ResLi(N)", "ResCo(N)", "ResFi(H)", "ResLi(H)", "ResCo(H)" };
+            resColumns << StringVector{ "ResFi", "ResLi", "ResCo", "ResFi(N)", "ResLi(N)", "ResCo(N)", "ResFi(H)", "ResLi(H)", "ResCo(H)" };
 
         if (input.getInt("resist_apply_poison"))
-            resColumns << QStringList{ "ResPo", "ResPo(N)", "ResPo(H)" };
+            resColumns << StringVector{ "ResPo", "ResPo(N)", "ResPo(H)" };
 
         if (input.getInt("resist_apply_magic"))
-            resColumns << QStringList{ "ResMa", "ResMa(N)", "ResMa(H)" };
+            resColumns << StringVector{ "ResMa", "ResMa(N)", "ResMa(H)" };
 
         if (input.getInt("resist_apply_physical"))
-            resColumns << QStringList{ "ResDm", "ResDm(N)", "ResDm(H)" };
+            resColumns << StringVector{ "ResDm", "ResDm(N)", "ResDm(H)" };
 
         TableView view(output.tableSet.tables["monstats"], true);
         const int maxResistCap = input.getInt("max_resist");
@@ -99,15 +99,18 @@ void ModuleMonStats::generate(DataContext& output, QRandomGenerator& rng, const 
                 const bool isRegular = row["isSpawn"] == "1" && row["killable"] == "1" && row["npc"] == "" && row["boss"] == "";
                 if (!isRegular)
                     continue;
-                QString& res    = row[col];
-                int      resist = res.toInt();
-                resist          = std::min(maxResistCap, resist);
+                auto& res    = row[col];
+                int   resist = res.toInt();
+                resist       = std::min(maxResistCap, resist);
                 if (resist < 100 && relResist != 100) {
                     const int damage    = 100 - resist;
                     const int newDamage = damage * relResist / 100;
                     resist              = std::clamp(100 - newDamage, 0, std::min(99, maxResistCap));
                 }
-                res = resist == 0 ? "" : QString("%1").arg(resist);
+                if (resist == 0)
+                    res.str = "";
+                else
+                    res.setInt(resist);
             }
         }
     }

@@ -9,7 +9,7 @@ namespace D2ModGen {
 
 namespace {
 
-static const std::map<QString, QStringList> s_tableKeys{
+static const std::map<QString, StringVector> s_tableKeys{
     { "gamble", { "code" } },
     { "misc", { "code" } },
     { "gems", { "code" } },
@@ -28,7 +28,7 @@ static const std::map<QString, QStringList> s_tableKeys{
     { "armor", { "code" } },
 };
 
-using AliasConfig = std::map<QString, QStringList>;
+using AliasConfig = std::map<std::string, StringVector>;
 static const std::map<QString, AliasConfig> s_tableColumnAliases{
     { "itemtypes", AliasConfig{
                        { "MaxSockets3", { "MaxSock40" } },
@@ -49,13 +49,13 @@ TableView::TableView(Table& table, bool markModified)
 {
     auto itAlias = s_tableColumnAliases.find(table.id);
     for (int i = 0; i < m_table.columns.size(); ++i) {
-        const QString& col = m_table.columns[i];
-        m_columnIndex[col] = i;
+        const std::string& col = m_table.columns[i];
+        m_columnIndex[col]     = i;
 
         if (itAlias != s_tableColumnAliases.cend()) {
             auto itCol = itAlias->second.find(col);
             if (itCol != itAlias->second.cend()) {
-                for (const QString& aliasCol : itCol->second)
+                for (const std::string& aliasCol : itCol->second)
                     m_columnIndex[aliasCol] = i;
             }
         }
@@ -67,8 +67,8 @@ TableView::TableView(Table& table, bool markModified)
 
     auto itKey = s_tableKeys.find(table.id);
     if (itKey != s_tableKeys.cend()) {
-        for (const QString& col : itKey->second) {
-            const int colIndex = m_columnIndex.value(col, -1);
+        for (const std::string& col : itKey->second) {
+            const int colIndex = ind(col);
             assert(colIndex != -1);
             if (colIndex < 0)
                 continue;
@@ -101,7 +101,7 @@ bool TableView::createRowIndex()
 void TableView::appendRow(const RowValues& values)
 {
     assert(isWriteable);
-    m_table.rows << TableRow(m_table.columns.size());
+    m_table.rows.emplace_back(m_table.columns.size());
     m_rows.emplace_back(static_cast<int>(m_rows.size()), *this);
     RowView& row = *m_rows.rbegin();
     row.setValues(values);
@@ -112,7 +112,7 @@ void TableView::merge(const TableView& source, bool appendNew, bool updateExisti
     QList<RowValues> newValues;
     for (const auto& sourceRow : source) {
         const auto pk       = sourceRow.makeKey();
-        int        rowIndex = m_pkIndex.value(pk, -1);
+        int        rowIndex = indPK(pk);
         if (rowIndex == -1) {
             if (appendNew)
                 newValues << sourceRow.toValues();
@@ -144,33 +144,33 @@ void TableView::clear()
 
 void DropSet::readRow(const TableView::RowView& row)
 {
-    const QString& noDrop = row["NoDrop"];
-    m_noDrop              = noDrop.toInt();
+    const auto& noDrop = row["NoDrop"];
+    m_noDrop           = noDrop.toInt();
 
     m_items.clear();
     for (int i = 1; i <= 10; ++i) {
-        const QString& prob = row[QString("Prob%1").arg(i)];
+        const auto& prob = row[argCompat("Prob%1", i)];
         if (prob.isEmpty())
             break;
-        const QString& tcName = row[QString("Item%1").arg(i)];
+        const auto& tcName = row[argCompat("Item%1", i)];
         m_items << Item{ tcName, prob.toInt() };
     }
 }
 
 void DropSet::writeRow(TableView::RowView& row) const
 {
-    QString& noDrop = row["NoDrop"];
-    noDrop          = m_noDrop ? QString("%1").arg(m_noDrop) : QString();
+    auto& noDrop = row["NoDrop"];
+    noDrop.str   = m_noDrop ? argCompat("%1", m_noDrop) : std::string();
     for (int i = 1; i <= 10; ++i) {
-        QString& prob   = row[QString("Prob%1").arg(i)];
-        QString& tcName = row[QString("Item%1").arg(i)];
+        auto& prob   = row[argCompat("Prob%1", i)];
+        auto& tcName = row[argCompat("Item%1", i)];
         prob.clear();
         tcName.clear();
         if (i - 1 >= m_items.size())
             continue;
         auto& item = m_items[i - 1];
-        prob       = QString("%1").arg(item.prob);
-        tcName     = item.tc;
+        prob.setInt(item.prob);
+        tcName = item.tc;
     }
 }
 

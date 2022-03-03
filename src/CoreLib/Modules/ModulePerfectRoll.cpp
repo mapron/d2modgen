@@ -36,10 +36,10 @@ void ModulePerfectRoll::generate(DataContext& output, QRandomGenerator& rng, con
                 continue;
 
             for (int i = 1; i <= 5; ++i) {
-                QString& mod = row[QString("mod %1").arg(i)];
-                if (isMinMaxRange(mod)) {
-                    QString& modMin = row[QString("mod %1 min").arg(i)];
-                    QString& modMax = row[QString("mod %1 max").arg(i)];
+                auto& mod = row[argCompat("mod %1", i)];
+                if (isMinMaxRange(mod.str)) {
+                    auto& modMin = row[argCompat("mod %1 min", i)];
+                    auto& modMax = row[argCompat("mod %1 max", i)];
                     modMin          = modMax;
                 }
             }
@@ -54,7 +54,7 @@ void ModulePerfectRoll::generate(DataContext& output, QRandomGenerator& rng, con
                     auto& min = row[col.min];
                     if (min.isEmpty())
                         continue;
-                    if (isMinMaxRange(row[col.code]))
+                    if (isMinMaxRange(row[col.code].str))
                         min = row[col.max];
                 }
             }

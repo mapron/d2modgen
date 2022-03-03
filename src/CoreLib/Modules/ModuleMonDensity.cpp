@@ -40,50 +40,50 @@ void ModuleMonDensity::generate(DataContext& output, QRandomGenerator& rng, cons
             for (auto& row : view) {
                 if (row["Level"].isEmpty())
                     continue;
-                QString& valueMin = row["MinGrp"];
-                QString& valueMax = row["MaxGrp"];
+                TableCell& valueMin = row["MinGrp"];
+                TableCell& valueMax = row["MaxGrp"];
                 if (valueMin.isEmpty() || valueMax.isEmpty())
                     continue;
-                if (valueMin == valueMax && valueMax == "1")
+                if (valueMin.str == valueMax.str && valueMax == "1")
                     continue;
-                for (QString* value : { &valueMin, &valueMax }) {
+                for (TableCell* value : { &valueMin, &valueMax }) {
                     const int prev = value->toInt();
                     const int next = prev + groupIncrease;
-                    *value         = QString("%1").arg(std::min(next, 99));
+                    value->setInt(std::min(next, 99));
                 }
             }
         }
     }
     if (!input.isAllDefault({ "density", "packs", "hellPacks" })) {
         TableView view(output.tableSet.tables["levels"], true);
-        auto      isEmptyCell = [](const QString& value) {
+        auto      isEmptyCell = [](const TableCell& value) {
             return value.isEmpty() || value == "0";
         };
-        auto allCellsNonEmpty = [&isEmptyCell](const QStringList& values) -> bool {
-            for (const QString& value : values)
+        auto allCellsNonEmpty = [&isEmptyCell](const std::vector<TableCell>& values) -> bool {
+            for (const TableCell& value : values)
                 if (isEmptyCell(value))
                     return false;
             return true;
         };
         const int density       = input.getInt("density");
-        auto      densityAdjust = [density](QString& value) {
+        auto      densityAdjust = [density](TableCell& value) {
             const int prev = value.toInt();
             const int next = prev * density;
-            value          = QString("%1").arg(std::clamp(next, 100, 9900));
+            value.setInt(std::clamp(next, 100, 9900));
         };
         const int packs       = input.getInt("packs");
-        auto      packsAdjust = [packs](QString& value) {
+        auto      packsAdjust = [packs](TableCell& value) {
             const int prev = value.toInt();
             const int next = prev * packs;
-            value          = QString("%1").arg(std::min(next, 255));
+            value.setInt(std::min(next, 255));
         };
         for (auto& row : view) {
-            QString& normMin = row["MonUMin"];
-            QString& normMax = row["MonUMax"];
-            QString& nighMin = row["MonUMin(N)"];
-            QString& nighMax = row["MonUMax(N)"];
-            QString& hellMin = row["MonUMin(H)"];
-            QString& hellMax = row["MonUMax(H)"];
+            auto& normMin = row["MonUMin"];
+            auto& normMax = row["MonUMax"];
+            auto& nighMin = row["MonUMin(N)"];
+            auto& nighMax = row["MonUMax(N)"];
+            auto& hellMin = row["MonUMin(H)"];
+            auto& hellMax = row["MonUMax(H)"];
 
             if (allCellsNonEmpty({ hellMin, hellMax })) {
                 if (input.getInt("hellPacks")) {
@@ -103,9 +103,9 @@ void ModuleMonDensity::generate(DataContext& output, QRandomGenerator& rng, cons
                 }
             }
             if (!input.isDefault("density")) {
-                QString& normDen = row["MonDen"];
-                QString& nighDen = row["MonDen(N)"];
-                QString& hellDen = row["MonDen(H)"];
+                TableCell& normDen = row["MonDen"];
+                TableCell& nighDen = row["MonDen(N)"];
+                TableCell& hellDen = row["MonDen(H)"];
                 densityAdjust(normDen);
                 densityAdjust(nighDen);
                 densityAdjust(hellDen);

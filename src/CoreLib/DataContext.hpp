@@ -15,29 +15,55 @@
 #include <QJsonDocument>
 
 #include <set>
+#include <deque>
 
 namespace D2ModGen {
 
+struct TableCell {
+    std::string str;
+
+    TableCell()                 = default;
+    TableCell(const TableCell&) = default;
+    TableCell(std::string s)
+        : str(std::move(s))
+    {}
+
+    int  toInt() const;
+    void setInt(int value);
+    bool isEmpty() const { return str.empty(); }
+    void clear() { str.clear(); }
+
+    std::string toLower() const;
+
+    bool startsWith(const std::string& s) const;
+    bool endsWith(const std::string& s) const;
+    bool contains(const std::string& s) const;
+
+    bool operator==(const std::string& s) const { return s == str; }
+    bool operator!=(const std::string& s) const { return s != str; }
+};
+
 struct TableRow {
-    QStringList data;
+    std::vector<TableCell> data;
     TableRow() = default;
     explicit TableRow(int size)
     {
-        for (int i = 0; i < size; ++i)
-            data << "";
+        data.resize(size);
     }
-    explicit TableRow(QStringList data)
+    explicit TableRow(std::vector<TableCell> data)
         : data(std::move(data))
     {
     }
 };
 
 struct Table {
-    QString         id;
-    QList<TableRow> rows;
-    QStringList     columns;
-    bool            modified    = false;
-    bool            forceOutput = false;
+    QString                  id;
+    std::deque<TableRow>     rows;
+    std::vector<std::string> columns;
+    bool                     modified    = false;
+    bool                     forceOutput = false;
+
+    int indexOf(const std::string& col) const;
 };
 
 struct TableSet {
@@ -55,13 +81,12 @@ struct DataContext {
 
     bool mergeWith(const DataContext& source, ConflictPolicy policy);
 
-    static PropertyTree qjsonToProperty(const QJsonDocument& doc);
-    static PropertyTree qjsonToProperty(const QJsonObject& value);
-    static PropertyTree qjsonToProperty(const QJsonArray& value);
-    static PropertyTree qjsonToProperty(const QJsonValue& value);
-    static QJsonValue propertyToQjson(const PropertyTree& value);
+    static PropertyTree  qjsonToProperty(const QJsonDocument& doc);
+    static PropertyTree  qjsonToProperty(const QJsonObject& value);
+    static PropertyTree  qjsonToProperty(const QJsonArray& value);
+    static PropertyTree  qjsonToProperty(const QJsonValue& value);
+    static QJsonValue    propertyToQjson(const PropertyTree& value);
     static QJsonDocument propertyToDoc(const PropertyTree& value);
-    
 };
 
 }

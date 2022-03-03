@@ -17,14 +17,14 @@ public:
     static QString makeTableRelativePath(const QString& id, bool backslash);
 
     struct StoredFileTable {
-        QByteArray data;
-        QString    id;
+        std::string data;
+        QString     id;
     };
     using StoredFileTableList = std::vector<StoredFileTable>;
 
     struct StoredFileMemory {
-        QByteArray data;
-        QString    relFilepath;
+        std::string data;
+        QString     relFilepath;
     };
     using StoredFileMemoryList = std::vector<StoredFileMemory>;
 

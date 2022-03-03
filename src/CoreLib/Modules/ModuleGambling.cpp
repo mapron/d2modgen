@@ -41,15 +41,15 @@ void ModuleGambling::generate(DataContext& output, QRandomGenerator& rng, const 
     if (charmGamble) {
         auto& table    = output.tableSet.tables["gamble"];
         table.modified = true;
-        table.rows << TableRow({ "Charm Small", "cm1" });
-        table.rows << TableRow({ "Charm Medium", "cm2" });
-        table.rows << TableRow({ "Charm Large", "cm3" });
-        table.rows << TableRow({ "Jewel", "jew" });
+        table.rows.emplace_back(TableRow({ TableCell("Charm Small"), TableCell("cm1") }));
+        table.rows.emplace_back(TableRow({ TableCell("Charm Medium"), TableCell("cm2") }));
+        table.rows.emplace_back(TableRow({ TableCell("Charm Large"), TableCell("cm3") }));
+        table.rows.emplace_back(TableRow({ TableCell("Jewel"), TableCell("jew") }));
     }
     if (input.isAllDefault({ "ratioUnique", "ratioSet", "ratioRare", "ratioExc", "ratioElite" }))
         return;
 
-    static const QVector<QPair<QString, std::string>> s_columns{
+    static const QVector<QPair<std::string, std::string>> s_columns{
         { "GambleRare", "ratioRare" },
         { "GambleSet", "ratioSet" },
         { "GambleUnique", "ratioUnique" },
@@ -61,9 +61,9 @@ void ModuleGambling::generate(DataContext& output, QRandomGenerator& rng, const 
         TableView view(output.tableSet.tables["difficultylevels"], true);
         for (auto& row : view) {
             for (auto& p : s_columns) {
-                QString&  col      = row[p.first];
+                auto&     col      = row[p.first];
                 const int multiply = input.getInt(p.second);
-                col                = QString("%1").arg(col.toInt() * multiply);
+                col.setInt(col.toInt() * multiply);
             }
         }
     }

@@ -9,6 +9,20 @@
 
 namespace D2ModGen {
 
+inline std::string argCompat(std::string tpl, const std::string& arg)
+{
+    size_t pos = tpl.find("%1");
+    if (pos == std::string::npos)
+        return tpl;
+    tpl.replace(pos, 2, arg);
+    return tpl;
+}
+
+inline std::string argCompat(std::string tpl, int arg)
+{
+    return argCompat(std::move(tpl), std::to_string(arg));
+}
+
 class TableView {
 public:
     TableView(Table& table, bool markModified = false);
@@ -17,7 +31,7 @@ public:
     void markModified();
     bool createRowIndex();
 
-    using RowValues = std::map<QString, QString>;
+    using RowValues = std::map<std::string, std::string>;
 
     class RowView {
     public:
@@ -26,21 +40,21 @@ public:
             , parent(parent)
         {}
 
-        QString& operator[](int index)
+        TableCell& operator[](int index)
         {
             assert(parent.isWriteable);
             return parent.m_table.rows[i].data[index];
         }
-        QString& operator[](QString index)
+        TableCell& operator[](const std::string& index)
         {
             assert(parent.isWriteable);
             return parent.m_table.rows[i].data[ind(index)];
         }
 
-        const QString& operator[](int index) const { return parent.m_table.rows[i].data[index]; }
-        const QString& operator[](QString index) const { return parent.m_table.rows[i].data[ind(index)]; }
+        const TableCell& operator[](int index) const { return parent.m_table.rows[i].data[index]; }
+        const TableCell& operator[](const std::string& colName) const { return parent.m_table.rows[i].data[ind(colName)]; }
 
-        bool hasColumn(const QString& name) const { return parent.m_columnIndex.contains(name); }
+        bool hasColumn(const std::string& colName) const { return parent.ind(colName) >= 0; }
 
         int index() const { return i; }
 
@@ -48,39 +62,44 @@ public:
         {
             RowValues result;
             for (int c = 0; c < parent.m_table.columns.size(); ++c)
-                result[parent.m_table.columns[c]] = parent.m_table.rows[i].data[c];
+                result[parent.m_table.columns[c]] = parent.m_table.rows[i].data[c].str;
             return result;
         }
 
         void setValues(const RowValues& values)
         {
             for (const auto& p : values)
-                (*this)[p.first] = p.second;
+                (*this)[p.first].str = p.second;
         }
 
-        QString makeKey() const
+        std::string makeKey() const
         {
-            QStringList v;
-            for (int col : parent.m_primaryKey)
-                v << (*this)[col];
-            return v.join("###");
+            std::string v;
+            bool        started = false;
+            for (int col : parent.m_primaryKey) {
+                if (started)
+                    v += "###";
+                v += (*this)[col].str;
+                started = true;
+            }
+            return v;
         }
 
         template<class T>
         void applyIntTransform(const int index, const T& transform)
         {
-            QString& value = (*this)[index];
-            if (value.isEmpty())
+            TableCell& value = (*this)[index];
+            if (value.str.empty())
                 return;
 
             const int newValue = transform(value.toInt());
-            value              = QString("%1").arg(newValue);
+            value.setInt(newValue);
         }
 
         template<class T>
-        void applyIntTransform(const QString& key, const T& transform)
+        void applyIntTransform(const std::string& colName, const T& transform)
         {
-            const int index = ind(key);
+            const int index = ind(colName);
             if (index < 0)
                 return;
 
@@ -88,7 +107,7 @@ public:
         }
 
     private:
-        int        ind(const QString& index) const { return parent.m_columnIndex.value(index, -1); }
+        int        ind(const std::string& colName) const { return parent.ind(colName); }
         int        i;
         TableView& parent;
     };
@@ -118,7 +137,7 @@ public:
         return m_rows[index];
     }
 
-    bool hasColumn(const QString& name) const { return m_columnIndex.contains(name); }
+    bool hasColumn(const std::string& name) const { return m_columnIndex.contains(name); }
     void appendRow(const RowValues& values);
 
     void merge(const TableView& source, bool appendNew, bool updateExisting);
@@ -145,11 +164,11 @@ public:
     }
 
     template<class T>
-    void applyIntTransform(const QStringList& keys, const T& transform)
+    void applyIntTransform(const StringVector& colNames, const T& transform)
     {
         std::vector<int> cols;
-        for (const QString& key : keys) {
-            const int index = m_columnIndex.value(key, -1);
+        for (const std::string& colName : colNames) {
+            const int index = ind(colName);
             if (index < 0)
                 continue;
             cols.push_back(index);
@@ -164,41 +183,52 @@ public:
         applyIntTransform({ key }, transform);
     }
 
+    int ind(const std::string& colName) const noexcept
+    {
+        auto it = m_columnIndex.find(colName);
+        return it == m_columnIndex.cend() ? -1 : it->second;
+    }
+    int indPK(const std::string& index) const noexcept
+    {
+        auto it = m_pkIndex.find(index);
+        return it == m_pkIndex.cend() ? -1 : it->second;
+    }
+
 private:
-    Table&               m_table;
-    std::vector<RowView> m_rows;
-    std::vector<int>     m_primaryKey;
-    QHash<QString, int>  m_columnIndex;
-    QHash<QString, int>  m_pkIndex;
-    bool                 isWriteable = true;
+    Table&                               m_table;
+    std::vector<RowView>                 m_rows;
+    std::vector<int>                     m_primaryKey;
+    std::unordered_map<std::string, int> m_columnIndex;
+    std::unordered_map<std::string, int> m_pkIndex;
+    bool                                 isWriteable = true;
 };
 
 struct ColumnsDesc {
     struct Col {
-        QString code;
-        QString par;
-        QString min;
-        QString max;
+        std::string code;
+        std::string par;
+        std::string min;
+        std::string max;
     };
-    QList<Col> m_cols;
-    int        m_start = 0;
-    ColumnsDesc()      = default;
-    ColumnsDesc(const QString& codeTpl,
-                const QString& parTpl,
-                const QString& minTpl,
-                const QString& maxTpl,
-                int            end,
-                int            start = 1)
+    std::vector<Col> m_cols;
+    int              m_start = 0;
+    ColumnsDesc()            = default;
+    ColumnsDesc(const std::string& codeTpl,
+                const std::string& parTpl,
+                const std::string& minTpl,
+                const std::string& maxTpl,
+                int                end,
+                int                start = 1)
         : m_start(start)
     {
         for (int i = start; i <= end; ++i) {
             Col col{
-                codeTpl.arg(i),
-                parTpl.arg(i),
-                minTpl.arg(i),
-                maxTpl.arg(i)
+                argCompat(codeTpl, i),
+                argCompat(parTpl, i),
+                argCompat(minTpl, i),
+                argCompat(maxTpl, i)
             };
-            m_cols << col;
+            m_cols.push_back(std::move(col));
         }
     }
 };
@@ -206,8 +236,8 @@ using ColumnsDescList = std::vector<ColumnsDesc>;
 
 struct DropSet {
     struct Item {
-        QString tc;
-        int     prob;
+        TableCell tc;
+        int       prob;
     };
     int         m_noDrop = 0;
     QList<Item> m_items;

@@ -12,28 +12,99 @@ namespace D2ModGen {
 
 namespace {
 
-bool writeCSV(QString& csvData, const Table& table)
+class FastCsvTable {
+    const char* begin;
+    const char* end;
+    const char* curr;
+
+public:
+    FastCsvTable(const char* begin, size_t length)
+    {
+        this->begin = begin;
+        this->curr  = begin;
+        this->end   = begin + length;
+    }
+    bool scanLine()
+    {
+        if (curr >= end)
+            return false;
+
+        const char* peek = curr;
+        size_t      tabs = 0;
+        while (peek < end) {
+            if (*peek == '\t')
+                tabs++;
+            if (*peek == '\r' || *peek == '\n')
+                break;
+            peek++;
+        }
+        const char* i       = curr;
+        const char* lineEnd = peek;
+        line                = std::string_view(curr, peek - curr);
+        if (*peek == '\r')
+            ++peek;
+        if (*peek == '\n')
+            ++peek;
+
+        curr = peek;
+        row.resize(tabs + 1);
+        size_t      index = 0;
+        const char* prevI = i;
+        while (i < lineEnd) {
+            if (*i == '\t') {
+                row[index] = i == prevI ? std::string_view() : std::string_view(prevI, i - prevI);
+                prevI      = i + 1;
+                index++;
+            }
+            i++;
+        }
+        row[index] = i == prevI ? std::string_view() : std::string_view(prevI, i - prevI);
+
+        return true;
+    }
+
+    std::vector<std::string_view> row;
+    std::string_view              line;
+};
+
+bool writeCSV(std::string& csvData, const Table& table)
 {
-    csvData += table.columns.join('\t') + "\r\n";
-    for (const auto& row : table.rows)
-        csvData += row.data.join('\t') + "\r\n";
+    for (size_t i = 0; i < table.columns.size(); ++i) {
+        if (i > 0)
+            csvData += '\t';
+        csvData += table.columns[i];
+    }
+    csvData += "\r\n";
+    for (const auto& row : table.rows) {
+        for (size_t i = 0; i < row.data.size(); ++i) {
+            if (i > 0)
+                csvData += '\t';
+            csvData += row.data[i].str;
+        }
+        csvData += "\r\n";
+    }
     return true;
 }
 
-bool readCSV(const QString& csvData, Table& table)
+bool readCSV(const std::string& csvData, Table& table)
 {
-    QStringList rows = csvData.split("\r\n", Qt::SkipEmptyParts);
-    if (rows.isEmpty())
+    FastCsvTable csvTable(csvData.data(), csvData.size());
+    if (!csvTable.scanLine())
         return false;
-    const QString header = rows.takeFirst();
-    table.columns        = header.split('\t', Qt::KeepEmptyParts);
-    for (const QString& row : rows) {
-        const QStringList cells = row.split('\t', Qt::KeepEmptyParts);
-        table.rows << TableRow{ cells };
+    table.columns.resize(csvTable.row.size());
+    for (size_t i = 0; i < csvTable.row.size(); ++i)
+        table.columns[i] = std::string(csvTable.row[i]);
+
+    while (csvTable.scanLine()) {
+        std::vector<TableCell> data(csvTable.row.size());
+        for (size_t i = 0; i < csvTable.row.size(); ++i)
+            data[i].str = std::string(csvTable.row[i]);
+        table.rows.emplace_back(std::move(data));
     }
+
 #ifndef NDEBUG
     {
-        QString check;
+        std::string check;
         writeCSV(check, table);
         assert(check == csvData);
     }
@@ -51,10 +122,9 @@ bool DataContext::readData(const IStorage::StoredData& data)
             return false;
         }
 
-        QString data = QString::fromUtf8(fileData.data);
-        Table   table;
+        Table table;
         table.id = fileData.id;
-        if (!readCSV(data, table)) {
+        if (!readCSV(fileData.data, table)) {
             qWarning() << "failed to parse csv:" << fileData.id;
             return false;
         }
@@ -62,13 +132,13 @@ bool DataContext::readData(const IStorage::StoredData& data)
         tableSet.relativeNames.insert(IStorage::makeTableRelativePath(fileData.id, false));
     }
     for (const auto& fileData : data.inMemoryFiles) {
-        if (fileData.data.isEmpty()) {
+        if (fileData.data.empty()) {
             qWarning() << "Json data is empty:" << fileData.relFilepath;
             return false;
         }
 
         QJsonParseError err;
-        auto            loadDoc(QJsonDocument::fromJson(fileData.data, &err));
+        auto            loadDoc(QJsonDocument::fromJson(QByteArray::fromStdString(fileData.data), &err));
         if (loadDoc.isNull()) {
             qWarning() << "failed to parse json:" << fileData.relFilepath << ", " << err.errorString();
             return false;
@@ -110,16 +180,16 @@ bool DataContext::writeData(IStorage::StoredData& data) const
         if (!table.modified && !table.forceOutput)
             continue;
 
-        QString tableStr;
+        std::string tableStr;
         if (!writeCSV(tableStr, table))
             return false;
-        data.tables.push_back(IStorage::StoredFileTable{ tableStr.toUtf8(), table.id });
+        data.tables.push_back(IStorage::StoredFileTable{ std::move(tableStr), table.id });
     }
     for (const auto& p : jsonFiles) {
         QJsonDocument jdoc    = propertyToDoc(p.second);
         QByteArray    datastr = jdoc.toJson(QJsonDocument::Indented);
         datastr.replace(QByteArray("\xC3\x83\xC2\xBF\x63"), QByteArray("\xC3\xBF\x63")); // hack: replace color codes converter to UTF-8 from latin-1.
-        data.inMemoryFiles.push_back(IStorage::StoredFileMemory{ datastr, p.first });
+        data.inMemoryFiles.push_back(IStorage::StoredFileMemory{ datastr.toStdString(), p.first });
     }
     for (const auto& p : copyFiles) {
         data.refFiles.push_back(p.second);
@@ -309,6 +379,44 @@ QJsonDocument DataContext::propertyToDoc(const PropertyTree& value)
     else if (jdata.isObject())
         return QJsonDocument(jdata.toObject());
     return {};
+}
+
+int TableCell::toInt() const
+{
+    return std::atoi(str.c_str());
+}
+
+void TableCell::setInt(int value)
+{
+    str = std::to_string(value);
+}
+
+std::string TableCell::toLower() const
+{
+    return ::D2ModGen::toLower(str);
+}
+
+bool TableCell::startsWith(const std::string& s) const
+{
+    return str.starts_with(s);
+}
+
+bool TableCell::endsWith(const std::string& s) const
+{
+    return str.ends_with(s);
+}
+
+bool TableCell::contains(const std::string& s) const
+{
+    return str.find(s) != std::string::npos;
+}
+
+int Table::indexOf(const std::string& col) const
+{
+    auto it = std::find(columns.cbegin(), columns.cend(), col);
+    if (it == columns.cend())
+        return -1;
+    return it - columns.cbegin();
 }
 
 }

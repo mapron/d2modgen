@@ -5,8 +5,8 @@
  */
 #pragma once
 
-#include <QString>
-#include <QSet>
+#include <string>
+#include <set>
 
 namespace D2ModGen {
 
@@ -31,12 +31,8 @@ enum class AttributeFlag
     NoMinMax,
     PD2Map,
 };
-inline uint qHash(AttributeFlag key, uint seed)
-{
-    return ::qHash(static_cast<uint>(key), seed);
-}
 
-using AttributeFlagSet = QSet<AttributeFlag>;
+using AttributeFlagSet = std::set<AttributeFlag>;
 
 enum class AttributeItemReq
 {
@@ -48,15 +44,11 @@ enum class AttributeItemReq
     Throwing,
     Bows,
 };
-inline uint qHash(AttributeItemReq key, uint seed)
-{
-    return ::qHash(static_cast<uint>(key), seed);
-}
 
-using AttributeItemReqSet = QSet<AttributeItemReq>;
+using AttributeItemReqSet = std::set<AttributeItemReq>;
 
 struct AttributeDesc {
-    QString             code;
+    std::string         code;
     AttributeFlagSet    flags;
     AttributeItemReqSet items;
 };
@@ -68,19 +60,19 @@ enum class AttributeConsume
     Keep,
 };
 
-AttributeConsume getAttributeConsume(const QString& code);
-bool             isMinMaxRange(const QString& code);
+AttributeConsume getAttributeConsume(const std::string& code);
+bool             isMinMaxRange(const std::string& code);
 
-const AttributeDesc& getAttributeDesc(const QString& code);
+const AttributeDesc& getAttributeDesc(const std::string& code);
 
 class UniqueAttributeChecker {
-    QSet<QString> m_data;
+    std::set<std::string> m_data;
 
 public:
-    void add(const QString& attr);
-    void add(const QSet<QString>& attrs);
+    void add(const std::string& attr);
+    void add(const std::set<std::string>& attrs);
 
-    bool contains(const QString& attr) const { return m_data.contains(attr); }
+    bool contains(const std::string& attr) const { return m_data.contains(attr); }
 };
 
 }

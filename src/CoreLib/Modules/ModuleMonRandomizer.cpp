@@ -16,46 +16,46 @@ const QString       s_monstersJson   = "data\\hd\\character\\monsters.json";
 
 struct MotTypeTable {
     struct MonRecord {
-        QString id;
-        int     level;
+        std::string id;
+        int         level;
     };
     struct MonType {
-        QString          baseId;
+        std::string      baseId;
         QList<MonRecord> children;
         int              count = 0;
     };
-    QMap<QString, MonType> types;
-    QMap<QString, QString> id2base;
-    QMap<QString, int>     id2index;
+    QMap<std::string, MonType>     types;
+    QMap<std::string, std::string> id2base;
+    QMap<std::string, int>         id2index;
     struct MonCopy {
-        int     sourceIndex;
-        QString sourceId;
-        QString newId;
-        int     oldLevel;
-        int     newLevel;
+        int         sourceIndex;
+        std::string sourceId;
+        std::string newId;
+        int         oldLevel;
+        int         newLevel;
     };
     using MonCopyList = QList<MonCopy>;
     MonCopyList newCopies;
 
-    void add(QString id, QString baseId, int level, int index)
+    void add(const TableCell& id, const TableCell& baseId, int level, int index)
     {
-        MonType& mt = types[baseId];
-        mt.baseId   = baseId;
-        MonRecord r{ id, level };
+        MonType& mt = types[baseId.str];
+        mt.baseId   = baseId.str;
+        MonRecord r{ id.str, level };
         mt.children << r;
         mt.count++;
-        id2base[id]  = baseId;
-        id2index[id] = index;
+        id2base[id.str]  = baseId.str;
+        id2index[id.str] = index;
     }
 
-    QString pickRandomId(QRandomGenerator& rng, QString baseId) const
+    std::string pickRandomId(QRandomGenerator& rng, const std::string& baseId) const
     {
         const MonType&   mt = types[baseId];
         const MonRecord& mr = mt.children[rng.bounded(mt.count)];
         return mr.id;
     }
 
-    QString pickRandomId(QRandomGenerator& rng, QString baseId, int targetLevel, int maxDistance = 3)
+    std::string pickRandomId(QRandomGenerator& rng, const std::string& baseId, int targetLevel, int maxDistance = 3)
     {
         assert(types.contains(baseId));
         MonType& mt = types[baseId];
@@ -70,7 +70,7 @@ struct MotTypeTable {
             okIndexes << mt.children.size();
             const MonRecord& source = mt.children[rng.bounded(mt.count)];
 
-            QString newId = QString("%1_%2").arg(source.id).arg(targetLevel);
+            std::string newId = source.id + "_" + std::to_string(targetLevel);
             mt.children << MonRecord{ newId, targetLevel };
             newCopies << MonCopy{ id2index[source.id], source.id, newId, source.level, targetLevel };
         }
@@ -82,10 +82,10 @@ struct MotTypeTable {
     void dump()
     {
         for (auto& type : types) {
-            QString s = type.baseId + ": ";
+            std::string s = type.baseId + ": ";
             for (auto& c : type.children)
-                s += c.id + "(" + QString::number(c.level) + "), ";
-            qDebug() << s;
+                s += c.id + "(" + std::to_string(c.level) + "), ";
+            qDebug() << s.c_str();
         }
     }
 };
@@ -93,29 +93,29 @@ struct MotTypeTable {
 struct TCTable {
     struct TCGroup {
         struct TCRecord {
-            QString id;
-            int     level;
+            std::string id;
+            int         level;
         };
         QList<TCRecord> records;
     };
-    QMap<int, TCGroup> groups;
-    QMap<QString, int> tc2group;
+    QMap<int, TCGroup>     groups;
+    QMap<std::string, int> tc2group;
 
-    void add(const QString& id, const QString& group, const QString& level)
+    void add(const TableCell& id, const TableCell& group, const TableCell& level)
     {
         if (group.isEmpty() || level.isEmpty())
             return;
         TCGroup& g = groups[group.toInt()];
-        g.records << TCGroup::TCRecord{ id, level.toInt() };
-        tc2group[id] = group.toInt();
+        g.records << TCGroup::TCRecord{ id.str, level.toInt() };
+        tc2group[id.str] = group.toInt();
     }
-    QString promote(const QString& tc, const int oldLevel, const int newLevel) const
+    std::string promote(const TableCell& tc, const int oldLevel, const int newLevel) const
     {
-        if (!tc2group.contains(tc) || oldLevel == newLevel)
-            return tc;
-        const TCGroup& g = groups[tc2group[tc]];
+        if (!tc2group.contains(tc.str) || oldLevel == newLevel)
+            return tc.str;
+        const TCGroup& g = groups[tc2group[tc.str]];
 
-        QString res = tc;
+        std::string res = tc.str;
         for (auto& rec : g.records) {
             if (rec.level > newLevel)
                 break;
@@ -177,13 +177,13 @@ void ModuleMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, c
             tcTable.add(row["Treasure Class"], row["group"], row["level"]);
     }
     {
-        Table&        table = tableSet.tables["levels"];
-        TableView     tableView(table, true);
-        QSet<QString> baseIds, ubaseIds, nonUniqueBaseIds;
-        int           cols = 25;
+        Table&            table = tableSet.tables["levels"];
+        TableView         tableView(table, true);
+        std::set<std::string> baseIds, ubaseIds, nonUniqueBaseIds;
+        int               cols = 25;
         for (const char* colTpl : { "mon%1", "nmon%1", "umon%1" }) {
             for (int i = 1; i <= cols; ++i)
-                if (!tableView.hasColumn(QString(colTpl).arg(i))) {
+                if (!tableView.hasColumn(argCompat(colTpl, i))) {
                     cols = i - 1;
                     break;
                 }
@@ -194,51 +194,59 @@ void ModuleMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, c
             if (row["Name"] == "Act 5 - Mountain Top")
                 continue;
             for (int i = 1; i <= cols; ++i) {
-                QString& id = row[QString("mon%1").arg(i)];
+                auto& id = row[argCompat("mon%1", i)];
                 if (id.isEmpty())
                     break;
-                auto base = typeTable.id2base.value(id);
-                if (!base.isEmpty())
-                    baseIds << base;
+                auto base = typeTable.id2base.value(id.str);
+                if (!base.empty())
+                    baseIds.insert(base);
             }
             for (int i = 1; i <= cols; ++i) {
-                QString& id = row[QString("nmon%1").arg(i)];
+                auto& id = row[argCompat("nmon%1", i)];
                 if (id.isEmpty())
                     break;
-                auto base = typeTable.id2base.value(id);
-                if (!base.isEmpty())
-                    baseIds << base;
+                auto base = typeTable.id2base.value(id.str);
+                if (!base.empty())
+                    baseIds.insert(base);
             }
             for (int i = 1; i <= cols; ++i) {
-                QString& id = row[QString("umon%1").arg(i)];
+                auto& id = row[argCompat("umon%1", i)];
                 if (id.isEmpty())
                     break;
-                auto base = typeTable.id2base.value(id);
-                if (!base.isEmpty())
-                    ubaseIds << base;
+                auto base = typeTable.id2base.value(id.str);
+                if (!base.empty())
+                    ubaseIds.insert(base);
             }
         }
         nonUniqueBaseIds = baseIds;
-        nonUniqueBaseIds -= ubaseIds;
+        
+        //nonUniqueBaseIds -= ubaseIds;
+        {
+            std::set<std::string> resultData;
+            std::set_difference(nonUniqueBaseIds.cbegin(), nonUniqueBaseIds.cend(),
+                                ubaseIds.cbegin(), ubaseIds.cend(), 
+                                std::inserter(resultData, resultData.end()));
+            std::swap(nonUniqueBaseIds, resultData);
+        }
         //qDebug() << "non uniques:" << nonUniqueBaseIds;
         //typeTable.removeUnused(baseIds);
 
-        QStringList idsList(baseIds.cbegin(), baseIds.cend());
+        QList<std::string> idsList(baseIds.cbegin(), baseIds.cend());
         for (auto& row : tableView) {
             if (row["mon1"].isEmpty())
                 continue;
             if (row["Name"] == "Act 5 - Mountain Top")
                 continue;
-            const int     normalLevel = row.hasColumn("MonLvlEx") ? row["MonLvlEx"].toInt() : row["MonLvl1Ex"].toInt();
-            QSet<QString> normalSet;
+            const int         normalLevel = row.hasColumn("MonLvlEx") ? row["MonLvlEx"].toInt() : row["MonLvl1Ex"].toInt();
+            std::set<std::string> normalSet;
             for (int i = 0; i < maxTypes * 2; ++i) {
-                normalSet << idsList[rng.bounded(idsList.size())];
+                normalSet.insert(idsList[rng.bounded(idsList.size())]);
                 if (normalSet.size() >= maxTypes)
                     break;
             }
 
-            QStringList normalSetList;
-            QStringList uniques;
+            QList<std::string> normalSetList;
+            QList<std::string> uniques;
             for (auto baseId : normalSet) {
                 auto id = typeTable.pickRandomId(rng, baseId, normalLevel);
                 normalSetList << id;
@@ -247,11 +255,11 @@ void ModuleMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, c
             }
 
             for (int i = 1; i <= cols; ++i) {
-                row[QString("mon%1").arg(i)]  = normalSetList.value(i - 1);
-                row[QString("nmon%1").arg(i)] = normalSetList.value(i - 1);
-                row[QString("umon%1").arg(i)] = uniques.value(i - 1);
+                row[argCompat("mon%1", i)]  = normalSetList.value(i - 1);
+                row[argCompat("nmon%1", i)] = normalSetList.value(i - 1);
+                row[argCompat("umon%1", i)] = uniques.value(i - 1);
             }
-            row["NumMon"] = QString("%1").arg(spawnedCount);
+            row["NumMon"] = argCompat("%1", spawnedCount);
         }
     }
     {
@@ -264,22 +272,22 @@ void ModuleMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, c
             newCopies << tmpList;
             int        idCol    = 0;
             int        uidCol   = 1;
-            int        levelCol = table.columns.indexOf("Level");
+            int        levelCol = table.indexOf("Level");
             QList<int> minionCols;
             QList<int> skillCols;
             QList<int> tcCols;
             for (const char* col : { "spawn", "minion1", "minion2" }) {
-                int colIndex = table.columns.indexOf(col);
+                int colIndex = table.indexOf(col);
                 assert(colIndex > -1);
                 minionCols << colIndex;
             }
             for (int i = 1; i <= 8; ++i) {
-                int colIndex = table.columns.indexOf(QString("Sk%1lvl").arg(i));
+                int colIndex = table.indexOf(argCompat("Sk%1lvl", i));
                 assert(colIndex > -1);
                 skillCols << colIndex;
             }
             for (int i = 1; i <= 4; ++i) {
-                int colIndex = table.columns.indexOf(QString("TreasureClass%1").arg(i));
+                int colIndex = table.indexOf(argCompat("TreasureClass%1", i));
                 assert(colIndex > -1);
                 tcCols << colIndex;
             }
@@ -287,15 +295,15 @@ void ModuleMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, c
             for (const auto& copy : tmpList) {
                 auto newRow           = table.rows[copy.sourceIndex];
                 newRow.data[idCol]    = copy.newId;
-                newRow.data[levelCol] = QString("%1").arg(copy.newLevel);
-                newRow.data[uidCol]   = QString("%1").arg(table.rows.size());
+                newRow.data[levelCol] = argCompat("%1", copy.newLevel);
+                newRow.data[uidCol]   = argCompat("%1", table.rows.size());
                 for (int minionCol : minionCols) {
-                    QString& minion = newRow.data[minionCol];
+                    auto& minion = newRow.data[minionCol];
                     if (minion.isEmpty())
                         continue;
-                    const auto minionBase = typeTable.id2base.value(minion);
-                    if (minionBase.isEmpty()) {
-                        minion = "";
+                    const auto minionBase = typeTable.id2base.value(minion.str);
+                    if (minionBase.empty()) {
+                        minion.str = "";
                         continue;
                     }
                     auto id                = typeTable.pickRandomId(rng, minionBase, copy.newLevel);
@@ -303,21 +311,21 @@ void ModuleMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, c
                 }
                 if (copy.oldLevel > copy.newLevel) {
                     for (int skillCol : skillCols) {
-                        QString& cell = newRow.data[skillCol];
+                        auto& cell = newRow.data[skillCol];
                         if (cell.isEmpty())
                             break;
                         const int newLevel = copy.newLevel * cell.toInt() / copy.oldLevel;
-                        cell               = QString("%1").arg(std::max(1, newLevel));
+                        cell.setInt(std::max(1, newLevel));
                     }
                 }
                 for (int tcCol : tcCols) {
-                    QString& cell = newRow.data[tcCol];
+                    auto& cell = newRow.data[tcCol];
                     if (cell.isEmpty())
                         continue;
                     cell = tcTable.promote(cell, copy.oldLevel, copy.newLevel);
                 }
 
-                table.rows << newRow;
+                table.rows.push_back(std::move(newRow));
             }
         };
         assert(!typeTable.types.isEmpty());
@@ -330,8 +338,8 @@ void ModuleMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, c
         auto& jsonDoc    = output.jsonFiles[s_monstersJson];
         auto& jsonObject = jsonDoc.getMap();
         for (const auto& copy : typeTable.newCopies) {
-            const std::string sourceId  = copy.sourceId.toStdString();
-            const std::string newId     = copy.newId.toStdString();
+            const std::string sourceId  = copy.sourceId;
+            const std::string newId     = copy.newId;
             const std::string modelName = jsonObject[sourceId].toString();
             assert(!modelName.empty());
             jsonObject[newId] = PropertyTreeScalar{ modelName };

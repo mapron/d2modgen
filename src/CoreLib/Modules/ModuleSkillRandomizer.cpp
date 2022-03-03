@@ -11,7 +11,7 @@ namespace D2ModGen {
 namespace {
 const bool s_init = registerHelper<ModuleSkillRandomizer>();
 
-const QSet<QString> s_skillsOkToRandomizeDamage{
+const std::set<std::string> s_skillsOkToRandomizeDamage{
     "Fire Bolt",
     "Charged Bolt",
     "Ice Bolt",
@@ -70,33 +70,33 @@ struct SkillLocation {
 };
 
 struct SkillDamageInfo {
-    QString EType;
-    int     ELen;
-    int     HitShift;
+    std::string EType;
+    int         ELen;
+    int         HitShift;
 };
 
 struct SkillInfo {
-    QString         uppercaseKey;
-    QString         lowercaseKey;
-    QString         charClass; // ass|bar|...
+    std::string     uppercaseKey;
+    std::string     lowercaseKey;
+    std::string     charClass; // ass|bar|...
     SkillLocation   loc;
     SkillDamageInfo dmg;
-    QStringList     reqSkills;
+    StringVector    reqSkills;
 
     void readFromRowMain(const TableView::RowView& row)
     {
-        uppercaseKey = row["skill"];
-        lowercaseKey = uppercaseKey.toLower();
-        charClass    = row["charclass"];
+        uppercaseKey = row["skill"].str;
+        lowercaseKey = row["skill"].toLower();
+        charClass    = row["charclass"].str;
         loc.reqlevel = row["reqlevel"].toInt();
         for (int i = 1; i <= 3; ++i) {
-            const QString& req = row[QString("reqskill%1").arg(i)];
+            const auto& req = row[argCompat("reqskill%1", i)];
             if (!req.isEmpty())
-                reqSkills << req;
+                reqSkills << req.str;
         }
         dmg.ELen     = row["ELen"].toInt();
         dmg.HitShift = row["HitShift"].toInt();
-        dmg.EType    = row["EType"];
+        dmg.EType    = row["EType"].str;
     }
     void readFromRowDesc(const TableView::RowView& row)
     {
@@ -107,25 +107,25 @@ struct SkillInfo {
     }
     void writeToRowMain(TableView::RowView& row)
     {
-        row["reqlevel"] = QString("%1").arg(loc.reqlevel);
+        row["reqlevel"] = argCompat("%1", loc.reqlevel);
         for (int i = 1; i <= 3; ++i) {
-            QString& req = row[QString("reqskill%1").arg(i)];
-            req          = reqSkills.value(i - 1);
+            auto& req = row[argCompat("reqskill%1", i)];
+            req.str   = reqSkills.size() >= i ? reqSkills[i - 1] : "";
         }
-        row["ELen"]     = dmg.ELen ? QString("%1").arg(dmg.ELen) : "";
-        row["HitShift"] = QString("%1").arg(dmg.HitShift);
+        row["ELen"]     = dmg.ELen ? argCompat("%1", dmg.ELen) : "";
+        row["HitShift"] = argCompat("%1", dmg.HitShift);
         row["EType"]    = dmg.EType;
     }
     void writeToRowDesc(TableView::RowView& row)
     {
-        row["SkillPage"]   = QString("%1").arg(loc.skillPage);
-        row["SkillRow"]    = QString("%1").arg(loc.skillRow);
-        row["SkillColumn"] = QString("%1").arg(loc.skillColumn);
-        row["ListRow"]     = QString("%1").arg(loc.listRow);
+        row["SkillPage"]   = argCompat("%1", loc.skillPage);
+        row["SkillRow"]    = argCompat("%1", loc.skillRow);
+        row["SkillColumn"] = argCompat("%1", loc.skillColumn);
+        row["ListRow"]     = argCompat("%1", loc.listRow);
     }
 };
 
-using SkillParsedData = QMap<QString, SkillInfo>;
+using SkillParsedData = QMap<std::string, SkillInfo>;
 
 struct SkillTree {
     struct Character {
@@ -135,12 +135,14 @@ struct SkillTree {
             QList<int>    reqSkillIds;
         };
         QList<Skill> skills;
-        QString      charClass;
-        QStringList  skillIds;
+        std::string  charClass;
+        StringVector skillIds;
 
-        int addSkillId(const QString& skill)
+        int addSkillId(const std::string& skill)
         {
-            int idx = skillIds.indexOf(skill);
+            auto it = std::find(skillIds.cbegin(), skillIds.cend(), skill);
+
+            int idx = it == skillIds.cend() ? -1 : it - skillIds.cbegin();
             if (idx != -1)
                 return idx;
             idx = skillIds.size();
@@ -148,7 +150,7 @@ struct SkillTree {
             return idx;
         }
     };
-    QMap<QString, Character> chars;
+    QMap<std::string, Character> chars;
 
     void parse(const SkillParsedData& data)
     {
@@ -159,7 +161,7 @@ struct SkillTree {
             Character::Skill s;
             s.loc     = skillInfo.loc;
             s.skillId = c.addSkillId(skillInfo.uppercaseKey);
-            for (const QString& req : skillInfo.reqSkills)
+            for (const std::string& req : skillInfo.reqSkills)
                 s.reqSkillIds << c.addSkillId(req);
             c.skills << s;
         }
@@ -168,10 +170,12 @@ struct SkillTree {
     void randomizeTabs(QRandomGenerator& rng)
     {
         for (Character& c : chars) {
-            QStringList source = c.skillIds;
+            StringVector source = c.skillIds;
             c.skillIds.clear();
             while (source.size() > 1) {
-                c.skillIds << source.takeAt(rng.bounded(source.size()));
+                auto i = rng.bounded(static_cast<int>(source.size()));
+                c.skillIds << source[i];
+                source.erase(source.begin() + i);
             }
             c.skillIds << source;
         }
@@ -188,8 +192,8 @@ struct SkillTree {
             {
                 QStringList elementsTmp = elements;
                 if (ensureDifferent)
-                    elementsTmp.removeAll(skillInfo.dmg.EType);
-                skillInfo.dmg.EType = elementsTmp[rng.bounded(elementsTmp.size())];
+                    elementsTmp.removeAll(QString::fromStdString(skillInfo.dmg.EType));
+                skillInfo.dmg.EType = elementsTmp[rng.bounded(elementsTmp.size())].toStdString();
             }
             const bool isPoison = skillInfo.dmg.EType == "pois";
             if (isPoison) {
@@ -209,7 +213,7 @@ struct SkillTree {
         for (const Character& c : chars) {
             for (const Character::Skill& s : c.skills) {
                 auto       skillId   = c.skillIds[s.skillId];
-                SkillInfo& skillInfo = data[skillId.toLower()];
+                SkillInfo& skillInfo = data[toLower(skillId)];
                 skillInfo.loc        = s.loc;
                 skillInfo.reqSkills.clear();
                 for (int req : s.reqSkillIds)
@@ -245,13 +249,13 @@ void ModuleSkillRandomizer::generate(DataContext& output, QRandomGenerator& rng,
     for (auto& row : skillsTableView) {
         SkillInfo info;
         info.readFromRowMain(row);
-        if (info.charClass.isEmpty())
+        if (info.charClass.empty())
             continue;
 
         skillParsedData[info.lowercaseKey] = std::move(info);
     }
     for (auto& row : descTableView) {
-        auto& skilldescKey = row["skilldesc"];
+        auto& skilldescKey = row["skilldesc"].str;
         if (!skillParsedData.contains(skilldescKey))
             continue;
         skillParsedData[skilldescKey].readFromRowDesc(row);

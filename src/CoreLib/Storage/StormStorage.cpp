@@ -36,7 +36,7 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
         return {};
     }
 
-    auto readStormFile = [mpq](QByteArray& data, const QString& filename) -> bool {
+    auto readStormFile = [mpq](std::string& data, const QString& filename) -> bool {
         const std::string fullId = filename.toStdString();
         if (!SFileHasFile(mpq, fullId.c_str())) {
             qDebug() << "no such file:" << filename;
@@ -64,14 +64,14 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
     StoredData result{ true };
 
     for (const QString& id : g_tableNames) {
-        QByteArray buffer;
+        std::string buffer;
         if (!readStormFile(buffer, IStorage::makeTableRelativePath(id, true)))
             continue;
 
         result.tables.push_back(StoredFileTable{ std::move(buffer), id });
     }
     for (const QString& relativePath : filenames) {
-        QByteArray buffer;
+        std::string buffer;
         if (!readStormFile(buffer, relativePath))
             continue;
 

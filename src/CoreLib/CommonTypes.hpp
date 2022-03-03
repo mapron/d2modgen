@@ -17,6 +17,25 @@ namespace D2ModGen {
 
 using StringVector = std::vector<std::string>;
 
+inline StringVector& operator<<(StringVector& rh, const StringVector& lh)
+{
+    rh.insert(rh.end(), lh.cbegin(), lh.cend());
+    return rh;
+}
+
+inline StringVector& operator<<(StringVector& rh, const std::string& lh)
+{
+    rh.push_back(lh);
+    return rh;
+}
+
+inline std::string toLower(std::string s)
+{
+    for (auto& c : s)
+        c = static_cast<char>(::tolower(c));
+    return s;
+}
+
 enum class StorageType
 {
     D2ResurrectedInternal,  // using CASC storage from D2R Installation,

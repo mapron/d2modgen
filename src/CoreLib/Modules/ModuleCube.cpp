@@ -13,7 +13,7 @@ namespace D2ModGen {
 namespace {
 const bool s_init = registerHelper<ModuleCube>();
 
-const QMap<QString, QString> s_craftedTypeReplace{
+const QMap<std::string, std::string> s_craftedTypeReplace{
     { "\"fhl,mag,upg\"", "\"helm,mag\"" },
     { "\"mbt,mag,upg\"", "\"boot,mag\"" },
     { "\"mgl,mag,upg\"", "\"glov,mag\"" },
@@ -47,7 +47,7 @@ const QMap<QString, QString> s_craftedTypeReplace{
     { "\"spea,mag\"", "\"miss,mag\"" },
 };
 
-const QMap<QString, QString> s_craftedGemReplace{
+const QMap<std::string, std::string> s_craftedGemReplace{
     { "gpb", "gems" },
     { "gpr", "gemr" },
     { "gpv", "gema" },
@@ -100,22 +100,22 @@ void ModuleCube::generate(DataContext& output, QRandomGenerator& rng, const Inpu
     auto&     tableSet = output.tableSet;
     TableView view(tableSet.tables["cubemain"], true);
     for (auto& row : view) {
-        QString&   description = row["description"];
-        QString&   numinputs   = row["numinputs"];
-        QString&   input1      = row["input 1"];
-        QString&   input2      = row["input 2"];
-        QString&   input3      = row["input 3"];
-        QString&   input4      = row["input 4"];
-        const bool isCrafted   = row["output"] == "\"usetype,crf\"";
+        auto&        description = row["description"];
+        auto&        numinputs   = row["numinputs"];
+        std::string& input1      = row["input 1"].str;
+        std::string& input2      = row["input 2"].str;
+        std::string& input3      = row["input 3"].str;
+        std::string& input4      = row["input 4"].str;
+        const bool   isCrafted   = row["output"].str == "\"usetype,crf\"";
 
-        if (noGemUpgrade && description.contains("->") && description.endsWith(" Rune") && !input2.isEmpty()) {
-            numinputs = QString("%1").arg(numinputs.toInt() - 1);
-            input2    = "";
+        if (noGemUpgrade && description.contains("->") && description.endsWith(" Rune") && !input2.empty()) {
+            numinputs.setInt(numinputs.toInt() - 1);
+            input2 = "";
         }
         if (craftHighIlvl && (isCrafted || !row["ilvl"].isEmpty() || !row["plvl"].isEmpty() || !row["lvl"].isEmpty())) {
-            row["ilvl"] = "";
-            row["plvl"] = "";
-            row["lvl"]  = "99";
+            row["ilvl"].str = "";
+            row["plvl"].str = "";
+            row["lvl"].str  = "99";
         }
         if (isCrafted) {
             if (craftNoStrict)
@@ -124,17 +124,17 @@ void ModuleCube::generate(DataContext& output, QRandomGenerator& rng, const Inpu
             if (craftNoRunes) {
                 input2 = input4;
                 input3 = input4 = "";
-                numinputs       = "2";
-                input2          = s_craftedGemReplace.value(input2, input2);
+                numinputs.setInt(2);
+                input2 = s_craftedGemReplace.value(input2, input2);
             }
             if (craftMultBonus > 1) {
                 for (int i = 1; i <= 5; ++i) {
-                    QString& mod = row[QString("mod %1").arg(i)];
-                    if (isMinMaxRange(mod)) {
-                        QString& modMin = row[QString("mod %1 min").arg(i)];
-                        QString& modMax = row[QString("mod %1 max").arg(i)];
-                        modMin          = QString("%1").arg(modMin.toInt() * craftMultBonus);
-                        modMax          = QString("%1").arg(modMax.toInt() * craftMultBonus);
+                    auto& mod = row[argCompat("mod %1", i)];
+                    if (isMinMaxRange(mod.str)) {
+                        auto& modMin = row[argCompat("mod %1 min", i)];
+                        auto& modMax = row[argCompat("mod %1 max", i)];
+                        modMin.setInt(modMin.toInt() * craftMultBonus);
+                        modMax.setInt(modMax.toInt() * craftMultBonus);
                     }
                 }
             }
@@ -328,9 +328,9 @@ void ModuleCube::generate(DataContext& output, QRandomGenerator& rng, const Inpu
                 { "version", "100" },
                 { "*eol", "0" },
                 { "numinputs", "3" },
-                { "input 1", QString("r%1").arg(i, 2, 10, QLatin1Char('0')) },
+                { "input 1", QString("r%1").arg(i, 2, 10, QLatin1Char('0')).toStdString() },
                 { "input 2", "\"key,qty=2\"" },
-                { "output", QString("r%1").arg(i - 1, 2, 10, QLatin1Char('0')) },
+                { "output", QString("r%1").arg(i - 1, 2, 10, QLatin1Char('0')).toStdString() },
             };
             view.appendRow(rune);
         }

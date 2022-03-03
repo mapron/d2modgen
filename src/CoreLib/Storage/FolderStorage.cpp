@@ -54,7 +54,7 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
                 if (!loadFile.open(QIODevice::ReadOnly))
                     return {};
 
-                result.tables.push_back(StoredFileTable{ loadFile.readAll(), id });
+                result.tables.push_back(StoredFileTable{ loadFile.readAll().toStdString(), id });
             } else {
                 QString relPath = rootDir.relativeFilePath(fi.absoluteFilePath());
                 if (filenames.contains(relPath)) {
@@ -62,7 +62,7 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
                     if (!loadFile.open(QIODevice::ReadOnly))
                         return {};
 
-                    result.inMemoryFiles.push_back(StoredFileMemory{ loadFile.readAll(), relPath });
+                    result.inMemoryFiles.push_back(StoredFileMemory{ loadFile.readAll().toStdString(), relPath });
                 } else {
                     result.refFiles.push_back(StoredFileRef{ absPath, relPath });
                 }
@@ -143,14 +143,14 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
     for (const auto& tableData : data.tables) {
         const QString relPath = m_storageType == StorageType::CsvFolder ? tableData.id + ".txt" : makeTableRelativePath(tableData.id, false);
         const QString absPath = m_root + relPath;
-        if (!writeData(tableData.data, absPath)) {
+        if (!writeData(QByteArray::fromStdString(tableData.data), absPath)) {
             qWarning() << "failed to write to:" << absPath;
             return false;
         }
     }
     for (const auto& memoryData : data.inMemoryFiles) {
         const QString absPath = m_root + memoryData.relFilepath;
-        if (!writeData(memoryData.data, absPath)) {
+        if (!writeData(QByteArray::fromStdString(memoryData.data), absPath)) {
             qWarning() << "failed to write to:" << absPath;
             return false;
         }

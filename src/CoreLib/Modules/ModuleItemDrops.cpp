@@ -24,13 +24,13 @@ const QRegularExpression s_eqRegex("Act [12345]( \\([NH]\\))? Equip [ABC]");
 const QRegularExpression s_bowRegex("Act [12345]( \\([NH]\\))? Bow [ABC]");
 const QRegularExpression s_junkRegex("Act [12345]( \\([NH]\\))? Junk");
 
-TCType getTC(const QString& tc)
+TCType getTC(const std::string& tc)
 {
-    if (s_eqRegex.match(tc).hasMatch())
+    if (s_eqRegex.match(QString::fromStdString(tc)).hasMatch())
         return TCType::Equip;
-    if (s_bowRegex.match(tc).hasMatch())
+    if (s_bowRegex.match(QString::fromStdString(tc)).hasMatch())
         return TCType::Bow;
-    if (s_junkRegex.match(tc).hasMatch())
+    if (s_junkRegex.match(QString::fromStdString(tc)).hasMatch())
         return TCType::Junk;
     return TCType::Other;
 }
@@ -99,8 +99,8 @@ void ModuleItemDrops::generate(DataContext& output, QRandomGenerator& rng, const
     if (input.isAllDefault())
         return;
 
-    static const QSet<int>     s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
-    static const QSet<QString> s_modifyNames{
+    static const QSet<int>             s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
+    static const std::set<std::string> s_modifyNames{
         "Cow",
         "Cow (N)",
         "Cow (H)",
@@ -120,14 +120,14 @@ void ModuleItemDrops::generate(DataContext& output, QRandomGenerator& rng, const
         const int  percentJunk     = input.getInt("junk_percent");
         const bool highDropsCount  = input.getInt("high_elite_drops");
 
-        auto factorAdjust = [](QString& value, double factor, int maxFact) {
+        auto factorAdjust = [](TableCell& value, double factor, int maxFact) {
             const double prev           = value.toInt();
             const double probReverseOld = (1024. - prev);
             const double probReverseNew = probReverseOld / factor;
             const double probNew        = (1024. - probReverseNew);
 
             const int next = static_cast<int>(probNew);
-            value          = QString("%1").arg(std::min(next, maxFact));
+            value.setInt(std::min(next, maxFact));
         };
         auto adjustPick = [](int value, int num, int denum) -> int {
             if (!value)
@@ -139,13 +139,13 @@ void ModuleItemDrops::generate(DataContext& output, QRandomGenerator& rng, const
         };
 
         for (auto& row : view) {
-            QString&   treasureGroup      = row["group"];
-            QString&   className          = row["Treasure Class"];
-            QString&   uniqueRatio        = row["Unique"];
-            QString&   setRatio           = row["Set"];
-            QString&   rareRatio          = row["Rare"];
-            const bool allowFillNewValues = !treasureGroup.isEmpty() && s_modifyGroups.contains(treasureGroup.toInt()) || s_modifyNames.contains(className);
-            const bool allowModifyValues  = !uniqueRatio.isEmpty() && uniqueRatio != "1024" && !setRatio.isEmpty();
+            const auto   treasureGroup      = row["group"].toInt();
+            std::string& className          = row["Treasure Class"].str;
+            auto&        uniqueRatio        = row["Unique"];
+            auto&        setRatio           = row["Set"];
+            auto&        rareRatio          = row["Rare"];
+            const bool   allowFillNewValues = s_modifyGroups.contains(treasureGroup) || s_modifyNames.contains(className);
+            const bool   allowModifyValues  = !uniqueRatio.isEmpty() && uniqueRatio != "1024" && !setRatio.isEmpty();
             if (allowFillNewValues || allowModifyValues) {
                 // these limits are empyrical - to prevent 100% drop chance on 1000% MF.
                 factorAdjust(uniqueRatio, factorUnique, 1010);
@@ -158,15 +158,15 @@ void ModuleItemDrops::generate(DataContext& output, QRandomGenerator& rng, const
             dropSet.m_noDrop = adjustPick(dropSet.m_noDrop, percentNoDrop, 100);
 
             if (highDropsCount) {
-                if (treasureGroup == "15") { // Uniques, insead of 1 item + 2*2 potion, make 4 items + 1*2 potion
+                if (treasureGroup == 15) { // Uniques, insead of 1 item + 2*2 potion, make 4 items + 1*2 potion
                     dropSet.m_items[0].prob = 4;
                     dropSet.m_items[1].prob = 1;
-                    row["Picks"]            = "-5";
+                    row["Picks"].str        = "-5";
                 }
-                if (treasureGroup == "13") { // Champions, insead of 1 item + 1-2*2 potion, make 2 items + 1*2 potion
+                if (treasureGroup == 13) { // Champions, insead of 1 item + 1-2*2 potion, make 2 items + 1*2 potion
                     dropSet.m_items[0].prob = 2;
                     dropSet.m_items[1].prob = 1;
-                    row["Picks"]            = "-3";
+                    row["Picks"].str        = "-3";
                 }
             }
 
@@ -174,7 +174,8 @@ void ModuleItemDrops::generate(DataContext& output, QRandomGenerator& rng, const
             if (rowTC == TCType::Other) {
                 for (auto& item : dropSet.m_items) {
                     int        percent   = 100;
-                    const auto subItemTC = getTC(item.tc);
+                    const auto subItemTC = getTC(item.tc.str);
+                   
                     if (item.tc.endsWith(" Good"))
                         percent = percentGoodTC;
                     else if (item.tc.startsWith("gld") || item.tc.startsWith("\"gld"))
@@ -189,7 +190,7 @@ void ModuleItemDrops::generate(DataContext& output, QRandomGenerator& rng, const
             }
             if (rowTC == TCType::Equip || rowTC == TCType::Bow) {
                 for (auto& item : dropSet.m_items) {
-                    const auto subItemTC = getTC(item.tc);
+                    const auto subItemTC = getTC(item.tc.str);
                     if (subItemTC == TCType::Equip || subItemTC == TCType::Bow)
                         item.prob = adjustPick(item.prob, 1, factorHighlevel);
                 }
@@ -203,9 +204,9 @@ void ModuleItemDrops::generate(DataContext& output, QRandomGenerator& rng, const
     if (equalRarity) {
         TableView view(tableSet.tables["uniqueitems"], true);
         for (auto& row : view) {
-            QString& rarity = row["rarity"];
+            auto& rarity = row["rarity"];
             if (!rarity.isEmpty())
-                rarity = "1";
+                rarity.str = "1";
         }
     }
 }

@@ -31,14 +31,14 @@ void ModuleTestConfig::generate(DataContext& output, QRandomGenerator& rng, cons
         if (rowView["class"] == "Expansion")
             continue;
         for (int i = 1; i <= 10; ++i) {
-            const auto codeColumn  = QString("item%1").arg(i);
-            const auto countColumn = QString("item%1count").arg(i);
+            const auto codeColumn  = argCompat("item%1", i);
+            const auto countColumn = argCompat("item%1count", i);
 
-            QString& code  = rowView[codeColumn];
-            QString& count = rowView[countColumn];
+            auto& code  = rowView[codeColumn];
+            auto& count = rowView[countColumn];
             if (count == "0") {
-                count = "1";
-                code  = "key";
+                count.str = "1";
+                code.str  = "key";
                 break;
             }
         }

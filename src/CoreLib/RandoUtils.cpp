@@ -24,25 +24,25 @@ void MagicPropRawList::detectBounded()
     if (parsedProps.empty())
         return;
 
-    static const QList<QStringList> s_bundledIds{
-        QStringList{ "ltng-min", "ltng-max" },
-        QStringList{ "fire-min", "fire-max" },
-        QStringList{ "cold-min", "cold-max", "cold-len" },
-        QStringList{ "pois-min", "pois-max", "pois-len" },
+    static const std::vector<StringVector> s_bundledIds{
+        StringVector{ "ltng-min", "ltng-max" },
+        StringVector{ "fire-min", "fire-max" },
+        StringVector{ "cold-min", "cold-max", "cold-len" },
+        StringVector{ "pois-min", "pois-max", "pois-len" },
     };
-    auto getBundledKey = [](const QString& code) -> QString {
+    auto getBundledKey = [](const std::string& code) -> std::string {
         for (const auto& pack : s_bundledIds)
-            if (pack.contains(code))
+            if (std::find(pack.cbegin(), pack.cend(), code) != pack.cend())
                 return pack[0];
         return "";
     };
-    QMap<QString, MagicPropList> listsByBundledProp;
+    std::map<std::string, MagicPropList> listsByBundledProp;
     for (const auto& prop : parsedProps) {
         listsByBundledProp[getBundledKey(prop.code)].push_back(prop);
     }
     MagicPropList newProps = std::move(listsByBundledProp[""]);
-    for (const QStringList& bundleIdPack : s_bundledIds) {
-        const QString& rootCode = bundleIdPack[0];
+    for (const StringVector& bundleIdPack : s_bundledIds) {
+        const std::string& rootCode = bundleIdPack[0];
         if (!listsByBundledProp.contains(rootCode))
             continue;
         const MagicPropList& bundledProps = listsByBundledProp[rootCode];
@@ -60,8 +60,8 @@ void MagicPropRawList::detectBounded()
                 newProp.bounded.push_back(p);
             }
         }
-        assert(!newProp.code.isEmpty());
-        if (!newProp.code.isEmpty())
+        assert(!newProp.code.empty());
+        if (!newProp.code.empty())
             newProps.push_back(std::move(newProp));
     }
     parsedProps = std::move(newProps);
@@ -89,8 +89,8 @@ void MagicPropRawList::postProcess(bool replaceSkills, bool replaceCharges, bool
                 continue;
             }
             prop.code = "oskill";
-            if (prop.max.startsWith("-")) {
-                prop.min = prop.max = prop.max.mid(1);
+            if (prop.max.starts_with("-")) {
+                prop.min = prop.max = prop.max.substr(1);
             }
         }
         if (skipKnock && (prop.code == "knock" || prop.code == "howl"))
@@ -113,16 +113,16 @@ void MagicPropRawList::makePerfect()
     }
 }
 
-void MagicPropRawList::readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const QSet<QString>& extraKnownCodes)
+void MagicPropRawList::readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const std::set<std::string>& extraKnownCodes)
 {
     for (const auto& col : columns.m_cols) {
         MagicProp mp;
-        mp.code = row[col.code];
-        mp.par  = row[col.par];
-        mp.min  = row[col.min];
-        mp.max  = row[col.max];
+        mp.code = (row[col.code].str);
+        mp.par  = (row[col.par].str);
+        mp.min  = (row[col.min].str);
+        mp.max  = (row[col.max].str);
 
-        if (mp.code.isEmpty())
+        if (mp.code.empty())
             continue; // PD2 writes properties to the end of a list.
         if (!extraKnownCodes.contains(mp.code)) {
             auto cons = getAttributeConsume(mp.code);
@@ -142,11 +142,11 @@ void MagicPropRawList::writeToRow(TableView::RowView& row, const ColumnsDesc& co
 {
     int  col     = 0;
     auto consume = [&row, &col, &columns](const MagicProp& prop) {
-        const auto& colDesc = columns.m_cols[col];
-        row[colDesc.code]   = prop.code;
-        row[colDesc.par]    = prop.par;
-        row[colDesc.min]    = prop.min;
-        row[colDesc.max]    = prop.max;
+        const auto& colDesc   = columns.m_cols[col];
+        row[colDesc.code].str = prop.code;
+        row[colDesc.par].str  = prop.par;
+        row[colDesc.min].str  = prop.min;
+        row[colDesc.max].str  = prop.max;
         col++;
     };
     for (const MagicProp& prop : keptProps) {
@@ -175,17 +175,17 @@ int MagicPropRawList::getTotalSize() const
     return result;
 }
 
-QSet<QString> MagicPropRawList::getAllCodes() const
+std::set<std::string> MagicPropRawList::getAllCodes() const
 {
-    QSet<QString> result;
+    std::set<std::string> result;
     for (const MagicProp& prop : parsedProps)
-        result << prop.code; // don't need bounded, we do not index them.
+        result.insert(prop.code); // don't need bounded, we do not index them.
     return result;
 }
 
-QString MagicPropRawList::toDebugString() const
+std::string MagicPropRawList::toDebugString() const
 {
-    QString result = "";
+    std::string result = "";
     for (const MagicProp& prop : parsedProps)
         result += prop.toDebugString() + "; ";
     return result;
@@ -247,19 +247,19 @@ void MagicPropUniverse::add(MagicPropRawList propList, const ItemCodeFilter& ite
 void MagicPropUniverse::dump(const MagicPropIdxSet& idxs) const
 {
     for (const auto idx : idxs) {
-        qDebug() << "[" << idx << "] " << props[idx].toDebugString();
+        qDebug() << "[" << idx << "] " << props[idx].toDebugString().c_str();
     }
 }
 
-MagicPropList MagicPropUniverse::generate(QRandomGenerator&       rng,
-                                          const QSet<QString>&    existingCodes,
-                                          const AttributeFlagSet& supportedAttributes,
-                                          const ItemCodeFilter&   specificTypeQuery,
-                                          int                     specificItemUsage,
-                                          int                     count,
-                                          int                     level,
-                                          int                     unbalance,
-                                          bool                    noDuplicateCode) const
+MagicPropList MagicPropUniverse::generate(QRandomGenerator&            rng,
+                                          const std::set<std::string>& existingCodes,
+                                          const AttributeFlagSet&      supportedAttributes,
+                                          const ItemCodeFilter&        specificTypeQuery,
+                                          int                          specificItemUsage,
+                                          int                          count,
+                                          int                          level,
+                                          int                          unbalance,
+                                          bool                         noDuplicateCode) const
 {
     if (count <= 0)
         return {};
@@ -347,9 +347,9 @@ MagicPropList MagicPropUniverse::generate(QRandomGenerator&       rng,
 ItemCodeSet MagicPropUniverse::expand(const ItemCodeSet& query, bool nested) const
 {
     ItemCodeSet codeSet = query;
-    for (const auto& code : query) {
-        const auto& typeInfo = itemTypeInfo.at(code.left(4));
-        codeSet += nested ? typeInfo.nested : typeInfo.parents;
+    for (const std::string& code : query) {
+        const auto& typeInfo = itemTypeInfo.at(code.substr(0, 4));
+        appendToSet(codeSet, nested ? typeInfo.nested : typeInfo.parents);
     }
     return codeSet;
 }
@@ -368,7 +368,7 @@ MagicPropIdxSet MagicPropUniverse::getIndexByLevel(int levelMin, int levelMax) c
         auto it = indexByLevel.find(l);
         if (it == indexByLevel.cend())
             continue;
-        result += it.value();
+        result += it->second;
     }
     indexByLevelCache[levelMin][levelMax] = result;
     return result;
@@ -384,7 +384,7 @@ MagicPropIdxSet MagicPropUniverse::getIndexBySupportedAttributes(const Attribute
         auto it = indexByAttributeUnsupported.find(flag);
         if (it == indexByAttributeUnsupported.cend())
             continue;
-        result &= it.value();
+        result &= it->second;
     }
     return result;
 }
@@ -394,33 +394,33 @@ MagicPropIdxSet MagicPropUniverse::getIndexByTypeFilter(const ItemCodeFilter& qu
     MagicPropIdxSet   result;
     const ItemCodeSet include = expand(query.include, true);
     const ItemCodeSet exclude = expand(query.exclude, true);
-    for (const QString& type : include) {
+    for (const std::string& type : include) {
         auto it = indexByIncludeType.find(type);
         if (it == indexByIncludeType.cend())
             continue;
-        result += it.value();
+        result += it->second;
     }
-    for (const QString& type : exclude) {
+    for (const std::string& type : exclude) {
         auto it = indexByExcludeType.find(type);
         if (it == indexByExcludeType.cend())
             continue;
-        result -= it.value(); // important -=
+        result -= it->second; // important -=
     }
     return result;
 }
 
-QString MagicProp::toDebugString() const
+std::string MagicProp::toDebugString() const
 {
-    QString result;
+    std::string result;
     if (isMinMaxRange(code)) {
-        result = QString("%1: %2-%3").arg(code, min, max);
-        if (!par.isEmpty())
+        result = code + ": " + min + "-" + max;
+        if (!par.empty())
             result += " (" + par + ")";
     } else {
-        result = QString("%1: %2,%3,%4").arg(code, par, min, max);
+        result = code + ": " + par + "," + min + "," + max;
     }
     if (!bounded.empty())
-        result += QString(" +[%1]").arg(bounded.size());
+        result += argCompat(" +[%1]", bounded.size());
     return result;
 }
 

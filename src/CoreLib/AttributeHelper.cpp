@@ -5,11 +5,16 @@
  */
 #include "AttributeHelper.hpp"
 
+#include <unordered_map>
+#include <vector>
+
+#include <cassert>
+
 namespace D2ModGen {
 
 namespace {
 
-const QVector<AttributeDesc> s_attributes{
+const std::vector<AttributeDesc> s_attributes{
     { "ac", { AttributeFlag::Defense } },                                  // +# Defense
     { "ac-miss", { AttributeFlag::Defense } },                             // +# Defense vs. Missile
     { "ac-hth", { AttributeFlag::Defense } },                              // +# Defense vs. Melee
@@ -306,39 +311,45 @@ const QVector<AttributeDesc> s_attributes{
     { "Thorns", {} },
 };
 
-const QHash<QString, int> s_attributesIndex = [] {
-    QHash<QString, int> result;
-    int                 i = 0;
+const std::unordered_map<std::string, int> s_attributesIndex = [] {
+    std::unordered_map<std::string, int> result;
+    int                                  i = 0;
     for (const auto& attr : s_attributes)
         result[attr.code] = i++;
     return result;
 }();
 
+int attributesIndexValue(const std::string& code)
+{
+    auto it = s_attributesIndex.find(code);
+    return it == s_attributesIndex.cend() ? -1 : it->second;
 }
 
-AttributeConsume getAttributeConsume(const QString& code)
+}
+
+AttributeConsume getAttributeConsume(const std::string& code)
 {
-    if (code.isEmpty() || code.startsWith('*'))
+    if (code.empty() || code.starts_with("*"))
         return AttributeConsume::Skip;
 
-    const bool isKnown = s_attributesIndex.value(code, -1) != -1;
+    const bool isKnown = attributesIndexValue(code) != -1;
     if (isKnown)
         return AttributeConsume::Known;
 
     return AttributeConsume::Keep;
 }
 
-const AttributeDesc& getAttributeDesc(const QString& code)
+const AttributeDesc& getAttributeDesc(const std::string& code)
 {
     static const AttributeDesc s_stub{};
-    const int                  index = s_attributesIndex.value(code, -1);
+    const int                  index = attributesIndexValue(code);
     assert(index >= 0);
     if (index < 0)
         return s_stub;
     return s_attributes[index];
 }
 
-bool isMinMaxRange(const QString& code)
+bool isMinMaxRange(const std::string& code)
 {
     if (getAttributeConsume(code) != AttributeConsume::Known)
         return false;
@@ -350,10 +361,10 @@ bool isMinMaxRange(const QString& code)
     return !noMinMax && !byLevel && !isMap;
 }
 
-void UniqueAttributeChecker::add(const QString& attr)
+void UniqueAttributeChecker::add(const std::string& attr)
 {
-    m_data << attr;
-    static const QSet<QString> s_aliased{
+    m_data.insert(attr);
+    static const std::set<std::string> s_aliased{
         "swing1",
         "swing2",
         "swing3",
@@ -371,7 +382,7 @@ void UniqueAttributeChecker::add(const QString& attr)
         "cast3",
         "cast",
     };
-    static const QList<QSet<QString>> s_aliasedGroups{
+    static const std::vector<std::set<std::string>> s_aliasedGroups{
         {
             "swing1",
             "swing2",
@@ -402,14 +413,14 @@ void UniqueAttributeChecker::add(const QString& attr)
     if (s_aliased.contains(attr)) {
         for (const auto& group : s_aliasedGroups) {
             if (group.contains(attr)) {
-                m_data += group;
+                m_data.insert(group.cbegin(), group.cend());
                 break;
             }
         }
     }
 }
 
-void UniqueAttributeChecker::add(const QSet<QString>& attrs)
+void UniqueAttributeChecker::add(const std::set<std::string>& attrs)
 {
     for (auto& attr : attrs)
         add(attr);

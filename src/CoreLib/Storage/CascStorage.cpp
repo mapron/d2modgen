@@ -24,7 +24,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
     }
     MODGEN_SCOPE_EXIT([storage] { CascCloseStorage(storage); });
 
-    auto readCascFile = [storage](QByteArray& data, const QString& filename) -> bool {
+    auto readCascFile = [storage](std::string& data, const QString& filename) -> bool {
         const std::string fullId = QString("data:%1").arg(filename).toStdString();
         HANDLE            fileHandle;
 
@@ -48,14 +48,14 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
     IStorage::StoredData result{ true };
 
     for (const QString& id : g_tableNames) {
-        QByteArray buffer;
+        std::string buffer;
         if (!readCascFile(buffer, IStorage::makeTableRelativePath(id, true)))
             continue;
 
         result.tables.push_back(StoredFileTable{ std::move(buffer), id });
     }
     for (const QString& relativePath : filenames) {
-        QByteArray buffer;
+        std::string buffer;
         if (!readCascFile(buffer, relativePath))
             continue;
 

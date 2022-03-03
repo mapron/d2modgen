@@ -71,7 +71,7 @@ void ModuleChallenge::generate(DataContext& output, QRandomGenerator& rng, const
                 dropSet.readRow(row);
                 for (int i = dropSet.m_items.size() - 1; i >= 0; i--) {
                     auto&       dropItem = dropSet.m_items[i];
-                    std::string tcName   = dropItem.tc.toStdString();
+                    std::string tcName   = dropItem.tc.str;
                     if (disabledIds.contains(tcName)) {
                         dropSet.m_noDrop += dropItem.prob;
                         dropSet.m_items.removeAt(i);
@@ -83,14 +83,14 @@ void ModuleChallenge::generate(DataContext& output, QRandomGenerator& rng, const
     }
     {
         TableView view(output.tableSet.tables["difficultylevels"]);
-        auto      checkPenalty = [&input, &output, &view](const std::string& key, const QString& name) {
+        auto      checkPenalty = [&input, &output, &view](const std::string& key, const std::string& name) {
             if (input.isAllDefault({ key }))
                 return;
             const int penalty = input.getInt(key);
             view.markModified();
             for (auto& row : view) {
-                if (row["Name"] == name) {
-                    row["ResistPenalty"] = QString("-%1").arg(penalty);
+                if (row["Name"].str == name) {
+                    row["ResistPenalty"].setInt(penalty);
                 }
             }
         };
@@ -106,12 +106,12 @@ void ModuleChallenge::generate(DataContext& output, QRandomGenerator& rng, const
         TableView view(output.tableSet.tables["levels"], true);
         const int levelIncreaseUltra = input.getInt("levelIncreaseUltra") ? 105 : 85;
 
-        auto adjustLevel = [levelIncreaseUltra](TableView::RowView& row, const QString& key, const int levelIncrease) {
-            QString& lev   = row[key];
-            int      level = lev.toInt();
+        auto adjustLevel = [levelIncreaseUltra](TableView::RowView& row, const std::string& key, const int levelIncrease) {
+            auto& lev   = row[key];
+            int   level = lev.toInt();
             if (!level || level > 85)
                 return;
-            lev = QString("%1").arg(std::min(levelIncreaseUltra, level + levelIncrease));
+            lev.setInt(std::min(levelIncreaseUltra, level + levelIncrease));
         };
 
         for (auto& row : view) {

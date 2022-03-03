@@ -14,6 +14,25 @@ const bool s_init = registerHelper<ModuleItemRandomizer>();
 
 constexpr const int s_maxUnbalanceLevel = 100;
 
+StringVector split(const std::string& str, char sep)
+{
+    const QStringList parts = QString::fromStdString(str).split(sep, Qt::SkipEmptyParts);
+    StringVector      result;
+    result.reserve(parts.size());
+    for (const QString& part : parts)
+        result.push_back(part.toStdString());
+    return result;
+}
+
+template<class Val>
+Val mapValue(const std::map<std::string, Val>& m, const std::string& key, const Val& d = Val())
+{
+    auto it = m.find(key);
+    if (it == m.cend())
+        return d;
+    return it->second;
+}
+
 }
 
 IModule::PresetList ModuleItemRandomizer::presets() const
@@ -90,34 +109,34 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
     {
         TableView view(tableSet.tables["itemtypes"]);
         for (auto& row : view) {
-            QString& codeStr  = row["Code"];
-            QString& itemType = row["ItemType"];
-            if (codeStr.isEmpty())
+            const auto codeStr  = row["Code"].str;
+            const auto itemType = row["ItemType"].str;
+            if (codeStr.empty())
                 continue;
 
-            const auto parent1 = (row["Equiv1"]);
-            const auto parent2 = (row["Equiv2"]);
+            const auto parent1 = row["Equiv1"].str;
+            const auto parent2 = row["Equiv2"].str;
 
             ItemTypeInfo& info = props.itemTypeInfo[codeStr];
-            if (row["Throwable"] == "1")
-                info.flags << AttributeFlag::Quantity;
-            else if (row["Repair"] == "1")
-                info.flags << AttributeFlag::Durability;
+            if (row["Throwable"].str == "1")
+                info.flags.insert(AttributeFlag::Quantity);
+            else if (row["Repair"].str == "1")
+                info.flags.insert(AttributeFlag::Durability);
 
-            if (row["MaxSockets3"] != "0")
-                info.flags << AttributeFlag::Sockets;
+            if (row["MaxSockets3"].str != "0")
+                info.flags.insert(AttributeFlag::Sockets);
             if (!row["Shoots"].isEmpty())
-                info.flags << AttributeFlag::Missile;
-            if (itemType.startsWith("Map"))
-                info.flags << AttributeFlag::PD2Map;
+                info.flags.insert(AttributeFlag::Missile);
+            if (itemType.starts_with("Map"))
+                info.flags.insert(AttributeFlag::PD2Map);
 
-            if (!parent1.isEmpty()) {
-                info.parents << parent1;
-                props.itemTypeInfo[parent1].nested << codeStr;
+            if (!parent1.empty()) {
+                info.parents.insert(parent1);
+                props.itemTypeInfo[parent1].nested.insert(codeStr);
             }
-            if (!parent2.isEmpty()) {
-                info.parents << parent2;
-                props.itemTypeInfo[parent2].nested << codeStr;
+            if (!parent2.empty()) {
+                info.parents.insert(parent2);
+                props.itemTypeInfo[parent2].nested.insert(codeStr);
             }
         }
         props.itemTypeInfo[("SETS")] = {};
@@ -126,12 +145,12 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
             bool result = false;
             for (auto& typeInfo : props.itemTypeInfo) {
                 const auto ncopy = typeInfo.second.nested;
-                for (QString nestedCode : ncopy) {
-                    typeInfo.second.nested += props.itemTypeInfo[nestedCode].nested;
+                for (const auto& nestedCode : ncopy) {
+                    appendToSet(typeInfo.second.nested, props.itemTypeInfo[nestedCode].nested);
                 }
                 const auto pcopy = typeInfo.second.parents;
-                for (QString pCode : pcopy) {
-                    typeInfo.second.parents += props.itemTypeInfo[pCode].parents;
+                for (const auto& pCode : pcopy) {
+                    appendToSet(typeInfo.second.parents, props.itemTypeInfo[pCode].parents);
                 }
                 result = result || ncopy != typeInfo.second.nested || pcopy != typeInfo.second.parents;
             }
@@ -146,35 +165,35 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
         //        }
     }
 
-    QMap<QString, QString> code2type;
+    std::map<std::string, std::string> code2type;
     for (const auto* tableName : { "armor", "weapons", "misc" }) {
         TableView view(tableSet.tables[tableName]);
         for (auto& row : view) {
-            QString& code = row["code"];
-            QString& type = row["type"];
-            if (!code.isEmpty() && !type.isEmpty()) {
+            const auto code = row["code"].str;
+            const auto type = row["type"].str;
+            if (!code.empty() && !type.empty()) {
                 code2type[code] = type;
                 assert(props.itemTypeInfo.count(type));
             }
         }
     }
 
-    QMap<QString, int> miscItemsLevels;
+    std::map<std::string, int> miscItemsLevels;
     {
         TableView view(tableSet.tables["misc"]);
         for (auto& row : view) {
-            QString& code     = row["code"];
-            QString& levelreq = row["levelreq"];
-            QString& level    = row["level"];
-            if (!code.isEmpty())
+            const std::string& code     = row["code"].str;
+            auto&              levelreq = row["levelreq"];
+            auto&              level    = row["level"];
+            if (!code.empty())
                 miscItemsLevels[code] = std::max(levelreq.toInt(), level.toInt());
         }
     }
-    QMap<QString, int> setLevels;
-    auto               determineRWlevel = [&miscItemsLevels](const QStringList& runes) {
+    std::map<std::string, int> setLevels;
+    auto                   determineRWlevel = [&miscItemsLevels](const StringVector& runes) {
         int level = 0;
-        for (const QString& rune : runes)
-            level = std::max(level, miscItemsLevels.value(rune));
+        for (const std::string& rune : runes)
+            level = std::max(level, mapValue(miscItemsLevels, rune));
         return level;
     };
 
@@ -182,8 +201,8 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
     const bool replaceCharges = input.getInt("replaceCharges");
     const bool removeKnock    = input.getInt("removeKnock");
 
-    const QStringList   extraKnownCodesList = QString::fromStdString(input.getString("extraKnown")).split(",", Qt::SkipEmptyParts);
-    const QSet<QString> extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
+    const StringVector          extraKnownCodesList = split(input.getString("extraKnown"), ',');
+    const std::set<std::string> extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
 
     using LevelCallback               = std::function<int(const TableView::RowView& row)>;
     using SupportedAttributesCallback = std::function<AttributeFlagSet(const TableView::RowView& row)>;
@@ -213,54 +232,55 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
             }
         }
     };
+
     auto commonLvlReq = [](const TableView::RowView& row) { return row["lvl"].toInt(); };
     auto commonRWreq  = [&determineRWlevel](const TableView::RowView& row) {
-        return determineRWlevel({ row["Rune1"], row["Rune2"], row["Rune3"], row["Rune4"], row["Rune5"], row["Rune6"] });
+        return determineRWlevel({ row["Rune1"].str, row["Rune2"].str, row["Rune3"].str, row["Rune4"].str, row["Rune5"].str, row["Rune6"].str });
     };
     auto commonSetReq = [&setLevels](const TableView::RowView& row) {
-        return setLevels.value(row["name"]);
+        return mapValue(setLevels, row["name"].str);
     };
     auto uniqueType = [&code2type](const TableView::RowView& row) -> ItemCodeFilter {
-        assert(code2type.contains(row["code"]));
-        return { { code2type.value(row["code"]) }, {} };
+        assert(code2type.contains(row["code"].str));
+        return { { mapValue(code2type, row["code"].str) }, {} };
     };
     auto setitemType = [&code2type](const TableView::RowView& row) -> ItemCodeFilter {
-        assert(code2type.contains(row["item"]));
-        return { { code2type.value(row["item"]) }, {} };
+        assert(code2type.contains(row["item"].str));
+        return { { mapValue(code2type, row["item"].str) }, {} };
     };
     auto rwTypes = [](const TableView::RowView& row) -> ItemCodeFilter {
         ItemCodeSet result;
         for (int i = 1; i <= 6; ++i) {
-            const QString& itype = row[QString("itype%1").arg(i)];
+            const auto& itype = row[argCompat("itype%1", i)];
             if (itype.isEmpty())
                 break;
-            result << itype;
+            result.insert(itype.str);
         }
         return { result, {} };
     };
     auto affixTypes = [](const TableView::RowView& row) -> ItemCodeFilter {
         ItemCodeFilter result;
         for (int i = 1; i <= 7; ++i) {
-            const auto col = QString("itype%1").arg(i);
+            const auto col = argCompat("itype%1", i);
             if (!row.hasColumn(col))
                 break;
-            const QString& itype = row[col];
+            const auto& itype = row[col];
             if (itype.isEmpty())
                 break;
-            result.include += itype;
+            result.include.insert(itype.str);
         }
         for (int i = 1; i <= 5; ++i) {
-            const auto col = QString("etype%1").arg(i);
+            const auto col = argCompat("etype%1", i);
             if (!row.hasColumn(col))
                 break;
-            const QString& itype = row[col];
-            if (itype.isEmpty())
+            const auto& etype = row[col];
+            if (etype.isEmpty())
                 break;
-            result.exclude += itype;
+            result.exclude.insert(etype.str);
         }
         return result;
     };
-    auto setsTypes = [](const TableView::RowView& row) -> ItemCodeFilter { return { { QString("SETS") }, {} }; };
+    auto setsTypes = [](const TableView::RowView& row) -> ItemCodeFilter { return { { std::string("SETS") }, {} }; };
     using namespace Tables;
     {
         auto&     table = tableSet.tables["uniqueitems"];
@@ -271,7 +291,7 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
             auto rows = table.rows;
 
             for (int i = 2; i <= repeatUniques; ++i)
-                rows.append(table.rows);
+                rows.insert(rows.end(), table.rows.cbegin(), table.rows.cend());
             table.rows = rows;
         }
     }
@@ -284,9 +304,9 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
         TableView view(tableSet.tables["setitems"]);
         grabProps(view, s_descSetItems, commonLvlReq, setitemType);
         for (auto& row : view) {
-            QString& setId   = row["set"];
-            QString& lvl     = row["lvl"];
-            setLevels[setId] = lvl.toInt();
+            auto& setId          = row["set"];
+            auto& lvl            = row["lvl"];
+            setLevels[setId.str] = lvl.toInt();
         }
     }
     {
@@ -294,7 +314,7 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
 
         grabProps(
             view, s_descGems, [&miscItemsLevels](const TableView::RowView& row) {
-                return miscItemsLevels.value(row["code"]);
+                return mapValue(miscItemsLevels, row["code"].str);
             },
             uniqueType);
     }
@@ -419,7 +439,7 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
     {
         TableView view(tableSet.tables["uniqueitems"]);
         auto      code2flags = [&code2type, &props](const TableView::RowView& row) -> AttributeFlagSet {
-            const auto type = code2type.value(row["code"]);
+            const auto type = mapValue(code2type, row["code"].str);
             assert(props.itemTypeInfo.contains(type));
             return props.itemTypeInfo.at(type).flags;
         };
@@ -433,7 +453,7 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
     {
         TableView view(tableSet.tables["setitems"]);
         auto      code2flags = [&code2type, &props](const TableView::RowView& row) -> AttributeFlagSet {
-            const auto type = code2type.value(row["item"]);
+            const auto type = mapValue(code2type, row["item"].str);
             assert(props.itemTypeInfo.contains(type));
             return props.itemTypeInfo.at(type).flags;
         };
@@ -444,7 +464,7 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
         for (const ColumnsDesc& desc : s_descGems) {
             fillProps(
                 view, { desc }, [&miscItemsLevels](const TableView::RowView& row) {
-                    return miscItemsLevels.value(row["code"]);
+                    return mapValue(miscItemsLevels, row["code"].str);
                 },
                 commonTypeEquipNoSock,
                 uniqueType,

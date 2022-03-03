@@ -13,10 +13,10 @@ const bool s_init = registerHelper<ModuleCharacter>();
 
 struct CharItems {
     struct Item {
-        QString code;
-        int     count;
-        QString loc;
-        QString quality;
+        std::string code;
+        int         count;
+        std::string loc;
+        std::string quality;
     };
     QList<Item> m_items;
     bool        m_hasQuality = false;
@@ -24,39 +24,39 @@ struct CharItems {
     {
         m_items.clear();
         for (int i = 1; i <= 10; ++i) {
-            const QString& count = row[QString("item%1count").arg(i)];
-            m_hasQuality         = row.hasColumn(QString("item%1quality").arg(i));
-            if (count == "0") {
+            const auto& count = row[argCompat("item%1count", i)];
+            m_hasQuality      = row.hasColumn(argCompat("item%1quality", i));
+            if (count.str == "0") {
                 break;
             }
-            const QString& code    = row[QString("item%1").arg(i)];
-            const QString& loc     = row[QString("item%1loc").arg(i)];
-            const QString  quality = m_hasQuality ? row[QString("item%1quality").arg(i)] : QString();
-            m_items << Item{ code, count.toInt(), loc, quality };
+            const auto& code    = row[argCompat("item%1", i)];
+            const auto& loc     = row[argCompat("item%1loc", i)];
+            const auto  quality = m_hasQuality ? row[argCompat("item%1quality", i)].str : std::string();
+            m_items << Item{ code.str, count.toInt(), loc.str, quality };
         }
     }
     void write(TableView::RowView& row) const
     {
         for (int i = 1; i <= 10; ++i) {
-            QString& code  = row[QString("item%1").arg(i)];
-            QString& count = row[QString("item%1count").arg(i)];
-            QString& loc   = row[QString("item%1loc").arg(i)];
+            auto& code  = row[argCompat("item%1", i)];
+            auto& count = row[argCompat("item%1count", i)];
+            auto& loc   = row[argCompat("item%1loc", i)];
             code.clear();
             count.clear();
             loc.clear();
             if (m_hasQuality) {
-                QString& quality = row[QString("item%1quality").arg(i)];
+                auto& quality = row[argCompat("item%1quality", i)];
                 quality.clear();
             }
             if (i - 1 >= m_items.size())
                 continue;
             auto& item = m_items[i - 1];
-            code       = item.code;
+            code.str   = item.code;
 
-            count = QString("%1").arg(item.count);
-            loc   = item.loc;
+            count.setInt(item.count);
+            loc.str = item.loc;
             if (m_hasQuality)
-                row[QString("item%1quality").arg(i)] = item.quality;
+                row[argCompat("item%1quality", i)].str = item.quality;
         }
     }
 };
@@ -103,7 +103,7 @@ void ModuleCharacter::generate(DataContext& output, QRandomGenerator& rng, const
     const int mercDampercent = input.getInt("mercDam");
 
     for (auto& row : charTableView) {
-        if (row["class"] == "Expansion")
+        if (row["class"].str == "Expansion")
             continue;
         CharItems items;
         items.read(row);
@@ -120,9 +120,9 @@ void ModuleCharacter::generate(DataContext& output, QRandomGenerator& rng, const
                     item.code = "mp1";
             }
         items.write(row);
-        row["StatPerLevel"] = QString("%1").arg(statPerLevel);
+        row["StatPerLevel"].setInt(statPerLevel);
         if (!input.m_env.isLegacy)
-            row["SkillsPerLevel"] = QString("%1").arg(skillPerLevel);
+            row["SkillsPerLevel"].setInt(skillPerLevel);
     }
 
     if (statLower != 100) {
@@ -133,15 +133,15 @@ void ModuleCharacter::generate(DataContext& output, QRandomGenerator& rng, const
         for (const char* tableName : { "armor", "weapons" }) {
             Table&    table = tableSet.tables[tableName];
             TableView view(table, true);
-            view.applyIntTransform(QStringList{ "reqstr", "reqdex" }, trans);
+            view.applyIntTransform(StringVector{ "reqstr", "reqdex" }, trans);
         }
     }
     if (mercHPpercent != 100 || mercDampercent != 100) {
         TableView view(tableSet.tables["hireling"], true);
-        view.applyIntTransform(QStringList{ "HP", "HP/Lvl" }, [mercHPpercent](const int value) -> int {
+        view.applyIntTransform(StringVector{ "HP", "HP/Lvl" }, [mercHPpercent](const int value) -> int {
             return value * mercHPpercent / 100;
         });
-        view.applyIntTransform(QStringList{ "Dmg-Min", "Dmg-Max", "Dmg/Lvl" }, [mercDampercent](const int value) -> int {
+        view.applyIntTransform(StringVector{ "Dmg-Min", "Dmg-Max", "Dmg/Lvl" }, [mercDampercent](const int value) -> int {
             return value * mercDampercent / 100;
         });
     }

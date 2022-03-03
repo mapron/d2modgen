@@ -49,27 +49,27 @@ void ModuleQol::generate(DataContext& output, QRandomGenerator& rng, const Input
             auto& code     = row["code"];
             auto& maxstack = row["maxstack"];
             if (tomeSize && (code == "ibk" || code == "tbk"))
-                maxstack = "60";
+                maxstack.str = "60";
             if (keySize && code == "key")
-                maxstack = "50";
+                maxstack.str = "50";
             if (quiverSize && (code == "aqv" || code == "cqv"))
-                maxstack = "511";
+                maxstack.str = "511";
         }
     }
     if (uniqueCharmLimit) {
         Table&    table = output.tableSet.tables["uniqueitems"];
         TableView tableView(table, true);
         for (auto& row : tableView) {
-            row["carry1"] = "";
+            row["carry1"].str = "";
         }
     }
     if (weakenTownSkills) {
-        static const QSet<QString> s_exceptions{ "Teleport", "Battle Orders", "Battle Command" };
-        Table&                     table = output.tableSet.tables["skills"];
-        TableView                  tableView(table, true);
+        static const std::set<std::string> s_exceptions{ "Teleport", "Battle Orders", "Battle Command" };
+        Table&                             table = output.tableSet.tables["skills"];
+        TableView                          tableView(table, true);
         for (auto& row : tableView) {
-            if (s_exceptions.contains(row["skill"]))
-                row["InTown"] = "1";
+            if (s_exceptions.contains(row["skill"].str))
+                row["InTown"].str = "1";
         }
     }
     if (reduceCost != 100) {
@@ -77,24 +77,24 @@ void ModuleQol::generate(DataContext& output, QRandomGenerator& rng, const Input
             Table&    table = output.tableSet.tables["skills"];
             TableView tableView(table, true);
             for (auto& row : tableView) {
-                QString& mult = row["cost mult"];
-                QString& add  = row["cost add"];
+                auto& mult = row["cost mult"];
+                auto& add  = row["cost add"];
                 if (mult.isEmpty())
                     continue;
-                mult = QString("%1").arg(mult.toInt() * reduceCost / 100);
-                add  = QString("%1").arg(add.toInt() * reduceCost / 100);
+                mult.setInt(mult.toInt() * reduceCost / 100);
+                add.setInt(add.toInt() * reduceCost / 100);
             }
         }
         {
             Table&    table = output.tableSet.tables["itemstatcost"];
             TableView tableView(table, true);
             for (auto& row : tableView) {
-                QString& mult = row["Multiply"];
-                QString& add  = row["Add"];
+                auto& mult = row["Multiply"];
+                auto& add  = row["Add"];
                 if (mult.isEmpty())
                     continue;
-                mult = QString("%1").arg(mult.toInt() * reduceCost / 100);
-                add  = QString("%1").arg(add.toInt() * reduceCost / 100);
+                mult.setInt(mult.toInt() * reduceCost / 100);
+                add.setInt(add.toInt() * reduceCost / 100);
             }
         }
     }

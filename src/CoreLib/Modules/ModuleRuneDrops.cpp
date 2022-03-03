@@ -71,37 +71,28 @@ void ModuleRuneDrops::generate(DataContext& output, QRandomGenerator& rng, const
         const int  countessUpg     = input.getInt("countess_rune_higher") ? 5 : 0;
         const bool wraithMore      = input.getInt("wraith_runes");
         const bool switchHighRunes = input.getInt("highrune_switch");
-        auto       factorAdjust    = [](QString& value, double factor, int maxFact) {
-            const double prev           = value.toInt();
-            const double probReverseOld = (1024. - prev);
-            const double probReverseNew = probReverseOld / factor;
-            const double probNew        = (1024. - probReverseNew);
 
-            const int next = static_cast<int>(probNew);
-            value          = QString("%1").arg(std::min(next, maxFact));
-        };
-
-        QMap<QString, QString> highRuneReplacement{
+        QMap<std::string, std::string> highRuneReplacement{
             { "r33", "r31" },
             { "r32", "r30" },
             { "r31", "r33" },
             { "r30", "r32" },
         };
 
-        QMap<QString, double> runesReplaceMult;
+        QMap<std::string, double> runesReplaceMult;
         if (factorZod > 1) {
             const double factor   = factorZod;
             const double iterMult = std::pow(factor, 0.1);
             double       mult     = 1. / factor;
 
             for (int i = 16; i >= 6; --i) {
-                runesReplaceMult[QString("Runes %1").arg(i)] = mult;
+                runesReplaceMult[argCompat("Runes %1", i)] = mult;
                 mult *= iterMult;
             }
         }
 
         for (auto& row : view) {
-            QString& className = row["Treasure Class"];
+            auto& className = row["Treasure Class"];
 
             DropSet dropSet;
             dropSet.readRow(row);
@@ -116,10 +107,10 @@ void ModuleRuneDrops::generate(DataContext& output, QRandomGenerator& rng, const
             }
             if (factorZod > 1 && className.startsWith("Runes ")) {
                 for (auto& item : dropSet.m_items) {
-                    QString& tcName = item.tc;
-                    if (!tcName.startsWith("Runes ") || !runesReplaceMult.contains(tcName))
+                    auto& tcName = item.tc;
+                    if (!tcName.startsWith("Runes ") || !runesReplaceMult.contains(tcName.str))
                         continue;
-                    const int newProb = static_cast<int>(item.prob * runesReplaceMult[tcName]);
+                    const int newProb = static_cast<int>(item.prob * runesReplaceMult[tcName.str]);
                     item.prob         = std::max(newProb, 5);
                     break;
                 }
@@ -128,31 +119,31 @@ void ModuleRuneDrops::generate(DataContext& output, QRandomGenerator& rng, const
             const bool countessItemTC = className.startsWith("Countess Item");
             if (countessUpg > 0 && countessRuneTC) {
                 for (auto& item : dropSet.m_items) {
-                    QString& tcName = item.tc;
+                    auto& tcName = item.tc;
                     if (!tcName.startsWith("Runes "))
                         continue;
-                    const int oldTC = tcName.midRef(6).toInt();
+                    const int oldTC = TableCell(tcName.str.substr(6)).toInt();
                     const int newTC = oldTC + countessUpg;
-                    tcName          = QString("Runes %1").arg(newTC);
+                    tcName          = argCompat("Runes %1", newTC);
                     break;
                 }
             }
             if (countessMore) {
                 if (countessRuneTC) {
-                    row["Picks"]     = "5";
+                    row["Picks"].str = "5";
                     dropSet.m_noDrop = 1;
                 }
                 if (countessItemTC)
-                    row["Picks"] = "1";
+                    row["Picks"].str = "1";
             }
             if (switchHighRunes && className.startsWith("Runes ")) {
                 for (auto& item : dropSet.m_items) {
-                    QString& tcName = item.tc;
-                    tcName          = highRuneReplacement.value(tcName, tcName);
+                    auto& tcName = item.tc.str;
+                    tcName       = highRuneReplacement.value(tcName, tcName);
                 }
             }
             if (wraithMore && className.contains(") Wraith ")) {
-                static const QMap<QString, QString> s_wraithReplacement{
+                static const QMap<std::string, std::string> s_wraithReplacement{
                     { "Act 1 (N)", "Runes 8" },
                     { "Act 2 (N)", "Runes 9" },
                     { "Act 3 (N)", "Runes 10" },
@@ -165,10 +156,10 @@ void ModuleRuneDrops::generate(DataContext& output, QRandomGenerator& rng, const
                     { "Act 5 (H)", "Runes 17" },
                 };
                 for (auto& item : dropSet.m_items) {
-                    QString& tcName = item.tc;
+                    auto& tcName = item.tc;
                     if (!tcName.contains(") Magic "))
                         continue;
-                    tcName = s_wraithReplacement.value(tcName.mid(0, 9), tcName);
+                    tcName.str = s_wraithReplacement.value(tcName.str.substr(0, 9), tcName.str);
                     break;
                 }
             }
