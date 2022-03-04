@@ -84,14 +84,17 @@ int main(int argc, char* argv[])
     Logger() << "application started";
     QApplication      app(argc, argv);
     const std::string logFile = (QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/applog.txt").toStdString();
-    Logger::SetLoggerBackend(std::make_unique<LoggerBackendFiles>(
-        7,
-        true,  /*duplicateInStderr*/
-        true,  /*outputLoglevel   */
-        true, /*outputTimestamp  */
-        false,  /*outputTimeoffsets*/
-        string2path(logFile)));
-    Logger() << "Started log redirection to:" << logFile;
+
+    if (createDirectoriesForFile(logFile)) {
+        Logger::SetLoggerBackend(std::make_unique<LoggerBackendFiles>(
+            7,
+            true,  /*duplicateInStderr*/
+            true,  /*outputLoglevel   */
+            true,  /*outputTimestamp  */
+            false, /*outputTimeoffsets*/
+            string2path(logFile)));
+        Logger() << "Started log redirection to:" << logFile;
+    }
     //qWarning() << "test qwarn";
 
     ConfigHandler configHandler;

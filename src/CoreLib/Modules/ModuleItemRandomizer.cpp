@@ -8,8 +8,9 @@
 #include "AttributeHelper.hpp"
 
 #include <QStringList>
-#include <QDateTime>
+
 #include "Logger.hpp"
+#include "ChronoPoint.hpp"
 
 namespace D2ModGen {
 
@@ -430,7 +431,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     };
     auto commonTypeAll         = [](const TableView::RowView&) -> AttributeFlagSet { return {}; };
     auto commonTypeEquipNoSock = [](const TableView::RowView&) -> AttributeFlagSet { return { AttributeFlag::Durability }; };
-    auto start                 = QDateTime::currentMSecsSinceEpoch();
+    auto start                 = ChronoPoint(true);
     {
         TableView view(tableSet.tables["uniqueitems"]);
         auto      code2flags = [&code2type, &props](const TableView::RowView& row) -> AttributeFlagSet {
@@ -485,7 +486,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         TableView view(tableSet.tables["sets"]);
         fillProps(view, s_descSets, commonSetReq, commonTypeAll, setsTypes, false, false);
     }
-    Logger() << "generate() take:" << (QDateTime::currentMSecsSinceEpoch() - start) << " ms.";
+    Logger() << "generate() take:" << start.GetElapsedTime().ToProfilingTime();
 }
 
 }

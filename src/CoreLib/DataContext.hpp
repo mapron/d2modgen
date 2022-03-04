@@ -9,7 +9,6 @@
 #include "CommonTypes.hpp"
 #include "PropertyTree.hpp"
 
-#include <set>
 #include <deque>
 
 namespace D2ModGen {

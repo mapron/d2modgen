@@ -162,4 +162,26 @@ bool writeFileFromBuffer(const std::string& filename, const std::string& buffer)
     return true;
 }
 
+bool createDirectoriesForFile(const std::string& filename)
+{
+    auto            path = string2path(filename);
+    std::error_code ec;
+    if (!std_fs::exists(path.parent_path(), ec))
+        std_fs::create_directories(path.parent_path(), ec);
+    else 
+        return true;
+    return !ec;
+}
+
+bool createDirectories(const std::string& folder)
+{
+    auto            path = string2path(folder);
+    std::error_code ec;
+    if (!std_fs::exists(path, ec))
+        std_fs::create_directories(path, ec);
+    else 
+        return true;
+    return !ec;
+}
+
 }

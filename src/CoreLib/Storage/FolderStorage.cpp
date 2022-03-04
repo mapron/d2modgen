@@ -6,18 +6,34 @@
 #include "FolderStorage.hpp"
 
 #include "FileIOUtils.hpp"
-
 #include "Logger.hpp"
-#include <QFileInfo>
-#include <QDir>
-#include <QDirIterator>
-#include <QFile>
 
 namespace D2ModGen {
 
 namespace {
 static const std::string s_tableSubfolder     = "data/global/excel/";
 static const std::string s_tableSubfolderBack = "data\\global\\excel\\";
+
+void removeRecursively(const std::string& folder)
+{
+    std::deque<std_path> forDelete;
+    for (auto it : std_fs::recursive_directory_iterator(string2path(folder))) {
+        if (it.is_regular_file()) {
+            const std_path& path = it.path();
+
+            std::error_code ec;
+            std_fs::remove(path, ec);
+        } else if (it.is_directory()) {
+            forDelete.push_back(it.path());
+        }
+    }
+    std::reverse(forDelete.begin(), forDelete.end());
+    for (const std_path& path : forDelete) {
+        std::error_code ec;
+        std_fs::remove(path, ec);
+    }
+}
+
 }
 
 std::string IStorage::makeTableRelativePath(const std::string& id, bool backslash)
@@ -37,58 +53,57 @@ FolderStorage::FolderStorage(const std::string& storageRoot, StorageType storage
 IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filenames) const noexcept
 {
     StoredData result{ true };
+    const auto root = string2path(m_root);
+    for (auto it : std_fs::recursive_directory_iterator(root)) {
+        if (!it.is_regular_file())
+            continue;
+        const std_path& path           = it.path();
+        const auto      currentAbsPath = path2string(path);
+        const auto      currentRelPath = currentAbsPath.substr(m_root.size());
 
-    QDir         rootDir(QString::fromStdString(m_root));
-    QDirIterator it(QString::fromStdString(m_root), QDir::NoDotAndDotDot | QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        it.next();
-        auto fi = it.fileInfo();
-        if (fi.isFile()) {
-            const QString absPath = fi.absoluteFilePath();
-            if (fi.completeSuffix().toLower() == "txt" && (fi.dir().dirName().toLower() == "excel" || fi.dir() == rootDir)) { // not a best guess, but however...
-                auto  id = fi.completeBaseName().toLower();
-                QFile loadFile(absPath);
-                if (!loadFile.open(QIODevice::ReadOnly))
+        if (path.extension() == ".txt" && (path.parent_path().filename() == "excel" || path.parent_path() == root)) { // not a best guess, but however...
+            auto        id = toLower(path2string(path.stem()));
+            std::string buffer;
+            if (!readFileIntoBuffer(currentAbsPath, buffer))
+                return {};
+
+            result.tables.push_back(StoredFileTable{ std::move(buffer), id });
+        } else {
+            if (filenames.contains(currentRelPath)) {
+                std::string buffer;
+                if (!readFileIntoBuffer(currentAbsPath, buffer))
                     return {};
 
-                result.tables.push_back(StoredFileTable{ loadFile.readAll().toStdString(), id.toStdString() });
+                result.inMemoryFiles.push_back(StoredFileMemory{ std::move(buffer), currentRelPath });
             } else {
-                const std::string relPath = rootDir.relativeFilePath(fi.absoluteFilePath()).toStdString();
-                if (filenames.contains(relPath)) {
-                    QFile loadFile(absPath);
-                    if (!loadFile.open(QIODevice::ReadOnly))
-                        return {};
-
-                    result.inMemoryFiles.push_back(StoredFileMemory{ loadFile.readAll().toStdString(), relPath });
-                } else {
-                    result.refFiles.push_back(StoredFileRef{ absPath.toStdString(), relPath });
-                }
+                result.refFiles.push_back(StoredFileRef{ currentAbsPath, currentRelPath });
             }
         }
     }
+
     return result;
 }
 
 bool FolderStorage::prepareForWrite() const noexcept
 {
     Logger() << "started generation in " << m_root;
-    QString root = QString::fromStdString(m_root);
-    if (QFileInfo::exists(root + "data/"))
-        QDir(root + "data/").removeRecursively();
 
-    if (!QFileInfo::exists(root))
-        QDir().mkpath(root);
-    if (!QFileInfo::exists(root)) {
+    const auto rootpath = string2path(m_root);
+
+    if (std_fs::exists(string2path(m_root) / "data"))
+        removeRecursively(m_root + "data/");
+
+    if (!createDirectories(m_root)) {
         Logger() << "Failed to create: " << m_root;
         return false;
     }
     if (m_storageType == StorageType::D2ResurrectedModFolder) {
-        if (QFileInfo::exists(root + "modinfo.json"))
-            QFile::remove(root + "modinfo.json");
+        if (std_fs::exists(rootpath / "modinfo.json"))
+            std_fs::remove(rootpath / "modinfo.json");
         PropertyTree modinfo;
         modinfo.convertToMap();
         modinfo["name"]     = PropertyTreeScalar(m_modName);
-        modinfo["savepath"] = PropertyTreeScalar(m_modName+ "/") ;
+        modinfo["savepath"] = PropertyTreeScalar(m_modName + "/");
         std::string buffer;
         writeJsonToBuffer(buffer, modinfo);
         if (!writeFileFromBuffer(m_root + "modinfo.json", buffer)) {
@@ -98,8 +113,8 @@ bool FolderStorage::prepareForWrite() const noexcept
     }
     if (m_storageType != StorageType::CsvFolder) {
         const std::string excelRoot = m_root + s_tableSubfolder;
-        if (!QFileInfo::exists(QString::fromStdString(excelRoot)))
-            QDir().mkpath(QString::fromStdString(excelRoot));
+        if (!createDirectories(excelRoot))
+            return false;
     }
 
     return true;
@@ -108,38 +123,18 @@ bool FolderStorage::prepareForWrite() const noexcept
 bool FolderStorage::writeData(const StoredData& data) const noexcept
 {
     auto writeData = [](const std::string& data, const std::string& absPath) {
-        const QString folder = QFileInfo(QString::fromStdString(absPath)).absolutePath();
-        if (!QFileInfo::exists(folder))
-            QDir().mkpath(folder);
-        if (!QFileInfo::exists(folder))
-            return false;
-        QFile saveFile(QString::fromStdString(absPath));
-        if (!saveFile.open(QIODevice::WriteOnly))
+        if (!createDirectoriesForFile(absPath))
             return false;
 
-        if (!data.empty()) {
-            if (saveFile.write(data.data(), data.size()) <= 0)
-                return false;
-        }
-
-        return true;
+        return writeFileFromBuffer(absPath, data);
     };
     auto copyFile = [](const std::string& absSrc, const std::string& absDest) {
-        const QString folder = QFileInfo(QString::fromStdString(absDest)).absolutePath();
-        if (!QFileInfo::exists(folder))
-            QDir().mkpath(folder);
-        if (!QFileInfo::exists(folder))
+        if (!createDirectoriesForFile(absDest))
             return false;
 
-        if (QFileInfo::exists(QString::fromStdString(absDest)))
-            QFile::remove(QString::fromStdString(absDest));
-        if (QFileInfo::exists(QString::fromStdString(absDest)))
-            return false;
-
-        if (!QFile::copy(QString::fromStdString(absSrc), QString::fromStdString(absDest)))
-            return false;
-
-        return true;
+        std::error_code ec;
+        std_fs::copy(string2path(absSrc), string2path(absDest), std_fs::copy_options::overwrite_existing, ec);
+        return !ec;
     };
     for (const auto& tableData : data.tables) {
         const std::string relPath = m_storageType == StorageType::CsvFolder ? tableData.id + ".txt" : makeTableRelativePath(tableData.id, false);

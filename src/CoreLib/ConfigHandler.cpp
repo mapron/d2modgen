@@ -13,8 +13,6 @@
 #include "Storage/FolderStorage.hpp"
 
 #include "Logger.hpp"
-#include <QDir>
-#include <QFileInfo>
 
 #include <random>
 
@@ -46,7 +44,8 @@ bool ConfigHandler::saveConfig(const std::string& filename) const
 {
     PropertyTree data;
     saveConfig(data);
-    QDir().mkpath(QFileInfo(QString::fromStdString(filename)).absolutePath());
+    if (!createDirectoriesForFile(filename))
+        return false;
     std::string buffer;
     writeJsonToBuffer(buffer, data);
     return writeFileFromBuffer(filename, buffer);
@@ -179,10 +178,10 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             input.m_env               = env;
             input.m_settings          = p.second.m_currentConfig;
             input.m_defaultValues     = p.second.m_module->defaultValues();
-            std::function<int(int)> r = [&engine](int bound) { 
-                if (bound <= 1) 
+            std::function<int(int)> r = [&engine](int bound) {
+                if (bound <= 1)
                     return 0;
-                return Distribution32(0, bound - 1)(engine); 
+                return Distribution32(0, bound - 1)(engine);
             };
             p.second.m_module->generate(output, r, input);
         }

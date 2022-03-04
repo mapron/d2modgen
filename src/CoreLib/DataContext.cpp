@@ -6,8 +6,6 @@
 #include "DataContext.hpp"
 #include "TableUtils.hpp"
 #include "FileIOUtils.hpp"
-
-#include <QFile>
 #include "Logger.hpp"
 
 namespace D2ModGen {
@@ -153,7 +151,8 @@ bool DataContext::readData(const IStorage::StoredData& data)
         jsonFiles[fileData.relFilepath] = doc;
     }
     for (const auto& fileData : data.refFiles) {
-        if (!QFile::exists(QString::fromStdString(fileData.absSrcFilepath))) {
+        std::error_code ec;
+        if (!std_fs::exists(string2path(fileData.absSrcFilepath), ec)) {
             Logger(Logger::Warning) << "Non-existent file:" << fileData.absSrcFilepath.c_str();
             return false;
         }

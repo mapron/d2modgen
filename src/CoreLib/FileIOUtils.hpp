@@ -46,6 +46,9 @@ CORE_EXPORT bool writeJsonToBuffer(std::string& buffer, const PropertyTree& data
 CORE_EXPORT bool readFileIntoBuffer(const std::string& filename, std::string& buffer);
 CORE_EXPORT bool writeFileFromBuffer(const std::string& filename, const std::string& buffer);
 
+CORE_EXPORT bool createDirectories(const std::string& folder);
+CORE_EXPORT bool createDirectoriesForFile(const std::string& filename);
+
 inline std::string ensureTrailingSlash(std::string path)
 {
     if (path.empty())
