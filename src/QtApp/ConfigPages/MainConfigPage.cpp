@@ -20,7 +20,8 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QMessageBox>
-#include <QRandomGenerator>
+
+#include <random>
 
 namespace D2ModGen {
 
@@ -281,7 +282,8 @@ MainConfigPage::~MainConfigPage() = default;
 
 void MainConfigPage::createNewSeed()
 {
-    auto seed = QRandomGenerator::system()->generate();
+    std::random_device rd;
+    auto seed = rd();
     m_impl->seed->setText(QString("%1").arg(seed));
 }
 

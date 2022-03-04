@@ -9,7 +9,6 @@
 
 #include <QStringList>
 #include <QDateTime>
-#include <QRandomGenerator>
 #include <QDebug>
 
 namespace D2ModGen {
@@ -97,7 +96,7 @@ IModule::UiControlHintMap ModuleItemRandomizer::uiHints() const
     };
 }
 
-void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     auto& tableSet = output.tableSet;
 
@@ -350,7 +349,7 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
 
         const int relativeCountBase     = std::min(relativeCountMin, relativeCountMax);
         const int relativeCountBonusRng = std::max(relativeCountMin, relativeCountMax) - relativeCountBase;
-        const int relativeCount         = relativeCountBase + (relativeCountBonusRng > 0 ? rng.bounded(relativeCountBonusRng) : 0);
+        const int relativeCount         = relativeCountBase + (relativeCountBonusRng > 0 ? rng(relativeCountBonusRng) : 0);
         const int absCountInHundreds    = std::min(columnsCount * 100, originalCount * relativeCount);
         if (keepOriginalPercent == 0)
             return { 0, absCountInHundreds / 100 };
@@ -360,7 +359,7 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
             const int whole    = hundredsCount / 100;
             if (fraction < 2)
                 return whole;
-            return whole + (0 == rng.bounded(fraction));
+            return whole + (0 == rng(fraction));
         };
         const int keepCount          = rngFraction(keepCountInHundreds);
         const int genCountInHundreds = absCountInHundreds - keepCount * 100;

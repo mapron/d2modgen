@@ -9,6 +9,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <functional>
 
 namespace D2ModGen {
 
@@ -42,6 +43,8 @@ Val mapValue(const std::map<std::string, Val>& m, const std::string& key, const 
         return d;
     return it->second;
 }
+
+using RandomGenerator = std::function<int(int)>;
 
 enum class StorageType
 {

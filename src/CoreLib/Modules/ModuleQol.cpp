@@ -31,7 +31,7 @@ IModule::UiControlHintMap ModuleQol::uiHints() const
     };
 }
 
-void ModuleQol::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())
         return;

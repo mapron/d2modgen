@@ -6,8 +6,6 @@
 #include "ModuleSkillRandomizer.hpp"
 #include "TableUtils.hpp"
 
-#include <QRandomGenerator>
-
 namespace D2ModGen {
 
 namespace {
@@ -170,14 +168,14 @@ struct SkillTree {
         }
     }
 
-    void randomizeTabs(QRandomGenerator& rng)
+    void randomizeTabs(RandomGenerator& rng)
     {
         for (auto& p : chars) {
             Character&   c      = p.second;
             StringVector source = c.skillIds;
             c.skillIds.clear();
             while (source.size() > 1) {
-                auto i = rng.bounded(static_cast<int>(source.size()));
+                auto i = rng(static_cast<int>(source.size()));
                 c.skillIds << source[i];
                 source.erase(source.begin() + i);
             }
@@ -185,7 +183,7 @@ struct SkillTree {
         }
     }
 
-    void randomizeDmg(SkillParsedData& data, QRandomGenerator& rng, const bool ensureDifferent)
+    void randomizeDmg(SkillParsedData& data, RandomGenerator& rng, const bool ensureDifferent)
     {
         const StringVector elements{ "ltng", "fire", "cold", "mag", "pois" };
 
@@ -201,7 +199,7 @@ struct SkillTree {
                     if (it != elementsTmp.end())
                         elementsTmp.erase(it);
                 }
-                skillInfo.dmg.EType = elementsTmp[rng.bounded((int) elementsTmp.size())];
+                skillInfo.dmg.EType = elementsTmp[rng((int) elementsTmp.size())];
             }
             const bool isPoison = skillInfo.dmg.EType == "pois";
             if (isPoison) {
@@ -243,7 +241,7 @@ PropertyTreeScalarMap ModuleSkillRandomizer::defaultValues() const
     };
 }
 
-void ModuleSkillRandomizer::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     const bool skillTreeRandomize   = input.getInt("skillTree");
     const bool skillDamageRandomize = input.getInt("skillDamage");

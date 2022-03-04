@@ -15,7 +15,8 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QRandomGenerator>
+
+#include <random>
 
 namespace D2ModGen {
 
@@ -32,7 +33,7 @@ ConfigHandler::ConfigHandler()
 bool ConfigHandler::loadConfig(const std::string& filename)
 {
     qDebug() << "Load:" << filename.c_str();
-    std::string buffer;
+    std::string  buffer;
     PropertyTree doc;
     if (!readFileIntoBuffer(filename, buffer) || !readJsonFromBuffer(buffer, doc)) {
         loadConfig(PropertyTree{});
@@ -61,7 +62,7 @@ bool ConfigHandler::loadConfig(const PropertyTree& data)
             p.second.m_currentConfig = data[p.first];
     }
     m_modules[std::string(IModule::Key::testConfig)].m_enabled = true;
-    m_currentMainConfig = {};
+    m_currentMainConfig                                        = {};
     if (data.contains(std::string(IModule::Key::main)))
         m_currentMainConfig = data[std::string(IModule::Key::main)];
     return true;
@@ -166,18 +167,24 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     }
     qDebug() << "prepare ended; Starting generate phase. seed=" << env.seed;
     {
-        QRandomGenerator rng;
-        rng.seed(env.seed);
+        using Distribution32 = std::uniform_int_distribution<int32_t>;
+        std::mt19937_64 engine;
+        engine.seed(env.seed); // really we need A LOT of bits to safely seed mt engine. But for our purpose 32 bits more then enough.
         for (auto& p : m_modules) {
             if (!p.second.m_enabled)
                 continue;
 
             qDebug() << "start module:" << p.first.c_str();
             IModule::InputContext input;
-            input.m_env           = env;
-            input.m_settings      = p.second.m_currentConfig;
-            input.m_defaultValues = p.second.m_module->defaultValues();
-            p.second.m_module->generate(output, rng, input);
+            input.m_env               = env;
+            input.m_settings          = p.second.m_currentConfig;
+            input.m_defaultValues     = p.second.m_module->defaultValues();
+            std::function<int(int)> r = [&engine](int bound) { 
+                if (bound <= 1) 
+                    return 0;
+                return Distribution32(0, bound - 1)(engine); 
+            };
+            p.second.m_module->generate(output, r, input);
         }
     }
     qDebug() << "Loading post-gen data.";

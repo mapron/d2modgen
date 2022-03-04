@@ -11,8 +11,6 @@
 #include "AttributeHelper.hpp"
 #include "TableUtils.hpp"
 
-class QRandomGenerator;
-
 namespace D2ModGen {
 
 inline void appendToSet(StringSet& s, const StringSet& another)
@@ -130,7 +128,7 @@ struct MagicPropRawList {
 
     void append(MagicPropList added);
 
-    void truncateRandom(QRandomGenerator& rng, const int newSize);
+    void truncateRandom(RandomGenerator& rng, const int newSize);
 };
 
 struct ItemTypeInfo {
@@ -156,7 +154,7 @@ struct MagicPropUniverse {
 
     std::map<std::string, ItemTypeInfo> itemTypeInfo;
 
-    MagicPropList generate(QRandomGenerator&            rng,
+    MagicPropList generate(RandomGenerator&            rng,
                            const StringSet& existingCodes,
                            const AttributeFlagSet&      narrowingFlags,
                            const ItemCodeFilter&        specificTypeQuery,

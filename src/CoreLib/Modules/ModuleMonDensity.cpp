@@ -33,7 +33,7 @@ IModule::UiControlHintMap ModuleMonDensity::uiHints() const
     };
 }
 
-void ModuleMonDensity::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleMonDensity::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     {
         const int groupIncrease = input.getInt("mon_groups");

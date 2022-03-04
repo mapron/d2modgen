@@ -101,7 +101,7 @@ bool TableView::createRowIndex()
 void TableView::appendRow(const RowValues& values)
 {
     assert(isWriteable);
-    m_table.rows.emplace_back(m_table.columns.size());
+    m_table.rows.emplace_back(static_cast<int>(m_table.columns.size()));
     m_rows.emplace_back(static_cast<int>(m_rows.size()), *this);
     RowView& row = *m_rows.rbegin();
     row.setValues(values);

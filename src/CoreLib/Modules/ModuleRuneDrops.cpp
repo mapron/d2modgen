@@ -56,7 +56,7 @@ IModule::UiControlHintMap ModuleRuneDrops::uiHints() const
     };
 }
 
-void ModuleRuneDrops::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleRuneDrops::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())
         return;

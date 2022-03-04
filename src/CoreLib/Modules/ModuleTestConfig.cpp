@@ -19,7 +19,7 @@ PropertyTreeScalarMap ModuleTestConfig::defaultValues() const
     };
 }
 
-void ModuleTestConfig::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleTestConfig::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (!input.getInt("addKeys"))
         return;

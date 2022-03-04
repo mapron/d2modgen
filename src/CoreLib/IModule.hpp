@@ -10,8 +10,6 @@
 
 #include <memory>
 
-class QRandomGenerator;
-
 namespace D2ModGen {
 
 class DataContext;
@@ -127,7 +125,7 @@ public:
     virtual UiControlHintMap      uiHints() const       = 0;
 
     virtual void gatherInfo(PreGenerationContext& output, const InputContext& input) const             = 0;
-    virtual void generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const = 0;
+    virtual void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const = 0;
 
 public:
     struct Key {

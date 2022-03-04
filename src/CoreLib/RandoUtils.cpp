@@ -6,7 +6,6 @@
 #include "RandoUtils.hpp"
 
 #include <QDebug>
-#include <QRandomGenerator>
 
 namespace D2ModGen {
 
@@ -204,12 +203,12 @@ void MagicPropRawList::append(MagicPropList added)
     }
 }
 
-void MagicPropRawList::truncateRandom(QRandomGenerator& rng, const int newSize)
+void MagicPropRawList::truncateRandom(RandomGenerator& rng, const int newSize)
 {
     MagicPropList newProps;
     const int     kept = keptProps.size();
     for (int i = 0; i < newSize - kept; ++i) {
-        auto r = rng.bounded(static_cast<uint32_t>(parsedProps.size()));
+        auto r = rng(static_cast<int>(parsedProps.size()));
         i += parsedProps[r].bounded.size();
         newProps.push_back(parsedProps[r]);
         parsedProps.erase(parsedProps.begin() + r);
@@ -254,7 +253,7 @@ void MagicPropUniverse::dump(const MagicPropIdxSet& idxs) const
     }
 }
 
-MagicPropList MagicPropUniverse::generate(QRandomGenerator&            rng,
+MagicPropList MagicPropUniverse::generate(RandomGenerator&            rng,
                                           const StringSet& existingCodes,
                                           const AttributeFlagSet&      supportedAttributes,
                                           const ItemCodeFilter&        specificTypeQuery,
@@ -309,7 +308,7 @@ MagicPropList MagicPropUniverse::generate(QRandomGenerator&            rng,
             return 0;
         int specificCount = 0;
         for (int i = 0; i < count; ++i) {
-            if (rng.bounded(100) < specificItemUsage)
+            if (rng(100) < specificItemUsage)
                 specificCount++;
         }
         return specificCount;
@@ -321,7 +320,7 @@ MagicPropList MagicPropUniverse::generate(QRandomGenerator&            rng,
         attrCheck.add(existingCodes);
 
     auto tryAdd = [&attrCheck, &totalIndices, &rng, noDuplicateCode, this](const std::vector<uint32_t>& indices, bool force) -> bool {
-        const uint32_t indexOfIndex = rng.bounded(static_cast<uint32_t>(indices.size()));
+        const uint32_t indexOfIndex = rng(static_cast<int>(indices.size()));
         const uint32_t index        = indices[indexOfIndex];
         const auto&    code         = props[index].code;
         if (noDuplicateCode && attrCheck.contains(code))

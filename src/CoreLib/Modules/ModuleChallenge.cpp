@@ -49,7 +49,7 @@ IModule::UiControlHintMap ModuleChallenge::uiHints() const
     };
 }
 
-void ModuleChallenge::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())
         return;

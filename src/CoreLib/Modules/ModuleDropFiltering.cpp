@@ -88,7 +88,7 @@ void ModuleDropFiltering::gatherInfo(PreGenerationContext& output, const InputCo
     output.m_extraJson.insert(s_affixnamesJson);
 }
 
-void ModuleDropFiltering::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleDropFiltering::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())
         return;

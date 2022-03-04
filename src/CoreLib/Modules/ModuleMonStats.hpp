@@ -22,7 +22,7 @@ public:
     PropertyTreeScalarMap defaultValues() const override;
     UiControlHintMap      uiHints() const override;
 
-    void generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const override;
+    void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };
 
 }

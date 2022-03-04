@@ -87,7 +87,7 @@ IModule::UiControlHintMap ModuleCharacter::uiHints() const
     };
 }
 
-void ModuleCharacter::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())
         return;

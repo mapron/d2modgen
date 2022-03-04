@@ -26,7 +26,7 @@ PropertyTreeScalarMap ModulePerfectRoll::defaultValues() const
     };
 }
 
-void ModulePerfectRoll::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.getInt("craft")) {
         TableView view(output.tableSet.tables["cubemain"], true);

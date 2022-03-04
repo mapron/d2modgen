@@ -18,7 +18,7 @@ public:
     UiControlHintMap      uiHints() const override { return {}; }
 
     void gatherInfo(PreGenerationContext& output, const InputContext& input) const override {}
-    void generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const override {}
+    void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override {}
 };
 
 }

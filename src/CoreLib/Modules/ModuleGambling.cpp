@@ -35,7 +35,7 @@ IModule::UiControlHintMap ModuleGambling::uiHints() const
     };
 }
 
-void ModuleGambling::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleGambling::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     const bool charmGamble = input.getInt("charmGamble") && input.m_env.isLegacy; // disabled for D2R now; it crashes the game.
     if (charmGamble) {

@@ -96,7 +96,7 @@ IModule::UiControlHintMap ModuleItemDrops::uiHints() const
     };
 }
 
-void ModuleItemDrops::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())
         return;

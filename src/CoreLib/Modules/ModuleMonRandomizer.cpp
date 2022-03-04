@@ -6,7 +6,6 @@
 #include "ModuleMonRandomizer.hpp"
 #include "TableUtils.hpp"
 
-#include <QRandomGenerator>
 #include <QDebug>
 
 namespace D2ModGen {
@@ -52,14 +51,14 @@ struct MotTypeTable {
         id2index[id.str] = index;
     }
 
-    std::string pickRandomId(QRandomGenerator& rng, const std::string& baseId) const
+    std::string pickRandomId(RandomGenerator& rng, const std::string& baseId) const
     {
         const MonType&   mt = types.at(baseId);
-        const MonRecord& mr = mt.children[rng.bounded(mt.count)];
+        const MonRecord& mr = mt.children[rng(mt.count)];
         return mr.id;
     }
 
-    std::string pickRandomId(QRandomGenerator& rng, const std::string& baseId, int targetLevel, int maxDistance = 3)
+    std::string pickRandomId(RandomGenerator& rng, const std::string& baseId, int targetLevel, int maxDistance = 3)
     {
         assert(types.contains(baseId));
         MonType& mt = types[baseId];
@@ -72,14 +71,14 @@ struct MotTypeTable {
         }
         if (okIndexes.empty()) {
             okIndexes.push_back(mt.children.size());
-            auto i = rng.bounded(mt.count);
+            auto i = rng(mt.count);
             const MonRecord& source = mt.children[i];
 
             std::string newId = source.id + "_" + std::to_string(targetLevel);
             newCopies.push_back(MonCopy{ id2index[source.id], source.id, newId, source.level, targetLevel });
             mt.children.push_back(MonRecord{ newId, targetLevel });
         }
-        const int        index = okIndexes[rng.bounded((int)okIndexes.size())];
+        const int        index = okIndexes[rng((int)okIndexes.size())];
         const MonRecord& mr    = mt.children[index];
         return mr.id;
     }
@@ -157,7 +156,7 @@ void ModuleMonRandomizer::gatherInfo(PreGenerationContext& output, const InputCo
     output.m_extraJson.insert(s_monstersJson);
 }
 
-void ModuleMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
+void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())
         return;
@@ -242,7 +241,7 @@ void ModuleMonRandomizer::generate(DataContext& output, QRandomGenerator& rng, c
             const int normalLevel = row.hasColumn("MonLvlEx") ? row["MonLvlEx"].toInt() : row["MonLvl1Ex"].toInt();
             StringSet normalSet;
             for (int i = 0; i < maxTypes * 2; ++i) {
-                normalSet.insert(idsList[rng.bounded(idsList.size())]);
+                normalSet.insert(idsList[rng(idsList.size())]);
                 if (normalSet.size() >= maxTypes)
                     break;
             }
