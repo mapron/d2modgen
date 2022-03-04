@@ -6,17 +6,18 @@
 #include "MainWindow.hpp"
 
 #include "ConfigHandler.hpp"
+#include "Logger_details.hpp"
 
 #include <QApplication>
-#include <QDebug>
 #include <QDateTime>
 #include <QFile>
 #include <QStandardPaths>
 #include <QFileInfo>
 #include <QTranslator>
+#include <QTextStream>
 
 namespace {
-QFile*  g_logFile = nullptr;
+
 QString stripDir(QString s)
 {
     s = s.mid(s.lastIndexOf('\\') + 1);
@@ -44,31 +45,26 @@ public:
 
 void customMessageOutput(QtMsgType type, const QMessageLogContext& input, const QString& msg)
 {
-    QString typeStr;
+    using namespace D2ModGen;
+    Logger::LogLevel level = Logger::Debug;
     switch (type) {
         case QtDebugMsg:
-            typeStr = "Debug";
+            level = Logger::Debug;
             break;
         case QtInfoMsg:
-            typeStr = "Info";
+            level = Logger::Info;
             break;
         case QtWarningMsg:
-            typeStr = "Warning";
+            level = Logger::Warning;
             break;
         case QtCriticalMsg:
-            typeStr = "Critical";
+            level = Logger::Err;
             break;
         case QtFatalMsg:
-            typeStr = "Fatal";
+            level = Logger::Emerg;
+            break;
     }
-    auto       time      = QTime::currentTime().toString("HH:mm:ss.zzz");
-    QString    formatted = QString("[%1] %2: %3\n").arg(time, typeStr, msg);
-    QByteArray localMsg  = formatted.toUtf8();
-    fprintf(stderr, "%s", localMsg.constData());
-    if (g_logFile) {
-        g_logFile->write(localMsg);
-        g_logFile->flush();
-    }
+    Logger(level) << "QT:" << msg.toUtf8().constData();
 
     switch (type) {
         case QtFatalMsg:
@@ -80,16 +76,25 @@ void customMessageOutput(QtMsgType type, const QMessageLogContext& input, const 
 
 int main(int argc, char* argv[])
 {
+    using namespace D2ModGen;
+
     qInstallMessageHandler(customMessageOutput);
     QApplication::setApplicationName("D2R mod generator");
 
-    qDebug() << "application started";
-    QApplication app(argc, argv);
-    QFile        file(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/applog.txt");
-    file.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    g_logFile = &file;
+    Logger() << "application started";
+    QApplication      app(argc, argv);
+    const std::string logFile = (QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/applog.txt").toStdString();
+    Logger::SetLoggerBackend(std::make_unique<LoggerBackendFiles>(
+        7,
+        true,  /*duplicateInStderr*/
+        true,  /*outputLoglevel   */
+        true, /*outputTimestamp  */
+        false,  /*outputTimeoffsets*/
+        string2path(logFile)));
+    Logger() << "Started log redirection to:" << logFile;
+    //qWarning() << "test qwarn";
 
-    D2ModGen::ConfigHandler configHandler;
+    ConfigHandler configHandler;
 
     auto args = app.arguments();
     if (args.value(1) == "--generate") {
@@ -101,8 +106,8 @@ int main(int argc, char* argv[])
     }
 
     auto [langId, themeId] = D2ModGen::MainWindow::getAppSettings();
-    qDebug() << "langId=" << langId;
-    qDebug() << "themeId=" << themeId;
+    Logger() << "langId=" << langId.toStdString();
+    Logger() << "themeId=" << themeId.toStdString();
 
     {
         Q_INIT_RESOURCE(breeze);
@@ -116,10 +121,9 @@ int main(int argc, char* argv[])
     RAIITranslator trans(langId);
 
     D2ModGen::MainWindow w(configHandler);
-    qDebug() << "main window created";
+    Logger() << "main window created";
     w.show();
     auto res = app.exec();
-    qDebug() << "closing app";
-    g_logFile = nullptr;
+    Logger() << "closing app";
     return res;
 }

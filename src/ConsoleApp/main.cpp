@@ -6,19 +6,17 @@
 
 #include "ConfigHandler.hpp"
 
-#include <QCoreApplication>
-#include <QDebug>
+#include "Logger.hpp"
 
 int main(int argc, char* argv[])
 {
-    qDebug() << "application started";
-    QCoreApplication app(argc, argv);
+    using namespace D2ModGen;
+    Logger() << "application started";
 
-    D2ModGen::ConfigHandler configHandler;
+    ConfigHandler configHandler;
 
-    auto args = app.arguments();
-    if (args.value(1) == "--generate") {
-        std::string file = args.value(2).toStdString();
+    if (argc == 3 && std::string(argv[1]) == "--generate") {
+        std::string file = argv[2];
         if (!file.empty())
             configHandler.loadConfig(file);
         configHandler.generate();

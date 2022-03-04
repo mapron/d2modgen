@@ -10,7 +10,7 @@
 
 #include <StormLib.h>
 
-#include <QDebug>
+#include "Logger.hpp"
 
 namespace D2ModGen {
 
@@ -25,27 +25,27 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
         if (!SFileOpenArchive(utf8patch.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
             return {};
         } else {
-            qDebug() << "patch_d2.mpq found, but d2data.mpq is missing";
+            Logger() << "patch_d2.mpq found, but d2data.mpq is missing";
         }
     }
 
     MODGEN_SCOPE_EXIT([mpq] { SFileCloseArchive(mpq); });
 
     if (hasData && !SFileOpenPatchArchive(mpq, utf8patch.c_str(), nullptr, STREAM_FLAG_READ_ONLY)) {
-        qDebug() << "d2data.mpq found, but patch_d2.mpq is missing";
+        Logger() << "d2data.mpq found, but patch_d2.mpq is missing";
         return {};
     }
 
     auto readStormFile = [mpq](std::string& data, const std::string& filename) -> bool {
         const std::string fullId = filename;
         if (!SFileHasFile(mpq, fullId.c_str())) {
-            qDebug() << "no such file:" << filename.c_str();
+            Logger() << "no such file:" << filename;
             return false;
         }
 
         HANDLE fileHandle;
         if (!SFileOpenFileEx(mpq, fullId.c_str(), SFILE_OPEN_FROM_MPQ, &fileHandle)) {
-            qWarning() << "failed to open:" << fullId.c_str();
+            Logger(Logger::Warning) << "failed to open:" << fullId;
             return false;
         }
         MODGEN_SCOPE_EXIT([fileHandle] { SFileCloseFile(fileHandle); });
@@ -54,7 +54,7 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
         data.resize(dataSize);
         DWORD wread;
         if (!SFileReadFile(fileHandle, data.data(), dataSize, &wread, nullptr)) {
-            qWarning() << "failed to read:" << fullId.c_str();
+            Logger(Logger::Warning) << "failed to read:" << fullId.c_str();
             return false;
         }
 

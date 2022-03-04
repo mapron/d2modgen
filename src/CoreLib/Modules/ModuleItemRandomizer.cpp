@@ -9,7 +9,7 @@
 
 #include <QStringList>
 #include <QDateTime>
-#include <QDebug>
+#include "Logger.hpp"
 
 namespace D2ModGen {
 
@@ -155,8 +155,8 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             ;
         }
         //        for (auto& typeInfo : props.itemTypeInfo) {
-        //            qDebug() << typeInfo.first << " -> " << typeInfo.second.nested;
-        //            qDebug() << typeInfo.first << " <- " << typeInfo.second.parents;
+        //            Logger() << typeInfo.first << " -> " << typeInfo.second.nested;
+        //            Logger() << typeInfo.first << " <- " << typeInfo.second.parents;
         //        }
     }
 
@@ -485,7 +485,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         TableView view(tableSet.tables["sets"]);
         fillProps(view, s_descSets, commonSetReq, commonTypeAll, setsTypes, false, false);
     }
-    qDebug() << "generate() take:" << (QDateTime::currentMSecsSinceEpoch() - start) << " ms.";
+    Logger() << "generate() take:" << (QDateTime::currentMSecsSinceEpoch() - start) << " ms.";
 }
 
 }

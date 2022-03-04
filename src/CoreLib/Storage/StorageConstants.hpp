@@ -5,7 +5,8 @@
  */
 #pragma once
 
-#include <QStringList>
+#include <vector>
+#include <string>
 
 namespace D2ModGen {
 

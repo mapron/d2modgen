@@ -12,7 +12,7 @@
 #include "Storage/StorageCache.hpp"
 #include "Storage/FolderStorage.hpp"
 
-#include <QDebug>
+#include "Logger.hpp"
 #include <QDir>
 #include <QFileInfo>
 
@@ -32,7 +32,7 @@ ConfigHandler::ConfigHandler()
 
 bool ConfigHandler::loadConfig(const std::string& filename)
 {
-    qDebug() << "Load:" << filename.c_str();
+    Logger() << "Load:" << filename;
     std::string  buffer;
     PropertyTree doc;
     if (!readFileIntoBuffer(filename, buffer) || !readJsonFromBuffer(buffer, doc)) {
@@ -97,7 +97,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
 {
     const GenerationEnvironment env = getEnv();
     if (env.d2rPath.empty()) {
-        qWarning() << "D2R path is empty";
+        Logger(Logger::Warning) << "D2R path is empty";
         return {};
     }
 
@@ -116,16 +116,16 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         FolderStorage inStorage(root, source.type, isMod ? source.modname : "");
         auto          storedData = inStorage.readData({});
         if (!storedData.valid) {
-            qWarning() << "Failed to read data files from D2 folder:" << logInfo.c_str();
+            Logger(Logger::Warning) << "Failed to read data files from D2 folder:" << logInfo.c_str();
             return false;
         }
         DataContext dataContext;
         if (!dataContext.readData(storedData)) {
-            qWarning() << "Failed to parse files into input:" << logInfo.c_str();
+            Logger(Logger::Warning) << "Failed to parse files into input:" << logInfo.c_str();
             return false;
         }
         if (!targetContext.mergeWith(dataContext, source.policy)) {
-            qWarning() << "Merge failed:" << logInfo.c_str();
+            Logger(Logger::Warning) << "Merge failed:" << logInfo.c_str();
             return false;
         }
         return true;
@@ -158,14 +158,14 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             for (auto& p : output.tableSet.tables)
                 p.second.forceOutput = true;
     }
-    qDebug() << "Loading pre-gen data.";
+    Logger() << "Loading pre-gen data.";
     {
         for (const auto& source : pregenContext.m_preGen.m_sources)
             if (!mergeContext(output, source)) {
                 return { std::string("Failed to merge with source: ") + source.srcRoot + " / " + source.modname };
             }
     }
-    qDebug() << "prepare ended; Starting generate phase. seed=" << env.seed;
+    Logger() << "prepare ended; Starting generate phase. seed=" << env.seed;
     {
         using Distribution32 = std::uniform_int_distribution<int32_t>;
         std::mt19937_64 engine;
@@ -174,7 +174,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             if (!p.second.m_enabled)
                 continue;
 
-            qDebug() << "start module:" << p.first.c_str();
+            Logger() << "start module:" << p.first;
             IModule::InputContext input;
             input.m_env               = env;
             input.m_settings          = p.second.m_currentConfig;
@@ -187,27 +187,27 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             p.second.m_module->generate(output, r, input);
         }
     }
-    qDebug() << "Loading post-gen data.";
+    Logger() << "Loading post-gen data.";
     {
         for (const auto& source : pregenContext.m_postGen.m_sources)
             if (!mergeContext(output, source)) {
                 return { std::string("Failed to merge with source: ") + source.srcRoot + " / " + source.modname };
             }
     }
-    qDebug() << "prepare output data.";
+    Logger() << "prepare output data.";
 
     IStorage::StoredData outData;
     if (!output.writeData(outData)) {
-        qDebug() << "Failed to prepare data buffers"; // highly unlikely.
+        Logger() << "Failed to prepare data buffers"; // highly unlikely.
         return {};
     }
 
-    qDebug() << "writing output to disk.";
+    Logger() << "writing output to disk.";
     if (!outStorage.writeData(outData)) {
         return { "Failed write output data to disk" };
     }
 
-    qDebug() << "generation ends.";
+    Logger() << "generation ends.";
     return { "", true };
 }
 

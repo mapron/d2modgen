@@ -7,7 +7,7 @@
 
 #include "FileIOUtils.hpp"
 
-#include <QDebug>
+#include "Logger.hpp"
 #include <QFileInfo>
 #include <QDir>
 #include <QDirIterator>
@@ -71,7 +71,7 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
 
 bool FolderStorage::prepareForWrite() const noexcept
 {
-    qDebug() << "started generation in " << m_root.c_str();
+    Logger() << "started generation in " << m_root;
     QString root = QString::fromStdString(m_root);
     if (QFileInfo::exists(root + "data/"))
         QDir(root + "data/").removeRecursively();
@@ -79,7 +79,7 @@ bool FolderStorage::prepareForWrite() const noexcept
     if (!QFileInfo::exists(root))
         QDir().mkpath(root);
     if (!QFileInfo::exists(root)) {
-        qDebug() << "Failed to create: " << root;
+        Logger() << "Failed to create: " << m_root;
         return false;
     }
     if (m_storageType == StorageType::D2ResurrectedModFolder) {
@@ -92,7 +92,7 @@ bool FolderStorage::prepareForWrite() const noexcept
         std::string buffer;
         writeJsonToBuffer(buffer, modinfo);
         if (!writeFileFromBuffer(m_root + "modinfo.json", buffer)) {
-            qDebug() << "Failed to write: " << (m_root + "modinfo.json").c_str();
+            Logger() << "Failed to write: " << (m_root + "modinfo.json");
             return false;
         }
     }
@@ -145,21 +145,21 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
         const std::string relPath = m_storageType == StorageType::CsvFolder ? tableData.id + ".txt" : makeTableRelativePath(tableData.id, false);
         const std::string absPath = m_root + relPath;
         if (!writeData(tableData.data, absPath)) {
-            qWarning() << "failed to write to:" << absPath.c_str();
+            Logger(Logger::Warning) << "failed to write to:" << absPath.c_str();
             return false;
         }
     }
     for (const auto& memoryData : data.inMemoryFiles) {
         const std::string absPath = m_root + memoryData.relFilepath;
         if (!writeData(memoryData.data, absPath)) {
-            qWarning() << "failed to write to:" << absPath.c_str();
+            Logger(Logger::Warning) << "failed to write to:" << absPath.c_str();
             return false;
         }
     }
     for (const auto& refData : data.refFiles) {
         const std::string absPathDest = m_root + refData.relFilepath;
         if (!copyFile(refData.absSrcFilepath, absPathDest)) {
-            qWarning() << "failed to copy file:" << refData.absSrcFilepath.c_str() << " -> " << absPathDest.c_str();
+            Logger(Logger::Warning) << "failed to copy file:" << refData.absSrcFilepath.c_str() << " -> " << absPathDest.c_str();
             return false;
         }
     }

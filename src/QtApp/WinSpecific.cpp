@@ -11,8 +11,8 @@
 #endif
 #include "WinSpecific.hpp"
 #include "RAIIUtils.hpp"
+#include "Logger.hpp"
 
-#include <QDebug>
 #include <QFileInfo>
 
 #include <qt_windows.h>
@@ -38,7 +38,7 @@ std::wstring winFilename(QString filename)
 
 bool createShortCut(const QString& from, const QString& to, const QString& extraArgs)
 {
-    qDebug() << "Creating shortcut '" << from << "' -> '" << to << "'";
+    Logger() << "Creating shortcut '" << from.toStdString() << "' -> '" << to.toStdString() << "'";
     auto linkPath = from + ".lnk";
 
     QString destDir = QFileInfo(to).absolutePath();
@@ -81,7 +81,7 @@ bool createShortCut(const QString& from, const QString& to, const QString& extra
     hres     = ppf->Save(linkPath.toStdWString().c_str(), TRUE);
     auto err = GetLastError();
     if (!SUCCEEDED(hres)) {
-        qInfo() << "Creating shortcut '" << from << "' failed with code=" << err;
+        Logger(Logger::Warning) << "Creating shortcut '" << from.toStdString() << "' failed with code=" << err;
         return false;
     }
 

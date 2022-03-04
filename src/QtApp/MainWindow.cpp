@@ -15,8 +15,8 @@
 
 #include "HelpToolButton.hpp"
 #include "ConfigHandler.hpp"
+#include "Logger.hpp"
 
-#include <QDebug>
 #include <QLayout>
 #include <QStackedWidget>
 #include <QPushButton>
@@ -446,7 +446,7 @@ void MainWindow::generate()
 
 bool MainWindow::saveConfig(const QString& filename) const
 {
-    qDebug() << "Save:" << filename;
+    Logger() << "Save:" << filename.toStdString();
     return m_configHandler.saveConfig(filename.toStdString());
 }
 
@@ -472,7 +472,7 @@ MainWindow::AppSettings MainWindow::getAppSettings()
 
 void MainWindow::pushUndo(const PropertyTree& data)
 {
-    qDebug() << "pushing undo, current undo size=" << m_undo.size();
+    Logger() << "pushing undo, current undo size=" << m_undo.size();
     m_undo << data;
     while (m_undo.size() > 50)
         m_undo.removeFirst();

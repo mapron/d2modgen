@@ -10,7 +10,7 @@
 
 #include <CascLib.h>
 
-#include <QDebug>
+#include "Logger.hpp"
 
 namespace D2ModGen {
 
@@ -19,7 +19,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
     const std::string utf8path = m_storageRoot;
     HANDLE            storage;
     if (!CascOpenStorage(utf8path.c_str(), 0, &storage)) {
-        qWarning() << "failed to open storage:" << utf8path.c_str();
+        Logger(Logger::Warning) << "failed to open storage:" << utf8path;
         return {};
     }
     MODGEN_SCOPE_EXIT([storage] { CascCloseStorage(storage); });
@@ -29,7 +29,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
         HANDLE            fileHandle;
 
         if (!CascOpenFile(storage, fullId.c_str(), CASC_LOCALE_ALL, 0, &fileHandle)) {
-            qWarning() << "failed to open:" << fullId.c_str();
+            Logger(Logger::Warning) << "failed to open:" << fullId;
             return false;
         }
         MODGEN_SCOPE_EXIT([fileHandle] { CascCloseFile(fileHandle); });
@@ -39,7 +39,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
         data.resize(dataSize);
         DWORD wread;
         if (!CascReadFile(fileHandle, data.data(), dataSize, &wread)) {
-            qWarning() << "failed to read:" << fullId.c_str();
+            Logger(Logger::Warning) << "failed to read:" << fullId;
             return false;
         }
         return true;

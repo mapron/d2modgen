@@ -14,7 +14,7 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/filestream.h>
 
-#include <QDebug>
+#include "Logger.hpp"
 
 namespace D2ModGen {
 
@@ -109,7 +109,7 @@ bool readJsonFromBuffer(const std::string& buffer, PropertyTree& data)
         dataPtr += 3;
     auto& res = input.Parse<0>(dataPtr);
     if (res.HasParseError()) {
-        qDebug() << res.GetParseError();
+        Logger(Logger::Err) << res.GetParseError();
         return false;
     }
 

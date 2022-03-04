@@ -6,7 +6,9 @@
 #include "ModuleMonRandomizer.hpp"
 #include "TableUtils.hpp"
 
-#include <QDebug>
+#include "Logger.hpp"
+
+#include <algorithm>
 
 namespace D2ModGen {
 
@@ -90,7 +92,7 @@ struct MotTypeTable {
             std::string s = type.baseId + ": ";
             for (auto& c : type.children)
                 s += c.id + "(" + std::to_string(c.level) + "), ";
-            qDebug() << s.c_str();
+            Logger() << s;
         }
     }
 };
@@ -229,10 +231,10 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
             std::set_difference(nonUniqueBaseIds.cbegin(), nonUniqueBaseIds.cend(), ubaseIds.cbegin(), ubaseIds.cend(), std::inserter(resultData, resultData.end()));
             std::swap(nonUniqueBaseIds, resultData);
         }
-        //qDebug() << "non uniques:" << nonUniqueBaseIds;
+        //Logger() << "non uniques:" << nonUniqueBaseIds;
         //typeTable.removeUnused(baseIds);
 
-        QList<std::string> idsList(baseIds.cbegin(), baseIds.cend());
+        StringVector idsList(baseIds.cbegin(), baseIds.cend());
         for (auto& row : tableView) {
             if (row["mon1"].isEmpty())
                 continue;
@@ -246,8 +248,8 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
                     break;
             }
 
-            QList<std::string> normalSetList;
-            QList<std::string> uniques;
+            StringVector normalSetList;
+            StringVector uniques;
             for (auto baseId : normalSet) {
                 auto id = typeTable.pickRandomId(rng, baseId, normalLevel);
                 normalSetList << id;
@@ -256,9 +258,9 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
             }
 
             for (int i = 1; i <= cols; ++i) {
-                row[argCompat("mon%1", i)]  = normalSetList.value(i - 1);
-                row[argCompat("nmon%1", i)] = normalSetList.value(i - 1);
-                row[argCompat("umon%1", i)] = uniques.value(i - 1);
+                row[argCompat("mon%1", i)]  = normalSetList.size() >= i ? normalSetList[i - 1] : "";
+                row[argCompat("nmon%1", i)] = normalSetList.size() >= i ? normalSetList[i - 1] : "";
+                row[argCompat("umon%1", i)] = uniques.size() >= i ? uniques[i - 1] : "";
             }
             row["NumMon"] = argCompat("%1", spawnedCount);
         }

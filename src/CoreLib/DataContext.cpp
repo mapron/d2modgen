@@ -8,7 +8,7 @@
 #include "FileIOUtils.hpp"
 
 #include <QFile>
-#include <QDebug>
+#include "Logger.hpp"
 
 namespace D2ModGen {
 
@@ -121,14 +121,14 @@ bool DataContext::readData(const IStorage::StoredData& data)
 {
     for (const auto& fileData : data.tables) {
         if (fileData.id.empty()) {
-            qWarning() << "Empty csv id found!";
+            Logger(Logger::Warning) << "Empty csv id found!";
             return false;
         }
 
         Table table;
         table.id = fileData.id;
         if (!readCSV(fileData.data, table)) {
-            qWarning() << "failed to parse csv:" << fileData.id.c_str();
+            Logger(Logger::Warning) << "failed to parse csv:" << fileData.id.c_str();
             return false;
         }
         tableSet.tables[fileData.id] = std::move(table);
@@ -136,17 +136,17 @@ bool DataContext::readData(const IStorage::StoredData& data)
     }
     for (const auto& fileData : data.inMemoryFiles) {
         if (fileData.data.empty()) {
-            qWarning() << "Json data is empty:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "Json data is empty:" << fileData.relFilepath.c_str();
             return false;
         }
 
         PropertyTree doc;
         if (!readJsonFromBuffer(fileData.data, doc)) {
-            qWarning() << "failed to parse json:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "failed to parse json:" << fileData.relFilepath.c_str();
             return false;
         }
         if (jsonFiles.contains(fileData.relFilepath)) {
-            qWarning() << "duplicate json file found:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "duplicate json file found:" << fileData.relFilepath.c_str();
             return false;
         }
 
@@ -154,19 +154,19 @@ bool DataContext::readData(const IStorage::StoredData& data)
     }
     for (const auto& fileData : data.refFiles) {
         if (!QFile::exists(QString::fromStdString(fileData.absSrcFilepath))) {
-            qWarning() << "Non-existent file:" << fileData.absSrcFilepath.c_str();
+            Logger(Logger::Warning) << "Non-existent file:" << fileData.absSrcFilepath.c_str();
             return false;
         }
         if (jsonFiles.contains(fileData.relFilepath)) {
-            qWarning() << "File for plain copy already exists in json list:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "File for plain copy already exists in json list:" << fileData.relFilepath.c_str();
             return false;
         }
         if (tableSet.relativeNames.contains(fileData.relFilepath)) {
-            qWarning() << "File for plain copy already exists in CSV list:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "File for plain copy already exists in CSV list:" << fileData.relFilepath.c_str();
             return false;
         }
         if (copyFiles.contains(fileData.relFilepath)) {
-            qWarning() << "duplicate copy file found:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "duplicate copy file found:" << fileData.relFilepath.c_str();
             return false;
         }
         copyFiles[fileData.relFilepath] = fileData;
@@ -204,7 +204,7 @@ bool DataContext::mergeWith(const DataContext& source, ConflictPolicy policy)
     for (const auto& p : source.tableSet.tables) {
         const Table& sourceTable = p.second;
         if (!tableSet.tables.contains(sourceTable.id)) {
-            qWarning() << "unknown table id:" << sourceTable.id.c_str();
+            Logger(Logger::Warning) << "unknown table id:" << sourceTable.id.c_str();
             continue;
         }
         Table& destTable = tableSet.tables[sourceTable.id];

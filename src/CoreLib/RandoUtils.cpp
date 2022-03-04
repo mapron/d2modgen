@@ -5,7 +5,7 @@
  */
 #include "RandoUtils.hpp"
 
-#include <QDebug>
+#include "Logger.hpp"
 
 namespace D2ModGen {
 
@@ -249,7 +249,7 @@ void MagicPropUniverse::add(MagicPropRawList propList, const ItemCodeFilter& ite
 void MagicPropUniverse::dump(const MagicPropIdxSet& idxs) const
 {
     for (const auto idx : idxs) {
-        qDebug() << "[" << idx << "] " << props[idx].toDebugString().c_str();
+        Logger() << "[" << idx << "] " << props[idx].toDebugString();
     }
 }
 
