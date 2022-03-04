@@ -29,7 +29,7 @@ PropertyTreeScalarMap ModulePerfectRoll::defaultValues() const
 void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.getInt("craft")) {
-        TableView view(output.tableSet.tables["cubemain"], true);
+        TableView view(output.tableSet.tables[TableId::cubemain], true);
         for (auto& row : view) {
             const bool isCrafted = row["output"] == "\"usetype,crf\"";
             if (!isCrafted)
@@ -40,7 +40,7 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
                 if (isMinMaxRange(mod.str)) {
                     auto& modMin = row[argCompat("mod %1 min", i)];
                     auto& modMax = row[argCompat("mod %1 max", i)];
-                    modMin          = modMax;
+                    modMin       = modMax;
                 }
             }
         }
@@ -62,20 +62,20 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
     };
 
     if (input.getInt("uniques")) {
-        auto&     table = output.tableSet.tables["uniqueitems"];
+        auto&     table = output.tableSet.tables[TableId::uniqueitems];
         TableView view(table);
         updateMinParam(view, Tables::s_descUniques);
     }
     if (input.getInt("runeWords")) {
-        TableView view(output.tableSet.tables["runes"]);
+        TableView view(output.tableSet.tables[TableId::runes]);
         updateMinParam(view, Tables::s_descRunewords);
     }
     if (input.getInt("setItems")) {
-        TableView view(output.tableSet.tables["setitems"]);
+        TableView view(output.tableSet.tables[TableId::setitems]);
         updateMinParam(view, Tables::s_descSetItems);
     }
     if (input.getInt("affixes")) {
-        for (const char* table : { "magicprefix", "magicsuffix", "automagic" }) {
+        for (const auto table : { TableId::magicprefix, TableId::magicsuffix, TableId::automagic }) {
             if (!output.tableSet.tables.contains(table))
                 continue;
             TableView view(output.tableSet.tables[table]);
@@ -83,7 +83,7 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
         }
     }
     if (input.getInt("armor")) {
-        TableView view(output.tableSet.tables["armor"]);
+        TableView view(output.tableSet.tables[TableId::armor]);
         for (auto& row : view) {
             row["minac"] = row["maxac"];
         }

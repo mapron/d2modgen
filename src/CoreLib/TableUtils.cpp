@@ -9,37 +9,37 @@ namespace D2ModGen {
 
 namespace {
 
-static const std::map<std::string, StringVector> s_tableKeys{
-    { "gamble", { "code" } },
-    { "misc", { "code" } },
-    { "gems", { "code" } },
-    { "uniqueitems", { "index" } },
-    { "setitems", { "index" } },
-    { "sets", { "index" } },
-    { "runes", { "Name" } },
-    { "skills", { "skill" } },
-    { "monstats", { "Id" } },
-    { "monstats2", { "Id" } },
-    { "difficultylevels", { "Name" } },
-    { "levels", { "Name" } },
-    { "monlvl", { "Level" } },
-    { "charstats", { "class" } },
-    { "weapons", { "code" } },
-    { "armor", { "code" } },
+static const std::map<TableId, StringVector> s_tableKeys{
+    { TableId::gamble, { "code" } },
+    { TableId::misc, { "code" } },
+    { TableId::gems, { "code" } },
+    { TableId::uniqueitems, { "index" } },
+    { TableId::setitems, { "index" } },
+    { TableId::sets, { "index" } },
+    { TableId::runes, { "Name" } },
+    { TableId::skills, { "skill" } },
+    { TableId::monstats, { "Id" } },
+    { TableId::monstats2, { "Id" } },
+    { TableId::difficultylevels, { "Name" } },
+    { TableId::levels, { "Name" } },
+    { TableId::monlvl, { "Level" } },
+    { TableId::charstats, { "class" } },
+    { TableId::weapons, { "code" } },
+    { TableId::armor, { "code" } },
 };
 
 using AliasConfig = std::map<std::string, StringVector>;
-static const std::map<std::string, AliasConfig> s_tableColumnAliases{
-    { "itemtypes", AliasConfig{
-                       { "MaxSockets3", { "MaxSock40" } },
-                       { "MaxSock40", { "MaxSockets3" } },
-                   } },
-    { "levels", AliasConfig{
-                    { "MonLvlEx(N)", { "MonLvl2Ex" } },
-                    { "MonLvlEx(H)", { "MonLvl3Ex" } },
-                    { "MonLvl2Ex", { "MonLvlEx(N)" } },
-                    { "MonLvl3Ex", { "MonLvlEx(H)" } },
-                } },
+static const std::map<TableId, AliasConfig> s_tableColumnAliases{
+    { TableId::itemtypes, AliasConfig{
+                              { "MaxSockets3", { "MaxSock40" } },
+                              { "MaxSock40", { "MaxSockets3" } },
+                          } },
+    { TableId::levels, AliasConfig{
+                           { "MonLvlEx(N)", { "MonLvl2Ex" } },
+                           { "MonLvlEx(H)", { "MonLvl3Ex" } },
+                           { "MonLvl2Ex", { "MonLvlEx(N)" } },
+                           { "MonLvl3Ex", { "MonLvlEx(H)" } },
+                       } },
 };
 
 }

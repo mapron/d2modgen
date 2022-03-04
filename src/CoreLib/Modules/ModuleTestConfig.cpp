@@ -24,7 +24,7 @@ void ModuleTestConfig::generate(DataContext& output, RandomGenerator& rng, const
     if (!input.getInt("addKeys"))
         return;
 
-    Table&    charTable = output.tableSet.tables["charstats"];
+    Table&    charTable = output.tableSet.tables[TableId::charstats];
     TableView charTableView(charTable, true);
 
     for (auto& rowView : charTableView) {

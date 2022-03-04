@@ -114,7 +114,7 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
     };
     auto& tableSet = output.tableSet;
     {
-        TableView view(tableSet.tables["treasureclassex"], true);
+        TableView view(tableSet.tables[TableId::treasureclassex], true);
 
         const int  factorUnique    = input.getInt("chance_uni");
         const int  factorSet       = input.getInt("chance_set");
@@ -209,7 +209,7 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
 
     const bool equalRarity = input.getInt("equal_uniques");
     if (equalRarity) {
-        TableView view(tableSet.tables["uniqueitems"], true);
+        TableView view(tableSet.tables[TableId::uniqueitems], true);
         for (auto& row : view) {
             auto& rarity = row["rarity"];
             if (!rarity.isEmpty())

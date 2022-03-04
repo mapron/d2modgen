@@ -93,7 +93,7 @@ void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const 
         return;
 
     auto&     tableSet  = output.tableSet;
-    Table&    charTable = tableSet.tables["charstats"];
+    Table&    charTable = tableSet.tables[TableId::charstats];
     TableView charTableView(charTable, true);
 
     const int statPerLevel   = input.getInt("statPerLevel");
@@ -130,14 +130,14 @@ void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const 
             const int newStat = value * statLower / 100;
             return newStat < 10 ? 0 : newStat;
         };
-        for (const char* tableName : { "armor", "weapons" }) {
+        for (const auto tableName : { TableId::armor, TableId::weapons }) {
             Table&    table = tableSet.tables[tableName];
             TableView view(table, true);
             view.applyIntTransform(StringVector{ "reqstr", "reqdex" }, trans);
         }
     }
     if (mercHPpercent != 100 || mercDampercent != 100) {
-        TableView view(tableSet.tables["hireling"], true);
+        TableView view(tableSet.tables[TableId::hireling], true);
         view.applyIntTransform(StringVector{ "HP", "HP/Lvl" }, [mercHPpercent](const int value) -> int {
             return value * mercHPpercent / 100;
         });

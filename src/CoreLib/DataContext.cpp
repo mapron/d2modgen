@@ -67,7 +67,7 @@ public:
     std::string_view              line;
 };
 
-bool writeCSV(std::string& csvData, const Table& table)
+bool writeCSVToBuffer(std::string& csvData, const Table& table)
 {
     for (size_t i = 0; i < table.columns.size(); ++i) {
         if (i > 0)
@@ -86,7 +86,7 @@ bool writeCSV(std::string& csvData, const Table& table)
     return true;
 }
 
-bool readCSV(const std::string& csvData, Table& table)
+bool readCSVFromBuffer(const std::string& csvData, Table& table)
 {
     FastCsvTable csvTable(csvData.data(), csvData.size());
     if (!csvTable.scanLine())
@@ -106,7 +106,7 @@ bool readCSV(const std::string& csvData, Table& table)
 #ifndef NDEBUG
     {
         std::string check;
-        writeCSV(check, table);
+        writeCSVToBuffer(check, table);
         assert(check == csvData);
     }
 #endif
@@ -122,29 +122,36 @@ bool DataContext::readData(const IStorage::StoredData& data)
             Logger(Logger::Warning) << "Empty csv id found!";
             return false;
         }
-
-        Table table;
-        table.id = fileData.id;
-        if (!readCSV(fileData.data, table)) {
-            Logger(Logger::Warning) << "failed to parse csv:" << fileData.id.c_str();
+        TableId id;
+        if (!findTableId(fileData.id, id)) {
+            Logger(Logger::Warning) << "Unknown table id:" << fileData.id;
             return false;
         }
-        tableSet.tables[fileData.id] = std::move(table);
+
+        Table table;
+        table.id = id;
+        //Logger() << "read txt:" << fileData.id;
+        if (!readCSVFromBuffer(fileData.data, table)) {
+            Logger(Logger::Warning) << "failed to parse csv:" << fileData.id;
+            return false;
+        }
+        tableSet.tables[id] = std::move(table);
         tableSet.relativeNames.insert(IStorage::makeTableRelativePath(fileData.id, false));
     }
     for (const auto& fileData : data.inMemoryFiles) {
         if (fileData.data.empty()) {
-            Logger(Logger::Warning) << "Json data is empty:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "Json data is empty:" << fileData.relFilepath;
             return false;
         }
 
         PropertyTree doc;
+        //Logger() << "read json:" << fileData.relFilepath;
         if (!readJsonFromBuffer(fileData.data, doc)) {
-            Logger(Logger::Warning) << "failed to parse json:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "failed to parse json:" << fileData.relFilepath;
             return false;
         }
         if (jsonFiles.contains(fileData.relFilepath)) {
-            Logger(Logger::Warning) << "duplicate json file found:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "duplicate json file found:" << fileData.relFilepath;
             return false;
         }
 
@@ -153,19 +160,19 @@ bool DataContext::readData(const IStorage::StoredData& data)
     for (const auto& fileData : data.refFiles) {
         std::error_code ec;
         if (!std_fs::exists(string2path(fileData.absSrcFilepath), ec)) {
-            Logger(Logger::Warning) << "Non-existent file:" << fileData.absSrcFilepath.c_str();
+            Logger(Logger::Warning) << "Non-existent file:" << fileData.absSrcFilepath;
             return false;
         }
         if (jsonFiles.contains(fileData.relFilepath)) {
-            Logger(Logger::Warning) << "File for plain copy already exists in json list:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "File for plain copy already exists in json list:" << fileData.relFilepath;
             return false;
         }
         if (tableSet.relativeNames.contains(fileData.relFilepath)) {
-            Logger(Logger::Warning) << "File for plain copy already exists in CSV list:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "File for plain copy already exists in CSV list:" << fileData.relFilepath;
             return false;
         }
         if (copyFiles.contains(fileData.relFilepath)) {
-            Logger(Logger::Warning) << "duplicate copy file found:" << fileData.relFilepath.c_str();
+            Logger(Logger::Warning) << "duplicate copy file found:" << fileData.relFilepath;
             return false;
         }
         copyFiles[fileData.relFilepath] = fileData;
@@ -182,14 +189,13 @@ bool DataContext::writeData(IStorage::StoredData& data) const
             continue;
 
         std::string tableStr;
-        if (!writeCSV(tableStr, table))
+        if (!writeCSVToBuffer(tableStr, table))
             return false;
-        data.tables.push_back(IStorage::StoredFileTable{ std::move(tableStr), table.id });
+        data.tables.push_back(IStorage::StoredFileTable{ std::move(tableStr), getTableIdString(table.id) });
     }
     for (const auto& p : jsonFiles) {
         std::string buffer;
         writeJsonToBuffer(buffer, p.second);
-        //datastr.replace(QByteArray("\xC3\x83\xC2\xBF\x63"), QByteArray("\xC3\xBF\x63")); // hack: replace color codes converter to UTF-8 from latin-1.
         data.inMemoryFiles.push_back(IStorage::StoredFileMemory{ buffer, p.first });
     }
     for (const auto& p : copyFiles) {
@@ -202,10 +208,6 @@ bool DataContext::mergeWith(const DataContext& source, ConflictPolicy policy)
 {
     for (const auto& p : source.tableSet.tables) {
         const Table& sourceTable = p.second;
-        if (!tableSet.tables.contains(sourceTable.id)) {
-            Logger(Logger::Warning) << "unknown table id:" << sourceTable.id.c_str();
-            continue;
-        }
         Table& destTable = tableSet.tables[sourceTable.id];
         if (destTable.modified) {
             if (policy == ConflictPolicy::RaiseError)

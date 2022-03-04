@@ -8,6 +8,7 @@
 #include "Storage/IStorage.hpp"
 #include "CommonTypes.hpp"
 #include "PropertyTree.hpp"
+#include "TableId.hpp"
 
 #include <deque>
 
@@ -51,7 +52,7 @@ struct TableRow {
 };
 
 struct Table {
-    std::string              id;
+    TableId                  id;
     std::deque<TableRow>     rows;
     std::vector<std::string> columns;
     bool                     modified    = false;
@@ -61,8 +62,8 @@ struct Table {
 };
 
 struct TableSet {
-    std::map<std::string, Table> tables;
-    StringSet                    relativeNames;
+    std::map<TableId, Table> tables;
+    StringSet                relativeNames;
 };
 
 struct DataContext {

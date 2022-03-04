@@ -6,11 +6,10 @@
 #include "CascStorage.hpp"
 
 #include "RAIIUtils.hpp"
-#include "StorageConstants.hpp"
+#include "TableId.hpp"
+#include "Logger.hpp"
 
 #include <CascLib.h>
-
-#include "Logger.hpp"
 
 namespace D2ModGen {
 
@@ -47,7 +46,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
 
     IStorage::StoredData result{ true };
 
-    for (const std::string& id : g_tableNames) {
+    for (const std::string& id : getTableNames()) {
         std::string buffer;
         if (!readCascFile(buffer, IStorage::makeTableRelativePath(id, true)))
             continue;

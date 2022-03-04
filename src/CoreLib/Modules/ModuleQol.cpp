@@ -43,7 +43,7 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
     const bool weakenTownSkills = input.getInt("weakenTownSkills");
     const int  reduceCost       = input.getInt("reduceCost");
     if (tomeSize || keySize || quiverSize) {
-        Table&    table = output.tableSet.tables["misc"];
+        Table&    table = output.tableSet.tables[TableId::misc];
         TableView tableView(table, true);
         for (auto& row : tableView) {
             auto& code     = row["code"];
@@ -57,7 +57,7 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
         }
     }
     if (uniqueCharmLimit) {
-        Table&    table = output.tableSet.tables["uniqueitems"];
+        Table&    table = output.tableSet.tables[TableId::uniqueitems];
         TableView tableView(table, true);
         for (auto& row : tableView) {
             row["carry1"].str = "";
@@ -65,7 +65,7 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
     }
     if (weakenTownSkills) {
         static const StringSet s_exceptions{ "Teleport", "Battle Orders", "Battle Command" };
-        Table&                             table = output.tableSet.tables["skills"];
+        Table&                             table = output.tableSet.tables[TableId::skills];
         TableView                          tableView(table, true);
         for (auto& row : tableView) {
             if (s_exceptions.contains(row["skill"].str))
@@ -74,7 +74,7 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
     }
     if (reduceCost != 100) {
         {
-            Table&    table = output.tableSet.tables["skills"];
+            Table&    table = output.tableSet.tables[TableId::skills];
             TableView tableView(table, true);
             for (auto& row : tableView) {
                 auto& mult = row["cost mult"];
@@ -86,7 +86,7 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
             }
         }
         {
-            Table&    table = output.tableSet.tables["itemstatcost"];
+            Table&    table = output.tableSet.tables[TableId::itemstatcost];
             TableView tableView(table, true);
             for (auto& row : tableView) {
                 auto& mult = row["Multiply"];

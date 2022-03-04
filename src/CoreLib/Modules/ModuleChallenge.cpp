@@ -55,7 +55,7 @@ void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const 
         return;
 
     {
-        TableView view(output.tableSet.tables["treasureclassex"]);
+        TableView view(output.tableSet.tables[TableId::treasureclassex]);
 
         StringSet disabledIds;
         for (auto& item : m_items) {
@@ -82,7 +82,7 @@ void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const 
         }
     }
     {
-        TableView view(output.tableSet.tables["difficultylevels"]);
+        TableView view(output.tableSet.tables[TableId::difficultylevels]);
         auto      checkPenalty = [&input, &output, &view](const std::string& key, const std::string& name) {
             if (input.isAllDefault({ key }))
                 return;
@@ -103,7 +103,7 @@ void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const 
     const int levelIncreaseHell      = input.getInt("levelIncreaseHell");
 
     if (levelIncreaseNightmare || levelIncreaseHell) {
-        TableView view(output.tableSet.tables["levels"], true);
+        TableView view(output.tableSet.tables[TableId::levels], true);
         const int levelIncreaseUltra = input.getInt("levelIncreaseUltra") ? 105 : 85;
 
         auto adjustLevel = [levelIncreaseUltra](TableView::RowView& row, const std::string& key, const int levelIncrease) {

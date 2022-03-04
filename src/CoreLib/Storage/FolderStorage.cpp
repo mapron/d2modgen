@@ -86,8 +86,6 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
 
 bool FolderStorage::prepareForWrite() const noexcept
 {
-    Logger() << "started generation in " << m_root;
-
     const auto rootpath = string2path(m_root);
 
     if (std_fs::exists(string2path(m_root) / "data"))

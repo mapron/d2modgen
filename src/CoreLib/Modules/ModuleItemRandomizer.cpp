@@ -115,11 +115,12 @@ IModule::UiControlHintMap ModuleItemRandomizer::uiHints() const
 
 void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
+    using Row      = TableView::RowView;
     auto& tableSet = output.tableSet;
 
     MagicPropUniverse props;
     {
-        TableView view(tableSet.tables["itemtypes"]);
+        TableView view(tableSet.tables[TableId::itemtypes]);
         for (auto& row : view) {
             const auto codeStr  = row["Code"].str;
             const auto itemType = row["ItemType"].str;
@@ -178,7 +179,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     }
 
     std::map<std::string, std::string> code2type;
-    for (const auto* tableName : { "armor", "weapons", "misc" }) {
+    for (const auto tableName : { TableId::armor, TableId::weapons, TableId::misc }) {
         TableView view(tableSet.tables[tableName]);
         for (auto& row : view) {
             const auto code = row["code"].str;
@@ -192,7 +193,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     std::map<std::string, int> miscItemsLevels;
     {
-        TableView view(tableSet.tables["misc"]);
+        TableView view(tableSet.tables[TableId::misc]);
         for (auto& row : view) {
             const std::string& code     = row["code"].str;
             auto&              levelreq = row["levelreq"];
@@ -216,9 +217,9 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     const StringVector extraKnownCodesList = splitLine(input.getString("extraKnown"), ',', true);
     const StringSet    extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
 
-    using LevelCallback               = std::function<int(const TableView::RowView& row)>;
-    using SupportedAttributesCallback = std::function<AttributeFlagSet(const TableView::RowView& row)>;
-    using ItemCodeFilterCallback      = std::function<ItemCodeFilter(const TableView::RowView& row)>;
+    using LevelCallback               = std::function<int(const Row& row)>;
+    using SupportedAttributesCallback = std::function<AttributeFlagSet(const Row& row)>;
+    using ItemCodeFilterCallback      = std::function<ItemCodeFilter(const Row& row)>;
 
     auto postProcessRawList = [replaceSkills, replaceCharges, removeKnock](MagicPropRawList& rawList) {
         rawList.postProcess(replaceSkills, replaceCharges, removeKnock);
@@ -245,22 +246,22 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     };
 
-    auto commonLvlReq = [](const TableView::RowView& row) { return row["lvl"].toInt(); };
-    auto commonRWreq  = [&determineRWlevel](const TableView::RowView& row) {
+    auto commonLvlReq = [](const Row& row) { return row["lvl"].toInt(); };
+    auto commonRWreq  = [&determineRWlevel](const Row& row) {
         return determineRWlevel({ row["Rune1"].str, row["Rune2"].str, row["Rune3"].str, row["Rune4"].str, row["Rune5"].str, row["Rune6"].str });
     };
-    auto commonSetReq = [&setLevels](const TableView::RowView& row) {
+    auto commonSetReq = [&setLevels](const Row& row) {
         return mapValue(setLevels, row["name"].str);
     };
-    auto uniqueType = [&code2type](const TableView::RowView& row) -> ItemCodeFilter {
+    auto uniqueType = [&code2type](const Row& row) -> ItemCodeFilter {
         assert(code2type.contains(row["code"].str));
         return { { mapValue(code2type, row["code"].str) }, {} };
     };
-    auto setitemType = [&code2type](const TableView::RowView& row) -> ItemCodeFilter {
+    auto setitemType = [&code2type](const Row& row) -> ItemCodeFilter {
         assert(code2type.contains(row["item"].str));
         return { { mapValue(code2type, row["item"].str) }, {} };
     };
-    auto rwTypes = [](const TableView::RowView& row) -> ItemCodeFilter {
+    auto rwTypes = [](const Row& row) -> ItemCodeFilter {
         ItemCodeSet result;
         for (int i = 1; i <= 6; ++i) {
             const auto& itype = row[argCompat("itype%1", i)];
@@ -270,7 +271,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
         return { result, {} };
     };
-    auto affixTypes = [](const TableView::RowView& row) -> ItemCodeFilter {
+    auto affixTypes = [](const Row& row) -> ItemCodeFilter {
         ItemCodeFilter result;
         for (int i = 1; i <= 7; ++i) {
             const auto col = argCompat("itype%1", i);
@@ -292,10 +293,10 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
         return result;
     };
-    auto setsTypes = [](const TableView::RowView& row) -> ItemCodeFilter { return { { std::string("SETS") }, {} }; };
+    auto setsTypes = [](const Row& row) -> ItemCodeFilter { return { { std::string("SETS") }, {} }; };
     using namespace Tables;
     {
-        auto&     table = tableSet.tables["uniqueitems"];
+        auto&     table = tableSet.tables[TableId::uniqueitems];
         TableView view(table);
         grabProps(view, s_descUniques, commonLvlReq, uniqueType);
         const int repeatUniques = input.getInt("repeat_uniques");
@@ -309,11 +310,11 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     }
 
     {
-        TableView view(tableSet.tables["runes"]);
+        TableView view(tableSet.tables[TableId::runes]);
         grabProps(view, s_descRunewords, commonRWreq, rwTypes);
     }
     {
-        TableView view(tableSet.tables["setitems"]);
+        TableView view(tableSet.tables[TableId::setitems]);
         grabProps(view, s_descSetItems, commonLvlReq, setitemType);
         for (auto& row : view) {
             auto& setId          = row["set"];
@@ -322,27 +323,27 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
     {
-        TableView view(tableSet.tables["gems"]);
+        TableView view(tableSet.tables[TableId::gems]);
 
         grabProps(
-            view, s_descGems, [&miscItemsLevels](const TableView::RowView& row) {
+            view, s_descGems, [&miscItemsLevels](const Row& row) {
                 return mapValue(miscItemsLevels, row["code"].str);
             },
             uniqueType);
     }
     {
-        for (const char* table : { "magicprefix", "magicsuffix" }) {
+        for (const auto table : { TableId::magicprefix, TableId::magicsuffix }) {
             TableView view(tableSet.tables[table]);
 
             grabProps(
-                view, s_descAffix, [](const TableView::RowView& row) {
+                view, s_descAffix, [](const Row& row) {
                     return row["spawnable"] == "1" ? row["level"].toInt() : 0; // utilize maxLevel ?
                 },
                 affixTypes);
         }
     }
     {
-        TableView view(tableSet.tables["sets"]);
+        TableView view(tableSet.tables[TableId::sets]);
         grabProps(view, s_descSets, commonSetReq, setsTypes);
     }
 
@@ -445,12 +446,12 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             }
         }
     };
-    auto commonTypeAll         = [](const TableView::RowView&) -> AttributeFlagSet { return {}; };
-    auto commonTypeEquipNoSock = [](const TableView::RowView&) -> AttributeFlagSet { return { AttributeFlag::Durability }; };
+    auto commonTypeAll         = [](const Row&) -> AttributeFlagSet { return {}; };
+    auto commonTypeEquipNoSock = [](const Row&) -> AttributeFlagSet { return { AttributeFlag::Durability }; };
     auto start                 = ChronoPoint(true);
     {
-        TableView view(tableSet.tables["uniqueitems"]);
-        auto      code2flags = [&code2type, &props](const TableView::RowView& row) -> AttributeFlagSet {
+        TableView view(tableSet.tables[TableId::uniqueitems]);
+        auto      code2flags = [&code2type, &props](const Row& row) -> AttributeFlagSet {
             const auto type = mapValue(code2type, row["code"].str);
             assert(props.itemTypeInfo.contains(type));
             return props.itemTypeInfo.at(type).flags;
@@ -459,12 +460,12 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     }
 
     {
-        TableView view(tableSet.tables["runes"]);
+        TableView view(tableSet.tables[TableId::runes]);
         fillProps(view, s_descRunewords, commonRWreq, commonTypeEquipNoSock, rwTypes, true, false);
     }
     {
-        TableView view(tableSet.tables["setitems"]);
-        auto      code2flags = [&code2type, &props](const TableView::RowView& row) -> AttributeFlagSet {
+        TableView view(tableSet.tables[TableId::setitems]);
+        auto      code2flags = [&code2type, &props](const Row& row) -> AttributeFlagSet {
             const auto type = mapValue(code2type, row["item"].str);
             assert(props.itemTypeInfo.contains(type));
             return props.itemTypeInfo.at(type).flags;
@@ -472,10 +473,10 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         fillProps(view, s_descSetItems, commonLvlReq, code2flags, setitemType, false, false);
     }
     if (input.getInt("gemsRandom")) {
-        TableView view(tableSet.tables["gems"]);
+        TableView view(tableSet.tables[TableId::gems]);
         for (const ColumnsDesc& desc : s_descGems) {
             fillProps(
-                view, { desc }, [&miscItemsLevels](const TableView::RowView& row) {
+                view, { desc }, [&miscItemsLevels](const Row& row) {
                     return mapValue(miscItemsLevels, row["code"].str);
                 },
                 commonTypeEquipNoSock,
@@ -485,11 +486,11 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
     if (input.getInt("affixRandom")) {
-        for (const char* table : { "magicprefix", "magicsuffix" }) {
+        for (auto table : { TableId::magicprefix, TableId::magicsuffix }) {
             TableView view(tableSet.tables[table]);
 
             fillProps(
-                view, s_descAffix, [&miscItemsLevels](const TableView::RowView& row) {
+                view, s_descAffix, [&miscItemsLevels](const Row& row) {
                     return row["spawnable"] == "1" ? row["level"].toInt() : 0; // utilize maxLevel ?
                 },
                 commonTypeAll,
@@ -499,7 +500,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
     {
-        TableView view(tableSet.tables["sets"]);
+        TableView view(tableSet.tables[TableId::sets]);
         fillProps(view, s_descSets, commonSetReq, commonTypeAll, setsTypes, false, false);
     }
     Logger() << "generate() take:" << start.GetElapsedTime().ToProfilingTime();

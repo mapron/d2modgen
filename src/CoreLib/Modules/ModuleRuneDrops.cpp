@@ -63,7 +63,7 @@ void ModuleRuneDrops::generate(DataContext& output, RandomGenerator& rng, const 
 
     auto& tableSet = output.tableSet;
     {
-        TableView view(tableSet.tables["treasureclassex"], true);
+        TableView view(tableSet.tables[TableId::treasureclassex], true);
 
         const int  factorRune      = input.getInt("rune_factor");
         const int  factorZod       = input.getInt("zod_factor");

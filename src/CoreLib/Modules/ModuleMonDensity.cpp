@@ -38,7 +38,7 @@ void ModuleMonDensity::generate(DataContext& output, RandomGenerator& rng, const
     {
         const int groupIncrease = input.getInt("mon_groups");
         if (groupIncrease > 0) {
-            TableView view(output.tableSet.tables["monstats"], true);
+            TableView view(output.tableSet.tables[TableId::monstats], true);
             for (auto& row : view) {
                 if (row["Level"].isEmpty())
                     continue;
@@ -57,7 +57,7 @@ void ModuleMonDensity::generate(DataContext& output, RandomGenerator& rng, const
         }
     }
     if (!input.isAllDefault({ "density", "packs", "hellPacks" })) {
-        TableView view(output.tableSet.tables["levels"], true);
+        TableView view(output.tableSet.tables[TableId::levels], true);
         auto      isEmptyCell = [](const TableCell& value) {
             return value.isEmpty() || value == "0";
         };

@@ -247,9 +247,9 @@ void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, 
     const bool skillDamageRandomize = input.getInt("skillDamage");
     const bool ensureDifferent      = input.getInt("ensureDifferent");
 
-    Table&          skillsTable = output.tableSet.tables["skills"];
+    Table&          skillsTable = output.tableSet.tables[TableId::skills];
     TableView       skillsTableView(skillsTable, true);
-    Table&          descTable = output.tableSet.tables["skilldesc"];
+    Table&          descTable = output.tableSet.tables[TableId::skilldesc];
     TableView       descTableView(descTable, true);
     SkillParsedData skillParsedData;
     SkillTree       charTree;

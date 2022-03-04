@@ -98,7 +98,7 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
     const bool runeDowngrade  = input.getInt("runeDowngrade");
 
     auto&     tableSet = output.tableSet;
-    TableView view(tableSet.tables["cubemain"], true);
+    TableView view(tableSet.tables[TableId::cubemain], true);
     for (auto& row : view) {
         auto&        description = row["description"];
         auto&        numinputs   = row["numinputs"];

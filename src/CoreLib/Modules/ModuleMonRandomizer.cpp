@@ -168,7 +168,7 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
     MotTypeTable typeTable;
     TCTable      tcTable;
     {
-        Table&    table = tableSet.tables["monstats"];
+        Table&    table = tableSet.tables[TableId::monstats];
         TableView tableView(table);
         for (auto& row : tableView) {
             const int normalLevel = row["Level"].toInt();
@@ -178,13 +178,13 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
         }
     }
     {
-        Table&    table = tableSet.tables["treasureclassex"];
+        Table&    table = tableSet.tables[TableId::treasureclassex];
         TableView tableView(table);
         for (auto& row : tableView)
             tcTable.add(row["Treasure Class"], row["group"], row["level"]);
     }
     {
-        Table&    table = tableSet.tables["levels"];
+        Table&    table = tableSet.tables[TableId::levels];
         TableView tableView(table, true);
         StringSet baseIds, ubaseIds, nonUniqueBaseIds;
         int       cols = 25;
@@ -266,7 +266,7 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
         }
     }
     {
-        Table& table   = tableSet.tables["monstats"];
+        Table& table   = tableSet.tables[TableId::monstats];
         table.modified = true;
         MotTypeTable::MonCopyList newCopies;
         auto                      insertNewRows = [&table, &rng, &newCopies, &typeTable, &tcTable]() {

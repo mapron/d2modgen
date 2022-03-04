@@ -104,6 +104,8 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     const StorageType storageOut = (env.isLegacy) ? StorageType::D2LegacyFolder : StorageType::D2ResurrectedModFolder;
 
     FolderStorage outStorage(env.outPath, storageOut, env.modName);
+
+    Logger() << "started generation in " << env.outPath;
     if (!outStorage.prepareForWrite()) {
         return { "Failed to write data in destination folder; try to launch as admin." };
     }
@@ -146,10 +148,12 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         }
     }
     {
+        Logger() << "Loading data from main storage...";
         const IStorage::StoredData data = m_mainStorageCache->load(storage, env.d2rPath, pregenContext.m_extraJson);
         if (!data.valid) {
             return { "Failed to read data files from D2 folder." };
         }
+        Logger() << "Parsing json and txt...";
         if (!output.readData(data)) {
             return { "Failed parse D2 data files." };
         }

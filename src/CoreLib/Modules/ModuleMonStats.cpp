@@ -51,7 +51,7 @@ void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const I
         return;
 
     {
-        TableView view(output.tableSet.tables["monlvl"], true);
+        TableView view(output.tableSet.tables[TableId::monlvl], true);
         auto      proceedMonParam = [&view, &input](const std::string& key, const StringVector& cols) {
             if (input.isDefault(key))
                 return;
@@ -90,7 +90,7 @@ void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const I
         if (input.getInt("resist_apply_physical"))
             resColumns << StringVector{ "ResDm", "ResDm(N)", "ResDm(H)" };
 
-        TableView view(output.tableSet.tables["monstats"], true);
+        TableView view(output.tableSet.tables[TableId::monstats], true);
         const int maxResistCap = input.getInt("max_resist");
         const int relResist    = input.getInt("rel_resist");
         for (auto& col : resColumns) {
