@@ -10,6 +10,8 @@
 #include "CascStorage.hpp"
 #include "StormStorage.hpp"
 
+#include <cassert>
+
 namespace D2ModGen {
 
 IStorage::StoredData StorageCache::loadImpl(const Context& input)

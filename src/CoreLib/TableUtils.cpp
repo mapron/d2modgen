@@ -9,7 +9,7 @@ namespace D2ModGen {
 
 namespace {
 
-static const std::map<QString, StringVector> s_tableKeys{
+static const std::map<std::string, StringVector> s_tableKeys{
     { "gamble", { "code" } },
     { "misc", { "code" } },
     { "gems", { "code" } },
@@ -29,7 +29,7 @@ static const std::map<QString, StringVector> s_tableKeys{
 };
 
 using AliasConfig = std::map<std::string, StringVector>;
-static const std::map<QString, AliasConfig> s_tableColumnAliases{
+static const std::map<std::string, AliasConfig> s_tableColumnAliases{
     { "itemtypes", AliasConfig{
                        { "MaxSockets3", { "MaxSock40" } },
                        { "MaxSock40", { "MaxSockets3" } },
@@ -109,13 +109,13 @@ void TableView::appendRow(const RowValues& values)
 
 void TableView::merge(const TableView& source, bool appendNew, bool updateExisting)
 {
-    QList<RowValues> newValues;
+    std::vector<RowValues> newValues;
     for (const auto& sourceRow : source) {
         const auto pk       = sourceRow.makeKey();
         int        rowIndex = indPK(pk);
         if (rowIndex == -1) {
             if (appendNew)
-                newValues << sourceRow.toValues();
+                newValues.push_back(sourceRow.toValues());
         } else {
             if (updateExisting) {
                 RowView& row = m_rows[rowIndex];
@@ -153,7 +153,7 @@ void DropSet::readRow(const TableView::RowView& row)
         if (prob.isEmpty())
             break;
         const auto& tcName = row[argCompat("Item%1", i)];
-        m_items << Item{ tcName, prob.toInt() };
+        m_items.push_back(Item{ tcName, prob.toInt() });
     }
 }
 

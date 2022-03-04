@@ -20,9 +20,16 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QMessageBox>
-#include <QJsonDocument>
+#include <QRandomGenerator>
 
 namespace D2ModGen {
+
+namespace {
+
+QString ensureTrailingSlash(QString value)
+{
+    return QString::fromStdString(::D2ModGen::ensureTrailingSlash(value.toStdString()));
+}
 
 QString getInstallLocationFromRegistry(bool resurrected)
 {
@@ -46,6 +53,8 @@ QString getBattleNetConfig()
 {
     const QString config = getUserHome() + "AppData/Roaming/Battle.net/Battle.net.config";
     return QFileInfo::exists(config) ? config : "";
+}
+
 }
 
 struct MainConfigPage::Impl {
@@ -370,20 +379,21 @@ void MainConfigPage::setLaunch(QString arg)
         QMessageBox::warning(this, "warning", "Failed to locate Battle.net.config");
         return;
     }
-    QJsonDocument doc;
-    if (!readJsonFile(config, doc)) {
+    PropertyTree doc;
+    std::string  buffer;
+    if (!readFileIntoBuffer(config.toStdString(), buffer) || !readJsonFromBuffer(buffer, doc)) {
         QMessageBox::warning(this, "warning", "Failed to read data from Battle.net.config");
         return;
     }
-    QJsonObject data = doc.object();
 
-    auto valGames                       = data["Games"].toObject();
-    auto valOsi                         = valGames["osi"].toObject();
-    valOsi["AdditionalLaunchArguments"] = arg;
-    valGames["osi"]                     = valOsi;
-    data["Games"]                       = valGames;
-    doc.setObject(data);
-    if (!writeJsonFile(config, doc, true))
+    auto& valGames                      = doc["Games"].getMap();
+    auto& valOsi                        = valGames["osi"];
+    valOsi["AdditionalLaunchArguments"] = PropertyTree(arg.toStdString());
+
+    buffer.clear();
+    writeJsonToBuffer(buffer, doc);
+    // buffer.replace(QByteArray("/"), QByteArray("\\/")); // weird battlenet format.
+    if (!writeFileFromBuffer(config.toStdString(), buffer))
         QMessageBox::warning(this, "warning", "Failed to write data to Battle.net.config");
 }
 

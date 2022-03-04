@@ -15,7 +15,7 @@ class FolderStorage final
     : virtual public IOutputStorage
     , virtual public IInputStorage {
 public:
-    FolderStorage(const QString& storageRoot, StorageType storage, const QString& modname);
+    FolderStorage(const std::string& storageRoot, StorageType storage, const std::string& modname);
 
     StoredData readData(const RequestInMemoryList& filenames) const noexcept override;
 
@@ -25,8 +25,8 @@ public:
 
 private:
     const StorageType m_storageType;
-    const QString     m_modName;
-    const QString     m_root;
+    const std::string m_modName;
+    const std::string m_root;
 };
 
 }

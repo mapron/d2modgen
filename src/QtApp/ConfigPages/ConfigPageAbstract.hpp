@@ -15,6 +15,8 @@
 #include "ConfigPageFactory.hpp"
 #include "ModuleFactory.hpp"
 
+#include <QMap>
+
 #include <functional>
 
 class QVBoxLayout;

@@ -12,24 +12,24 @@ namespace D2ModGen {
 namespace {
 const bool s_init = registerHelper<ModuleDropFiltering>();
 
-const QString s_itemnamesJson  = "data\\local\\lng\\strings\\item-names.json";
-const QString s_affixnamesJson = "data\\local\\lng\\strings\\item-nameaffixes.json";
+const std::string s_itemnamesJson  = "data\\local\\lng\\strings\\item-names.json";
+const std::string s_affixnamesJson = "data\\local\\lng\\strings\\item-nameaffixes.json";
 
-const QLatin1String s_colorLightGray("\xC3\xBF\x63\x30");   // (Item Descriptions)
-const QLatin1String s_colorRed("\xC3\xBF\x63\x31");         //
-const QLatin1String s_colorBrightGreen("\xC3\xBF\x63\x32"); //  (Set Items)
-const QLatin1String s_colorBlue("\xC3\xBF\x63\x33");        // (Magic Items)
-const QLatin1String s_colorGold("\xC3\xBF\x63\x34");        // (Unique Items)
-const QLatin1String s_colorDarkGray("\xC3\xBF\x63\x35");    // (Socketed/Ethereal Items)
-const QLatin1String s_colorTransparent("\xC3\xBF\x63\x36"); //  (Text Doesn't Show)
-const QLatin1String s_colorTan("\xC3\xBF\x63\x37");         //
-const QLatin1String s_colorOrange("\xC3\xBF\x63\x38");      // (Crafted Items)
-const QLatin1String s_colorYellow("\xC3\xBF\x63\x39");      // (Rare Items)
-const QLatin1String s_colorDarkGreen("\xC3\xBF\x63\x3A");   //
-const QLatin1String s_colorPurple("\xC3\xBF\x63\x3B");      //
-const QLatin1String s_colorWhite("\xC3\xBF\x63\x2F");       //  (Brighter than Light Gray)
+const std::string s_colorLightGray("\xC3\xBF\x63\x30");   // (Item Descriptions)
+const std::string s_colorRed("\xC3\xBF\x63\x31");         //
+const std::string s_colorBrightGreen("\xC3\xBF\x63\x32"); //  (Set Items)
+const std::string s_colorBlue("\xC3\xBF\x63\x33");        // (Magic Items)
+const std::string s_colorGold("\xC3\xBF\x63\x34");        // (Unique Items)
+const std::string s_colorDarkGray("\xC3\xBF\x63\x35");    // (Socketed/Ethereal Items)
+const std::string s_colorTransparent("\xC3\xBF\x63\x36"); //  (Text Doesn't Show)
+const std::string s_colorTan("\xC3\xBF\x63\x37");         //
+const std::string s_colorOrange("\xC3\xBF\x63\x38");      // (Crafted Items)
+const std::string s_colorYellow("\xC3\xBF\x63\x39");      // (Rare Items)
+const std::string s_colorDarkGreen("\xC3\xBF\x63\x3A");   //
+const std::string s_colorPurple("\xC3\xBF\x63\x3B");      //
+const std::string s_colorWhite("\xC3\xBF\x63\x2F");       //  (Brighter than Light Gray)
 
-const std::string s_hidden = QString("%1").arg(s_colorTransparent).toStdString();
+const std::string& s_hidden = s_colorTransparent;
 
 const std::vector<std::string> s_locales{
     "deDE",
@@ -84,7 +84,8 @@ void ModuleDropFiltering::gatherInfo(PreGenerationContext& output, const InputCo
     if (input.m_env.isLegacy || input.isAllDefault())
         return;
 
-    output.m_extraJson << s_itemnamesJson << s_affixnamesJson;
+    output.m_extraJson.insert(s_itemnamesJson);
+    output.m_extraJson.insert(s_affixnamesJson);
 }
 
 void ModuleDropFiltering::generate(DataContext& output, QRandomGenerator& rng, const InputContext& input) const
@@ -92,46 +93,49 @@ void ModuleDropFiltering::generate(DataContext& output, QRandomGenerator& rng, c
     if (input.isAllDefault())
         return;
 
-    auto replaceJson = [&output](const QMap<std::string, std::string>& replacements, const QString& name) {
-        if (replacements.isEmpty() || !output.jsonFiles.contains(name))
+    auto replaceJson = [&output](const std::map<std::string, std::string>& replacements, const std::string& name) {
+        if (replacements.empty() || !output.jsonFiles.contains(name))
             return;
         auto& jsonDoc   = output.jsonFiles[name];
         auto& jsonArray = jsonDoc.getList();
         for (PropertyTree& lang : jsonArray) {
             const std::string key = lang["Key"].toString();
             if (replacements.contains(key)) {
-                auto val = replacements[key];
+                auto val = replacements.at(key);
                 for (const std::string& loc : s_locales)
                     lang[loc] = PropertyTreeScalar{ val };
             }
         }
     };
-    QMap<std::string, std::string> replacementsItems;
-    QMap<std::string, std::string> replacementsAffix;
+    std::map<std::string, std::string> replacementsItems;
+    std::map<std::string, std::string> replacementsAffix;
+    auto                               twoColor = [](const std::string& color, const std::string& coloredText, const std::string& grayText) {
+        return color + coloredText + s_colorLightGray + grayText;
+    };
     if (input.getInt("compact_pots")) {
-        replacementsItems.insert(QMap<std::string, std::string>{
-            { "mp1", QString("%1!%2MP1").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
-            { "mp2", QString("%1!%2MP2").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
-            { "mp3", QString("%1!%2MP3").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
-            { "mp4", QString("%1!%2MP4").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
-            { "mp5", QString("%1!%2MP5").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
-            { "hp1", QString("%1!%2HP1").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
-            { "hp2", QString("%1!%2HP2").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
-            { "hp3", QString("%1!%2HP3").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
-            { "hp4", QString("%1!%2HP4").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
-            { "hp5", QString("%1!%2HP5").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
-            { "rvs", QString("%1Rej%2").arg(s_colorPurple).arg(s_colorLightGray).toStdString() },
-            { "rvl", QString("%1Full%2").arg(s_colorPurple).arg(s_colorLightGray).toStdString() },
+        replacementsItems.merge(std::map<std::string, std::string>{
+            { "mp1", twoColor(s_colorBlue, "!", "MP1") },
+            { "mp2", twoColor(s_colorBlue, "!", "MP2") },
+            { "mp3", twoColor(s_colorBlue, "!", "MP3") },
+            { "mp4", twoColor(s_colorBlue, "!", "MP4") },
+            { "mp5", twoColor(s_colorBlue, "!", "MP5") },
+            { "hp1", twoColor(s_colorRed, "!", "HP1") },
+            { "hp2", twoColor(s_colorRed, "!", "HP2") },
+            { "hp3", twoColor(s_colorRed, "!", "HP3") },
+            { "hp4", twoColor(s_colorRed, "!", "HP4") },
+            { "hp5", twoColor(s_colorRed, "!", "HP5") },
+            { "rvs", twoColor(s_colorRed, "Rej", "") },
+            { "rvl", twoColor(s_colorRed, "Full", "") },
         });
     }
     if (input.getInt("compact_scrolls")) {
-        replacementsItems.insert(QMap<std::string, std::string>{
-            { "tsc", QString("%1•%2TP").arg(s_colorBlue).arg(s_colorLightGray).toStdString() },
-            { "isc", QString("%1•%2ID").arg(s_colorRed).arg(s_colorLightGray).toStdString() },
+        replacementsItems.merge(std::map<std::string, std::string>{
+            { "tsc", twoColor(s_colorBlue, "•", "TP") },
+            { "isc", twoColor(s_colorRed, "•", "ID") },
         });
     }
     if (input.getInt("hide_lowq")) {
-        replacementsAffix.insert(QMap<std::string, std::string>{
+        replacementsAffix.merge(std::map<std::string, std::string>{
             { "Low Quality", s_hidden },
             { "Damaged", s_hidden },
             { "Cracked", s_hidden },
@@ -141,7 +145,7 @@ void ModuleDropFiltering::generate(DataContext& output, QRandomGenerator& rng, c
     for (const auto& item : m_items) {
         if (input.getInt("hide_" + item.settingKey)) {
             for (auto& id : item.internalIds)
-                replacementsItems.insert(id, s_hidden);
+                replacementsItems[id] = s_hidden;
         }
     }
 

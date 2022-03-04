@@ -6,12 +6,14 @@
 #include "ModuleSkillRandomizer.hpp"
 #include "TableUtils.hpp"
 
+#include <QRandomGenerator>
+
 namespace D2ModGen {
 
 namespace {
 const bool s_init = registerHelper<ModuleSkillRandomizer>();
 
-const std::set<std::string> s_skillsOkToRandomizeDamage{
+const StringSet s_skillsOkToRandomizeDamage{
     "Fire Bolt",
     "Charged Bolt",
     "Ice Bolt",
@@ -125,18 +127,18 @@ struct SkillInfo {
     }
 };
 
-using SkillParsedData = QMap<std::string, SkillInfo>;
+using SkillParsedData = std::map<std::string, SkillInfo>;
 
 struct SkillTree {
     struct Character {
         struct Skill {
-            SkillLocation loc;
-            int           skillId;
-            QList<int>    reqSkillIds;
+            SkillLocation    loc;
+            int              skillId;
+            std::vector<int> reqSkillIds;
         };
-        QList<Skill> skills;
-        std::string  charClass;
-        StringVector skillIds;
+        std::vector<Skill> skills;
+        std::string        charClass;
+        StringVector       skillIds;
 
         int addSkillId(const std::string& skill)
         {
@@ -150,26 +152,28 @@ struct SkillTree {
             return idx;
         }
     };
-    QMap<std::string, Character> chars;
+    std::map<std::string, Character> chars;
 
     void parse(const SkillParsedData& data)
     {
-        for (const SkillInfo& skillInfo : data) {
-            Character& c = chars[skillInfo.charClass];
-            c.charClass  = skillInfo.charClass;
+        for (const auto& p : data) {
+            const SkillInfo& skillInfo = p.second;
+            Character&       c         = chars[skillInfo.charClass];
+            c.charClass                = skillInfo.charClass;
 
             Character::Skill s;
             s.loc     = skillInfo.loc;
             s.skillId = c.addSkillId(skillInfo.uppercaseKey);
             for (const std::string& req : skillInfo.reqSkills)
-                s.reqSkillIds << c.addSkillId(req);
-            c.skills << s;
+                s.reqSkillIds.push_back(c.addSkillId(req));
+            c.skills.push_back(std::move(s));
         }
     }
 
     void randomizeTabs(QRandomGenerator& rng)
     {
-        for (Character& c : chars) {
+        for (auto& p : chars) {
+            Character&   c      = p.second;
             StringVector source = c.skillIds;
             c.skillIds.clear();
             while (source.size() > 1) {
@@ -183,17 +187,21 @@ struct SkillTree {
 
     void randomizeDmg(SkillParsedData& data, QRandomGenerator& rng, const bool ensureDifferent)
     {
-        const QStringList elements{ "ltng", "fire", "cold", "mag", "pois" };
+        const StringVector elements{ "ltng", "fire", "cold", "mag", "pois" };
 
-        for (SkillInfo& skillInfo : data) {
+        for (auto& p : data) {
+            SkillInfo& skillInfo = p.second;
             if (!s_skillsOkToRandomizeDamage.contains(skillInfo.uppercaseKey))
                 continue;
             const bool wasPoison = skillInfo.dmg.EType == "pois";
             {
-                QStringList elementsTmp = elements;
-                if (ensureDifferent)
-                    elementsTmp.removeAll(QString::fromStdString(skillInfo.dmg.EType));
-                skillInfo.dmg.EType = elementsTmp[rng.bounded(elementsTmp.size())].toStdString();
+                StringVector elementsTmp = elements;
+                if (ensureDifferent) {
+                    auto it = std::find(elementsTmp.begin(), elementsTmp.end(), skillInfo.dmg.EType);
+                    if (it != elementsTmp.end())
+                        elementsTmp.erase(it);
+                }
+                skillInfo.dmg.EType = elementsTmp[rng.bounded((int) elementsTmp.size())];
             }
             const bool isPoison = skillInfo.dmg.EType == "pois";
             if (isPoison) {
@@ -210,7 +218,8 @@ struct SkillTree {
 
     void writeOutput(SkillParsedData& data) const
     {
-        for (const Character& c : chars) {
+        for (const auto& p : chars) {
+            const Character& c = p.second;
             for (const Character::Skill& s : c.skills) {
                 auto       skillId   = c.skillIds[s.skillId];
                 SkillInfo& skillInfo = data[toLower(skillId)];

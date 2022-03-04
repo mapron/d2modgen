@@ -57,7 +57,7 @@ void ModuleChallenge::generate(DataContext& output, QRandomGenerator& rng, const
     {
         TableView view(output.tableSet.tables["treasureclassex"]);
 
-        std::set<std::string> disabledIds;
+        StringSet disabledIds;
         for (auto& item : m_items) {
             const bool disable = input.getInt("nodrop_" + item.settingKey);
             if (disable)
@@ -74,7 +74,7 @@ void ModuleChallenge::generate(DataContext& output, QRandomGenerator& rng, const
                     std::string tcName   = dropItem.tc.str;
                     if (disabledIds.contains(tcName)) {
                         dropSet.m_noDrop += dropItem.prob;
-                        dropSet.m_items.removeAt(i);
+                        dropSet.m_items.erase(dropSet.m_items.begin() + i);
                     }
                 }
                 dropSet.writeRow(row);

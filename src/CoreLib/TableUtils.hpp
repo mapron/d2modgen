@@ -7,6 +7,8 @@
 
 #include "DataContext.hpp"
 
+#include <unordered_map>
+
 namespace D2ModGen {
 
 inline std::string argCompat(std::string tpl, const std::string& arg)
@@ -143,7 +145,6 @@ public:
     void merge(const TableView& source, bool appendNew, bool updateExisting);
     void concat(const TableView& source);
 
-    bool updateRows(const TableView& source, const QList<int>& specificRows);
     void clear();
 
     int rowCount() const { return m_table.rows.size(); }
@@ -178,7 +179,7 @@ public:
     }
 
     template<class T>
-    void applyIntTransform(const QString& key, const T& transform)
+    void applyIntTransform(const std::string& key, const T& transform)
     {
         applyIntTransform({ key }, transform);
     }
@@ -239,8 +240,8 @@ struct DropSet {
         TableCell tc;
         int       prob;
     };
-    int         m_noDrop = 0;
-    QList<Item> m_items;
+    int               m_noDrop = 0;
+    std::vector<Item> m_items;
 
     void readRow(const TableView::RowView& row);
     void writeRow(TableView::RowView& row) const;

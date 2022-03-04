@@ -9,6 +9,8 @@
 
 #include "CoreExport.hpp"
 
+#include <functional>
+
 namespace D2ModGen {
 
 CORE_EXPORT IModule::Ptr createModule(const std::string& configKey);

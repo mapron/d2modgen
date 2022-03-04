@@ -7,6 +7,8 @@
 #include "AttributeHelper.hpp"
 #include "TableUtils.hpp"
 
+#include <QRegularExpression>
+
 namespace D2ModGen {
 
 namespace {
@@ -99,8 +101,8 @@ void ModuleItemDrops::generate(DataContext& output, QRandomGenerator& rng, const
     if (input.isAllDefault())
         return;
 
-    static const QSet<int>             s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
-    static const std::set<std::string> s_modifyNames{
+    static const std::set<int> s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
+    static const StringSet     s_modifyNames{
         "Cow",
         "Cow (N)",
         "Cow (H)",
@@ -175,7 +177,7 @@ void ModuleItemDrops::generate(DataContext& output, QRandomGenerator& rng, const
                 for (auto& item : dropSet.m_items) {
                     int        percent   = 100;
                     const auto subItemTC = getTC(item.tc.str);
-                   
+
                     if (item.tc.endsWith(" Good"))
                         percent = percentGoodTC;
                     else if (item.tc.startsWith("gld") || item.tc.startsWith("\"gld"))

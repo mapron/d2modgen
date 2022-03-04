@@ -9,7 +9,7 @@
 
 namespace D2ModGen {
 
-static const QStringList g_tableNames{
+static const std::vector<std::string> g_tableNames{
     "weapons",
     "actinfo",
     "armor",

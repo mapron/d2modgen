@@ -14,6 +14,8 @@
 
 #include <QDebug>
 #include <QDir>
+#include <QFileInfo>
+#include <QRandomGenerator>
 
 namespace D2ModGen {
 
@@ -24,25 +26,29 @@ ConfigHandler::ConfigHandler()
     for (const auto& p : modules) {
         m_modules[p.first] = { p.second, {} };
     }
+    m_modules[std::string(IModule::Key::testConfig)].m_enabled = true;
 }
 
-bool ConfigHandler::loadConfig(const QString& filename)
+bool ConfigHandler::loadConfig(const std::string& filename)
 {
-    qDebug() << "Load:" << filename;
-    QJsonDocument doc;
-    if (!readJsonFile(filename, doc)) {
+    qDebug() << "Load:" << filename.c_str();
+    std::string buffer;
+    PropertyTree doc;
+    if (!readFileIntoBuffer(filename, buffer) || !readJsonFromBuffer(buffer, doc)) {
         loadConfig(PropertyTree{});
         return false;
     }
-    return loadConfig(DataContext::qjsonToProperty(doc));
+    return loadConfig(doc);
 }
 
-bool ConfigHandler::saveConfig(const QString& filename) const
+bool ConfigHandler::saveConfig(const std::string& filename) const
 {
     PropertyTree data;
     saveConfig(data);
-    QDir().mkpath(QFileInfo(filename).absolutePath());
-    return writeJsonFile(filename, DataContext::propertyToDoc(data));
+    QDir().mkpath(QFileInfo(QString::fromStdString(filename)).absolutePath());
+    std::string buffer;
+    writeJsonToBuffer(buffer, data);
+    return writeFileFromBuffer(filename, buffer);
 }
 
 bool ConfigHandler::loadConfig(const PropertyTree& data)
@@ -54,6 +60,7 @@ bool ConfigHandler::loadConfig(const PropertyTree& data)
         if (data.contains(p.first))
             p.second.m_currentConfig = data[p.first];
     }
+    m_modules[std::string(IModule::Key::testConfig)].m_enabled = true;
     m_currentMainConfig = {};
     if (data.contains(std::string(IModule::Key::main)))
         m_currentMainConfig = data[std::string(IModule::Key::main)];
@@ -96,28 +103,28 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     const StorageType storage    = (env.isLegacy) ? StorageType::D2LegacyInternal : StorageType::D2ResurrectedInternal;
     const StorageType storageOut = (env.isLegacy) ? StorageType::D2LegacyFolder : StorageType::D2ResurrectedModFolder;
 
-    FolderStorage outStorage(QString::fromStdString(env.outPath), storageOut, QString::fromStdString(env.modName));
+    FolderStorage outStorage(env.outPath, storageOut, env.modName);
     if (!outStorage.prepareForWrite()) {
         return { "Failed to write data in destination folder; try to launch as admin." };
     }
 
-    auto mergeContext = [this, &env](DataContext& targetContext, const ExtraDependencies::Source& source) -> bool {
+    auto mergeContext = [this, &env](DataContext& targetContext, const IModule::ExtraDependencies::Source& source) -> bool {
         const auto    logInfo = source.srcRoot + " / " + source.modname;
         const bool    isMod   = source.type == StorageType::D2ResurrectedModFolder;
-        const auto    root    = isMod ? QString::fromStdString(env.outPath) : source.srcRoot;
+        const auto    root    = isMod ? env.outPath : source.srcRoot;
         FolderStorage inStorage(root, source.type, isMod ? source.modname : "");
         auto          storedData = inStorage.readData({});
         if (!storedData.valid) {
-            qWarning() << "Failed to read data files from D2 folder:" << logInfo;
+            qWarning() << "Failed to read data files from D2 folder:" << logInfo.c_str();
             return false;
         }
         DataContext dataContext;
         if (!dataContext.readData(storedData)) {
-            qWarning() << "Failed to parse files into input:" << logInfo;
+            qWarning() << "Failed to parse files into input:" << logInfo.c_str();
             return false;
         }
         if (!targetContext.mergeWith(dataContext, source.policy)) {
-            qWarning() << "Merge failed:" << logInfo;
+            qWarning() << "Merge failed:" << logInfo.c_str();
             return false;
         }
         return true;
@@ -125,7 +132,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
 
     DataContext output;
 
-    PreGenerationContext pregenContext;
+    IModule::PreGenerationContext pregenContext;
     {
         for (auto& p : m_modules) {
             if (!p.second.m_enabled)
@@ -139,7 +146,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         }
     }
     {
-        const IStorage::StoredData data = m_mainStorageCache->load(storage, QString::fromStdString(env.d2rPath), pregenContext.m_extraJson);
+        const IStorage::StoredData data = m_mainStorageCache->load(storage, env.d2rPath, pregenContext.m_extraJson);
         if (!data.valid) {
             return { "Failed to read data files from D2 folder." };
         }
@@ -154,7 +161,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     {
         for (const auto& source : pregenContext.m_preGen.m_sources)
             if (!mergeContext(output, source)) {
-                return { std::string("Failed to merge with source: ") + source.srcRoot.toStdString() + " / " + source.modname.toStdString() };
+                return { std::string("Failed to merge with source: ") + source.srcRoot + " / " + source.modname };
             }
     }
     qDebug() << "prepare ended; Starting generate phase. seed=" << env.seed;
@@ -177,7 +184,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     {
         for (const auto& source : pregenContext.m_postGen.m_sources)
             if (!mergeContext(output, source)) {
-                return { std::string("Failed to merge with source: ") + source.srcRoot.toStdString() + " / " + source.modname.toStdString() };
+                return { std::string("Failed to merge with source: ") + source.srcRoot + " / " + source.modname };
             }
     }
     qDebug() << "prepare output data.";

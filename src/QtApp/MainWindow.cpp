@@ -27,17 +27,22 @@
 #include <QFileDialog>
 #include <QProcess>
 #include <QLabel>
-#include <QJsonDocument>
 #include <QDesktopServices>
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QSettings>
 #include <QToolButton>
+#include <QTime>
 
 namespace D2ModGen {
 
 namespace {
+
+QString ensureTrailingSlash(QString value)
+{
+    return QString::fromStdString(::D2ModGen::ensureTrailingSlash(value.toStdString()));
+}
 
 struct PageGroup {
     QString             title;
@@ -442,12 +447,12 @@ void MainWindow::generate()
 bool MainWindow::saveConfig(const QString& filename) const
 {
     qDebug() << "Save:" << filename;
-    return m_configHandler.saveConfig(filename);
+    return m_configHandler.saveConfig(filename.toStdString());
 }
 
 bool MainWindow::loadConfig(const QString& filename)
 {
-    const auto result = m_configHandler.loadConfig(filename);
+    const auto result = m_configHandler.loadConfig(filename.toStdString());
     updateUIFromSettings();
     return result;
 }

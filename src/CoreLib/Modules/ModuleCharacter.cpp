@@ -18,9 +18,9 @@ struct CharItems {
         std::string loc;
         std::string quality;
     };
-    QList<Item> m_items;
-    bool        m_hasQuality = false;
-    void        read(const TableView::RowView& row)
+    std::vector<Item> m_items;
+    bool              m_hasQuality = false;
+    void              read(const TableView::RowView& row)
     {
         m_items.clear();
         for (int i = 1; i <= 10; ++i) {
@@ -32,7 +32,7 @@ struct CharItems {
             const auto& code    = row[argCompat("item%1", i)];
             const auto& loc     = row[argCompat("item%1loc", i)];
             const auto  quality = m_hasQuality ? row[argCompat("item%1quality", i)].str : std::string();
-            m_items << Item{ code.str, count.toInt(), loc.str, quality };
+            m_items.push_back(Item{ code.str, count.toInt(), loc.str, quality });
         }
     }
     void write(TableView::RowView& row) const
@@ -108,7 +108,7 @@ void ModuleCharacter::generate(DataContext& output, QRandomGenerator& rng, const
         CharItems items;
         items.read(row);
         if (input.getInt("addCube"))
-            items.m_items << CharItems::Item{ "box", 1 };
+            items.m_items.push_back(CharItems::Item{ "box", 1 });
         if (input.getInt("idTome"))
             for (auto& item : items.m_items) {
                 if (item.code == "isc")

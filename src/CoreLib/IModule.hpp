@@ -10,7 +10,7 @@
 
 #include <memory>
 
-#include <QRandomGenerator>
+class QRandomGenerator;
 
 namespace D2ModGen {
 
@@ -20,6 +20,23 @@ public:
     using Ptr        = std::shared_ptr<const IModule>;
     using PtrMap     = std::map<std::string, Ptr>;
     using PresetList = std::vector<PropertyTreeScalarMap>;
+
+    struct ExtraDependencies {
+        struct Source {
+            StorageType    type   = StorageType::CsvFolder;
+            ConflictPolicy policy = ConflictPolicy::RaiseError;
+            std::string    srcRoot;
+            std::string    modname;
+        };
+        std::vector<Source> m_sources;
+    };
+
+    struct PreGenerationContext {
+        StringSet         m_extraJson;
+        ExtraDependencies m_preGen;
+        ExtraDependencies m_postGen;
+    };
+
     struct InputContext {
         PropertyTree          m_settings;
         PropertyTreeScalarMap m_defaultValues;

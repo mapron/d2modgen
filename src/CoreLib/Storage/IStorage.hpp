@@ -5,8 +5,7 @@
  */
 #pragma once
 
-#include <QByteArray>
-#include <QStringList>
+#include "CommonTypes.hpp"
 
 #include <memory>
 
@@ -14,23 +13,23 @@ namespace D2ModGen {
 
 class IStorage {
 public:
-    static QString makeTableRelativePath(const QString& id, bool backslash);
+    static std::string makeTableRelativePath(const std::string& id, bool backslash);
 
     struct StoredFileTable {
         std::string data;
-        QString     id;
+        std::string id;
     };
     using StoredFileTableList = std::vector<StoredFileTable>;
 
     struct StoredFileMemory {
         std::string data;
-        QString     relFilepath;
+        std::string relFilepath;
     };
     using StoredFileMemoryList = std::vector<StoredFileMemory>;
 
     struct StoredFileRef {
-        QString absSrcFilepath;
-        QString relFilepath;
+        std::string absSrcFilepath;
+        std::string relFilepath;
     };
     using StoredFileRefList = std::vector<StoredFileRef>;
 
@@ -49,7 +48,7 @@ class IInputStorage : virtual public IStorage {
 public:
     using Ptr = std::shared_ptr<const IInputStorage>;
 
-    using RequestInMemoryList = QSet<QString>;
+    using RequestInMemoryList = StringSet;
 
 public:
     virtual ~IInputStorage() = default;

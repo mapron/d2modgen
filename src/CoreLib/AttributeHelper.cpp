@@ -364,7 +364,7 @@ bool isMinMaxRange(const std::string& code)
 void UniqueAttributeChecker::add(const std::string& attr)
 {
     m_data.insert(attr);
-    static const std::set<std::string> s_aliased{
+    static const StringSet s_aliased{
         "swing1",
         "swing2",
         "swing3",
@@ -382,7 +382,7 @@ void UniqueAttributeChecker::add(const std::string& attr)
         "cast3",
         "cast",
     };
-    static const std::vector<std::set<std::string>> s_aliasedGroups{
+    static const std::vector<StringSet> s_aliasedGroups{
         {
             "swing1",
             "swing2",
@@ -420,7 +420,7 @@ void UniqueAttributeChecker::add(const std::string& attr)
     }
 }
 
-void UniqueAttributeChecker::add(const std::set<std::string>& attrs)
+void UniqueAttributeChecker::add(const StringSet& attrs)
 {
     for (auto& attr : attrs)
         add(attr);

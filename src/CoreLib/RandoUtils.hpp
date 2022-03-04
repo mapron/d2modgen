@@ -5,22 +5,22 @@
  */
 #pragma once
 
-#include <QRandomGenerator>
-
-#include <vector>
-#include <set>
+#include <iterator>
+#include <algorithm>
 
 #include "AttributeHelper.hpp"
 #include "TableUtils.hpp"
 
+class QRandomGenerator;
+
 namespace D2ModGen {
 
-inline void appendToSet(std::set<std::string>& s, const std::set<std::string>& another)
+inline void appendToSet(StringSet& s, const StringSet& another)
 {
     s.insert(another.cbegin(), another.cend());
 }
 
-using ItemCodeSet = std::set<std::string>;
+using ItemCodeSet = StringSet;
 struct ItemCodeFilter {
     ItemCodeSet include;
     ItemCodeSet exclude;
@@ -120,11 +120,11 @@ struct MagicPropRawList {
     void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
     void makePerfect();
 
-    void readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const std::set<std::string>& extraKnownCodes);
+    void readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const StringSet& extraKnownCodes);
     void writeToRow(TableView::RowView& row, const ColumnsDesc& columns) const;
 
     int                   getTotalSize() const;
-    std::set<std::string> getAllCodes() const;
+    StringSet getAllCodes() const;
 
     std::string toDebugString() const;
 
@@ -157,7 +157,7 @@ struct MagicPropUniverse {
     std::map<std::string, ItemTypeInfo> itemTypeInfo;
 
     MagicPropList generate(QRandomGenerator&            rng,
-                           const std::set<std::string>& existingCodes,
+                           const StringSet& existingCodes,
                            const AttributeFlagSet&      narrowingFlags,
                            const ItemCodeFilter&        specificTypeQuery,
                            int                          specificItemUsage,

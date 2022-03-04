@@ -5,6 +5,9 @@
  */
 #include "RandoUtils.hpp"
 
+#include <QDebug>
+#include <QRandomGenerator>
+
 namespace D2ModGen {
 
 namespace {
@@ -113,7 +116,7 @@ void MagicPropRawList::makePerfect()
     }
 }
 
-void MagicPropRawList::readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const std::set<std::string>& extraKnownCodes)
+void MagicPropRawList::readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const StringSet& extraKnownCodes)
 {
     for (const auto& col : columns.m_cols) {
         MagicProp mp;
@@ -175,9 +178,9 @@ int MagicPropRawList::getTotalSize() const
     return result;
 }
 
-std::set<std::string> MagicPropRawList::getAllCodes() const
+StringSet MagicPropRawList::getAllCodes() const
 {
-    std::set<std::string> result;
+    StringSet result;
     for (const MagicProp& prop : parsedProps)
         result.insert(prop.code); // don't need bounded, we do not index them.
     return result;
@@ -252,7 +255,7 @@ void MagicPropUniverse::dump(const MagicPropIdxSet& idxs) const
 }
 
 MagicPropList MagicPropUniverse::generate(QRandomGenerator&            rng,
-                                          const std::set<std::string>& existingCodes,
+                                          const StringSet& existingCodes,
                                           const AttributeFlagSet&      supportedAttributes,
                                           const ItemCodeFilter&        specificTypeQuery,
                                           int                          specificItemUsage,

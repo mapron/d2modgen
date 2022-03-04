@@ -16,7 +16,7 @@ public:
     using RequestList = IInputStorage::RequestInMemoryList;
     struct Context {
         StorageType m_storage;
-        QString     m_root;
+        std::string m_root;
         RequestList m_inMemoryFiles;
 
         bool operator==(const Context& rh) const noexcept
@@ -39,7 +39,7 @@ public:
     }
 
     IStorage::StoredData load(StorageType        storage,
-                              const QString&     root,
+                              const std::string& root,
                               const RequestList& inMemoryFiles)
     {
         return load({ storage,

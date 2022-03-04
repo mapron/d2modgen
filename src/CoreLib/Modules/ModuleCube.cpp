@@ -13,7 +13,7 @@ namespace D2ModGen {
 namespace {
 const bool s_init = registerHelper<ModuleCube>();
 
-const QMap<std::string, std::string> s_craftedTypeReplace{
+const std::map<std::string, std::string> s_craftedTypeReplace{
     { "\"fhl,mag,upg\"", "\"helm,mag\"" },
     { "\"mbt,mag,upg\"", "\"boot,mag\"" },
     { "\"mgl,mag,upg\"", "\"glov,mag\"" },
@@ -47,7 +47,7 @@ const QMap<std::string, std::string> s_craftedTypeReplace{
     { "\"spea,mag\"", "\"miss,mag\"" },
 };
 
-const QMap<std::string, std::string> s_craftedGemReplace{
+const std::map<std::string, std::string> s_craftedGemReplace{
     { "gpb", "gems" },
     { "gpr", "gemr" },
     { "gpv", "gema" },
@@ -119,13 +119,13 @@ void ModuleCube::generate(DataContext& output, QRandomGenerator& rng, const Inpu
         }
         if (isCrafted) {
             if (craftNoStrict)
-                input1 = s_craftedTypeReplace.value(input1, input1);
+                input1 = mapValue(s_craftedTypeReplace, input1, input1);
 
             if (craftNoRunes) {
                 input2 = input4;
                 input3 = input4 = "";
                 numinputs.setInt(2);
-                input2 = s_craftedGemReplace.value(input2, input2);
+                input2 = mapValue(s_craftedGemReplace, input2, input2);
             }
             if (craftMultBonus > 1) {
                 for (int i = 1; i <= 5; ++i) {
@@ -321,6 +321,12 @@ void ModuleCube::generate(DataContext& output, QRandomGenerator& rng, const Inpu
     }
 
     if (runeDowngrade) {
+        auto runeId = [](int i) -> std::string {
+            auto res = std::to_string(i);
+            if (res.size() == 1)
+                res = "0" + res;
+            return "r" + res;
+        };
         for (int i = 2; i <= 33; ++i) {
             StringMap rune{
                 { "description", "Rune downgrade" },
@@ -328,9 +334,9 @@ void ModuleCube::generate(DataContext& output, QRandomGenerator& rng, const Inpu
                 { "version", "100" },
                 { "*eol", "0" },
                 { "numinputs", "3" },
-                { "input 1", QString("r%1").arg(i, 2, 10, QLatin1Char('0')).toStdString() },
+                { "input 1", runeId(i) },
                 { "input 2", "\"key,qty=2\"" },
-                { "output", QString("r%1").arg(i - 1, 2, 10, QLatin1Char('0')).toStdString() },
+                { "output", runeId(i - 1) },
             };
             view.appendRow(rune);
         }

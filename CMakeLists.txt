@@ -23,6 +23,8 @@ add_definitions(-DCASCLIB_NO_AUTO_LINK_LIBRARY -DSTORMLIB_NO_AUTO_LINK)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CascLib.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/StormLib.cmake)
 
+set(jsonRoot ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
+
 # source
 set(sourceRoot ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -34,6 +36,7 @@ file(GLOB_RECURSE src_Core
 add_library(modgenCore SHARED ${src_Core})
 target_link_libraries(modgenCore PRIVATE Qt5::Core casclib stormlib)
 target_include_directories(modgenCore PUBLIC ${sourceRoot}/CoreLib ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(modgenCore PRIVATE ${jsonRoot})
 
 generate_export_header(modgenCore BASE_NAME Core EXPORT_FILE_NAME CoreExport.hpp )
 

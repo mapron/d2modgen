@@ -18,8 +18,8 @@ int main(int argc, char* argv[])
 
     auto args = app.arguments();
     if (args.value(1) == "--generate") {
-        QString file = args.value(2);
-        if (!file.isEmpty())
+        std::string file = args.value(2).toStdString();
+        if (!file.empty())
             configHandler.loadConfig(file);
         configHandler.generate();
         return 0;

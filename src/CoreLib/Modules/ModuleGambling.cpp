@@ -49,7 +49,7 @@ void ModuleGambling::generate(DataContext& output, QRandomGenerator& rng, const 
     if (input.isAllDefault({ "ratioUnique", "ratioSet", "ratioRare", "ratioExc", "ratioElite" }))
         return;
 
-    static const QVector<QPair<std::string, std::string>> s_columns{
+    static const std::vector<std::pair<std::string, std::string>> s_columns{
         { "GambleRare", "ratioRare" },
         { "GambleSet", "ratioSet" },
         { "GambleUnique", "ratioUnique" },

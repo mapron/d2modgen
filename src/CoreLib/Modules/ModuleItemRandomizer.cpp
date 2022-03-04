@@ -7,6 +7,11 @@
 #include "RandoUtils.hpp"
 #include "AttributeHelper.hpp"
 
+#include <QStringList>
+#include <QDateTime>
+#include <QRandomGenerator>
+#include <QDebug>
+
 namespace D2ModGen {
 
 namespace {
@@ -22,15 +27,6 @@ StringVector split(const std::string& str, char sep)
     for (const QString& part : parts)
         result.push_back(part.toStdString());
     return result;
-}
-
-template<class Val>
-Val mapValue(const std::map<std::string, Val>& m, const std::string& key, const Val& d = Val())
-{
-    auto it = m.find(key);
-    if (it == m.cend())
-        return d;
-    return it->second;
 }
 
 }
@@ -202,7 +198,7 @@ void ModuleItemRandomizer::generate(DataContext& output, QRandomGenerator& rng, 
     const bool removeKnock    = input.getInt("removeKnock");
 
     const StringVector          extraKnownCodesList = split(input.getString("extraKnown"), ',');
-    const std::set<std::string> extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
+    const StringSet extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
 
     using LevelCallback               = std::function<int(const TableView::RowView& row)>;
     using SupportedAttributesCallback = std::function<AttributeFlagSet(const TableView::RowView& row)>;

@@ -36,7 +36,7 @@ void ModuleTestConfig::generate(DataContext& output, QRandomGenerator& rng, cons
 
             auto& code  = rowView[codeColumn];
             auto& count = rowView[countColumn];
-            if (count == "0") {
+            if (count == "0" || count == "") {
                 count.str = "1";
                 code.str  = "key";
                 break;

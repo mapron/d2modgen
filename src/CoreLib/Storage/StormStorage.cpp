@@ -16,8 +16,8 @@ namespace D2ModGen {
 
 IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames) const noexcept
 {
-    const std::string utf8data  = m_storageRoot.toStdString() + "d2data.mpq";
-    const std::string utf8patch = m_storageRoot.toStdString() + "patch_d2.mpq";
+    const std::string utf8data  = m_storageRoot + "d2data.mpq";
+    const std::string utf8patch = m_storageRoot + "patch_d2.mpq";
     bool              hasData   = true;
     HANDLE            mpq;
     if (!SFileOpenArchive(utf8data.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
@@ -36,10 +36,10 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
         return {};
     }
 
-    auto readStormFile = [mpq](std::string& data, const QString& filename) -> bool {
-        const std::string fullId = filename.toStdString();
+    auto readStormFile = [mpq](std::string& data, const std::string& filename) -> bool {
+        const std::string fullId = filename;
         if (!SFileHasFile(mpq, fullId.c_str())) {
-            qDebug() << "no such file:" << filename;
+            qDebug() << "no such file:" << filename.c_str();
             return false;
         }
 
@@ -63,14 +63,14 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
 
     StoredData result{ true };
 
-    for (const QString& id : g_tableNames) {
+    for (const std::string& id : g_tableNames) {
         std::string buffer;
         if (!readStormFile(buffer, IStorage::makeTableRelativePath(id, true)))
             continue;
 
         result.tables.push_back(StoredFileTable{ std::move(buffer), id });
     }
-    for (const QString& relativePath : filenames) {
+    for (const std::string& relativePath : filenames) {
         std::string buffer;
         if (!readStormFile(buffer, relativePath))
             continue;

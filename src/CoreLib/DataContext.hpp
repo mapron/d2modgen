@@ -9,11 +9,6 @@
 #include "CommonTypes.hpp"
 #include "PropertyTree.hpp"
 
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QJsonValue>
-#include <QJsonDocument>
-
 #include <set>
 #include <deque>
 
@@ -57,7 +52,7 @@ struct TableRow {
 };
 
 struct Table {
-    QString                  id;
+    std::string              id;
     std::deque<TableRow>     rows;
     std::vector<std::string> columns;
     bool                     modified    = false;
@@ -67,26 +62,19 @@ struct Table {
 };
 
 struct TableSet {
-    std::map<QString, Table> tables;
-    std::set<QString>        relativeNames;
+    std::map<std::string, Table> tables;
+    StringSet                    relativeNames;
 };
 
 struct DataContext {
-    TableSet                                   tableSet;  // txt tables parsed into csv-like tables.
-    std::map<QString, PropertyTree>            jsonFiles; // data of extra json files
-    std::map<QString, IStorage::StoredFileRef> copyFiles; // files for plain copy.
+    TableSet                                       tableSet;  // txt tables parsed into csv-like tables.
+    std::map<std::string, PropertyTree>            jsonFiles; // data of extra json files
+    std::map<std::string, IStorage::StoredFileRef> copyFiles; // files for plain copy.
 
     bool readData(const IStorage::StoredData& data);
     bool writeData(IStorage::StoredData& data) const;
 
     bool mergeWith(const DataContext& source, ConflictPolicy policy);
-
-    static PropertyTree  qjsonToProperty(const QJsonDocument& doc);
-    static PropertyTree  qjsonToProperty(const QJsonObject& value);
-    static PropertyTree  qjsonToProperty(const QJsonArray& value);
-    static PropertyTree  qjsonToProperty(const QJsonValue& value);
-    static QJsonValue    propertyToQjson(const PropertyTree& value);
-    static QJsonDocument propertyToDoc(const PropertyTree& value);
 };
 
 }

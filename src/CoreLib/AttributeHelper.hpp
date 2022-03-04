@@ -5,8 +5,7 @@
  */
 #pragma once
 
-#include <string>
-#include <set>
+#include "CommonTypes.hpp"
 
 namespace D2ModGen {
 
@@ -66,11 +65,11 @@ bool             isMinMaxRange(const std::string& code);
 const AttributeDesc& getAttributeDesc(const std::string& code);
 
 class UniqueAttributeChecker {
-    std::set<std::string> m_data;
+    StringSet m_data;
 
 public:
     void add(const std::string& attr);
-    void add(const std::set<std::string>& attrs);
+    void add(const StringSet& attrs);
 
     bool contains(const std::string& attr) const { return m_data.contains(attr); }
 };

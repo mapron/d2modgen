@@ -16,7 +16,7 @@ namespace D2ModGen {
 
 IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames) const noexcept
 {
-    const std::string utf8path = m_storageRoot.toStdString();
+    const std::string utf8path = m_storageRoot;
     HANDLE            storage;
     if (!CascOpenStorage(utf8path.c_str(), 0, &storage)) {
         qWarning() << "failed to open storage:" << utf8path.c_str();
@@ -24,8 +24,8 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
     }
     MODGEN_SCOPE_EXIT([storage] { CascCloseStorage(storage); });
 
-    auto readCascFile = [storage](std::string& data, const QString& filename) -> bool {
-        const std::string fullId = QString("data:%1").arg(filename).toStdString();
+    auto readCascFile = [storage](std::string& data, const std::string& filename) -> bool {
+        const std::string fullId = "data:" + filename;
         HANDLE            fileHandle;
 
         if (!CascOpenFile(storage, fullId.c_str(), CASC_LOCALE_ALL, 0, &fileHandle)) {
@@ -47,14 +47,14 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
 
     IStorage::StoredData result{ true };
 
-    for (const QString& id : g_tableNames) {
+    for (const std::string& id : g_tableNames) {
         std::string buffer;
         if (!readCascFile(buffer, IStorage::makeTableRelativePath(id, true)))
             continue;
 
         result.tables.push_back(StoredFileTable{ std::move(buffer), id });
     }
-    for (const QString& relativePath : filenames) {
+    for (const std::string& relativePath : filenames) {
         std::string buffer;
         if (!readCascFile(buffer, relativePath))
             continue;

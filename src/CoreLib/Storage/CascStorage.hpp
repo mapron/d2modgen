@@ -11,7 +11,7 @@ namespace D2ModGen {
 
 class CascStorage final : virtual public IInputStorage {
 public:
-    CascStorage(const QString& storageRoot)
+    CascStorage(const std::string& storageRoot)
         : m_storageRoot(storageRoot)
     {}
 
@@ -19,7 +19,7 @@ private:
     StoredData readData(const RequestInMemoryList& filenames) const noexcept override;
 
 private:
-    const QString m_storageRoot;
+    const std::string m_storageRoot;
 };
 
 }

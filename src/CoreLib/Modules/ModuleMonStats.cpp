@@ -6,6 +6,8 @@
 #include "ModuleMonStats.hpp"
 #include "TableUtils.hpp"
 
+#include <algorithm>
+
 namespace D2ModGen {
 
 namespace {

@@ -5,17 +5,15 @@
  */
 #pragma once
 
-#include <QStringList>
-#include <QMap>
-#include <QSet>
-#include <QList>
-#include <QRandomGenerator>
-
+#include <map>
+#include <string>
+#include <set>
 #include <vector>
 
 namespace D2ModGen {
 
 using StringVector = std::vector<std::string>;
+using StringSet    = std::set<std::string>;
 
 inline StringVector& operator<<(StringVector& rh, const StringVector& lh)
 {
@@ -34,6 +32,15 @@ inline std::string toLower(std::string s)
     for (auto& c : s)
         c = static_cast<char>(::tolower(c));
     return s;
+}
+
+template<class Val>
+Val mapValue(const std::map<std::string, Val>& m, const std::string& key, const Val& d = Val())
+{
+    auto it = m.find(key);
+    if (it == m.cend())
+        return d;
+    return it->second;
 }
 
 enum class StorageType
@@ -63,22 +70,6 @@ enum class ConflictPolicy
     Merge,     // try Update, then Append
     Skip,      // skip new version
     RaiseError,
-};
-
-struct ExtraDependencies {
-    struct Source {
-        StorageType    type   = StorageType::CsvFolder;
-        ConflictPolicy policy = ConflictPolicy::RaiseError;
-        QString        srcRoot;
-        QString        modname;
-    };
-    QList<Source> m_sources;
-};
-
-struct PreGenerationContext {
-    QSet<QString>     m_extraJson;
-    ExtraDependencies m_preGen;
-    ExtraDependencies m_postGen;
 };
 
 }

@@ -64,7 +64,7 @@ void ModuleQol::generate(DataContext& output, QRandomGenerator& rng, const Input
         }
     }
     if (weakenTownSkills) {
-        static const std::set<std::string> s_exceptions{ "Teleport", "Battle Orders", "Battle Command" };
+        static const StringSet s_exceptions{ "Teleport", "Battle Orders", "Battle Command" };
         Table&                             table = output.tableSet.tables["skills"];
         TableView                          tableView(table, true);
         for (auto& row : tableView) {

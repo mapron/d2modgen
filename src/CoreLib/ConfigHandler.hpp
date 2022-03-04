@@ -18,8 +18,8 @@ public:
     ConfigHandler(const ConfigHandler&) = delete;
     ~ConfigHandler();
 
-    bool loadConfig(const QString& filename);
-    bool saveConfig(const QString& filename) const;
+    bool loadConfig(const std::string& filename);
+    bool saveConfig(const std::string& filename) const;
 
     bool loadConfig(const PropertyTree& data);
     bool saveConfig(PropertyTree& data) const;

@@ -6,6 +6,7 @@
 #include "ModuleMergeMods.hpp"
 
 #include "FileIOUtils.hpp"
+#include "TableUtils.hpp"
 
 namespace D2ModGen {
 
@@ -26,19 +27,19 @@ void ModuleMergeMods::gatherInfoInternal(ExtraDependencies& output, const InputC
     const int count = input.m_settings.value("sourceCount", 0).toInt();
 
     for (int i = 0; i < count; ++i) {
-        const PropertyTree& itemData = input.m_settings[QString("item_%1").arg(i).toStdString()];
+        const PropertyTree& itemData = input.m_settings[argCompat("item_%1", i)];
 
         auto type       = static_cast<StorageType>(itemData["type"].toInt());
         auto policy     = static_cast<ConflictPolicy>(itemData["policy"].toInt());
-        auto modname    = QString::fromStdString(itemData["mod"].toString());
-        auto folderRoot = QString::fromStdString(itemData["folder"].toString());
+        auto modname    = (itemData["mod"].toString());
+        auto folderRoot = (itemData["folder"].toString());
 
-        output.m_sources << ExtraDependencies::Source{
+        output.m_sources.push_back(ExtraDependencies::Source{
             type,
             policy,
             ensureTrailingSlash(folderRoot),
             modname,
-        };
+        });
     }
 }
 

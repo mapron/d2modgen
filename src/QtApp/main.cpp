@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
     if (args.value(1) == "--generate") {
         QString file = args.value(2);
         if (!file.isEmpty())
-            configHandler.loadConfig(file);
+            configHandler.loadConfig(file.toStdString());
         configHandler.generate();
         return 0;
     }

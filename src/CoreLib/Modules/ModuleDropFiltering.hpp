@@ -16,7 +16,7 @@ public:
     static constexpr const std::string_view key = Key::dropFiltering;
 
     struct Item {
-        std::set<std::string> internalIds;
+        StringSet internalIds;
         std::string           settingKey;
     };
     const std::vector<Item> m_items;

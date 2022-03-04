@@ -72,14 +72,14 @@ void ModuleRuneDrops::generate(DataContext& output, QRandomGenerator& rng, const
         const bool wraithMore      = input.getInt("wraith_runes");
         const bool switchHighRunes = input.getInt("highrune_switch");
 
-        QMap<std::string, std::string> highRuneReplacement{
+        std::map<std::string, std::string> highRuneReplacement{
             { "r33", "r31" },
             { "r32", "r30" },
             { "r31", "r33" },
             { "r30", "r32" },
         };
 
-        QMap<std::string, double> runesReplaceMult;
+        std::map<std::string, double> runesReplaceMult;
         if (factorZod > 1) {
             const double factor   = factorZod;
             const double iterMult = std::pow(factor, 0.1);
@@ -139,11 +139,13 @@ void ModuleRuneDrops::generate(DataContext& output, QRandomGenerator& rng, const
             if (switchHighRunes && className.startsWith("Runes ")) {
                 for (auto& item : dropSet.m_items) {
                     auto& tcName = item.tc.str;
-                    tcName       = highRuneReplacement.value(tcName, tcName);
+                    auto  it     = highRuneReplacement.find(tcName);
+                    if (it != highRuneReplacement.cend())
+                        tcName = it->second;
                 }
             }
             if (wraithMore && className.contains(") Wraith ")) {
-                static const QMap<std::string, std::string> s_wraithReplacement{
+                static const std::map<std::string, std::string> s_wraithReplacement{
                     { "Act 1 (N)", "Runes 8" },
                     { "Act 2 (N)", "Runes 9" },
                     { "Act 3 (N)", "Runes 10" },
@@ -159,7 +161,9 @@ void ModuleRuneDrops::generate(DataContext& output, QRandomGenerator& rng, const
                     auto& tcName = item.tc;
                     if (!tcName.contains(") Magic "))
                         continue;
-                    tcName.str = s_wraithReplacement.value(tcName.str.substr(0, 9), tcName.str);
+                    auto it = s_wraithReplacement.find(tcName.str.substr(0, 9));
+                    if (it != s_wraithReplacement.cend())
+                        tcName.str = it->second;
                     break;
                 }
             }
