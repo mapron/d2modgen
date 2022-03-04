@@ -7,8 +7,6 @@
 #include "RandoUtils.hpp"
 #include "AttributeHelper.hpp"
 
-#include <QStringList>
-
 #include "Logger.hpp"
 #include "ChronoPoint.hpp"
 
@@ -19,13 +17,31 @@ const bool s_init = registerHelper<ModuleItemRandomizer>();
 
 constexpr const int s_maxUnbalanceLevel = 100;
 
-StringVector split(const std::string& str, char sep)
+inline void ltrim(std::string& s)
 {
-    const QStringList parts = QString::fromStdString(str).split(sep, Qt::SkipEmptyParts);
-    StringVector      result;
-    result.reserve(parts.size());
-    for (const QString& part : parts)
-        result.push_back(part.toStdString());
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+                return ch < 0 || !std::isspace(ch);
+            }));
+}
+inline void rtrim(std::string& s)
+{
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+                return ch < 0 || !std::isspace(ch);
+            }).base(),
+            s.end());
+}
+
+inline StringVector splitLine(const std::string& line, char sep, bool skipEmpty = false)
+{
+    std::vector<std::string> result;
+    std::string              token;
+    std::istringstream       ss(line);
+    while (std::getline(ss, token, sep)) {
+        ltrim(token);
+        rtrim(token);
+        if (!token.empty() || !skipEmpty)
+            result.push_back(token);
+    }
     return result;
 }
 
@@ -186,7 +202,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
     std::map<std::string, int> setLevels;
-    auto                   determineRWlevel = [&miscItemsLevels](const StringVector& runes) {
+    auto                       determineRWlevel = [&miscItemsLevels](const StringVector& runes) {
         int level = 0;
         for (const std::string& rune : runes)
             level = std::max(level, mapValue(miscItemsLevels, rune));
@@ -197,8 +213,8 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     const bool replaceCharges = input.getInt("replaceCharges");
     const bool removeKnock    = input.getInt("removeKnock");
 
-    const StringVector          extraKnownCodesList = split(input.getString("extraKnown"), ',');
-    const StringSet extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
+    const StringVector extraKnownCodesList = splitLine(input.getString("extraKnown"), ',', true);
+    const StringSet    extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
 
     using LevelCallback               = std::function<int(const TableView::RowView& row)>;
     using SupportedAttributesCallback = std::function<AttributeFlagSet(const TableView::RowView& row)>;

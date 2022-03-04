@@ -34,7 +34,7 @@ file(GLOB_RECURSE src_Core
 	${sourceRoot}/CoreLib/*.cpp
 	)
 add_library(modgenCore SHARED ${src_Core})
-target_link_libraries(modgenCore PRIVATE Qt5::Core casclib stormlib)
+target_link_libraries(modgenCore PRIVATE casclib stormlib)
 target_include_directories(modgenCore PUBLIC ${sourceRoot}/CoreLib ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(modgenCore PRIVATE ${jsonRoot})
 
@@ -46,7 +46,7 @@ file(GLOB_RECURSE src_ConsoleApp
 	${sourceRoot}/ConsoleApp/*.cpp
 	)
 add_executable(modgen_console ${src_ConsoleApp})
-target_link_libraries(modgen_console PRIVATE Qt5::Core modgenCore)
+target_link_libraries(modgen_console PRIVATE modgenCore)
 target_include_directories(modgen_console PRIVATE ${sourceRoot}/ConsoleApp)
 
 if (NOT Qt5Core_DIR)

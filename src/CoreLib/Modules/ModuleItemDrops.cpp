@@ -7,8 +7,6 @@
 #include "AttributeHelper.hpp"
 #include "TableUtils.hpp"
 
-#include <QRegularExpression>
-
 namespace D2ModGen {
 
 namespace {
@@ -22,17 +20,24 @@ enum class TCType
     Other,
 };
 
-const QRegularExpression s_eqRegex("Act [12345]( \\([NH]\\))? Equip [ABC]");
-const QRegularExpression s_bowRegex("Act [12345]( \\([NH]\\))? Bow [ABC]");
-const QRegularExpression s_junkRegex("Act [12345]( \\([NH]\\))? Junk");
+// "Act [12345]( \\([NH]\\))? Equip [ABC]"
+// "Act [12345]( \\([NH]\\))? Bow [ABC]"
+// "Act [12345]( \\([NH]\\))? Junk"
 
 TCType getTC(const std::string& tc)
 {
-    if (s_eqRegex.match(QString::fromStdString(tc)).hasMatch())
+    std::string_view sv(tc);
+    if (!sv.starts_with("Act "))
+        return TCType::Other;
+    sv = sv.substr(5);
+    if (sv.starts_with(" (N)") || sv.starts_with(" (H)"))
+        sv = sv.substr(4);
+
+    if (sv.starts_with(" Equip "))
         return TCType::Equip;
-    if (s_bowRegex.match(QString::fromStdString(tc)).hasMatch())
+    if (sv.starts_with(" Bow "))
         return TCType::Bow;
-    if (s_junkRegex.match(QString::fromStdString(tc)).hasMatch())
+    if (sv.starts_with(" Junk"))
         return TCType::Junk;
     return TCType::Other;
 }
