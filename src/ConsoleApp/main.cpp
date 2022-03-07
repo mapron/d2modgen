@@ -7,13 +7,14 @@
 #include "ConfigHandler.hpp"
 
 #include "Logger.hpp"
+#include "PlatformPathUtils.hpp"
 
 int main(int argc, char* argv[])
 {
     using namespace D2ModGen;
     Logger() << "application started";
 
-    ConfigHandler configHandler;
+    ConfigHandler configHandler(getExecutableRootFolder() + "/plugins");
 
     if (argc == 3 && std::string(argv[1]) == "--generate") {
         std::string file = argv[2];

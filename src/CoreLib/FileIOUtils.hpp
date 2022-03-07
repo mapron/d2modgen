@@ -9,8 +9,6 @@
 
 #include "CoreExport.hpp"
 
-#include "PropertyTree.hpp"
-
 #include <filesystem>
 
 namespace D2ModGen {
@@ -40,11 +38,8 @@ inline std_path string2path(const std::string& str)
     return result;
 }
 
-CORE_EXPORT bool readJsonFromBuffer(const std::string& buffer, PropertyTree& data);
-CORE_EXPORT bool writeJsonToBuffer(std::string& buffer, const PropertyTree& data);
-
-CORE_EXPORT bool readFileIntoBuffer(const std::string& filename, std::string& buffer);
-CORE_EXPORT bool writeFileFromBuffer(const std::string& filename, const std::string& buffer);
+CORE_EXPORT bool readFileIntoBuffer(const std_path& filename, std::string& buffer);
+CORE_EXPORT bool writeFileFromBuffer(const std_path& filename, const std::string& buffer);
 
 CORE_EXPORT bool createDirectories(const std::string& folder);
 CORE_EXPORT bool createDirectoriesForFile(const std::string& filename);

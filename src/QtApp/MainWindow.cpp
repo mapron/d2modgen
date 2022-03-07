@@ -9,6 +9,7 @@
 
 #include "ConfigPages/MainConfigPage.hpp"
 #include "ConfigPages/ConfigPageMergeMods.hpp"
+#include "ConfigPages/PluginConfigPage.hpp"
 #include "ConfigPageFactory.hpp"
 
 #include "IModule.hpp"
@@ -121,7 +122,13 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
             result << createConfigPage(m_configHandler.getModule(key), this);
         return result;
     };
-    pageGroups << [this, createConfigPages]() -> QList<PageGroup> {
+    auto createPluginConfigPages = [this]() -> QList<IConfigPage*> {
+        QList<IConfigPage*> result;
+        for (auto key : m_configHandler.m_pluginIds)
+            result << new PluginConfigPage(m_configHandler.getModule(key), this);
+        return result;
+    };
+    pageGroups << [this, &createConfigPages, &createPluginConfigPages]() -> QList<PageGroup> {
         return QList<PageGroup>{
             PageGroup{
                 QObject::tr("Randomizers"),
@@ -161,7 +168,10 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
                     IModule::Key::mergePregen,
                     IModule::Key::mergePostgen,
                 }),
-
+            },
+            PageGroup{
+                QObject::tr("Plugins"),
+                createPluginConfigPages(),
             },
         };
     }();
@@ -268,11 +278,11 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
                 connect(headerEnabler, &QCheckBox::toggled, page, &QWidget::setEnabled);
 
                 connect(headerEnabler, &QCheckBox::clicked, page, [this, page, headerEnabler] {
-                    m_configHandler.m_modules.at(page->getModule().settingKey()).m_enabled = headerEnabler->isChecked();
+                    m_configHandler.setConfigEnabled(page->getModule().settingKey(), headerEnabler->isChecked());
                     m_delayTimer->start();
                 });
                 connect(sideEnabler, &QCheckBox::clicked, page, [this, page, sideEnabler] {
-                    m_configHandler.m_modules.at(page->getModule().settingKey()).m_enabled = sideEnabler->isChecked();
+                    m_configHandler.setConfigEnabled(page->getModule().settingKey(), sideEnabler->isChecked());
                     m_delayTimer->start();
                 });
 

@@ -7,6 +7,7 @@
 
 #include "ConfigHandler.hpp"
 #include "Logger_details.hpp"
+#include "PlatformPathUtils.hpp"
 
 #include <QApplication>
 #include <QDateTime>
@@ -97,7 +98,7 @@ int main(int argc, char* argv[])
     }
     //qWarning() << "test qwarn";
 
-    ConfigHandler configHandler;
+    ConfigHandler configHandler(getExecutableRootFolder() + "/plugins");
 
     auto args = app.arguments();
     if (args.value(1) == "--generate") {

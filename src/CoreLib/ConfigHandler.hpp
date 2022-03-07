@@ -14,7 +14,7 @@ namespace D2ModGen {
 class StorageCache;
 class CORE_EXPORT ConfigHandler {
 public:
-    ConfigHandler();
+    explicit ConfigHandler(const std::string& pluginsRoot);
     ConfigHandler(const ConfigHandler&) = delete;
     ~ConfigHandler();
 
@@ -46,6 +46,7 @@ public:
     };
 
     std::map<std::string, ModuleData> m_modules;
+    std::vector<std::string>          m_pluginIds;
 
     std::unique_ptr<StorageCache> m_mainStorageCache;
 };

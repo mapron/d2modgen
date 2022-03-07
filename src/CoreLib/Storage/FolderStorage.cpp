@@ -8,6 +8,10 @@
 #include "FileIOUtils.hpp"
 #include "Logger.hpp"
 
+#include "Formats/FileFormatJson.hpp"
+
+#include <cassert>
+
 namespace D2ModGen {
 
 namespace {

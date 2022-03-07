@@ -8,17 +8,19 @@
 #include "ModuleFactory.hpp"
 #include "DataContext.hpp"
 #include "FileIOUtils.hpp"
+#include "Logger.hpp"
+#include "PluginModule.hpp"
 
 #include "Storage/StorageCache.hpp"
 #include "Storage/FolderStorage.hpp"
 
-#include "Logger.hpp"
+#include "Formats/FileFormatJson.hpp"
 
 #include <random>
 
 namespace D2ModGen {
 
-ConfigHandler::ConfigHandler()
+ConfigHandler::ConfigHandler(const std::string& pluginsRoot)
     : m_mainStorageCache(std::make_unique<StorageCache>())
 {
     auto modules = createAllModules();
@@ -26,6 +28,26 @@ ConfigHandler::ConfigHandler()
         m_modules[p.first] = { p.second, {} };
     }
     m_modules[std::string(IModule::Key::testConfig)].m_enabled = true;
+
+    for (const auto& it : std_fs::recursive_directory_iterator(string2path(pluginsRoot))) {
+        if (!it.is_regular_file())
+            continue;
+
+        const std_path& path = it.path();
+        if (path.extension() != ".json")
+            continue;
+
+        try {
+            auto pluginModule = std::make_shared<const PluginModule>(path);
+            if (m_modules.contains(pluginModule->settingKey()))
+                throw std::runtime_error("Duplicate plugin id:" + pluginModule->settingKey());
+            m_modules[pluginModule->settingKey()] = { pluginModule, {} };
+            m_pluginIds.push_back(pluginModule->settingKey());
+        }
+        catch (std::exception& e) {
+            Logger(Logger::Err) << e.what();
+        }
+    }
 }
 
 bool ConfigHandler::loadConfig(const std::string& filename)

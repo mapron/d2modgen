@@ -38,7 +38,7 @@ target_link_libraries(modgenCore PRIVATE casclib stormlib)
 target_include_directories(modgenCore PUBLIC ${sourceRoot}/CoreLib ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(modgenCore PRIVATE ${jsonRoot})
 
-generate_export_header(modgenCore BASE_NAME Core EXPORT_FILE_NAME CoreExport.hpp )
+generate_export_header(modgenCore BASE_NAME Core EXPORT_FILE_NAME CoreExport.hpp)
 
 # ConsoleApp
 file(GLOB_RECURSE src_ConsoleApp
@@ -48,6 +48,27 @@ file(GLOB_RECURSE src_ConsoleApp
 add_executable(modgen_console ${src_ConsoleApp})
 target_link_libraries(modgen_console PRIVATE modgenCore)
 target_include_directories(modgen_console PRIVATE ${sourceRoot}/ConsoleApp)
+
+set(PLUGINS_ROOT ${CMAKE_CURRENT_BINARY_DIR}/plugins)
+# TestPlugin
+set(pluginRootBin ${PLUGINS_ROOT}/TestPlugin)
+set(pluginRootSrc ${sourceRoot}/Plugins/TestPlugin)
+file(GLOB src_Plugin
+	${pluginRootSrc}/*.hpp
+	${pluginRootSrc}/*.cpp
+	)
+add_library(simpleTest SHARED ${src_Plugin})
+target_link_libraries(simpleTest PRIVATE modgenCore)
+generate_export_header(simpleTest BASE_NAME Plugin EXPORT_FILE_NAME PluginExport.hpp)
+
+set_target_properties(simpleTest PROPERTIES 
+	RUNTIME_OUTPUT_DIRECTORY ${pluginRootBin}
+	)
+file(GLOB_RECURSE resourceFiles RELATIVE ${pluginRootSrc}/dist
+    ${pluginRootSrc}/dist/*)
+foreach(filename ${resourceFiles})
+    configure_file(${pluginRootSrc}/dist/${filename} ${pluginRootBin}/${filename} COPYONLY)
+endforeach()
 
 if (NOT Qt5Core_DIR)
 	return()
@@ -68,7 +89,8 @@ target_include_directories(modgen PRIVATE ${sourceRoot}/QtApp)
 target_link_libraries(modgen PRIVATE Qt5::Widgets modgenCore)
 
 install(TARGETS modgen modgenCore RUNTIME DESTINATION bin)
-
+#install(TARGETS simpleTest RUNTIME DESTINATION bin/plugins/TestPlugin)
+install(DIRECTORY ${PLUGINS_ROOT} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
 
 #[[
 ########## Installation (Win32 only at the moment) ##########

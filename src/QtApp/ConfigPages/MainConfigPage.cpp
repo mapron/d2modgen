@@ -5,9 +5,11 @@
  */
 #include "MainConfigPage.hpp"
 #include "FileIOUtils.hpp"
-#include "WinSpecific.hpp"
+#include "PlatformPathUtils.hpp"
 #include "TableUtils.hpp"
 #include "ModuleFactory.hpp"
+
+#include "Formats/FileFormatJson.hpp"
 
 #include <QLayout>
 #include <QLineEdit>
@@ -242,6 +244,7 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
     connect(m_impl->modName, &QLineEdit::textChanged, this, updateArgs);
     connect(m_impl->d2rPath, &QLineEdit::textEdited, this, &IConfigPage::dataChanged);
     connect(m_impl->modName, &QLineEdit::textEdited, this, &IConfigPage::dataChanged);
+    connect(m_impl->addKeys, &QCheckBox::clicked, this, &IConfigPage::dataChanged);
     connect(copySettings, &QPushButton::clicked, this, [this] {
         const QString saves = ensureTrailingSlash(m_impl->d2rSaves->text());
         if (saves.isEmpty() || !QFileInfo::exists(saves))
@@ -263,7 +266,9 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
         const bool legacy  = m_impl->d2legacyMode->isChecked();
         auto       d2rpath = ensureTrailingSlash(legacy ? m_impl->d2legacyPath->text() : m_impl->d2rPath->text());
         auto       desk    = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
-        createShortCut(desk + "Diablo II - " + m_impl->modName->text() + " Mod", d2rpath + (legacy ? "Diablo II.exe" : "D2R.exe"), m_impl->d2rArgs->text());
+        createShortCut((desk + "Diablo II - " + m_impl->modName->text() + " Mod").toStdString(),
+                       (d2rpath + (legacy ? "Diablo II.exe" : "D2R.exe")).toStdString(),
+                       m_impl->d2rArgs->text().toStdString());
     });
     connect(m_impl->d2legacyMode, &QCheckBox::stateChanged, this, [this, d2resurrectedWidgets, d2legacyWidgets, updateArgs](int) {
         const bool legacy = m_impl->d2legacyMode->isChecked();
@@ -283,7 +288,7 @@ MainConfigPage::~MainConfigPage() = default;
 void MainConfigPage::createNewSeed()
 {
     std::random_device rd;
-    auto seed = rd();
+    auto               seed = rd();
     m_impl->seed->setText(QString("%1").arg(seed));
 }
 
