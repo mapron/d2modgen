@@ -16,7 +16,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/targets.cmake)
 
 
 # Qt Setup
-set(QT_MODULE_LIST Core Gui Widgets Svg)
+set(QT_MODULE_LIST Core Gui Widgets Svg Qml Network QmlModels Quick QuickWidgets QuickControls2)
 find_package(Qt5 COMPONENTS ${QT_MODULE_LIST} LinguistTools)
 add_definitions(-DCASCLIB_NO_AUTO_LINK_LIBRARY -DSTORMLIB_NO_AUTO_LINK)
 
@@ -67,7 +67,10 @@ set_target_properties(simpleTest PROPERTIES
 file(GLOB_RECURSE resourceFiles RELATIVE ${pluginRootSrc}/dist
     ${pluginRootSrc}/dist/*)
 foreach(filename ${resourceFiles})
-    configure_file(${pluginRootSrc}/dist/${filename} ${pluginRootBin}/${filename} COPYONLY)
+	add_custom_command(OUTPUT ${pluginRootBin}/${filename}
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy ${pluginRootSrc}/dist/${filename} ${pluginRootBin}/${filename}
+		DEPENDS ${pluginRootSrc}/dist/${filename})
+	target_sources(simpleTest PRIVATE ${pluginRootBin}/${filename})
 endforeach()
 
 if (NOT Qt5Core_DIR)
@@ -86,10 +89,9 @@ GenerateQrcWithTranslations(Translations ${CMAKE_CURRENT_SOURCE_DIR}/translation
 add_executable(modgen ${w32} ${src_QtApp} theme/breeze.qrc ${qrcName})
 set_target_properties(modgen PROPERTIES AUTOMOC ON AUTOUIC OFF AUTORCC ON)
 target_include_directories(modgen PRIVATE ${sourceRoot}/QtApp)
-target_link_libraries(modgen PRIVATE Qt5::Widgets modgenCore)
+target_link_libraries(modgen PRIVATE Qt5::Widgets Qt5::Quick Qt5::QuickWidgets Qt5::QuickControls2 modgenCore)
 
 install(TARGETS modgen modgenCore RUNTIME DESTINATION bin)
-#install(TARGETS simpleTest RUNTIME DESTINATION bin/plugins/TestPlugin)
 install(DIRECTORY ${PLUGINS_ROOT} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
 
 #[[

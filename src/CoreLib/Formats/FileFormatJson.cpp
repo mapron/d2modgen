@@ -120,6 +120,9 @@ bool readJsonFromBuffer(const std::string& buffer, PropertyTree& data)
 
 bool writeJsonToBuffer(std::string& buffer, const PropertyTree& data)
 {
+    if (data.isNull()) {
+        return false;
+    }
     rapidjson::Document json;
     propertyToJson(data, json, json.GetAllocator());
 

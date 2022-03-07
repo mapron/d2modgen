@@ -6,6 +6,7 @@
 #pragma once
 
 #include "CommonTypes.hpp"
+#include "FileIOUtils.hpp"
 
 #include <memory>
 
@@ -23,13 +24,13 @@ public:
 
     struct StoredFileMemory {
         std::string data;
-        std::string relFilepath;
+        std_path    relFilepath;
     };
     using StoredFileMemoryList = std::vector<StoredFileMemory>;
 
     struct StoredFileRef {
-        std::string absSrcFilepath;
-        std::string relFilepath;
+        std_path absSrcFilepath;
+        std_path relFilepath;
     };
     using StoredFileRefList = std::vector<StoredFileRef>;
 

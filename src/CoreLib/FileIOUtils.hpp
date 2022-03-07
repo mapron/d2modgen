@@ -30,7 +30,6 @@ inline std::string path2string(const std_path& path)
 inline std_path string2path(const std::string& str)
 {
     std::u8string result;
-    //auto str = path.u8string();
     result.resize(str.size());
     for (size_t i = 0; i < result.size(); ++i) {
         result[i] = static_cast<char8_t>(str[i]);
@@ -41,8 +40,8 @@ inline std_path string2path(const std::string& str)
 CORE_EXPORT bool readFileIntoBuffer(const std_path& filename, std::string& buffer);
 CORE_EXPORT bool writeFileFromBuffer(const std_path& filename, const std::string& buffer);
 
-CORE_EXPORT bool createDirectories(const std::string& folder);
-CORE_EXPORT bool createDirectoriesForFile(const std::string& filename);
+CORE_EXPORT bool createDirectories(const std_path& folder);
+CORE_EXPORT bool createDirectoriesForFile(const std_path& filename);
 
 inline std::string ensureTrailingSlash(std::string path)
 {

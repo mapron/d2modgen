@@ -55,7 +55,7 @@ bool ConfigHandler::loadConfig(const std::string& filename)
     Logger() << "Load:" << filename;
     std::string  buffer;
     PropertyTree doc;
-    if (!readFileIntoBuffer(filename, buffer) || !readJsonFromBuffer(buffer, doc)) {
+    if (!readFileIntoBuffer(string2path(filename), buffer) || !readJsonFromBuffer(buffer, doc)) {
         loadConfig(PropertyTree{});
         return false;
     }
@@ -66,11 +66,11 @@ bool ConfigHandler::saveConfig(const std::string& filename) const
 {
     PropertyTree data;
     saveConfig(data);
-    if (!createDirectoriesForFile(filename))
+    if (!createDirectoriesForFile(string2path(filename)))
         return false;
     std::string buffer;
     writeJsonToBuffer(buffer, data);
-    return writeFileFromBuffer(filename, buffer);
+    return writeFileFromBuffer(string2path(filename), buffer);
 }
 
 bool ConfigHandler::loadConfig(const PropertyTree& data)
@@ -125,7 +125,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     const StorageType storage    = (env.isLegacy) ? StorageType::D2LegacyInternal : StorageType::D2ResurrectedInternal;
     const StorageType storageOut = (env.isLegacy) ? StorageType::D2LegacyFolder : StorageType::D2ResurrectedModFolder;
 
-    FolderStorage outStorage(env.outPath, storageOut, env.modName);
+    FolderStorage outStorage(string2path(env.outPath), storageOut, env.modName);
 
     Logger() << "started generation in " << env.outPath;
     if (!outStorage.prepareForWrite()) {
@@ -136,7 +136,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         const auto    logInfo = source.srcRoot + " / " + source.modname;
         const bool    isMod   = source.type == StorageType::D2ResurrectedModFolder;
         const auto    root    = isMod ? env.outPath : source.srcRoot;
-        FolderStorage inStorage(root, source.type, isMod ? source.modname : "");
+        FolderStorage inStorage(string2path(root), source.type, isMod ? source.modname : "");
         auto          storedData = inStorage.readData({});
         if (!storedData.valid) {
             Logger(Logger::Warning) << "Failed to read data files from D2 folder:" << logInfo.c_str();

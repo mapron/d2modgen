@@ -13,26 +13,26 @@
 
 namespace D2ModGen {
 
-//{
-//	"id": "simpleTest",
-//	"hasDylib": true
-//}
-
 PluginModule::PluginModule(const std_path& jsonDeclFilepath)
 {
-    PropertyTree doc;
-    std::string  buffer;
-    if (!readFileIntoBuffer(jsonDeclFilepath, buffer) || !readJsonFromBuffer(buffer, doc)) {
+    std::string buffer;
+    if (!readFileIntoBuffer(jsonDeclFilepath, buffer) || !readJsonFromBuffer(buffer, m_info)) {
         throw std::runtime_error("Failed to read json file for plugin:" + path2string(jsonDeclFilepath));
     }
-    m_id = doc.value("id", "").toString();
+    m_id = m_info.value("id", "").toString();
     if (m_id.empty())
         throw std::runtime_error("Plugin id should not be empty");
-    const bool hasDylib = doc.value("hasDylib", false).toBool();
+    const bool hasDylib = m_info.value("hasDylib", false).toBool();
     if (hasDylib) {
         m_dylib        = std::make_unique<DyLib>(jsonDeclFilepath.parent_path(), m_id);
         m_generateAddr = m_dylib->getProc("generate");
     }
+    m_info["root"] = PropertyTreeScalar(path2string(jsonDeclFilepath.parent_path()));
+}
+
+PropertyTree PluginModule::pluginInfo() const
+{
+    return m_info;
 }
 
 PluginModule::~PluginModule() = default;

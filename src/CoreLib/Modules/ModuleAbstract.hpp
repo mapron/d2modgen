@@ -13,6 +13,7 @@ namespace D2ModGen {
 class ModuleAbstract : public IModule {
     // IModule interface
 public:
+    PropertyTree          pluginInfo() const override { return {}; }
     PresetList            presets() const override { return {}; }
     PropertyTreeScalarMap defaultValues() const override { return {}; }
     UiControlHintMap      uiHints() const override { return {}; }

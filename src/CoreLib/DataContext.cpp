@@ -37,7 +37,7 @@ bool DataContext::readData(const IStorage::StoredData& data)
             return false;
         }
         tableSet.tables[id] = std::move(table);
-        tableSet.relativeNames.insert(IStorage::makeTableRelativePath(fileData.id, false));
+        tableSet.relativeNames.insert(string2path(IStorage::makeTableRelativePath(fileData.id, false)));
     }
     for (const auto& fileData : data.inMemoryFiles) {
         if (fileData.data.empty()) {
@@ -60,7 +60,7 @@ bool DataContext::readData(const IStorage::StoredData& data)
     }
     for (const auto& fileData : data.refFiles) {
         std::error_code ec;
-        if (!std_fs::exists(string2path(fileData.absSrcFilepath), ec)) {
+        if (!std_fs::exists(fileData.absSrcFilepath, ec)) {
             Logger(Logger::Warning) << "Non-existent file:" << fileData.absSrcFilepath;
             return false;
         }
@@ -190,7 +190,7 @@ bool DataContext::mergeWith(const DataContext& source, ConflictPolicy policy)
                 continue;
             return false;
         }
-        if (tableSet.relativeNames.contains(toLower(p.first))) {
+        if (tableSet.relativeNames.contains(p.first)) {
             if (policy == ConflictPolicy::Skip)
                 continue;
             return false;

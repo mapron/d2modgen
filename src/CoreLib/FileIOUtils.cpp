@@ -38,23 +38,16 @@ bool writeFileFromBuffer(const std_path& filename, const std::string& buffer)
     return true;
 }
 
-bool createDirectoriesForFile(const std::string& filename)
+bool createDirectoriesForFile(const std_path& filename)
 {
-    auto            path = string2path(filename);
-    std::error_code ec;
-    if (!std_fs::exists(path.parent_path(), ec))
-        std_fs::create_directories(path.parent_path(), ec);
-    else
-        return true;
-    return !ec;
+    return createDirectories(filename.parent_path());
 }
 
-bool createDirectories(const std::string& folder)
+bool createDirectories(const std_path& folder)
 {
-    auto            path = string2path(folder);
     std::error_code ec;
-    if (!std_fs::exists(path, ec))
-        std_fs::create_directories(path, ec);
+    if (!std_fs::exists(folder, ec))
+        std_fs::create_directories(folder, ec);
     else
         return true;
     return !ec;

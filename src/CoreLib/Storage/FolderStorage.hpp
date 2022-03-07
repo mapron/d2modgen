@@ -15,7 +15,7 @@ class FolderStorage final
     : virtual public IOutputStorage
     , virtual public IInputStorage {
 public:
-    FolderStorage(const std::string& storageRoot, StorageType storage, const std::string& modname);
+    FolderStorage(const std_path& storageRoot, StorageType storage, const std::string& modname);
 
     StoredData readData(const RequestInMemoryList& filenames) const noexcept override;
 
@@ -26,7 +26,7 @@ public:
 private:
     const StorageType m_storageType;
     const std::string m_modName;
-    const std::string m_root;
+    const std_path    m_root;
 };
 
 }

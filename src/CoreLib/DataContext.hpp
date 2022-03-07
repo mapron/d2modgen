@@ -15,14 +15,14 @@ namespace D2ModGen {
 
 struct TableSet {
     std::map<TableId, Table> tables;
-    StringSet                relativeNames;
+    std::set<std_path>       relativeNames;
 };
 class TableView;
 struct DataContext {
-    TableSet                                       tableSet;  // txt tables parsed into csv-like tables.
-    std::map<std::string, PropertyTree>            jsonFiles; // data of extra json files
-    std::map<std::string, IStorage::StoredFileRef> copyFiles; // files for plain copy.
-    std::map<TableId, std::shared_ptr<TableView>>  pluginTables;
+    TableSet                                      tableSet;  // txt tables parsed into csv-like tables.
+    std::map<std_path, PropertyTree>              jsonFiles; // data of extra json files
+    std::map<std_path, IStorage::StoredFileRef>   copyFiles; // files for plain copy.
+    std::map<TableId, std::shared_ptr<TableView>> pluginTables;
 
     DataContext();
     ~DataContext();

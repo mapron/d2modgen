@@ -17,6 +17,8 @@ public:
     PluginModule(const std_path& jsonDeclFilepath);
     ~PluginModule();
 
+    PropertyTree pluginInfo() const override;
+
     std::string           settingKey() const override { return "plugin_" + m_id; }
     PresetList            presets() const override { return {}; }
     PropertyTreeScalarMap defaultValues() const override { return {}; }
@@ -28,6 +30,7 @@ public:
 private:
     std::unique_ptr<DyLib> m_dylib;
     std::string            m_id;
+    PropertyTree           m_info;
     void*                  m_generateAddr = nullptr;
 };
 

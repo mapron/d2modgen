@@ -119,12 +119,14 @@ public:
     using UiControlHintMap = std::map<std::string, UiControlHint>;
 
 public:
-    virtual std::string           settingKey() const    = 0;
+    virtual std::string settingKey() const = 0;
+
+    virtual PropertyTree          pluginInfo() const    = 0;
     virtual PresetList            presets() const       = 0;
     virtual PropertyTreeScalarMap defaultValues() const = 0;
     virtual UiControlHintMap      uiHints() const       = 0;
 
-    virtual void gatherInfo(PreGenerationContext& output, const InputContext& input) const             = 0;
+    virtual void gatherInfo(PreGenerationContext& output, const InputContext& input) const            = 0;
     virtual void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const = 0;
 
 public:

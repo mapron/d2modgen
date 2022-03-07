@@ -386,9 +386,10 @@ void MainConfigPage::setLaunch(QString arg)
         QMessageBox::warning(this, "warning", "Failed to locate Battle.net.config");
         return;
     }
+    const auto   configPath = string2path(config.toStdString());
     PropertyTree doc;
     std::string  buffer;
-    if (!readFileIntoBuffer(config.toStdString(), buffer) || !readJsonFromBuffer(buffer, doc)) {
+    if (!readFileIntoBuffer(configPath, buffer) || !readJsonFromBuffer(buffer, doc)) {
         QMessageBox::warning(this, "warning", "Failed to read data from Battle.net.config");
         return;
     }
@@ -400,7 +401,7 @@ void MainConfigPage::setLaunch(QString arg)
     buffer.clear();
     writeJsonToBuffer(buffer, doc);
     // buffer.replace(QByteArray("/"), QByteArray("\\/")); // weird battlenet format.
-    if (!writeFileFromBuffer(config.toStdString(), buffer))
+    if (!writeFileFromBuffer(configPath, buffer))
         QMessageBox::warning(this, "warning", "Failed to write data to Battle.net.config");
 }
 
