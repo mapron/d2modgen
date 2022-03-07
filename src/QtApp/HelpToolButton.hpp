@@ -26,6 +26,8 @@ public:
 
             QApplication::postEvent(this, event);
         });
+        if (toolTip.isEmpty())
+            this->hide();
     }
 };
 }

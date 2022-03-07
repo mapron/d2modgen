@@ -72,7 +72,20 @@ void PropertyTree::merge(const PropertyTree& another) noexcept(false)
     if (!another.isMap())
         return;
     PropertyTreeMap& m = std::get<PropertyTreeMap>(m_data);
-    m.merge(PropertyTreeMap(another.getMap()));
+    for (const auto& p : another.getMap())
+        m[p.first] = p.second;
+}
+
+void PropertyTree::removeEqualValues(const PropertyTree& another) noexcept(false)
+{
+    convertToMap();
+    if (!another.isMap())
+        return;
+    PropertyTreeMap& m = std::get<PropertyTreeMap>(m_data);
+    for (const auto& p : another.getMap()) {
+        if (m.contains(p.first) && m[p.first] == p.second)
+            m.erase(p.first);
+    }
 }
 
 void PropertyTree::convertToList() noexcept(false)

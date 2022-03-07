@@ -62,6 +62,8 @@ private:
     void updateUndoAction();
 
     void updateUIFromSettings();
+    void updateUIFromSettings(IConfigPage* page, const PropertyTree& currentConfig);
+    void writeSettingsFromUI(IConfigPage* page);
 
 private:
     QString                               m_defaultConfig;

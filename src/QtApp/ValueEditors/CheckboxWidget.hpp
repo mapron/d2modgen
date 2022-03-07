@@ -17,14 +17,11 @@ class CheckboxWidget : public IValueWidget {
 public:
     CheckboxWidget(const QString& caption,
                    const QString& id,
-                   bool           def,
                    QWidget*       parent);
     ~CheckboxWidget();
 
-    void         resetValue() override;
     void         setValue(const PropertyTree& value) override;
     PropertyTree getValue() const override;
-    bool         isDefault() const override;
 
     void addHelp(const QString& helpToolTip);
 
@@ -32,7 +29,6 @@ signals:
     void toggled(bool);
 
 private:
-    const bool      m_default;
     QCheckBox*      m_checkBox;
     HelpToolButton* m_helpButton;
 };

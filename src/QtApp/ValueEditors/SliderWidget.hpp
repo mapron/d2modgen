@@ -20,7 +20,6 @@ public:
                  const QString& id,
                  double         denom,
                  double         mult,
-                 int            defaultValue,
                  bool           compact,
                  QWidget*       parent);
     SliderWidget(const QString& caption,
@@ -30,10 +29,8 @@ public:
                  QWidget*       parent);
     ~SliderWidget();
 
-    void         resetValue() override;
     void         setValue(const PropertyTree& value) override;
     PropertyTree getValue() const override;
-    bool         isDefault() const override;
 
     void addHelp(const QString& helpToolTip);
 
@@ -46,7 +43,6 @@ private:
     const double    m_mult;
     const double    m_min;
     const double    m_max;
-    const int64_t   m_defaultValue;
     QSpinBox*       m_valueBox;
     QSlider*        m_slider;
     HelpToolButton* m_helpButton;
@@ -59,29 +55,24 @@ public:
                        const QString& id,
                        int            minValue,
                        int            maxValue,
-                       int            defaultValue,
                        bool           compact,
                        QWidget*       parent);
     SliderWidgetMinMax(const QString& caption,
                        const QString& id,
                        int            minValue,
                        int            maxValue,
-                       int            defaultValue,
                        QWidget*       parent)
         : SliderWidgetMinMax(caption,
                              id,
                              minValue,
                              maxValue,
-                             defaultValue,
                              false,
                              parent)
     {}
     ~SliderWidgetMinMax();
 
-    void         resetValue() override;
     void         setValue(const PropertyTree& value) override;
     PropertyTree getValue() const override;
-    bool         isDefault() const override;
 
     void addHelp(const QString& helpToolTip);
 
@@ -92,7 +83,6 @@ private:
 private:
     const int       m_minValue;
     const int       m_maxValue;
-    const int64_t   m_defaultValue;
     QSpinBox*       m_valueBox;
     QSlider*        m_slider;
     HelpToolButton* m_helpButton;

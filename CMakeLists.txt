@@ -93,23 +93,16 @@ target_link_libraries(modgen PRIVATE Qt5::Widgets Qt5::Quick Qt5::QuickWidgets Q
 
 install(TARGETS modgen modgenCore RUNTIME DESTINATION bin)
 install(DIRECTORY ${pluginRootBin} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
+foreach(th IN ITEMS dark light)
+	install(FILES theme/${th}.conf DESTINATION bin/theme)
+	configure_file(theme/${th}.conf ${CMAKE_CURRENT_BINARY_DIR}/theme/${th}.conf COPY_ONLY)
+endforeach()
 
 InstallQmlFiles(
 	QtQuick.2
 	QtQuick/Controls.2
 	QtQuick/Window.2
 	QtQuick/Templates.2
-#[[
-	QtQuick/Controls
-	QtQuick/Extras
-	QtQuick/Layouts
-	QtQuick/Dialogs
-	QtQuick/LocalStorage
-	QtQuick/Particles.2
-	QtQuick/PrivateWidgets
-	
-	QtQuick/XmlListModel
-#]]
 	)
 
 #[[

@@ -166,7 +166,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             input.m_env      = env;
             input.m_settings = p.second.m_currentConfig;
             input.m_mergedSettings.merge(p.second.m_module->defaultValues());
-            input.m_mergedSettings.merge(PropertyTree(input.m_settings));
+            input.m_mergedSettings.merge(input.m_settings);
             p.second.m_module->gatherInfo(pregenContext, input);
         }
     }
@@ -205,7 +205,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             input.m_env      = env;
             input.m_settings = p.second.m_currentConfig;
             input.m_mergedSettings.merge(p.second.m_module->defaultValues());
-            input.m_mergedSettings.merge(PropertyTree(input.m_settings));
+            input.m_mergedSettings.merge(input.m_settings);
 
             std::function<int(int)> r = [&engine](int bound) {
                 if (bound <= 1)

@@ -17,19 +17,15 @@ class LineWidget : public IValueWidget {
 public:
     LineWidget(const QString& caption,
                const QString& id,
-               const QString& def,
                QWidget*       parent);
     ~LineWidget();
 
-    void         resetValue() override;
     void         setValue(const PropertyTree& value) override;
     PropertyTree getValue() const override;
-    bool         isDefault() const override;
 
     void addHelp(const QString& helpToolTip);
 
 private:
-    const QString   m_default;
     QLineEdit*      m_lineEdit;
     HelpToolButton* m_helpButton;
 };

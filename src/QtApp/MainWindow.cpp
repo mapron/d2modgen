@@ -239,9 +239,8 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
                 connect(presetCombo, qOverload<int>(&QComboBox::currentIndexChanged), presetCombo, [this, presetCombo, page, presets](int index) {
                     if (index <= 0)
                         return;
-                    page->updateUIFromSettings(presets[index - 1]);
-                    m_configHandler.m_modules.at(page->getModule().settingKey()).m_currentConfig = presets[index - 1];
-                    m_delayTimer->start();
+                    updateUIFromSettings(page, presets[index - 1]);
+                    writeSettingsFromUI(page);
                 });
                 pageWrapperPresetHeader->addStretch();
                 pageWrapperPresetHeader->addWidget(new QLabel(tr("Do not know where to start? Select a preset:"), this));
@@ -261,15 +260,11 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
                     presetCombo->setCurrentIndex(0);
             });
             connect(resetButton, &QPushButton::clicked, this, [this, page]() {
-                page->updateUIFromSettings({});
-                m_configHandler.m_modules.at(page->getModule().settingKey()).m_currentConfig = {};
-                m_delayTimer->start();
+                updateUIFromSettings(page, {});
+                writeSettingsFromUI(page);
             });
             connect(page, &IConfigPage::dataChanged, this, [this, page] {
-                PropertyTree data;
-                page->writeSettingsFromUI(data);
-                m_configHandler.m_modules.at(page->getModule().settingKey()).m_currentConfig = std::move(data);
-                m_delayTimer->start();
+                writeSettingsFromUI(page);
             });
 
             if (!isMainPage) {
@@ -516,11 +511,36 @@ void MainWindow::updateUIFromSettings()
         auto        key  = page->getModule().settingKey();
         const auto& mod  = m_configHandler.m_modules[key];
         const auto& data = mod.m_currentConfig;
-        page->updateUIFromSettings(data);
+        updateUIFromSettings(page, data);
         for (auto* cb : m_enableButtons[page])
             cb->setChecked(mod.m_enabled);
     }
     m_mainPage->updateUIFromSettingsMain(m_configHandler.m_currentMainConfig);
+}
+
+void MainWindow::updateUIFromSettings(IConfigPage* page, const PropertyTree& currentConfig)
+{
+    PropertyTree realData;
+    realData.merge(page->getModule().defaultValues());
+    realData.merge(currentConfig);
+
+    page->updateUIFromSettings(realData);
+}
+
+void MainWindow::writeSettingsFromUI(IConfigPage* page)
+{
+    PropertyTree realData;
+    page->writeSettingsFromUI(realData);
+    realData.removeEqualValues(page->getModule().defaultValues());
+    //    {
+    //        std::string buffer;
+    //        writeJsonToBuffer(buffer, realData);
+    //        Logger() << "WRITE JSON data:" << buffer.c_str();
+    //    }
+
+    m_configHandler.m_modules.at(page->getModule().settingKey()).m_currentConfig = std::move(realData);
+
+    m_delayTimer->start();
 }
 
 }

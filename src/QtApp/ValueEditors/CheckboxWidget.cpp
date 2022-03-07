@@ -14,14 +14,11 @@ namespace D2ModGen {
 
 CheckboxWidget::CheckboxWidget(const QString& caption,
                                const QString& id,
-                               bool           def,
                                QWidget*       parent)
     : IValueWidget(parent)
-    , m_default(def)
 {
     setObjectName(id);
     m_checkBox = new QCheckBox(caption, this);
-    m_checkBox->setChecked(m_default);
     connect(m_checkBox, &QCheckBox::toggled, this, &CheckboxWidget::toggled);
     connect(m_checkBox, &QCheckBox::clicked, this, &IValueWidget::dataChanged);
 
@@ -38,11 +35,6 @@ CheckboxWidget::CheckboxWidget(const QString& caption,
 
 CheckboxWidget::~CheckboxWidget() = default;
 
-void CheckboxWidget::resetValue()
-{
-    m_checkBox->setChecked(m_default);
-}
-
 void CheckboxWidget::setValue(const PropertyTree& value)
 {
     m_checkBox->setChecked(value.getScalar().toBool());
@@ -51,11 +43,6 @@ void CheckboxWidget::setValue(const PropertyTree& value)
 PropertyTree CheckboxWidget::getValue() const
 {
     return PropertyTreeScalar(m_checkBox->isChecked());
-}
-
-bool CheckboxWidget::isDefault() const
-{
-    return m_checkBox->isChecked() == m_default;
 }
 
 void CheckboxWidget::addHelp(const QString& helpToolTip)

@@ -20,8 +20,6 @@ public:
 
     virtual PropertyTree getValue() const                    = 0;
     virtual void         setValue(const PropertyTree& value) = 0;
-    virtual void         resetValue()                        = 0;
-    virtual bool         isDefault() const                   = 0;
 
 signals:
     void dataChanged();

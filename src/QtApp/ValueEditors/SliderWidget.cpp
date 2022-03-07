@@ -41,7 +41,6 @@ SliderWidget::SliderWidget(const QString& caption,
                            const QString& id,
                            double         denom,
                            double         mult,
-                           int            defaultValue,
                            bool           compact,
                            QWidget*       parent)
     : IValueWidget(parent)
@@ -49,14 +48,12 @@ SliderWidget::SliderWidget(const QString& caption,
     , m_mult(mult)
     , m_min(static_cast<int>(static_cast<double>(s_spinboxAverage) / denom))
     , m_max(static_cast<int>(static_cast<double>(s_spinboxAverage) * mult))
-    , m_defaultValue(defaultValue)
 {
     setObjectName(id);
     m_valueBox = new QSpinBox(this);
     m_valueBox->setButtonSymbols(QSpinBox::NoButtons);
     m_valueBox->setMinimum(m_min);
     m_valueBox->setMaximum(m_max);
-    m_valueBox->setValue(m_defaultValue);
     m_valueBox->setMinimumWidth(50);
 
     m_slider = new QSlider(Qt::Horizontal, this);
@@ -94,15 +91,8 @@ SliderWidget::SliderWidget(const QString& caption,
 SliderWidget::~SliderWidget() = default;
 
 SliderWidget::SliderWidget(const QString& caption, const QString& id, double denom, double mult, QWidget* parent)
-    : SliderWidget(caption, id, denom, mult, s_spinboxAverage, false, parent)
+    : SliderWidget(caption, id, denom, mult, false, parent)
 {
-}
-
-void SliderWidget::resetValue()
-{
-    m_settingValue = true;
-    m_valueBox->setValue(m_defaultValue);
-    m_settingValue = false;
 }
 
 void SliderWidget::setValue(const PropertyTree& value)
@@ -115,11 +105,6 @@ void SliderWidget::setValue(const PropertyTree& value)
 PropertyTree SliderWidget::getValue() const
 {
     return PropertyTreeScalar{ static_cast<int64_t>(m_valueBox->value()) };
-}
-
-bool SliderWidget::isDefault() const
-{
-    return getValue().getScalar() == PropertyTreeScalar{ m_defaultValue };
 }
 
 void SliderWidget::addHelp(const QString& helpToolTip)
@@ -181,27 +166,23 @@ SliderWidgetMinMax::SliderWidgetMinMax(const QString& caption,
                                        const QString& id,
                                        int            minValue,
                                        int            maxValue,
-                                       int            defaultValue,
                                        bool           compact,
                                        QWidget*       parent)
     : IValueWidget(parent)
     , m_minValue(minValue)
     , m_maxValue(maxValue)
-    , m_defaultValue(defaultValue)
 {
     setObjectName(id);
     m_valueBox = new QSpinBox(this);
     m_valueBox->setButtonSymbols(QSpinBox::NoButtons);
     m_valueBox->setMinimum(m_minValue);
     m_valueBox->setMaximum(m_maxValue);
-    m_valueBox->setValue(m_defaultValue);
     m_valueBox->setMinimumWidth(50);
 
     m_slider = new QSlider(Qt::Horizontal, this);
     m_slider->setMinimum(m_minValue);
     m_slider->setMaximum(m_maxValue);
     m_slider->setMaximumHeight(15);
-    m_slider->setValue(m_defaultValue);
 
     m_helpButton = new HelpToolButton("", this);
     m_helpButton->hide();
@@ -230,13 +211,6 @@ SliderWidgetMinMax::SliderWidgetMinMax(const QString& caption,
 
 SliderWidgetMinMax::~SliderWidgetMinMax() = default;
 
-void SliderWidgetMinMax::resetValue()
-{
-    m_settingValue = true;
-    m_valueBox->setValue(m_defaultValue);
-    m_settingValue = false;
-}
-
 void SliderWidgetMinMax::setValue(const PropertyTree& value)
 {
     m_settingValue = true;
@@ -247,11 +221,6 @@ void SliderWidgetMinMax::setValue(const PropertyTree& value)
 PropertyTree SliderWidgetMinMax::getValue() const
 {
     return PropertyTreeScalar{ static_cast<int64_t>(m_valueBox->value()) };
-}
-
-bool SliderWidgetMinMax::isDefault() const
-{
-    return getValue().getScalar() == PropertyTreeScalar{ m_defaultValue };
 }
 
 void SliderWidgetMinMax::addHelp(const QString& helpToolTip)

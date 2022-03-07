@@ -26,10 +26,9 @@ void ConfigPageAbstract::updateUIFromSettings(const PropertyTree& data)
 {
     for (const std::string& key : m_editors.keys()) {
         auto* w = m_editors[key];
+        assert(data.contains(key));
         if (data.contains(key))
             w->setValue(data[key]);
-        else
-            w->resetValue();
     }
 }
 
@@ -37,8 +36,7 @@ void ConfigPageAbstract::writeSettingsFromUI(PropertyTree& data) const
 {
     for (const std::string& key : m_editors.keys()) {
         auto* w = m_editors[key];
-        if (!w->isDefault())
-            data.insert(key, w->getValue());
+        data.insert(key, w->getValue());
     }
 }
 
@@ -65,23 +63,28 @@ void ConfigPageAbstract::addEditorsPlain(QList<IValueWidget*> editors)
 
 IValueWidget* ConfigPageAbstract::makeEditor(const std::string& key, const QString& title, const QString& help)
 {
-    using Control            = IModule::UiControlHint::Control;
-    auto        defaultValue = getModule().defaultValues()[key].getScalar();
-    auto        hints        = getModule().uiHints();
-    auto        hint         = hints[key];
-    int         min          = hint.m_min;
-    int         max          = hint.m_max;
+    using Control   = IModule::UiControlHint::Control;
+    const auto defMap = getModule().defaultValues();
+    const auto& def = defMap[key];
+    if (!def.isScalar())
+        return nullptr;
+
+    auto defaultValue = def.getScalar();
+    auto hints        = getModule().uiHints();
+    auto hint         = hints[key];
+    int  min          = hint.m_min;
+    int  max          = hint.m_max;
     if (hint.m_control == Control::Auto)
         max = 100;
 
     if (hint.m_control == Control::SliderMinMax || hint.m_control == Control::Auto && defaultValue.isInt())
-        return addHelp(new SliderWidgetMinMax(title, QString::fromStdString(key), min, max, defaultValue.toInt(), hint.m_compact, this), help);
-    if (hint.m_control == Control::Slider)
-        return addHelp(new SliderWidget(title, QString::fromStdString(key), hint.m_num, hint.m_denom, defaultValue.toInt(), hint.m_compact, this), help);
-    if (hint.m_control == Control::LineEdit)
-        return addHelp(new LineWidget(title, QString::fromStdString(key), QString::fromStdString(defaultValue.toString()), this), help);
+        return addHelp(new SliderWidgetMinMax(title, QString::fromStdString(key), min, max, hint.m_compact, this), help);
+    if (hint.m_control == Control::Slider || hint.m_control == Control::Auto && defaultValue.isDouble())
+        return addHelp(new SliderWidget(title, QString::fromStdString(key), hint.m_num, hint.m_denom, hint.m_compact, this), help);
+    if (hint.m_control == Control::LineEdit || hint.m_control == Control::Auto && defaultValue.isString())
+        return addHelp(new LineWidget(title, QString::fromStdString(key), this), help);
     if (hint.m_control == Control::CheckBox || hint.m_control == Control::Auto && defaultValue.isBool())
-        return addHelp(new CheckboxWidget(title, QString::fromStdString(key), defaultValue.toBool(), this), help);
+        return addHelp(new CheckboxWidget(title, QString::fromStdString(key), this), help);
 
     assert(false);
     return nullptr;
@@ -92,8 +95,11 @@ QList<IValueWidget*> ConfigPageAbstract::makeEditors(const StringVector& keys)
     QList<IValueWidget*> result;
     auto                 titles = widgetTitles();
     auto                 helps  = widgetHelps();
-    for (const std::string& key : keys)
-        result << makeEditor(key, titles.value(key, QString::fromStdString(key)), helps.value(key));
+    for (const std::string& key : keys) {
+        auto* e = makeEditor(key, titles.value(key, QString::fromStdString(key)), helps.value(key));
+        if (e)
+            result << e;
+    }
     return result;
 }
 

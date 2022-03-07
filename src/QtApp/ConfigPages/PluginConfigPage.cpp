@@ -99,11 +99,20 @@ PluginConfigPage::PluginConfigPage(const IModule::Ptr& module, QWidget* parent)
         m_quick         = new QQuickWidget(this);
         m_quick->setSource(QUrl::fromLocalFile(qmlPath));
         m_quick->setClearColor("#31363b");
+        m_quick->setResizeMode(QQuickWidget::ResizeMode::SizeRootObjectToView);
         m_quick->engine()->rootContext()->setContextProperty("parentWidget", this);
         addWidget(m_quick);
         m_quick->show();
+    } else {
+        StringVector keys;
+        auto         def = getModule().defaultValues();
+        if (def.isMap()) {
+            for (const auto& p : def.getMap())
+                keys.push_back(p.first);
+        }
+        addEditors(makeEditors(keys));
     }
-    //closeLayout();
+    closeLayout();
 }
 
 PluginConfigPage::~PluginConfigPage()
@@ -122,26 +131,30 @@ QString PluginConfigPage::caption() const
 
 void PluginConfigPage::updateUIFromSettings(const PropertyTree& data)
 {
-    PropertyTree realData;
-    realData.merge(getModule().defaultValues());
-    realData.merge(PropertyTree(data));
-
-    QVariant value = propertyToQVariant(realData);
-    //qDebug() << "READ QML variant:" << value;
-    QObject* rootItem = m_quick->rootObject();
-    QMetaObject::invokeMethod(rootItem, "setFormValues", Q_ARG(QVariant, value));
+    if (m_quick) {
+        QVariant value = propertyToQVariant(data);
+        //qDebug() << "READ QML variant:" << value;
+        QObject* rootItem = m_quick->rootObject();
+        QMetaObject::invokeMethod(rootItem, "setFormValues", Q_ARG(QVariant, value));
+    } else {
+        ConfigPageAbstract::updateUIFromSettings(data);
+    }
 }
 
 void PluginConfigPage::writeSettingsFromUI(PropertyTree& data) const
 {
-    QVariant returnedValue;
-    QObject* rootItem = m_quick->rootObject();
-    QMetaObject::invokeMethod(rootItem, "getFormValues", Q_RETURN_ARG(QVariant, returnedValue));
+    if (m_quick) {
+        QVariant returnedValue;
+        QObject* rootItem = m_quick->rootObject();
+        QMetaObject::invokeMethod(rootItem, "getFormValues", Q_RETURN_ARG(QVariant, returnedValue));
 
-    //qDebug() << "WRITE QML variant:" << returnedValue;
-    auto jsv = returnedValue.value<QJSValue>();
-    auto var = jsv.toVariant();
-    data     = qvariantToProperty(var);
+        //qDebug() << "WRITE QML variant:" << returnedValue;
+        auto jsv = returnedValue.value<QJSValue>();
+        auto var = jsv.toVariant();
+        data     = qvariantToProperty(var);
+    } else {
+        ConfigPageAbstract::writeSettingsFromUI(data);
+    }
 }
 
 }

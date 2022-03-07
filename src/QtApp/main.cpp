@@ -10,7 +10,6 @@
 #include "PlatformPathUtils.hpp"
 
 #include <QApplication>
-#include <QDateTime>
 #include <QFile>
 #include <QStandardPaths>
 #include <QFileInfo>
@@ -18,6 +17,15 @@
 #include <QTextStream>
 
 namespace {
+
+bool setEnvVariable(const std::string& varName, const std::string& value)
+{
+#ifdef _WIN32
+    return _putenv_s(varName.c_str(), value.c_str()) != 0;
+#else
+    return setenv(varName.c_str(), value.c_str(), 1) != 0;
+#endif
+}
 
 QString stripDir(QString s)
 {
@@ -84,7 +92,8 @@ int main(int argc, char* argv[])
 
     Logger() << "application started";
     QApplication      app(argc, argv);
-    const std::string logFile = (QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/applog.txt").toStdString();
+    const auto        appData = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    const std::string logFile = (appData + "/applog.txt").toStdString();
 
     if (createDirectoriesForFile(logFile)) {
         Logger::SetLoggerBackend(std::make_unique<LoggerBackendFiles>(
@@ -97,8 +106,8 @@ int main(int argc, char* argv[])
         Logger() << "Started log redirection to:" << logFile;
     }
     //qWarning() << "test qwarn";
-
-    ConfigHandler configHandler(getExecutableRootFolder() + "/plugins");
+    auto          exeRoot = getExecutableRootFolder();
+    ConfigHandler configHandler(exeRoot + "/plugins");
 
     auto args = app.arguments();
     if (args.value(1) == "--generate") {
@@ -112,6 +121,9 @@ int main(int argc, char* argv[])
     auto [langId, themeId] = D2ModGen::MainWindow::getAppSettings();
     Logger() << "langId=" << langId.toStdString();
     Logger() << "themeId=" << themeId.toStdString();
+
+    const bool isDark = themeId == "dark";
+    setEnvVariable("QT_QUICK_CONTROLS_CONF", exeRoot + "/theme/" + (isDark ? "dark.conf" : "light.conf"));
 
     {
         Q_INIT_RESOURCE(breeze);
