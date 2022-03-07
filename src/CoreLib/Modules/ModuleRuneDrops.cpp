@@ -36,7 +36,7 @@ IModule::PresetList ModuleRuneDrops::presets() const
     };
 }
 
-PropertyTreeScalarMap ModuleRuneDrops::defaultValues() const
+PropertyTreeScalarMap ModuleRuneDrops::defaultValuesScalar() const
 {
     return {
         { "zod_factor", 1 },

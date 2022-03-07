@@ -6,6 +6,7 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.15
+import QtQuick.Window 2.2
 
 Page {
     id: root
@@ -39,8 +40,8 @@ Page {
     }
     
     function setFormValues(data) {
-        addKeys.checked = data["addKeys"]
-        reduceRequirements.value = data["reduceRequirements"]
+        addKeys.checked = "addKeys" in data ? data["addKeys"] : true
+        reduceRequirements.value = "reduceRequirements" in data ? data["reduceRequirements"] : 70
     }
     
     function getFormValues() {

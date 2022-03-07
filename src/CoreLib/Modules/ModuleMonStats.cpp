@@ -14,7 +14,7 @@ namespace {
 const bool s_init = registerHelper<ModuleMonStats>();
 }
 
-PropertyTreeScalarMap ModuleMonStats::defaultValues() const
+PropertyTreeScalarMap ModuleMonStats::defaultValuesScalar() const
 {
     return {
         { "mon_ar", 100 },

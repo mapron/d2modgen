@@ -18,7 +18,7 @@ public:
     {
         return std::string(key);
     }
-    PropertyTreeScalarMap defaultValues() const override;
+    PropertyTreeScalarMap defaultValuesScalar() const override;
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

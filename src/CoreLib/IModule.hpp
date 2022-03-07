@@ -37,7 +37,7 @@ public:
 
     struct InputContext {
         PropertyTree          m_settings;
-        PropertyTreeScalarMap m_defaultValues;
+        PropertyTree          m_mergedSettings;
         GenerationEnvironment m_env;
 
         bool isAllDefault() const noexcept
@@ -65,9 +65,7 @@ public:
 
         const PropertyTreeScalar& getScalar(const std::string& key) const noexcept(false)
         {
-            if (m_settings.contains(key))
-                return m_settings[key].getScalar();
-            return m_defaultValues.at(key);
+            return m_mergedSettings.getMap().at(key).getScalar();
         }
 
         int getInt(const std::string& key) const noexcept(false)
@@ -121,10 +119,10 @@ public:
 public:
     virtual std::string settingKey() const = 0;
 
-    virtual PropertyTree          pluginInfo() const    = 0;
-    virtual PresetList            presets() const       = 0;
-    virtual PropertyTreeScalarMap defaultValues() const = 0;
-    virtual UiControlHintMap      uiHints() const       = 0;
+    virtual PropertyTree     pluginInfo() const    = 0;
+    virtual PresetList       presets() const       = 0;
+    virtual PropertyTree     defaultValues() const = 0;
+    virtual UiControlHintMap uiHints() const       = 0;
 
     virtual void gatherInfo(PreGenerationContext& output, const InputContext& input) const            = 0;
     virtual void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const = 0;

@@ -11,9 +11,8 @@
 extern "C" PLUGIN_EXPORT void generate(CDataContext cdataContext, CPropertyTree cmoduleData)
 {
     Wrapper::PropertyTree ptree(cmoduleData);
-    bool                  addKeys = false;
-    if (ptree.isMap() && ptree.getMap().contains("addKeys"))
-        addKeys = ptree.getMap().scalarValue("addKeys").toBool();
+    const auto&           formValues = ptree.getMap();
+    const bool            addKeys    = formValues.scalarValue("addKeys").toBool();
     if (!addKeys)
         return;
 

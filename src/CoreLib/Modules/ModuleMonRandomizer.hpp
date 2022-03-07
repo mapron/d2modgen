@@ -18,7 +18,7 @@ public:
     {
         return std::string(key);
     }
-    PropertyTreeScalarMap defaultValues() const override;
+    PropertyTreeScalarMap defaultValuesScalar() const override;
     UiControlHintMap      uiHints() const override;
 
     void gatherInfo(PreGenerationContext& output, const InputContext& input) const override;

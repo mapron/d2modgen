@@ -13,7 +13,7 @@ class ModuleMergeMods : public ModuleAbstract {
 public:
     // IModule interface
 public:
-    PropertyTreeScalarMap defaultValues() const override;
+    PropertyTreeScalarMap defaultValuesScalar() const override;
 
 protected:
     void gatherInfoInternal(ExtraDependencies& output, const InputContext& input) const;

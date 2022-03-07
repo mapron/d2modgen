@@ -232,7 +232,7 @@ struct SkillTree {
 
 }
 
-PropertyTreeScalarMap ModuleSkillRandomizer::defaultValues() const
+PropertyTreeScalarMap ModuleSkillRandomizer::defaultValuesScalar() const
 {
     return {
         { "skillTree", true },

@@ -34,7 +34,7 @@ ConfigHandler::ConfigHandler(const std::string& pluginsRoot)
             continue;
 
         const std_path& path = it.path();
-        if (path.extension() != ".json")
+        if (path.extension() != ".json" || path.stem().empty())
             continue;
 
         try {
@@ -163,9 +163,10 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
                 continue;
 
             IModule::InputContext input;
-            input.m_env           = env;
-            input.m_settings      = p.second.m_currentConfig;
-            input.m_defaultValues = p.second.m_module->defaultValues();
+            input.m_env      = env;
+            input.m_settings = p.second.m_currentConfig;
+            input.m_mergedSettings.merge(p.second.m_module->defaultValues());
+            input.m_mergedSettings.merge(PropertyTree(input.m_settings));
             p.second.m_module->gatherInfo(pregenContext, input);
         }
     }
@@ -201,9 +202,11 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
 
             Logger() << "start module:" << p.first;
             IModule::InputContext input;
-            input.m_env               = env;
-            input.m_settings          = p.second.m_currentConfig;
-            input.m_defaultValues     = p.second.m_module->defaultValues();
+            input.m_env      = env;
+            input.m_settings = p.second.m_currentConfig;
+            input.m_mergedSettings.merge(p.second.m_module->defaultValues());
+            input.m_mergedSettings.merge(PropertyTree(input.m_settings));
+
             std::function<int(int)> r = [&engine](int bound) {
                 if (bound <= 1)
                     return 0;

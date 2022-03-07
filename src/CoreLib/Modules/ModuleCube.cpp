@@ -58,7 +58,7 @@ const std::map<std::string, std::string> s_craftedGemReplace{
 
 }
 
-PropertyTreeScalarMap ModuleCube::defaultValues() const
+PropertyTreeScalarMap ModuleCube::defaultValuesScalar() const
 {
     return {
         { "noGemUpgrade", false },

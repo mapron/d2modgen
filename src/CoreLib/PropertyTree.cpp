@@ -66,6 +66,15 @@ void PropertyTree::insert(const std::string& key, PropertyTree child)
     m[key]             = std::move(child);
 }
 
+void PropertyTree::merge(const PropertyTree& another) noexcept(false)
+{
+    convertToMap();
+    if (!another.isMap())
+        return;
+    PropertyTreeMap& m = std::get<PropertyTreeMap>(m_data);
+    m.merge(PropertyTreeMap(another.getMap()));
+}
+
 void PropertyTree::convertToList() noexcept(false)
 {
     if (m_data.index() == 0)

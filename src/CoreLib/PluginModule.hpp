@@ -19,10 +19,10 @@ public:
 
     PropertyTree pluginInfo() const override;
 
-    std::string           settingKey() const override { return "plugin_" + m_id; }
-    PresetList            presets() const override { return {}; }
-    PropertyTreeScalarMap defaultValues() const override { return {}; }
-    UiControlHintMap      uiHints() const override { return {}; }
+    std::string      settingKey() const override { return "plugin_" + m_id; }
+    PresetList       presets() const override;
+    PropertyTree     defaultValues() const override;
+    UiControlHintMap uiHints() const override { return {}; }
 
     void gatherInfo(PreGenerationContext& output, const InputContext& input) const override {}
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;

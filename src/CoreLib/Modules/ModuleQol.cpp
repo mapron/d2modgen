@@ -12,7 +12,7 @@ namespace {
 const bool s_init = registerHelper<ModuleQol>();
 }
 
-PropertyTreeScalarMap ModuleQol::defaultValues() const
+PropertyTreeScalarMap ModuleQol::defaultValuesScalar() const
 {
     return {
         { "tomeSize", false },

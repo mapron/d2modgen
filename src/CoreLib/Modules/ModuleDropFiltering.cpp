@@ -67,7 +67,7 @@ ModuleDropFiltering::ModuleDropFiltering()
 {
 }
 
-PropertyTreeScalarMap ModuleDropFiltering::defaultValues() const
+PropertyTreeScalarMap ModuleDropFiltering::defaultValuesScalar() const
 {
     PropertyTreeScalarMap result{
         { "compact_pots", false },

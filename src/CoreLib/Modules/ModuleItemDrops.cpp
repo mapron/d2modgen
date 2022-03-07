@@ -69,7 +69,7 @@ IModule::PresetList ModuleItemDrops::presets() const
     };
 }
 
-PropertyTreeScalarMap ModuleItemDrops::defaultValues() const
+PropertyTreeScalarMap ModuleItemDrops::defaultValuesScalar() const
 {
     return {
         { "chance_uni", 1 },

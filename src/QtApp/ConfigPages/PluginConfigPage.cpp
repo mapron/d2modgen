@@ -6,8 +6,6 @@
 
 #include "PluginConfigPage.hpp"
 
-#include "Formats/FileFormatJson.hpp"
-
 #include <QQuickWidget>
 #include <QQmlEngine>
 #include <QQmlContext>
@@ -18,34 +16,28 @@
 namespace D2ModGen {
 
 namespace {
-//PropertyTree qjsonToProperty(const QJsonDocument& doc)
-//{
-//    if (doc.isNull())
-//        return {};
-//    return doc.isArray() ? qjsonToProperty(doc.array()) : qjsonToProperty(doc.object());
-//}
-PropertyTree qjsonToProperty(const QVariant& value);
-PropertyTree qjsonToProperty(const QVariantMap& value)
+PropertyTree qvariantToProperty(const QVariant& value);
+PropertyTree qvariantToProperty(const QVariantMap& value)
 {
     PropertyTree result;
     result.convertToMap();
     for (auto it = value.constBegin(); it != value.constEnd(); ++it)
-        result.insert(it.key().toStdString(), qjsonToProperty(it.value()));
+        result.insert(it.key().toStdString(), qvariantToProperty(it.value()));
 
     return result;
 }
 
-PropertyTree qjsonToProperty(const QVariantList& value)
+PropertyTree qvariantToProperty(const QVariantList& value)
 {
     PropertyTree result;
     result.convertToList();
     for (const QVariant& iter : value)
-        result.append(qjsonToProperty(iter));
+        result.append(qvariantToProperty(iter));
 
     return result;
 }
 
-PropertyTree qjsonToProperty(const QVariant& value)
+PropertyTree qvariantToProperty(const QVariant& value)
 {
     if (value.isNull())
         return PropertyTree{};
@@ -58,14 +50,14 @@ PropertyTree qjsonToProperty(const QVariant& value)
     if (value.type() == QVariant::String)
         return PropertyTreeScalar(value.toString().toStdString());
     if (value.type() == QVariant::List)
-        return qjsonToProperty(value.toList());
+        return qvariantToProperty(value.toList());
     if (value.type() == QVariant::Map)
-        return qjsonToProperty(value.toMap());
+        return qvariantToProperty(value.toMap());
     qWarning() << "unhandled type:" << value;
     return {};
 }
 
-QVariant propertyToQjson(const PropertyTree& value)
+QVariant propertyToQVariant(const PropertyTree& value)
 {
     if (value.isNull())
         return QVariant();
@@ -83,13 +75,13 @@ QVariant propertyToQjson(const PropertyTree& value)
     if (value.isList()) {
         QList<QVariant> arr;
         for (const auto& child : value.getList())
-            arr << propertyToQjson(child);
+            arr << propertyToQVariant(child);
         return arr;
     }
     if (value.isMap()) {
         QMap<QString, QVariant> obj;
         for (const auto& child : value.getMap())
-            obj[child.first.c_str()] = propertyToQjson(child.second);
+            obj[child.first.c_str()] = propertyToQVariant(child.second);
         return obj;
     }
     return {};
@@ -130,15 +122,11 @@ QString PluginConfigPage::caption() const
 
 void PluginConfigPage::updateUIFromSettings(const PropertyTree& data)
 {
-    {
-        //std::string buffer;
-        //writeJsonToBuffer(buffer, data);
-        //qDebug() << "READ JSON data:" << buffer.c_str();
-    }
-    
-    QVariant value = propertyToQjson(data);
-    if (data.isNull())
-        value = QVariantMap{};
+    PropertyTree realData;
+    realData.merge(getModule().defaultValues());
+    realData.merge(PropertyTree(data));
+
+    QVariant value = propertyToQVariant(realData);
     //qDebug() << "READ QML variant:" << value;
     QObject* rootItem = m_quick->rootObject();
     QMetaObject::invokeMethod(rootItem, "setFormValues", Q_ARG(QVariant, value));
@@ -146,19 +134,14 @@ void PluginConfigPage::updateUIFromSettings(const PropertyTree& data)
 
 void PluginConfigPage::writeSettingsFromUI(PropertyTree& data) const
 {
-    QVariant  returnedValue;
+    QVariant returnedValue;
     QObject* rootItem = m_quick->rootObject();
     QMetaObject::invokeMethod(rootItem, "getFormValues", Q_RETURN_ARG(QVariant, returnedValue));
 
     //qDebug() << "WRITE QML variant:" << returnedValue;
     auto jsv = returnedValue.value<QJSValue>();
     auto var = jsv.toVariant();
-    data = qjsonToProperty(var);
-    {
-        //std::string buffer;
-        //writeJsonToBuffer(buffer, data);
-       // qDebug() << "WRITE JSON data:" << buffer.c_str();
-    }
+    data     = qvariantToProperty(var);
 }
 
 }

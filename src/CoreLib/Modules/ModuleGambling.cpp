@@ -12,7 +12,7 @@ namespace {
 const bool s_init = registerHelper<ModuleGambling>();
 }
 
-PropertyTreeScalarMap ModuleGambling::defaultValues() const
+PropertyTreeScalarMap ModuleGambling::defaultValuesScalar() const
 {
     return {
         { "charmGamble", false },

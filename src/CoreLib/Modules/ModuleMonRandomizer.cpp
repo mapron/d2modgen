@@ -134,7 +134,7 @@ struct TCTable {
 
 //}
 
-PropertyTreeScalarMap ModuleMonRandomizer::defaultValues() const
+PropertyTreeScalarMap ModuleMonRandomizer::defaultValuesScalar() const
 {
     return {
         { "spawnedCount", 5 },

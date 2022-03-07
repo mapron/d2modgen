@@ -66,7 +66,7 @@ void ConfigPageAbstract::addEditorsPlain(QList<IValueWidget*> editors)
 IValueWidget* ConfigPageAbstract::makeEditor(const std::string& key, const QString& title, const QString& help)
 {
     using Control            = IModule::UiControlHint::Control;
-    auto        defaultValue = getModule().defaultValues()[key];
+    auto        defaultValue = getModule().defaultValues()[key].getScalar();
     auto        hints        = getModule().uiHints();
     auto        hint         = hints[key];
     int         min          = hint.m_min;

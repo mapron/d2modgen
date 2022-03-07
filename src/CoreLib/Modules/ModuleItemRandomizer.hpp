@@ -20,7 +20,7 @@ public:
         return std::string(key);
     }
     PresetList            presets() const override;
-    PropertyTreeScalarMap defaultValues() const override;
+    PropertyTreeScalarMap defaultValuesScalar() const override;
     UiControlHintMap      uiHints() const override;
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;

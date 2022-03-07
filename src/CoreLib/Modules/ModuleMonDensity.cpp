@@ -14,7 +14,7 @@ namespace {
 const bool s_init = registerHelper<ModuleMonDensity>();
 }
 
-PropertyTreeScalarMap ModuleMonDensity::defaultValues() const
+PropertyTreeScalarMap ModuleMonDensity::defaultValuesScalar() const
 {
     return {
         { "density", 1 },

@@ -1,0 +1,8 @@
+{
+	"hasDylib": true,
+	"hasQML": true,
+	"defaults": {
+		"hasKey": true,
+		"reduceRequirements": 70
+	}
+}

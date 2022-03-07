@@ -14,7 +14,7 @@ namespace {
 const bool s_init = registerHelper<ModulePerfectRoll>();
 }
 
-PropertyTreeScalarMap ModulePerfectRoll::defaultValues() const
+PropertyTreeScalarMap ModulePerfectRoll::defaultValuesScalar() const
 {
     return {
         { "craft", true },

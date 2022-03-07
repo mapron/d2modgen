@@ -62,7 +62,7 @@ struct CharItems {
 };
 }
 
-PropertyTreeScalarMap ModuleCharacter::defaultValues() const
+PropertyTreeScalarMap ModuleCharacter::defaultValuesScalar() const
 {
     return {
         { "addCube", false },

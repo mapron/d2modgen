@@ -15,7 +15,7 @@ const bool s_init  = registerHelper<ModuleMergeModsPreload>();
 const bool s_init2 = registerHelper<ModuleMergeModsPostGen>();
 }
 
-PropertyTreeScalarMap ModuleMergeMods::defaultValues() const
+PropertyTreeScalarMap ModuleMergeMods::defaultValuesScalar() const
 {
     return {
         { "sourceCount", 0 },

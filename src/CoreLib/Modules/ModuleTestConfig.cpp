@@ -12,7 +12,7 @@ namespace {
 const bool s_init = registerHelper<ModuleTestConfig>();
 }
 
-PropertyTreeScalarMap ModuleTestConfig::defaultValues() const
+PropertyTreeScalarMap ModuleTestConfig::defaultValuesScalar() const
 {
     return {
         { "addKeys", true },

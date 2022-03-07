@@ -122,6 +122,7 @@ public:
 
     void append(PropertyTree child) noexcept(false);
     void insert(const std::string& key, PropertyTree child) noexcept(false);
+    void merge(const PropertyTree& another) noexcept(false);
 
     void convertToList() noexcept(false);
     void convertToMap() noexcept(false);

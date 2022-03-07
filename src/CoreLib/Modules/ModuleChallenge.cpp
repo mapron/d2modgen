@@ -22,7 +22,7 @@ ModuleChallenge::ModuleChallenge()
 {
 }
 
-PropertyTreeScalarMap ModuleChallenge::defaultValues() const
+PropertyTreeScalarMap ModuleChallenge::defaultValuesScalar() const
 {
     PropertyTreeScalarMap result{
         { "normal_minus_res", 0 },

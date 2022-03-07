@@ -16,7 +16,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/targets.cmake)
 
 
 # Qt Setup
-set(QT_MODULE_LIST Core Gui Widgets Svg Qml Network QmlModels Quick QuickWidgets QuickControls2)
+set(QT_MODULE_LIST Core Gui Widgets Svg Qml Network QmlModels QmlWorkerScript Quick QuickWidgets QuickTemplates2 QuickControls2)
 find_package(Qt5 COMPONENTS ${QT_MODULE_LIST} LinguistTools)
 add_definitions(-DCASCLIB_NO_AUTO_LINK_LIBRARY -DSTORMLIB_NO_AUTO_LINK)
 
@@ -49,9 +49,9 @@ add_executable(modgen_console ${src_ConsoleApp})
 target_link_libraries(modgen_console PRIVATE modgenCore)
 target_include_directories(modgen_console PRIVATE ${sourceRoot}/ConsoleApp)
 
-set(PLUGINS_ROOT ${CMAKE_CURRENT_BINARY_DIR}/plugins)
+set(pluginRootBin ${CMAKE_CURRENT_BINARY_DIR}/plugins)
 # TestPlugin
-set(pluginRootBin ${PLUGINS_ROOT}/TestPlugin)
+
 set(pluginRootSrc ${sourceRoot}/Plugins/TestPlugin)
 file(GLOB src_Plugin
 	${pluginRootSrc}/*.hpp
@@ -92,7 +92,25 @@ target_include_directories(modgen PRIVATE ${sourceRoot}/QtApp)
 target_link_libraries(modgen PRIVATE Qt5::Widgets Qt5::Quick Qt5::QuickWidgets Qt5::QuickControls2 modgenCore)
 
 install(TARGETS modgen modgenCore RUNTIME DESTINATION bin)
-install(DIRECTORY ${PLUGINS_ROOT} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
+install(DIRECTORY ${pluginRootBin} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
+
+InstallQmlFiles(
+	QtQuick.2
+	QtQuick/Controls.2
+	QtQuick/Window.2
+	QtQuick/Templates.2
+#[[
+	QtQuick/Controls
+	QtQuick/Extras
+	QtQuick/Layouts
+	QtQuick/Dialogs
+	QtQuick/LocalStorage
+	QtQuick/Particles.2
+	QtQuick/PrivateWidgets
+	
+	QtQuick/XmlListModel
+#]]
+	)
 
 #[[
 ########## Installation (Win32 only at the moment) ##########

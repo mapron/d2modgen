@@ -81,7 +81,7 @@ IModule::PresetList ModuleItemRandomizer::presets() const
     };
 }
 
-PropertyTreeScalarMap ModuleItemRandomizer::defaultValues() const
+PropertyTreeScalarMap ModuleItemRandomizer::defaultValuesScalar() const
 {
     return {
         { "crazyLevel", 20 },

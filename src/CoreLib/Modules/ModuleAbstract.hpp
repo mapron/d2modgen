@@ -13,13 +13,22 @@ namespace D2ModGen {
 class ModuleAbstract : public IModule {
     // IModule interface
 public:
-    PropertyTree          pluginInfo() const override { return {}; }
-    PresetList            presets() const override { return {}; }
-    PropertyTreeScalarMap defaultValues() const override { return {}; }
-    UiControlHintMap      uiHints() const override { return {}; }
+    PropertyTree     pluginInfo() const override { return {}; }
+    PresetList       presets() const override { return {}; }
+    UiControlHintMap uiHints() const override { return {}; }
+    PropertyTree     defaultValues() const override
+    {
+        PropertyTree          result;
+        PropertyTreeScalarMap scalars = defaultValuesScalar();
+        for (const auto& p : scalars)
+            result[p.first] = p.second;
+        return result;
+    }
 
     void gatherInfo(PreGenerationContext& output, const InputContext& input) const override {}
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override {}
+
+    virtual PropertyTreeScalarMap defaultValuesScalar() const { return {}; }
 };
 
 }
