@@ -71,19 +71,17 @@ IValueWidget* ConfigPageAbstract::makeEditor(const std::string& key, const QStri
     auto        hint         = hints[key];
     int         min          = hint.m_min;
     int         max          = hint.m_max;
-    const auto* ival         = std::get_if<int64_t>(&defaultValue);
-    const auto* bval         = std::get_if<bool>(&defaultValue);
     if (hint.m_control == Control::Auto)
         max = 100;
 
-    if (hint.m_control == Control::SliderMinMax || hint.m_control == Control::Auto && ival)
-        return addHelp(new SliderWidgetMinMax(title, QString::fromStdString(key), min, max, PropertyTree::toInt(defaultValue), hint.m_compact, this), help);
+    if (hint.m_control == Control::SliderMinMax || hint.m_control == Control::Auto && defaultValue.isInt())
+        return addHelp(new SliderWidgetMinMax(title, QString::fromStdString(key), min, max, defaultValue.toInt(), hint.m_compact, this), help);
     if (hint.m_control == Control::Slider)
-        return addHelp(new SliderWidget(title, QString::fromStdString(key), hint.m_num, hint.m_denom, PropertyTree::toInt(defaultValue), hint.m_compact, this), help);
+        return addHelp(new SliderWidget(title, QString::fromStdString(key), hint.m_num, hint.m_denom, defaultValue.toInt(), hint.m_compact, this), help);
     if (hint.m_control == Control::LineEdit)
-        return addHelp(new LineWidget(title, QString::fromStdString(key), QString::fromStdString(PropertyTree::toString(defaultValue)), this), help);
-    if (hint.m_control == Control::CheckBox || hint.m_control == Control::Auto && bval)
-        return addHelp(new CheckboxWidget(title, QString::fromStdString(key), PropertyTree::toBool(defaultValue), this), help);
+        return addHelp(new LineWidget(title, QString::fromStdString(key), QString::fromStdString(defaultValue.toString()), this), help);
+    if (hint.m_control == Control::CheckBox || hint.m_control == Control::Auto && defaultValue.isBool())
+        return addHelp(new CheckboxWidget(title, QString::fromStdString(key), defaultValue.toBool(), this), help);
 
     assert(false);
     return nullptr;

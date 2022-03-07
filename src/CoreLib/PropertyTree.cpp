@@ -7,36 +7,49 @@
 
 namespace D2ModGen {
 
-bool PropertyTree::toBool() const noexcept
+bool PropertyTreeScalar::toBool() const noexcept
 {
-    if (!isScalar())
-        return false;
-    const auto& sc = getScalar();
-    return toBool(sc);
+    if (const auto* bval = std::get_if<bool>(&m_data); bval)
+        return *bval;
+    if (const auto* ival = std::get_if<int64_t>(&m_data); ival)
+        return *ival;
+    if (const auto* dval = std::get_if<double>(&m_data); dval)
+        return *dval;
+    return false;
 }
 
-std::string PropertyTree::toString() const noexcept
+std::string PropertyTreeScalar::toString() const noexcept
 {
-    if (!isScalar())
-        return {};
-    const auto& sc = getScalar();
-    return toString(sc);
+    if (const auto* sval = std::get_if<std::string>(&m_data); sval)
+        return *sval;
+    return {};
 }
 
-int64_t PropertyTree::toInt() const noexcept
+const char* PropertyTreeScalar::toCString() const noexcept
 {
-    if (!isScalar())
-        return 0;
-    const auto& sc = getScalar();
-    return toInt(sc);
+    if (const auto* sval = std::get_if<std::string>(&m_data); sval)
+        return sval->c_str();
+    return nullptr;
 }
 
-double PropertyTree::toDouble() const noexcept
+int64_t PropertyTreeScalar::toInt() const noexcept
 {
-    if (!isScalar())
-        return 0.;
-    const auto& sc = getScalar();
-    return toDouble(sc);
+    if (const auto* bval = std::get_if<bool>(&m_data); bval)
+        return *bval;
+    if (const auto* ival = std::get_if<int64_t>(&m_data); ival)
+        return *ival;
+    if (const auto* dval = std::get_if<double>(&m_data); dval)
+        return static_cast<int64_t>(*dval);
+    return 0;
+}
+
+double PropertyTreeScalar::toDouble() const noexcept
+{
+    if (const auto* ival = std::get_if<int64_t>(&m_data); ival)
+        return static_cast<double>(*ival);
+    if (const auto* dval = std::get_if<double>(&m_data); dval)
+        return *dval;
+    return 0.;
 }
 
 void PropertyTree::append(PropertyTree child)
@@ -65,44 +78,6 @@ void PropertyTree::convertToMap() noexcept(false)
     if (m_data.index() == 0)
         m_data = PropertyTreeMap{};
     assert(isMap());
-}
-
-bool PropertyTree::toBool(const PropertyTreeScalar& scalar) noexcept
-{
-    if (const auto* bval = std::get_if<bool>(&scalar); bval)
-        return *bval;
-    if (const auto* ival = std::get_if<int64_t>(&scalar); ival)
-        return *ival;
-    if (const auto* dval = std::get_if<double>(&scalar); dval)
-        return *dval;
-    return false;
-}
-
-std::string PropertyTree::toString(const PropertyTreeScalar& scalar) noexcept
-{
-    if (const auto* sval = std::get_if<std::string>(&scalar); sval)
-        return *sval;
-    return {};
-}
-
-int64_t PropertyTree::toInt(const PropertyTreeScalar& scalar) noexcept
-{
-    if (const auto* bval = std::get_if<bool>(&scalar); bval)
-        return *bval;
-    if (const auto* ival = std::get_if<int64_t>(&scalar); ival)
-        return *ival;
-    if (const auto* dval = std::get_if<double>(&scalar); dval)
-        return static_cast<int64_t>(*dval);
-    return 0;
-}
-
-double PropertyTree::toDouble(const PropertyTreeScalar& scalar) noexcept
-{
-    if (const auto* ival = std::get_if<int64_t>(&scalar); ival)
-        return static_cast<double>(*ival);
-    if (const auto* dval = std::get_if<double>(&scalar); dval)
-        return *dval;
-    return 0.;
 }
 
 }

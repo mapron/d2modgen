@@ -339,22 +339,22 @@ void MainConfigPage::writeSettingsFromUI(PropertyTree& data) const
 void MainConfigPage::updateUIFromSettingsMain(const PropertyTree& data)
 {
     if (data.contains("modname"))
-        m_impl->modName->setText(QString::fromStdString(data["modname"].toString()));
+        m_impl->modName->setText(QString::fromStdString(data["modname"].getScalar().toString()));
     else
         m_impl->modName->setText("rando");
 
     if (data.contains("seed"))
-        m_impl->seed->setText(QString::fromStdString(data["seed"].toString()));
+        m_impl->seed->setText(QString::fromStdString(data["seed"].getScalar().toString()));
     else
         createNewSeed();
 
     if (data.contains("d2rPath"))
-        m_impl->d2rPath->setText(QString::fromStdString(data["d2rPath"].toString()));
+        m_impl->d2rPath->setText(QString::fromStdString(data["d2rPath"].getScalar().toString()));
     else
         m_impl->d2rPath->setText(getInstallLocationFromRegistry(true));
 
     if (data.contains("d2legacyPath"))
-        m_impl->d2legacyPath->setText(QString::fromStdString(data["d2legacyPath"].toString()));
+        m_impl->d2legacyPath->setText(QString::fromStdString(data["d2legacyPath"].getScalar().toString()));
     else
         m_impl->d2legacyPath->setText(getInstallLocationFromRegistry(false));
 
@@ -366,7 +366,7 @@ void MainConfigPage::updateUIFromSettingsMain(const PropertyTree& data)
 void MainConfigPage::writeSettingsFromUIMain(PropertyTree& data) const
 {
     data["modname"]         = PropertyTreeScalar{ m_impl->modName->text().toStdString() };
-    data["seed"]            = PropertyTreeScalar{ m_impl->seed->text().toUInt() };
+    data["seed"]            = PropertyTreeScalar{ static_cast<int64_t>(m_impl->seed->text().toUInt()) };
     data["d2rPath"]         = PropertyTreeScalar{ m_impl->d2rPath->text().toStdString() };
     data["d2legacyPath"]    = PropertyTreeScalar{ m_impl->d2legacyPath->text().toStdString() };
     data["isLegacy"]        = PropertyTreeScalar{ m_impl->d2legacyMode->isChecked() };

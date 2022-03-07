@@ -99,7 +99,7 @@ void ModuleDropFiltering::generate(DataContext& output, RandomGenerator& rng, co
         auto& jsonDoc   = output.jsonFiles[name];
         auto& jsonArray = jsonDoc.getList();
         for (PropertyTree& lang : jsonArray) {
-            const std::string key = lang["Key"].toString();
+            const std::string key = lang["Key"].getScalar().toString();
             if (replacements.contains(key)) {
                 auto val = replacements.at(key);
                 for (const std::string& loc : s_locales)

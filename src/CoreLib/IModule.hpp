@@ -72,11 +72,11 @@ public:
 
         int getInt(const std::string& key) const noexcept(false)
         {
-            return PropertyTree::toInt(getScalar(key));
+            return getScalar(key).toInt();
         }
         std::string getString(const std::string& key) const noexcept(false)
         {
-            return PropertyTree::toString(getScalar(key));
+            return getScalar(key).toString();
         }
     };
 

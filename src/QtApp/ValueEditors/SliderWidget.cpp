@@ -108,7 +108,7 @@ void SliderWidget::resetValue()
 void SliderWidget::setValue(const PropertyTree& value)
 {
     m_settingValue = true;
-    m_valueBox->setValue(value.toInt());
+    m_valueBox->setValue(value.getScalar().toInt());
     m_settingValue = false;
 }
 
@@ -240,7 +240,7 @@ void SliderWidgetMinMax::resetValue()
 void SliderWidgetMinMax::setValue(const PropertyTree& value)
 {
     m_settingValue = true;
-    m_valueBox->setValue(value.toInt());
+    m_valueBox->setValue(value.getScalar().toInt());
     m_settingValue = false;
 }
 

@@ -46,7 +46,7 @@ void LineWidget::resetValue()
 
 void LineWidget::setValue(const PropertyTree& value)
 {
-    m_lineEdit->setText(QString::fromStdString(value.toString()));
+    m_lineEdit->setText(QString::fromStdString(value.getScalar().toString()));
 }
 
 PropertyTree LineWidget::getValue() const

@@ -45,7 +45,7 @@ void CheckboxWidget::resetValue()
 
 void CheckboxWidget::setValue(const PropertyTree& value)
 {
-    m_checkBox->setChecked(value.toBool());
+    m_checkBox->setChecked(value.getScalar().toBool());
 }
 
 PropertyTree CheckboxWidget::getValue() const

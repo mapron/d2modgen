@@ -15,7 +15,44 @@
 
 namespace D2ModGen {
 
-using PropertyTreeScalar = std::variant<std::monostate, bool, int64_t, double, std::string>;
+class CORE_EXPORT PropertyTreeScalar {
+public:
+    PropertyTreeScalar() = default;
+    PropertyTreeScalar(bool value)
+        : m_data(value)
+    {}
+    PropertyTreeScalar(int64_t value)
+        : m_data(value)
+    {}
+    PropertyTreeScalar(int value)
+        : m_data(value)
+    {}
+    PropertyTreeScalar(double value)
+        : m_data(value)
+    {}
+    PropertyTreeScalar(std::string value)
+        : m_data(std::move(value))
+    {}
+
+    bool operator==(const PropertyTreeScalar& rh) const noexcept { return m_data == rh.m_data; }
+
+    // convert value to standard scalar types. If conversion cannot be made, returns default value.
+    bool        toBool() const noexcept;
+    std::string toString() const noexcept;
+    const char* toCString() const noexcept;
+    int64_t     toInt() const noexcept;
+    double      toDouble() const noexcept;
+
+    bool isNull() const noexcept { return m_data.index() == 0; }
+    bool isBool() const noexcept { return m_data.index() == 1; }
+    bool isInt() const noexcept { return m_data.index() == 2; }
+    bool isDouble() const noexcept { return m_data.index() == 3; }
+    bool isString() const noexcept { return m_data.index() == 4; }
+
+private:
+    std::variant<std::monostate, bool, int64_t, double, std::string> m_data;
+};
+
 class PropertyTree;
 
 using PropertyTreeList      = std::vector<PropertyTree>;
@@ -52,12 +89,6 @@ public:
     auto& getList() noexcept(false) { return std::get<PropertyTreeList>(m_data); }
     auto& getMap() noexcept(false) { return std::get<PropertyTreeMap>(m_data); }
 
-    // convert value to standard scalar types. If conversion cannot be made, returns default value.
-    bool        toBool() const noexcept;
-    std::string toString() const noexcept;
-    int64_t     toInt() const noexcept;
-    double      toDouble() const noexcept;
-
     // checks if container have child object with provided key. returns false if property not a map.
     bool contains(const std::string& key) const noexcept
     {
@@ -78,7 +109,7 @@ public:
             m_data = PropertyTreeMap{};
         return std::get<PropertyTreeMap>(m_data)[key];
     }
-    PropertyTree value(const std::string& key, PropertyTreeScalar defaultValue) const noexcept(false)
+    PropertyTreeScalar value(const std::string& key, PropertyTreeScalar defaultValue) const noexcept(false)
     {
         if (!isMap())
             return std::move(defaultValue);
@@ -86,7 +117,7 @@ public:
         auto        it  = map.find(key);
         if (it == map.cend())
             return std::move(defaultValue);
-        return it->second;
+        return it->second.getScalar();
     }
 
     void append(PropertyTree child) noexcept(false);
@@ -94,12 +125,6 @@ public:
 
     void convertToList() noexcept(false);
     void convertToMap() noexcept(false);
-
-public:
-    static bool        toBool(const PropertyTreeScalar& scalar) noexcept;
-    static std::string toString(const PropertyTreeScalar& scalar) noexcept;
-    static int64_t     toInt(const PropertyTreeScalar& scalar) noexcept;
-    static double      toDouble(const PropertyTreeScalar& scalar) noexcept;
 
 private:
     using Variant = std::variant<std::monostate, PropertyTreeScalar, PropertyTreeList, PropertyTreeMap>;

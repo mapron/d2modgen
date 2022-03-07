@@ -87,14 +87,16 @@ void propertyToJson(const PropertyTree& data, rapidjson::Value& json, rapidjson:
         }
     } else if (data.isScalar()) {
         const auto& scalar = data.getScalar();
-        if (const auto* bval = std::get_if<bool>(&scalar); bval)
-            json.SetBool(*bval);
-        if (const auto* ival = std::get_if<int64_t>(&scalar); ival)
-            json.SetInt64(*ival);
-        if (const auto* dval = std::get_if<double>(&scalar); dval)
-            json.SetDouble(*dval);
-        if (const auto* sval = std::get_if<std::string>(&scalar); sval)
-            json.SetString(sval->data(), sval->size(), allocator);
+        if (scalar.isBool())
+            json.SetBool(scalar.toBool());
+        if (scalar.isInt())
+            json.SetInt64(scalar.toInt());
+        if (scalar.isDouble())
+            json.SetDouble(scalar.toDouble());
+        if (scalar.isString()) {
+            const auto s = scalar.toString();
+            json.SetString(s.data(), s.size(), allocator);
+        }
     }
 }
 

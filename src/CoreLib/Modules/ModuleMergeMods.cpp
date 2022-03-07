@@ -29,10 +29,10 @@ void ModuleMergeMods::gatherInfoInternal(ExtraDependencies& output, const InputC
     for (int i = 0; i < count; ++i) {
         const PropertyTree& itemData = input.m_settings[argCompat("item_%1", i)];
 
-        auto type       = static_cast<StorageType>(itemData["type"].toInt());
-        auto policy     = static_cast<ConflictPolicy>(itemData["policy"].toInt());
-        auto modname    = (itemData["mod"].toString());
-        auto folderRoot = (itemData["folder"].toString());
+        auto type       = static_cast<StorageType>(itemData["type"].getScalar().toInt());
+        auto policy     = static_cast<ConflictPolicy>(itemData["policy"].getScalar().toInt());
+        auto modname    = (itemData["mod"].getScalar().toString());
+        auto folderRoot = (itemData["folder"].getScalar().toString());
 
         output.m_sources.push_back(ExtraDependencies::Source{
             type,

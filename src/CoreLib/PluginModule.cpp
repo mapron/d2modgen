@@ -44,7 +44,8 @@ void PluginModule::generate(DataContext& output, RandomGenerator& rng, const Inp
 
     GenerateCFuncPtr generateInPlugin = reinterpret_cast<GenerateCFuncPtr>(m_generateAddr);
     CDataContext     ccontext{ &output };
-    generateInPlugin(ccontext);
+    CPropertyTree    cdata{ &input.m_settings };
+    generateInPlugin(ccontext, cdata);
 }
 
 }

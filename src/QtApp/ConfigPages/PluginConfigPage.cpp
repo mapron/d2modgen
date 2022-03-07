@@ -71,14 +71,14 @@ QVariant propertyToQjson(const PropertyTree& value)
         return QVariant();
     if (value.isScalar()) {
         const auto& sc = value.getScalar();
-        if (const auto* bval = std::get_if<bool>(&sc); bval)
-            return *bval;
-        if (const auto* ival = std::get_if<int64_t>(&sc); ival)
-            return *ival;
-        if (const auto* dval = std::get_if<double>(&sc); dval)
-            return *dval;
-        if (const auto* sval = std::get_if<std::string>(&sc); sval)
-            return QString::fromStdString(*sval);
+        if (sc.isBool())
+            return QVariant(sc.toBool());
+        if (sc.isInt())
+            return sc.toInt();
+        if (sc.isDouble())
+            return sc.toDouble();
+        if (sc.isString())
+            return QString::fromStdString(sc.toString());
     }
     if (value.isList()) {
         QList<QVariant> arr;

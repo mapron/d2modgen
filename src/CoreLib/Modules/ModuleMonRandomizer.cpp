@@ -343,7 +343,7 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
         for (const auto& copy : typeTable.newCopies) {
             const std::string sourceId  = copy.sourceId;
             const std::string newId     = copy.newId;
-            const std::string modelName = jsonObject[sourceId].toString();
+            const std::string modelName = jsonObject[sourceId].getScalar().toString();
             assert(!modelName.empty());
             jsonObject[newId] = PropertyTreeScalar{ modelName };
         }

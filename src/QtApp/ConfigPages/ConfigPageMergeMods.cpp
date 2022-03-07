@@ -102,10 +102,10 @@ void ConfigPageMergeModsItem::setModList(const QStringList& mods)
 void ConfigPageMergeModsItem::readSettings(const PropertyTree& data)
 {
     m_readingSettings = true;
-    m_typeSelect->setCurrentIndex(std::max(0, m_typeIndex.indexOf(static_cast<StorageType>(data["type"].toInt()))));
-    m_policySelect->setCurrentIndex(std::max(0, m_policyIndex.indexOf(static_cast<ConflictPolicy>(data["policy"].toInt()))));
-    setMod(QString::fromStdString(data["mod"].toString()));
-    m_folderCSV->setText(QString::fromStdString(data["folder"].toString()));
+    m_typeSelect->setCurrentIndex(std::max(0, m_typeIndex.indexOf(static_cast<StorageType>(data["type"].getScalar().toInt()))));
+    m_policySelect->setCurrentIndex(std::max(0, m_policyIndex.indexOf(static_cast<ConflictPolicy>(data["policy"].getScalar().toInt()))));
+    setMod(QString::fromStdString(data["mod"].getScalar().toString()));
+    m_folderCSV->setText(QString::fromStdString(data["folder"].getScalar().toString()));
     m_readingSettings = false;
 }
 
