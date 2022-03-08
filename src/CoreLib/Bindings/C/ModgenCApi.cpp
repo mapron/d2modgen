@@ -4,7 +4,7 @@
  * See LICENSE file for details.
  */
 
-#include "CApi.h"
+#include "ModgenCApi.h"
 
 #include "TableUtils.hpp"
 #include "PropertyTree.hpp"

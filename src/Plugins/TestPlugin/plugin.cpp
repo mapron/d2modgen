@@ -4,7 +4,7 @@
  * See LICENSE file for details.
  */
 
-#include "CApiCppWrapper.hpp"
+#include "Bindings/Cpp/ModgenCppWrapper.hpp"
 
 #include "PluginExport.hpp"
 

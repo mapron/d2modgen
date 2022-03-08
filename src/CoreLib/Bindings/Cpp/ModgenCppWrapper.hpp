@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include "CApi.h"
+#include "Bindings/C/ModgenCApi.h"
 
 #include <string>
 

@@ -1,6 +1,6 @@
 {
 	"hasDylib": true,
-	"hasQML": false,
+	"hasQML": true,
 	"defaults": {
 		"addKeys": true,
 		"reduceRequirements": 70,
@@ -9,12 +9,36 @@
 		"randomDouble": 42.100000000000001
 	},
 	"controls": [
-		{ "id": "addKeys", "type": "checkbox",
-			"title": {"ru_RU": "Добавить ключи в инвентарь", "en_US" : "Add keys to the inventory"}, "help": {"ru_RU": "Помощь!", "en_US" : ""} },
-		{ "id": "reduceRequirements", "type": "sliderMinMax", "min": 0, "max": 250, 
-			"title": {"ru_RU": "Снизить требования к ловкости и силе", "en_US" : "Reduce str/dex requirements"}, "help": {"ru_RU": "", "en_US" : ""} }
+		{ "id": "addKeys", "type": "checkbox"},
+		{ "id": "reduceRequirements", "type": "sliderMinMax", "min": 0, "max": 250 }
 		
 	],
-	"title": {"ru_RU": "Тестовое", "en_US" : "Testing"}, 
-	"help": {"ru_RU": "Вы тут ждете помощи?\n Вот вам вторая строка бесполезного.", "en_US" : "What do you expect?"}
+	"locales": {
+		"ru_RU": {
+			"title": "ТЕСТ",
+			"help": ["Тестовый плагин"],
+			
+			"presets": [],
+			"controlsTitles": {
+				"addKeys": "Добавить ключи в инвентарь",
+				"reduceRequirements": "Снизить требования к ловкости и силе"
+			},
+			"controlsHelps": {
+				"addKeys": "Помощь про ключи"
+			}
+		},
+		"en_US": {
+			"title": "TEST",
+			"help": ["Testing plugin, can't help!"],
+			
+			"presets": [],
+			"controlsTitles": {
+				"addKeys": "Add keys to fresh character inventory",
+				"reduceRequirements": "Reduce str/dex requirements"
+			},
+			"controlsHelps": {
+				"addKeys": "We can help you with this option"
+			}
+		}
+	}
 }

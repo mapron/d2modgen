@@ -10,7 +10,7 @@
 #include "Formats/FileFormatJson.hpp"
 #include "Logger.hpp"
 
-#include "CApi.h"
+#include "Bindings/C/ModgenCApi.h"
 
 namespace D2ModGen {
 
