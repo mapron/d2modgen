@@ -14,37 +14,6 @@ namespace {
 const bool s_init = registerHelper<ModuleMonStats>();
 }
 
-PropertyTreeScalarMap ModuleMonStats::defaultValuesScalar() const
-{
-    return {
-        { "mon_ar", 100 },
-        { "mon_def", 100 },
-        { "mon_hp", 100 },
-        { "mon_dam", 100 },
-        { "mon_xp", 100 },
-        { "max_resist", 250 },
-        { "rel_resist", 100 },
-        { "resist_apply_elem", true },
-        { "resist_apply_poison", true },
-        { "resist_apply_magic", false },
-        { "resist_apply_physical", false },
-    };
-}
-
-IModule::UiControlHintMap ModuleMonStats::uiHints() const
-{
-    return {
-        { "mon_ar", UiControlHintSlider(10, 10) },
-        { "mon_def", UiControlHintSlider(10, 10) },
-        { "mon_hp", UiControlHintSlider(10, 10) },
-        { "mon_dam", UiControlHintSlider(10, 10) },
-        { "mon_xp", UiControlHintSlider(10, 10) },
-
-        { "max_resist", UiControlHintSliderMinMax(90, 250) },
-        { "rel_resist", UiControlHintSlider(10, 10) },
-    };
-}
-
 void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())

@@ -5,23 +5,17 @@
  */
 #pragma once
 
-#include "ModuleAbstract.hpp"
+#include "PluginModule.hpp"
 
 namespace D2ModGen {
 
-class ModuleRuneDrops : public ModuleAbstract {
+class ModuleRuneDrops : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::runeDrops;
 
-    // IModule interface
-public:
-    std::string settingKey() const override
-    {
-        return std::string(key);
-    }
-    PresetList            presets() const override;
-    PropertyTreeScalarMap defaultValuesScalar() const override;
-    UiControlHintMap      uiHints() const override;
+    ModuleRuneDrops(PropertyTree moduleMetadata, std::string id)
+        : PluginModule(std::move(moduleMetadata), std::move(id))
+    {}
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

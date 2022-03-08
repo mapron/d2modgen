@@ -9,28 +9,31 @@
 
 #include "FileIOUtils.hpp"
 
+#include "ModuleFactory.hpp"
+
 namespace D2ModGen {
 
 class DyLib;
 class PluginModule : public IModule {
 public:
-    PluginModule(const std_path& jsonDeclFilepath);
+    PluginModule(PropertyTree moduleMetadata, std::string id, std::string idPrefix = "");
     ~PluginModule();
 
-    PropertyTree pluginInfo() const override;
+    const PropertyTree& pluginInfo() const override { return m_info; }
+    const PropertyTree& defaultValues() const override { return m_defaults; }
 
-    std::string      settingKey() const override { return "plugin_" + m_id; }
-    PresetList       presets() const override;
-    PropertyTree     defaultValues() const override;
-    UiControlHintMap uiHints() const override { return {}; }
+    std::string settingKey() const override { return m_idPrefix + m_id; }
 
     void gatherInfo(PreGenerationContext& output, const InputContext& input) const override {}
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 
 private:
+    const PropertyTree m_info;
+    const PropertyTree m_defaults;
+    const std::string  m_id;
+    const std::string  m_idPrefix;
+
     std::unique_ptr<DyLib> m_dylib;
-    std::string            m_id;
-    PropertyTree           m_info;
     void*                  m_generateAddr = nullptr;
 };
 

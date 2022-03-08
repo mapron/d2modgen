@@ -8,8 +8,7 @@
 #include "FileIOUtils.hpp"
 
 #include "ConfigPages/MainConfigPage.hpp"
-#include "ConfigPages/ConfigPageMergeMods.hpp"
-#include "ConfigPages/PluginConfigPage.hpp"
+
 #include "ConfigPageFactory.hpp"
 
 #include "IModule.hpp"
@@ -94,6 +93,8 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
     m_delayTimer = new DelayedTimer(
         1000, [this] { pushUndoCurrent(); }, this);
 
+    const std::string langId = getAppSettings().m_langId.toStdString();
+
     // widgets
     QStackedWidget* stackedWidget    = new QStackedWidget(this);
     QPushButton*    genButton        = new QPushButton(tr("Generate"), this);
@@ -107,7 +108,7 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
 
     m_status = new QLabel(tr("Status label."), this);
 
-    m_mainPage        = new MainConfigPage(createModule(std::string(IModule::Key::testConfig)), this);
+    m_mainPage        = new MainConfigPage(configHandler.getModule(std::string(IModule::Key::testConfig)), this);
     auto* pageGroup   = new QButtonGroup(this);
     auto* buttonPanel = new QWidget(this);
 
@@ -116,65 +117,33 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
     pageGroups << PageGroup{
         "", QList<IConfigPage*>{ m_mainPage }
     };
-    auto createConfigPages = [this](const std::vector<std::string_view>& keys) -> QList<IConfigPage*> {
-        QList<IConfigPage*> result;
-        for (auto key : keys)
-            result << createConfigPage(m_configHandler.getModule(key), this);
-        return result;
+    QMap<std::string, QMap<int, QList<IConfigPage*>>> pluginConfigPagesOrd;
+    std::vector<std::pair<std::string, QString>> known{
+        { "randomizer", QObject::tr("Randomizers")},
+        { "harder", QObject::tr("Make harder")},
+        { "easier", QObject::tr("Make easier")},
+        { "misc", QObject::tr("Misc") },
+        { "", QObject::tr("Plugins") },
     };
-    auto createPluginConfigPages = [this]() -> QList<IConfigPage*> {
-        QList<IConfigPage*> result;
-        for (auto key : m_configHandler.m_pluginIds)
-            result << new PluginConfigPage(m_configHandler.getModule(key), this);
-        return result;
-    };
-    pageGroups << [this, &createConfigPages, &createPluginConfigPages]() -> QList<PageGroup> {
-        return QList<PageGroup>{
-            PageGroup{
-                QObject::tr("Randomizers"),
-                createConfigPages({
-                    IModule::Key::itemRandomizer,
-                    IModule::Key::monsterRandomizer,
-                    IModule::Key::skillRandomizer,
-                }),
-
-            },
-            PageGroup{
-                QObject::tr("Make harder"),
-                createConfigPages({
-                    IModule::Key::monsterStats,
-                    IModule::Key::monsterDensity,
-                    IModule::Key::challenge,
-                }),
-
-            },
-            PageGroup{
-                QObject::tr("Make easier"),
-                createConfigPages({
-                    IModule::Key::horadricCube,
-                    IModule::Key::gambling,
-                    IModule::Key::character,
-                    IModule::Key::qualityOfLife,
-                    IModule::Key::itemDrops,
-                    IModule::Key::runeDrops,
-                    IModule::Key::perfectRolls,
-                }),
-
-            },
-            PageGroup{
-                QObject::tr("Misc"),
-                createConfigPages({
-                    IModule::Key::dropFiltering,
-                    IModule::Key::mergePregen,
-                    IModule::Key::mergePostgen,
-                }),
-            },
-            PageGroup{
-                QObject::tr("Plugins"),
-                createPluginConfigPages(),
-            },
-        };
-    }();
+    for (auto key : m_configHandler.m_pluginIds) {
+        auto module = m_configHandler.getModule(key);
+        auto cat = module->pluginInfo().value("category", "").toString();
+        if (!std::set<std::string>{"easier", "harder","randomizer", "misc"}.contains(cat))
+            cat = "";
+        auto ord = module->pluginInfo().value("order", 1000).toInt();
+        pluginConfigPagesOrd[cat][ord] << createConfigPage(langId, module, this);
+    }
+    for (const auto & p : known) {
+        const auto & groupKey = p.first;
+        const auto & str = p.second;
+        QList<IConfigPage*> total;
+        for (const auto & val : pluginConfigPagesOrd[groupKey]) {
+            total << val;
+        }
+        if (total.isEmpty())
+            continue;
+        pageGroups << PageGroup { str, total };
+    }
 
     for (const auto& group : pageGroups) {
         if (!group.title.isEmpty()) {
@@ -225,21 +194,18 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
             pageWrapperMain->addWidget(page);
             stackedWidget->addWidget(pageWrapper);
 
-            auto presets      = page->getModule().presets();
-            auto presetTitles = page->pagePresets();
+            auto presets = page->pagePresets();
 
             if (!presets.empty()) {
                 presetCombo = new QComboBox(this);
                 presetCombo->addItem(tr("Select preset..."));
-                while (presetTitles.size() < presets.size())
-                    presetTitles << QString("Preset #%1").arg(presetTitles.size() + 1);
-                for (const auto& preset : presetTitles)
-                    presetCombo->addItem(preset);
+                for (const auto& preset : presets)
+                    presetCombo->addItem(preset.m_title);
 
                 connect(presetCombo, qOverload<int>(&QComboBox::currentIndexChanged), presetCombo, [this, presetCombo, page, presets](int index) {
                     if (index <= 0)
                         return;
-                    updateUIFromSettings(page, presets[index - 1]);
+                    updateUIFromSettings(page, presets[index - 1].m_data);
                     writeSettingsFromUI(page);
                 });
                 pageWrapperPresetHeader->addStretch();

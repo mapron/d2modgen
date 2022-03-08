@@ -1,0 +1,99 @@
+{
+	"id": "rune_drops",
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "easier",
+	"order": 60,
+	"defaults": {
+
+		"zod_factor": 1,
+		"rune_factor": 1,
+		"highrune_switch": false,
+		"countess_rune_higher": false,
+		"countess_rune_more": false,
+		"wraith_runes": false
+		
+	},
+	"controls": [
+		{ "id": "zod_factor", "type": "sliderMinMax", "min": 1, "max": 1000},
+		{ "id": "rune_factor", "type": "sliderMinMax", "min": 1, "max": 10},
+			
+		{ "id": "highrune_switch", "type": "checkbox"},
+		{ "id": "countess_rune_higher", "type": "checkbox"},
+		{ "id": "countess_rune_more", "type": "checkbox"},
+		{ "id": "wraith_runes", "type": "checkbox"}
+	],
+	"presets": [
+		{
+			"zod_factor": 200,
+			"rune_factor": 10,
+			"countess_rune_higher": true,
+			"countess_rune_more": true,
+			"wraith_runes": true
+		},
+		{
+			"zod_factor": 10,
+			"rune_factor": 3
+		},
+		{ 
+			"rune_factor": 3,
+			"countess_rune_higher": true,
+			"countess_rune_more": true,
+			"wraith_runes": true
+		}
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Увеличить дроп рун",
+			"help": ["Объяснения здесь подразумевают что вы знакомы с понятием Treasure Class (TC) и NoDrop.",
+				"В основном все опции здесь меняют выборку в рамках того или иного TC, смещая шансы."],
+				
+			
+			"presets": ["Дайте мне гору Ber рун уже!", "I want to make Infinity at least once in my life", "Я все еще хочу чтобы редкие руны были редкими, но дайте их больше"],
+			"controlsTitles": {
+				"zod_factor": "Увеличить шанс дропа редких рун",
+				"rune_factor": "Увеличить шанс дропа рун в Good TC",
+				"highrune_switch": "Поменять (Ber,Jah) с (Cham,Zod) в редкости",
+				"countess_rune_higher": "Countess будет выбрасывать руны более высокого уровня (вплоть до Zod на Hell)",
+				"countess_rune_more": "Увеличить число рун с Countess до 5",
+				"wraith_runes": "Увеличить частоту дропа рун с призраков"
+
+			},
+			"controlsHelps": {
+				"zod_factor": ["Эта настройка крайне сильно увеличивает шансы выпадения редких рун!",
+					"Вам скорее всего не нужно больше 50х.",
+					"Значение здесь повышает шанс выпадения Zod руны в &apos;Runes 17&apos; TC",
+					"Редкость остальных рун меняется пропорционально",
+					"(но все равно нелинейно как и прежде)."],
+				"rune_factor": ["Когда кидается Good TC, руны будут выпадать намного чаще ",
+					"в сравнении с остальной бижутерией."],
+				"highrune_switch": ["Когда игра решит выбросить Jah, упадет Zod вместо этого. И наоборот."]
+			}
+		},
+		"en_US": {
+			"title": "Increase Rune drops",
+			"help": ["All help and explanation on this page assume you are familiar with Treasure Class (TC) and NoDrop terminology.",
+				"Basically all options here modifying TC pick weights - so one preferred option become less rare."],
+			
+			"presets": ["Gimme pile of Ber runes!", "I want to make Infinity at least once in my life", "I want high runes to be rare, but want more rune drops overall"],
+			"controlsTitles": {
+				"zod_factor": "Increase Rare Rune drops",
+				"rune_factor": "Increase Runes chance in Good TC",
+				"highrune_switch": "Switch (Ber,Jah) with (Cham,Zod) in rarity",
+				"countess_rune_higher": "Make Countess Drop higher runes (up to Runes 17=Zod on Hell)",
+				"countess_rune_more": "Increase Countess Runes drop count to 5",
+				"wraith_runes": "Increase Wraiths Runes drop"
+
+			},
+			"controlsHelps": {
+				"zod_factor": ["That will drastically improve High Rune drop rates! You probably don&apos;t need more than 50x.",
+					"Value here increases chance of dropping Zod in &apos;Runes 17&apos; TC",
+					"Rarity of other runes will change proportionally ",
+					"(so High Runes still be more rare in the same manner)."],
+				"rune_factor": ["When dropping from Good TC, that will make Runes drop more often ",
+					"compared to other jewellery (Gems/Rings/Amulets/Charms)"],
+				"highrune_switch": ["When game desides to drop Jah rune, it drops Zod instead. And vice versa."]
+			}
+		}
+	}
+}

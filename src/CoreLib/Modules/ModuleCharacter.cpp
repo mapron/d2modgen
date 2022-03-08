@@ -62,31 +62,6 @@ struct CharItems {
 };
 }
 
-PropertyTreeScalarMap ModuleCharacter::defaultValuesScalar() const
-{
-    return {
-        { "addCube", false },
-        { "idTome", false },
-        { "manaPots", false },
-        { "statPerLevel", 5 },
-        { "skillPerLevel", 1 },
-        { "statLower", 100 },
-        { "mercHP", 100 },
-        { "mercDam", 100 },
-    };
-}
-
-IModule::UiControlHintMap ModuleCharacter::uiHints() const
-{
-    return {
-        { "statPerLevel", UiControlHintSliderMinMax(1, 25) },
-        { "skillPerLevel", UiControlHintSliderMinMax(1, 5) },
-        { "statLower", UiControlHintSliderMinMax(10, 100) },
-        { "mercHP", UiControlHintSlider(5, 10) },
-        { "mercDam", UiControlHintSlider(5, 10) },
-    };
-}
-
 void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())

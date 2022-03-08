@@ -4,21 +4,17 @@
  * See LICENSE file for details.
  */
 #pragma once
-#include "ModuleAbstract.hpp"
+#include "PluginModule.hpp"
 
 namespace D2ModGen {
 
-class ModulePerfectRoll : public ModuleAbstract {
+class ModulePerfectRoll : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::perfectRolls;
 
-    // IModule interface
-public:
-    std::string settingKey() const override
-    {
-        return std::string(key);
-    }
-    PropertyTreeScalarMap defaultValuesScalar() const override;
+    ModulePerfectRoll(PropertyTree moduleMetadata, std::string id)
+        : PluginModule(std::move(moduleMetadata), std::move(id))
+    {}
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

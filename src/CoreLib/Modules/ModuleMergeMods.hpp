@@ -5,15 +5,15 @@
  */
 #pragma once
 
-#include "ModuleAbstract.hpp"
+#include "PluginModule.hpp"
 
 namespace D2ModGen {
 
-class ModuleMergeMods : public ModuleAbstract {
+class ModuleMergeMods : public PluginModule {
 public:
-    // IModule interface
-public:
-    PropertyTreeScalarMap defaultValuesScalar() const override;
+    ModuleMergeMods(PropertyTree moduleMetadata, std::string id)
+        : PluginModule(std::move(moduleMetadata), std::move(id))
+    {}
 
 protected:
     void gatherInfoInternal(ExtraDependencies& output, const InputContext& input) const;
@@ -22,12 +22,10 @@ protected:
 class ModuleMergeModsPreload : public ModuleMergeMods {
 public:
     static constexpr const std::string_view key = Key::mergePregen;
-    // IModule interface
-public:
-    std::string settingKey() const override
-    {
-        return std::string(key);
-    }
+
+    ModuleMergeModsPreload(PropertyTree moduleMetadata, std::string id)
+        : ModuleMergeMods(std::move(moduleMetadata), std::move(id))
+    {}
     void gatherInfo(PreGenerationContext& output, const InputContext& input) const override
     {
         gatherInfoInternal(output.m_preGen, input);
@@ -37,12 +35,11 @@ public:
 class ModuleMergeModsPostGen : public ModuleMergeMods {
 public:
     static constexpr const std::string_view key = Key::mergePostgen;
-    // IModule interface
-public:
-    std::string settingKey() const override
-    {
-        return std::string(key);
-    }
+
+    ModuleMergeModsPostGen(PropertyTree moduleMetadata, std::string id)
+        : ModuleMergeMods(std::move(moduleMetadata), std::move(id))
+    {}
+
     void gatherInfo(PreGenerationContext& output, const InputContext& input) const override
     {
         gatherInfoInternal(output.m_postGen, input);

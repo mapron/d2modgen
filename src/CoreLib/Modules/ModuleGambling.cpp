@@ -12,29 +12,6 @@ namespace {
 const bool s_init = registerHelper<ModuleGambling>();
 }
 
-PropertyTreeScalarMap ModuleGambling::defaultValuesScalar() const
-{
-    return {
-        { "charmGamble", false },
-        { "ratioUnique", 1 },
-        { "ratioSet", 1 },
-        { "ratioRare", 1 },
-        { "ratioExc", 1 },
-        { "ratioElite", 1 },
-    };
-}
-
-IModule::UiControlHintMap ModuleGambling::uiHints() const
-{
-    return {
-        { "ratioUnique", UiControlHintSliderMinMax(1, 500) },
-        { "ratioSet", UiControlHintSliderMinMax(1, 250) },
-        { "ratioRare", UiControlHintSliderMinMax(1, 4) },
-        { "ratioExc", UiControlHintSliderMinMax(1, 4) },
-        { "ratioElite", UiControlHintSliderMinMax(1, 10) },
-    };
-}
-
 void ModuleGambling::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     const bool charmGamble = input.getInt("charmGamble") && input.m_env.isLegacy; // disabled for D2R now; it crashes the game.

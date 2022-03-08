@@ -46,7 +46,7 @@ private:
 class ConfigPageMergeMods : public ConfigPageAbstract {
     Q_OBJECT
 public:
-    ConfigPageMergeMods(const IModule::Ptr& module, QWidget* parent);
+    ConfigPageMergeMods(const std::string& localeId, const IModule::Ptr& module, QWidget* parent);
 
     void setModList(const QStringList& mods);
 
@@ -75,16 +75,9 @@ class ConfigPageMergeModsPreload : public ConfigPageMergeMods {
 public:
     static constexpr const std::string_view key = IModule::Key::mergePregen;
 
-    ConfigPageMergeModsPreload(const IModule::Ptr& module, QWidget* parent)
-        : ConfigPageMergeMods(module, parent)
+    ConfigPageMergeModsPreload(const std::string& localeId, const IModule::Ptr& module, QWidget* parent)
+        : ConfigPageMergeMods(localeId, module, parent)
     {
-    }
-
-    // IConfigPage interface
-public:
-    QString caption() const override
-    {
-        return tr("Pre-gen data");
     }
 };
 
@@ -93,16 +86,9 @@ class ConfigPageMergeModsPostGen : public ConfigPageMergeMods {
 public:
     static constexpr const std::string_view key = IModule::Key::mergePostgen;
 
-    ConfigPageMergeModsPostGen(const IModule::Ptr& module, QWidget* parent)
-        : ConfigPageMergeMods(module, parent)
+    ConfigPageMergeModsPostGen(const std::string& localeId, const IModule::Ptr& module, QWidget* parent)
+        : ConfigPageMergeMods(localeId, module, parent)
     {
-    }
-
-    // IConfigPage interface
-public:
-    QString caption() const override
-    {
-        return tr("Post-gen data");
     }
 };
 

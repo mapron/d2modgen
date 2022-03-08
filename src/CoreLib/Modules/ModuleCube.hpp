@@ -5,22 +5,17 @@
  */
 #pragma once
 
-#include "ModuleAbstract.hpp"
+#include "PluginModule.hpp"
 
 namespace D2ModGen {
 
-class ModuleCube : public ModuleAbstract {
+class ModuleCube : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::horadricCube;
 
-    // IModule interface
-public:
-    std::string settingKey() const override
-    {
-        return std::string(key);
-    }
-    PropertyTreeScalarMap defaultValuesScalar() const override;
-    UiControlHintMap      uiHints() const override;
+    ModuleCube(PropertyTree moduleMetadata, std::string id)
+        : PluginModule(std::move(moduleMetadata), std::move(id))
+    {}
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

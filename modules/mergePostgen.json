@@ -1,0 +1,17 @@
+{
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "misc",
+	"order": 30,
+	"defaults": {
+		"sourceCount": 0
+	},
+	"locales": {
+		"ru_RU": {
+			"title": "Пост-генерация"
+		},
+		"en_US": {
+			"title": "Post-gen data"
+		}
+	}
+}

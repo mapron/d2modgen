@@ -4,32 +4,23 @@
  * See LICENSE file for details.
  */
 #pragma once
-#include "ModuleAbstract.hpp"
+#include "PluginModule.hpp"
 
 #include <set>
 
 namespace D2ModGen {
 
-class ModuleChallenge : public ModuleAbstract {
+class ModuleChallenge : public PluginModule {
     struct Item {
-        StringSet internalIds;
-        std::string           settingKey;
+        StringSet   internalIds;
+        std::string settingKey;
     };
     const std::vector<Item> m_items;
 
 public:
-    ModuleChallenge();
-
     static constexpr const std::string_view key = Key::challenge;
 
-    // IModule interface
-public:
-    std::string settingKey() const override
-    {
-        return std::string(key);
-    }
-    PropertyTreeScalarMap defaultValuesScalar() const override;
-    UiControlHintMap      uiHints() const override;
+    ModuleChallenge(PropertyTree moduleMetadata, std::string id);
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

@@ -5,23 +5,17 @@
  */
 #pragma once
 
-#include "ModuleAbstract.hpp"
+#include "PluginModule.hpp"
 
 namespace D2ModGen {
 
-class ModuleItemRandomizer : public ModuleAbstract {
+class ModuleItemRandomizer : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::itemRandomizer;
 
-    // IModule interface
-public:
-    std::string settingKey() const override
-    {
-        return std::string(key);
-    }
-    PresetList            presets() const override;
-    PropertyTreeScalarMap defaultValuesScalar() const override;
-    UiControlHintMap      uiHints() const override;
+    ModuleItemRandomizer(PropertyTree moduleMetadata, std::string id)
+        : PluginModule(std::move(moduleMetadata), std::move(id))
+    {}
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

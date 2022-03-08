@@ -5,26 +5,13 @@
  */
 #include "ModuleFactory.hpp"
 
-#include "Modules/ModuleChallenge.hpp"
-#include "Modules/ModuleCharacter.hpp"
-#include "Modules/ModuleCube.hpp"
-#include "Modules/ModuleDropFiltering.hpp"
-#include "Modules/ModuleGambling.hpp"
-#include "Modules/ModuleItemDrops.hpp"
-#include "Modules/ModuleItemRandomizer.hpp"
-#include "Modules/ModuleMonDensity.hpp"
-#include "Modules/ModuleMonRandomizer.hpp"
-#include "Modules/ModuleMonStats.hpp"
-#include "Modules/ModulePerfectRoll.hpp"
-#include "Modules/ModuleQol.hpp"
-#include "Modules/ModuleRuneDrops.hpp"
-#include "Modules/ModuleSkillRandomizer.hpp"
+#include "PluginModule.hpp"
 
 namespace D2ModGen {
 
 namespace {
 
-using FactoryMap = std::map<std::string, std::function<IModule::Ptr()>>;
+using FactoryMap = std::map<std::string, ModuleCreatorFunction>;
 
 FactoryMap& getFactory()
 {
@@ -34,23 +21,20 @@ FactoryMap& getFactory()
 
 }
 
-IModule::Ptr createModule(const std::string& configKey)
+IModule::Ptr createModule(PropertyTree moduleMetaData, std::string id)
 {
-    return getFactory().at(configKey)();
+    const auto& factory = getFactory();
+    if (!factory.contains(id)) {
+        auto pluginModule = std::make_shared<const PluginModule>(std::move(moduleMetaData), std::move(id), "plugin_");
+        return pluginModule;
+    }
+    auto& creator = factory.at(id);
+    return creator(std::move(moduleMetaData), std::move(id));
 }
 
-void registerCreator(const std::string& configKey, std::function<IModule::Ptr()> factory)
+void registerCreator(const std::string& configKey, ModuleCreatorFunction factory)
 {
     getFactory()[configKey] = std::move(factory);
-}
-
-IModule::PtrMap createAllModules()
-{
-    IModule::PtrMap result;
-    auto&           fmap = getFactory();
-    for (auto& p : fmap)
-        result[p.first] = p.second();
-    return result;
 }
 
 }

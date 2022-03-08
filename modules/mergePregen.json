@@ -1,0 +1,17 @@
+{
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "misc",
+	"order": 20,
+	"defaults": {
+		"sourceCount": 0
+	},
+	"locales": {
+		"ru_RU": {
+			"title": "Пре-генерация"
+		},
+		"en_US": {
+			"title": "Pre-gen data"
+		}
+	}
+}

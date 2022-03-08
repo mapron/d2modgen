@@ -1,0 +1,60 @@
+{
+	"id": "density",
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "harder",
+	"order": 20,
+	"defaults": {
+	
+		"density": 1 ,
+		"packs": 1 ,
+		"mon_groups": 0 ,
+		"hellPacks": false
+
+	},
+	"controls": [
+		{ "id": "density", "type": "sliderMinMax", "min": 1, "max": 20},
+		{ "id": "packs", "type": "sliderMinMax", "min": 1, "max": 20},
+		{ "id": "mon_groups", "type": "sliderMinMax", "min": 0, "max": 20},
+
+		{ "id": "hellPacks", "type": "checkbox" }
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Плотность монстров",
+			"help": ["Слайдер плотности - влияет на кол-во обычных монстров ",
+				"(и это сильно зависит от карты и ее набора тайлов, на открытых тайлах потенциала к увеличению куда больше.)",
+				"Слайдер для элитных паков увеличит их число в зоне, но эта настройка не сильно точна (плюс у маленьких зон есть свой лимит)."],
+			
+			"presets": [],
+			"controlsTitles": {
+				"density": "Увеличить плотность, раз",
+				"packs": "Увеличить кол-во элитных паков, раз",
+				"mon_groups": "Увеличить численность групп монстров, +штук<br><b>Осторожно! Для D2R это сильно влияет на прозводительность и fps!<b><br><b>Иметь здесь +3 или выше плохая идея если предыдущие опции уже на максимуме!</b>",
+				"hellPacks": "Использовать кол-во элитных паков на Normal и Nightmare такое же, как на Hell"
+
+			},
+			"controlsHelps": {
+			}
+		},
+		"en_US": {
+			"title": "Monster density",
+			"help": ["Density slider - that will affect increase of density of regular monsters ",
+				"(note that it is higly dependant on map and tiles; max density can be reached on open area tiles.)",
+				"Boss packs slider icrease number of Champion/Uniques in zones; again, that also not a precise setting.",
+				"Last Checkbox can be used to quickly setup boss count on Normal and Nightmare exactly equal to Hell count."],
+			
+			"presets": [],
+			"controlsTitles": {
+				"density": "Increase density, times",
+				"packs": "Increase Boss packs count, times",
+				"mon_groups": "Increase monster groups population, +count<br><b>Beware! This setting have the most impact on getting screen laggy!<b><br><b>Having value above +3 will work well only if previous options are not maxed!</b>",
+				"hellPacks": "Use Hell elite pack count on Nightmare and Normal"
+
+			},
+			"controlsHelps": {
+			}
+		}
+	}
+}
+

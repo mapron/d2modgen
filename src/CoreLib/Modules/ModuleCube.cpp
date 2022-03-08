@@ -58,29 +58,6 @@ const std::map<std::string, std::string> s_craftedGemReplace{
 
 }
 
-PropertyTreeScalarMap ModuleCube::defaultValuesScalar() const
-{
-    return {
-        { "noGemUpgrade", false },
-        { "quickPortals", false },
-        { "quickQuests", false },
-        { "socketing", false },
-        { "upgrading", false },
-        { "runeDowngrade", false },
-        { "craftNoStrict", false },
-        { "craftNoRunes", false },
-        { "craftHighIlvl", false },
-        { "craftMultBonus", 1 },
-    };
-}
-
-IModule::UiControlHintMap ModuleCube::uiHints() const
-{
-    return {
-        { "craftMultBonus", UiControlHintSliderMinMax(1, 5, true) },
-    };
-}
-
 void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())

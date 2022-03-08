@@ -37,19 +37,14 @@ double expGrowthRev(double val)
 
 }
 
-SliderWidget::SliderWidget(const QString& caption,
-                           const QString& id,
-                           double         denom,
-                           double         mult,
-                           bool           compact,
-                           QWidget*       parent)
+SliderWidget::SliderWidget(const Params& params,
+                           QWidget*      parent)
     : IValueWidget(parent)
-    , m_denom(denom)
-    , m_mult(mult)
-    , m_min(static_cast<int>(static_cast<double>(s_spinboxAverage) / denom))
-    , m_max(static_cast<int>(static_cast<double>(s_spinboxAverage) * mult))
+    , m_denom(params.m_denom)
+    , m_mult(params.m_mult)
+    , m_min(static_cast<int>(static_cast<double>(s_spinboxAverage) / params.m_denom))
+    , m_max(static_cast<int>(static_cast<double>(s_spinboxAverage) * params.m_mult))
 {
-    setObjectName(id);
     m_valueBox = new QSpinBox(this);
     m_valueBox->setButtonSymbols(QSpinBox::NoButtons);
     m_valueBox->setMinimum(m_min);
@@ -62,11 +57,10 @@ SliderWidget::SliderWidget(const QString& caption,
     m_slider->setMaximumHeight(15);
     m_slider->setValue(s_sliderAverage);
 
-    m_helpButton = new HelpToolButton("", this);
-    m_helpButton->hide();
+    m_helpButton = new HelpToolButton(params.m_help, this);
 
     QBoxLayout* mainLayout;
-    if (compact)
+    if (params.m_compact)
         mainLayout = new QHBoxLayout(this);
     else
         mainLayout = new QVBoxLayout(this);
@@ -74,7 +68,7 @@ SliderWidget::SliderWidget(const QString& caption,
     mainLayout->setSpacing(4);
     QHBoxLayout* captionLayout = new QHBoxLayout();
     captionLayout->setMargin(0);
-    captionLayout->addWidget(new QLabel(caption, this));
+    captionLayout->addWidget(new QLabel(params.m_title, this));
     captionLayout->addWidget(m_helpButton);
     captionLayout->addStretch(0);
     mainLayout->addLayout(captionLayout);
@@ -90,11 +84,6 @@ SliderWidget::SliderWidget(const QString& caption,
 
 SliderWidget::~SliderWidget() = default;
 
-SliderWidget::SliderWidget(const QString& caption, const QString& id, double denom, double mult, QWidget* parent)
-    : SliderWidget(caption, id, denom, mult, false, parent)
-{
-}
-
 void SliderWidget::setValue(const PropertyTree& value)
 {
     m_settingValue = true;
@@ -105,14 +94,6 @@ void SliderWidget::setValue(const PropertyTree& value)
 PropertyTree SliderWidget::getValue() const
 {
     return PropertyTreeScalar{ static_cast<int64_t>(m_valueBox->value()) };
-}
-
-void SliderWidget::addHelp(const QString& helpToolTip)
-{
-    if (helpToolTip.isEmpty())
-        return;
-    m_helpButton->setToolTip(helpToolTip);
-    m_helpButton->show();
 }
 
 void SliderWidget::sliderToSpinbox()
@@ -162,17 +143,12 @@ void SliderWidget::spinboxToSlider()
 
 //----------------------------------------------------------
 
-SliderWidgetMinMax::SliderWidgetMinMax(const QString& caption,
-                                       const QString& id,
-                                       int            minValue,
-                                       int            maxValue,
-                                       bool           compact,
-                                       QWidget*       parent)
+SliderWidgetMinMax::SliderWidgetMinMax(const Params& params,
+                                       QWidget*      parent)
     : IValueWidget(parent)
-    , m_minValue(minValue)
-    , m_maxValue(maxValue)
+    , m_minValue(params.m_min)
+    , m_maxValue(params.m_max)
 {
-    setObjectName(id);
     m_valueBox = new QSpinBox(this);
     m_valueBox->setButtonSymbols(QSpinBox::NoButtons);
     m_valueBox->setMinimum(m_minValue);
@@ -184,11 +160,10 @@ SliderWidgetMinMax::SliderWidgetMinMax(const QString& caption,
     m_slider->setMaximum(m_maxValue);
     m_slider->setMaximumHeight(15);
 
-    m_helpButton = new HelpToolButton("", this);
-    m_helpButton->hide();
+    m_helpButton = new HelpToolButton(params.m_help, this);
 
     QBoxLayout* mainLayout;
-    if (compact)
+    if (params.m_compact)
         mainLayout = new QHBoxLayout(this);
     else
         mainLayout = new QVBoxLayout(this);
@@ -196,7 +171,7 @@ SliderWidgetMinMax::SliderWidgetMinMax(const QString& caption,
     mainLayout->setSpacing(4);
     QHBoxLayout* captionLayout = new QHBoxLayout();
     captionLayout->setMargin(0);
-    captionLayout->addWidget(new QLabel(caption, this));
+    captionLayout->addWidget(new QLabel(params.m_title, this));
     captionLayout->addWidget(m_helpButton);
     captionLayout->addStretch(0);
     mainLayout->addLayout(captionLayout);
@@ -221,14 +196,6 @@ void SliderWidgetMinMax::setValue(const PropertyTree& value)
 PropertyTree SliderWidgetMinMax::getValue() const
 {
     return PropertyTreeScalar{ static_cast<int64_t>(m_valueBox->value()) };
-}
-
-void SliderWidgetMinMax::addHelp(const QString& helpToolTip)
-{
-    if (helpToolTip.isEmpty())
-        return;
-    m_helpButton->setToolTip(helpToolTip);
-    m_helpButton->show();
 }
 
 void SliderWidgetMinMax::sliderToSpinbox()

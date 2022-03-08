@@ -14,6 +14,8 @@ project(modgen)
 include(GenerateExportHeader)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/targets.cmake)
 
+option(ENABLE_TEST_PLUGINS "Enable plugins for testing" OFF)
+
 
 # Qt Setup
 set(QT_MODULE_LIST Core Gui Widgets Svg Qml Network QmlModels QmlWorkerScript Quick QuickWidgets QuickTemplates2 QuickControls2)
@@ -27,6 +29,7 @@ set(jsonRoot ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
 
 # source
 set(sourceRoot ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(pluginRootBin ${CMAKE_CURRENT_BINARY_DIR}/plugins)
 
 # Core
 file(GLOB_RECURSE src_Core
@@ -40,6 +43,15 @@ target_include_directories(modgenCore PRIVATE ${jsonRoot})
 
 generate_export_header(modgenCore BASE_NAME Core EXPORT_FILE_NAME CoreExport.hpp)
 
+file(GLOB_RECURSE resourceFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/modules
+    ${CMAKE_CURRENT_SOURCE_DIR}/modules/*.json)
+foreach(filename ${resourceFiles})
+	add_custom_command(OUTPUT ${pluginRootBin}/${filename}
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/modules/${filename} ${pluginRootBin}/${filename}
+		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/modules/${filename})
+	target_sources(modgenCore PRIVATE ${pluginRootBin}/${filename})
+endforeach()
+
 # ConsoleApp
 file(GLOB_RECURSE src_ConsoleApp
 	${sourceRoot}/ConsoleApp/*.hpp
@@ -49,29 +61,30 @@ add_executable(modgen_console ${src_ConsoleApp})
 target_link_libraries(modgen_console PRIVATE modgenCore)
 target_include_directories(modgen_console PRIVATE ${sourceRoot}/ConsoleApp)
 
-set(pluginRootBin ${CMAKE_CURRENT_BINARY_DIR}/plugins)
+
 # TestPlugin
-
-set(pluginRootSrc ${sourceRoot}/Plugins/TestPlugin)
-file(GLOB src_Plugin
-	${pluginRootSrc}/*.hpp
-	${pluginRootSrc}/*.cpp
-	)
-add_library(simpleTest SHARED ${src_Plugin})
-target_link_libraries(simpleTest PRIVATE modgenCore)
-generate_export_header(simpleTest BASE_NAME Plugin EXPORT_FILE_NAME PluginExport.hpp)
-
-set_target_properties(simpleTest PROPERTIES 
-	RUNTIME_OUTPUT_DIRECTORY ${pluginRootBin}
-	)
-file(GLOB_RECURSE resourceFiles RELATIVE ${pluginRootSrc}/dist
-    ${pluginRootSrc}/dist/*)
-foreach(filename ${resourceFiles})
-	add_custom_command(OUTPUT ${pluginRootBin}/${filename}
-		COMMAND ${CMAKE_COMMAND} ARGS -E copy ${pluginRootSrc}/dist/${filename} ${pluginRootBin}/${filename}
-		DEPENDS ${pluginRootSrc}/dist/${filename})
-	target_sources(simpleTest PRIVATE ${pluginRootBin}/${filename})
-endforeach()
+if (ENABLE_TEST_PLUGINS)
+	set(pluginRootSrc ${sourceRoot}/Plugins/TestPlugin)
+	file(GLOB src_Plugin
+		${pluginRootSrc}/*.hpp
+		${pluginRootSrc}/*.cpp
+		)
+	add_library(simpleTest SHARED ${src_Plugin})
+	target_link_libraries(simpleTest PRIVATE modgenCore)
+	generate_export_header(simpleTest BASE_NAME Plugin EXPORT_FILE_NAME PluginExport.hpp)
+	
+	set_target_properties(simpleTest PROPERTIES 
+		RUNTIME_OUTPUT_DIRECTORY ${pluginRootBin}/simpleTest
+		)
+	file(GLOB_RECURSE resourceFiles RELATIVE ${pluginRootSrc}/dist
+		${pluginRootSrc}/dist/*)
+	foreach(filename ${resourceFiles})
+		add_custom_command(OUTPUT ${pluginRootBin}/${filename}
+			COMMAND ${CMAKE_COMMAND} ARGS -E copy ${pluginRootSrc}/dist/${filename} ${pluginRootBin}/${filename}
+			DEPENDS ${pluginRootSrc}/dist/${filename})
+		target_sources(simpleTest PRIVATE ${pluginRootBin}/${filename})
+	endforeach()
+endif()
 
 if (NOT Qt5Core_DIR)
 	return()
@@ -95,7 +108,7 @@ install(TARGETS modgen modgenCore RUNTIME DESTINATION bin)
 install(DIRECTORY ${pluginRootBin} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
 foreach(th IN ITEMS dark light)
 	install(FILES theme/${th}.conf DESTINATION bin/theme)
-	configure_file(theme/${th}.conf ${CMAKE_CURRENT_BINARY_DIR}/theme/${th}.conf COPY_ONLY)
+	configure_file(theme/${th}.conf ${CMAKE_CURRENT_BINARY_DIR}/theme/${th}.conf COPYONLY)
 endforeach()
 
 InstallQmlFiles(

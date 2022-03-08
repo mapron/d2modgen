@@ -1,0 +1,61 @@
+{
+	"id": "monRandomizer",
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "randomizer",
+	"order": 20,
+	"defaults": {
+
+		"spawnedCount": 5,
+		"maxTypes": 25
+
+	},
+	"controls": [
+				
+		{ "id": "spawnedCount", "type": "sliderMinMax", "min": 2, "max": 10},
+		{ "id": "maxTypes", "type": "sliderMinMax", "min": 3, "max": 25 }
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Рандомайзер Монстров",
+			"help": ["При включении этой возможности, теперь каждая зона карты в игре может сгенерировать любых врагов из любых актов.",
+				"Для Normal, враги получают подогнанные по уровню невидимые копии (т.к. иначе невозможно победить врагов из 5 акта в первом)",
+				"Для Nigtmare/Hell, параметры автоматически подгонятся под уровень зоны.",
+				"Монстры так же получают адаптированные парамтеры для миньонов и уровни навыков."],
+			
+			"presets": [],
+			"controlsTitles": {
+				"spawnedCount": "Сколько в одной зоне может быть разных типов монстров",
+				"maxTypes": "Максимально возможно потенциальное число типов монстров"
+			},
+			"controlsHelps": {
+				"spawnedCount": ["Сколько в одной генерации будет различных типов врагов (по умолчанию 3, как и в оригинале D2). ",
+					"Обратите внимение, что некоторые зоны имеют тайлы с фиксированными спавнами (группы шаманов например)."],
+				"maxTypes": ["Эта опция регулирует, как много разных типов в принципе ",
+					"могут быть в одной зоне от генерации к генерации.",
+					"Примечание: для D2 Legacy значение будет автоматом снижено до 12."]
+			}
+		},
+		"en_US": {
+			"title": "Monster Randomizer",
+			"help": ["When this feature enabled, now any area in the game can spawn any basic monsters (Super Uniques, Act bosses etc not affected).",
+				"For normal difficulty, each monster will have a 'level-adjusted' copy which corresponds",
+				"to area&apos;s level (so you will have adequate monster stats in Act 1 for guest from Act 5).",
+				"For Nightmare/Hell, adjustment is done by area level.",
+				"Monster will have adjusted their minion spawns and skill levels, too."],
+			
+			"presets": [],
+			"controlsTitles": {
+				"spawnedCount": "Spawned different types in one area",
+				"maxTypes": "Maximum possible monster types in one area (population variety)"
+			},
+			"controlsHelps": {
+				"spawnedCount": ["This option choose how many different types will spawn at once (default is 3, which is D2 original behavior).",
+					"Note that some map tiles have predefined spawns (shaman camps etc) that can not be randomized."],
+				"maxTypes": ["This option defines how many possibilites for monster types are exist in one zone;",
+					"Make this value lower if you want less variety between game restarts.",
+					"Note: D2 legacy support only 12 max, so value will be lowered implicitly."]
+			}
+		}
+	}
+}

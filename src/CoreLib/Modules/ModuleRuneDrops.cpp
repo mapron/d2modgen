@@ -13,49 +13,6 @@ namespace {
 const bool s_init = registerHelper<ModuleRuneDrops>();
 }
 
-IModule::PresetList ModuleRuneDrops::presets() const
-{
-    return {
-        PropertyTreeScalarMap{
-            { "zod_factor", 200 },
-            { "rune_factor", 10 },
-            { "countess_rune_higher", true },
-            { "countess_rune_more", true },
-            { "wraith_runes", true },
-        },
-        PropertyTreeScalarMap{
-            { "zod_factor", 10 },
-            { "rune_factor", 3 },
-        },
-        PropertyTreeScalarMap{
-            { "rune_factor", 3 },
-            { "countess_rune_higher", true },
-            { "countess_rune_more", true },
-            { "wraith_runes", true },
-        },
-    };
-}
-
-PropertyTreeScalarMap ModuleRuneDrops::defaultValuesScalar() const
-{
-    return {
-        { "zod_factor", 1 },
-        { "rune_factor", 1 },
-        { "highrune_switch", false },
-        { "countess_rune_higher", false },
-        { "countess_rune_more", false },
-        { "wraith_runes", false },
-    };
-}
-
-IModule::UiControlHintMap ModuleRuneDrops::uiHints() const
-{
-    return {
-        { "zod_factor", UiControlHintSliderMinMax(1, 1000) },
-        { "rune_factor", UiControlHintSliderMinMax(1, 10) },
-    };
-}
-
 void ModuleRuneDrops::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())

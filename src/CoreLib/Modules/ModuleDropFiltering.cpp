@@ -49,8 +49,9 @@ const std::vector<std::string> s_locales{
 
 }
 
-ModuleDropFiltering::ModuleDropFiltering()
-    : m_items{
+ModuleDropFiltering::ModuleDropFiltering(PropertyTree moduleMetadata, std::string id)
+    : PluginModule(std::move(moduleMetadata), std::move(id))
+    , m_items{
         { { "isc" }, "isc" },
         { { "tsc" }, "tsc" },
         { { "hp1", "hp2", "hp3" }, "hps" },
@@ -65,18 +66,6 @@ ModuleDropFiltering::ModuleDropFiltering()
     }
 
 {
-}
-
-PropertyTreeScalarMap ModuleDropFiltering::defaultValuesScalar() const
-{
-    PropertyTreeScalarMap result{
-        { "compact_pots", false },
-        { "compact_scrolls", false },
-        { "hide_lowq", false },
-    };
-    for (auto& item : m_items)
-        result["hide_" + item.settingKey] = false;
-    return result;
 }
 
 void ModuleDropFiltering::gatherInfo(PreGenerationContext& output, const InputContext& input) const

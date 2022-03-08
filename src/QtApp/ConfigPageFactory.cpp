@@ -5,20 +5,7 @@
  */
 #include "ConfigPageFactory.hpp"
 
-#include "ConfigPages/ConfigPageChallenge.hpp"
-#include "ConfigPages/ConfigPageCharacter.hpp"
-#include "ConfigPages/ConfigPageCube.hpp"
-#include "ConfigPages/ConfigPageDropFiltering.hpp"
-#include "ConfigPages/ConfigPageGambling.hpp"
-#include "ConfigPages/ConfigPageItemDrops.hpp"
-#include "ConfigPages/ConfigPageItemRandomizer.hpp"
-#include "ConfigPages/ConfigPageMonDensity.hpp"
-#include "ConfigPages/ConfigPageMonRandomizer.hpp"
-#include "ConfigPages/ConfigPageMonStats.hpp"
-#include "ConfigPages/ConfigPagePerfectRoll.hpp"
-#include "ConfigPages/ConfigPageQol.hpp"
-#include "ConfigPages/ConfigPageRuneDrops.hpp"
-#include "ConfigPages/ConfigPageSkillRandomizer.hpp"
+#include "ConfigPages/PluginConfigPage.hpp"
 
 namespace D2ModGen {
 
@@ -34,10 +21,16 @@ FactoryMap& getFactory()
 
 }
 
-IConfigPage* createConfigPage(const IModule::Ptr& module, QWidget* parent)
+IConfigPage* createConfigPage(const std::string& localeId, const IModule::Ptr& module, QWidget* parent)
 {
     const std::string configKey = module->settingKey();
-    return getFactory().at(configKey)(module, parent);
+    const auto&       factory   = getFactory();
+    if (!factory.contains(configKey)) {
+        IConfigPage* commonPage = new PluginConfigPage(localeId, module, parent);
+        return commonPage;
+    }
+    auto& creator = factory.at(configKey);
+    return creator(localeId, module, parent);
 }
 
 void pageRegisterCreator(const std::string& configKey, ConfigPageCreatorFunc factory)

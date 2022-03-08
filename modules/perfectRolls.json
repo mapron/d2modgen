@@ -1,0 +1,49 @@
+{
+	"id": "perfect_rolls",
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "easier",
+	"order": 70,
+	"defaults": {
+
+		"craft": true,
+		"uniques": true,
+		"runeWords": true,
+		"setItems": true,
+		"affixes": true,
+		"armor": true
+
+	},
+	"controls": [
+				
+		{ "id": "craft", "type": "checkbox" },
+		{ "id": "uniques", "type": "checkbox"},
+		{ "id": "runeWords", "type": "checkbox"},
+		{ "id": "setItems", "type": "checkbox"},
+		{ "id": "affixes", "type": "checkbox"},
+		{ "id": "armor", "type": "checkbox"}
+		
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Идеальные параметры",
+			"help": ["Убирает эффект разброса параметров для различных предметов. Всегда макс."]
+		},
+		"en_US": {
+			"title": "Perfect rolls",
+			"help": ["Remove random effect when rolling between min and max value for something."],
+			
+			"presets": [],
+			"controlsTitles": {
+				"craft": "Perfect rolls for crafting in the Cube", 
+				"uniques": "Perfect Uniques", 
+				"runeWords": "Perfect Rune Word rolls", 
+				"setItems": "Perfect Set items", 
+				"affixes": "Perfect Magic/Rare affixes", 
+				"armor": "Always max defense Armor"
+			},
+			"controlsHelps": {
+			}
+		}
+	}
+}

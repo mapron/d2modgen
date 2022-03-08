@@ -135,8 +135,8 @@ void ConfigPageMergeModsItem::checkForChange()
     emit dataChanged();
 }
 
-ConfigPageMergeMods::ConfigPageMergeMods(const IModule::Ptr& module, QWidget* parent)
-    : ConfigPageAbstract(module, parent)
+ConfigPageMergeMods::ConfigPageMergeMods(const std::string& localeId, const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(localeId, module, parent)
 {
     addWidget(new QLabel(tr("Overall order of data load is: D2 source from Main settings ->\n"
                             "-> Pre-gen data -> modgen features -> Post-gen data -> output folder."),

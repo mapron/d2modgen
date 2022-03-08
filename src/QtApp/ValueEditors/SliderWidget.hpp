@@ -16,23 +16,12 @@ class HelpToolButton;
 
 class SliderWidget : public IValueWidget {
 public:
-    SliderWidget(const QString& caption,
-                 const QString& id,
-                 double         denom,
-                 double         mult,
-                 bool           compact,
-                 QWidget*       parent);
-    SliderWidget(const QString& caption,
-                 const QString& id,
-                 double         denom,
-                 double         mult,
-                 QWidget*       parent);
+    SliderWidget(const Params& params,
+                 QWidget*      parent);
     ~SliderWidget();
 
     void         setValue(const PropertyTree& value) override;
     PropertyTree getValue() const override;
-
-    void addHelp(const QString& helpToolTip);
 
 private:
     void sliderToSpinbox();
@@ -51,30 +40,12 @@ private:
 
 class SliderWidgetMinMax : public IValueWidget {
 public:
-    SliderWidgetMinMax(const QString& caption,
-                       const QString& id,
-                       int            minValue,
-                       int            maxValue,
-                       bool           compact,
-                       QWidget*       parent);
-    SliderWidgetMinMax(const QString& caption,
-                       const QString& id,
-                       int            minValue,
-                       int            maxValue,
-                       QWidget*       parent)
-        : SliderWidgetMinMax(caption,
-                             id,
-                             minValue,
-                             maxValue,
-                             false,
-                             parent)
-    {}
+    SliderWidgetMinMax(const Params& params,
+                       QWidget*      parent);
     ~SliderWidgetMinMax();
 
     void         setValue(const PropertyTree& value) override;
     PropertyTree getValue() const override;
-
-    void addHelp(const QString& helpToolTip);
 
 private:
     void sliderToSpinbox();
@@ -88,17 +59,5 @@ private:
     HelpToolButton* m_helpButton;
     bool            m_settingValue = false;
 };
-
-static inline SliderWidget* addHelp(SliderWidget* slider, const QString& helpToolTip)
-{
-    slider->addHelp(helpToolTip);
-    return slider;
-}
-
-static inline SliderWidgetMinMax* addHelp(SliderWidgetMinMax* slider, const QString& helpToolTip)
-{
-    slider->addHelp(helpToolTip);
-    return slider;
-}
 
 }

@@ -16,7 +16,11 @@ namespace D2ModGen {
 class IConfigPage : public QWidget {
     Q_OBJECT
 public:
-    using PresetList = QStringList;
+    struct Preset {
+        QString      m_title;
+        PropertyTree m_data;
+    };
+    using PresetList = std::vector<Preset>;
 
 public:
     explicit IConfigPage(QWidget* parent)

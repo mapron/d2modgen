@@ -1,0 +1,72 @@
+{
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "easier",
+	"order": 30,
+	"defaults": {
+	
+		"addCube": false,
+		"idTome": false,
+		"manaPots": false,
+		"statPerLevel": 5,
+		"skillPerLevel": 1,
+		"statLower": 100,
+		"mercHP": 100,
+		"mercDam": 100
+
+	},
+	"controls": [
+	
+		{ "id": "addCube", "type": "checkbox"},
+		{ "id": "idTome", "type": "checkbox"},
+		{ "id": "manaPots", "type": "checkbox"},
+
+		{ "id": "statPerLevel", "type": "sliderMinMax", "min": 1, "max": 25},
+		{ "id": "skillPerLevel", "type": "sliderMinMax", "min": 1, "max": 5 },
+		{ "id": "statLower", "type": "sliderMinMax", "min": 10, "max": 100},
+		{ "id": "mercHP", "type": "slider", "mult": 10, "denom": 5 },
+		{ "id": "mercDam", "type": "slider", "mult": 10, "denom": 5 }
+
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Персонаж",
+			"help": "Первые опции позволяют менять предметы с которыми создается новый персонаж: \nкуб хорадрика, том идентификации и зелья в поясе.  \nДальше слайдеры позволяют изменить кол-во очков на левелапе. \nПоследняя опция позволяет снизить требования характеристик у всех базовых предметов. ",
+			
+			"presets": [],
+			"controlsTitles": {
+				"addCube": "Добавить Horadric Cube стартовым предметом",
+				"idTome": "Заменить стартовый свиток ID на том",
+				"manaPots": "Заменить стартовые зелья лечения на ману",
+				
+				"statPerLevel" : "Очков характеристик при повышении уровня",
+				"skillPerLevel" : "Очков умений при повышении уровня (только D2R!)",
+				"statLower" : "Снизить требования Силы/Ловкости на предметах, %",
+				"mercHP" : "Изменить Здоровье наёмников, множитель",
+				"mercDam" : "Изменить Урон наёмников, множитель"
+
+			},
+			"controlsHelps": {
+			}
+		},
+		"en_US": {
+			"title": "Character",
+			"help": "First three options allow you to change starting items for characters: \nadd Cube, replace id scroll with Tome (useful for No-town runs), and replace health with mana potions. \nNext two sliders allow you to change how many skill and stat poits you get on levelup. \nLast slider allow you to lower Strength and Dexterity requirements on all items. ",
+			
+			"presets": [],
+			"controlsTitles": {
+				"addCube": "Add Horadric Cube as starting item",
+				"idTome": "Replace ID scroll with ID tome",
+				"manaPots": "Replace starting Health pots with Mana",
+				
+				"statPerLevel" : "Stat points gain per level",
+				"skillPerLevel" : "Skill points gain per level (D2R only!)",
+				"statLower" : "Lower Strength/Dexterity requirements on items, %",
+				"mercHP" : "Change mercenaries Health, multiply by",
+				"mercDam" : "Change mercenaries Damage, multiply by"
+			},
+			"controlsHelps": {
+			}
+		}
+	}
+}

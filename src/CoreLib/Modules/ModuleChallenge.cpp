@@ -13,40 +13,14 @@ namespace {
 const bool s_init = registerHelper<ModuleChallenge>();
 }
 
-ModuleChallenge::ModuleChallenge()
-    : m_items{
+ModuleChallenge::ModuleChallenge(PropertyTree moduleMetadata, std::string id)
+    : PluginModule(std::move(moduleMetadata), std::move(id))
+    , m_items{
         { { "hp1", "hp2", "hp3", "hp4", "hp5" }, "hpsa" },
         { { "mp1", "mp2", "mp3", "mp4", "mp5" }, "mpsa" },
         { { "rvs", "rvl" }, "rvs" },
     }
 {
-}
-
-PropertyTreeScalarMap ModuleChallenge::defaultValuesScalar() const
-{
-    PropertyTreeScalarMap result{
-        { "normal_minus_res", 0 },
-        { "nightmare_minus_res", 40 },
-        { "hell_minus_res", 100 },
-        { "levelIncreaseNightmare", 0 },
-        { "levelIncreaseHell", 0 },
-        { "levelIncreaseUltra", false },
-    };
-    for (auto& item : m_items) {
-        result["nodrop_" + item.settingKey] = false;
-    }
-    return result;
-}
-
-IModule::UiControlHintMap ModuleChallenge::uiHints() const
-{
-    return {
-        { "normal_minus_res", UiControlHintSliderMinMax(0, 250) },
-        { "nightmare_minus_res", UiControlHintSliderMinMax(0, 250) },
-        { "hell_minus_res", UiControlHintSliderMinMax(0, 250) },
-        { "levelIncreaseNightmare", UiControlHintSliderMinMax(0, 20) },
-        { "levelIncreaseHell", UiControlHintSliderMinMax(0, 30) },
-    };
 }
 
 void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const

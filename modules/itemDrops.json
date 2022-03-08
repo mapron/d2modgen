@@ -1,0 +1,141 @@
+{
+	"id": "item_drops",
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "easier",
+	"order": 50,
+	"defaults": {
+	
+		"chance_uni": 1 ,
+		"chance_set": 1 ,
+		"chance_rare": 1 ,
+		"chance_highlevel": 1 ,
+		"high_elite_drops": false ,
+		"nodrop_percent": 100 ,
+		"good_percent": 100 ,
+		"equip_percent": 100 ,
+		"gold_percent": 100 ,
+		"junk_percent": 100 ,
+		"equal_uniques": false 
+
+	},
+	"controls": [
+		{ "id": "chance_uni", "type": "sliderMinMax", "min": 1, "max": 50},
+		{ "id": "chance_set", "type": "sliderMinMax", "min": 1, "max": 30},
+		{ "id": "chance_rare", "type": "sliderMinMax", "min": 1, "max": 15},
+		{ "id": "chance_highlevel", "type": "sliderMinMax", "min": 1, "max": 15},
+			
+		{ "id": "high_elite_drops", "type": "checkbox" },
+
+		{ "id": "_label1", "type": "label"},
+		{ "id": "nodrop_percent", "type": "slider", "mult": 5, "denom": 20, "compact":true},
+		{ "id": "good_percent", "type": "slider", "mult": 10, "denom": 2 , "compact":true},
+		{ "id": "equip_percent", "type": "slider", "mult": 10, "denom": 5, "compact":true},
+		{ "id": "gold_percent", "type": "slider", "mult": 10, "denom": 20 , "compact":true},
+		{ "id": "junk_percent", "type": "slider", "mult": 10, "denom": 20, "compact":true},
+			
+		{ "id": "equal_uniques", "type": "checkbox"}
+	],
+	"presets": [
+		{
+			"chance_uni": 50,
+			"chance_set": 30,
+			"chance_highlevel": 15,
+			"high_elite_drops": true,
+			"equal_uniques": true 
+		},
+		{ 
+			"chance_uni": 15 ,
+			"chance_set": 10 ,
+			"high_elite_drops": true
+		},
+		{ 
+			"chance_uni": 5,
+			"chance_set": 5 ,
+			"nodrop_percent": 50,
+			"gold_percent": 50 ,
+			"junk_percent": 10
+		}
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Увеличить дроп предметов",
+			"help": ["Объяснения здесь подразумевают что вы знакомы с понятием Treasure Class (TC) и NoDrop.",
+				"В основном все опции здесь меняют выборку в рамках того или иного TC, смещая шансы.",
+				"Первые 3 слайдера позволяют увеличить шансы Уник/Сетовы/Редких предметов.",
+				"Примечение, если ваши шасны получить предмет нужного качества высоки, то настройка достаточно точна.",
+				"В противном случае (высокий MF), увеличение частоты будет немного ниже."],
+			
+			"presets": ["Я хочу найти Tyrael's сегодня!", "Немного утомился в поисках своего первого Shako", "Дайте чуть чуть больше хороших вещей"],
+			"controlsTitles": {
+				"chance_uni": "Увеличить шанс Уникальных предметов",
+				"chance_set": "Увеличить шанс Наборных предметов",
+				"chance_rare": "Увеличить шанс Редких предметов",
+				"chance_highlevel": "Увеличить шанс предметов высокого уровня",
+				"high_elite_drops": "Увеличить число дропов с элитных монстров",
+				"_label1": "Изменить соотношение между основными типами дропа",
+				"nodrop_percent": "NoDrop (больше=МЕНЬШЕ дропов)",
+				"good_percent": "Good TC (Руны/Камни/Ювелирка)",
+				"equip_percent": "Экипировка (доспехи/оружие)",
+				"gold_percent": "Золото (выше=БОЛЬШЕ золота)",
+				"junk_percent": "Барахло (ключи/болты/и тд) (выше=БОЛЬШЕ барахла)",
+				"equal_uniques": "Все Уникальные предметы имеют одинаковую редкость для общей базы"
+
+			},
+			"controlsHelps": {
+				"chance_highlevel": ["Эта настройка уменьшает шанс того что при попытке дропа ",
+					"высокого уровня будет низкоуровневый дроп вместо него.",
+					"например, для TC 85 уровня существует 98% шанс что будет выброшен TC 84 и так далее."],
+				"high_elite_drops": ["Уникальные боссы теперь будут кидать 4 предмета вместо одного, и чемпионы 2 вместо одного.",
+					"Кол-во бросаемых зелий снижено."],
+				"nodrop_percent": ["NoDrop позволяет снизить долю NoDrop в TC",
+					"(механизм похож на повышение кол-ва игроков в игре)"],
+				"good_percent": ["Это позволит падать камням/рунам/кольцам/амулетам/талисманам намного чаще",
+					"в сравнении с другим снаряжением (броне и оружию)."],
+				"equip_percent": ["Относительный шанс выпадания экипировки в соотношении с остальным (и NoDrop)"],
+				"gold_percent": ["Относительный шанс на золото в сравнении с другими предметами."],
+				"junk_percent": ["Относительный шанс неценных предметов в сранвении с остальным."],
+				"equal_uniques": ["Если у предметов одинаковая база, то шанс выпадения у всех становится равный.",
+					"Например, Tyrael's и  Templar's имеют равный шанс. (и все кольца/амулеты)"]
+			}
+		},
+		"en_US": {
+			"title": "Increase Item drops",
+			"help": ["All help and explanation on this page assume you are familiar with Treasure Class (TC) and NoDrop terminology.",
+				"Basically all options here modifying TC pick weights - so one preferred option become less rare.",
+				"First 3 sliders are for increasing chance for Uniques/Sets/Rares. ",
+				"Note that increase is accurate when your chances are low, but with high MF it can have diminishing return."],
+			
+			"presets": ["I want to find Tyrael's today!",  "Just tired of finding my first Shako", "A little bit more of good stuff, not crazy"],
+			"controlsTitles": {
+				"chance_uni": "Increase Unique Chance",
+				"chance_set": "Increase Set Chance",
+				"chance_rare": "Increase Rare Chance",
+				"chance_highlevel": "Increase Chance of High-level equipment",
+				"high_elite_drops": "Increase Champion/Unique item count",
+				"_label1": "Adjust proportion of main drop classes",
+				"nodrop_percent": "NoDrop (higher=LESS drops)",
+				"good_percent": "Good TC (Runes/Gems/Jewellery)",
+				"equip_percent": "Equipment (armor/weapons)",
+				"gold_percent": "Gold (higher=MORE gold)",
+				"junk_percent": "Junk (keys/bolts/etc) (higher=MORE junk)",
+				"equal_uniques": "Make all Uniques have equal rarity on same base"
+			},
+			"controlsHelps": {
+				"chance_highlevel": ["This will reduce the reduce the chance that equipment of lower level will drop as a fallback.",
+					"For example, for level 85 TC there is a 98% chance that it will drop from 84 level TC, and so on."],
+				"high_elite_drops": ["This will make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one.",
+					"Note that potion drops are slightly reduced."],
+				"nodrop_percent": ["NoDrop slider provides ability to gradually reduce NoDrop picks",
+					"(it basically similar to increasing players count in the game)"],
+				"good_percent": ["That will make Gems/Runes/Rings/Amulets/Charms drop far more often",
+					"compared to equipment (armor/weapons)."],
+				"equip_percent": ["Relative chance of equipment dropping compared to other items (or NoDrop)."],
+				"gold_percent": ["Relative chance of gold compared to other items."],
+				"junk_percent": ["Relative chance of junk items compared to other items."],
+				"equal_uniques": ["Now Uniques with equal item base will have equal chance to drop.",
+					"For example Tyrael's and Templar's will have equal chance. (and all rings too)"]
+			}
+		}
+	}
+}

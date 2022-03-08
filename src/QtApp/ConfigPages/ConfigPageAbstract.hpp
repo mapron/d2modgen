@@ -25,34 +25,43 @@ namespace D2ModGen {
 
 class ConfigPageAbstract : public IConfigPage {
 public:
-    ConfigPageAbstract(const IModule::Ptr& module, QWidget* parent);
+    ConfigPageAbstract(const std::string& localeId, const IModule::Ptr& module, QWidget* parent);
 
     // IConfigPage interface
 public:
     PresetList pagePresets() const override;
+    QString    caption() const override;
+    QString    pageHelp() const override;
 
     void updateUIFromSettings(const PropertyTree& data) override;
     void writeSettingsFromUI(PropertyTree& data) const override;
 
     const IModule& getModule() const override { return *m_module; }
 
-    void updateModList(const QStringList& mods) override{}
-
-    virtual QMap<std::string, QString> widgetTitles() const { return {}; };
-    virtual QMap<std::string, QString> widgetHelps() const { return {}; };
+    void updateModList(const QStringList& mods) override {}
 
 protected:
     void                 addWidget(QWidget* w);
-    void                 addEditors(QList<IValueWidget*> editors);
-    void                 addEditorsPlain(QList<IValueWidget*> editors);
-    IValueWidget*        makeEditor(const std::string& key, const QString& title, const QString& help = QString());
-    QList<IValueWidget*> makeEditors(const StringVector& keys);
-    void                 closeLayout();
+
+    void makeAllEditors();
+
+    void closeLayout();
 
 private:
-    QMap<std::string, IValueWidget*> m_editors;
-    QVBoxLayout*                     m_layout;
-    const IModule::Ptr               m_module;
+    IValueWidget* makeEditor(const IValueWidget::Params& params);
+    void          makeWidget(const std::string& id, const IValueWidget::Params& params);
+
+private:
+    const std::string                    m_localeId;
+    std::map<std::string, IValueWidget*> m_editors;
+    QVBoxLayout*                         m_layout;
+    const IModule::Ptr                   m_module;
+    IConfigPage::PresetList              m_presets;
+
+    std::vector<std::pair<std::string, IValueWidget::Params>> m_uiHints;
+
+    QString m_title;
+    QString m_help;
 };
 
 }

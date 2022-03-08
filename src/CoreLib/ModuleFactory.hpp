@@ -13,15 +13,21 @@
 
 namespace D2ModGen {
 
-CORE_EXPORT IModule::Ptr createModule(const std::string& configKey);
-CORE_EXPORT IModule::PtrMap createAllModules();
+CORE_EXPORT IModule::Ptr createModule(PropertyTree moduleMetaData, std::string id);
 
-void registerCreator(const std::string& configKey, std::function<IModule::Ptr()> factory);
+
+using ModuleCreatorFunction = std::function<IModule::Ptr(PropertyTree moduleMetaData, std::string id)>;
+
+void registerCreator(const std::string& configKey, ModuleCreatorFunction factory);
 
 template<class T>
 bool registerHelper()
 {
-    registerCreator(std::string(T::key), [] { return std::make_shared<T>(); });
+    registerCreator(std::string(T::key), [](PropertyTree moduleMetaData, std::string id) {
+        assert(T::key == id);
+        return std::make_shared<T>(std::move(moduleMetaData), std::move(id));
+    });
     return true;
 }
+
 }

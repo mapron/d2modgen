@@ -1,0 +1,102 @@
+{
+	"id": "monster_stats",
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "harder",
+	"order": 10,
+	"defaults": {
+
+		"mon_ar": 100,
+		"mon_def": 100,
+		"mon_hp": 100,
+		"mon_dam": 100,
+		"mon_xp": 100,
+		"max_resist": 250,
+		"rel_resist": 100,
+		"resist_apply_elem": true,
+		"resist_apply_poison": true,
+		"resist_apply_magic": false,
+		"resist_apply_physical": false
+
+	},
+	"controls": [
+		{ "id": "mon_ar", "type": "slider", "mult": 10, "denom": 10 },
+		{ "id": "mon_def", "type": "slider", "mult": 10, "denom": 10},
+		{ "id": "mon_dam", "type": "slider", "mult": 10, "denom": 10},
+		{ "id": "mon_ar", "type": "slider", "mult": 10, "denom": 10},
+		{ "id": "mon_xp", "type": "slider", "mult": 10, "denom": 10},
+				
+		{ "id": "max_resist", "type": "sliderMinMax", "min": 90, "max": 250},
+		{ "id": "rel_resist", "type": "slider","mult": 10, "denom": 10},
+		
+		{ "id": "_label1", "type": "label"},
+		{ "id": "resist_apply_elem", "type": "checkbox"},
+		{ "id": "resist_apply_poison", "type": "checkbox"},
+		{ "id": "resist_apply_magic", "type": "checkbox" },
+		{ "id": "resist_apply_physical", "type": "checkbox" }
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Параметры монстров",
+			"help": ["Слайдеры позволяют настроить базовые параметры врагов на всех сложностях.",
+				"Вы можете понизить или повысить их в 10 раз.",
+				"Настройка /playerX с этими опциями не связана, и умножает параметры независимо."],
+			
+			"presets": [],
+			"controlsTitles": {
+				"mon_ar": "Атака монстров, умножить на",
+				"mon_def": "Защита  монстров, умножить на",
+				"mon_hp": "Здоровье монстров, умножить на",
+				"mon_dam": "Урон монстров, умножить на",
+				"mon_xp": "Получение опыта с монстров, умножить на",
+				"max_resist": "Максимальное сопротивление для базовых монстров, процент:",
+				"rel_resist": "Изменить общее сопротивление монстров, умножив урон который они могут получать от магии",
+				"_label1": "Применить опции сопротивления к следующим стихиям:"
+			},
+			"controlsHelps": {				
+				"max_resist": ["Если вы сделаете это ниже 100, то обычные монстры никогда НЕ БУДУТ ИММУННЫ никогда!",
+					"Используйте осторожно. Можете поставить 110-115, т.о. cold иммуны станут ломаться с Conviction.",
+					"Также учтите, что это не влияет возможность Enchanted врагов иметь иммунитет."],
+				"rel_resist": ["НЕ ВЛИЯЕТ на ИММУННЫХ монстров и монстров с 0 сопротивлением!",
+					"Это изменяет сопротивление неявно, с помощью следующего вычисления:",
+					"Если  вы выбрали 200%, и у монстра уже есть 80% сопротивления Огню.",
+					"Т.о. монстр получает 20% урона от огня, и новое значение должно быть 40% урона, или 60% сопротивления.",
+					"Урон ограничен сверху 100%, что дает 0 сопротивление (отрицательного не будет).",
+					"Так же это не дает новых ИММУНОВ, т.е. новое сопротивление будет не больше 99%"]
+			}
+		},
+		"en_US": {
+			"title": "Monster stats",
+			"help": ["Sliders allow you to change monster stats on all difficulties.",
+				"You can either lower or raise stats up 10x or 10x times.",
+				"That is orthogonal to /playersX setting - it will multiply stats independent."],
+			
+			"presets": [],
+			"controlsTitles": {
+				"mon_ar": "Monster Attack Rating, multiply by",
+				"mon_def": "Monster Defense, multiply by",
+				"mon_hp": "Monster HP, multiply by",
+				"mon_dam": "Monster Damage, multiply by",
+				"mon_xp": "Monster EXP gain, multiply by",
+				"max_resist": "Maximum resistance allowed for base monsters, percent:",
+				"rel_resist": "Change monster resistances, by multiplying damage from magic they take",
+				"_label1": "Apply resistance options to following:",
+				"resist_apply_elem": "Elemental (Fire/Cold/Lightning)",
+				"resist_apply_poison": "Poison",
+				"resist_apply_magic": "Magic (Non-elemental)",
+				"resist_apply_physical": "Physical"
+			},
+			"controlsHelps": {
+				"max_resist": ["If you make this below 100, then regular monsters will have NO IMMUNITIES at all!",
+					"Use with caution. You can set this to 110-115, to make cold immunes breakable.",
+					"Also this do not prevent Enchanted monsters to have immunities."],
+				"rel_resist": ["DO NOT affect IMMUNE monsters and monsters with 0 resistance!",
+					"It affects resistance perent indirectly, through this calculation:",
+					"Lets say you have 200% selected for multiply, and monster has 80% basic Fire resist.",
+					"That means, he has 20% damage taken from fire, and new value will be 40% damage, or 60% resist.",
+					"Damage is capped at 100%, so you won&apos;t get negative reistance.",
+					"Also monster can&apos;t become immune to element, maximum resistance is 99%"]
+			}
+		}
+	}
+}

@@ -15,15 +15,12 @@ class HelpToolButton;
 class CheckboxWidget : public IValueWidget {
     Q_OBJECT
 public:
-    CheckboxWidget(const QString& caption,
-                   const QString& id,
-                   QWidget*       parent);
+    CheckboxWidget(const Params& params,
+                   QWidget*      parent);
     ~CheckboxWidget();
 
     void         setValue(const PropertyTree& value) override;
     PropertyTree getValue() const override;
-
-    void addHelp(const QString& helpToolTip);
 
 signals:
     void toggled(bool);
@@ -32,11 +29,5 @@ private:
     QCheckBox*      m_checkBox;
     HelpToolButton* m_helpButton;
 };
-
-static inline CheckboxWidget* addHelp(CheckboxWidget* cb, const QString& helpToolTip)
-{
-    cb->addHelp(helpToolTip);
-    return cb;
-}
 
 }

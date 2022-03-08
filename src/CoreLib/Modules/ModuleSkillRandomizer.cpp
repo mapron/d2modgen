@@ -232,15 +232,6 @@ struct SkillTree {
 
 }
 
-PropertyTreeScalarMap ModuleSkillRandomizer::defaultValuesScalar() const
-{
-    return {
-        { "skillTree", true },
-        { "skillDamage", true },
-        { "ensureDifferent", true },
-    };
-}
-
 void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     const bool skillTreeRandomize   = input.getInt("skillTree");

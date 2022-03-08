@@ -12,13 +12,6 @@ namespace {
 const bool s_init = registerHelper<ModuleTestConfig>();
 }
 
-PropertyTreeScalarMap ModuleTestConfig::defaultValuesScalar() const
-{
-    return {
-        { "addKeys", true },
-    };
-}
-
 void ModuleTestConfig::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (!input.getInt("addKeys"))

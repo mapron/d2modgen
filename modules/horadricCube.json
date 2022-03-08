@@ -1,0 +1,108 @@
+{
+	"id": "cube",
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "easier",
+	"order": 10,
+	"defaults": {
+	
+		"noGemUpgrade": false,
+		"quickPortals": false,
+		"quickQuests": false,
+		"socketing": false,
+		"upgrading": false,
+		"runeDowngrade": false,
+		"craftNoStrict": false,
+		"craftNoRunes": false,
+		"craftHighIlvl": false,
+		"craftMultBonus": 1
+
+	},
+	"controls": [
+	
+		{ "id": "noGemUpgrade", "type": "checkbox"},
+		{ "id": "quickPortals", "type": "checkbox"},
+		{ "id": "quickQuests", "type": "checkbox"},
+		{ "id": "socketing", "type": "checkbox"},
+		{ "id": "upgrading", "type": "checkbox"},
+		{ "id": "runeDowngrade", "type": "checkbox"},
+		{ "id": "_label1", "type": "label"},
+		{ "id": "craftNoStrict", "type": "checkbox"},
+		{ "id": "craftNoRunes", "type": "checkbox"},
+		{ "id": "craftHighIlvl", "type": "checkbox"},
+		{ "id": "craftMultBonus", "type": "sliderMinMax", "compact": true, "min": 1, "max": 5}
+
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Куб Хорадрика",
+			"help": ["Позволяет включить рецепты которые ускоряют прохождение игры.", 
+				"Вход и результаты должны быть понятны."],
+			
+			"presets": [],
+			"controlsTitles": {
+				"noGemUpgrade": "Убрать требования дракоценных камней для рецептов апгрейда рун (для апгрейда достаточно 2 или 3 руны)",
+				"quickPortals": "Добавить рецепты создания порталов для быстрого доступа:",
+				"quickQuests": "Рецепты для быстрого получения квестовых предметов:",
+				"socketing": "Добавить рецепты для получения точного числа сокетов:",
+				"upgrading": "Добавить рецепты на апгрейд предметов:",
+				"runeDowngrade": "Добавить понижение рун:",
+				"_label1" :"Упростить рецепты для крафта:",
+				"craftNoStrict": "Убрать жесткие требования по типу предмета (=любой шлем, любые перчатки и тд)",
+				"craftNoRunes": "Убрать необходимость рун и драгоценностей для крафта\n(т.о. достаточно предмета и камня)",
+				"craftHighIlvl": "Генерировать item level равный 99",
+				"craftMultBonus": "Умножить все бонусы от крафтинга предмета на"
+			},
+			"controlsHelps": {
+			}
+		},
+		"en_US": {
+			"title": "Horadric Cube",
+			"help": ["Create some recipes to cheese/cut corners around the game. ",
+				"Input and results are self-explanatory."],
+			
+			"presets": [],
+			"controlsTitles": {
+				"noGemUpgrade": "Remove gem component from Rune upgrade recipes (Rune x3,x2 =&gt; next Rune)",
+				"quickPortals": "Add quick portal access recipes:",
+				"quickQuests": "Add quick quest recipes:",
+				"socketing": "Add socketing recipes:",
+				"upgrading": "Add upgrade recipes:",
+				"runeDowngrade": "Add Rune downgrade:",
+				"_label1" :"Simplyfy crafting:",
+				"craftNoStrict": "Remove strict item types for Crafted (any helm, any gloves etc)",
+				"craftNoRunes": "Remove Rune/Jewel requirement for Crafted\n(So any recipe is 'item + gem')",
+				"craftHighIlvl": "Make Item Level always 99",
+				"craftMultBonus": "Multiply crafted item bonuses by"
+			},
+			"controlsSuffixes": {
+				"quickPortals": [
+					"1. TP book + Id scroll = Cow Portal",
+					"2. TP book + Id scroll x2 = Minor Uber Portal",
+					"3. TP book + Id scroll x3 = Uber Tristram Portal"
+				],
+				"quickQuests":[
+					"1. key + Id scroll = Horadric Staff",
+					"2. key + TP scroll = Khalim Will"
+				],
+				"socketing": [
+					"1. Normal item + TP scroll x1 + Id scroll x1 = Add 3 sockets",
+					"2. Normal item + TP scroll x1 + Id scroll x2 = Add 4 sockets",
+					"3. Normal item + TP scroll x2 + Id scroll x1 = Add 5 sockets",
+					"4. Normal item + TP scroll x2 + Id scroll x2 = Add 6 sockets",
+					"5. Unique/Set/Rare item + TP scroll x1 + Id scroll x1 = Add 1 socket",
+					"6. Socketed item + TP scroll x1 = Clear sockets" 
+				],
+				"upgrading": [
+					"1. Normal item (normal,magic,rare,unique,set) + Antidote = Exceptional item",
+					"2. Exceptional item (normal,magic,rare,unique,set) + Antidote = Elite item",
+					"3. Any item + Stamina x2 = Add Ethereal",
+					"4. Magic (magic,rare,unique,set) item  + Stamina = Normal item of same type"
+				],
+				"runeDowngrade": "Rune + key + key = Lower rune"
+			},
+			"controlsHelps": {
+			}
+		}
+	}
+}

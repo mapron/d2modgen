@@ -12,12 +12,11 @@
 
 namespace D2ModGen {
 
-class DataContext;
+struct DataContext;
 class IModule {
 public:
-    using Ptr        = std::shared_ptr<const IModule>;
-    using PtrMap     = std::map<std::string, Ptr>;
-    using PresetList = std::vector<PropertyTreeScalarMap>;
+    using Ptr    = std::shared_ptr<const IModule>;
+    using PtrMap = std::map<std::string, Ptr>;
 
     struct ExtraDependencies {
         struct Source {
@@ -78,51 +77,11 @@ public:
         }
     };
 
-    struct UiControlHint {
-        enum Control
-        {
-            Auto,
-            SliderMinMax,
-            Slider,
-            CheckBox,
-            LineEdit
-        };
-        Control m_control = Control::Auto;
-        int     m_min     = 0;
-        int     m_max     = 0;
-        double  m_num     = 0.;
-        double  m_denom   = 0.;
-        bool    m_compact = true;
-    };
-    struct UiControlHintSlider : public UiControlHint {
-        UiControlHintSlider() = default;
-        UiControlHintSlider(double num, double denom, bool compact = false)
-        {
-            m_control = Control::Slider;
-            m_num     = num;
-            m_denom   = denom;
-            m_compact = compact;
-        }
-    };
-    struct UiControlHintSliderMinMax : public UiControlHint {
-        UiControlHintSliderMinMax() = default;
-        UiControlHintSliderMinMax(int min, int max, bool compact = false)
-        {
-            m_control = Control::SliderMinMax;
-            m_min     = min;
-            m_max     = max;
-            m_compact = compact;
-        }
-    };
-    using UiControlHintMap = std::map<std::string, UiControlHint>;
-
 public:
     virtual std::string settingKey() const = 0;
 
-    virtual PropertyTree     pluginInfo() const    = 0;
-    virtual PresetList       presets() const       = 0;
-    virtual PropertyTree     defaultValues() const = 0;
-    virtual UiControlHintMap uiHints() const       = 0;
+    virtual const PropertyTree&   pluginInfo() const    = 0;
+    virtual const PropertyTree&   defaultValues() const = 0;
 
     virtual void gatherInfo(PreGenerationContext& output, const InputContext& input) const            = 0;
     virtual void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const = 0;

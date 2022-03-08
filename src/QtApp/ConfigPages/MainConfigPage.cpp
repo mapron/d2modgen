@@ -82,6 +82,7 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
     , m_impl(new Impl())
 {
     m_impl->module = module;
+    assert(module);
 
     m_impl->modName       = new QLineEdit(this);
     QValidator* validator = new QRegularExpressionValidator(QRegularExpression("[a-zA-Z0-9_]+"), this);

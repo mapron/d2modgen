@@ -13,22 +13,20 @@
 
 namespace D2ModGen {
 
-LineWidget::LineWidget(const QString& caption,
-                       const QString& id,
-                       QWidget*       parent)
+LineWidget::LineWidget(const Params& params,
+                       QWidget*      parent)
     : IValueWidget(parent)
 {
-    setObjectName(id);
     m_lineEdit = new QLineEdit(this);
     connect(m_lineEdit, &QLineEdit::textEdited, this, &IValueWidget::dataChanged);
 
-    m_helpButton = new HelpToolButton("", this);
+    m_helpButton = new HelpToolButton(params.m_help, this);
     m_helpButton->hide();
 
     QHBoxLayout* mainLayout = new QHBoxLayout(this);
     mainLayout->setMargin(0);
     mainLayout->setSpacing(4);
-    mainLayout->addWidget(new QLabel(caption, this));
+    mainLayout->addWidget(new QLabel(params.m_title, this));
     mainLayout->addWidget(m_lineEdit);
     mainLayout->addWidget(m_helpButton);
     mainLayout->addStretch();
@@ -44,15 +42,6 @@ void LineWidget::setValue(const PropertyTree& value)
 PropertyTree LineWidget::getValue() const
 {
     return PropertyTreeScalar{ m_lineEdit->text().toStdString() };
-}
-
-void LineWidget::addHelp(const QString& helpToolTip)
-{
-    if (helpToolTip.isEmpty())
-        return;
-
-    m_helpButton->setToolTip(helpToolTip);
-    m_helpButton->show();
 }
 
 }

@@ -44,63 +44,6 @@ TCType getTC(const std::string& tc)
 
 }
 
-IModule::PresetList ModuleItemDrops::presets() const
-{
-    return {
-        PropertyTreeScalarMap{
-            { "chance_uni", 50 },
-            { "chance_set", 30 },
-            { "chance_highlevel", 15 },
-            { "high_elite_drops", true },
-            { "equal_uniques", true },
-        },
-        PropertyTreeScalarMap{
-            { "chance_uni", 15 },
-            { "chance_set", 10 },
-            { "high_elite_drops", true },
-        },
-        PropertyTreeScalarMap{
-            { "chance_uni", 5 },
-            { "chance_set", 5 },
-            { "nodrop_percent", 50 },
-            { "gold_percent", 50 },
-            { "junk_percent", 10 },
-        },
-    };
-}
-
-PropertyTreeScalarMap ModuleItemDrops::defaultValuesScalar() const
-{
-    return {
-        { "chance_uni", 1 },
-        { "chance_set", 1 },
-        { "chance_rare", 1 },
-        { "chance_highlevel", 1 },
-        { "high_elite_drops", false },
-        { "nodrop_percent", 100 },
-        { "good_percent", 100 },
-        { "equip_percent", 100 },
-        { "gold_percent", 100 },
-        { "junk_percent", 100 },
-        { "equal_uniques", false },
-    };
-}
-
-IModule::UiControlHintMap ModuleItemDrops::uiHints() const
-{
-    return {
-        { "chance_uni", UiControlHintSliderMinMax(1, 50) },
-        { "chance_set", UiControlHintSliderMinMax(1, 30) },
-        { "chance_rare", UiControlHintSliderMinMax(1, 15) },
-        { "chance_highlevel", UiControlHintSliderMinMax(1, 15) },
-        { "nodrop_percent", UiControlHintSlider(20, 5, true) },
-        { "good_percent", UiControlHintSlider(2, 10, true) },
-        { "equip_percent", UiControlHintSlider(5, 10, true) },
-        { "gold_percent", UiControlHintSlider(20, 10, true) },
-        { "junk_percent", UiControlHintSlider(20, 10, true) },
-    };
-}
-
 void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())

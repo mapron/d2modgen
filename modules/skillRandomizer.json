@@ -1,0 +1,50 @@
+{
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "randomizer",
+	"order": 30,
+	"defaults": {
+
+		"skillTree": true,
+		"skillDamage": true,
+		"ensureDifferent": true
+
+	},
+	"controls": [
+
+		{ "id": "skillTree", "type": "checkbox"},
+		{ "id": "skillDamage", "type": "checkbox"},
+		{ "id": "ensureDifferent", "type": "checkbox"}
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Рандомайзер Навыков"
+		},
+		"en_US": {
+			"title": "Skill Randomizer",
+			"help": ["This allow to bring 'some' randomization into character skills."],
+			
+			"presets": [],
+			"controlsTitles": {
+				"skillTree": "Randomize skill tabs within each character",
+				"skillDamage": "Randomize element types for some damage skills",
+				"ensureDifferent": "Ensure that element types are different from original"
+			},
+			"controlsHelps": {
+				"skillTree": ["That DOES not move skills between characters! What it can do:",
+					"-Move a skill to a different skill tab;",
+					"-Move a skill to a higher/lower level;",
+					"-Change skill requirements.",
+					"So, after level 50 there is not much of a difference. Synergies are also untouched."],
+				"skillDamage": ["For some skills, where it is easy to change damage type, it will randomize between 5 different elements:",
+					"Cold, Fire, Lightning, Magic and Poison",
+					"WARNING! Skill descriptions won't be updated and will be completely wrong!",
+					"Also, character info screen does not show difference between cold and magic correctly.",
+					"You need to find by yourself what damage (magic or cold) was rolled.",
+					"For poison, all damage is dealt over 2 seconds and slightly more than original."],
+				"ensureDifferent": ["If the source element is Cold, then new randomized element never should be Cold.",
+					"If this turned off, ~20% of skills will remain original behaviour."]
+			}
+		}
+	}
+}

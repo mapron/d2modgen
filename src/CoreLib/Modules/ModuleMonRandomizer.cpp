@@ -25,9 +25,9 @@ struct MotTypeTable {
         int         level;
     };
     struct MonType {
-        std::string      baseId;
+        std::string            baseId;
         std::vector<MonRecord> children;
-        int              count = 0;
+        int                    count = 0;
     };
     std::map<std::string, MonType>     types;
     std::map<std::string, std::string> id2base;
@@ -73,14 +73,14 @@ struct MotTypeTable {
         }
         if (okIndexes.empty()) {
             okIndexes.push_back(mt.children.size());
-            auto i = rng(mt.count);
+            auto             i      = rng(mt.count);
             const MonRecord& source = mt.children[i];
 
             std::string newId = source.id + "_" + std::to_string(targetLevel);
             newCopies.push_back(MonCopy{ id2index[source.id], source.id, newId, source.level, targetLevel });
             mt.children.push_back(MonRecord{ newId, targetLevel });
         }
-        const int        index = okIndexes[rng((int)okIndexes.size())];
+        const int        index = okIndexes[rng((int) okIndexes.size())];
         const MonRecord& mr    = mt.children[index];
         return mr.id;
     }
@@ -88,8 +88,8 @@ struct MotTypeTable {
     void dump() const
     {
         for (auto& p : types) {
-            auto & type = p.second;
-            std::string s = type.baseId + ": ";
+            auto&       type = p.second;
+            std::string s    = type.baseId + ": ";
             for (auto& c : type.children)
                 s += c.id + "(" + std::to_string(c.level) + "), ";
             Logger() << s;
@@ -131,24 +131,6 @@ struct TCTable {
         return res;
     };
 };
-
-//}
-
-PropertyTreeScalarMap ModuleMonRandomizer::defaultValuesScalar() const
-{
-    return {
-        { "spawnedCount", 5 },
-        { "maxTypes", 25 },
-    };
-}
-
-IModule::UiControlHintMap ModuleMonRandomizer::uiHints() const
-{
-    return {
-        { "spawnedCount", UiControlHintSliderMinMax(2, 10) },
-        { "maxTypes", UiControlHintSliderMinMax(3, 25) },
-    };
-}
 
 void ModuleMonRandomizer::gatherInfo(PreGenerationContext& output, const InputContext& input) const
 {
@@ -231,8 +213,6 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
             std::set_difference(nonUniqueBaseIds.cbegin(), nonUniqueBaseIds.cend(), ubaseIds.cbegin(), ubaseIds.cend(), std::inserter(resultData, resultData.end()));
             std::swap(nonUniqueBaseIds, resultData);
         }
-        //Logger() << "non uniques:" << nonUniqueBaseIds;
-        //typeTable.removeUnused(baseIds);
 
         StringVector idsList(baseIds.cbegin(), baseIds.cend());
         for (auto& row : tableView) {
@@ -273,9 +253,9 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
             MotTypeTable::MonCopyList tmpList = std::move(typeTable.newCopies);
             assert(!typeTable.types.empty());
             newCopies.insert(newCopies.end(), tmpList.cbegin(), tmpList.cend());
-            int        idCol    = 0;
-            int        uidCol   = 1;
-            int        levelCol = table.indexOf("Level");
+            int              idCol    = 0;
+            int              uidCol   = 1;
+            int              levelCol = table.indexOf("Level");
             std::vector<int> minionCols;
             std::vector<int> skillCols;
             std::vector<int> tcCols;

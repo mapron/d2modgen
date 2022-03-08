@@ -12,25 +12,6 @@ namespace {
 const bool s_init = registerHelper<ModuleQol>();
 }
 
-PropertyTreeScalarMap ModuleQol::defaultValuesScalar() const
-{
-    return {
-        { "tomeSize", false },
-        { "keySize", false },
-        { "quiverSize", false },
-        { "uniqueCharmLimit", false },
-        { "weakenTownSkills", false },
-        { "reduceCost", 100 },
-    };
-}
-
-IModule::UiControlHintMap ModuleQol::uiHints() const
-{
-    return {
-        { "reduceCost", UiControlHintSliderMinMax(5, 100) },
-    };
-}
-
 void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.isAllDefault())
@@ -65,8 +46,8 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
     }
     if (weakenTownSkills) {
         static const StringSet s_exceptions{ "Teleport", "Battle Orders", "Battle Command" };
-        Table&                             table = output.tableSet.tables[TableId::skills];
-        TableView                          tableView(table, true);
+        Table&                 table = output.tableSet.tables[TableId::skills];
+        TableView              tableView(table, true);
         for (auto& row : tableView) {
             if (s_exceptions.contains(row["skill"].str))
                 row["InTown"].str = "1";

@@ -88,8 +88,8 @@ QVariant propertyToQVariant(const PropertyTree& value)
 }
 }
 
-PluginConfigPage::PluginConfigPage(const IModule::Ptr& module, QWidget* parent)
-    : ConfigPageAbstract(module, parent)
+PluginConfigPage::PluginConfigPage(const std::string& localeId, const IModule::Ptr& module, QWidget* parent)
+    : ConfigPageAbstract(localeId, module, parent)
 {
     auto info = getModule().pluginInfo();
     if (info.value("hasQML", true).toBool()) {
@@ -104,13 +104,7 @@ PluginConfigPage::PluginConfigPage(const IModule::Ptr& module, QWidget* parent)
         addWidget(m_quick);
         m_quick->show();
     } else {
-        StringVector keys;
-        auto         def = getModule().defaultValues();
-        if (def.isMap()) {
-            for (const auto& p : def.getMap())
-                keys.push_back(p.first);
-        }
-        addEditors(makeEditors(keys));
+        makeAllEditors();
     }
     closeLayout();
 }
@@ -122,11 +116,6 @@ PluginConfigPage::~PluginConfigPage()
 void PluginConfigPage::qmlDataChanged()
 {
     emit dataChanged();
-}
-
-QString PluginConfigPage::caption() const
-{
-    return QString::fromStdString(getModule().settingKey()).mid(7);
 }
 
 void PluginConfigPage::updateUIFromSettings(const PropertyTree& data)

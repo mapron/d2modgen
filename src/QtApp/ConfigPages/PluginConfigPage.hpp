@@ -14,16 +14,13 @@ namespace D2ModGen {
 class PluginConfigPage : public ConfigPageAbstract {
     Q_OBJECT
 public:
-    PluginConfigPage(const IModule::Ptr& module, QWidget* parent);
+    PluginConfigPage(const std::string& localeId, const IModule::Ptr& module, QWidget* parent);
     ~PluginConfigPage();
 
     Q_INVOKABLE void qmlDataChanged();
 
     // IConfigPage interface
 public:
-    QString caption() const override;
-    QString pageHelp() const override { return ""; }
-
     void updateUIFromSettings(const PropertyTree& data) override;
     void writeSettingsFromUI(PropertyTree& data) const override;
 

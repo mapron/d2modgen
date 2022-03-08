@@ -14,25 +14,6 @@ namespace {
 const bool s_init = registerHelper<ModuleMonDensity>();
 }
 
-PropertyTreeScalarMap ModuleMonDensity::defaultValuesScalar() const
-{
-    return {
-        { "density", 1 },
-        { "packs", 1 },
-        { "mon_groups", 0 },
-        { "hellPacks", false },
-    };
-}
-
-IModule::UiControlHintMap ModuleMonDensity::uiHints() const
-{
-    return {
-        { "density", UiControlHintSliderMinMax(1, 20) },
-        { "packs", UiControlHintSliderMinMax(1, 20) },
-        { "mon_groups", UiControlHintSliderMinMax(0, 20) },
-    };
-}
-
 void ModuleMonDensity::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     {

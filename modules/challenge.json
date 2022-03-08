@@ -1,0 +1,77 @@
+{
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "harder",
+	"order": 30,
+	"defaults": {
+		"nodrop_hpsa": false,
+		"nodrop_mpsa": false,
+		"nodrop_rvs": false,
+
+		"normal_minus_res": 0,
+		"nightmare_minus_res": 40,
+		"hell_minus_res": 100,
+		"levelIncreaseNightmare": 0,
+		"levelIncreaseHell": 0,
+		"levelIncreaseUltra": false
+	},
+	"controls": [
+		{ "id": "nodrop_hpsa", "type": "checkbox"},
+		{ "id": "nodrop_mpsa", "type": "checkbox"},
+		{ "id": "nodrop_rvs", "type": "checkbox"},
+		
+		{ "id": "normal_minus_res", "type": "sliderMinMax", "min": 0, "max": 250},
+		{ "id": "nightmare_minus_res", "type": "sliderMinMax", "min": 0, "max": 250},
+		{ "id": "hell_minus_res", "type": "sliderMinMax", "min": 0, "max": 250},
+		{ "id": "levelIncreaseNightmare", "type": "sliderMinMax", "min": 0, "max": 20},
+		{ "id": "levelIncreaseHell", "type": "sliderMinMax", "min": 0, "max": 30},
+			
+		{ "id": "levelIncreaseUltra", "type": "checkbox" }
+	],
+	
+	"locales": {
+		"ru_RU": {
+			"title": "Челендж",
+			"help": "Для начала, вы можете отключить дроп всех зелий (и это не тоже самое что фильтр - подобрать не сможете).\nДалее вы можете изменить штраф сопротивлений персонажа с дефолтных 0/40/100.\nНу и в конце вы можете поднять уровень зон на всех картах;\nпримечание, 85 уровень является потолком, значения выше будут снижены до него.",
+			
+			"presets": [],
+			"controlsTitles": {
+				"nodrop_hpsa": "Отключить дроп: Все лечебные зелья",
+				"nodrop_mpsa": "Отключить дроп: Все зелья Маны",
+				"nodrop_rvs": "Отключить дроп: Все зелья восстановления",
+				
+				"normal_minus_res" : "Штраф ко всем сопротивлениям, Normal, -all%",
+				"nightmare_minus_res" : "Штраф ко всем сопротивлениям, Nightmare, -all%",
+				"hell_minus_res" : "Штраф ко всем сопротивлениям, Hell, -all%",
+				"levelIncreaseNightmare" : "Увеличить уровень зон на сложности Nightmare, +уровней",
+				"levelIncreaseHell" : "Увеличить уровень зон на сложности Hell, +уровней",
+				
+				"levelIncreaseUltra" : "Позволить генерацию зон выше 85 уровня"
+
+			},
+			"controlsHelps": {
+			}
+		},
+		"en_US": {
+			"title": "Challenge",
+			"help": "First, you can disable potion drops entirely (that&apos;s not the same as drop filter).\nSecond, you can change resistance penalty for each difficulty from default 0/40/100.\nAnd the last, you can adjust level area on all maps; \nnote that max value of 85 is still used (so set to 20 to basically make all Hell areas lvl 85).",
+			
+			"presets": [],
+			"controlsTitles": {
+				"nodrop_hpsa": "Disable drop: All Health pots",
+				"nodrop_mpsa": "Disable drop: All Mana pots",
+				"nodrop_rvs": "Disable drop: Rejuv and Full Rejuv pots",
+				
+				"normal_minus_res" : "Normal difficulty resistance penalty, -all%",
+				"nightmare_minus_res" : "Nightmare difficulty resistance penalty, -all%",
+				"hell_minus_res" : "Hell difficulty resistance penalty, -all%",
+				"levelIncreaseNightmare" : "Increase Nightmare area levels, +levels",
+				"levelIncreaseHell" : "Increase Hell area levels, +levels",
+				
+				"levelIncreaseUltra" : "Go beyond 85 level for areas"
+			},
+			"controlsHelps": {
+			}
+		}
+	}
+}

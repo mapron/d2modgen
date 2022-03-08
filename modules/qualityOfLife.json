@@ -1,0 +1,64 @@
+{
+	"id": "qol",
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "easier",
+	"order": 40,
+	"defaults": {
+
+		"tomeSize": false,
+		"keySize": false,
+		"quiverSize": false,
+		"uniqueCharmLimit": false,
+		"weakenTownSkills": false,
+		"reduceCost": 100
+	},
+	"controls": [
+				
+		{ "id": "tomeSize", "type": "checkbox"},
+		{ "id": "keySize", "type": "checkbox"},
+		{ "id": "quiverSize", "type": "checkbox"},
+		{ "id": "uniqueCharmLimit", "type": "checkbox"},
+		{ "id": "weakenTownSkills", "type": "checkbox"},
+		{ "id": "reduceCost", "type": "sliderMinMax", "min": 5, "max": 100}
+		
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Упрощение жизни",
+			"help": ["Набор небольших твиков для упрощения жизни."],
+			
+			"presets": [],
+			"controlsTitles": {
+				"tomeSize": "Увеличить вместимость книг 20 -> 60",
+				"keySize": "Увеличить связки ключей 12 -> 60",
+				"quiverSize": "Увеличить колчаны до 511",
+				"uniqueCharmLimit": "Убрать ограничение на 1 уникальный талисман в инвентаре",
+				"weakenTownSkills": "Разрешить использовать Телепорт и боевые приказы в городе",
+				"reduceCost": "Снизить стоимость (в золоте) для параметров на предметах (снизить цену починки)"
+			},
+			"controlsHelps": {
+			}
+		},
+		"en_US": {
+			"title": "Quality of life",
+			"help": ["Tiny quality things to make you life easier: ",
+				"1. Insreasing stacks for tomes/quivers/keys;",
+				"2. Remove Unique charm limit (useful with randomizer);",
+				"3. Allow usage of some skills in the town;",
+				"4. Reduce item costs. "],
+			
+			"presets": [],
+			"controlsTitles": {
+				"tomeSize": "Increase tome sizes 20 -> 60",
+				"keySize": "Increase key chain 12 -> 50",
+				"quiverSize": "Increase quivers size -> 511",
+				"uniqueCharmLimit": "Remove limit on Unique charms",
+				"weakenTownSkills": "Allow using Teleport, BC, BO in town",
+				"reduceCost": "Reduce costs of skills and stats on items (affects repair cost mostly)"
+			},
+			"controlsHelps": {
+			}
+		}
+	}
+}

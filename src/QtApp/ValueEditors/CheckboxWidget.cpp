@@ -12,18 +12,15 @@
 
 namespace D2ModGen {
 
-CheckboxWidget::CheckboxWidget(const QString& caption,
-                               const QString& id,
-                               QWidget*       parent)
+CheckboxWidget::CheckboxWidget(const Params& params,
+                               QWidget*      parent)
     : IValueWidget(parent)
 {
-    setObjectName(id);
-    m_checkBox = new QCheckBox(caption, this);
+    m_checkBox = new QCheckBox(params.m_title, this);
     connect(m_checkBox, &QCheckBox::toggled, this, &CheckboxWidget::toggled);
     connect(m_checkBox, &QCheckBox::clicked, this, &IValueWidget::dataChanged);
 
-    m_helpButton = new HelpToolButton("", this);
-    m_helpButton->hide();
+    m_helpButton = new HelpToolButton(params.m_help, this);
 
     QHBoxLayout* mainLayout = new QHBoxLayout(this);
     mainLayout->setMargin(0);
@@ -43,15 +40,6 @@ void CheckboxWidget::setValue(const PropertyTree& value)
 PropertyTree CheckboxWidget::getValue() const
 {
     return PropertyTreeScalar(m_checkBox->isChecked());
-}
-
-void CheckboxWidget::addHelp(const QString& helpToolTip)
-{
-    if (helpToolTip.isEmpty())
-        return;
-
-    m_helpButton->setToolTip(helpToolTip);
-    m_helpButton->show();
 }
 
 }

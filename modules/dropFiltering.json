@@ -1,0 +1,104 @@
+{
+	"id": "drop_filter",
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "misc",
+	"order": 10,
+	"defaults": {
+		"compact_pots": false,
+		"compact_scrolls": false,
+		"hide_lowq": false,
+		"hide_isc": false,
+		"hide_tsc": false,
+		"hide_hps": false,
+		"hide_hpsa": false,
+		"hide_mps": false,
+		"hide_mpsa": false,
+		"hide_rvs": false,
+		"hide_rvl": false,
+		"hide_ammo": false,
+		"hide_stam": false,
+		"hide_junks": false
+	},
+	"controls": [
+		{ "id": "_label1", "type": "label"},
+
+		{ "id": "compact_pots", "type": "checkbox"},
+		{ "id": "compact_scrolls", "type": "checkbox" },
+
+		{ "id": "_label2", "type": "label"},
+
+		{ "id": "hide_isc", "type": "checkbox"},
+		{ "id": "hide_tsc", "type": "checkbox" },
+		{ "id": "hide_hps", "type": "checkbox"},
+		{ "id": "hide_hpsa", "type": "checkbox"},
+		{ "id": "hide_mps", "type": "checkbox"},
+		{ "id": "hide_mpsa", "type": "checkbox"},
+		{ "id": "hide_rvs", "type": "checkbox"},
+		{ "id": "hide_rvl", "type": "checkbox"},
+		{ "id": "hide_ammo", "type": "checkbox" },
+		{ "id": "hide_stam", "type": "checkbox"},
+		{ "id": "hide_junks", "type": "checkbox"},
+		
+		{ "id": "hide_lowq", "type": "checkbox"}
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Фильтр лута",
+			"help": ["Здесь имеются 2 основные возможности:",
+				"1. Сократить имена для предметов,&quot;!MP5&quot; для наилучшего зелья Маны.",
+				"2. Скрыть предметы на земле полностью. "],
+			
+			"presets": [],
+			"controlsTitles": {
+				"_label1": "<b>Сократить названия предметов</b>: сократит надписи, например &apos;!HP2&apos; для зелья лечения.",
+				"compact_pots": "Сократить надписи зелий",
+				"compact_scrolls": "Сократить TP/ID свитки",
+				"_label2": "<b>Скрыть предметы</b>: надписи становятся прозрачными; <br> вы сможете их подобрать, но надписи невидимы при нажатии Alt.",
+				"hide_isc": "ID свиток",
+				"hide_tsc": "TP свиток",
+				"hide_hps": "Зелья лечения 1-3",
+				"hide_hpsa": "Все лечебные зелья",
+				"hide_mps": "Зелья маны 1-3",
+				"hide_mpsa": "Все зелья маны",
+				"hide_rvs": "Зелье восстановления",
+				"hide_rvl": "Зелье полного восстановления",
+				"hide_ammo": "Колчаны",
+				"hide_stam": "Зелья выносливости/противояд/разморозка",
+				"hide_junks": "Ключи,метательные зелья",
+				"hide_lowq": "Скрыть низкокачественные/поврежденные предметы"
+
+			},
+			"controlsHelps": {
+			}
+		},
+		"en_US": {
+			"title": "Drops filtering",
+			"help": ["This tab consists of two sections:",
+				"1. Make some items have compact names, like &quot;!MP5&quot; for Super Mana Potion. ",
+				"2. Hide item labels on the ground (you still be able to pick them). "],
+			
+			"presets": [],
+			"controlsTitles": {
+				"_label1": "<b>Make item names compact</b>: this will make item names take less space, e.g. '!HP2' for health potion.",
+				"compact_pots": "Compact potion names",
+				"compact_scrolls": "Compact TP/ID scrolls",
+				"_label2": "<b>Hide items on the ground</b>: this will make item names transparent; <br>you still can pickup them, but their labels will be invisible on Alt press.",
+				"hide_isc": "ID scroll",
+				"hide_tsc": "TP scroll",
+				"hide_hps": "Health pots 1-3",
+				"hide_hpsa": "All Health pots",
+				"hide_mps": "Mana pots 1-3",
+				"hide_mpsa": "All Mana pots",
+				"hide_rvs": "Rejuv pots",
+				"hide_rvl": "Full Rejuv pots",
+				"hide_ammo": "Bolts/Arrows",
+				"hide_stam": "Stamina/Antidote/Thawing",
+				"hide_junks": "Keys,Fire/Poison pots",
+				"hide_lowq": "Hide low quality/damaged/cracked items"
+			},
+			"controlsHelps": {
+			}
+		}
+	}
+}

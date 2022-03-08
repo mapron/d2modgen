@@ -14,18 +14,6 @@ namespace {
 const bool s_init = registerHelper<ModulePerfectRoll>();
 }
 
-PropertyTreeScalarMap ModulePerfectRoll::defaultValuesScalar() const
-{
-    return {
-        { "craft", true },
-        { "uniques", true },
-        { "runeWords", true },
-        { "setItems", true },
-        { "affixes", true },
-        { "armor", true },
-    };
-}
-
 void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
     if (input.getInt("craft")) {

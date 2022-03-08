@@ -23,31 +23,42 @@ namespace D2ModGen {
 ConfigHandler::ConfigHandler(const std::string& pluginsRoot)
     : m_mainStorageCache(std::make_unique<StorageCache>())
 {
-    auto modules = createAllModules();
-    for (const auto& p : modules) {
-        m_modules[p.first] = { p.second, {} };
-    }
-    m_modules[std::string(IModule::Key::testConfig)].m_enabled = true;
-
-    for (const auto& it : std_fs::recursive_directory_iterator(string2path(pluginsRoot))) {
+    for (const auto& it : std_fs::directory_iterator(string2path(pluginsRoot))) {
         if (!it.is_regular_file())
             continue;
 
-        const std_path& path = it.path();
-        if (path.extension() != ".json" || path.stem().empty())
+        const std_path& jsonDeclFilepath = it.path();
+        std::string     id               = path2string(jsonDeclFilepath.stem());
+        if (jsonDeclFilepath.extension() != ".json" || id.empty())
             continue;
 
+        std::string  buffer;
+        PropertyTree info;
+        if (!readFileIntoBuffer(jsonDeclFilepath, buffer) || !readJsonFromBuffer(buffer, info)) {
+            Logger(Logger::Err) << "Failed to read json file for plugin:" << jsonDeclFilepath;
+            continue;
+        }
+        if (info.value("id", "").toString().empty())
+            info["id"] = PropertyTreeScalar(id);
+        id           = info.value("id", "").toString();
+        info["root"] = PropertyTreeScalar(path2string(jsonDeclFilepath.parent_path() / id));
+
         try {
-            auto pluginModule = std::make_shared<const PluginModule>(path);
-            if (m_modules.contains(pluginModule->settingKey()))
-                throw std::runtime_error("Duplicate plugin id:" + pluginModule->settingKey());
+            auto pluginModule = createModule(info, id);
+            if (m_modules.contains(pluginModule->settingKey())) {
+                Logger(Logger::Err) << "Duplicate plugin id:" << pluginModule->settingKey();
+                continue;
+            }
+
             m_modules[pluginModule->settingKey()] = { pluginModule, {} };
-            m_pluginIds.push_back(pluginModule->settingKey());
+            if (pluginModule->settingKey() != IModule::Key::testConfig)
+                m_pluginIds.push_back(pluginModule->settingKey());
         }
         catch (std::exception& e) {
-            Logger(Logger::Err) << e.what();
+            Logger(Logger::Err) << "Error on loading (" << jsonDeclFilepath << ") = " << e.what();
         }
     }
+    m_modules[std::string(IModule::Key::testConfig)].m_enabled = true;
 }
 
 bool ConfigHandler::loadConfig(const std::string& filename)

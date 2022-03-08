@@ -1,0 +1,176 @@
+{
+	"id": "randomizer",
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "randomizer",
+	"order": 10,
+	"defaults": {
+	
+		"crazyLevel": 20,
+		"itemFitPercent": 70,
+		"keepOriginalPercent": 70,
+		"relativeCountMin": 100,
+		"relativeCountMax": 1000,
+		"repeat_uniques": 10,
+		"noDuplicates": true,
+		"affixRandom": true,
+		"gemsRandom": false,
+		"replaceSkills": false,
+		"replaceCharges": false,
+		"removeKnock": true,
+		"extraKnown": ""
+
+	},
+	"controls": [
+		{ "id": "crazyLevel", "type": "sliderMinMax", "min": 5, "max": 100},
+		{ "id": "itemFitPercent", "type": "sliderMinMax", "min": 0, "max": 100},
+		{ "id": "keepOriginalPercent", "type": "sliderMinMax", "min": 0, "max": 100},
+			
+		{ "id": "relativeCountMin", "type": "slider", "mult": 10, "denom": 4},
+		{ "id": "relativeCountMax", "type": "slider", "mult": 10, "denom": 4},
+			
+	
+		{ "id": "repeat_uniques", "type": "sliderMinMax", "min": 1, "max": 20 },
+		
+		{ "id": "noDuplicates", "type": "checkbox"},
+		{ "id": "affixRandom", "type": "checkbox" },
+		{ "id": "gemsRandom", "type": "checkbox"},
+		{ "id": "replaceSkills", "type": "checkbox" },
+		{ "id": "replaceCharges", "type": "checkbox" },
+		{ "id": "removeKnock", "type": "checkbox"},
+
+		{ "id": "extraKnown", "type": "lineedit" }
+	],
+	"presets": [
+		{
+			"crazyLevel": 100,
+			"itemFitPercent": 0,
+			"keepOriginalPercent": 0,
+			"relativeCountMin": 1000,
+			"relativeCountMax": 1000,
+			"affixRandom": true,
+			"gemsRandom": true,
+			"replaceSkills": true,
+			"replaceCharges": true
+		},
+		{
+			"crazyLevel": 30,
+			"itemFitPercent": 50,
+			"keepOriginalPercent": 20,
+			"relativeCountMin": 100,
+			"relativeCountMax": 1000,
+			"affixRandom": true,
+			"replaceSkills": true,
+			"replaceCharges": true
+		},
+		{ 
+			"crazyLevel": 10,
+			"itemFitPercent": 70,
+			"keepOriginalPercent": 50,
+			"relativeCountMin": 100,
+			"relativeCountMax": 120
+		}
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Рандомайзер предметов",
+			"help": ["Что в целом делает Рандомайзер - читает все возможные свойства из предметов/камней в одну кучу,",
+				"затем проходит по всем предметам и назначает им новые свойства из этой кучи (пула).",
+				"Для подробностей, смотрите подсказки к разным опциям."],
+			
+			"presets": ["Я хочу быть машиной для убийства!", "Хочу немного повеселиться, но не улетать в космос", "Просто хочу новый опыт, с максимумом баланса по возможности"],
+			"controlsTitles": {
+				"crazyLevel": "Уровень безумия (или имбалансности, ниже=больше баланса, 100=хаос)",
+				"itemFitPercent": "Доля параметров соответствия типу(0%=рандом, 100% = все параметры специфичны)",
+				"keepOriginalPercent": "Как много исходных свойств предмета сохранять, процент",
+				"relativeCountMin": "Минимальное относительное число свойств, по сравнению с оригиналом",
+				"relativeCountMax": "Максимальное относительное число свойств, по сравнению с оригиналом",
+				"repeat_uniques": "Количество версий каждого уникального предмета",
+				"noDuplicates": "Предотвращать дубликаты свойств на предметах",
+				"affixRandom": "Рандомизация аффиксов редких и магических предметов",
+				"gemsRandom": "Рандомизировать свойства камней и рун",
+				"replaceSkills": "Заменить бонус навыков для класса на отвязанные от класса",
+				"replaceCharges": "Заменить заряды на бонус к навыкам",
+				"removeKnock": "Убрать свойства Отбрасывания и Обращения в бегство",
+				"extraKnown": "Дополнительные атрибуты (разделенные запятой)"
+
+			},
+			"controlsHelps": {
+				"crazyLevel": ["Безумие определяет насколько сильная будет велика разница в уровнях для подбора новых свойств.",
+					"С '10' начнется выбор от исходный_уровень-10, исходный_уровень+10, и если выборка меньше 50,",
+					"то попробовать +-30, и если и этого не хватит, то уже полный диапазон. ",
+					"Вкратце, чем ниже значение, тем более балансный результат."],
+				"itemFitPercent": ["Эта настройка позволяет выбрать насколько аффиксы предмета будут соотноситься с типом оригинального предмета.",
+					"Например, если выбрать 80%, то 4 из 5 аффиксов будет выбрано не из общего пула, а из пула для типа предмета.",
+					"Если предмет имеет несколько типов (например, скипетр это дробящее оружие, оружие ближнего боя и просто оружие)",
+					"то аффиксы будут выбраны равномерно из всех их них."],
+				"relativeCountMin": ["Эта и следующая опция определяют новое число свойств после генерации",
+					"Если Мин=Макс=100%%, то новое число свойств будет всегда в точности как у оригинала.",
+					"Если Мин=50%% и Макс=200%, то новое число может быть как в два раза меньше, так и больше.",
+					"например, если оригинал имел 5 свойств, то с рандомайзером будет от 2 до 9 (потому что 9 это уже максимум для Уников)"],
+				
+				"repeat_uniques": ["Позволяет иметь разные уникальные предметы с одним именем и уровнем, но разным набором свойств,", 
+					"у вас будет N разных уникальных предметов, каждый со случайными параметрами;",
+					"так у вас есть возможность подбирать один и тот же предмет несколько раз чтобы оценить его снова.",
+					"К сожалению работает только с Уникальнными, не наборными предметами."],
+				"affixRandom": ["С этой опцией свойства магических и редких предметов тоже перемешаны;",
+					"т.о. они могут иметь свойство любого предмета в игре. ",
+					"Примечание, свойства читаются в общий пул независимо от этой опции."],
+				"gemsRandom": ["Камни и руны смогут иметь свойства от любого другого предмета в игре.",
+					"Примечание, их свойства читаются в общий пул независимо от этой опции."]
+			}
+		},
+		"en_US": {
+			"title": "Item Randomizer",
+			"help": ["What item randomizer does in short - it reads all possible item properties from Uniques, Sets, etc,",
+				"And then reassign properties back, but in random order (also it does not mean every original will be used)",
+				"For details, check descriptions of every option."],
+			
+			"presets": ["I want to be overpowered machine!",  "Want to have some fun without flying to space", "Want to have fresh experience but balanced if possible"],
+			"controlsTitles": {
+				"crazyLevel": "Crazy-ness (or 'NON-balance level', lower = more balance, 100=chaos)",
+				"itemFitPercent": "Item type fit percent (0% = fully random, 100% = all according to item type)",
+				"keepOriginalPercent": "How many original properties to keep, percent",
+				"relativeCountMin": "Minimum relative property count, compared to the original",
+				"relativeCountMax": "Maximum relative property count, compared to the original",
+				"repeat_uniques": "Number of versions of each unique",
+				"noDuplicates": "Prevent duplicate properties on items",
+				"affixRandom": "Randomize magix/rare affixes",
+				"gemsRandom": "Randomize gem and runes properties",
+				"replaceSkills": "Replace skills with oskills",
+				"replaceCharges": "Replace charges with oskills",
+				"removeKnock": "Remove Knockback/Monster flee",
+				"extraKnown": "Add extra attributes to randomize (comma-separated)"
+			},
+			"controlsHelps": {
+				"crazyLevel": ["Crazyness level - determine level difference to be used when selecting new properties for item/rune/etc.",
+					"With '10' it will select between level-10 and level+10 at first, if there are &lt;50 candidates,",
+					"then it will select level-30..level+30, and finally it will try fully random. ",
+					"In short, lower value = more balance in terms of original affix level and item level."],
+				"itemFitPercent": ["Item fit slider allow you to select how much item affixes will be related to original item type.",
+					"For example, if you choose 80%, then 4 of 5 affixes will be selected to pool for specific item type",
+					"Item can have have several pools related to its type - say, scepter is a rod and a melee weapon.",
+					"Item type-specific properties will be picked in proportion to all types."],
+				"keepOriginalPercent": ["You can select how many properties of original item you want to keep.",
+					"If 0, then every item will be fully randomized.",
+					"If 50, then half of genereted properties will be original, and half randomized.",
+					"If 100, then every property will be property of original item. (you can reduce an amount of props)"],
+				"relativeCountMin": ["This and the next options determine new property count will be after generation.",
+					"If Min=Max=100%%, then property count will be exactly as original (except rare corner cases).",
+					"If Min=50%% and Max=200%%, then new property count will be at least half as original, and twice at best.",
+					"For example, if item has 5 properties, then worst case is 2, and best case is 9 (because 9 is maximum for Uniques)"],
+				
+				"repeat_uniques": ["allow you to have different uniques with same name and level, but different properties,", 
+					"you will have N different uniques with differnet stats;",
+					"so you have an opportunity to pick same item again to check it out.",
+					"This works only with Uniques, not Sets."],
+				"affixRandom": ["This will modify rare and magic suffixes - ",
+					"so they can include properties of any other item in the game. ",
+					"Note that their properties are read even without this option."],
+				"gemsRandom": ["This will modify gem and rune properties - ",
+					"so they can include properties of any other item in the game. ",
+					"Note that their properties are read even without this option."]
+			}
+		}
+	}
+}

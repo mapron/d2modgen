@@ -4,21 +4,17 @@
  * See LICENSE file for details.
  */
 #pragma once
-#include "ModuleAbstract.hpp"
+#include "PluginModule.hpp"
 
 namespace D2ModGen {
 
-class ModuleSkillRandomizer : public ModuleAbstract {
+class ModuleSkillRandomizer : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::skillRandomizer;
 
-    // IModule interface
-public:
-    std::string settingKey() const override
-    {
-        return std::string(key);
-    }
-    PropertyTreeScalarMap defaultValuesScalar() const override;
+    ModuleSkillRandomizer(PropertyTree moduleMetadata, std::string id)
+        : PluginModule(std::move(moduleMetadata), std::move(id))
+    {}
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };
