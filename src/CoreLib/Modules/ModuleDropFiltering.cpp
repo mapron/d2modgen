@@ -6,6 +6,7 @@
 #include "ModuleDropFiltering.hpp"
 
 #include "DataContext.hpp"
+#include "Colors.hpp"
 
 namespace D2ModGen {
 
@@ -14,22 +15,6 @@ const bool s_init = registerHelper<ModuleDropFiltering>();
 
 const std::string s_itemnamesJson  = "data\\local\\lng\\strings\\item-names.json";
 const std::string s_affixnamesJson = "data\\local\\lng\\strings\\item-nameaffixes.json";
-
-const std::string s_colorLightGray("\xC3\xBF\x63\x30");   // (Item Descriptions)
-const std::string s_colorRed("\xC3\xBF\x63\x31");         //
-const std::string s_colorBrightGreen("\xC3\xBF\x63\x32"); //  (Set Items)
-const std::string s_colorBlue("\xC3\xBF\x63\x33");        // (Magic Items)
-const std::string s_colorGold("\xC3\xBF\x63\x34");        // (Unique Items)
-const std::string s_colorDarkGray("\xC3\xBF\x63\x35");    // (Socketed/Ethereal Items)
-const std::string s_colorTransparent("\xC3\xBF\x63\x36"); //  (Text Doesn't Show)
-const std::string s_colorTan("\xC3\xBF\x63\x37");         //
-const std::string s_colorOrange("\xC3\xBF\x63\x38");      // (Crafted Items)
-const std::string s_colorYellow("\xC3\xBF\x63\x39");      // (Rare Items)
-const std::string s_colorDarkGreen("\xC3\xBF\x63\x3A");   //
-const std::string s_colorPurple("\xC3\xBF\x63\x3B");      //
-const std::string s_colorWhite("\xC3\xBF\x63\x2F");       //  (Brighter than Light Gray)
-
-const std::string& s_hidden = s_colorTransparent;
 
 const std::vector<std::string> s_locales{
     "deDE",
@@ -98,43 +83,44 @@ void ModuleDropFiltering::generate(DataContext& output, RandomGenerator& rng, co
     };
     std::map<std::string, std::string> replacementsItems;
     std::map<std::string, std::string> replacementsAffix;
-    auto                               twoColor = [](const std::string& color, const std::string& coloredText, const std::string& grayText) {
-        return color + coloredText + s_colorLightGray + grayText;
+    auto                               twoColor = [](const Color& color, const std::string& coloredText, const std::string& grayText) {
+        return getColorDesc(color).m_fullBinaryCode + coloredText + getColorDesc(Color::grey).m_fullBinaryCode + grayText;
     };
     if (input.getInt("compact_pots")) {
         replacementsItems.merge(std::map<std::string, std::string>{
-            { "mp1", twoColor(s_colorBlue, "!", "MP1") },
-            { "mp2", twoColor(s_colorBlue, "!", "MP2") },
-            { "mp3", twoColor(s_colorBlue, "!", "MP3") },
-            { "mp4", twoColor(s_colorBlue, "!", "MP4") },
-            { "mp5", twoColor(s_colorBlue, "!", "MP5") },
-            { "hp1", twoColor(s_colorRed, "!", "HP1") },
-            { "hp2", twoColor(s_colorRed, "!", "HP2") },
-            { "hp3", twoColor(s_colorRed, "!", "HP3") },
-            { "hp4", twoColor(s_colorRed, "!", "HP4") },
-            { "hp5", twoColor(s_colorRed, "!", "HP5") },
-            { "rvs", twoColor(s_colorRed, "Rej", "") },
-            { "rvl", twoColor(s_colorRed, "Full", "") },
+            { "mp1", twoColor(Color::blue, "!", "MP1") },
+            { "mp2", twoColor(Color::blue, "!", "MP2") },
+            { "mp3", twoColor(Color::blue, "!", "MP3") },
+            { "mp4", twoColor(Color::blue, "!", "MP4") },
+            { "mp5", twoColor(Color::blue, "!", "MP5") },
+            { "hp1", twoColor(Color::red, "!", "HP1") },
+            { "hp2", twoColor(Color::red, "!", "HP2") },
+            { "hp3", twoColor(Color::red, "!", "HP3") },
+            { "hp4", twoColor(Color::red, "!", "HP4") },
+            { "hp5", twoColor(Color::red, "!", "HP5") },
+            { "rvs", twoColor(Color::red, "Rej", "") },
+            { "rvl", twoColor(Color::red, "Full", "") },
         });
     }
     if (input.getInt("compact_scrolls")) {
         replacementsItems.merge(std::map<std::string, std::string>{
-            { "tsc", twoColor(s_colorBlue, "•", "TP") },
-            { "isc", twoColor(s_colorRed, "•", "ID") },
+            { "tsc", twoColor(Color::blue, "•", "TP") },
+            { "isc", twoColor(Color::red, "•", "ID") },
         });
     }
+    const std::string& hidden = getColorDesc(Color::transparent).m_fullBinaryCode;
     if (input.getInt("hide_lowq")) {
         replacementsAffix.merge(std::map<std::string, std::string>{
-            { "Low Quality", s_hidden },
-            { "Damaged", s_hidden },
-            { "Cracked", s_hidden },
-            { "Crude", s_hidden },
+            { "Low Quality", hidden },
+            { "Damaged", hidden },
+            { "Cracked", hidden },
+            { "Crude", hidden },
         });
     }
     for (const auto& item : m_items) {
         if (input.getInt("hide_" + item.settingKey)) {
             for (auto& id : item.internalIds)
-                replacementsItems[id] = s_hidden;
+                replacementsItems[id] = hidden;
         }
     }
 
