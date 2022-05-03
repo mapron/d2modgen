@@ -56,6 +56,28 @@ void ModuleRequirements::generate(DataContext& output, RandomGenerator& rng, con
         view.applyIntTransform("level", makeLevelModifier(equipItemLevel));
         view.applyIntTransform("levelreq", makeLevelModifier(equipReqLevel));
     }
+
+    for (const auto tableName : { TableId::automagic, TableId::magicprefix, TableId::magicsuffix }) {
+        Table&    table = tableSet.tables[tableName];
+        TableView view(table, true);
+
+        view.applyIntTransform("level", makeLevelModifier(affixItemLevel));
+        view.applyIntTransform("maxlevel", makeLevelModifier(affixItemLevel));
+        view.applyIntTransform("levelreq", makeLevelModifier(affixReqLevel));
+    }
+    for (const auto tableName : { TableId::uniqueitems, TableId::setitems }) {
+        Table&    table = tableSet.tables[tableName];
+        TableView view(table, true);
+
+        view.applyIntTransform("lvl", makeLevelModifier(uniquesItemLevel));
+        view.applyIntTransform("lvl req", makeLevelModifier(uniquesReqLevel));
+    }
+
+    if (skillsReqLevel != 100) {
+        Table&    skillTable = tableSet.tables[TableId::skills];
+        TableView skillTableView(skillTable, true);
+        skillTableView.applyIntTransform("reqlevel", makeLevelModifier(skillsReqLevel));
+    }
 }
 
 }

@@ -1,3 +1,12 @@
+## 0.5
+New features:
+* Added New tab - Requirements!
+* Now you can play around with level requirements and get powerful items early.
+* Added 'max hard skill points' option into Character tab. Now you can dump 60 hard points into Blizzard.
+Noticeable changes: 
+* Complete overhaul of modular engine (so bad things can happen, report if something broken).  
+* NB: random seed is not compatible with previous versions. You will get different results with same seed from 0.4.1.
+
 ## 0.4.1
 New features:
 * Added New Randmoizer tab - Skills Randomizer!

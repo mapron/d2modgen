@@ -98,8 +98,8 @@ void ModuleDropFiltering::generate(DataContext& output, RandomGenerator& rng, co
             { "hp3", twoColor(Color::red, "!", "HP3") },
             { "hp4", twoColor(Color::red, "!", "HP4") },
             { "hp5", twoColor(Color::red, "!", "HP5") },
-            { "rvs", twoColor(Color::red, "Rej", "") },
-            { "rvl", twoColor(Color::red, "Full", "") },
+            { "rvs", twoColor(Color::purple, "Rej", "") },
+            { "rvl", twoColor(Color::purple, "Full", "") },
         });
     }
     if (input.getInt("compact_scrolls")) {
