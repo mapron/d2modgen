@@ -22,6 +22,7 @@
 	"controls": [
 		{ "id": "mon_ar", "type": "slider", "mult": 10, "denom": 10 },
 		{ "id": "mon_def", "type": "slider", "mult": 10, "denom": 10},
+		{ "id": "mon_hp", "type": "slider", "mult": 10, "denom": 10},
 		{ "id": "mon_dam", "type": "slider", "mult": 10, "denom": 10},
 		{ "id": "mon_ar", "type": "slider", "mult": 10, "denom": 10},
 		{ "id": "mon_xp", "type": "slider", "mult": 10, "denom": 10},
