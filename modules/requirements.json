@@ -1,0 +1,84 @@
+{
+	"hasDylib": false,
+	"hasQML": false,
+	"category": "easier",
+	"order": 80,
+	"defaults": {
+		"reqStr": 100,
+		"reqDex": 100,
+		
+		"equipReqLevel": 100,
+		"uniquesReqLevel": 100,
+		"affixReqLevel": 100,
+		"skillsReqLevel": 100,
+		
+		"equipItemLevel": 100,
+		"uniquesItemLevel": 100,
+		"affixItemLevel": 100
+	},
+	"controls": [
+		{ "id": "reqStr", "type": "sliderMinMax", "min": 5, "max": 150},
+		{ "id": "reqDex", "type": "sliderMinMax", "min": 5, "max": 150},
+		
+		{ "id": "equipReqLevel", "type": "sliderMinMax", "min": 5, "max": 150},
+		{ "id": "uniquesReqLevel", "type": "sliderMinMax", "min": 5, "max": 150},
+		{ "id": "affixReqLevel", "type": "sliderMinMax", "min": 5, "max": 150},
+		{ "id": "skillsReqLevel", "type": "sliderMinMax", "min": 5, "max": 150},
+		
+		{ "id": "equipItemLevel", "type": "sliderMinMax", "min": 5, "max": 150},
+		{ "id": "uniquesItemLevel", "type": "sliderMinMax", "min": 5, "max": 150},
+		{ "id": "affixItemLevel", "type": "sliderMinMax", "min": 5, "max": 150}
+	],
+	"locales": {
+		"ru_RU": {
+			"title": "Требования",
+			"help": "Опции для снижения/повышения требований к экипировки ",
+			
+			"presets": [],
+			"controlsTitles": {
+				"reqStr" : "Изменить требования к Силе на предметах, %",
+				"reqDex" : "Изменить требования к Ловкости на предметах, %",
+
+				"equipReqLevel": "Изменить требование к уровню персонажа на обычных предметах, %",
+				"uniquesReqLevel": "Изменить требование к уровню персонажа на Уникальных/Наборных предметах, %",
+				"affixReqLevel": "Изменить требование к уровню персонажа на Магических/Редких предметах, %",
+				"skillsReqLevel": "Изменить минимальный уровень необходимый для навыков персонажа, %",
+				
+				"equipItemLevel": "Изменить qlvl (качественный уровень) на обычных предметах, %",
+				"uniquesItemLevel": "Изменить qlvl (качественный уровень) на Уникальных/Наборных предметах, %",
+				"affixItemLevel": "Изменить qlvl (качественный уровень) на Магических/Редких предметах, %"
+			},
+			"controlsHelps": {
+				"reqStr" : "Если выставить значение выше 100%, требования к Силе \n станут выше, чем это было в оригинале.",
+				"equipReqLevel": "Влияет на поле 'Минимальный уровень:' который вы видите в игре на предметах.",
+				"skillsReqLevel": "Если вы выберете 50%, сможете распределить очки в навык 30 уровня уже на 15 уровне.",
+				"equipItemLevel": "Управляет тем, насколько ценный предмет с точки зрения расчета дропа.\n Значение ниже дает возможность получать ценные и редкие предметы раньше."
+			}
+		},
+		"en_US": {
+			"title": "Requirements",
+			"help": "Options for lowering/raising requirements for equimpemnt. ",
+			
+			"presets": [],
+			"controlsTitles": {
+				"reqStr" : "Change Strength requirements on items, %",
+				"reqDex" : "Change Dexterity requirements on items, %",
+				
+				"equipReqLevel": "Change Character level requirement on regular items, %",
+				"uniquesReqLevel": "Change Character level requirement on Unique/Set items, %",
+				"affixReqLevel": "Change Character level requirement on Magic/Rare items, %",
+				"skillsReqLevel": "Change Minimal level required to spent points into skill, %",
+				
+				"equipItemLevel": "Change quality level on regular items, %",
+				"uniquesItemLevel": "Change quality level on Unique/Set items, %",
+				"affixItemLevel": "Change quality level on Magic/Rare items, %"
+			},
+			"controlsHelps": {
+				"reqStr" : "If you set value above 100%, Strength requirements \n become higher compared to the original.",
+				"equipReqLevel": "That controls 'Level required:' you see on the items.",
+				"skillsReqLevel": "For example, if you select 50%, you can get level 30 skill on level 15 instead.",
+				"equipItemLevel": "That controls how valueable item is from drop calculation process.\n Lower value means you get item dropped much earlier in the game."
+			}
+		}
+	}
+}

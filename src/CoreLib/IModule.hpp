@@ -102,6 +102,7 @@ public:
         static constexpr const std::string_view monsterStats{ "monster_stats" };
         static constexpr const std::string_view perfectRolls{ "perfect_rolls" };
         static constexpr const std::string_view qualityOfLife{ "qol" };
+        static constexpr const std::string_view requirements{ "requirements" };
         static constexpr const std::string_view runeDrops{ "rune_drops" };
         static constexpr const std::string_view skillRandomizer{ "skillRandomizer" };
 

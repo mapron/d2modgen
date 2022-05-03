@@ -11,7 +11,6 @@
 		"statPerLevel": 5,
 		"skillPerLevel": 1,
 		"skillPointLimit": 20,
-		"statLower": 100,
 		"mercHP": 100,
 		"mercDam": 100
 
@@ -25,7 +24,6 @@
 		{ "id": "statPerLevel", "type": "sliderMinMax", "min": 1, "max": 25},
 		{ "id": "skillPerLevel", "type": "sliderMinMax", "min": 1, "max": 20 },
 		{ "id": "skillPointLimit", "type": "sliderMinMax", "min": 1, "max": 60 },
-		{ "id": "statLower", "type": "sliderMinMax", "min": 10, "max": 100},
 		{ "id": "mercHP", "type": "slider", "mult": 10, "denom": 5 },
 		{ "id": "mercDam", "type": "slider", "mult": 10, "denom": 5 }
 
@@ -44,7 +42,6 @@
 				"statPerLevel" : "Очков характеристик при повышении уровня",
 				"skillPerLevel" : "Очков умений при повышении уровня (только D2R!)",
 				"skillPointLimit" : "Максимум жестких очков умений для 1 навыка (только D2R!)",
-				"statLower" : "Снизить требования Силы/Ловкости на предметах, %",
 				"mercHP" : "Изменить Здоровье наёмников, множитель",
 				"mercDam" : "Изменить Урон наёмников, множитель"
 
@@ -65,7 +62,6 @@
 				"statPerLevel" : "Stat points gain per level",
 				"skillPerLevel" : "Skill points gain per level (D2R only!)",
 				"skillPointLimit" : "Maximum hard points for skill (D2R only!)",
-				"statLower" : "Lower Strength/Dexterity requirements on items, %",
 				"mercHP" : "Change mercenaries Health, multiply by",
 				"mercDam" : "Change mercenaries Damage, multiply by"
 			},

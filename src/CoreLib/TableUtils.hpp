@@ -181,7 +181,7 @@ public:
     template<class T>
     void applyIntTransform(const std::string& key, const T& transform)
     {
-        applyIntTransform({ key }, transform);
+        applyIntTransform(StringVector{ key }, transform);
     }
 
     int ind(const std::string& colName) const noexcept

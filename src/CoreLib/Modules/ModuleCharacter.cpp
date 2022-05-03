@@ -74,7 +74,6 @@ void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const 
     const int statPerLevel    = input.getInt("statPerLevel");
     const int skillPerLevel   = input.getInt("skillPerLevel");
     const int skillPointLimit = input.getInt("skillPointLimit");
-    const int statLower       = input.getInt("statLower");
     const int mercHPpercent   = input.getInt("mercHP");
     const int mercDampercent  = input.getInt("mercDam");
 
@@ -101,17 +100,6 @@ void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const 
             row["SkillsPerLevel"].setInt(skillPerLevel);
     }
 
-    if (statLower != 100) {
-        auto trans = [statLower](const int value) {
-            const int newStat = value * statLower / 100;
-            return newStat < 10 ? 0 : newStat;
-        };
-        for (const auto tableName : { TableId::armor, TableId::weapons }) {
-            Table&    table = tableSet.tables[tableName];
-            TableView view(table, true);
-            view.applyIntTransform(StringVector{ "reqstr", "reqdex" }, trans);
-        }
-    }
     if (mercHPpercent != 100 || mercDampercent != 100) {
         TableView view(tableSet.tables[TableId::hireling], true);
         view.applyIntTransform(StringVector{ "HP", "HP/Lvl" }, [mercHPpercent](const int value) -> int {
