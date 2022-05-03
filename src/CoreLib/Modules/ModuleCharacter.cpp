@@ -71,11 +71,12 @@ void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const 
     Table&    charTable = tableSet.tables[TableId::charstats];
     TableView charTableView(charTable, true);
 
-    const int statPerLevel   = input.getInt("statPerLevel");
-    const int skillPerLevel  = input.getInt("skillPerLevel");
-    const int statLower      = input.getInt("statLower");
-    const int mercHPpercent  = input.getInt("mercHP");
-    const int mercDampercent = input.getInt("mercDam");
+    const int statPerLevel    = input.getInt("statPerLevel");
+    const int skillPerLevel   = input.getInt("skillPerLevel");
+    const int skillPointLimit = input.getInt("skillPointLimit");
+    const int statLower       = input.getInt("statLower");
+    const int mercHPpercent   = input.getInt("mercHP");
+    const int mercDampercent  = input.getInt("mercDam");
 
     for (auto& row : charTableView) {
         if (row["class"].str == "Expansion")
@@ -119,6 +120,15 @@ void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const 
         view.applyIntTransform(StringVector{ "Dmg-Min", "Dmg-Max", "Dmg/Lvl" }, [mercDampercent](const int value) -> int {
             return value * mercDampercent / 100;
         });
+    }
+
+    if (!input.m_env.isLegacy && skillPointLimit != 20) {
+        Table&    skillTable = tableSet.tables[TableId::skills];
+        TableView skillTableView(skillTable, true);
+        for (auto& row : skillTableView) {
+            if (row["maxlvl"].toInt() == 20)
+                row["maxlvl"].setInt(skillPointLimit);
+        }
     }
 }
 
