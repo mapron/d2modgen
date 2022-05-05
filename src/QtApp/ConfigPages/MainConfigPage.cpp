@@ -8,6 +8,7 @@
 #include "PlatformPathUtils.hpp"
 #include "TableUtils.hpp"
 #include "ModuleFactory.hpp"
+#include "Logger.hpp"
 
 #include "Formats/FileFormatJson.hpp"
 
@@ -291,6 +292,7 @@ void MainConfigPage::createNewSeed()
     std::random_device rd;
     auto               seed = rd();
     m_impl->seed->setText(QString("%1").arg(seed));
+    emit dataChanged();
 }
 
 QStringList MainConfigPage::getOtherMods() const
@@ -345,7 +347,7 @@ void MainConfigPage::updateUIFromSettingsMain(const PropertyTree& data)
         m_impl->modName->setText("rando");
 
     if (data.contains("seed"))
-        m_impl->seed->setText(QString::fromStdString(data["seed"].getScalar().toString()));
+        m_impl->seed->setText(QString("%1").arg(data["seed"].getScalar().toInt()));
     else
         createNewSeed();
 
@@ -373,6 +375,8 @@ void MainConfigPage::writeSettingsFromUIMain(PropertyTree& data) const
     data["isLegacy"]        = PropertyTreeScalar{ m_impl->d2legacyMode->isChecked() };
     data["exportAllTables"] = PropertyTreeScalar{ m_impl->exportAll->isChecked() };
     data["outPath"]         = PropertyTreeScalar{ m_impl->outPath->text().toStdString() };
+
+    Logger() << "seed after write:" << static_cast<uint32_t>(data.value("seed", 0).toInt());
 }
 
 const IModule& MainConfigPage::getModule() const
