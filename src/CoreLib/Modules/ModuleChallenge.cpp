@@ -64,7 +64,7 @@ void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const 
             view.markModified();
             for (auto& row : view) {
                 if (row["Name"].str == name) {
-                    row["ResistPenalty"].setInt(penalty);
+                    row["ResistPenalty"].setInt(-penalty);
                 }
             }
         };
