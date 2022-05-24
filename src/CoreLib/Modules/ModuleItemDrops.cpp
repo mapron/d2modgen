@@ -42,6 +42,29 @@ TCType getTC(const std::string& tc)
     return TCType::Other;
 }
 
+const std::map<std::string, std::string> s_bossTC{
+    { "Andariel", "Andarielq (H)" },
+    { "Andariel (N)", "Andarielq (N)" },
+    { "Andariel (H)", "Andarielq" },
+
+    { "Duriel - Base", "Durielq (H) - Base" },
+    { "Duriel (N) - Base", "Durielq (N) - Base" },
+    { "Duriel (H) - Base", "Durielq - Base" },
+
+    { "Mephisto", "Mephistoq (H)" },
+    { "Mephisto (N)", "Mephistoq (N)" },
+    { "Mephisto (H)", "Mephistoq" },
+
+    { "Diablo", "Diabloq (H)" },
+    { "Diablo (N)", "Diabloq (N)" },
+    { "Diablo (H)", "Diabloq" },
+
+    { "Baal", "Baalq" },
+    { "Baal (N)", "Baalq (N)" },
+    { "Baal (H)", "Baalq (H)" },
+
+};
+
 }
 
 void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
@@ -69,8 +92,10 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
         const int  percentEquip    = input.getInt("equip_percent");
         const int  percentJunk     = input.getInt("junk_percent");
         const bool highDropsCount  = input.getInt("high_elite_drops");
+        const bool alwaysQuest     = input.getInt("boss_quest_drops");
 
         auto factorAdjust = [](TableCell& value, double factor, int maxFact) {
+            maxFact                     = std::max(maxFact, value.toInt());
             const double prev           = value.toInt();
             const double probReverseOld = (1024. - prev);
             const double probReverseNew = probReverseOld / factor;
@@ -87,6 +112,12 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
             value = value * num / denum;
             return std::max(1, value);
         };
+        std::unordered_map<std::string, DropSet> classes;
+        for (auto& row : view) {
+            DropSet dropSet;
+            dropSet.readRow(row);
+            classes[row["Treasure Class"].str] = dropSet;
+        }
 
         for (auto& row : view) {
             const auto   treasureGroup      = row["group"].toInt();
@@ -102,8 +133,11 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
                 factorAdjust(setRatio, factorSet, 990);
                 factorAdjust(rareRatio, factorRare, 960);
             }
+
             DropSet dropSet;
             dropSet.readRow(row);
+            if (alwaysQuest && s_bossTC.contains(className))
+                dropSet = classes[s_bossTC.at(className)];
 
             dropSet.m_noDrop = adjustPick(dropSet.m_noDrop, percentNoDrop, 100);
 

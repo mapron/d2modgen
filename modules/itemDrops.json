@@ -26,6 +26,7 @@
 		{ "id": "chance_highlevel", "type": "sliderMinMax", "min": 1, "max": 15},
 			
 		{ "id": "high_elite_drops", "type": "checkbox" },
+		{ "id": "boss_quest_drops", "type": "checkbox" },
 
 		{ "id": "_label1", "type": "label"},
 		{ "id": "nodrop_percent", "type": "slider", "mult": 5, "denom": 20, "compact":true},
@@ -42,12 +43,14 @@
 			"chance_set": 30,
 			"chance_highlevel": 15,
 			"high_elite_drops": true,
+			"boss_quest_drops": true,
 			"equal_uniques": true 
 		},
 		{ 
 			"chance_uni": 15 ,
 			"chance_set": 10 ,
-			"high_elite_drops": true
+			"high_elite_drops": true,
+			"boss_quest_drops": true
 		},
 		{ 
 			"chance_uni": 5,
@@ -73,6 +76,7 @@
 				"chance_rare": "Увеличить шанс Редких предметов",
 				"chance_highlevel": "Увеличить шанс предметов высокого уровня",
 				"high_elite_drops": "Увеличить число дропов с элитных монстров",
+				"boss_quest_drops": "Всегда квестовые дропы с боссов",
 				"_label1": "Изменить соотношение между основными типами дропа",
 				"nodrop_percent": "NoDrop (больше=МЕНЬШЕ дропов)",
 				"good_percent": "Good TC (Руны/Камни/Ювелирка)",
@@ -113,6 +117,7 @@
 				"chance_rare": "Increase Rare Chance",
 				"chance_highlevel": "Increase Chance of High-level equipment",
 				"high_elite_drops": "Increase Champion/Unique item count",
+				"boss_quest_drops": "Always quest drops from bosses",
 				"_label1": "Adjust proportion of main drop classes",
 				"nodrop_percent": "NoDrop (higher=LESS drops)",
 				"good_percent": "Good TC (Runes/Gems/Jewellery)",
