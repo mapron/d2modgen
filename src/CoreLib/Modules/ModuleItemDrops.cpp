@@ -43,21 +43,21 @@ TCType getTC(const std::string& tc)
 }
 
 const std::map<std::string, std::string> s_bossTC{
-    { "Andariel", "Andarielq (H)" },
+    { "Andariel", "Andarielq" },
     { "Andariel (N)", "Andarielq (N)" },
-    { "Andariel (H)", "Andarielq" },
+    { "Andariel (H)", "Andarielq (H)" },
 
-    { "Duriel - Base", "Durielq (H) - Base" },
+    { "Duriel - Base", "Durielq - Base" },
     { "Duriel (N) - Base", "Durielq (N) - Base" },
-    { "Duriel (H) - Base", "Durielq - Base" },
+    { "Duriel (H) - Base", "Durielq (H) - Base" },
 
-    { "Mephisto", "Mephistoq (H)" },
+    { "Mephisto", "Mephistoq" },
     { "Mephisto (N)", "Mephistoq (N)" },
-    { "Mephisto (H)", "Mephistoq" },
+    { "Mephisto (H)", "Mephistoq (H)" },
 
-    { "Diablo", "Diabloq (H)" },
+    { "Diablo", "Diabloq" },
     { "Diablo (N)", "Diabloq (N)" },
-    { "Diablo (H)", "Diabloq" },
+    { "Diablo (H)", "Diabloq (H)" },
 
     { "Baal", "Baalq" },
     { "Baal (N)", "Baalq (N)" },
@@ -112,21 +112,25 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
             value = value * num / denum;
             return std::max(1, value);
         };
-        std::unordered_map<std::string, DropSet> classes;
-        for (auto& row : view) {
-            DropSet dropSet;
-            dropSet.readRow(row);
-            classes[row["Treasure Class"].str] = dropSet;
-        }
+        std::unordered_map<std::string, const TableView::RowView*> classes;
+        for (auto& row : view)
+            classes[row["Treasure Class"].str] = &row;
 
         for (auto& row : view) {
-            const auto   treasureGroup      = row["group"].toInt();
-            std::string& className          = row["Treasure Class"].str;
-            auto&        uniqueRatio        = row["Unique"];
-            auto&        setRatio           = row["Set"];
-            auto&        rareRatio          = row["Rare"];
-            const bool   allowFillNewValues = s_modifyGroups.contains(treasureGroup) || s_modifyNames.contains(className);
-            const bool   allowModifyValues  = !uniqueRatio.isEmpty() && uniqueRatio != "1024" && !setRatio.isEmpty();
+            const auto                treasureGroup = row["group"].toInt();
+            std::string&              className     = row["Treasure Class"].str;
+            const TableView::RowView* questRow      = alwaysQuest && s_bossTC.contains(className) ? classes.at(s_bossTC.at(className)) : nullptr;
+            if (questRow) {
+                row["Unique"] = (*questRow)["Unique"];
+                row["Set"]    = (*questRow)["Set"];
+                row["Rare"]   = (*questRow)["Rare"];
+            }
+
+            auto&      uniqueRatio        = row["Unique"];
+            auto&      setRatio           = row["Set"];
+            auto&      rareRatio          = row["Rare"];
+            const bool allowFillNewValues = s_modifyGroups.contains(treasureGroup) || s_modifyNames.contains(className);
+            const bool allowModifyValues  = !uniqueRatio.isEmpty() && uniqueRatio != "1024" && !setRatio.isEmpty();
             if (allowFillNewValues || allowModifyValues) {
                 // these limits are empyrical - to prevent 100% drop chance on 1000% MF.
                 factorAdjust(uniqueRatio, factorUnique, 1010);
@@ -135,9 +139,7 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
             }
 
             DropSet dropSet;
-            dropSet.readRow(row);
-            if (alwaysQuest && s_bossTC.contains(className))
-                dropSet = classes[s_bossTC.at(className)];
+            dropSet.readRow(questRow ? *questRow : row);
 
             dropSet.m_noDrop = adjustPick(dropSet.m_noDrop, percentNoDrop, 100);
 
