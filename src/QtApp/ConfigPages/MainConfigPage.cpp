@@ -281,6 +281,7 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
         updateArgs();
     });
     connect(m_impl->d2legacyMode, &QCheckBox::clicked, this, &IConfigPage::dataChanged);
+    connect(m_impl->exportAll, &QCheckBox::clicked, this, &IConfigPage::dataChanged);
 
     m_impl->modName->setText("rando");
 }
