@@ -63,6 +63,8 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
         const std_path&   path           = it.path();
         const std::string currentAbsPath = path2string(path);
         const std::string currentRelPath = currentAbsPath.substr(rootLength);
+        if (path.filename() == "modinfo.json")
+            continue;
 
         if (path.extension() == ".txt" && (path.parent_path().filename() == "excel" || path.parent_path() == m_root)) { // not a best guess, but however...
             auto        id = toLower(path2string(path.stem()));
