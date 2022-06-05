@@ -22,6 +22,7 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
     const bool quiverSize       = input.getInt("quiverSize");
     const bool uniqueCharmLimit = input.getInt("uniqueCharmLimit");
     const bool weakenTownSkills = input.getInt("weakenTownSkills");
+    const bool showItemLevel    = input.getInt("showItemLevel");
     const int  reduceCost       = input.getInt("reduceCost");
     if (tomeSize || keySize || quiverSize) {
         Table&    table = output.tableSet.tables[TableId::misc];
@@ -76,6 +77,14 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
                     continue;
                 mult.setInt(mult.toInt() * reduceCost / 100);
                 add.setInt(add.toInt() * reduceCost / 100);
+            }
+        }
+    }
+    if (showItemLevel && !input.m_env.isLegacy) {
+        for (TableId tableid : { TableId::armor, TableId::weapons }) {
+            TableView tableView(output.tableSet.tables[tableid], true);
+            for (auto& row : tableView) {
+                row["ShowLevel"].setInt(1);
             }
         }
     }

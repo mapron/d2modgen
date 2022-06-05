@@ -11,6 +11,7 @@
 		"quiverSize": false,
 		"uniqueCharmLimit": false,
 		"weakenTownSkills": false,
+		"showItemLevel": false,
 		"reduceCost": 100
 	},
 	"controls": [
@@ -20,6 +21,7 @@
 		{ "id": "quiverSize", "type": "checkbox"},
 		{ "id": "uniqueCharmLimit", "type": "checkbox"},
 		{ "id": "weakenTownSkills", "type": "checkbox"},
+		{ "id": "showItemLevel", "type": "checkbox"},
 		{ "id": "reduceCost", "type": "sliderMinMax", "min": 5, "max": 100}
 		
 	],
@@ -35,6 +37,7 @@
 				"quiverSize": "Увеличить колчаны до 511",
 				"uniqueCharmLimit": "Убрать ограничение на 1 уникальный талисман в инвентаре",
 				"weakenTownSkills": "Разрешить использовать Телепорт и боевые приказы в городе",
+				"showItemLevel": "Показывать ilevel в скобках",
 				"reduceCost": "Снизить стоимость (в золоте) для параметров на предметах (снизить цену починки)"
 			},
 			"controlsHelps": {
@@ -55,6 +58,7 @@
 				"quiverSize": "Increase quivers size -> 511",
 				"uniqueCharmLimit": "Remove limit on Unique charms",
 				"weakenTownSkills": "Allow using Teleport, BC, BO in town",
+				"showItemLevel": "Show ilevel in items' titles",
 				"reduceCost": "Reduce costs of skills and stats on items (affects repair cost mostly)"
 			},
 			"controlsHelps": {
