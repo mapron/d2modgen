@@ -40,6 +40,26 @@ static const std::map<TableId, AliasConfig> s_tableColumnAliases{
                            { "MonLvl2Ex", { "MonLvlEx(N)" } },
                            { "MonLvl3Ex", { "MonLvlEx(H)" } },
                        } },
+    { TableId::uniqueitems, AliasConfig{
+                                { "diablocloneweight", { "worldevent" } },
+                                { "worldevent", { "diablocloneweight" } },
+                            } },
+    { TableId::setitems, AliasConfig{
+                             { "diablocloneweight", { "worldevent" } },
+                             { "worldevent", { "diablocloneweight" } },
+                         } },
+    { TableId::armor, AliasConfig{
+                          { "diablocloneweight", { "worldevent" } },
+                          { "worldevent", { "diablocloneweight" } },
+                      } },
+    { TableId::weapons, AliasConfig{
+                            { "diablocloneweight", { "worldevent" } },
+                            { "worldevent", { "diablocloneweight" } },
+                        } },
+    { TableId::misc, AliasConfig{
+                         { "diablocloneweight", { "worldevent" } },
+                         { "worldevent", { "diablocloneweight" } },
+                     } },
 };
 
 }

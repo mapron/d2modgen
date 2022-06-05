@@ -36,6 +36,7 @@ private:
     const QList<StorageType>    m_typeIndex;
     const QList<ConflictPolicy> m_policyIndex;
 
+    QString    m_currentMod;
     QComboBox* m_typeSelect;
     QComboBox* m_policySelect;
     QComboBox* m_modSelect;

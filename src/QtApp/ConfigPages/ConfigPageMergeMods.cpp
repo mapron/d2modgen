@@ -87,16 +87,20 @@ ConfigPageMergeModsItem::ConfigPageMergeModsItem(QWidget* parent)
     });
     connect(m_policySelect, qOverload<int>(&QComboBox::currentIndexChanged), this, &ConfigPageMergeModsItem::checkForChange);
     connect(m_folderCSV, &QLineEdit::textEdited, this, &ConfigPageMergeModsItem::checkForChange);
+    connect(m_modSelect, qOverload<int>(&QComboBox::currentIndexChanged), this, [this] { 
+        m_currentMod = m_modSelect->currentText();
+        emit checkForChange(); 
+    });
 }
 
 void ConfigPageMergeModsItem::setModList(const QStringList& mods)
 {
-    QString prev = m_modSelect->currentText();
+    m_modSelect->blockSignals(true);
     m_modSelect->clear();
     m_modSelect->addItem("");
     m_modSelect->addItems(mods);
-
-    setMod(prev);
+    m_modSelect->blockSignals(false);
+    setMod(m_currentMod);
 }
 
 void ConfigPageMergeModsItem::readSettings(const PropertyTree& data)
@@ -113,12 +117,13 @@ void ConfigPageMergeModsItem::writeSettings(PropertyTree& data) const
 {
     data["type"]   = PropertyTreeScalar{ static_cast<int64_t>(m_typeIndex[m_typeSelect->currentIndex()]) };
     data["policy"] = PropertyTreeScalar{ static_cast<int64_t>(m_policyIndex[m_policySelect->currentIndex()]) };
-    data["mod"]    = PropertyTreeScalar{ m_modSelect->currentText().toStdString() };
+    data["mod"]    = PropertyTreeScalar{ m_currentMod.toStdString() };
     data["folder"] = PropertyTreeScalar{ m_folderCSV->text().toStdString() };
 }
 
 void ConfigPageMergeModsItem::setMod(const QString& mod)
 {
+    m_currentMod = mod;
     m_modSelect->setCurrentIndex(0);
     for (int i = 0; i < m_modSelect->count(); ++i) {
         if (m_modSelect->itemText(i) == mod) {
