@@ -74,7 +74,7 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
 
             result.tables.push_back(StoredFileTable{ std::move(buffer), id });
         } else {
-            if (filenames.contains(currentRelPath)) {
+            if (filenames.contains(currentRelPath) || path.extension() == ".json") {
                 std::string buffer;
                 if (!readFileIntoBuffer(path, buffer))
                     return {};

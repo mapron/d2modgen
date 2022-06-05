@@ -108,7 +108,7 @@ bool readJsonFromBuffer(const std::string& buffer, PropertyTree& data)
         dataPtr += 3;
     auto& res = input.Parse<0>(dataPtr);
     if (res.HasParseError()) {
-        Logger(Logger::Err) << res.GetParseError();
+        Logger(Logger::Err) << res.GetParseError() << " (" << res.GetErrorOffset() << ")";
         return false;
     }
 

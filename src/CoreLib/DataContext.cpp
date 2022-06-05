@@ -186,7 +186,7 @@ bool DataContext::mergeWith(const DataContext& source, ConflictPolicy policy)
                 continue;
         }
         if (jsonFiles.contains(p.first)) {
-            if (policy == ConflictPolicy::Skip || policy == ConflictPolicy::Replace)
+            if (policy == ConflictPolicy::Skip)
                 continue;
             return false;
         }
