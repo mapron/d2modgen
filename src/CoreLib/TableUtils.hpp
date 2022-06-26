@@ -50,11 +50,11 @@ public:
         TableCell& operator[](const std::string& index)
         {
             assert(parent.isWriteable);
-            return parent.m_table.rows[i].data[ind(index)];
+            return parent.m_table.rows[i].data[indChecked(index)];
         }
 
         const TableCell& operator[](int index) const { return parent.m_table.rows[i].data[index]; }
-        const TableCell& operator[](const std::string& colName) const { return parent.m_table.rows[i].data[ind(colName)]; }
+        const TableCell& operator[](const std::string& colName) const { return parent.m_table.rows[i].data[indChecked(colName)]; }
 
         bool hasColumn(const std::string& colName) const { return parent.ind(colName) >= 0; }
 
@@ -109,7 +109,14 @@ public:
         }
 
     private:
-        int        ind(const std::string& colName) const { return parent.ind(colName); }
+        int ind(const std::string& colName) const { return parent.ind(colName); }
+        int indChecked(const std::string& colName) const
+        {
+            int index = parent.ind(colName);
+            if (index < 0)
+                throw std::runtime_error(std::string("trying to access unknown column '" + colName + "' in table '" + getTableIdString(parent.m_table.id) + "'"));
+            return index;
+        }
         int        i;
         TableView& parent;
     };
