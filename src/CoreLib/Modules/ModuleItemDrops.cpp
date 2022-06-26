@@ -134,8 +134,8 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
             if (allowFillNewValues || allowModifyValues) {
                 // these limits are empyrical - to prevent 100% drop chance on 1000% MF.
                 factorAdjust(uniqueRatio, factorUnique, 1010);
-                factorAdjust(setRatio, factorSet, 990);
-                factorAdjust(rareRatio, factorRare, 960);
+                factorAdjust(setRatio, factorSet, 1024);
+                factorAdjust(rareRatio, factorRare, 1024);
             }
 
             DropSet dropSet;
