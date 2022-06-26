@@ -188,11 +188,9 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         return mapValue(setLevels, row["name"].str);
     };
     auto uniqueType = [&code2type](const Row& row) -> ItemCodeFilter {
-        assert(code2type.contains(row["code"].str));
         return { { mapValue(code2type, row["code"].str) }, {} };
     };
     auto setitemType = [&code2type](const Row& row) -> ItemCodeFilter {
-        assert(code2type.contains(row["item"].str));
         return { { mapValue(code2type, row["item"].str) }, {} };
     };
     auto rwTypes = [](const Row& row) -> ItemCodeFilter {
@@ -387,6 +385,8 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         TableView view(tableSet.tables[TableId::uniqueitems]);
         auto      code2flags = [&code2type, &props](const Row& row) -> AttributeFlagSet {
             const auto type = mapValue(code2type, row["code"].str);
+            if (type.empty())
+                return {};
             assert(props.itemTypeInfo.contains(type));
             return props.itemTypeInfo.at(type).flags;
         };

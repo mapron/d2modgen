@@ -350,6 +350,8 @@ ItemCodeSet MagicPropUniverse::expand(const ItemCodeSet& query, bool nested) con
 {
     ItemCodeSet codeSet = query;
     for (const std::string& code : query) {
+        if (code.empty())
+            continue;
         const auto& typeInfo = itemTypeInfo.at(code.substr(0, 4));
         appendToSet(codeSet, nested ? typeInfo.nested : typeInfo.parents);
     }

@@ -223,7 +223,12 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
                     return 0;
                 return Distribution32(0, bound - 1)(engine);
             };
-            p.second.m_module->generate(output, r, input);
+            try {
+                p.second.m_module->generate(output, r, input);
+            }
+            catch (const std::exception& ex) {
+                return { std::string("Generate failed in module '" + p.first + "': " + std::string(ex.what())) };
+            }
         }
     }
     Logger() << "Loading post-gen data.";
