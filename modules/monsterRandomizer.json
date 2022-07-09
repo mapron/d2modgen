@@ -7,13 +7,17 @@
 	"defaults": {
 
 		"spawnedCount": 5,
-		"maxTypes": 25
+		"maxTypes": 25,
+		"randomizeResistances": false,
+		"hellResistances": false
 
 	},
 	"controls": [
 				
 		{ "id": "spawnedCount", "type": "sliderMinMax", "min": 2, "max": 10},
-		{ "id": "maxTypes", "type": "sliderMinMax", "min": 3, "max": 25 }
+		{ "id": "maxTypes", "type": "sliderMinMax", "min": 3, "max": 25 },
+		{ "id": "randomizeResistances", "type": "checkbox" },
+		{ "id": "hellResistances", "type": "checkbox" }
 	],
 	"locales": {
 		"ru_RU": {
@@ -26,7 +30,9 @@
 			"presets": [],
 			"controlsTitles": {
 				"spawnedCount": "Сколько в одной зоне может быть разных типов монстров",
-				"maxTypes": "Максимально возможно потенциальное число типов монстров"
+				"maxTypes": "Максимально возможно потенциальное число типов монстров",
+				"randomizeResistances": "Случайные сопротивления",
+				"hellResistances": "Использовать сопротивления от Hell на NM/Normal"
 			},
 			"controlsHelps": {
 				"spawnedCount": ["Сколько в одной генерации будет различных типов врагов (по умолчанию 3, как и в оригинале D2). ",
@@ -47,7 +53,9 @@
 			"presets": [],
 			"controlsTitles": {
 				"spawnedCount": "Spawned different types in one area",
-				"maxTypes": "Maximum possible monster types in one area (population variety)"
+				"maxTypes": "Maximum possible monster types in one area (population variety)",
+				"randomizeResistances": "Random resistances",
+				"hellResistances": "Use Hell resistances on NM/Normal"
 			},
 			"controlsHelps": {
 				"spawnedCount": ["This option choose how many different types will spawn at once (default is 3, which is D2 original behavior).",

@@ -132,6 +132,94 @@ struct TCTable {
     };
 };
 
+struct MonResist {
+    enum class Elem
+    {
+        Physical,
+        Magic,
+        Fire,
+        Light,
+        Cold,
+        Poison,
+
+    };
+    std::map<Elem, int> m_resist;
+
+    void readFromRow(const TableView::RowView& row, const std::string& difficultySuffix)
+    {
+        m_resist[Elem::Physical] = row["ResDm" + difficultySuffix].toInt();
+        m_resist[Elem::Magic]    = row["ResMa" + difficultySuffix].toInt();
+        m_resist[Elem::Fire]     = row["ResFi" + difficultySuffix].toInt();
+        m_resist[Elem::Light]    = row["ResLi" + difficultySuffix].toInt();
+        m_resist[Elem::Cold]     = row["ResCo" + difficultySuffix].toInt();
+        m_resist[Elem::Poison]   = row["ResPo" + difficultySuffix].toInt();
+    }
+
+    void writeToRow(TableView::RowView& row, const std::string& difficultySuffix) const
+    {
+        row["ResDm" + difficultySuffix].setInt(m_resist.at(Elem::Physical));
+        row["ResMa" + difficultySuffix].setInt(m_resist.at(Elem::Magic));
+        row["ResFi" + difficultySuffix].setInt(m_resist.at(Elem::Fire));
+        row["ResLi" + difficultySuffix].setInt(m_resist.at(Elem::Light));
+        row["ResCo" + difficultySuffix].setInt(m_resist.at(Elem::Cold));
+        row["ResPo" + difficultySuffix].setInt(m_resist.at(Elem::Poison));
+    }
+
+    void shuffle(RandomGenerator& rng)
+    {
+        std::map<Elem, Elem>    permutation;
+        const std::vector<Elem> commonElems{ Elem::Fire, Elem::Light, Elem::Cold, Elem::Poison };
+        std::set<Elem>          remaining{ Elem::Physical, Elem::Magic, Elem::Fire, Elem::Light, Elem::Cold, Elem::Poison };
+        // first, Physical and Magic have 20% chance to move to elemental, 20% to swap or 60% to stay the same.
+        if (rng(5) == 0) {
+            permutation[Elem::Physical] = Elem::Magic;
+            permutation[Elem::Magic]    = Elem::Physical;
+            remaining.erase(Elem::Physical);
+            remaining.erase(Elem::Magic);
+        } else {
+            auto remainingCopy = remaining;
+            remainingCopy.erase(Elem::Physical);
+            remainingCopy.erase(Elem::Magic);
+            for (Elem elem : { Elem::Physical, Elem::Magic }) {
+                if (rng(5) == 0) {
+                    auto it = remainingCopy.begin();
+                    if (remainingCopy.size() > 1)
+                        std::advance(it, rng(remainingCopy.size()));
+                    Elem dest         = *it;
+                    permutation[elem] = dest;
+                    remainingCopy.erase(dest);
+                    remaining.erase(dest);
+                } else {
+                    permutation[elem] = elem;
+                    remaining.erase(elem);
+                }
+            }
+        }
+        // second, common element permute with the rest
+        for (Elem elem : commonElems) {
+            auto it = remaining.begin();
+            if (remaining.size() > 1)
+                std::advance(it, rng(remaining.size()));
+            Elem dest         = *it;
+            permutation[elem] = dest;
+            remaining.erase(dest);
+        }
+        assert(remaining.size() == 0);
+        assert(permutation.size() == 6);
+        assert(permutation.count(Elem::Physical));
+        assert(permutation.count(Elem::Magic));
+        assert(permutation.count(Elem::Fire));
+        assert(permutation.count(Elem::Light));
+        assert(permutation.count(Elem::Cold));
+        assert(permutation.count(Elem::Poison));
+        std::map<Elem, int> newResist;
+        for (const auto& [src, dest] : permutation)
+            newResist[dest] = m_resist[src];
+
+        m_resist = newResist;
+    }
+};
+
 void ModuleMonRandomizer::gatherInfo(PreGenerationContext& output, const InputContext& input) const
 {
     if (input.m_env.isLegacy)
@@ -316,6 +404,32 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
         insertNewRows();
         insertNewRows();
         typeTable.newCopies = std::move(newCopies);
+    }
+    const bool randomizeResistances = input.getInt("randomizeResistances");
+    const bool hellResistances      = input.getInt("hellResistances");
+    if (randomizeResistances || hellResistances) {
+        Table&    table = tableSet.tables[TableId::monstats];
+        TableView tableView(table, true);
+        for (auto& row : tableView) {
+            MonResist norm, night, hell;
+            norm.readFromRow(row, "");
+            night.readFromRow(row, "(N)");
+            hell.readFromRow(row, "(H)");
+
+            if (hellResistances) {
+                norm  = hell;
+                night = hell;
+            }
+            if (randomizeResistances) {
+                norm.shuffle(rng);
+                night.shuffle(rng);
+                hell.shuffle(rng);
+            }
+
+            norm.writeToRow(row, "");
+            night.writeToRow(row, "(N)");
+            hell.writeToRow(row, "(H)");
+        }
     }
     if (output.jsonFiles.contains(s_monstersJson)) {
         auto& jsonDoc    = output.jsonFiles[s_monstersJson];
