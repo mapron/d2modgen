@@ -4,6 +4,7 @@
 	"hasQML": false,
 	"category": "randomizer",
 	"order": 20,
+	"loadOrder": 20,
 	"defaults": {
 
 		"randomizeSpawns": true,

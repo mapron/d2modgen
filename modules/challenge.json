@@ -3,6 +3,7 @@
 	"hasQML": false,
 	"category": "harder",
 	"order": 30,
+	"loadOrder": 60,
 	"defaults": {
 		"nodrop_hpsa": false,
 		"nodrop_mpsa": false,

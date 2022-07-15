@@ -3,6 +3,7 @@
 	"hasQML": false,
 	"category": "easier",
 	"order": 20,
+	"loadOrder": 80,
 	"defaults": {
 	
 		"charmGamble": false,

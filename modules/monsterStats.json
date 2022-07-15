@@ -4,6 +4,7 @@
 	"hasQML": false,
 	"category": "harder",
 	"order": 10,
+	"loadOrder": 40,
 	"defaults": {
 
 		"mon_ar": 100,

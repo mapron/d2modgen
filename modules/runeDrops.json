@@ -4,6 +4,7 @@
 	"hasQML": false,
 	"category": "easier",
 	"order": 60,
+	"loadOrder": 120,
 	"defaults": {
 
 		"zod_factor": 1,

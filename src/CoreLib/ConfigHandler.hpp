@@ -43,6 +43,7 @@ public:
         IModule::Ptr m_module;
         PropertyTree m_currentConfig;
         bool         m_enabled = true;
+        int64_t      m_order   = 1000;
     };
 
     std::map<std::string, ModuleData> m_modules;

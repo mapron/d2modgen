@@ -3,6 +3,7 @@
 	"hasQML": false,
 	"category": "randomizer",
 	"order": 30,
+	"loadOrder": 30,
 	"defaults": {
 
 		"skillTree": true,

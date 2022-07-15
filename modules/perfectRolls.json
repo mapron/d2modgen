@@ -4,6 +4,7 @@
 	"hasQML": false,
 	"category": "easier",
 	"order": 70,
+	"loadOrder": 130,
 	"defaults": {
 
 		"craft": true,
@@ -11,7 +12,15 @@
 		"runeWords": true,
 		"setItems": true,
 		"affixes": true,
-		"armor": true
+		"armor": true,
+
+		"uniques_power_l1": 100,
+		"uniques_power_l50": 100,
+		"set_power_l1": 100,
+		"set_power_l50": 100,
+		"affix_power_l1": 100,
+		"affix_power_l50": 100,
+		"rw_power": 100
 
 	},
 	"controls": [
@@ -21,7 +30,18 @@
 		{ "id": "runeWords", "type": "checkbox"},
 		{ "id": "setItems", "type": "checkbox"},
 		{ "id": "affixes", "type": "checkbox"},
-		{ "id": "armor", "type": "checkbox"}
+		{ "id": "armor", "type": "checkbox"},
+
+		{ "id": "uniques_power_l1", "type": "slider", "mult": 5, "denom": 2 },
+		{ "id": "uniques_power_l50", "type": "slider", "mult": 5, "denom": 2 },
+
+		{ "id": "set_power_l1", "type": "slider", "mult": 5, "denom": 2 },
+		{ "id": "set_power_l50", "type": "slider", "mult": 5, "denom": 2 },
+
+		{ "id": "affix_power_l1", "type": "slider", "mult": 5, "denom": 2 },
+		{ "id": "affix_power_l50", "type": "slider", "mult": 5, "denom": 2 },
+
+		{ "id": "rw_power", "type": "slider", "mult": 5, "denom": 2 }
 		
 	],
 	"locales": {
@@ -40,7 +60,16 @@
 				"runeWords": "Perfect Rune Word rolls", 
 				"setItems": "Perfect Set items", 
 				"affixes": "Perfect Magic/Rare affixes", 
-				"armor": "Always max defense Armor"
+				"armor": "Always max defense Armor",
+				
+				"uniques_power_l1": "Unique items level 1 power multiply",
+				"uniques_power_l50": "Unique items level 50 power multiply",
+				"rw_power_l50": "Rune Words level 50 power multiply",
+				"set_power_l1": "Set items level 1 power multiply",
+				"set_power_l50": "Set items level 50 power multiply",
+				"affix_power_l1": "Magic affix level 1 power multiply",
+				"affix_power_l50": "Magic affix level 50 power multiply",
+				"rw_power": "Rune Words power multiply"
 			},
 			"controlsHelps": {
 			}

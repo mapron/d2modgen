@@ -29,6 +29,7 @@ enum class AttributeFlag
     OP,
     NoMinMax,
     PD2Map,
+    HasRange,
 };
 
 using AttributeFlagSet = std::set<AttributeFlag>;
@@ -50,6 +51,9 @@ struct AttributeDesc {
     std::string         code;
     AttributeFlagSet    flags;
     AttributeItemReqSet items;
+    int                 minValue{ 0 };
+    int                 maxValue{ 0 };
+    int                 powerPercent{ 0 };
 };
 
 enum class AttributeConsume
@@ -63,6 +67,8 @@ AttributeConsume getAttributeConsume(const std::string& code);
 bool             isMinMaxRange(const std::string& code);
 
 const AttributeDesc& getAttributeDesc(const std::string& code);
+
+std::string powerMultiply(const std::string& code, const std::string& value, int powerMultPercent);
 
 class UniqueAttributeChecker {
     StringSet m_data;

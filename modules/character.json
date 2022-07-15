@@ -3,6 +3,7 @@
 	"hasQML": false,
 	"category": "easier",
 	"order": 30,
+	"loadOrder": 90,
 	"defaults": {
 	
 		"addCube": false,

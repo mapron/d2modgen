@@ -4,6 +4,7 @@
 	"hasQML": false,
 	"category": "easier",
 	"order": 10,
+	"loadOrder": 70,
 	"defaults": {
 	
 		"noGemUpgrade": false,

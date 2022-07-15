@@ -3,6 +3,7 @@
 	"hasQML": false,
 	"category": "misc",
 	"order": 20,
+	"loadOrder": 200,
 	"defaults": {
 		"sourceCount": 0
 	},

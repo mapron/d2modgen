@@ -4,6 +4,7 @@
 	"hasQML": false,
 	"category": "easier",
 	"order": 40,
+	"loadOrder": 100,
 	"defaults": {
 
 		"tomeSize": false,

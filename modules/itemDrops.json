@@ -4,6 +4,7 @@
 	"hasQML": false,
 	"category": "easier",
 	"order": 50,
+	"loadOrder": 110,
 	"defaults": {
 	
 		"chance_uni": 1 ,

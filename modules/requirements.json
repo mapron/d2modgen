@@ -3,6 +3,7 @@
 	"hasQML": false,
 	"category": "easier",
 	"order": 80,
+	"loadOrder": 140,
 	"defaults": {
 		"reqStr": 100,
 		"reqDex": 100,

@@ -50,7 +50,8 @@ ConfigHandler::ConfigHandler(const std::string& pluginsRoot)
                 continue;
             }
 
-            m_modules[pluginModule->settingKey()] = { pluginModule, {} };
+            m_modules[pluginModule->settingKey()] = { pluginModule, {}, true, pluginModule->pluginInfo().value("loadOrder", 1000).toInt() };
+
             if (pluginModule->settingKey() != IModule::Key::testConfig)
                 m_pluginIds.push_back(pluginModule->settingKey());
         }
@@ -207,15 +208,21 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         using Distribution32 = std::uniform_int_distribution<int32_t>;
         std::mt19937_64 engine;
         engine.seed(env.seed); // really we need A LOT of bits to safely seed mt engine. But for our purpose 32 bits more then enough.
+        std::vector<ModuleData*> orderedModules;
         for (auto& p : m_modules) {
             if (!p.second.m_enabled)
                 continue;
-
-            Logger() << "start module:" << p.first;
+            orderedModules.push_back(&p.second);
+        }
+        std::sort(orderedModules.begin(), orderedModules.end(), [](ModuleData* lh, ModuleData* rh) {
+            return lh->m_order < rh->m_order;
+        });
+        for (ModuleData* module : orderedModules) {
+            Logger() << "start module:" << module->m_module->settingKey();
             IModule::InputContext input;
             input.m_env      = env;
-            input.m_settings = p.second.m_currentConfig;
-            input.m_mergedSettings.merge(p.second.m_module->defaultValues());
+            input.m_settings = module->m_currentConfig;
+            input.m_mergedSettings.merge(module->m_module->defaultValues());
             input.m_mergedSettings.merge(input.m_settings);
 
             std::function<int(int)> r = [&engine](int bound) {
@@ -224,10 +231,10 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
                 return Distribution32(0, bound - 1)(engine);
             };
             try {
-                p.second.m_module->generate(output, r, input);
+                module->m_module->generate(output, r, input);
             }
             catch (const std::exception& ex) {
-                return { std::string("Generate failed in module '" + p.first + "': " + std::string(ex.what())) };
+                return { std::string("Generate failed in module '" + module->m_module->settingKey() + "': " + std::string(ex.what())) };
             }
         }
     }

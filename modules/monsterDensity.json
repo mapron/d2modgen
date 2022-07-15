@@ -4,6 +4,7 @@
 	"hasQML": false,
 	"category": "harder",
 	"order": 20,
+	"loadOrder": 50,
 	"defaults": {
 	
 		"density": 1 ,

@@ -4,6 +4,7 @@
 	"hasQML": false,
 	"category": "randomizer",
 	"order": 10,
+	"loadOrder": 10,
 	"defaults": {
 	
 		"crazyLevel": 20,

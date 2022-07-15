@@ -4,6 +4,7 @@
 	"hasQML": false,
 	"category": "misc",
 	"order": 10,
+	"loadOrder": 150,
 	"defaults": {
 		"compact_pots": false,
 		"compact_scrolls": false,
