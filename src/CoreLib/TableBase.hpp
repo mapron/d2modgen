@@ -32,6 +32,8 @@ struct TableCell {
     bool endsWith(const std::string& s) const;
     bool contains(const std::string& s) const;
 
+    bool operator==(const TableCell&) const = default;
+
     bool operator==(const std::string& s) const { return s == str; }
     bool operator!=(const std::string& s) const { return s != str; }
 };
@@ -47,6 +49,7 @@ struct TableRow {
         : data(std::move(data))
     {
     }
+    bool operator==(const TableRow&) const = default;
 };
 
 struct Table {

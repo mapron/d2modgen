@@ -6,6 +6,7 @@
 	"order": 20,
 	"defaults": {
 
+		"randomizeSpawns": true,
 		"spawnedCount": 5,
 		"maxTypes": 25,
 		"randomizeResistances": false,
@@ -14,6 +15,7 @@
 	},
 	"controls": [
 				
+		{ "id": "randomizeSpawns", "type": "checkbox" },
 		{ "id": "spawnedCount", "type": "sliderMinMax", "min": 2, "max": 10},
 		{ "id": "maxTypes", "type": "sliderMinMax", "min": 3, "max": 25 },
 		{ "id": "randomizeResistances", "type": "checkbox" },
@@ -29,6 +31,7 @@
 			
 			"presets": [],
 			"controlsTitles": {
+				"randomizeSpawns": "Случайная генерация монстров в каждой зоне",
 				"spawnedCount": "Сколько в одной зоне может быть разных типов монстров",
 				"maxTypes": "Максимально возможно потенциальное число типов монстров",
 				"randomizeResistances": "Случайные сопротивления",
@@ -52,6 +55,7 @@
 			
 			"presets": [],
 			"controlsTitles": {
+				"randomizeSpawns": "Random monster spawn in areas",
 				"spawnedCount": "Spawned different types in one area",
 				"maxTypes": "Maximum possible monster types in one area (population variety)",
 				"randomizeResistances": "Random resistances",

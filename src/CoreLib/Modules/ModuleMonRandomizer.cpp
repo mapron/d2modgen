@@ -19,7 +19,7 @@ constexpr const int s_maxIngameLevel = 110;
 const std::string   s_monstersJson   = "data\\hd\\character\\monsters.json";
 }
 
-struct MotTypeTable {
+struct ModuleMonRandomizer::MonTypeTable {
     struct MonRecord {
         std::string id;
         int         level;
@@ -97,7 +97,7 @@ struct MotTypeTable {
     }
 };
 
-struct TCTable {
+struct ModuleMonRandomizer::TCTable {
     struct TCGroup {
         struct TCRecord {
             std::string id;
@@ -230,13 +230,57 @@ void ModuleMonRandomizer::gatherInfo(PreGenerationContext& output, const InputCo
 
 void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    if (input.isAllDefault())
-        return;
-
     auto& tableSet = output.tableSet;
 
-    MotTypeTable typeTable;
+    MonTypeTable typeTable;
     TCTable      tcTable;
+
+    const bool randomizeSpawns      = input.getInt("randomizeSpawns");
+    const bool randomizeResistances = input.getInt("randomizeResistances");
+    const bool hellResistances      = input.getInt("hellResistances");
+    if (randomizeSpawns)
+        generateSpawns(output, rng, input, typeTable, tcTable);
+
+    if (randomizeResistances || hellResistances) {
+        Table&    table = tableSet.tables[TableId::monstats];
+        TableView tableView(table, true);
+        for (auto& row : tableView) {
+            MonResist norm, night, hell;
+            norm.readFromRow(row, "");
+            night.readFromRow(row, "(N)");
+            hell.readFromRow(row, "(H)");
+
+            if (hellResistances) {
+                norm  = hell;
+                night = hell;
+            }
+            if (randomizeResistances) {
+                norm.shuffle(rng);
+                night.shuffle(rng);
+                hell.shuffle(rng);
+            }
+
+            norm.writeToRow(row, "");
+            night.writeToRow(row, "(N)");
+            hell.writeToRow(row, "(H)");
+        }
+    }
+    if (randomizeSpawns && output.jsonFiles.contains(s_monstersJson)) {
+        auto& jsonDoc    = output.jsonFiles[s_monstersJson];
+        auto& jsonObject = jsonDoc.getMap();
+        for (const auto& copy : typeTable.newCopies) {
+            const std::string sourceId  = copy.sourceId;
+            const std::string newId     = copy.newId;
+            const std::string modelName = jsonObject[sourceId].getScalar().toString();
+            assert(!modelName.empty());
+            jsonObject[newId] = PropertyTreeScalar{ modelName };
+        }
+    }
+}
+
+void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& rng, const InputContext& input, MonTypeTable& typeTable, TCTable& tcTable) const
+{
+    auto& tableSet = output.tableSet;
     {
         Table&    table = tableSet.tables[TableId::monstats];
         TableView tableView(table);
@@ -336,9 +380,9 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
     {
         Table& table   = tableSet.tables[TableId::monstats];
         table.modified = true;
-        MotTypeTable::MonCopyList newCopies;
+        MonTypeTable::MonCopyList newCopies;
         auto                      insertNewRows = [&table, &rng, &newCopies, &typeTable, &tcTable]() {
-            MotTypeTable::MonCopyList tmpList = std::move(typeTable.newCopies);
+            MonTypeTable::MonCopyList tmpList = std::move(typeTable.newCopies);
             assert(!typeTable.types.empty());
             newCopies.insert(newCopies.end(), tmpList.cbegin(), tmpList.cend());
             int              idCol    = 0;
@@ -404,43 +448,6 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
         insertNewRows();
         insertNewRows();
         typeTable.newCopies = std::move(newCopies);
-    }
-    const bool randomizeResistances = input.getInt("randomizeResistances");
-    const bool hellResistances      = input.getInt("hellResistances");
-    if (randomizeResistances || hellResistances) {
-        Table&    table = tableSet.tables[TableId::monstats];
-        TableView tableView(table, true);
-        for (auto& row : tableView) {
-            MonResist norm, night, hell;
-            norm.readFromRow(row, "");
-            night.readFromRow(row, "(N)");
-            hell.readFromRow(row, "(H)");
-
-            if (hellResistances) {
-                norm  = hell;
-                night = hell;
-            }
-            if (randomizeResistances) {
-                norm.shuffle(rng);
-                night.shuffle(rng);
-                hell.shuffle(rng);
-            }
-
-            norm.writeToRow(row, "");
-            night.writeToRow(row, "(N)");
-            hell.writeToRow(row, "(H)");
-        }
-    }
-    if (output.jsonFiles.contains(s_monstersJson)) {
-        auto& jsonDoc    = output.jsonFiles[s_monstersJson];
-        auto& jsonObject = jsonDoc.getMap();
-        for (const auto& copy : typeTable.newCopies) {
-            const std::string sourceId  = copy.sourceId;
-            const std::string newId     = copy.newId;
-            const std::string modelName = jsonObject[sourceId].getScalar().toString();
-            assert(!modelName.empty());
-            jsonObject[newId] = PropertyTreeScalar{ modelName };
-        }
     }
 }
 
