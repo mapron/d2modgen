@@ -12,6 +12,7 @@
 		"runeWords": true,
 		"setItems": true,
 		"affixes": true,
+		"crafted": true,
 		"armor": true,
 
 		"uniques_power_l1": 100,
@@ -20,7 +21,9 @@
 		"set_power_l50": 100,
 		"affix_power_l1": 100,
 		"affix_power_l50": 100,
-		"rw_power": 100
+		"rw_power": 100,
+		"crafted_power": 100,
+		"gem_power": 100
 
 	},
 	"controls": [
@@ -30,6 +33,7 @@
 		{ "id": "runeWords", "type": "checkbox"},
 		{ "id": "setItems", "type": "checkbox"},
 		{ "id": "affixes", "type": "checkbox"},
+		{ "id": "crafted", "type": "checkbox"},
 		{ "id": "armor", "type": "checkbox"},
 
 		{ "id": "uniques_power_l1", "type": "slider", "mult": 5, "denom": 2 },
@@ -41,7 +45,9 @@
 		{ "id": "affix_power_l1", "type": "slider", "mult": 5, "denom": 2 },
 		{ "id": "affix_power_l50", "type": "slider", "mult": 5, "denom": 2 },
 
-		{ "id": "rw_power", "type": "slider", "mult": 5, "denom": 2 }
+		{ "id": "rw_power", "type": "slider", "mult": 5, "denom": 2 },
+		{ "id": "crafted_power", "type": "slider", "mult": 5, "denom": 2 },
+		{ "id": "gem_power", "type": "slider", "mult": 5, "denom": 2 }
 		
 	],
 	"locales": {
@@ -55,11 +61,12 @@
 			
 			"presets": [],
 			"controlsTitles": {
-				"craft": "Perfect rolls for crafting in the Cube", 
-				"uniques": "Perfect Uniques", 
-				"runeWords": "Perfect Rune Word rolls", 
+				"craft": "Perfect rolls for crafting in the Cube",
+				"uniques": "Perfect Uniques",
+				"runeWords": "Perfect Rune Word rolls",
 				"setItems": "Perfect Set items", 
-				"affixes": "Perfect Magic/Rare affixes", 
+				"affixes": "Perfect Magic/Rare affixes",
+				"crafted": "Perfect predetermined crafted affixes", 
 				"armor": "Always max defense Armor",
 				
 				"uniques_power_l1": "Unique items level 1 power multiply",
@@ -69,7 +76,9 @@
 				"set_power_l50": "Set items level 50 power multiply",
 				"affix_power_l1": "Magic affix level 1 power multiply",
 				"affix_power_l50": "Magic affix level 50 power multiply",
-				"rw_power": "Rune Words power multiply"
+				"rw_power": "Rune Words power multiply",
+				"crafted_power": "Crafted items power multiply",
+				"gem_power": "Rune/Gems power multiply"
 			},
 			"controlsHelps": {
 			}

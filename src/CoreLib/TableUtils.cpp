@@ -224,6 +224,13 @@ const ColumnsDescList s_descSets{
     ColumnsDesc("PCode%1b", "PParam%1b", "PMin%1b", "PMax%1b", 5, 2),
     ColumnsDesc("FCode%1", "FParam%1", "FMin%1", "FMax%1", 8),
 };
+
+const ColumnsDescList s_descCube{
+    ColumnsDesc("mod %1", "mod %1 param", "mod %1 min", "mod %1 max", 5),
+    ColumnsDesc("b mod %1", "b mod %1 param", "b mod %1 min", "b mod %1 max", 5),
+    ColumnsDesc("c mod %1", "c mod %1 param", "c mod %1 min", "c mod %1 max", 5),
+};
+
 }
 
 }

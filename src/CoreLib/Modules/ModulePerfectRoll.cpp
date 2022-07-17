@@ -111,6 +111,17 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
             });
         }
     }
+    {
+        TableView view(output.tableSet.tables[TableId::cubemain]);
+        const int powerLevel = input.getInt("crafted_power");
+        makePerfectMin(view, Tables::s_descCube, input.getInt("crafted"));
+        makeEmpower(view, Tables::s_descCube, powerLevel, powerLevel, [](const TableView::RowView& row) { return 1; });
+    }
+    {
+        TableView view(output.tableSet.tables[TableId::gems]);
+        const int powerLevel = input.getInt("gem_power");
+        makeEmpower(view, Tables::s_descGems, powerLevel, powerLevel, [](const TableView::RowView& row) { return 1; });
+    }
     if (input.getInt("armor")) {
         TableView view(output.tableSet.tables[TableId::armor]);
         for (auto& row : view) {

@@ -16,106 +16,106 @@ namespace D2ModGen {
 namespace {
 
 const std::vector<AttributeDesc> s_attributes{
-    { "ac", { AttributeFlag::Defense, AttributeFlag::HasRange }, {}, -10, 2037, 100 },          // +# Defense
-    { "ac-miss", { AttributeFlag::Defense, AttributeFlag::HasRange }, {}, 1, 511, 100 },        // +# Defense vs. Missile
-    { "ac-hth", { AttributeFlag::Defense, AttributeFlag::HasRange }, {}, 1, 255, 100 },         // +# Defense vs. Melee
-    { "red-dmg", { AttributeFlag::DamageReduction, AttributeFlag::HasRange }, {}, 1, 63, 100 }, // Damage Reduced by #
-    { "red-dmg%", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 255, 50 },     // Damage Reduced by #%
-    { "ac%", { AttributeFlag::Defense, AttributeFlag::HasRange }, {}, 1, 511, 100 },            // +#% Enhanced Defense
-    { "red-mag", { AttributeFlag::DamageReduction, AttributeFlag::HasRange }, {}, 1, 63, 100 }, // Magic Damage Reduced by #
-    { "str", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 223, 100 },            // +# to Strength
-    { "dex", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 95, 100 },             // +# to Dexterity
-    { "vit", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 95, 100 },             // +# to Vitality
-    { "enr", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 95, 100 },             // +# to Energy
-    { "mana", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 223, 100 },           // +# to Mana
-    { "mana%", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -10, 53, 100 },           // Increase Maximum Mana #%
-    { "hp", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 479, 100 },             // +# to Life
-    { "hp%", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -10, 53, 100 },             // Increase Maximum Life #%
-    { "att", { AttributeFlag::Attack, AttributeFlag::HasRange }, {}, 1, 1023, 100 },            // +# to Attack Rating
-    { "block", {}, { AttributeItemReq::Shield } },                                              // #% Increased Chance of Blocking
-    { "cold-min", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 255, 100 },        // +# to Minimum Cold Damage
-    { "cold-max", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 511, 100 },        // +# to Maximum Cold Damage
-    { "cold-len", { AttributeFlag::Damage } },                                                  // # of Frames (25 Frames = 1 Second)
-    { "fire-min", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 255, 100 },        // +# to Minimum Fire Damage
-    { "fire-max", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 511, 100 },        // +# to Maximum Fire Damage
-    { "ltng-min", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 63, 100 },         // +# to Minimum Lightning Damage
-    { "ltng-max", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 1023, 100 },       // +# to Maximum Lightning Damage
-    { "pois-min", { AttributeFlag::Damage } },                                                  // +# to Minimum Poison Damage
-    { "pois-max", { AttributeFlag::Damage } },                                                  // +# to Maximum Poison Damage
-    { "pois-len", { AttributeFlag::Damage } },                                                  // # of Frames (25 Frames = 1 Second)
-    { "dmg-min", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 63, 100 },          // +# to Minimum Damage
-    { "dmg-max", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 127, 100 },         // +# to Maximum Damage
-    { "dmg%", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 511, 100 },            // +#% Enhanced Damage
-    { "dmg-to-mana", {} },                                                                      // #% Damage Taken Goes To Mana
-    { "res-fire", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 60 },   // Fire Resist +#%
-    { "res-fire-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },  // +#% to Maximum Fire Resist
-    { "res-ltng", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 60 },   // Lightning Resist +#%
-    { "res-ltng-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },  // +#% to Maximum Lightning Resist
-    { "res-cold", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 60 },   // Cold Resist +#%
-    { "res-cold-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },  // +#% to Maximum Cold Resist
-    { "res-mag", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 255, 60 },      // Magic Resist +#%
-    { "res-mag-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },   // +#% to Maximum Magic Resist
-    { "res-pois", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 100 },  // Poison Resist +#%
-    { "res-pois-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 50 },  // +#% to Maximum Poison Resist
-    { "res-all", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 40 },    // All Resistances +#
-    { "res-all-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 20 },   // Currently Not Used
-    { "abs-fire%", { AttributeFlag::Resistance } },                                             // +# Fire Absorb
-    { "abs-fire", { AttributeFlag::DamageReduction } },                                         // Fire Absorb #%
-    { "abs-ltng%", { AttributeFlag::Resistance } },                                             // +# Lightning Absorb
-    { "abs-ltng", { AttributeFlag::DamageReduction } },                                         // Lightning Absorb #%
-    { "abs-mag%", { AttributeFlag::Resistance } },                                              // +# Magic Absorb
-    { "abs-mag", { AttributeFlag::DamageReduction } },                                          // Magic Absorb #%
-    { "abs-cold%", { AttributeFlag::Resistance } },                                             // +# Cold Absorb
-    { "abs-cold", { AttributeFlag::DamageReduction } },                                         // Cold Absorb #%
-    { "dur", { AttributeFlag::Durability } },                                                   // Durability: # of #
-    { "dur%", { AttributeFlag::Durability } },                                                  // Increase Maximum Durability #%
-    { "regen", {} },                                                                            // Replenish Life +#
-    { "thorns", {} },                                                                           // Attacker Takes Damage of #
-    { "swing1", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },          // +#% Increased Attack Speed
-    { "swing2", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },          // +#% Increased Attack Speed
-    { "swing3", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },          // +#% Increased Attack Speed
-    { "gold%", { AttributeFlag::HasRange }, {}, -100, 411, 100 },                               // #% Extra Gold from Monsters
-    { "mag%", { AttributeFlag::HasRange }, {}, -100, 155, 100 },                                // #% Better Chance of Getting Magic Items
-    { "knock", {}, { AttributeItemReq::Weapon } },                                              // Knockback
-    { "regen-stam", {} },                                                                       // Heal Stamina Plus #%
-    { "regen-mana", {} },                                                                       // Regenerate Mana #%
-    { "stam", {} },                                                                             // +# Maximum Stamina
-    { "manasteal", { AttributeFlag::Leech } },                                                  // #% Mana stolen per hit
-    { "lifesteal", { AttributeFlag::Leech } },                                                  // #% Life stolen per hit
-    { "ama", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },                // +# to Amazon Skill Levels
-    { "pal", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },                // +# to Paladin Skill Levels
-    { "nec", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },                // +# to Necromancer Skill Levels
-    { "sor", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },                // +# to Sorceress Skill Levels
-    { "bar", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },                // +#  to Barbarian Skill Levels
-    { "light", {} },                                                                            // +# to Light Radius
-    { "ease", {}, { AttributeItemReq::Weapon, AttributeItemReq::Armor } },                      // Requirements -#%
-    { "move1", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },           // +#% Faster Run/Walk
-    { "move2", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },           // +#% Faster Run/Walk
-    { "move3", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },           // +#% Faster Run/Walk
-    { "balance1", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },        // +#% Faster Hit Recovery
-    { "balance2", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },        // +#% Faster Hit Recovery
-    { "balance3", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },        // +#% Faster Hit Recovery
-    { "block1", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },          // +#% Faster Block Rate
-    { "block2", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },          // +#% Faster Block Rate
-    { "block3", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },          // +#% Faster Block Rate
-    { "cast1", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },           // +#% Faster Cast Rate
-    { "cast2", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },           // +#% Faster Cast Rate
-    { "cast3", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },           // +#% Faster Cast Rate
-    { "res-pois-len", { AttributeFlag::Resistance } },                                          // Poison Length Reduced by #%
-    { "dmg", { AttributeFlag::Damage } },                                                       // Damage +#
-    { "howl", {} },                                                                             // Hit Causes Monster to Flee #%
-    { "stupidity", {} },                                                                        // Hit Blinds Target +#
-    { "ignore-ac", { AttributeFlag::Attack } },                                                 // Ignore Target's Defense
-    { "reduce-ac", { AttributeFlag::Attack } },                                                 // -#% Target Defense
-    { "noheal", {} },                                                                           // Prevent Monster Heal
-    { "half-freeze", {} },                                                                      // Half Freeze Duration
-    { "att%", { AttributeFlag::Attack } },                                                      // #% Bonus to Attack Rating
-    { "dmg-ac", { AttributeFlag::Attack } },                                                    // -# to Monster Defense Per Hit
-    { "dmg-demon", { AttributeFlag::Damage } },                                                 // +#% Damage to Demons
-    { "dmg-undead", { AttributeFlag::Damage } },                                                // +#% Damage to Undead
-    { "att-demon", { AttributeFlag::Attack } },                                                 // +# to Attack Rating against Demons
-    { "att-undead", { AttributeFlag::Attack } },                                                // +# to Attack Rating against Undead
-    { "fireskill", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },          // +# to Fire Skills
+    { "ac", { AttributeFlag::Defense, AttributeFlag::HasRange }, {}, -10, 2037, 100 },             // +# Defense
+    { "ac-miss", { AttributeFlag::Defense, AttributeFlag::HasRange }, {}, 1, 511, 100 },           // +# Defense vs. Missile
+    { "ac-hth", { AttributeFlag::Defense, AttributeFlag::HasRange }, {}, 1, 255, 100 },            // +# Defense vs. Melee
+    { "red-dmg", { AttributeFlag::DamageReduction, AttributeFlag::HasRange }, {}, 1, 63, 100 },    // Damage Reduced by #
+    { "red-dmg%", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 255, 50 },        // Damage Reduced by #%
+    { "ac%", { AttributeFlag::Defense, AttributeFlag::HasRange }, {}, 1, 511, 100 },               // +#% Enhanced Defense
+    { "red-mag", { AttributeFlag::DamageReduction, AttributeFlag::HasRange }, {}, 1, 63, 100 },    // Magic Damage Reduced by #
+    { "str", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 223, 100 },               // +# to Strength
+    { "dex", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 95, 100 },                // +# to Dexterity
+    { "vit", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 95, 100 },                // +# to Vitality
+    { "enr", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 95, 100 },                // +# to Energy
+    { "mana", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 223, 100 },              // +# to Mana
+    { "mana%", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -10, 53, 100 },              // Increase Maximum Mana #%
+    { "hp", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 479, 100 },                // +# to Life
+    { "hp%", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -10, 53, 100 },                // Increase Maximum Life #%
+    { "att", { AttributeFlag::Attack, AttributeFlag::HasRange }, {}, 1, 1023, 100 },               // +# to Attack Rating
+    { "block", {}, { AttributeItemReq::Shield } },                                                 // #% Increased Chance of Blocking
+    { "cold-min", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 255, 100 },           // +# to Minimum Cold Damage
+    { "cold-max", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 511, 100 },           // +# to Maximum Cold Damage
+    { "cold-len", { AttributeFlag::Damage } },                                                     // # of Frames (25 Frames = 1 Second)
+    { "fire-min", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 255, 100 },           // +# to Minimum Fire Damage
+    { "fire-max", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 511, 100 },           // +# to Maximum Fire Damage
+    { "ltng-min", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 63, 100 },            // +# to Minimum Lightning Damage
+    { "ltng-max", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 1023, 100 },          // +# to Maximum Lightning Damage
+    { "pois-min", { AttributeFlag::Damage } },                                                     // +# to Minimum Poison Damage
+    { "pois-max", { AttributeFlag::Damage } },                                                     // +# to Maximum Poison Damage
+    { "pois-len", { AttributeFlag::Damage } },                                                     // # of Frames (25 Frames = 1 Second)
+    { "dmg-min", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 63, 100 },             // +# to Minimum Damage
+    { "dmg-max", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 127, 100 },            // +# to Maximum Damage
+    { "dmg%", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 511, 100 },               // +#% Enhanced Damage
+    { "dmg-to-mana", {} },                                                                         // #% Damage Taken Goes To Mana
+    { "res-fire", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 60 },      // Fire Resist +#%
+    { "res-fire-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },     // +#% to Maximum Fire Resist
+    { "res-ltng", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 60 },      // Lightning Resist +#%
+    { "res-ltng-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },     // +#% to Maximum Lightning Resist
+    { "res-cold", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 60 },      // Cold Resist +#%
+    { "res-cold-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },     // +#% to Maximum Cold Resist
+    { "res-mag", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 255, 60 },         // Magic Resist +#%
+    { "res-mag-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },      // +#% to Maximum Magic Resist
+    { "res-pois", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 100 },     // Poison Resist +#%
+    { "res-pois-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 50 },     // +#% to Maximum Poison Resist
+    { "res-all", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 40 },       // All Resistances +#
+    { "res-all-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 20 },      // Currently Not Used
+    { "abs-fire%", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 127, 50 },       // +# Fire Absorb
+    { "abs-fire", { AttributeFlag::DamageReduction } },                                            // Fire Absorb #%
+    { "abs-ltng%", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 127, 50 },       // +# Lightning Absorb
+    { "abs-ltng", { AttributeFlag::DamageReduction } },                                            // Lightning Absorb #%
+    { "abs-mag%", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 127, 50 },        // +# Magic Absorb
+    { "abs-mag", { AttributeFlag::DamageReduction } },                                             // Magic Absorb #%
+    { "abs-cold%", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 127, 50 },       // +# Cold Absorb
+    { "abs-cold", { AttributeFlag::DamageReduction } },                                            // Cold Absorb #%
+    { "dur", { AttributeFlag::Durability } },                                                      // Durability: # of #
+    { "dur%", { AttributeFlag::Durability } },                                                     // Increase Maximum Durability #%
+    { "regen", { AttributeFlag::HasRange }, {}, -30, 33, 100 },                                    // Replenish Life +#
+    { "thorns", { AttributeFlag::HasRange }, {}, 1, 127, 100 },                                    // Attacker Takes Damage of #
+    { "swing1", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },             // +#% Increased Attack Speed
+    { "swing2", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },             // +#% Increased Attack Speed
+    { "swing3", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },             // +#% Increased Attack Speed
+    { "gold%", { AttributeFlag::HasRange }, {}, -100, 411, 100 },                                  // #% Extra Gold from Monsters
+    { "mag%", { AttributeFlag::HasRange }, {}, -100, 155, 100 },                                   // #% Better Chance of Getting Magic Items
+    { "knock", {}, { AttributeItemReq::Weapon } },                                                 // Knockback
+    { "regen-stam", {} },                                                                          // Heal Stamina Plus #%
+    { "regen-mana", {} },                                                                          // Regenerate Mana #%
+    { "stam", {} },                                                                                // +# Maximum Stamina
+    { "manasteal", { AttributeFlag::Leech, AttributeFlag::HasRange }, {}, 1, 127, 50 },            // #% Mana stolen per hit
+    { "lifesteal", { AttributeFlag::Leech, AttributeFlag::HasRange }, {}, 1, 127, 50 },            // #% Life stolen per hit
+    { "ama", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },                   // +# to Amazon Skill Levels
+    { "pal", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },                   // +# to Paladin Skill Levels
+    { "nec", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },                   // +# to Necromancer Skill Levels
+    { "sor", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },                   // +# to Sorceress Skill Levels
+    { "bar", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },                   // +#  to Barbarian Skill Levels
+    { "light", { AttributeFlag::HasRange }, {}, -4, 11, 100 },                                     // +# to Light Radius
+    { "ease", {}, { AttributeItemReq::Weapon, AttributeItemReq::Armor } },                         // Requirements -#%
+    { "move1", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },              // +#% Faster Run/Walk
+    { "move2", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },              // +#% Faster Run/Walk
+    { "move3", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },              // +#% Faster Run/Walk
+    { "balance1", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },           // +#% Faster Hit Recovery
+    { "balance2", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },           // +#% Faster Hit Recovery
+    { "balance3", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },           // +#% Faster Hit Recovery
+    { "block1", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },             // +#% Faster Block Rate
+    { "block2", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },             // +#% Faster Block Rate
+    { "block3", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },             // +#% Faster Block Rate
+    { "cast1", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },              // +#% Faster Cast Rate
+    { "cast2", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },              // +#% Faster Cast Rate
+    { "cast3", { AttributeFlag::Speed, AttributeFlag::HasRange }, {}, -20, 107, 50 },              // +#% Faster Cast Rate
+    { "res-pois-len", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -20, 235, 100 }, // Poison Length Reduced by #%
+    { "dmg", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, -20, 491, 100 },              // Damage +#
+    { "howl", {} },                                                                                // Hit Causes Monster to Flee #%
+    { "stupidity", {} },                                                                           // Hit Blinds Target +#
+    { "ignore-ac", { AttributeFlag::Attack } },                                                    // Ignore Target's Defense
+    { "reduce-ac", { AttributeFlag::Attack } },                                                    // -#% Target Defense
+    { "noheal", {} },                                                                              // Prevent Monster Heal
+    { "half-freeze", {} },                                                                         // Half Freeze Duration
+    { "att%", { AttributeFlag::Attack } },                                                         // #% Bonus to Attack Rating
+    { "dmg-ac", { AttributeFlag::Attack } },                                                       // -# to Monster Defense Per Hit
+    { "dmg-demon", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, -20, 491, 100 },        // +#% Damage to Demons
+    { "dmg-undead", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, -20, 491, 100 },       // +#% Damage to Undead
+    { "att-demon", { AttributeFlag::Attack } },                                                    // +# to Attack Rating against Demons
+    { "att-undead", { AttributeFlag::Attack } },                                                   // +# to Attack Rating against Undead
+    { "fireskill", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },             // +# to Fire Skills
     { "poisskill", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },
     { "coldskill", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },
     { "magskill", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 },
@@ -123,14 +123,14 @@ const std::vector<AttributeDesc> s_attributes{
     { "allskills", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 }, // +# to All Skills
     { "light-thorns", {} },                                                            // Attacker Takes Lightning Damage of #
     { "freeze", {} },                                                                  // Freezes Target +#
-    { "openwounds", {} },                                                              // #% Chance of Open Wounds
-    { "crush", { AttributeFlag::OP } },                                                // #% Chance of Crushing Blow
+    { "openwounds", { AttributeFlag::HasRange }, {}, 1, 127, 50 },                     // #% Chance of Open Wounds
+    { "crush", { AttributeFlag::OP, AttributeFlag::HasRange }, {}, 1, 127, 50 },       // #% Chance of Crushing Blow
     { "kick", { AttributeFlag::Damage } },                                             // +# Kick Damage
-    { "mana-kill", {} },                                                               // +# to Mana after each Kill
+    { "mana-kill", { AttributeFlag::HasRange }, {}, 1, 127, 100 },                     // +# to Mana after each Kill
     { "demon-heal", {} },                                                              // +# Life after each Demon Kill
     { "bloody", {} },                                                                  // Visuals Only
     { "deadly", { AttributeFlag::Damage } },                                           // #% Deadly Strike
-    { "slow", {} },                                                                    // Slows Target by #%
+    { "slow", { AttributeFlag::HasRange }, {}, 1, 127, 50 },                           // Slows Target by #%
     { "nofreeze", { AttributeFlag::OP } },                                             // Cannot Be Frozen
     { "stamdrain", {} },                                                               // #% Slower Stamina Drain
     { "reanimate", {} },                                                               // Reanimate As: [Returned]
@@ -196,23 +196,23 @@ const std::vector<AttributeDesc> s_attributes{
     { "rep-dur", { AttributeFlag::Durability, AttributeFlag::NoMinMax } },                // Repairs 1 durability in # seconds
     { "rep-quant", { AttributeFlag::Quantity, AttributeFlag::NoMinMax } },                // Replenishes quantity
     { "stack", { AttributeFlag::Quantity } },                                             // Increased Stack Size
-    { "pierce-fire", { AttributeFlag::HasRange }, {}, -50, 205, 34 },                     // -#% to Enemy Fire Resistance
-    { "pierce-ltng", { AttributeFlag::HasRange }, {}, -50, 205, 34 },                     // -#% to Enemy Lightning Resistance
-    { "pierce-cold", { AttributeFlag::HasRange }, {}, -50, 205, 34 },                     // -#% to Enemy Cold Resistance
-    { "pierce-pois", { AttributeFlag::HasRange }, {}, -50, 205, 34 },                     // -#% to Enemy Poison Resistance
+    { "pierce-fire", { AttributeFlag::HasRange }, {}, 1, 255, 34 },                       // -#% to Enemy Fire Resistance
+    { "pierce-ltng", { AttributeFlag::HasRange }, {}, 1, 255, 34 },                       // -#% to Enemy Lightning Resistance
+    { "pierce-cold", { AttributeFlag::HasRange }, {}, 1, 255, 34 },                       // -#% to Enemy Cold Resistance
+    { "pierce-pois", { AttributeFlag::HasRange }, {}, 1, 255, 34 },                       // -#% to Enemy Poison Resistance
     { "indestruct", { AttributeFlag::Durability } },                                      // Indestructible
     { "charged", { AttributeFlag::NoMinMax } },                                           // Level # [Skill] (#/# Charges)
-    { "extra-fire", {} },                                                                 // +#% to Fire Skill Damage
-    { "extra-ltng", {} },                                                                 // +#% to Lightning Skill Damage
-    { "extra-cold", {} },                                                                 // +#% to Cold Skill Damage
-    { "extra-pois", {} },                                                                 // +#% to Poison Skill Damage
+    { "extra-fire", { AttributeFlag::HasRange }, {}, -50, 461, 50 },                      // +#% to Fire Skill Damage
+    { "extra-ltng", { AttributeFlag::HasRange }, {}, -50, 461, 50 },                      // +#% to Lightning Skill Damage
+    { "extra-cold", { AttributeFlag::HasRange }, {}, -50, 461, 50 },                      // +#% to Cold Skill Damage
+    { "extra-pois", { AttributeFlag::HasRange }, {}, -50, 461, 50 },                      // +#% to Poison Skill Damage
     { "dmg-elem", { AttributeFlag::Damage } },                                            // Adds #-# Fire/Lightning/Cold Damage
     { "dmg-elem-min", { AttributeFlag::Damage } },                                        // +# to Minimum Fire/Lightning/Cold Damage
     { "dmg-elem-max", { AttributeFlag::Damage } },                                        // +# to Maximum Fire/Lightning/Cold Damage
     { "all-stats", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 95, 100 }, // +# to all Attributes
-    { "addxp", { AttributeFlag::OP } },                                                   // +#% to Experience Gained
+    { "addxp", { AttributeFlag::OP, AttributeFlag::HasRange }, {}, -50, 461, 50 },        // +#% to Experience Gained
     { "heal-kill", {} },                                                                  // +# Life after each Kill
-    { "cheap", {} },                                                                      // Reduces all Vendor Prices #%
+    { "cheap", { AttributeFlag::HasRange }, {}, 1, 127, 50 },                             // Reduces all Vendor Prices #%
     { "rip", {} },                                                                        // Slain Monsters Rest in Peace
     { "att-mon%", { AttributeFlag::Attack } },                                            // #% to Attack Rating versus [Monster Type]
     { "dmg-mon%", { AttributeFlag::Damage } },                                            // #% to Damage versus [Monster Type]

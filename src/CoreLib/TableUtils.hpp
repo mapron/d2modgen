@@ -267,6 +267,8 @@ extern const ColumnsDescList s_descAffix;
 
 extern const ColumnsDescList s_descSets;
 
+extern const ColumnsDescList s_descCube;
+
 }
 
 }

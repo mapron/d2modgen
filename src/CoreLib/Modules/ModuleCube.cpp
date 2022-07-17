@@ -63,16 +63,15 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
     if (input.isAllDefault())
         return;
 
-    const bool noGemUpgrade   = input.getInt("noGemUpgrade");
-    const bool quickPortals   = input.getInt("quickPortals");
-    const bool quickQuests    = input.getInt("quickQuests");
-    const bool newSocketing   = input.getInt("socketing");
-    const bool upgrading      = input.getInt("upgrading");
-    const bool craftNoStrict  = input.getInt("craftNoStrict");
-    const bool craftNoRunes   = input.getInt("craftNoRunes");
-    const bool craftHighIlvl  = input.getInt("craftHighIlvl");
-    const int  craftMultBonus = input.getInt("craftMultBonus");
-    const bool runeDowngrade  = input.getInt("runeDowngrade");
+    const bool noGemUpgrade  = input.getInt("noGemUpgrade");
+    const bool quickPortals  = input.getInt("quickPortals");
+    const bool quickQuests   = input.getInt("quickQuests");
+    const bool newSocketing  = input.getInt("socketing");
+    const bool upgrading     = input.getInt("upgrading");
+    const bool craftNoStrict = input.getInt("craftNoStrict");
+    const bool craftNoRunes  = input.getInt("craftNoRunes");
+    const bool craftHighIlvl = input.getInt("craftHighIlvl");
+    const bool runeDowngrade = input.getInt("runeDowngrade");
 
     auto&     tableSet = output.tableSet;
     TableView view(tableSet.tables[TableId::cubemain], true);
@@ -103,17 +102,6 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
                 input3 = input4 = "";
                 numinputs.setInt(2);
                 input2 = mapValue(s_craftedGemReplace, input2, input2);
-            }
-            if (craftMultBonus > 1) {
-                for (int i = 1; i <= 5; ++i) {
-                    auto& mod = row[argCompat("mod %1", i)];
-                    if (isMinMaxRange(mod.str)) {
-                        auto& modMin = row[argCompat("mod %1 min", i)];
-                        auto& modMax = row[argCompat("mod %1 max", i)];
-                        modMin.setInt(modMin.toInt() * craftMultBonus);
-                        modMax.setInt(modMax.toInt() * craftMultBonus);
-                    }
-                }
             }
         }
     }

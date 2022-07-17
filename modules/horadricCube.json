@@ -15,8 +15,7 @@
 		"runeDowngrade": false,
 		"craftNoStrict": false,
 		"craftNoRunes": false,
-		"craftHighIlvl": false,
-		"craftMultBonus": 1
+		"craftHighIlvl": false
 
 	},
 	"controls": [
@@ -30,8 +29,7 @@
 		{ "id": "_label1", "type": "label"},
 		{ "id": "craftNoStrict", "type": "checkbox"},
 		{ "id": "craftNoRunes", "type": "checkbox"},
-		{ "id": "craftHighIlvl", "type": "checkbox"},
-		{ "id": "craftMultBonus", "type": "sliderMinMax", "compact": true, "min": 1, "max": 5}
+		{ "id": "craftHighIlvl", "type": "checkbox"}
 
 	],
 	"locales": {
@@ -51,8 +49,7 @@
 				"_label1" :"Упростить рецепты для крафта:",
 				"craftNoStrict": "Убрать жесткие требования по типу предмета (=любой шлем, любые перчатки и тд)",
 				"craftNoRunes": "Убрать необходимость рун и драгоценностей для крафта\n(т.о. достаточно предмета и камня)",
-				"craftHighIlvl": "Генерировать item level равный 99",
-				"craftMultBonus": "Умножить все бонусы от крафтинга предмета на"
+				"craftHighIlvl": "Генерировать item level равный 99"
 			},
 			"controlsHelps": {
 			}
@@ -73,8 +70,7 @@
 				"_label1" :"Simplyfy crafting:",
 				"craftNoStrict": "Remove strict item types for Crafted (any helm, any gloves etc)",
 				"craftNoRunes": "Remove Rune/Jewel requirement for Crafted\n(So any recipe is 'item + gem')",
-				"craftHighIlvl": "Make Item Level always 99",
-				"craftMultBonus": "Multiply crafted item bonuses by"
+				"craftHighIlvl": "Make Item Level always 99"
 			},
 			"controlsSuffixes": {
 				"quickPortals": [
