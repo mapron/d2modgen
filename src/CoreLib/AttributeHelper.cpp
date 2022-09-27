@@ -20,7 +20,7 @@ const std::vector<AttributeDesc> s_attributes{
     { "ac-miss", { AttributeFlag::Defense, AttributeFlag::HasRange }, {}, 1, 511, 100 },           // +# Defense vs. Missile
     { "ac-hth", { AttributeFlag::Defense, AttributeFlag::HasRange }, {}, 1, 255, 100 },            // +# Defense vs. Melee
     { "red-dmg", { AttributeFlag::DamageReduction, AttributeFlag::HasRange }, {}, 1, 63, 100 },    // Damage Reduced by #
-    { "red-dmg%", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 255, 50 },        // Damage Reduced by #%
+    { "red-dmg%", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -25, 255, 50 },      // Damage Reduced by #%
     { "ac%", { AttributeFlag::Defense, AttributeFlag::HasRange }, {}, 1, 511, 100 },               // +#% Enhanced Defense
     { "red-mag", { AttributeFlag::DamageReduction, AttributeFlag::HasRange }, {}, 1, 63, 100 },    // Magic Damage Reduced by #
     { "str", { AttributeFlag::Stats, AttributeFlag::HasRange }, {}, -32, 223, 100 },               // +# to Strength
@@ -47,15 +47,15 @@ const std::vector<AttributeDesc> s_attributes{
     { "dmg-max", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 127, 100 },            // +# to Maximum Damage
     { "dmg%", { AttributeFlag::Damage, AttributeFlag::HasRange }, {}, 1, 511, 100 },               // +#% Enhanced Damage
     { "dmg-to-mana", {} },                                                                         // #% Damage Taken Goes To Mana
-    { "res-fire", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 60 },      // Fire Resist +#%
+    { "res-fire", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -90, 205, 60 },      // Fire Resist +#%
     { "res-fire-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },     // +#% to Maximum Fire Resist
-    { "res-ltng", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 60 },      // Lightning Resist +#%
+    { "res-ltng", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -90, 205, 60 },      // Lightning Resist +#%
     { "res-ltng-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },     // +#% to Maximum Lightning Resist
-    { "res-cold", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 60 },      // Cold Resist +#%
+    { "res-cold", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -90, 205, 60 },      // Cold Resist +#%
     { "res-cold-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },     // +#% to Maximum Cold Resist
-    { "res-mag", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 255, 60 },         // Magic Resist +#%
+    { "res-mag", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -90, 255, 60 },       // Magic Resist +#%
     { "res-mag-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 30 },      // +#% to Maximum Magic Resist
-    { "res-pois", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 100 },     // Poison Resist +#%
+    { "res-pois", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -90, 205, 100 },     // Poison Resist +#%
     { "res-pois-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 50 },     // +#% to Maximum Poison Resist
     { "res-all", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, -50, 205, 40 },       // All Resistances +#
     { "res-all-max", { AttributeFlag::Resistance, AttributeFlag::HasRange }, {}, 1, 31, 20 },      // Currently Not Used
@@ -310,6 +310,14 @@ const std::vector<AttributeDesc> s_attributes{
 
     { "Light", {} },
     { "Thorns", {} },
+
+    { "pierce-immunity-cold", {} },
+    { "pierce-immunity-fire", {} },
+    { "pierce-immunity-light", {} },
+    { "pierce-immunity-poison", {} },
+    { "pierce-immunity-damage", {} },
+    { "pierce-immunity-magic", {} },
+
 };
 
 const std::unordered_map<std::string, int> s_attributesIndex = [] {

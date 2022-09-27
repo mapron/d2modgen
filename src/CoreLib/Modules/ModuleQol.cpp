@@ -17,13 +17,14 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
     if (input.isAllDefault())
         return;
 
-    const bool tomeSize         = input.getInt("tomeSize");
-    const bool keySize          = input.getInt("keySize");
-    const bool quiverSize       = input.getInt("quiverSize");
-    const bool uniqueCharmLimit = input.getInt("uniqueCharmLimit");
-    const bool weakenTownSkills = input.getInt("weakenTownSkills");
-    const bool showItemLevel    = input.getInt("showItemLevel");
-    const int  reduceCost       = input.getInt("reduceCost");
+    const bool tomeSize           = input.getInt("tomeSize");
+    const bool keySize            = input.getInt("keySize");
+    const bool quiverSize         = input.getInt("quiverSize");
+    const bool uniqueCharmLimit   = input.getInt("uniqueCharmLimit");
+    const bool weakenTownSkills   = input.getInt("weakenTownSkills");
+    const bool showItemLevel      = input.getInt("showItemLevel");
+    const bool enableSunderCharms = input.getInt("enableSunderCharms");
+    const int  reduceCost         = input.getInt("reduceCost");
     if (tomeSize || keySize || quiverSize) {
         Table&    table = output.tableSet.tables[TableId::misc];
         TableView tableView(table, true);
@@ -43,6 +44,16 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
         TableView tableView(table, true);
         for (auto& row : tableView) {
             row["carry1"].str = "";
+        }
+    }
+    if (enableSunderCharms) {
+        Table&    table = output.tableSet.tables[TableId::uniqueitems];
+        TableView tableView(table, true);
+        for (auto& row : tableView) {
+            if (row["code"] == "cm3" && row["ladder"].toInt()) {
+                row["ladder"].clear();
+                row["enabled"].setInt(1);
+            }
         }
     }
     if (weakenTownSkills) {
