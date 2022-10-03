@@ -172,7 +172,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             for (const ColumnsDesc& columns : columnsList) {
                 MagicPropRawList rawList;
 
-                rawList.readFromRow(row, columns, extraKnownCodes);
+                rawList.readFromRow(row, columns, extraKnownCodes, true);
                 postProcessRawList(rawList);
 
                 props.add(std::move(rawList), types, level);
@@ -342,7 +342,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
             for (const ColumnsDesc& columns : columnsList) {
                 MagicPropRawList rawList;
-                rawList.readFromRow(row, columns, extraKnownCodes);
+                rawList.readFromRow(row, columns, extraKnownCodes, false);
                 if (skipEmptyList && rawList.parsedProps.empty())
                     continue;
 

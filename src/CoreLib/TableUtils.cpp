@@ -28,38 +28,44 @@ static const std::map<TableId, StringVector> s_tableKeys{
     { TableId::armor, { "code" } },
 };
 
-using AliasConfig = std::map<std::string, StringVector>;
+using AliasConfig = std::vector<std::pair<std::string, std::string>>;
 static const std::map<TableId, AliasConfig> s_tableColumnAliases{
     { TableId::itemtypes, AliasConfig{
-                              { "MaxSockets3", { "MaxSock40" } },
-                              { "MaxSock40", { "MaxSockets3" } },
+                              { "MaxSockets3", "MaxSock40" },
                           } },
     { TableId::levels, AliasConfig{
-                           { "MonLvlEx(N)", { "MonLvl2Ex" } },
-                           { "MonLvlEx(H)", { "MonLvl3Ex" } },
-                           { "MonLvl2Ex", { "MonLvlEx(N)" } },
-                           { "MonLvl3Ex", { "MonLvlEx(H)" } },
+                           { "MonLvlEx(N)", "MonLvl2Ex" },
+                           { "MonLvlEx(H)", "MonLvl3Ex" },
                        } },
     { TableId::uniqueitems, AliasConfig{
-                                { "diablocloneweight", { "worldevent" } },
-                                { "worldevent", { "diablocloneweight" } },
+                                { "diablocloneweight", "worldevent" },
                             } },
     { TableId::setitems, AliasConfig{
-                             { "diablocloneweight", { "worldevent" } },
-                             { "worldevent", { "diablocloneweight" } },
+                             { "diablocloneweight", "worldevent" },
                          } },
     { TableId::armor, AliasConfig{
-                          { "diablocloneweight", { "worldevent" } },
-                          { "worldevent", { "diablocloneweight" } },
+                          { "diablocloneweight", "worldevent" },
                       } },
     { TableId::weapons, AliasConfig{
-                            { "diablocloneweight", { "worldevent" } },
-                            { "worldevent", { "diablocloneweight" } },
+                            { "diablocloneweight", "worldevent" },
                         } },
     { TableId::misc, AliasConfig{
-                         { "diablocloneweight", { "worldevent" } },
-                         { "worldevent", { "diablocloneweight" } },
+                         { "diablocloneweight", "worldevent" },
                      } },
+    { TableId::monstats, AliasConfig{
+                             { "TreasureClass1", "TreasureClass" },
+                             { "TreasureClass1(N)", "TreasureClass(N)" },
+                             { "TreasureClass1(H)", "TreasureClass(H)" },
+                             { "TreasureClass2", "TreasureClassChamp" },
+                             { "TreasureClass3", "TreasureClassUnique" },
+                             { "TreasureClass4", "TreasureClassQuest" },
+                             { "TreasureClass2(N)", "TreasureClassChamp(N)" },
+                             { "TreasureClass3(N)", "TreasureClassUnique(N)" },
+                             { "TreasureClass4(N)", "TreasureClassQuest(N)" },
+                             { "TreasureClass2(H)", "TreasureClassChamp(H)" },
+                             { "TreasureClass3(H)", "TreasureClassUnique(H)" },
+                             { "TreasureClass4(H)", "TreasureClassQuest(H)" },
+                         } },
 };
 
 }
@@ -67,17 +73,18 @@ static const std::map<TableId, AliasConfig> s_tableColumnAliases{
 TableView::TableView(Table& table, bool markModified)
     : m_table(table)
 {
-    auto itAlias = s_tableColumnAliases.find(table.id);
+    auto        itAlias = s_tableColumnAliases.find(table.id);
+    AliasConfig aliasCfg;
+    if (itAlias != s_tableColumnAliases.cend())
+        aliasCfg = itAlias->second;
     for (int i = 0; i < m_table.columns.size(); ++i) {
         const std::string& col = m_table.columns[i];
         m_columnIndex[col]     = i;
-
-        if (itAlias != s_tableColumnAliases.cend()) {
-            auto itCol = itAlias->second.find(col);
-            if (itCol != itAlias->second.cend()) {
-                for (const std::string& aliasCol : itCol->second)
-                    m_columnIndex[aliasCol] = i;
-            }
+        for (auto& colPair : aliasCfg) {
+            if (colPair.first == col)
+                m_columnIndex[colPair.second] = i;
+            if (colPair.second == col)
+                m_columnIndex[colPair.first] = i;
         }
     }
     for (int i = 0; i < m_table.rows.size(); ++i)

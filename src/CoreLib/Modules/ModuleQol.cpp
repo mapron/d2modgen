@@ -47,12 +47,21 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
         }
     }
     if (enableSunderCharms) {
-        Table&    table = output.tableSet.tables[TableId::uniqueitems];
-        TableView tableView(table, true);
-        for (auto& row : tableView) {
-            if (row["code"] == "cm3" && row["ladder"].toInt()) {
+        {
+            Table&    table = output.tableSet.tables[TableId::uniqueitems];
+            TableView tableView(table, true);
+            for (auto& row : tableView) {
+                if (row["code"] == "cm3" && row["ladder"].toInt()) {
+                    row["ladder"].clear();
+                    row["enabled"].setInt(1);
+                }
+            }
+        }
+        {
+            Table&    table = output.tableSet.tables[TableId::treasureclassex];
+            TableView tableView(table, true);
+            for (auto& row : tableView) {
                 row["ladder"].clear();
-                row["enabled"].setInt(1);
             }
         }
     }

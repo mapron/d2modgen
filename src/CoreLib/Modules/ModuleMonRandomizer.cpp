@@ -380,8 +380,9 @@ void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& r
     {
         Table& table   = tableSet.tables[TableId::monstats];
         table.modified = true;
+        TableView                 view(table);
         MonTypeTable::MonCopyList newCopies;
-        auto                      insertNewRows = [&table, &rng, &newCopies, &typeTable, &tcTable]() {
+        auto                      insertNewRows = [&table, &view, &rng, &newCopies, &typeTable, &tcTable]() {
             MonTypeTable::MonCopyList tmpList = std::move(typeTable.newCopies);
             assert(!typeTable.types.empty());
             newCopies.insert(newCopies.end(), tmpList.cbegin(), tmpList.cend());
@@ -402,9 +403,17 @@ void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& r
                 skillCols.push_back(colIndex);
             }
             for (int i = 1; i <= 4; ++i) {
-                int colIndex = table.indexOf(argCompat("TreasureClass%1", i));
+                int colIndex = view.ind(argCompat("TreasureClass%1", i));
                 assert(colIndex > -1);
                 tcCols.push_back(colIndex);
+            }
+
+            // new 2.5 D2R TCs
+            const std::vector<std::string> extraClasses{ "TreasureClassDesecrated", "TreasureClassChampDesecrated", "TreasureClassUniqueDesecrated", "TreasureClassDesecrated(N)", "TreasureClassChampDesecrated(N)", "TreasureClassUniqueDesecrated(N)", "TreasureClassDesecrated(H)", "TreasureClassChampDesecrated(H)", "TreasureClassUniqueDesecrated(H)" };
+            for (auto& clas : extraClasses) {
+                int colIndex = view.ind(clas);
+                if (colIndex > -1)
+                    tcCols.push_back(colIndex);
             }
 
             for (const auto& copy : tmpList) {
