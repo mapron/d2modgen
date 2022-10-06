@@ -24,6 +24,7 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
     const bool weakenTownSkills   = input.getInt("weakenTownSkills");
     const bool showItemLevel      = input.getInt("showItemLevel");
     const bool enableSunderCharms = input.getInt("enableSunderCharms");
+    const bool disableExpPenalty  = input.getInt("disableExpPenalty");
     const int  reduceCost         = input.getInt("reduceCost");
     if (tomeSize || keySize || quiverSize) {
         Table&    table = output.tableSet.tables[TableId::misc];
@@ -106,6 +107,13 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
             for (auto& row : tableView) {
                 row["ShowLevel"].setInt(1);
             }
+        }
+    }
+    if (disableExpPenalty) {
+        Table&    table = output.tableSet.tables[TableId::experience];
+        TableView tableView(table, true);
+        for (auto& row : tableView) {
+            row["ExpRatio"].setInt(1024);
         }
     }
 }

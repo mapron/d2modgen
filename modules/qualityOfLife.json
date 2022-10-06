@@ -25,6 +25,7 @@
 		{ "id": "weakenTownSkills", "type": "checkbox"},
 		{ "id": "showItemLevel", "type": "checkbox"},
 		{ "id": "enableSunderCharms", "type": "checkbox"},
+		{ "id": "disableExpPenalty", "type": "checkbox"},
 		{ "id": "reduceCost", "type": "sliderMinMax", "min": 5, "max": 100}
 		
 	],
@@ -41,6 +42,8 @@
 				"uniqueCharmLimit": "Убрать ограничение на 1 уникальный талисман в инвентаре",
 				"weakenTownSkills": "Разрешить использовать Телепорт и боевые приказы в городе",
 				"showItemLevel": "Показывать ilevel в скобках",
+				"enableSunderCharms": "Включить Sunder Charms",
+				"disableExpPenalty": "Отключить штраф опыт после уровня 70",
 				"reduceCost": "Снизить стоимость (в золоте) для параметров на предметах (снизить цену починки)"
 			},
 			"controlsHelps": {
@@ -63,6 +66,7 @@
 				"weakenTownSkills": "Allow using Teleport, BC, BO in town",
 				"showItemLevel": "Show ilevel in items' titles",
 				"enableSunderCharms": "Enable Sunder Charms to drop in non-ladder",
+				"disableExpPenalty": "Disable experience penalty after level 70",
 				"reduceCost": "Reduce costs of skills and stats on items (affects repair cost mostly)"
 			},
 			"controlsHelps": {
