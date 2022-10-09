@@ -118,7 +118,7 @@ struct MagicPropRawList {
     void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
     void makePerfect();
 
-    void readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const StringSet& extraKnownCodes);
+    void readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const StringSet& extraKnownCodes, bool grab);
     void writeToRow(TableView::RowView& row, const ColumnsDesc& columns) const;
 
     int                   getTotalSize() const;

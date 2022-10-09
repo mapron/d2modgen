@@ -115,7 +115,7 @@ void MagicPropRawList::makePerfect()
     }
 }
 
-void MagicPropRawList::readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const StringSet& extraKnownCodes)
+void MagicPropRawList::readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const StringSet& extraKnownCodes, bool grab)
 {
     for (const auto& col : columns.m_cols) {
         MagicProp mp;
@@ -253,15 +253,15 @@ void MagicPropUniverse::dump(const MagicPropIdxSet& idxs) const
     }
 }
 
-MagicPropList MagicPropUniverse::generate(RandomGenerator&            rng,
-                                          const StringSet& existingCodes,
-                                          const AttributeFlagSet&      supportedAttributes,
-                                          const ItemCodeFilter&        specificTypeQuery,
-                                          int                          specificItemUsage,
-                                          int                          count,
-                                          int                          level,
-                                          int                          unbalance,
-                                          bool                         noDuplicateCode) const
+MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
+                                          const StringSet&        existingCodes,
+                                          const AttributeFlagSet& supportedAttributes,
+                                          const ItemCodeFilter&   specificTypeQuery,
+                                          int                     specificItemUsage,
+                                          int                     count,
+                                          int                     level,
+                                          int                     unbalance,
+                                          bool                    noDuplicateCode) const
 {
     if (count <= 0)
         return {};

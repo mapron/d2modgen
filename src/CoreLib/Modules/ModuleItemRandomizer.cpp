@@ -289,7 +289,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     auto calcNewCount = [&rng,
                          relativeCountMin,
                          relativeCountMax,
-                         keepOriginalPercent](const int originalCount, int columnsCount) -> std::pair<int, int> {
+                         keepOriginalPercent](const int originalCount) -> std::pair<int, int> {
         if (relativeCountMin == 100 && relativeCountMax == 100) {
             if (keepOriginalPercent == 100)
                 return { originalCount, 0 };
@@ -300,7 +300,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         const int relativeCountBase     = std::min(relativeCountMin, relativeCountMax);
         const int relativeCountBonusRng = std::max(relativeCountMin, relativeCountMax) - relativeCountBase;
         const int relativeCount         = relativeCountBase + (relativeCountBonusRng > 0 ? rng(relativeCountBonusRng) : 0);
-        const int absCountInHundreds    = std::min(columnsCount * 100, originalCount * relativeCount);
+        const int absCountInHundreds    = originalCount * relativeCount;
         if (keepOriginalPercent == 0)
             return { 0, absCountInHundreds / 100 };
         const int  keepCountInHundreds = keepOriginalPercent * originalCount;
@@ -340,6 +340,8 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             const auto supportedAttributes = supportedAttributesCb(row);
             const auto codeFilter          = codeFilterCb(row);
 
+            int genCountPrev = 0;
+
             for (const ColumnsDesc& columns : columnsList) {
                 MagicPropRawList rawList;
                 rawList.readFromRow(row, columns, extraKnownCodes, false);
@@ -349,9 +351,16 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 postProcessRawList(rawList);
 
                 const int originalCount  = rawList.getTotalSize();
-                auto [keepCnt, genCount] = calcNewCount(originalCount, columns.m_cols.size());
+                auto [keepCnt, genCount] = calcNewCount(originalCount);
+
                 if (keepCnt + genCount == 0) {
                     genCount = 1;
+                }
+                const int maxGenCount = columns.m_cols.size() - keepCnt;
+                genCount += genCountPrev;
+                if (genCount > maxGenCount) {
+                    genCountPrev = genCount - maxGenCount;
+                    genCount     = maxGenCount;
                 }
 
                 if (keepCnt < originalCount)
