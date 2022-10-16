@@ -17,6 +17,7 @@ public:
         : PluginModule(std::move(moduleMetadata), std::move(id))
     {}
 
+    void gatherInfo(PreGenerationContext& output, const InputContext& input) const override;
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };
 

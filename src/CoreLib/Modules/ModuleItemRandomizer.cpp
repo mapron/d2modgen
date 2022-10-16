@@ -17,6 +17,8 @@ const bool s_init = registerHelper<ModuleItemRandomizer>();
 
 constexpr const int s_maxUnbalanceLevel = 100;
 
+const std::string s_itemsJson = "data\\local\\lng\\strings\\item-names.json";
+
 inline void ltrim(std::string& s)
 {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
@@ -45,6 +47,16 @@ inline StringVector splitLine(const std::string& line, char sep, bool skipEmpty 
     return result;
 }
 
+}
+
+void ModuleItemRandomizer::gatherInfo(PreGenerationContext& output, const InputContext& input) const
+{
+    if (input.m_env.isLegacy)
+        return;
+
+    const int repeatSets = input.getInt("repeat_sets");
+    if (repeatSets > 1)
+        output.m_extraJson.insert(s_itemsJson);
 }
 
 void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
@@ -144,9 +156,14 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         return level;
     };
 
+    std::vector<std::string> setItemsKeys;
+
     const bool replaceSkills  = input.getInt("replaceSkills");
     const bool replaceCharges = input.getInt("replaceCharges");
     const bool removeKnock    = input.getInt("removeKnock");
+
+    const int repeatUniques = input.getInt("repeat_uniques");
+    const int repeatSets    = input.getInt("repeat_sets");
 
     const StringVector extraKnownCodesList = splitLine(input.getString("extraKnown"), ',', true);
     const StringSet    extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
@@ -231,7 +248,6 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         auto&     table = tableSet.tables[TableId::uniqueitems];
         TableView view(table);
         grabProps(view, s_descUniques, commonLvlReq, uniqueType);
-        const int repeatUniques = input.getInt("repeat_uniques");
         if (repeatUniques > 1) {
             auto rows = table.rows;
 
@@ -246,12 +262,31 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         grabProps(view, s_descRunewords, commonRWreq, rwTypes);
     }
     {
-        TableView view(tableSet.tables[TableId::setitems]);
+        auto&     table = tableSet.tables[TableId::setitems];
+        TableView view(table);
         grabProps(view, s_descSetItems, commonLvlReq, setitemType);
         for (auto& row : view) {
-            auto& setId          = row["set"];
-            auto& lvl            = row["lvl"];
+            auto& setItem = row["index"];
+            auto& setId   = row["set"];
+            auto& lvl     = row["lvl"];
+            if (setId.isEmpty())
+                continue;
+            setItemsKeys.push_back(setItem.str);
             setLevels[setId.str] = lvl.toInt();
+        }
+
+        const auto rowsOriginal = table.rows;
+        for (int i = 2; i <= repeatSets; ++i) {
+            auto rowsCopy = rowsOriginal;
+            for (auto& row : rowsCopy) {
+                auto& firstCol = row.data[0]; // index
+                auto& thirdCol = row.data[2]; // set
+                if (firstCol.isEmpty() || thirdCol.isEmpty())
+                    continue;
+                firstCol.str += " " + std::to_string(i);
+                thirdCol.str += " " + std::to_string(i);
+            }
+            table.rows.insert(table.rows.end(), rowsCopy.cbegin(), rowsCopy.cend());
         }
     }
     {
@@ -275,8 +310,30 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
     {
-        TableView view(tableSet.tables[TableId::sets]);
+        auto&     table = tableSet.tables[TableId::sets];
+        TableView view(table);
         grabProps(view, s_descSets, commonSetReq, setsTypes);
+        for (auto& row : view) {
+            auto& setId   = row["index"];
+            auto& setName = row["name"];
+            if (setName.isEmpty())
+                continue;
+            setItemsKeys.push_back(setId.str);
+        }
+
+        const auto rowsOriginal = table.rows;
+        for (int i = 2; i <= repeatSets; ++i) {
+            auto rowsCopy = rowsOriginal;
+            for (auto& row : rowsCopy) {
+                auto& firstCol  = row.data[0]; // index
+                auto& secondCol = row.data[1]; // name
+                if (firstCol.isEmpty() || secondCol.isEmpty())
+                    continue;
+                firstCol.str += " " + std::to_string(i);
+                secondCol.str += " " + std::to_string(i);
+            }
+            table.rows.insert(table.rows.end(), rowsCopy.cbegin(), rowsCopy.cend());
+        }
     }
 
     const int  unbalance           = input.getInt("crazyLevel");
@@ -445,6 +502,32 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     {
         TableView view(tableSet.tables[TableId::sets]);
         fillProps(view, s_descSets, commonSetReq, commonTypeAll, setsTypes, false, false);
+    }
+    {
+        if (repeatSets > 1 && output.jsonFiles.contains(s_itemsJson)) {
+            auto&                               jsonDoc = output.jsonFiles[s_itemsJson];
+            std::map<std::string, PropertyTree> itemNamesByKey;
+            for (const auto& itemDesc : jsonDoc.getList()) {
+                const std::string key = itemDesc["Key"].getScalar().toString();
+                itemNamesByKey[key]   = itemDesc;
+            }
+            int id = 1000000;
+            for (int i = 2; i <= repeatSets; ++i) {
+                for (const auto& key : setItemsKeys) {
+                    const std::string keyCopy  = key + " " + std::to_string(i);
+                    PropertyTree      itemDesc = itemNamesByKey[key];
+                    itemDesc["Key"]            = PropertyTreeScalar(keyCopy);
+                    itemDesc["id"]             = PropertyTreeScalar(id++);
+                    for (auto& [locKey, locValue] : itemDesc.getMap()) {
+                        if (locKey == "Key" || locKey == "id")
+                            continue;
+                        const auto str = locValue.getScalar().toString();
+                        locValue       = PropertyTreeScalar(str + " " + std::to_string(i));
+                    }
+                    jsonDoc.append(itemDesc);
+                }
+            }
+        }
     }
     Logger() << "generate() take:" << start.GetElapsedTime().ToProfilingTime();
 }

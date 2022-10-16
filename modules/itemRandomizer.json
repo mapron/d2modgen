@@ -13,6 +13,7 @@
 		"relativeCountMin": 100,
 		"relativeCountMax": 1000,
 		"repeat_uniques": 10,
+		"repeat_sets": 5,
 		"noDuplicates": true,
 		"affixRandom": true,
 		"gemsRandom": false,
@@ -32,6 +33,7 @@
 			
 	
 		{ "id": "repeat_uniques", "type": "sliderMinMax", "min": 1, "max": 20 },
+		{ "id": "repeat_sets", "type": "sliderMinMax", "min": 1, "max": 20 },
 		
 		{ "id": "noDuplicates", "type": "checkbox"},
 		{ "id": "affixRandom", "type": "checkbox" },
@@ -114,6 +116,8 @@
 					"у вас будет N разных уникальных предметов, каждый со случайными параметрами;",
 					"так у вас есть возможность подбирать один и тот же предмет несколько раз чтобы оценить его снова.",
 					"К сожалению работает только с Уникальнными, не наборными предметами."],
+				"repeat_sets": ["Позволит иметь несколько несовместимых между собой копий Наборных предметов",
+					"(Ангельский 1, Ангельский 2 и тп)"],
 				"affixRandom": ["С этой опцией свойства магических и редких предметов тоже перемешаны;",
 					"т.о. они могут иметь свойство любого предмета в игре. ",
 					"Примечание, свойства читаются в общий пул независимо от этой опции."],
@@ -135,6 +139,7 @@
 				"relativeCountMin": "Minimum relative property count, compared to the original",
 				"relativeCountMax": "Maximum relative property count, compared to the original",
 				"repeat_uniques": "Number of versions of each unique",
+				"repeat_sets": "Number of different incompatible Sets",
 				"noDuplicates": "Prevent duplicate properties on items",
 				"affixRandom": "Randomize magix/rare affixes",
 				"gemsRandom": "Randomize gem and runes properties",
@@ -165,6 +170,8 @@
 					"you will have N different uniques with differnet stats;",
 					"so you have an opportunity to pick same item again to check it out.",
 					"This works only with Uniques, not Sets."],
+				"repeat_sets": ["Whis will create additional sets (Angelic 2, Angelic 3) with different properties."],
+
 				"affixRandom": ["This will modify rare and magic suffixes - ",
 					"so they can include properties of any other item in the game. ",
 					"Note that their properties are read even without this option."],
