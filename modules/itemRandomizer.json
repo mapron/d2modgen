@@ -12,6 +12,8 @@
 		"keepOriginalPercent": 70,
 		"relativeCountMin": 100,
 		"relativeCountMax": 1000,
+		"setRelativeCountMin": 100,
+		"setRelativeCountMax": 1000,
 		"repeat_uniques": 10,
 		"repeat_sets": 5,
 		"noDuplicates": true,
@@ -27,10 +29,12 @@
 		{ "id": "crazyLevel", "type": "sliderMinMax", "min": 5, "max": 100},
 		{ "id": "itemFitPercent", "type": "sliderMinMax", "min": 0, "max": 100},
 		{ "id": "keepOriginalPercent", "type": "sliderMinMax", "min": 0, "max": 100},
-			
-		{ "id": "relativeCountMin", "type": "slider", "mult": 10, "denom": 4},
-		{ "id": "relativeCountMax", "type": "slider", "mult": 10, "denom": 4},
-			
+
+		{ "id": "_label1", "type": "label"},
+		{ "id": "relativeCountMin", "type": "slider", "mult": 10, "denom": 5, "compact":true },
+		{ "id": "relativeCountMax", "type": "slider", "mult": 10, "denom": 5, "compact":true },
+		{ "id": "setRelativeCountMin", "type": "slider", "mult": 10, "denom": 5, "compact":true },
+		{ "id": "setRelativeCountMax", "type": "slider", "mult": 10, "denom": 5, "compact":true },
 	
 		{ "id": "repeat_uniques", "type": "sliderMinMax", "min": 1, "max": 20 },
 		{ "id": "repeat_sets", "type": "sliderMinMax", "min": 1, "max": 20 },
@@ -51,6 +55,8 @@
 			"keepOriginalPercent": 0,
 			"relativeCountMin": 1000,
 			"relativeCountMax": 1000,
+			"setRelativeCountMin": 1000,
+			"setRelativeCountMax": 1000,
 			"affixRandom": true,
 			"gemsRandom": true,
 			"replaceSkills": true,
@@ -62,6 +68,8 @@
 			"keepOriginalPercent": 20,
 			"relativeCountMin": 100,
 			"relativeCountMax": 1000,
+			"setRelativeCountMin": 100,
+			"setRelativeCountMax": 1000,
 			"affixRandom": true,
 			"replaceSkills": true,
 			"replaceCharges": true
@@ -71,7 +79,9 @@
 			"itemFitPercent": 70,
 			"keepOriginalPercent": 50,
 			"relativeCountMin": 100,
-			"relativeCountMax": 120
+			"relativeCountMax": 120,
+			"setRelativeCountMin": 100,
+			"setRelativeCountMax": 150
 		}
 	],
 	"locales": {
@@ -86,8 +96,12 @@
 				"crazyLevel": "Уровень безумия (или имбалансности, ниже=больше баланса, 100=хаос)",
 				"itemFitPercent": "Доля параметров соответствия типу(0%=рандом, 100% = все параметры специфичны)",
 				"keepOriginalPercent": "Как много исходных свойств предмета сохранять, процент",
-				"relativeCountMin": "Минимальное относительное число свойств, по сравнению с оригиналом",
-				"relativeCountMax": "Максимальное относительное число свойств, по сравнению с оригиналом",
+				"_label1": "Число свойств (мин/макс), по сравнению с оригинальным до рандомизации:",
+				"relativeCountMin": "Уник./Камни/Руны/Аффиксы, Минимум",
+				"relativeCountMax": "Уник./Камни/Руны/Аффиксы, Максимум",
+				"setRelativeCountMin": "Наборные предметы, Минимум",
+				"setRelativeCountMax": "Наборные предметы, Максимум",
+
 				"repeat_uniques": "Количество версий каждого уникального предмета",
 				"noDuplicates": "Предотвращать дубликаты свойств на предметах",
 				"affixRandom": "Рандомизация аффиксов редких и магических предметов",
@@ -136,8 +150,12 @@
 				"crazyLevel": "Crazy-ness (or 'NON-balance level', lower = more balance, 100=chaos)",
 				"itemFitPercent": "Item type fit percent (0% = fully random, 100% = all according to item type)",
 				"keepOriginalPercent": "How many original properties to keep, percent",
-				"relativeCountMin": "Minimum relative property count, compared to the original",
-				"relativeCountMax": "Maximum relative property count, compared to the original",
+				"_label1": "Relative property counts (min/max), compared to non-randomized original:",
+				"relativeCountMin": "Uniques/Gems/Runes/Affixes, Min",
+				"relativeCountMax": "Uniques/Gems/Runes/Affixes, Max",
+				"setRelativeCountMin": "Set items, Min",
+				"setRelativeCountMax": "Set items, Max",
+
 				"repeat_uniques": "Number of versions of each unique",
 				"repeat_sets": "Number of different incompatible Sets",
 				"noDuplicates": "Prevent duplicate properties on items",

@@ -336,17 +336,23 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
 
-    const int  unbalance           = input.getInt("crazyLevel");
-    const int  itemFitPercent      = input.getInt("itemFitPercent");
-    const int  keepOriginalPercent = input.getInt("keepOriginalPercent");
-    const int  relativeCountMax    = input.getInt("relativeCountMax");
-    const int  relativeCountMin    = input.getInt("relativeCountMin");
-    const bool noDuplicates        = input.getInt("noDuplicates");
+    const int  unbalance               = input.getInt("crazyLevel");
+    const int  itemFitPercent          = input.getInt("itemFitPercent");
+    const int  keepOriginalPercent     = input.getInt("keepOriginalPercent");
+    const int  relativeGeneralCountMin = input.getInt("relativeCountMin");
+    const int  relativeGeneralCountMax = input.getInt("relativeCountMax");
+    const int  relativeSetCountMin     = input.getInt("setRelativeCountMin");
+    const int  relativeSetCountMax     = input.getInt("setRelativeCountMax");
+    const bool noDuplicates            = input.getInt("noDuplicates");
 
     auto calcNewCount = [&rng,
-                         relativeCountMin,
-                         relativeCountMax,
-                         keepOriginalPercent](const int originalCount) -> std::pair<int, int> {
+                         relativeGeneralCountMin,
+                         relativeGeneralCountMax,
+                         relativeSetCountMin,
+                         relativeSetCountMax,
+                         keepOriginalPercent](const int originalCount, bool isSet) -> std::pair<int, int> {
+        const auto relativeCountMin = isSet ? relativeSetCountMin : relativeGeneralCountMin;
+        const auto relativeCountMax = isSet ? relativeSetCountMax : relativeGeneralCountMax;
         if (relativeCountMin == 100 && relativeCountMax == 100) {
             if (keepOriginalPercent == 100)
                 return { originalCount, 0 };
@@ -387,7 +393,8 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                                     const SupportedAttributesCallback& supportedAttributesCb,
                                     const ItemCodeFilterCallback&      codeFilterCb,
                                     const bool                         skipEmptyList,
-                                    const bool                         supportMinMax) {
+                                    const bool                         supportMinMax,
+                                    const bool                         isSet = false) {
         view.markModified();
         for (auto& row : view) {
             const int level = levelCb(row);
@@ -408,7 +415,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 postProcessRawList(rawList);
 
                 const int originalCount  = rawList.getTotalSize();
-                auto [keepCnt, genCount] = calcNewCount(originalCount);
+                auto [keepCnt, genCount] = calcNewCount(originalCount, isSet);
 
                 if (keepCnt + genCount == 0) {
                     genCount = 1;
@@ -470,7 +477,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             assert(props.itemTypeInfo.contains(type));
             return props.itemTypeInfo.at(type).flags;
         };
-        fillProps(view, s_descSetItems, commonLvlReq, code2flags, setitemType, false, false);
+        fillProps(view, s_descSetItems, commonLvlReq, code2flags, setitemType, false, false, true);
     }
     if (input.getInt("gemsRandom")) {
         TableView view(tableSet.tables[TableId::gems]);
