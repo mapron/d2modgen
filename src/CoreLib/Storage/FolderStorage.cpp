@@ -49,7 +49,7 @@ std::string IStorage::makeTableRelativePath(const std::string& id, bool backslas
 FolderStorage::FolderStorage(const std_path& storageRoot, StorageType storage, const std::string& modname)
     : m_storageType(storage)
     , m_modName(modname)
-    , m_root(storage == StorageType::D2ResurrectedModFolder ? storageRoot / "mods" / modname / (modname + ".mpq") : storageRoot)
+    , m_root(storage == StorageType::D2ResurrectedModFolder ? storageRoot / "mods" / modname / (modname + ".mpq") : (storageRoot / "fake").parent_path())
 {
 }
 
