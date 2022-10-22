@@ -519,6 +519,16 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 itemNamesByKey[key]   = itemDesc;
             }
             int id = 1000000;
+            for (const auto& key : setItemsKeys) {
+                if (itemNamesByKey.contains(key))
+                    continue;
+                PropertyTree itemDesc;
+                itemDesc["Key"]  = PropertyTreeScalar(key);
+                itemDesc["enUS"] = PropertyTreeScalar(key);
+                itemDesc["id"]   = PropertyTreeScalar(id++);
+                jsonDoc.append(itemDesc);
+                itemNamesByKey[key] = itemDesc;
+            }
             for (int i = 2; i <= repeatSets; ++i) {
                 for (const auto& key : setItemsKeys) {
                     const std::string keyCopy  = key + " " + std::to_string(i);
