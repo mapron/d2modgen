@@ -157,6 +157,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     };
 
     std::vector<std::string> setItemsKeys;
+    std::vector<std::string> allItemsKeys;
 
     const bool replaceSkills  = input.getInt("replaceSkills");
     const bool replaceCharges = input.getInt("replaceCharges");
@@ -248,6 +249,13 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         auto&     table = tableSet.tables[TableId::uniqueitems];
         TableView view(table);
         grabProps(view, s_descUniques, commonLvlReq, uniqueType);
+        for (auto& row : view) {
+            auto& item = row["index"];
+            auto& lvl  = row["lvl"];
+            if (item.isEmpty() || lvl.isEmpty())
+                continue;
+            allItemsKeys.push_back(item.str);
+        }
         if (repeatUniques > 1) {
             auto rows = table.rows;
 
@@ -272,6 +280,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             if (setId.isEmpty())
                 continue;
             setItemsKeys.push_back(setItem.str);
+            allItemsKeys.push_back(setItem.str);
             setLevels[setId.str] = lvl.toInt();
         }
 
@@ -319,6 +328,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             if (setName.isEmpty())
                 continue;
             setItemsKeys.push_back(setId.str);
+            allItemsKeys.push_back(setId.str);
         }
 
         const auto rowsOriginal = table.rows;
@@ -519,7 +529,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 itemNamesByKey[key]   = itemDesc;
             }
             int id = 1000000;
-            for (const auto& key : setItemsKeys) {
+            for (const auto& key : allItemsKeys) {
                 if (itemNamesByKey.contains(key))
                     continue;
                 PropertyTree itemDesc;
