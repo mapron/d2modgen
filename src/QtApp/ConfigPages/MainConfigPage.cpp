@@ -245,6 +245,7 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
     connect(m_impl->d2rPath, &QLineEdit::textChanged, this, &MainConfigPage::needUpdateModList);
     connect(m_impl->modName, &QLineEdit::textChanged, this, updateArgs);
     connect(m_impl->d2rPath, &QLineEdit::textEdited, this, &IConfigPage::dataChanged);
+    connect(m_impl->d2legacyPath, &QLineEdit::textEdited, this, &IConfigPage::dataChanged);
     connect(m_impl->modName, &QLineEdit::textEdited, this, &IConfigPage::dataChanged);
     connect(m_impl->addKeys, &QCheckBox::clicked, this, &IConfigPage::dataChanged);
     connect(copySettings, &QPushButton::clicked, this, [this] {
