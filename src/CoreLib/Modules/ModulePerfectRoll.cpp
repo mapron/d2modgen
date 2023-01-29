@@ -85,18 +85,18 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
     };
 
     {
-        TableView view(output.tableSet.tables[TableId::uniqueitems]);
+        TableView view(output.tableSet.tables[TableId::uniqueitems], true);
         makePerfectMin(view, Tables::s_descUniques, input.getInt("uniques"));
         makeEmpower(view, Tables::s_descUniques, input.getInt("uniques_power_l1"), input.getInt("uniques_power_l50"), commonLvlReq);
     }
     {
-        TableView view(output.tableSet.tables[TableId::runes]);
+        TableView view(output.tableSet.tables[TableId::runes], true);
         const int powerLevel = input.getInt("rw_power");
         makePerfectMin(view, Tables::s_descRunewords, input.getInt("runeWords"));
         makeEmpower(view, Tables::s_descRunewords, powerLevel, powerLevel, [](const TableView::RowView& row) { return 1; });
     }
     {
-        TableView view(output.tableSet.tables[TableId::setitems]);
+        TableView view(output.tableSet.tables[TableId::setitems], true);
         makePerfectMin(view, Tables::s_descSetItems, input.getInt("setItems"));
         makeEmpower(view, Tables::s_descSetItems, input.getInt("set_power_l1"), input.getInt("set_power_l50"), commonLvlReq);
     }
@@ -104,7 +104,7 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
         for (const auto table : { TableId::magicprefix, TableId::magicsuffix, TableId::automagic }) {
             if (!output.tableSet.tables.contains(table))
                 continue;
-            TableView view(output.tableSet.tables[table]);
+            TableView view(output.tableSet.tables[table], true);
             makePerfectMin(view, Tables::s_descAffix, input.getInt("affixes"));
             makeEmpower(view, Tables::s_descAffix, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), [](const TableView::RowView& row) {
                 return row["spawnable"] == "1" ? row["level"].toInt() : 0;
@@ -112,18 +112,18 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
         }
     }
     {
-        TableView view(output.tableSet.tables[TableId::cubemain]);
+        TableView view(output.tableSet.tables[TableId::cubemain], true);
         const int powerLevel = input.getInt("crafted_power");
         makePerfectMin(view, Tables::s_descCube, input.getInt("crafted"));
         makeEmpower(view, Tables::s_descCube, powerLevel, powerLevel, [](const TableView::RowView& row) { return 1; });
     }
     {
-        TableView view(output.tableSet.tables[TableId::gems]);
+        TableView view(output.tableSet.tables[TableId::gems], true);
         const int powerLevel = input.getInt("gem_power");
         makeEmpower(view, Tables::s_descGems, powerLevel, powerLevel, [](const TableView::RowView& row) { return 1; });
     }
     if (input.getInt("armor")) {
-        TableView view(output.tableSet.tables[TableId::armor]);
+        TableView view(output.tableSet.tables[TableId::armor], true);
         for (auto& row : view) {
             row["minac"] = row["maxac"];
         }
