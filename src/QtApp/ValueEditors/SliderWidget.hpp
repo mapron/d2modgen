@@ -20,8 +20,8 @@ public:
                  QWidget*      parent);
     ~SliderWidget();
 
-    void         setValue(const PropertyTree& value) override;
-    PropertyTree getValue() const override;
+    void         setValue(const Mernel::PropertyTree& value) override;
+    Mernel::PropertyTree getValue() const override;
 
 private:
     void sliderToSpinbox();
@@ -44,8 +44,8 @@ public:
                        QWidget*      parent);
     ~SliderWidgetMinMax();
 
-    void         setValue(const PropertyTree& value) override;
-    PropertyTree getValue() const override;
+    void         setValue(const Mernel::PropertyTree& value) override;
+    Mernel::PropertyTree getValue() const override;
 
 private:
     void sliderToSpinbox();

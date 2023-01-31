@@ -24,13 +24,13 @@ public:
     QString    pageHelp() const override;
     PresetList pagePresets() const override;
 
-    void updateUIFromSettings(const PropertyTree& data) override;
-    void writeSettingsFromUI(PropertyTree& data) const override;
+    void updateUIFromSettings(const Mernel::PropertyTree& data) override;
+    void writeSettingsFromUI(Mernel::PropertyTree& data) const override;
 
     void updateModList(const QStringList& mods) override {}
 
-    void updateUIFromSettingsMain(const PropertyTree& data);
-    void writeSettingsFromUIMain(PropertyTree& data) const;
+    void updateUIFromSettingsMain(const Mernel::PropertyTree& data);
+    void writeSettingsFromUIMain(Mernel::PropertyTree& data) const;
 
     const IModule& getModule() const override;
 

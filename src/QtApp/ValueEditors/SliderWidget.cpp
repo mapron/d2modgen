@@ -84,16 +84,16 @@ SliderWidget::SliderWidget(const Params& params,
 
 SliderWidget::~SliderWidget() = default;
 
-void SliderWidget::setValue(const PropertyTree& value)
+void SliderWidget::setValue(const Mernel::PropertyTree& value)
 {
     m_settingValue = true;
     m_valueBox->setValue(value.getScalar().toInt());
     m_settingValue = false;
 }
 
-PropertyTree SliderWidget::getValue() const
+Mernel::PropertyTree SliderWidget::getValue() const
 {
-    return PropertyTreeScalar{ static_cast<int64_t>(m_valueBox->value()) };
+    return Mernel::PropertyTreeScalar{ static_cast<int64_t>(m_valueBox->value()) };
 }
 
 void SliderWidget::sliderToSpinbox()
@@ -186,16 +186,16 @@ SliderWidgetMinMax::SliderWidgetMinMax(const Params& params,
 
 SliderWidgetMinMax::~SliderWidgetMinMax() = default;
 
-void SliderWidgetMinMax::setValue(const PropertyTree& value)
+void SliderWidgetMinMax::setValue(const Mernel::PropertyTree& value)
 {
     m_settingValue = true;
     m_valueBox->setValue(value.getScalar().toInt());
     m_settingValue = false;
 }
 
-PropertyTree SliderWidgetMinMax::getValue() const
+Mernel::PropertyTree SliderWidgetMinMax::getValue() const
 {
-    return PropertyTreeScalar{ static_cast<int64_t>(m_valueBox->value()) };
+    return Mernel::PropertyTreeScalar{ static_cast<int64_t>(m_valueBox->value()) };
 }
 
 void SliderWidgetMinMax::sliderToSpinbox()

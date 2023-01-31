@@ -13,12 +13,15 @@
 class QLabel;
 class QCheckBox;
 
+namespace Mernel {
+class PropertyTree;
+}
+
 namespace D2ModGen {
 
 class IConfigPage;
 class StorageCache;
 class MainConfigPage;
-class PropertyTree;
 class ConfigHandler;
 class DelayedTimer : public QObject {
     Q_OBJECT
@@ -46,7 +49,7 @@ public:
 
     bool saveConfig(const QString& filename) const;
     bool loadConfig(const QString& filename);
-    bool loadConfig(const PropertyTree& data);
+    bool loadConfig(const Mernel::PropertyTree& data);
 
     struct AppSettings {
         QString m_langId;
@@ -56,13 +59,13 @@ public:
     static AppSettings getAppSettings();
 
 private:
-    void pushUndo(const PropertyTree& data);
+    void pushUndo(const Mernel::PropertyTree& data);
     void pushUndoCurrent();
     void makeUndo();
     void updateUndoAction();
 
     void updateUIFromSettings();
-    void updateUIFromSettings(IConfigPage* page, const PropertyTree& currentConfig);
+    void updateUIFromSettings(IConfigPage* page, const Mernel::PropertyTree& currentConfig);
     void writeSettingsFromUI(IConfigPage* page);
 
 private:
@@ -73,7 +76,7 @@ private:
     MainConfigPage*                       m_mainPage;
     bool                                  m_autoSave = true;
     DelayedTimer*                         m_delayTimer;
-    QList<PropertyTree>                   m_undo;
+    QList<Mernel::PropertyTree>           m_undo;
     QAction*                              m_undoAction;
     ConfigHandler&                        m_configHandler;
 };

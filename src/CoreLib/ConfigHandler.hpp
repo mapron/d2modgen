@@ -6,7 +6,7 @@
 #pragma once
 
 #include "IModule.hpp"
-#include "PropertyTree.hpp"
+#include "MernelPlatform/PropertyTree.hpp"
 
 #include "ModgenCoreExport.hpp"
 
@@ -21,8 +21,8 @@ public:
     bool loadConfig(const std::string& filename);
     bool saveConfig(const std::string& filename) const;
 
-    bool loadConfig(const PropertyTree& data);
-    bool saveConfig(PropertyTree& data) const;
+    bool loadConfig(const Mernel::PropertyTree& data);
+    bool saveConfig(Mernel::PropertyTree& data) const;
 
     bool isConfigEnabled(const std::string& key) const;
     void setConfigEnabled(const std::string& key, bool value);
@@ -38,10 +38,10 @@ public:
 
     GenerationEnvironment getEnv() const;
 
-    PropertyTree m_currentMainConfig;
+    Mernel::PropertyTree m_currentMainConfig;
     struct ModuleData {
         IModule::Ptr m_module;
-        PropertyTree m_currentConfig;
+        Mernel::PropertyTree m_currentConfig;
         bool         m_enabled = true;
         int64_t      m_order   = 1000;
     };

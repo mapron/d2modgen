@@ -33,8 +33,8 @@ public:
     QString    caption() const override;
     QString    pageHelp() const override;
 
-    void updateUIFromSettings(const PropertyTree& data) override;
-    void writeSettingsFromUI(PropertyTree& data) const override;
+    void updateUIFromSettings(const Mernel::PropertyTree& data) override;
+    void writeSettingsFromUI(Mernel::PropertyTree& data) const override;
 
     const IModule& getModule() const override { return *m_module; }
 

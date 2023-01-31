@@ -21,8 +21,8 @@ public:
 
     // IConfigPage interface
 public:
-    void updateUIFromSettings(const PropertyTree& data) override;
-    void writeSettingsFromUI(PropertyTree& data) const override;
+    void updateUIFromSettings(const Mernel::PropertyTree& data) override;
+    void writeSettingsFromUI(Mernel::PropertyTree& data) const override;
 
 private:
     QQuickWidget* m_quick = nullptr;

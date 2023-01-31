@@ -13,7 +13,7 @@ namespace {
 const bool s_init = registerHelper<ModuleChallenge>();
 }
 
-ModuleChallenge::ModuleChallenge(PropertyTree moduleMetadata, std::string id)
+ModuleChallenge::ModuleChallenge(Mernel::PropertyTree moduleMetadata, std::string id)
     : PluginModule(std::move(moduleMetadata), std::move(id))
     , m_items{
         { { "hp1", "hp2", "hp3", "hp4", "hp5" }, "hpsa" },

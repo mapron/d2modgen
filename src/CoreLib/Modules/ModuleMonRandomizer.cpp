@@ -273,7 +273,7 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
             const std::string newId     = copy.newId;
             const std::string modelName = jsonObject[sourceId].getScalar().toString();
             assert(!modelName.empty());
-            jsonObject[newId] = PropertyTreeScalar{ modelName };
+            jsonObject[newId] = Mernel::PropertyTreeScalar{ modelName };
         }
     }
 }

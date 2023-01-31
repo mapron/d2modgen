@@ -12,7 +12,7 @@ class ModuleQol : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::qualityOfLife;
 
-    ModuleQol(PropertyTree moduleMetadata, std::string id)
+    ModuleQol(Mernel::PropertyTree moduleMetadata, std::string id)
         : PluginModule(std::move(moduleMetadata), std::move(id))
     {}
 

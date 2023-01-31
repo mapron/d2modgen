@@ -103,7 +103,7 @@ void ConfigPageMergeModsItem::setModList(const QStringList& mods)
     setMod(m_currentMod);
 }
 
-void ConfigPageMergeModsItem::readSettings(const PropertyTree& data)
+void ConfigPageMergeModsItem::readSettings(const Mernel::PropertyTree& data)
 {
     m_readingSettings = true;
     m_typeSelect->setCurrentIndex(std::max(0, m_typeIndex.indexOf(static_cast<StorageType>(data["type"].getScalar().toInt()))));
@@ -113,12 +113,12 @@ void ConfigPageMergeModsItem::readSettings(const PropertyTree& data)
     m_readingSettings = false;
 }
 
-void ConfigPageMergeModsItem::writeSettings(PropertyTree& data) const
+void ConfigPageMergeModsItem::writeSettings(Mernel::PropertyTree& data) const
 {
-    data["type"]   = PropertyTreeScalar{ static_cast<int64_t>(m_typeIndex[m_typeSelect->currentIndex()]) };
-    data["policy"] = PropertyTreeScalar{ static_cast<int64_t>(m_policyIndex[m_policySelect->currentIndex()]) };
-    data["mod"]    = PropertyTreeScalar{ m_currentMod.toStdString() };
-    data["folder"] = PropertyTreeScalar{ m_folderCSV->text().toStdString() };
+    data["type"]   = Mernel::PropertyTreeScalar{ static_cast<int64_t>(m_typeIndex[m_typeSelect->currentIndex()]) };
+    data["policy"] = Mernel::PropertyTreeScalar{ static_cast<int64_t>(m_policyIndex[m_policySelect->currentIndex()]) };
+    data["mod"]    = Mernel::PropertyTreeScalar{ m_currentMod.toStdString() };
+    data["folder"] = Mernel::PropertyTreeScalar{ m_folderCSV->text().toStdString() };
 }
 
 void ConfigPageMergeModsItem::setMod(const QString& mod)
@@ -175,25 +175,25 @@ void ConfigPageMergeMods::updateModList(const QStringList& mods)
         item->setModList(mods);
 }
 
-void ConfigPageMergeMods::updateUIFromSettings(const PropertyTree& data)
+void ConfigPageMergeMods::updateUIFromSettings(const Mernel::PropertyTree& data)
 {
-    const int count = data.value("sourceCount", 0).toInt();
+    const int count = data.value("sourceCount", Mernel::PropertyTreeScalar(0)).toInt();
     m_countSpinbox->blockSignals(true);
     m_countSpinbox->setValue(count);
     m_countSpinbox->blockSignals(false);
     setItemsCount(count);
     for (int i = 0; i < count; ++i) {
-        const PropertyTree& itemData = data[QString("item_%1").arg(i).toStdString()];
+        const Mernel::PropertyTree& itemData = data[QString("item_%1").arg(i).toStdString()];
         m_items[i]->readSettings(itemData);
     }
 }
 
-void ConfigPageMergeMods::writeSettingsFromUI(PropertyTree& data) const
+void ConfigPageMergeMods::writeSettingsFromUI(Mernel::PropertyTree& data) const
 {
     const int64_t count = m_countSpinbox->value();
-    data["sourceCount"] = PropertyTreeScalar{ count };
+    data["sourceCount"] = Mernel::PropertyTreeScalar{ count };
     for (int i = 0; i < count; ++i) {
-        PropertyTree& itemData = data[QString("item_%1").arg(i).toStdString()];
+        Mernel::PropertyTree& itemData = data[QString("item_%1").arg(i).toStdString()];
         m_items[i]->writeSettings(itemData);
     }
 }

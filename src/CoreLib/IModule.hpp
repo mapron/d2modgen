@@ -6,7 +6,7 @@
 #pragma once
 
 #include "CommonTypes.hpp"
-#include "PropertyTree.hpp"
+#include "MernelPlatform/PropertyTree.hpp"
 
 #include <memory>
 
@@ -35,8 +35,8 @@ public:
     };
 
     struct InputContext {
-        PropertyTree          m_settings;
-        PropertyTree          m_mergedSettings;
+        Mernel::PropertyTree  m_settings;
+        Mernel::PropertyTree  m_mergedSettings;
         GenerationEnvironment m_env;
 
         bool isAllDefault() const noexcept
@@ -62,7 +62,7 @@ public:
             return !m_settings.contains(key);
         }
 
-        const PropertyTreeScalar& getScalar(const std::string& key) const noexcept(false)
+        const Mernel::PropertyTreeScalar& getScalar(const std::string& key) const noexcept(false)
         {
             return m_mergedSettings.getMap().at(key).getScalar();
         }
@@ -80,8 +80,8 @@ public:
 public:
     virtual std::string settingKey() const = 0;
 
-    virtual const PropertyTree&   pluginInfo() const    = 0;
-    virtual const PropertyTree&   defaultValues() const = 0;
+    virtual const Mernel::PropertyTree& pluginInfo() const    = 0;
+    virtual const Mernel::PropertyTree& defaultValues() const = 0;
 
     virtual void gatherInfo(PreGenerationContext& output, const InputContext& input) const            = 0;
     virtual void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const = 0;

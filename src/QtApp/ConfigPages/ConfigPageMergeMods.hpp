@@ -22,8 +22,8 @@ public:
 
     void setModList(const QStringList& mods);
 
-    void readSettings(const PropertyTree& data);
-    void writeSettings(PropertyTree& data) const;
+    void readSettings(const Mernel::PropertyTree& data);
+    void writeSettings(Mernel::PropertyTree& data) const;
 
 signals:
     void dataChanged();
@@ -55,8 +55,8 @@ public:
 
     // IConfigPage interface
 public:
-    void updateUIFromSettings(const PropertyTree& data) override;
-    void writeSettingsFromUI(PropertyTree& data) const override;
+    void updateUIFromSettings(const Mernel::PropertyTree& data) override;
+    void writeSettingsFromUI(Mernel::PropertyTree& data) const override;
 
     QString pageHelp() const override;
 

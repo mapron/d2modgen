@@ -21,28 +21,28 @@ ConfigPageAbstract::ConfigPageAbstract(const std::string& localeId, const IModul
 
     const auto& info = module->pluginInfo();
 
-    const PropertyTree  emptyMap       = []() { PropertyTree val; val.convertToMap(); return val; }();
-    const PropertyTree  emptyList      = []() { PropertyTree val; val.convertToList(); return val; }();
-    const PropertyTree& allLocales     = info.contains("locales") ? info["locales"] : emptyMap;
-    const PropertyTree& mainLocaleData = allLocales.contains(localeId) ? allLocales[localeId] : emptyMap;
-    const PropertyTree& enLocaleData   = allLocales.contains("en_US") ? allLocales["en_US"] : emptyMap;
+    const Mernel::PropertyTree  emptyMap       = []() { Mernel::PropertyTree val; val.convertToMap(); return val; }();
+    const Mernel::PropertyTree  emptyList      = []() { Mernel::PropertyTree val; val.convertToList(); return val; }();
+    const Mernel::PropertyTree& allLocales     = info.contains("locales") ? info["locales"] : emptyMap;
+    const Mernel::PropertyTree& mainLocaleData = allLocales.contains(localeId) ? allLocales[localeId] : emptyMap;
+    const Mernel::PropertyTree& enLocaleData   = allLocales.contains("en_US") ? allLocales["en_US"] : emptyMap;
 
-    const PropertyTree& mainLocaleDataTitles   = mainLocaleData.contains("controlsTitles") ? mainLocaleData["controlsTitles"] : emptyMap;
-    const PropertyTree& mainLocaleDataSuffixes = mainLocaleData.contains("controlsSuffixes") ? mainLocaleData["controlsSuffixes"] : emptyMap;
-    const PropertyTree& mainLocaleDataHelps    = mainLocaleData.contains("controlsHelps") ? mainLocaleData["controlsHelps"] : emptyMap;
+    const Mernel::PropertyTree& mainLocaleDataTitles   = mainLocaleData.contains("controlsTitles") ? mainLocaleData["controlsTitles"] : emptyMap;
+    const Mernel::PropertyTree& mainLocaleDataSuffixes = mainLocaleData.contains("controlsSuffixes") ? mainLocaleData["controlsSuffixes"] : emptyMap;
+    const Mernel::PropertyTree& mainLocaleDataHelps    = mainLocaleData.contains("controlsHelps") ? mainLocaleData["controlsHelps"] : emptyMap;
 
-    const PropertyTree& enLocaleDataTitles   = enLocaleData.contains("controlsTitles") ? enLocaleData["controlsTitles"] : emptyMap;
-    const PropertyTree& enLocaleDataSuffixes = enLocaleData.contains("controlsSuffixes") ? enLocaleData["controlsSuffixes"] : emptyMap;
-    const PropertyTree& enLocaleDataHelps    = enLocaleData.contains("controlsHelps") ? enLocaleData["controlsHelps"] : emptyMap;
+    const Mernel::PropertyTree& enLocaleDataTitles   = enLocaleData.contains("controlsTitles") ? enLocaleData["controlsTitles"] : emptyMap;
+    const Mernel::PropertyTree& enLocaleDataSuffixes = enLocaleData.contains("controlsSuffixes") ? enLocaleData["controlsSuffixes"] : emptyMap;
+    const Mernel::PropertyTree& enLocaleDataHelps    = enLocaleData.contains("controlsHelps") ? enLocaleData["controlsHelps"] : emptyMap;
 
-    auto readLocList = [](const PropertyTree& mainData, const PropertyTree& enData, const std::string& key) -> QStringList {
-        auto readOneValue = [](const PropertyTree& data, const std::string& key) -> QStringList {
+    auto readLocList = [](const Mernel::PropertyTree& mainData, const Mernel::PropertyTree& enData, const std::string& key) -> QStringList {
+        auto readOneValue = [](const Mernel::PropertyTree& data, const std::string& key) -> QStringList {
             if (!data.contains(key))
                 return {};
-            const PropertyTree& child = data[key];
+            const Mernel::PropertyTree& child = data[key];
             if (child.isList()) {
                 QStringList result;
-                for (const PropertyTree& grandchild : child.getList()) {
+                for (const Mernel::PropertyTree& grandchild : child.getList()) {
                     auto v = grandchild.getScalar().toString();
                     if (!v.empty())
                         result << QString::fromStdString(v);
@@ -62,11 +62,11 @@ ConfigPageAbstract::ConfigPageAbstract(const std::string& localeId, const IModul
 
         return {};
     };
-    auto readLoc = [&readLocList](const PropertyTree& mainData, const PropertyTree& enData, const std::string& key, const QString& defaultValue) -> QString {
+    auto readLoc = [&readLocList](const Mernel::PropertyTree& mainData, const Mernel::PropertyTree& enData, const std::string& key, const QString& defaultValue) -> QString {
         auto l = readLocList(mainData, enData, key);
         return l.isEmpty() ? defaultValue : l.join("\n");
     };
-    auto readStringList = [&readLocList](const PropertyTree& mainData, const PropertyTree& enData, size_t expectedSize) {
+    auto readStringList = [&readLocList](const Mernel::PropertyTree& mainData, const Mernel::PropertyTree& enData, size_t expectedSize) {
         const QStringList main = readLocList(mainData, enData, "presets");
         QStringList       result;
         for (size_t i = 0; i < expectedSize; ++i)
@@ -93,19 +93,19 @@ ConfigPageAbstract::ConfigPageAbstract(const std::string& localeId, const IModul
 
     if (info.contains("controls")) {
         auto controlsList = info["controls"].getList();
-        for (const PropertyTree& controlData : controlsList) {
-            std::string          type = controlData.value("type", "").toString();
-            std::string          id   = controlData.value("id", "").toString();
+        for (const Mernel::PropertyTree& controlData : controlsList) {
+            std::string          type = controlData.value("type", Mernel::PropertyTreeScalar("")).toString();
+            std::string          id   = controlData.value("id", Mernel::PropertyTreeScalar("")).toString();
             IValueWidget::Params hint;
-            hint.m_compact = controlData.value("compact", false).toBool();
+            hint.m_compact = controlData.value("compact", Mernel::PropertyTreeScalar(false)).toBool();
             if (type == "sliderMinMax") {
                 hint.m_control = IValueWidget::Control::SliderMinMax;
-                hint.m_min     = controlData.value("min", 0).toInt();
-                hint.m_max     = controlData.value("max", 100).toInt();
+                hint.m_min     = controlData.value("min", Mernel::PropertyTreeScalar(0)).toInt();
+                hint.m_max     = controlData.value("max", Mernel::PropertyTreeScalar(100)).toInt();
             } else if (type == "slider") {
                 hint.m_control = IValueWidget::Control::Slider;
-                hint.m_mult    = controlData.value("mult", 10.).toDouble();
-                hint.m_denom   = controlData.value("denom", 10.).toDouble();
+                hint.m_mult    = controlData.value("mult", Mernel::PropertyTreeScalar(10.)).toDouble();
+                hint.m_denom   = controlData.value("denom", Mernel::PropertyTreeScalar(10.)).toDouble();
             } else if (type == "checkbox") {
                 hint.m_control = IValueWidget::Control::CheckBox;
             } else if (type == "lineedit") {
@@ -138,7 +138,7 @@ QString ConfigPageAbstract::pageHelp() const
     return m_help;
 }
 
-void ConfigPageAbstract::updateUIFromSettings(const PropertyTree& data)
+void ConfigPageAbstract::updateUIFromSettings(const Mernel::PropertyTree& data)
 {
     for (const auto& p : m_editors) {
         const auto& key = p.first;
@@ -149,7 +149,7 @@ void ConfigPageAbstract::updateUIFromSettings(const PropertyTree& data)
     }
 }
 
-void ConfigPageAbstract::writeSettingsFromUI(PropertyTree& data) const
+void ConfigPageAbstract::writeSettingsFromUI(Mernel::PropertyTree& data) const
 {
     for (const auto& p : m_editors) {
         const auto& key = p.first;

@@ -7,7 +7,7 @@
 
 #include <QWidget>
 
-#include "PropertyTree.hpp"
+#include "MernelPlatform/PropertyTree.hpp"
 
 #include "IModule.hpp"
 
@@ -43,8 +43,8 @@ public:
         : QWidget(parent)
     {}
 
-    virtual PropertyTree getValue() const                    = 0;
-    virtual void         setValue(const PropertyTree& value) = 0;
+    virtual Mernel::PropertyTree getValue() const                    = 0;
+    virtual void         setValue(const Mernel::PropertyTree& value) = 0;
 
 signals:
     void dataChanged();

@@ -105,9 +105,9 @@ private:
 
 // Tree
 
-class PropertyTreeScalar {
+class Mernel::PropertyTreeScalar {
 public:
-    PropertyTreeScalar(CPropertyTreeScalar cscalar)
+    Mernel::PropertyTreeScalar(CPropertyTreeScalar cscalar)
         : m_cscalar(cscalar)
     {}
     bool isNull() const { return treeScalar_isNull(m_cscalar); }
@@ -125,7 +125,7 @@ private:
     CPropertyTreeScalar m_cscalar;
 };
 
-class PropertyTree;
+class Mernel::PropertyTree;
 
 class PropertyTreeList {
 public:
@@ -148,16 +148,16 @@ public:
         CPropertyTree val = treeMap_value(m_cmap, key.c_str());
         return val.opaque != nullptr;
     }
-    PropertyTree       value(const std::string& key) const;
-    PropertyTreeScalar scalarValue(const std::string& key) const;
+    Mernel::PropertyTree       value(const std::string& key) const;
+    Mernel::PropertyTreeScalar scalarValue(const std::string& key) const;
 
 private:
     CPropertyTreeMap m_cmap;
 };
 
-class PropertyTree {
+class Mernel::PropertyTree {
 public:
-    PropertyTree(CPropertyTree ctree)
+    Mernel::PropertyTree(CPropertyTree ctree)
         : m_ctree(ctree)
     {}
 
@@ -166,10 +166,10 @@ public:
     bool isList() const { return tree_isList(m_ctree); }
     bool isMap() const { return tree_isMap(m_ctree); }
 
-    PropertyTreeScalar getScalar() const
+    Mernel::PropertyTreeScalar getScalar() const
     {
         CPropertyTreeScalar cscalar = tree_getScalar(m_ctree);
-        return PropertyTreeScalar(cscalar);
+        return Mernel::PropertyTreeScalar(cscalar);
     }
     PropertyTreeList getList() const
     {
@@ -186,16 +186,16 @@ private:
     CPropertyTree m_ctree;
 };
 
-inline PropertyTree PropertyTreeMap::value(const std::string& key) const
+inline Mernel::PropertyTree PropertyTreeMap::value(const std::string& key) const
 {
     CPropertyTree val = treeMap_value(m_cmap, key.c_str());
-    return PropertyTree(val);
+    return Mernel::PropertyTree(val);
 }
 
-inline PropertyTreeScalar PropertyTreeMap::scalarValue(const std::string& key) const
+inline Mernel::PropertyTreeScalar PropertyTreeMap::scalarValue(const std::string& key) const
 {
     CPropertyTree val = treeMap_value(m_cmap, key.c_str());
-    return PropertyTree(val).getScalar();
+    return Mernel::PropertyTree(val).getScalar();
 }
 
 }

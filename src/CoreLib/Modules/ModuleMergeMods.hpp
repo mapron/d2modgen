@@ -11,7 +11,7 @@ namespace D2ModGen {
 
 class ModuleMergeMods : public PluginModule {
 public:
-    ModuleMergeMods(PropertyTree moduleMetadata, std::string id)
+    ModuleMergeMods(Mernel::PropertyTree moduleMetadata, std::string id)
         : PluginModule(std::move(moduleMetadata), std::move(id))
     {}
 
@@ -23,7 +23,7 @@ class ModuleMergeModsPreload : public ModuleMergeMods {
 public:
     static constexpr const std::string_view key = Key::mergePregen;
 
-    ModuleMergeModsPreload(PropertyTree moduleMetadata, std::string id)
+    ModuleMergeModsPreload(Mernel::PropertyTree moduleMetadata, std::string id)
         : ModuleMergeMods(std::move(moduleMetadata), std::move(id))
     {}
     void gatherInfo(PreGenerationContext& output, const InputContext& input) const override
@@ -36,7 +36,7 @@ class ModuleMergeModsPostGen : public ModuleMergeMods {
 public:
     static constexpr const std::string_view key = Key::mergePostgen;
 
-    ModuleMergeModsPostGen(PropertyTree moduleMetadata, std::string id)
+    ModuleMergeModsPostGen(Mernel::PropertyTree moduleMetadata, std::string id)
         : ModuleMergeMods(std::move(moduleMetadata), std::move(id))
     {}
 

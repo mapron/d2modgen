@@ -34,14 +34,14 @@ LineWidget::LineWidget(const Params& params,
 
 LineWidget::~LineWidget() = default;
 
-void LineWidget::setValue(const PropertyTree& value)
+void LineWidget::setValue(const Mernel::PropertyTree& value)
 {
     m_lineEdit->setText(QString::fromStdString(value.getScalar().toString()));
 }
 
-PropertyTree LineWidget::getValue() const
+Mernel::PropertyTree LineWidget::getValue() const
 {
-    return PropertyTreeScalar{ m_lineEdit->text().toStdString() };
+    return Mernel::PropertyTreeScalar{ m_lineEdit->text().toStdString() };
 }
 
 }

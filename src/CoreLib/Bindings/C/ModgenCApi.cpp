@@ -7,7 +7,7 @@
 #include "ModgenCApi.h"
 
 #include "TableUtils.hpp"
-#include "PropertyTree.hpp"
+#include "MernelPlatform/PropertyTree.hpp"
 
 using namespace D2ModGen;
 
@@ -82,108 +82,108 @@ int32_t cell_getDataInt(CCell ccell)
 
 int8_t tree_isNull(CPropertyTree ctree)
 {
-    const auto* ptree = static_cast<const PropertyTree*>(ctree.opaque);
+    const auto* ptree = static_cast<const Mernel::PropertyTree*>(ctree.opaque);
     return ptree->isNull();
 }
 
 int8_t tree_isScalar(CPropertyTree ctree)
 {
-    const auto* ptree = static_cast<const PropertyTree*>(ctree.opaque);
+    const auto* ptree = static_cast<const Mernel::PropertyTree*>(ctree.opaque);
     return ptree->isScalar();
 }
 
 int8_t tree_isList(CPropertyTree ctree)
 {
-    const auto* ptree = static_cast<const PropertyTree*>(ctree.opaque);
+    const auto* ptree = static_cast<const Mernel::PropertyTree*>(ctree.opaque);
     return ptree->isList();
 }
 
 int8_t tree_isMap(CPropertyTree ctree)
 {
-    const auto* ptree = static_cast<const PropertyTree*>(ctree.opaque);
+    const auto* ptree = static_cast<const Mernel::PropertyTree*>(ctree.opaque);
     return ptree->isMap();
 }
 
 CPropertyTreeScalar tree_getScalar(CPropertyTree ctree)
 {
-    const auto* ptree   = static_cast<const PropertyTree*>(ctree.opaque);
+    const auto* ptree   = static_cast<const Mernel::PropertyTree*>(ctree.opaque);
     const auto& pscalar = ptree->getScalar();
     return { &pscalar };
 }
 
 CPropertyTreeList tree_getList(CPropertyTree ctree)
 {
-    const auto* ptree = static_cast<const PropertyTree*>(ctree.opaque);
+    const auto* ptree = static_cast<const Mernel::PropertyTree*>(ctree.opaque);
     const auto& plist = ptree->getList();
     return { &plist };
 }
 
 CPropertyTreeMap tree_getMap(CPropertyTree ctree)
 {
-    const auto* ptree = static_cast<const PropertyTree*>(ctree.opaque);
+    const auto* ptree = static_cast<const Mernel::PropertyTree*>(ctree.opaque);
     const auto& pmap  = ptree->getMap();
     return { &pmap };
 }
 
 CPropertyTree treeMap_value(CPropertyTreeMap ctreemap, const char* key)
 {
-    const auto* pmap = static_cast<const PropertyTreeMap*>(ctreemap.opaque);
+    const auto* pmap = static_cast<const Mernel::PropertyTreeMap*>(ctreemap.opaque);
     if (!pmap->contains(key))
         return { nullptr };
-    const PropertyTree& child = pmap->at(key);
+    const Mernel::PropertyTree& child = pmap->at(key);
     return { &child };
 }
 
 int8_t treeScalar_isNull(CPropertyTreeScalar cscalar)
 {
-    const auto* pscalar = static_cast<const PropertyTreeScalar*>(cscalar.opaque);
+    const auto* pscalar = static_cast<const Mernel::PropertyTreeScalar*>(cscalar.opaque);
     return pscalar->isNull();
 }
 
 int8_t treeScalar_isBool(CPropertyTreeScalar cscalar)
 {
-    const auto* pscalar = static_cast<const PropertyTreeScalar*>(cscalar.opaque);
+    const auto* pscalar = static_cast<const Mernel::PropertyTreeScalar*>(cscalar.opaque);
     return pscalar->isBool();
 }
 
 int8_t treeScalar_isInt(CPropertyTreeScalar cscalar)
 {
-    const auto* pscalar = static_cast<const PropertyTreeScalar*>(cscalar.opaque);
+    const auto* pscalar = static_cast<const Mernel::PropertyTreeScalar*>(cscalar.opaque);
     return pscalar->isInt();
 }
 
 int8_t treeScalar_isDouble(CPropertyTreeScalar cscalar)
 {
-    const auto* pscalar = static_cast<const PropertyTreeScalar*>(cscalar.opaque);
+    const auto* pscalar = static_cast<const Mernel::PropertyTreeScalar*>(cscalar.opaque);
     return pscalar->isDouble();
 }
 
 int8_t treeScalar_isString(CPropertyTreeScalar cscalar)
 {
-    const auto* pscalar = static_cast<const PropertyTreeScalar*>(cscalar.opaque);
+    const auto* pscalar = static_cast<const Mernel::PropertyTreeScalar*>(cscalar.opaque);
     return pscalar->isString();
 }
 
 int8_t treeScalar_toBool(CPropertyTreeScalar cscalar)
 {
-    const auto* pscalar = static_cast<const PropertyTreeScalar*>(cscalar.opaque);
+    const auto* pscalar = static_cast<const Mernel::PropertyTreeScalar*>(cscalar.opaque);
     return pscalar->toBool();
 }
 
 int64_t treeScalar_toInt(CPropertyTreeScalar cscalar)
 {
-    const auto* pscalar = static_cast<const PropertyTreeScalar*>(cscalar.opaque);
+    const auto* pscalar = static_cast<const Mernel::PropertyTreeScalar*>(cscalar.opaque);
     return pscalar->toInt();
 }
 
 const char* treeScalar_toString(CPropertyTreeScalar cscalar)
 {
-    const auto* pscalar = static_cast<const PropertyTreeScalar*>(cscalar.opaque);
+    const auto* pscalar = static_cast<const Mernel::PropertyTreeScalar*>(cscalar.opaque);
     return pscalar->toCString();
 }
 
 double treeScalar_toDouble(CPropertyTreeScalar cscalar)
 {
-    const auto* pscalar = static_cast<const PropertyTreeScalar*>(cscalar.opaque);
+    const auto* pscalar = static_cast<const Mernel::PropertyTreeScalar*>(cscalar.opaque);
     return pscalar->toDouble();
 }

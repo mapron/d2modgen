@@ -12,7 +12,7 @@ class ModuleRequirements : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::requirements;
 
-    ModuleRequirements(PropertyTree moduleMetadata, std::string id)
+    ModuleRequirements(Mernel::PropertyTree moduleMetadata, std::string id)
         : PluginModule(std::move(moduleMetadata), std::move(id))
     {}
 

@@ -6,7 +6,7 @@
 #pragma once
 
 #include "DataContext.hpp"
-#include "PropertyTree.hpp"
+#include "MernelPlatform/PropertyTree.hpp"
 #include "IModule.hpp"
 
 #include <QWidget>
@@ -18,7 +18,7 @@ class IConfigPage : public QWidget {
 public:
     struct Preset {
         QString      m_title;
-        PropertyTree m_data;
+        Mernel::PropertyTree m_data;
     };
     using PresetList = std::vector<Preset>;
 
@@ -31,8 +31,8 @@ public:
     virtual QString    pageHelp() const    = 0;
     virtual PresetList pagePresets() const = 0;
 
-    virtual void updateUIFromSettings(const PropertyTree& data) = 0;
-    virtual void writeSettingsFromUI(PropertyTree& data) const  = 0;
+    virtual void updateUIFromSettings(const Mernel::PropertyTree& data) = 0;
+    virtual void writeSettingsFromUI(Mernel::PropertyTree& data) const  = 0;
 
     virtual void updateModList(const QStringList& mods) = 0;
 

@@ -7,21 +7,21 @@
 
 #include "FileIOUtils.hpp"
 #include "DyLib.hpp"
-#include "Formats/FileFormatJson.hpp"
+#include "MernelPlatform/FileFormatJson.hpp"
 #include "Logger.hpp"
 
 #include "Bindings/C/ModgenCApi.h"
 
 namespace D2ModGen {
 
-PluginModule::PluginModule(PropertyTree moduleMetadata, std::string id, std::string idPrefix)
+PluginModule::PluginModule(Mernel::PropertyTree moduleMetadata, std::string id, std::string idPrefix)
     : m_info(std::move(moduleMetadata))
-    , m_defaults(m_info.contains("defaults") ? m_info["defaults"] : PropertyTree{ PropertyTreeScalarMap{} })
+    , m_defaults(m_info.contains("defaults") ? m_info["defaults"] : Mernel::PropertyTree{ Mernel::PropertyTreeScalarMap{} })
     , m_id(std::move(id))
     , m_idPrefix(std::move(idPrefix))
 {
-    const bool        hasDylib = m_info.value("hasDylib", false).toBool();
-    const std::string root     = m_info.value("root", "").toString();
+    const bool        hasDylib = m_info.value("hasDylib", Mernel::PropertyTreeScalar(false)).toBool();
+    const std::string root     = m_info.value("root", Mernel::PropertyTreeScalar("")).toString();
     if (hasDylib) {
         m_dylib        = std::make_unique<DyLib>(string2path(root), m_id);
         m_generateAddr = m_dylib->getProc("generate");

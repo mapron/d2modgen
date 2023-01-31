@@ -21,7 +21,7 @@ FactoryMap& getFactory()
 
 }
 
-IModule::Ptr createModule(PropertyTree moduleMetaData, std::string id)
+IModule::Ptr createModule(Mernel::PropertyTree moduleMetaData, std::string id)
 {
     const auto& factory = getFactory();
     if (!factory.contains(id)) {

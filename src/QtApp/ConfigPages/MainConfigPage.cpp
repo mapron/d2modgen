@@ -10,7 +10,7 @@
 #include "ModuleFactory.hpp"
 #include "Logger.hpp"
 
-#include "Formats/FileFormatJson.hpp"
+#include "MernelPlatform/FileFormatJson.hpp"
 
 #include <QLayout>
 #include <QLineEdit>
@@ -331,17 +331,17 @@ IConfigPage::PresetList MainConfigPage::pagePresets() const
     return {};
 }
 
-void MainConfigPage::updateUIFromSettings(const PropertyTree& data)
+void MainConfigPage::updateUIFromSettings(const Mernel::PropertyTree& data)
 {
-    m_impl->addKeys->setChecked(data.value("addKeys", true).toBool());
+    m_impl->addKeys->setChecked(data.value("addKeys", Mernel::PropertyTreeScalar(true)).toBool());
 }
 
-void MainConfigPage::writeSettingsFromUI(PropertyTree& data) const
+void MainConfigPage::writeSettingsFromUI(Mernel::PropertyTree& data) const
 {
-    data["addKeys"] = PropertyTreeScalar{ m_impl->addKeys->isChecked() };
+    data["addKeys"] = Mernel::PropertyTreeScalar{ m_impl->addKeys->isChecked() };
 }
 
-void MainConfigPage::updateUIFromSettingsMain(const PropertyTree& data)
+void MainConfigPage::updateUIFromSettingsMain(const Mernel::PropertyTree& data)
 {
     if (data.contains("modname"))
         m_impl->modName->setText(QString::fromStdString(data["modname"].getScalar().toString()));
@@ -363,22 +363,22 @@ void MainConfigPage::updateUIFromSettingsMain(const PropertyTree& data)
     else
         m_impl->d2legacyPath->setText(getInstallLocationFromRegistry(false));
 
-    m_impl->d2legacyMode->setChecked(data.value("isLegacy", false).toBool());
-    m_impl->exportAll->setChecked(data.value("exportAllTables", false).toBool());
-    m_impl->outPath->setText(QString::fromStdString(data.value("outPath", "").toString()));
+    m_impl->d2legacyMode->setChecked(data.value("isLegacy", Mernel::PropertyTreeScalar(false)).toBool());
+    m_impl->exportAll->setChecked(data.value("exportAllTables", Mernel::PropertyTreeScalar(false)).toBool());
+    m_impl->outPath->setText(QString::fromStdString(data.value("outPath", Mernel::PropertyTreeScalar("")).toString()));
 }
 
-void MainConfigPage::writeSettingsFromUIMain(PropertyTree& data) const
+void MainConfigPage::writeSettingsFromUIMain(Mernel::PropertyTree& data) const
 {
-    data["modname"]         = PropertyTreeScalar{ m_impl->modName->text().toStdString() };
-    data["seed"]            = PropertyTreeScalar{ static_cast<int64_t>(m_impl->seed->text().toUInt()) };
-    data["d2rPath"]         = PropertyTreeScalar{ m_impl->d2rPath->text().toStdString() };
-    data["d2legacyPath"]    = PropertyTreeScalar{ m_impl->d2legacyPath->text().toStdString() };
-    data["isLegacy"]        = PropertyTreeScalar{ m_impl->d2legacyMode->isChecked() };
-    data["exportAllTables"] = PropertyTreeScalar{ m_impl->exportAll->isChecked() };
-    data["outPath"]         = PropertyTreeScalar{ m_impl->outPath->text().toStdString() };
+    data["modname"]         = Mernel::PropertyTreeScalar{ m_impl->modName->text().toStdString() };
+    data["seed"]            = Mernel::PropertyTreeScalar{ static_cast<int64_t>(m_impl->seed->text().toUInt()) };
+    data["d2rPath"]         = Mernel::PropertyTreeScalar{ m_impl->d2rPath->text().toStdString() };
+    data["d2legacyPath"]    = Mernel::PropertyTreeScalar{ m_impl->d2legacyPath->text().toStdString() };
+    data["isLegacy"]        = Mernel::PropertyTreeScalar{ m_impl->d2legacyMode->isChecked() };
+    data["exportAllTables"] = Mernel::PropertyTreeScalar{ m_impl->exportAll->isChecked() };
+    data["outPath"]         = Mernel::PropertyTreeScalar{ m_impl->outPath->text().toStdString() };
 
-    Logger() << "seed after write:" << static_cast<uint32_t>(data.value("seed", 0).toInt());
+    Logger() << "seed after write:" << static_cast<uint32_t>(data.value("seed", Mernel::PropertyTreeScalar(0)).toInt());
 }
 
 const IModule& MainConfigPage::getModule() const
@@ -394,19 +394,19 @@ void MainConfigPage::setLaunch(QString arg)
         return;
     }
     const auto   configPath = string2path(config.toStdString());
-    PropertyTree doc;
+    Mernel::PropertyTree doc;
     std::string  buffer;
-    if (!readFileIntoBuffer(configPath, buffer) || !readJsonFromBuffer(buffer, doc)) {
+    if (!readFileIntoBuffer(configPath, buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
         QMessageBox::warning(this, "warning", "Failed to read data from Battle.net.config");
         return;
     }
 
     auto& valGames                      = doc["Games"].getMap();
     auto& valOsi                        = valGames["osi"];
-    valOsi["AdditionalLaunchArguments"] = PropertyTree(arg.toStdString());
+    valOsi["AdditionalLaunchArguments"] = Mernel::PropertyTreeScalar(arg.toStdString());
 
     buffer.clear();
-    writeJsonToBuffer(buffer, doc);
+    writeJsonToBufferNoexcept(buffer, doc);
     // buffer.replace(QByteArray("/"), QByteArray("\\/")); // weird battlenet format.
     if (!writeFileFromBuffer(configPath, buffer))
         QMessageBox::warning(this, "warning", "Failed to write data to Battle.net.config");

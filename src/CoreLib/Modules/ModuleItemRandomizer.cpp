@@ -523,7 +523,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     {
         if (repeatSets > 1 && output.jsonFiles.contains(s_itemsJson)) {
             auto&                               jsonDoc = output.jsonFiles[s_itemsJson];
-            std::map<std::string, PropertyTree> itemNamesByKey;
+            std::map<std::string, Mernel::PropertyTree> itemNamesByKey;
             for (const auto& itemDesc : jsonDoc.getList()) {
                 const std::string key = itemDesc["Key"].getScalar().toString();
                 itemNamesByKey[key]   = itemDesc;
@@ -532,24 +532,24 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             for (const auto& key : allItemsKeys) {
                 if (itemNamesByKey.contains(key))
                     continue;
-                PropertyTree itemDesc;
-                itemDesc["Key"]  = PropertyTreeScalar(key);
-                itemDesc["enUS"] = PropertyTreeScalar(key);
-                itemDesc["id"]   = PropertyTreeScalar(id++);
+                Mernel::PropertyTree itemDesc;
+                itemDesc["Key"]  = Mernel::PropertyTreeScalar(key);
+                itemDesc["enUS"] = Mernel::PropertyTreeScalar(key);
+                itemDesc["id"]   = Mernel::PropertyTreeScalar(id++);
                 jsonDoc.append(itemDesc);
                 itemNamesByKey[key] = itemDesc;
             }
             for (int i = 2; i <= repeatSets; ++i) {
                 for (const auto& key : setItemsKeys) {
                     const std::string keyCopy  = key + " " + std::to_string(i);
-                    PropertyTree      itemDesc = itemNamesByKey[key];
-                    itemDesc["Key"]            = PropertyTreeScalar(keyCopy);
-                    itemDesc["id"]             = PropertyTreeScalar(id++);
+                    Mernel::PropertyTree      itemDesc = itemNamesByKey[key];
+                    itemDesc["Key"]            = Mernel::PropertyTreeScalar(keyCopy);
+                    itemDesc["id"]             = Mernel::PropertyTreeScalar(id++);
                     for (auto& [locKey, locValue] : itemDesc.getMap()) {
                         if (locKey == "Key" || locKey == "id")
                             continue;
                         const auto str = locValue.getScalar().toString();
-                        locValue       = PropertyTreeScalar(str + " " + std::to_string(i));
+                        locValue       = Mernel::PropertyTreeScalar(str + " " + std::to_string(i));
                     }
                     jsonDoc.append(itemDesc);
                 }

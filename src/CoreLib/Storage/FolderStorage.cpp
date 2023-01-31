@@ -8,7 +8,7 @@
 #include "FileIOUtils.hpp"
 #include "Logger.hpp"
 
-#include "Formats/FileFormatJson.hpp"
+#include "MernelPlatform/FileFormatJson.hpp"
 
 #include <cassert>
 
@@ -102,12 +102,12 @@ bool FolderStorage::prepareForWrite() const noexcept
         auto jsonPath = m_root / "modinfo.json";
         if (std_fs::exists(jsonPath))
             std_fs::remove(jsonPath);
-        PropertyTree modinfo;
+        Mernel::PropertyTree modinfo;
         modinfo.convertToMap();
-        modinfo["name"]     = PropertyTreeScalar(m_modName);
-        modinfo["savepath"] = PropertyTreeScalar(m_modName + "/");
+        modinfo["name"]     = Mernel::PropertyTreeScalar(m_modName);
+        modinfo["savepath"] = Mernel::PropertyTreeScalar(m_modName + "/");
         std::string buffer;
-        writeJsonToBuffer(buffer, modinfo);
+        writeJsonToBufferNoexcept(buffer, modinfo);
         if (!writeFileFromBuffer(jsonPath, buffer)) {
             Logger() << "Failed to write: " << jsonPath;
             return false;

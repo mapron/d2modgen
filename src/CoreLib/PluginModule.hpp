@@ -16,11 +16,11 @@ namespace D2ModGen {
 class DyLib;
 class PluginModule : public IModule {
 public:
-    PluginModule(PropertyTree moduleMetadata, std::string id, std::string idPrefix = "");
+    PluginModule(Mernel::PropertyTree moduleMetadata, std::string id, std::string idPrefix = "");
     ~PluginModule();
 
-    const PropertyTree& pluginInfo() const override { return m_info; }
-    const PropertyTree& defaultValues() const override { return m_defaults; }
+    const Mernel::PropertyTree& pluginInfo() const override { return m_info; }
+    const Mernel::PropertyTree& defaultValues() const override { return m_defaults; }
 
     std::string settingKey() const override { return m_idPrefix + m_id; }
 
@@ -28,8 +28,8 @@ public:
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 
 private:
-    const PropertyTree m_info;
-    const PropertyTree m_defaults;
+    const Mernel::PropertyTree m_info;
+    const Mernel::PropertyTree m_defaults;
     const std::string  m_id;
     const std::string  m_idPrefix;
 

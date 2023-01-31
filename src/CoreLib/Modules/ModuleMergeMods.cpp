@@ -17,10 +17,10 @@ const bool s_init2 = registerHelper<ModuleMergeModsPostGen>();
 
 void ModuleMergeMods::gatherInfoInternal(ExtraDependencies& output, const InputContext& input) const
 {
-    const int count = input.m_settings.value("sourceCount", 0).toInt();
+    const int count = input.m_settings.value("sourceCount", Mernel::PropertyTreeScalar(0)).toInt();
 
     for (int i = 0; i < count; ++i) {
-        const PropertyTree& itemData = input.m_settings[argCompat("item_%1", i)];
+        const Mernel::PropertyTree& itemData = input.m_settings[argCompat("item_%1", i)];
 
         auto type       = static_cast<StorageType>(itemData["type"].getScalar().toInt());
         auto policy     = static_cast<ConflictPolicy>(itemData["policy"].getScalar().toInt());

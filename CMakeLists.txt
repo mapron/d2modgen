@@ -50,7 +50,7 @@ AddTarget(TYPE shared NAME ModgenCore
     SOURCE_DIR ${sourceRoot}/CoreLib
 	INCLUDES   ${sourceRoot}/CoreLib
     EXPORT_INCLUDES
-    LINK_LIBRARIES rapidjson casclib stormlib
+    LINK_LIBRARIES rapidjson casclib stormlib MernelPlatform
     )
 
 
@@ -66,7 +66,7 @@ endforeach()
 # ConsoleApp
 AddTarget( TYPE app_console NAME modgen_console
     SOURCE_DIR ${sourceRoot}/ConsoleApp
-    LINK_LIBRARIES ModgenCore
+    LINK_LIBRARIES ModgenCore MernelPlatform
     )
 
 # TestPlugin
@@ -102,7 +102,7 @@ endif()
 AddTarget( TYPE app_ui NAME modgen
     SOURCE_DIR ${sourceRoot}/QtApp
     INCLUDES   ${sourceRoot}/QtApp
-    LINK_LIBRARIES ModgenCore
+    LINK_LIBRARIES ModgenCore MernelPlatform
     QT_MODULES Widgets Quick QuickWidgets QuickControls2
     )
 

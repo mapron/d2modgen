@@ -32,14 +32,14 @@ CheckboxWidget::CheckboxWidget(const Params& params,
 
 CheckboxWidget::~CheckboxWidget() = default;
 
-void CheckboxWidget::setValue(const PropertyTree& value)
+void CheckboxWidget::setValue(const Mernel::PropertyTree& value)
 {
     m_checkBox->setChecked(value.getScalar().toBool());
 }
 
-PropertyTree CheckboxWidget::getValue() const
+Mernel::PropertyTree CheckboxWidget::getValue() const
 {
-    return PropertyTreeScalar(m_checkBox->isChecked());
+    return Mernel::PropertyTreeScalar(m_checkBox->isChecked());
 }
 
 }

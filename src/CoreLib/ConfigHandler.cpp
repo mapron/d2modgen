@@ -14,7 +14,7 @@
 #include "Storage/StorageCache.hpp"
 #include "Storage/FolderStorage.hpp"
 
-#include "Formats/FileFormatJson.hpp"
+#include "MernelPlatform/FileFormatJson.hpp"
 
 #include <random>
 
@@ -32,16 +32,16 @@ ConfigHandler::ConfigHandler(const std::string& pluginsRoot)
         if (jsonDeclFilepath.extension() != ".json" || id.empty())
             continue;
 
-        std::string  buffer;
-        PropertyTree info;
-        if (!readFileIntoBuffer(jsonDeclFilepath, buffer) || !readJsonFromBuffer(buffer, info)) {
+        std::string          buffer;
+        Mernel::PropertyTree info;
+        if (!readFileIntoBuffer(jsonDeclFilepath, buffer) || !readJsonFromBufferNoexcept(buffer, info)) {
             Logger(Logger::Err) << "Failed to read json file for plugin:" << jsonDeclFilepath;
             continue;
         }
-        if (info.value("id", "").toString().empty())
-            info["id"] = PropertyTreeScalar(id);
-        id           = info.value("id", "").toString();
-        info["root"] = PropertyTreeScalar(path2string(jsonDeclFilepath.parent_path() / id));
+        if (info.value("id", Mernel::PropertyTreeScalar("")).toString().empty())
+            info["id"] = Mernel::PropertyTreeScalar(id);
+        id           = info.value("id", Mernel::PropertyTreeScalar("")).toString();
+        info["root"] = Mernel::PropertyTreeScalar(path2string(jsonDeclFilepath.parent_path() / id));
 
         try {
             auto pluginModule = createModule(info, id);
@@ -50,7 +50,7 @@ ConfigHandler::ConfigHandler(const std::string& pluginsRoot)
                 continue;
             }
 
-            m_modules[pluginModule->settingKey()] = { pluginModule, {}, true, pluginModule->pluginInfo().value("loadOrder", 1000).toInt() };
+            m_modules[pluginModule->settingKey()] = { pluginModule, {}, true, pluginModule->pluginInfo().value("loadOrder", Mernel::PropertyTreeScalar(1000)).toInt() };
 
             if (pluginModule->settingKey() != IModule::Key::testConfig)
                 m_pluginIds.push_back(pluginModule->settingKey());
@@ -65,10 +65,10 @@ ConfigHandler::ConfigHandler(const std::string& pluginsRoot)
 bool ConfigHandler::loadConfig(const std::string& filename)
 {
     Logger() << "Load:" << filename;
-    std::string  buffer;
-    PropertyTree doc;
-    if (!readFileIntoBuffer(string2path(filename), buffer) || !readJsonFromBuffer(buffer, doc)) {
-        loadConfig(PropertyTree{});
+    std::string          buffer;
+    Mernel::PropertyTree doc;
+    if (!readFileIntoBuffer(string2path(filename), buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
+        loadConfig(Mernel::PropertyTree{});
         return false;
     }
     return loadConfig(doc);
@@ -76,19 +76,19 @@ bool ConfigHandler::loadConfig(const std::string& filename)
 
 bool ConfigHandler::saveConfig(const std::string& filename) const
 {
-    PropertyTree data;
+    Mernel::PropertyTree data;
     saveConfig(data);
     if (!createDirectoriesForFile(string2path(filename)))
         return false;
     std::string buffer;
-    writeJsonToBuffer(buffer, data);
+    writeJsonToBufferNoexcept(buffer, data);
     return writeFileFromBuffer(string2path(filename), buffer);
 }
 
-bool ConfigHandler::loadConfig(const PropertyTree& data)
+bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data)
 {
     for (auto& p : m_modules) {
-        p.second.m_enabled = data.value(p.first + "_enabled", false).toBool();
+        p.second.m_enabled = data.value(p.first + "_enabled", Mernel::PropertyTreeScalar(false)).toBool();
 
         p.second.m_currentConfig = {};
         if (data.contains(p.first))
@@ -101,11 +101,11 @@ bool ConfigHandler::loadConfig(const PropertyTree& data)
     return true;
 }
 
-bool ConfigHandler::saveConfig(PropertyTree& data) const
+bool ConfigHandler::saveConfig(Mernel::PropertyTree& data) const
 {
     for (auto& p : m_modules) {
         data[p.first]              = p.second.m_currentConfig;
-        data[p.first + "_enabled"] = PropertyTreeScalar{ p.second.m_enabled };
+        data[p.first + "_enabled"] = Mernel::PropertyTreeScalar{ p.second.m_enabled };
     }
     data[std::string(IModule::Key::main)] = m_currentMainConfig;
     return true;
@@ -177,8 +177,9 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             IModule::InputContext input;
             input.m_env      = env;
             input.m_settings = p.second.m_currentConfig;
-            input.m_mergedSettings.merge(p.second.m_module->defaultValues());
-            input.m_mergedSettings.merge(input.m_settings);
+            Mernel::PropertyTree::mergePatch(input.m_mergedSettings, p.second.m_module->defaultValues());
+            Mernel::PropertyTree::mergePatch(input.m_mergedSettings, input.m_settings);
+
             p.second.m_module->gatherInfo(pregenContext, input);
         }
     }
@@ -222,8 +223,8 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             IModule::InputContext input;
             input.m_env      = env;
             input.m_settings = module->m_currentConfig;
-            input.m_mergedSettings.merge(module->m_module->defaultValues());
-            input.m_mergedSettings.merge(input.m_settings);
+            Mernel::PropertyTree::mergePatch(input.m_mergedSettings, module->m_module->defaultValues());
+            Mernel::PropertyTree::mergePatch(input.m_mergedSettings, input.m_settings);
 
             std::function<int(int)> r = [&engine](int bound) {
                 if (bound <= 1)
@@ -266,12 +267,12 @@ GenerationEnvironment ConfigHandler::getEnv() const
 {
     const auto&           c = m_currentMainConfig;
     GenerationEnvironment env;
-    env.modName         = c.value("modname", "").toString();
-    env.isLegacy        = c.value("isLegacy", false).toBool();
-    env.d2rPath         = ensureTrailingSlash(c.value(env.isLegacy ? "d2legacyPath" : "d2rPath", "").toString());
-    env.exportAllTables = c.value("exportAllTables", false).toBool();
-    env.seed            = static_cast<uint32_t>(c.value("seed", 0).toInt());
-    env.outPath         = ensureTrailingSlash(c.value("outPath", "").toString());
+    env.modName         = c.value("modname", Mernel::PropertyTreeScalar("")).toString();
+    env.isLegacy        = c.value("isLegacy", Mernel::PropertyTreeScalar(false)).toBool();
+    env.d2rPath         = ensureTrailingSlash(c.value(env.isLegacy ? "d2legacyPath" : "d2rPath", Mernel::PropertyTreeScalar("")).toString());
+    env.exportAllTables = c.value("exportAllTables", Mernel::PropertyTreeScalar(false)).toBool();
+    env.seed            = static_cast<uint32_t>(c.value("seed", Mernel::PropertyTreeScalar(0)).toInt());
+    env.outPath         = ensureTrailingSlash(c.value("outPath", Mernel::PropertyTreeScalar("")).toString());
     if (env.outPath.empty())
         env.outPath = env.d2rPath;
 

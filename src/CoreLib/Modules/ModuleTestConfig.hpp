@@ -12,7 +12,7 @@ class ModuleTestConfig : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::testConfig;
 
-    ModuleTestConfig(PropertyTree moduleMetadata, std::string id)
+    ModuleTestConfig(Mernel::PropertyTree moduleMetadata, std::string id)
         : PluginModule(std::move(moduleMetadata), std::move(id))
     {}
 

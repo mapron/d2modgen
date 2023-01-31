@@ -118,31 +118,31 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
         "", QList<IConfigPage*>{ m_mainPage }
     };
     QMap<std::string, QMap<int, QList<IConfigPage*>>> pluginConfigPagesOrd;
-    std::vector<std::pair<std::string, QString>> known{
-        { "randomizer", QObject::tr("Randomizers")},
-        { "harder", QObject::tr("Make harder")},
-        { "easier", QObject::tr("Make easier")},
+    std::vector<std::pair<std::string, QString>>      known{
+        { "randomizer", QObject::tr("Randomizers") },
+        { "harder", QObject::tr("Make harder") },
+        { "easier", QObject::tr("Make easier") },
         { "misc", QObject::tr("Misc") },
         { "", QObject::tr("Plugins") },
     };
     for (auto key : m_configHandler.m_pluginIds) {
         auto module = m_configHandler.getModule(key);
-        auto cat = module->pluginInfo().value("category", "").toString();
-        if (!std::set<std::string>{"easier", "harder","randomizer", "misc"}.contains(cat))
+        auto cat    = module->pluginInfo().value("category", Mernel::PropertyTreeScalar("")).toString();
+        if (!std::set<std::string>{ "easier", "harder", "randomizer", "misc" }.contains(cat))
             cat = "";
-        auto ord = module->pluginInfo().value("order", 1000).toInt();
+        auto ord = module->pluginInfo().value("order", Mernel::PropertyTreeScalar(1000)).toInt();
         pluginConfigPagesOrd[cat][ord] << createConfigPage(langId, module, this);
     }
-    for (const auto & p : known) {
-        const auto & groupKey = p.first;
-        const auto & str = p.second;
+    for (const auto& p : known) {
+        const auto&         groupKey = p.first;
+        const auto&         str      = p.second;
         QList<IConfigPage*> total;
-        for (const auto & val : pluginConfigPagesOrd[groupKey]) {
+        for (const auto& val : pluginConfigPagesOrd[groupKey]) {
             total << val;
         }
         if (total.isEmpty())
             continue;
-        pageGroups << PageGroup { str, total };
+        pageGroups << PageGroup{ str, total };
     }
 
     for (const auto& group : pageGroups) {
@@ -250,7 +250,7 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
                 m_enableButtons[page] = { headerEnabler, sideEnabler };
             } else {
                 connect(page, &IConfigPage::dataChanged, this, [this] {
-                    PropertyTree data;
+                    Mernel::PropertyTree data;
                     m_mainPage->writeSettingsFromUIMain(data);
                     m_configHandler.m_currentMainConfig = std::move(data);
                     m_delayTimer->start();
@@ -356,8 +356,8 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
         }
     });
     connect(clearConfig, &QAction::triggered, this, [this] {
-        loadConfig(PropertyTree{});
-        pushUndo(PropertyTree{});
+        loadConfig(Mernel::PropertyTree{});
+        pushUndo(Mernel::PropertyTree{});
     });
     connect(browseToSettings, &QAction::triggered, this, [this, appData] {
         QFileInfo dir = appData;
@@ -428,7 +428,7 @@ bool MainWindow::loadConfig(const QString& filename)
     return result;
 }
 
-bool MainWindow::loadConfig(const PropertyTree& data)
+bool MainWindow::loadConfig(const Mernel::PropertyTree& data)
 {
     const auto result = m_configHandler.loadConfig(data);
     updateUIFromSettings();
@@ -441,7 +441,7 @@ MainWindow::AppSettings MainWindow::getAppSettings()
     return { ini.value("langId", "en_US").toString(), ini.value("themeId", "dark").toString() };
 }
 
-void MainWindow::pushUndo(const PropertyTree& data)
+void MainWindow::pushUndo(const Mernel::PropertyTree& data)
 {
     Logger() << "pushing undo, current undo size=" << m_undo.size();
     m_undo << data;
@@ -453,7 +453,7 @@ void MainWindow::pushUndo(const PropertyTree& data)
 
 void MainWindow::pushUndoCurrent()
 {
-    PropertyTree data;
+    Mernel::PropertyTree data;
     m_configHandler.saveConfig(data);
     pushUndo(data);
 }
@@ -484,20 +484,20 @@ void MainWindow::updateUIFromSettings()
     m_mainPage->updateUIFromSettingsMain(m_configHandler.m_currentMainConfig);
 }
 
-void MainWindow::updateUIFromSettings(IConfigPage* page, const PropertyTree& currentConfig)
+void MainWindow::updateUIFromSettings(IConfigPage* page, const Mernel::PropertyTree& currentConfig)
 {
-    PropertyTree realData;
-    realData.merge(page->getModule().defaultValues());
-    realData.merge(currentConfig);
+    Mernel::PropertyTree realData = (page->getModule().defaultValues());
+    Mernel::PropertyTree::mergePatch(realData, currentConfig);
 
     page->updateUIFromSettings(realData);
 }
 
 void MainWindow::writeSettingsFromUI(IConfigPage* page)
 {
-    PropertyTree realData;
+    Mernel::PropertyTree realData;
     page->writeSettingsFromUI(realData);
-    realData.removeEqualValues(page->getModule().defaultValues());
+    auto defValues = page->getModule().defaultValues();
+    Mernel::PropertyTree::removeEqualValues(realData, defValues);
     //    {
     //        std::string buffer;
     //        writeJsonToBuffer(buffer, realData);

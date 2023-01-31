@@ -13,7 +13,7 @@ class ModuleCube : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::horadricCube;
 
-    ModuleCube(PropertyTree moduleMetadata, std::string id)
+    ModuleCube(Mernel::PropertyTree moduleMetadata, std::string id)
         : PluginModule(std::move(moduleMetadata), std::move(id))
     {}
 

@@ -45,7 +45,7 @@ MODGENCORE_EXPORT void cell_setDataInt(CCell ccell, int32_t newValue);
 MODGENCORE_EXPORT const char* cell_getDataStr(CCell ccell);
 MODGENCORE_EXPORT int32_t     cell_getDataInt(CCell ccell);
 
-// PropertyTree
+// Mernel::PropertyTree
 typedef struct {
     const void* opaque;
 } CPropertyTree;

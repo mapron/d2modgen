@@ -16,10 +16,10 @@
 namespace D2ModGen {
 
 namespace {
-PropertyTree qvariantToProperty(const QVariant& value);
-PropertyTree qvariantToProperty(const QVariantMap& value)
+Mernel::PropertyTree qvariantToProperty(const QVariant& value);
+Mernel::PropertyTree qvariantToProperty(const QVariantMap& value)
 {
-    PropertyTree result;
+    Mernel::PropertyTree result;
     result.convertToMap();
     for (auto it = value.constBegin(); it != value.constEnd(); ++it)
         result.insert(it.key().toStdString(), qvariantToProperty(it.value()));
@@ -27,9 +27,9 @@ PropertyTree qvariantToProperty(const QVariantMap& value)
     return result;
 }
 
-PropertyTree qvariantToProperty(const QVariantList& value)
+Mernel::PropertyTree qvariantToProperty(const QVariantList& value)
 {
-    PropertyTree result;
+    Mernel::PropertyTree result;
     result.convertToList();
     for (const QVariant& iter : value)
         result.append(qvariantToProperty(iter));
@@ -37,18 +37,18 @@ PropertyTree qvariantToProperty(const QVariantList& value)
     return result;
 }
 
-PropertyTree qvariantToProperty(const QVariant& value)
+Mernel::PropertyTree qvariantToProperty(const QVariant& value)
 {
     if (value.isNull())
-        return PropertyTree{};
+        return Mernel::PropertyTree{};
     if (value.type() == QVariant::Bool)
-        return PropertyTreeScalar(value.toBool());
+        return Mernel::PropertyTreeScalar(value.toBool());
     if (value.type() == QVariant::Int)
-        return PropertyTreeScalar(value.toInt());
+        return Mernel::PropertyTreeScalar(value.toInt());
     if (value.type() == QVariant::Double)
-        return PropertyTreeScalar(value.toDouble());
+        return Mernel::PropertyTreeScalar(value.toDouble());
     if (value.type() == QVariant::String)
-        return PropertyTreeScalar(value.toString().toStdString());
+        return Mernel::PropertyTreeScalar(value.toString().toStdString());
     if (value.type() == QVariant::List)
         return qvariantToProperty(value.toList());
     if (value.type() == QVariant::Map)
@@ -57,7 +57,7 @@ PropertyTree qvariantToProperty(const QVariant& value)
     return {};
 }
 
-QVariant propertyToQVariant(const PropertyTree& value)
+QVariant propertyToQVariant(const Mernel::PropertyTree& value)
 {
     if (value.isNull())
         return QVariant();
@@ -92,9 +92,9 @@ PluginConfigPage::PluginConfigPage(const std::string& localeId, const IModule::P
     : ConfigPageAbstract(localeId, module, parent)
 {
     auto info = getModule().pluginInfo();
-    if (info.value("hasQML", true).toBool()) {
-        auto    root    = info.value("root", "").toString();
-        auto    id      = info.value("id", "").toString();
+    if (info.value("hasQML", Mernel::PropertyTreeScalar(true)).toBool()) {
+        auto    root    = info.value("root", Mernel::PropertyTreeScalar("")).toString();
+        auto    id      = info.value("id", Mernel::PropertyTreeScalar("")).toString();
         QString qmlPath = QString::fromStdString(root + "/" + id + ".qml");
         m_quick         = new QQuickWidget(this);
         m_quick->setSource(QUrl::fromLocalFile(qmlPath));
@@ -118,7 +118,7 @@ void PluginConfigPage::qmlDataChanged()
     emit dataChanged();
 }
 
-void PluginConfigPage::updateUIFromSettings(const PropertyTree& data)
+void PluginConfigPage::updateUIFromSettings(const Mernel::PropertyTree& data)
 {
     if (m_quick) {
         QVariant value = propertyToQVariant(data);
@@ -130,7 +130,7 @@ void PluginConfigPage::updateUIFromSettings(const PropertyTree& data)
     }
 }
 
-void PluginConfigPage::writeSettingsFromUI(PropertyTree& data) const
+void PluginConfigPage::writeSettingsFromUI(Mernel::PropertyTree& data) const
 {
     if (m_quick) {
         QVariant returnedValue;

@@ -13,17 +13,17 @@
 
 namespace D2ModGen {
 
-MODGENCORE_EXPORT IModule::Ptr createModule(PropertyTree moduleMetaData, std::string id);
+MODGENCORE_EXPORT IModule::Ptr createModule(Mernel::PropertyTree moduleMetaData, std::string id);
 
 
-using ModuleCreatorFunction = std::function<IModule::Ptr(PropertyTree moduleMetaData, std::string id)>;
+using ModuleCreatorFunction = std::function<IModule::Ptr(Mernel::PropertyTree moduleMetaData, std::string id)>;
 
 void registerCreator(const std::string& configKey, ModuleCreatorFunction factory);
 
 template<class T>
 bool registerHelper()
 {
-    registerCreator(std::string(T::key), [](PropertyTree moduleMetaData, std::string id) {
+    registerCreator(std::string(T::key), [](Mernel::PropertyTree moduleMetaData, std::string id) {
         assert(T::key == id);
         return std::make_shared<T>(std::move(moduleMetaData), std::move(id));
     });

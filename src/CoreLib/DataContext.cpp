@@ -8,7 +8,7 @@
 #include "FileIOUtils.hpp"
 #include "Logger.hpp"
 #include "Formats/FileFormatCSV.hpp"
-#include "Formats/FileFormatJson.hpp"
+#include "MernelPlatform/FileFormatJson.hpp"
 
 namespace D2ModGen {
 
@@ -45,9 +45,9 @@ bool DataContext::readData(const IStorage::StoredData& data)
             return false;
         }
 
-        PropertyTree doc;
+        Mernel::PropertyTree doc;
         //Logger() << "read json:" << fileData.relFilepath;
-        if (!readJsonFromBuffer(fileData.data, doc)) {
+        if (!readJsonFromBufferNoexcept(fileData.data, doc)) {
             Logger(Logger::Warning) << "failed to parse json:" << fileData.relFilepath;
             return false;
         }
@@ -96,7 +96,7 @@ bool DataContext::writeData(IStorage::StoredData& data) const
     }
     for (const auto& p : jsonFiles) {
         std::string buffer;
-        writeJsonToBuffer(buffer, p.second);
+        writeJsonToBufferNoexcept(buffer, p.second);
         data.inMemoryFiles.push_back(IStorage::StoredFileMemory{ buffer, p.first });
     }
     for (const auto& p : copyFiles) {

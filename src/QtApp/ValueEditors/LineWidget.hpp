@@ -19,8 +19,8 @@ public:
                QWidget*      parent);
     ~LineWidget();
 
-    void         setValue(const PropertyTree& value) override;
-    PropertyTree getValue() const override;
+    void         setValue(const Mernel::PropertyTree& value) override;
+    Mernel::PropertyTree getValue() const override;
 
 private:
     QLineEdit*      m_lineEdit;

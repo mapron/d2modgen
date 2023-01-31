@@ -13,7 +13,7 @@ class ModuleRuneDrops : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::runeDrops;
 
-    ModuleRuneDrops(PropertyTree moduleMetadata, std::string id)
+    ModuleRuneDrops(Mernel::PropertyTree moduleMetadata, std::string id)
         : PluginModule(std::move(moduleMetadata), std::move(id))
     {}
 

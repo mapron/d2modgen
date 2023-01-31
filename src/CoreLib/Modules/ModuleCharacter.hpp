@@ -12,7 +12,7 @@ class ModuleCharacter : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::character;
 
-    ModuleCharacter(PropertyTree moduleMetadata, std::string id)
+    ModuleCharacter(Mernel::PropertyTree moduleMetadata, std::string id)
         : PluginModule(std::move(moduleMetadata), std::move(id))
     {}
 

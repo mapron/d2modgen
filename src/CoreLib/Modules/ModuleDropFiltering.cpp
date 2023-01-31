@@ -34,7 +34,7 @@ const std::vector<std::string> s_locales{
 
 }
 
-ModuleDropFiltering::ModuleDropFiltering(PropertyTree moduleMetadata, std::string id)
+ModuleDropFiltering::ModuleDropFiltering(Mernel::PropertyTree moduleMetadata, std::string id)
     : PluginModule(std::move(moduleMetadata), std::move(id))
     , m_items{
         { { "isc" }, "isc" },
@@ -72,12 +72,12 @@ void ModuleDropFiltering::generate(DataContext& output, RandomGenerator& rng, co
             return;
         auto& jsonDoc   = output.jsonFiles[name];
         auto& jsonArray = jsonDoc.getList();
-        for (PropertyTree& lang : jsonArray) {
+        for (Mernel::PropertyTree& lang : jsonArray) {
             const std::string key = lang["Key"].getScalar().toString();
             if (replacements.contains(key)) {
                 auto val = replacements.at(key);
                 for (const std::string& loc : s_locales)
-                    lang[loc] = PropertyTreeScalar{ val };
+                    lang[loc] = Mernel::PropertyTreeScalar{ val };
             }
         }
     };
