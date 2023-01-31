@@ -8,11 +8,11 @@
 #include "FileIOUtils.hpp"
 #include "PropertyTree.hpp"
 
-#include "CoreExport.hpp"
+#include "ModgenCoreExport.hpp"
 
 namespace D2ModGen {
 
-CORE_EXPORT bool readJsonFromBuffer(const std::string& buffer, PropertyTree& data);
-CORE_EXPORT bool writeJsonToBuffer(std::string& buffer, const PropertyTree& data);
+MODGENCORE_EXPORT bool readJsonFromBuffer(const std::string& buffer, PropertyTree& data);
+MODGENCORE_EXPORT bool writeJsonToBuffer(std::string& buffer, const PropertyTree& data);
 
 }

@@ -129,7 +129,7 @@ private:
     const Type m_type;
 };
 
-class CORE_EXPORT LoggerBackendFiles : public AbstractLoggerBackend {
+class MODGENCORE_EXPORT LoggerBackendFiles : public AbstractLoggerBackend {
 public:
     LoggerBackendFiles(int      maxLogLevel,
                        bool     duplicateInStderr,

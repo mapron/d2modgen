@@ -8,11 +8,11 @@
 #include "FileIOUtils.hpp"
 #include "TableBase.hpp"
 
-#include "CoreExport.hpp"
+#include "ModgenCoreExport.hpp"
 
 namespace D2ModGen {
 
-CORE_EXPORT bool writeCSVToBuffer(std::string& csvData, const Table& table);
-CORE_EXPORT bool readCSVFromBuffer(const std::string& csvData, Table& table);
+MODGENCORE_EXPORT bool writeCSVToBuffer(std::string& csvData, const Table& table);
+MODGENCORE_EXPORT bool readCSVFromBuffer(const std::string& csvData, Table& table);
 
 }

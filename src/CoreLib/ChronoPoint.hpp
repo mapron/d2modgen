@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include "CoreExport.hpp"
+#include "ModgenCoreExport.hpp"
 
 #include <string>
 
@@ -13,7 +13,7 @@
 
 namespace D2ModGen {
 /// Class describes time moment or time interval.
-class CORE_EXPORT ChronoPoint {
+class MODGENCORE_EXPORT ChronoPoint {
     int64_t m_us; //!< microseconds
 
 public:

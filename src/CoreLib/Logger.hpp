@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include "CoreExport.hpp"
+#include "ModgenCoreExport.hpp"
 
 #include <string>
 #include <vector>
@@ -28,7 +28,7 @@ public:
 };
 
 /// Logger to standard output or another backend.
-class CORE_EXPORT Logger {
+class MODGENCORE_EXPORT Logger {
 public:
     enum LogLevel
     {

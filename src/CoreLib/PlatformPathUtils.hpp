@@ -7,11 +7,11 @@
 
 #include <string>
 
-#include "CoreExport.hpp"
+#include "ModgenCoreExport.hpp"
 
 namespace D2ModGen {
 
-CORE_EXPORT bool createShortCut(const std::string& from, const std::string& to, const std::string& extraArgs);
+MODGENCORE_EXPORT bool createShortCut(const std::string& from, const std::string& to, const std::string& extraArgs);
 
-CORE_EXPORT std::string getExecutableRootFolder();
+MODGENCORE_EXPORT std::string getExecutableRootFolder();
 }

@@ -7,7 +7,7 @@
 
 #include "CommonTypes.hpp"
 
-#include "CoreExport.hpp"
+#include "ModgenCoreExport.hpp"
 
 #include <filesystem>
 
@@ -37,11 +37,11 @@ inline std_path string2path(const std::string& str)
     return result;
 }
 
-CORE_EXPORT bool readFileIntoBuffer(const std_path& filename, std::string& buffer);
-CORE_EXPORT bool writeFileFromBuffer(const std_path& filename, const std::string& buffer);
+MODGENCORE_EXPORT bool readFileIntoBuffer(const std_path& filename, std::string& buffer);
+MODGENCORE_EXPORT bool writeFileFromBuffer(const std_path& filename, const std::string& buffer);
 
-CORE_EXPORT bool createDirectories(const std_path& folder);
-CORE_EXPORT bool createDirectoriesForFile(const std_path& filename);
+MODGENCORE_EXPORT bool createDirectories(const std_path& folder);
+MODGENCORE_EXPORT bool createDirectoriesForFile(const std_path& filename);
 
 inline std::string ensureTrailingSlash(std::string path)
 {

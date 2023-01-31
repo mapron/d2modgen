@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include "CoreExport.hpp"
+#include "ModgenCoreExport.hpp"
 
 #include <variant>
 #include <string>
@@ -15,7 +15,7 @@
 
 namespace D2ModGen {
 
-class CORE_EXPORT PropertyTreeScalar {
+class MODGENCORE_EXPORT PropertyTreeScalar {
 public:
     PropertyTreeScalar() = default;
     PropertyTreeScalar(bool value)
@@ -59,7 +59,7 @@ using PropertyTreeList      = std::vector<PropertyTree>;
 using PropertyTreeMap       = std::map<std::string, PropertyTree>;
 using PropertyTreeScalarMap = std::map<std::string, PropertyTreeScalar>;
 
-class CORE_EXPORT PropertyTree {
+class MODGENCORE_EXPORT PropertyTree {
 public:
     PropertyTree()                    = default;
     PropertyTree(const PropertyTree&) = default;

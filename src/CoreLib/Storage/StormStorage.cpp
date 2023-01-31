@@ -8,6 +8,7 @@
 #include "RAIIUtils.hpp"
 #include "TableId.hpp"
 #include "Logger.hpp"
+#include "FileIOUtils.hpp"
 
 #include <StormLib.h>
 
@@ -15,13 +16,15 @@ namespace D2ModGen {
 
 IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames) const noexcept
 {
-    const std::string utf8data  = m_storageRoot + "d2data.mpq";
-    const std::string utf8patch = m_storageRoot + "patch_d2.mpq";
-    bool              hasData   = true;
-    HANDLE            mpq;
-    if (!SFileOpenArchive(utf8data.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
+    const std::string  utf8data  = m_storageRoot + "d2data.mpq";
+    const std::string  utf8patch = m_storageRoot + "patch_d2.mpq";
+    const std::wstring wdata     = string2path(utf8data).wstring();
+    const std::wstring pdata     = string2path(utf8patch).wstring();
+    bool               hasData   = true;
+    HANDLE             mpq;
+    if (!SFileOpenArchive(wdata.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
         hasData = false;
-        if (!SFileOpenArchive(utf8patch.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
+        if (!SFileOpenArchive(pdata.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
             return {};
         } else {
             Logger() << "patch_d2.mpq found, but d2data.mpq is missing";
@@ -30,7 +33,7 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
 
     MODGEN_SCOPE_EXIT([mpq] { SFileCloseArchive(mpq); });
 
-    if (hasData && !SFileOpenPatchArchive(mpq, utf8patch.c_str(), nullptr, STREAM_FLAG_READ_ONLY)) {
+    if (hasData && !SFileOpenPatchArchive(mpq, pdata.c_str(), nullptr, STREAM_FLAG_READ_ONLY)) {
         Logger() << "d2data.mpq found, but patch_d2.mpq is missing";
         return {};
     }

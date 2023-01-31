@@ -7,13 +7,13 @@
 
 #include "IModule.hpp"
 
-#include "CoreExport.hpp"
+#include "ModgenCoreExport.hpp"
 
 #include <functional>
 
 namespace D2ModGen {
 
-CORE_EXPORT IModule::Ptr createModule(PropertyTree moduleMetaData, std::string id);
+MODGENCORE_EXPORT IModule::Ptr createModule(PropertyTree moduleMetaData, std::string id);
 
 
 using ModuleCreatorFunction = std::function<IModule::Ptr(PropertyTree moduleMetaData, std::string id)>;

@@ -11,37 +11,48 @@ cmake_minimum_required(VERSION 3.12...3.19)
 
 project(modgen)
 
-include(GenerateExportHeader)
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/targets.cmake)
+set(MERNEL_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/mernel)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake ${MERNEL_ROOT}/cmake)
+
 
 option(ENABLE_TEST_PLUGINS "Enable plugins for testing" OFF)
+
+if (WIN32)
+    add_definitions(-DNOMINMAX -D_UNICODE -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES)
+endif()
 
 
 # Qt Setup
 set(QT_MODULE_LIST Core Gui Widgets Svg Qml Network QmlModels QmlWorkerScript Quick QuickWidgets QuickTemplates2 QuickControls2)
 find_package(Qt5 COMPONENTS ${QT_MODULE_LIST} LinguistTools)
+
+set(QT_CMAKE_EXPORT_NAMESPACE Qt5)
+set(${QT_CMAKE_EXPORT_NAMESPACE}::uic ${Qt5Widgets_UIC_EXECUTABLE})
+set(${QT_CMAKE_EXPORT_NAMESPACE}::rcc ${Qt5Core_RCC_EXECUTABLE})
+set(${QT_CMAKE_EXPORT_NAMESPACE}::lrelease ${Qt5_LRELEASE_EXECUTABLE})
+
+include(targets)
+include(qt_helpers)
+
 add_definitions(-DCASCLIB_NO_AUTO_LINK_LIBRARY -DSTORMLIB_NO_AUTO_LINK)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CascLib.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/StormLib.cmake)
+include(CascLib)
+include(StormLib)
 
-set(jsonRoot ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
+include(ext/mernel/mernel_thirdparty.cmake)
+include(ext/mernel/mernel.cmake)
 
 # source
 set(sourceRoot ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(pluginRootBin ${CMAKE_CURRENT_BINARY_DIR}/plugins)
 
-# Core
-file(GLOB_RECURSE src_Core
-	${sourceRoot}/CoreLib/*.hpp
-	${sourceRoot}/CoreLib/*.cpp
-	)
-add_library(modgenCore SHARED ${src_Core})
-target_link_libraries(modgenCore PRIVATE casclib stormlib)
-target_include_directories(modgenCore PUBLIC ${sourceRoot}/CoreLib ${CMAKE_CURRENT_BINARY_DIR})
-target_include_directories(modgenCore PRIVATE ${jsonRoot})
+AddTarget(TYPE shared NAME ModgenCore
+    SOURCE_DIR ${sourceRoot}/CoreLib
+	INCLUDES   ${sourceRoot}/CoreLib
+    EXPORT_INCLUDES
+    LINK_LIBRARIES rapidjson casclib stormlib
+    )
 
-generate_export_header(modgenCore BASE_NAME Core EXPORT_FILE_NAME CoreExport.hpp)
 
 file(GLOB_RECURSE resourceFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/modules
     ${CMAKE_CURRENT_SOURCE_DIR}/modules/*.json)
@@ -49,18 +60,14 @@ foreach(filename ${resourceFiles})
 	add_custom_command(OUTPUT ${pluginRootBin}/${filename}
 		COMMAND ${CMAKE_COMMAND} ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/modules/${filename} ${pluginRootBin}/${filename}
 		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/modules/${filename})
-	target_sources(modgenCore PRIVATE ${pluginRootBin}/${filename})
+	target_sources(ModgenCore PRIVATE ${pluginRootBin}/${filename})
 endforeach()
 
 # ConsoleApp
-file(GLOB_RECURSE src_ConsoleApp
-	${sourceRoot}/ConsoleApp/*.hpp
-	${sourceRoot}/ConsoleApp/*.cpp
-	)
-add_executable(modgen_console ${src_ConsoleApp})
-target_link_libraries(modgen_console PRIVATE modgenCore)
-target_include_directories(modgen_console PRIVATE ${sourceRoot}/ConsoleApp)
-
+AddTarget( TYPE app_console NAME modgen_console
+    SOURCE_DIR ${sourceRoot}/ConsoleApp
+    LINK_LIBRARIES ModgenCore
+    )
 
 # TestPlugin
 if (ENABLE_TEST_PLUGINS)
@@ -91,20 +98,19 @@ if (NOT Qt5Core_DIR)
 endif()
 
 # QtApp
-file(GLOB_RECURSE src_QtApp
-	${sourceRoot}/QtApp/*.hpp
-	${sourceRoot}/QtApp/*.cpp
-	)
-if (WIN32 AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
-	set(w32 "WIN32")
-endif()
-GenerateQrcWithTranslations(Translations ${CMAKE_CURRENT_SOURCE_DIR}/translations qrcName)
-add_executable(modgen ${w32} ${src_QtApp} theme/breeze.qrc ${qrcName})
-set_target_properties(modgen PROPERTIES AUTOMOC ON AUTOUIC OFF AUTORCC ON)
-target_include_directories(modgen PRIVATE ${sourceRoot}/QtApp)
-target_link_libraries(modgen PRIVATE Qt5::Widgets Qt5::Quick Qt5::QuickWidgets Qt5::QuickControls2 modgenCore)
 
-install(TARGETS modgen modgenCore RUNTIME DESTINATION bin)
+AddTarget( TYPE app_ui NAME modgen
+    SOURCE_DIR ${sourceRoot}/QtApp
+    INCLUDES   ${sourceRoot}/QtApp
+    LINK_LIBRARIES ModgenCore
+    QT_MODULES Widgets Quick QuickWidgets QuickControls2
+    )
+
+GenerateQrcWithTranslations(Translations ${CMAKE_CURRENT_SOURCE_DIR}/translations qrcName)
+AddQrcTarget(${CMAKE_CURRENT_SOURCE_DIR}/theme/breeze.qrc)
+AddResourceCustomTarget("all_resources" Translations breeze)
+
+install(TARGETS modgen ModgenCore RUNTIME DESTINATION bin)
 install(DIRECTORY ${pluginRootBin} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
 foreach(th IN ITEMS dark light)
 	install(FILES theme/${th}.conf DESTINATION bin/theme)

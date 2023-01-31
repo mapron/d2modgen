@@ -15,6 +15,7 @@
 #include <QFileInfo>
 #include <QTranslator>
 #include <QTextStream>
+#include <QResource>
 
 namespace {
 
@@ -126,14 +127,21 @@ int main(int argc, char* argv[])
     setEnvVariable("QT_QUICK_CONTROLS_CONF", exeRoot + "/theme/" + (isDark ? "dark.conf" : "light.conf"));
 
     {
-        Q_INIT_RESOURCE(breeze);
+        QStringList qrc{ "Translations", "breeze" };
+        QString     binDir = QApplication::applicationDirPath();
+        for (QString qrcName : qrc) {
+            [[maybe_unused]] bool registered = QResource::registerResource(QString("%1/assetsCompiled/%2.rcc").arg(binDir).arg(qrcName));
+            assert(registered);
+        }
+
+        //Q_INIT_RESOURCE(breeze);
         QFile file(QString(":/%1/stylesheet.qss").arg(themeId));
         file.open(QFile::ReadOnly | QFile::Text);
         QTextStream stream(&file);
         app.setStyleSheet(stream.readAll());
     }
 
-    Q_INIT_RESOURCE(Translations);
+    //Q_INIT_RESOURCE(Translations);
     RAIITranslator trans(langId);
 
     D2ModGen::MainWindow w(configHandler);

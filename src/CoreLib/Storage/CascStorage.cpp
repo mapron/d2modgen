@@ -8,6 +8,7 @@
 #include "RAIIUtils.hpp"
 #include "TableId.hpp"
 #include "Logger.hpp"
+#include "FileIOUtils.hpp"
 
 #include <CascLib.h>
 
@@ -15,9 +16,10 @@ namespace D2ModGen {
 
 IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames) const noexcept
 {
-    const std::string utf8path = m_storageRoot;
-    HANDLE            storage;
-    if (!CascOpenStorage(utf8path.c_str(), 0, &storage)) {
+    const std::string  utf8path = m_storageRoot;
+    const std::wstring wdata    = string2path(utf8path).wstring();
+    HANDLE             storage;
+    if (!CascOpenStorage(wdata.c_str(), 0, &storage)) {
         Logger(Logger::Warning) << "failed to open storage:" << utf8path;
         return {};
     }
