@@ -121,7 +121,7 @@ struct MagicPropRawList {
     void readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const StringSet& extraKnownCodes, bool grab);
     void writeToRow(TableView::RowView& row, const ColumnsDesc& columns) const;
 
-    int                   getTotalSize() const;
+    int       getTotalSize() const;
     StringSet getAllCodes() const;
 
     std::string toDebugString() const;
@@ -154,15 +154,15 @@ struct MagicPropUniverse {
 
     std::map<std::string, ItemTypeInfo> itemTypeInfo;
 
-    MagicPropList generate(RandomGenerator&            rng,
-                           const StringSet& existingCodes,
-                           const AttributeFlagSet&      narrowingFlags,
-                           const ItemCodeFilter&        specificTypeQuery,
-                           int                          specificItemUsage,
-                           int                          count,
-                           int                          level,
-                           int                          unbalance,
-                           bool                         noDuplicateCode) const;
+    MagicPropList generate(RandomGenerator&        rng,
+                           const StringSet&        existingCodes,
+                           const AttributeFlagSet& narrowingFlags,
+                           const ItemCodeFilter&   specificTypeQuery,
+                           int                     specificItemUsage,
+                           int                     count,
+                           int                     level,
+                           int                     unbalance,
+                           bool                    noDuplicateCode) const;
 
     ItemCodeSet expand(const ItemCodeSet& query, bool nested) const;
 

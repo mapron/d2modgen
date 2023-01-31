@@ -9,7 +9,7 @@
 
 namespace D2ModGen {
 
-using ConfigPageCreatorFunc = std::function<IConfigPage*(const std::string&,const IModule::Ptr&, QWidget*)>;
+using ConfigPageCreatorFunc = std::function<IConfigPage*(const std::string&, const IModule::Ptr&, QWidget*)>;
 
 IConfigPage* createConfigPage(const std::string& localeId, const IModule::Ptr& module, QWidget* parent);
 void         pageRegisterCreator(const std::string& configKey, ConfigPageCreatorFunc factory);

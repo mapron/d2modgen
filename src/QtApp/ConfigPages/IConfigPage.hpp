@@ -17,7 +17,7 @@ class IConfigPage : public QWidget {
     Q_OBJECT
 public:
     struct Preset {
-        QString      m_title;
+        QString              m_title;
         Mernel::PropertyTree m_data;
     };
     using PresetList = std::vector<Preset>;

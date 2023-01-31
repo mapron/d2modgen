@@ -43,8 +43,8 @@ public:
         : QWidget(parent)
     {}
 
-    virtual Mernel::PropertyTree getValue() const                    = 0;
-    virtual void         setValue(const Mernel::PropertyTree& value) = 0;
+    virtual Mernel::PropertyTree getValue() const                            = 0;
+    virtual void                 setValue(const Mernel::PropertyTree& value) = 0;
 
 signals:
     void dataChanged();

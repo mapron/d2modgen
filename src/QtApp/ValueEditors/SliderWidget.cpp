@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: MIT
  * See LICENSE file for details.
  */
-#define _USE_MATH_DEFINES
 #include "SliderWidget.hpp"
 #include "HelpToolButton.hpp"
 

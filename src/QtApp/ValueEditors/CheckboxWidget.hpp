@@ -19,7 +19,7 @@ public:
                    QWidget*      parent);
     ~CheckboxWidget();
 
-    void         setValue(const Mernel::PropertyTree& value) override;
+    void                 setValue(const Mernel::PropertyTree& value) override;
     Mernel::PropertyTree getValue() const override;
 
 signals:

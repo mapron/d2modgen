@@ -393,9 +393,9 @@ void MainConfigPage::setLaunch(QString arg)
         QMessageBox::warning(this, "warning", "Failed to locate Battle.net.config");
         return;
     }
-    const auto   configPath = string2path(config.toStdString());
+    const auto           configPath = string2path(config.toStdString());
     Mernel::PropertyTree doc;
-    std::string  buffer;
+    std::string          buffer;
     if (!Mernel::readFileIntoBufferNoexcept(configPath, buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
         QMessageBox::warning(this, "warning", "Failed to read data from Battle.net.config");
         return;

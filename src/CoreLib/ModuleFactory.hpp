@@ -15,7 +15,6 @@ namespace D2ModGen {
 
 MODGENCORE_EXPORT IModule::Ptr createModule(Mernel::PropertyTree moduleMetaData, std::string id);
 
-
 using ModuleCreatorFunction = std::function<IModule::Ptr(Mernel::PropertyTree moduleMetaData, std::string id)>;
 
 void registerCreator(const std::string& configKey, ModuleCreatorFunction factory);

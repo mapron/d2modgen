@@ -41,7 +41,7 @@ public:
     void updateModList(const QStringList& mods) override {}
 
 protected:
-    void                 addWidget(QWidget* w);
+    void addWidget(QWidget* w);
 
     void makeAllEditors();
 

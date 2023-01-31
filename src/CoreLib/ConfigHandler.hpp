@@ -40,10 +40,10 @@ public:
 
     Mernel::PropertyTree m_currentMainConfig;
     struct ModuleData {
-        IModule::Ptr m_module;
+        IModule::Ptr         m_module;
         Mernel::PropertyTree m_currentConfig;
-        bool         m_enabled = true;
-        int64_t      m_order   = 1000;
+        bool                 m_enabled = true;
+        int64_t              m_order   = 1000;
     };
 
     std::map<std::string, ModuleData> m_modules;

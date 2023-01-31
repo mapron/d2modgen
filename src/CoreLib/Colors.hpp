@@ -11,19 +11,19 @@ namespace D2ModGen {
 
 enum class Color
 {
-    white,   // (Brighter than Light Gray)
-    grey,    // (Item Descriptions) 
-    red,     // 
-    green,   //  (Set Items) 
-    blue,    // (Magic Items)
-    gold,    // (Unique Items)
-    dgrey,   // (Socketed/Ethereal Items)
-    black,   //  (Text Doesn't Show)
-    tan,     //
-    orange,  // (Crafted Items)
-    yellow,  // (Rare Items)
-    dgreen,  //
-    purple,  //
+    white,  // (Brighter than Light Gray)
+    grey,   // (Item Descriptions)
+    red,    //
+    green,  //  (Set Items)
+    blue,   // (Magic Items)
+    gold,   // (Unique Items)
+    dgrey,  // (Socketed/Ethereal Items)
+    black,  //  (Text Doesn't Show)
+    tan,    //
+    orange, // (Crafted Items)
+    yellow, // (Rare Items)
+    dgreen, //
+    purple, //
 
     colorcode,
 

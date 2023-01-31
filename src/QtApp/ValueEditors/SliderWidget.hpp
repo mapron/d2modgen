@@ -20,7 +20,7 @@ public:
                  QWidget*      parent);
     ~SliderWidget();
 
-    void         setValue(const Mernel::PropertyTree& value) override;
+    void                 setValue(const Mernel::PropertyTree& value) override;
     Mernel::PropertyTree getValue() const override;
 
 private:
@@ -44,7 +44,7 @@ public:
                        QWidget*      parent);
     ~SliderWidgetMinMax();
 
-    void         setValue(const Mernel::PropertyTree& value) override;
+    void                 setValue(const Mernel::PropertyTree& value) override;
     Mernel::PropertyTree getValue() const override;
 
 private:

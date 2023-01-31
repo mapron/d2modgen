@@ -30,8 +30,8 @@ public:
 private:
     const Mernel::PropertyTree m_info;
     const Mernel::PropertyTree m_defaults;
-    const std::string  m_id;
-    const std::string  m_idPrefix;
+    const std::string          m_id;
+    const std::string          m_idPrefix;
 
     std::unique_ptr<DyLib> m_dylib;
     void*                  m_generateAddr = nullptr;

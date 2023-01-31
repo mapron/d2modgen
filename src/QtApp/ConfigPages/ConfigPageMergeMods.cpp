@@ -87,9 +87,9 @@ ConfigPageMergeModsItem::ConfigPageMergeModsItem(QWidget* parent)
     });
     connect(m_policySelect, qOverload<int>(&QComboBox::currentIndexChanged), this, &ConfigPageMergeModsItem::checkForChange);
     connect(m_folderCSV, &QLineEdit::textEdited, this, &ConfigPageMergeModsItem::checkForChange);
-    connect(m_modSelect, qOverload<int>(&QComboBox::currentIndexChanged), this, [this] { 
+    connect(m_modSelect, qOverload<int>(&QComboBox::currentIndexChanged), this, [this] {
         m_currentMod = m_modSelect->currentText();
-        emit checkForChange(); 
+        emit checkForChange();
     });
 }
 

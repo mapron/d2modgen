@@ -20,7 +20,7 @@ struct TableSet {
 class TableView;
 struct DataContext {
     TableSet                                      tableSet;  // txt tables parsed into csv-like tables.
-    std::map<std_path, Mernel::PropertyTree>              jsonFiles; // data of extra json files
+    std::map<std_path, Mernel::PropertyTree>      jsonFiles; // data of extra json files
     std::map<std_path, IStorage::StoredFileRef>   copyFiles; // files for plain copy.
     std::map<TableId, std::shared_ptr<TableView>> pluginTables;
 
