@@ -4,3 +4,6 @@
 [submodule "thirdparty/stormlib"]
 	path = thirdparty/stormlib
 	url = https://github.com/ladislav-zezula/StormLib.git
+[submodule "ext/mernel"]
+	path = ext/mernel
+	url = https://github.com/mapron/mernel.git
