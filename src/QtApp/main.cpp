@@ -5,9 +5,12 @@
  */
 #include "MainWindow.hpp"
 
+#include "MernelPlatform/Logger_details.hpp"
+
 #include "ConfigHandler.hpp"
-#include "Logger_details.hpp"
+#include "Logger.hpp"
 #include "PlatformPathUtils.hpp"
+#include "FileIOUtils.hpp"
 
 #include <QApplication>
 #include <QFile>
@@ -94,17 +97,19 @@ int main(int argc, char* argv[])
     Logger() << "application started";
     QApplication      app(argc, argv);
     const auto        appData = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    const std::string logFile = (appData + "/applog.txt").toStdString();
+    const std::string logDir  = (appData + "/applog").toStdString();
 
-    if (createDirectoriesForFile(logFile)) {
-        Logger::SetLoggerBackend(std::make_unique<LoggerBackendFiles>(
+    {
+        Logger::SetLoggerBackend(std::make_unique<Mernel::LoggerBackendFiles>(
             7,
             true,  /*duplicateInStderr*/
             true,  /*outputLoglevel   */
             true,  /*outputTimestamp  */
             false, /*outputTimeoffsets*/
-            string2path(logFile)));
-        Logger() << "Started log redirection to:" << logFile;
+            10,
+            5000,
+            string2path(logDir)));
+        Logger() << "Started log redirection to:" << logDir;
     }
     //qWarning() << "test qwarn";
     auto          exeRoot = getExecutableRootFolder();

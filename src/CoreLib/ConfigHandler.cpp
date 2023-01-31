@@ -34,7 +34,7 @@ ConfigHandler::ConfigHandler(const std::string& pluginsRoot)
 
         std::string          buffer;
         Mernel::PropertyTree info;
-        if (!readFileIntoBuffer(jsonDeclFilepath, buffer) || !readJsonFromBufferNoexcept(buffer, info)) {
+        if (!Mernel::readFileIntoBufferNoexcept(jsonDeclFilepath, buffer) || !readJsonFromBufferNoexcept(buffer, info)) {
             Logger(Logger::Err) << "Failed to read json file for plugin:" << jsonDeclFilepath;
             continue;
         }
@@ -67,7 +67,7 @@ bool ConfigHandler::loadConfig(const std::string& filename)
     Logger() << "Load:" << filename;
     std::string          buffer;
     Mernel::PropertyTree doc;
-    if (!readFileIntoBuffer(string2path(filename), buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
+    if (!Mernel::readFileIntoBufferNoexcept(string2path(filename), buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
         loadConfig(Mernel::PropertyTree{});
         return false;
     }
@@ -81,8 +81,8 @@ bool ConfigHandler::saveConfig(const std::string& filename) const
     if (!createDirectoriesForFile(string2path(filename)))
         return false;
     std::string buffer;
-    writeJsonToBufferNoexcept(buffer, data);
-    return writeFileFromBuffer(string2path(filename), buffer);
+    Mernel::writeJsonToBufferNoexcept(buffer, data);
+    return Mernel::writeFileFromBufferNoexcept(string2path(filename), buffer);
 }
 
 bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data)

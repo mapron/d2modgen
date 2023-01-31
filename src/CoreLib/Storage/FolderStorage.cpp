@@ -69,14 +69,14 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
         if (path.extension() == ".txt" && (path.parent_path().filename() == "excel" || path.parent_path() == m_root)) { // not a best guess, but however...
             auto        id = toLower(path2string(path.stem()));
             std::string buffer;
-            if (!readFileIntoBuffer(path, buffer))
+            if (!Mernel::readFileIntoBufferNoexcept(path, buffer))
                 return {};
 
             result.tables.push_back(StoredFileTable{ std::move(buffer), id });
         } else {
             if (filenames.contains(currentRelPath) || path.extension() == ".json") {
                 std::string buffer;
-                if (!readFileIntoBuffer(path, buffer))
+                if (!Mernel::readFileIntoBufferNoexcept(path, buffer))
                     return {};
 
                 result.inMemoryFiles.push_back(StoredFileMemory{ std::move(buffer), string2path(currentRelPath) });
@@ -108,7 +108,7 @@ bool FolderStorage::prepareForWrite() const noexcept
         modinfo["savepath"] = Mernel::PropertyTreeScalar(m_modName + "/");
         std::string buffer;
         writeJsonToBufferNoexcept(buffer, modinfo);
-        if (!writeFileFromBuffer(jsonPath, buffer)) {
+        if (!Mernel::writeFileFromBufferNoexcept(jsonPath, buffer)) {
             Logger() << "Failed to write: " << jsonPath;
             return false;
         }
@@ -128,7 +128,7 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
         if (!createDirectoriesForFile(absPath))
             return false;
 
-        return writeFileFromBuffer(absPath, data);
+        return Mernel::writeFileFromBufferNoexcept(absPath, data);
     };
     auto copyFile = [](const std_path& absSrc, const std_path& absDest) {
         if (!createDirectoriesForFile(absDest))

@@ -8,7 +8,7 @@
 #include "AttributeHelper.hpp"
 
 #include "Logger.hpp"
-#include "ChronoPoint.hpp"
+#include "MernelPlatform/ChronoPoint.hpp"
 
 namespace D2ModGen {
 
@@ -463,7 +463,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     };
     auto commonTypeAll         = [](const Row&) -> AttributeFlagSet { return {}; };
     auto commonTypeEquipNoSock = [](const Row&) -> AttributeFlagSet { return { AttributeFlag::Durability }; };
-    auto start                 = ChronoPoint(true);
+    auto start                 = Mernel::ChronoPoint(true);
     {
         TableView view(tableSet.tables[TableId::uniqueitems]);
         auto      code2flags = [&code2type, &props](const Row& row) -> AttributeFlagSet {
@@ -522,7 +522,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     }
     {
         if (repeatSets > 1 && output.jsonFiles.contains(s_itemsJson)) {
-            auto&                               jsonDoc = output.jsonFiles[s_itemsJson];
+            auto&                                       jsonDoc = output.jsonFiles[s_itemsJson];
             std::map<std::string, Mernel::PropertyTree> itemNamesByKey;
             for (const auto& itemDesc : jsonDoc.getList()) {
                 const std::string key = itemDesc["Key"].getScalar().toString();
@@ -541,10 +541,10 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             }
             for (int i = 2; i <= repeatSets; ++i) {
                 for (const auto& key : setItemsKeys) {
-                    const std::string keyCopy  = key + " " + std::to_string(i);
-                    Mernel::PropertyTree      itemDesc = itemNamesByKey[key];
-                    itemDesc["Key"]            = Mernel::PropertyTreeScalar(keyCopy);
-                    itemDesc["id"]             = Mernel::PropertyTreeScalar(id++);
+                    const std::string    keyCopy  = key + " " + std::to_string(i);
+                    Mernel::PropertyTree itemDesc = itemNamesByKey[key];
+                    itemDesc["Key"]               = Mernel::PropertyTreeScalar(keyCopy);
+                    itemDesc["id"]                = Mernel::PropertyTreeScalar(id++);
                     for (auto& [locKey, locValue] : itemDesc.getMap()) {
                         if (locKey == "Key" || locKey == "id")
                             continue;

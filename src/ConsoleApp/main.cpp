@@ -12,7 +12,7 @@
 int main(int argc, char* argv[])
 {
     using namespace D2ModGen;
-    Logger() << "application started";
+    Logger(Logger::Notice) << "application started";
 
     ConfigHandler configHandler(getExecutableRootFolder() + "/plugins");
 

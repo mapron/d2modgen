@@ -396,7 +396,7 @@ void MainConfigPage::setLaunch(QString arg)
     const auto   configPath = string2path(config.toStdString());
     Mernel::PropertyTree doc;
     std::string  buffer;
-    if (!readFileIntoBuffer(configPath, buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
+    if (!Mernel::readFileIntoBufferNoexcept(configPath, buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
         QMessageBox::warning(this, "warning", "Failed to read data from Battle.net.config");
         return;
     }
@@ -408,7 +408,7 @@ void MainConfigPage::setLaunch(QString arg)
     buffer.clear();
     writeJsonToBufferNoexcept(buffer, doc);
     // buffer.replace(QByteArray("/"), QByteArray("\\/")); // weird battlenet format.
-    if (!writeFileFromBuffer(configPath, buffer))
+    if (!Mernel::writeFileFromBufferNoexcept(configPath, buffer))
         QMessageBox::warning(this, "warning", "Failed to write data to Battle.net.config");
 }
 

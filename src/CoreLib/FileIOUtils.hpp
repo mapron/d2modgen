@@ -9,36 +9,24 @@
 
 #include "ModgenCoreExport.hpp"
 
+#include "MernelPlatform/FileIOUtils.hpp"
+
 #include <filesystem>
 
 namespace D2ModGen {
 
-namespace std_fs = std::filesystem;
-using std_path   = std_fs::path;
+namespace std_fs = Mernel::std_fs;
+using std_path   = Mernel::std_path;
 
 inline std::string path2string(const std_path& path)
 {
-    auto        str = path.u8string();
-    std::string result;
-    result.resize(str.size());
-    for (size_t i = 0; i < result.size(); ++i) {
-        result[i] = static_cast<char>(str[i]);
-    }
-    return result;
+    return Mernel::path2string(path);
 }
 
 inline std_path string2path(const std::string& str)
 {
-    std::u8string result;
-    result.resize(str.size());
-    for (size_t i = 0; i < result.size(); ++i) {
-        result[i] = static_cast<char8_t>(str[i]);
-    }
-    return result;
+    return Mernel::string2path(str);
 }
-
-MODGENCORE_EXPORT bool readFileIntoBuffer(const std_path& filename, std::string& buffer);
-MODGENCORE_EXPORT bool writeFileFromBuffer(const std_path& filename, const std::string& buffer);
 
 MODGENCORE_EXPORT bool createDirectories(const std_path& folder);
 MODGENCORE_EXPORT bool createDirectoriesForFile(const std_path& filename);
