@@ -178,7 +178,8 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             input.m_env      = env;
             input.m_settings = p.second.m_currentConfig;
             Mernel::PropertyTree::mergePatch(input.m_mergedSettings, p.second.m_module->defaultValues());
-            Mernel::PropertyTree::mergePatch(input.m_mergedSettings, input.m_settings);
+            if (!input.m_settings.isNull())
+                Mernel::PropertyTree::mergePatch(input.m_mergedSettings, input.m_settings);
 
             p.second.m_module->gatherInfo(pregenContext, input);
         }
@@ -224,7 +225,8 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             input.m_env      = env;
             input.m_settings = module->m_currentConfig;
             Mernel::PropertyTree::mergePatch(input.m_mergedSettings, module->m_module->defaultValues());
-            Mernel::PropertyTree::mergePatch(input.m_mergedSettings, input.m_settings);
+            if (!input.m_settings.isNull())
+                Mernel::PropertyTree::mergePatch(input.m_mergedSettings, input.m_settings);
 
             std::function<int(int)> r = [&engine](int bound) {
                 if (bound <= 1)
