@@ -487,7 +487,8 @@ void MainWindow::updateUIFromSettings()
 void MainWindow::updateUIFromSettings(IConfigPage* page, const Mernel::PropertyTree& currentConfig)
 {
     Mernel::PropertyTree realData = (page->getModule().defaultValues());
-    Mernel::PropertyTree::mergePatch(realData, currentConfig);
+    if (!currentConfig.isNull())
+        Mernel::PropertyTree::mergePatch(realData, currentConfig);
 
     page->updateUIFromSettings(realData);
 }
