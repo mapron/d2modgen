@@ -12,8 +12,8 @@
 		"quiverSize": false,
 		"uniqueCharmLimit": false,
 		"weakenTownSkills": false,
+		"weakenTownSkillsExt": false,
 		"showItemLevel": false,
-		"enableSunderCharms": false,
 		"reduceCost": 100
 	},
 	"controls": [
@@ -23,8 +23,8 @@
 		{ "id": "quiverSize", "type": "checkbox"},
 		{ "id": "uniqueCharmLimit", "type": "checkbox"},
 		{ "id": "weakenTownSkills", "type": "checkbox"},
+		{ "id": "weakenTownSkillsExt", "type": "checkbox"},
 		{ "id": "showItemLevel", "type": "checkbox"},
-		{ "id": "enableSunderCharms", "type": "checkbox"},
 		{ "id": "disableExpPenalty", "type": "checkbox"},
 		{ "id": "reduceCost", "type": "sliderMinMax", "min": 5, "max": 100}
 		
@@ -41,12 +41,13 @@
 				"quiverSize": "Увеличить колчаны до 511",
 				"uniqueCharmLimit": "Убрать ограничение на 1 уникальный талисман в инвентаре",
 				"weakenTownSkills": "Разрешить использовать Телепорт и боевые приказы в городе",
+				"weakenTownSkillsExt": "Разрешить все заклинанияи в городе",
 				"showItemLevel": "Показывать ilevel в скобках",
-				"enableSunderCharms": "Включить Sunder Charms",
 				"disableExpPenalty": "Отключить штраф опыт после уровня 70",
 				"reduceCost": "Снизить стоимость (в золоте) для параметров на предметах (снизить цену починки)"
 			},
 			"controlsHelps": {
+				"quiverSize": "В D2R колчаны уже 500 стрел, нужно только для D2 LoD"
 			}
 		},
 		"en_US": {
@@ -64,12 +65,15 @@
 				"quiverSize": "Increase quivers size -> 511",
 				"uniqueCharmLimit": "Remove limit on Unique charms",
 				"weakenTownSkills": "Allow using Teleport, BC, BO in town",
+				"weakenTownSkillsExt": "Allow all skills in town",
 				"showItemLevel": "Show ilevel in items' titles",
-				"enableSunderCharms": "Enable Sunder Charms to drop in non-ladder",
 				"disableExpPenalty": "Disable experience penalty after level 70",
 				"reduceCost": "Reduce costs of skills and stats on items (affects repair cost mostly)"
 			},
 			"controlsHelps": {
+				"quiverSize": "D2R already have 500 quiever size, so use this for LoD",
+				"disableExpPenalty": "That means you won't have around 1% EXP at higher levels, so high level grind will be much faster."
+				
 			}
 		}
 	}

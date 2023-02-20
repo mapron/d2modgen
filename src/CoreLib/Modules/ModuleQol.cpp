@@ -17,15 +17,15 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
     if (input.isAllDefault())
         return;
 
-    const bool tomeSize           = input.getInt("tomeSize");
-    const bool keySize            = input.getInt("keySize");
-    const bool quiverSize         = input.getInt("quiverSize");
-    const bool uniqueCharmLimit   = input.getInt("uniqueCharmLimit");
-    const bool weakenTownSkills   = input.getInt("weakenTownSkills");
-    const bool showItemLevel      = input.getInt("showItemLevel");
-    const bool enableSunderCharms = input.getInt("enableSunderCharms");
-    const bool disableExpPenalty  = input.getInt("disableExpPenalty");
-    const int  reduceCost         = input.getInt("reduceCost");
+    const bool tomeSize            = input.getInt("tomeSize");
+    const bool keySize             = input.getInt("keySize");
+    const bool quiverSize          = input.getInt("quiverSize");
+    const bool uniqueCharmLimit    = input.getInt("uniqueCharmLimit");
+    const bool weakenTownSkills    = input.getInt("weakenTownSkills");
+    const bool weakenTownSkillsExt = input.getInt("weakenTownSkillsExt");
+    const bool showItemLevel       = input.getInt("showItemLevel");
+    const bool disableExpPenalty   = input.getInt("disableExpPenalty");
+    const int  reduceCost          = input.getInt("reduceCost");
     if (tomeSize || keySize || quiverSize) {
         Table&    table = output.tableSet.tables[TableId::misc];
         TableView tableView(table, true);
@@ -47,31 +47,12 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
             row["carry1"].str = "";
         }
     }
-    if (enableSunderCharms) {
-        {
-            Table&    table = output.tableSet.tables[TableId::uniqueitems];
-            TableView tableView(table, true);
-            for (auto& row : tableView) {
-                if (row["code"] == "cm3" && row["ladder"].toInt()) {
-                    row["ladder"].clear();
-                    row["enabled"].setInt(1);
-                }
-            }
-        }
-        {
-            Table&    table = output.tableSet.tables[TableId::treasureclassex];
-            TableView tableView(table, true);
-            for (auto& row : tableView) {
-                row["ladder"].clear();
-            }
-        }
-    }
-    if (weakenTownSkills) {
+    if (weakenTownSkills || weakenTownSkillsExt) {
         static const StringSet s_exceptions{ "Teleport", "Battle Orders", "Battle Command" };
         Table&                 table = output.tableSet.tables[TableId::skills];
         TableView              tableView(table, true);
         for (auto& row : tableView) {
-            if (s_exceptions.contains(row["skill"].str))
+            if (s_exceptions.contains(row["skill"].str) || weakenTownSkillsExt)
                 row["InTown"].str = "1";
         }
     }
