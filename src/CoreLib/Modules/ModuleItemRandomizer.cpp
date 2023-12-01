@@ -484,8 +484,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         TableView view(tableSet.tables[TableId::setitems]);
         auto      code2flags = [&code2type, &props](const Row& row) -> AttributeFlagSet {
             const auto type = mapValue(code2type, row["item"].str);
-            assert(props.itemTypeInfo.contains(type));
-            return props.itemTypeInfo.at(type).flags;
+            return props.itemTypeInfo.contains(type) ? props.itemTypeInfo.at(type).flags : AttributeFlagSet{};
         };
         fillProps(view, s_descSetItems, commonLvlReq, code2flags, setitemType, false, false, true);
     }

@@ -119,11 +119,11 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
     };
     QMap<std::string, QMap<int, QList<IConfigPage*>>> pluginConfigPagesOrd;
     std::vector<std::pair<std::string, QString>>      known{
-        { "randomizer", QObject::tr("Randomizers") },
-        { "harder", QObject::tr("Make harder") },
-        { "easier", QObject::tr("Make easier") },
-        { "misc", QObject::tr("Misc") },
-        { "", QObject::tr("Plugins") },
+             { "randomizer", QObject::tr("Randomizers") },
+             { "harder", QObject::tr("Make harder") },
+             { "easier", QObject::tr("Make easier") },
+             { "misc", QObject::tr("Misc") },
+             { "", QObject::tr("Plugins") },
     };
     for (auto key : m_configHandler.m_pluginIds) {
         auto module = m_configHandler.getModule(key);

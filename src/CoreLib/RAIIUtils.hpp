@@ -19,7 +19,7 @@ struct ScopeExitFunctionWrapper {
     ScopeExitFunctionWrapper(ScopeExitFunctionWrapper&&)      = default;
 
     ScopeExitFunctionWrapper& operator=(const ScopeExitFunctionWrapper&) = delete;
-    ScopeExitFunctionWrapper& operator=(ScopeExitFunctionWrapper&&) = default;
+    ScopeExitFunctionWrapper& operator=(ScopeExitFunctionWrapper&&)      = default;
 
     ~ScopeExitFunctionWrapper() { f(); }
     F f;

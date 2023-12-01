@@ -52,6 +52,9 @@ static const std::map<TableId, AliasConfig> s_tableColumnAliases{
     { TableId::misc, AliasConfig{
                          { "diablocloneweight", "worldevent" },
                      } },
+    { TableId::cubemain, AliasConfig{
+                             { "Name", "description" },
+                         } },
     { TableId::monstats, AliasConfig{
                              { "TreasureClass1", "TreasureClass" },
                              { "TreasureClass1(N)", "TreasureClass(N)" },
