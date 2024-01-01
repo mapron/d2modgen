@@ -18,10 +18,10 @@ public:
     ConfigHandler(const ConfigHandler&) = delete;
     ~ConfigHandler();
 
-    bool loadConfig(const std::string& filename);
+    bool loadConfig(const std::string& filename, bool resetMain = true);
     bool saveConfig(const std::string& filename) const;
 
-    bool loadConfig(const Mernel::PropertyTree& data);
+    bool loadConfig(const Mernel::PropertyTree& data, bool resetMain = true);
     bool saveConfig(Mernel::PropertyTree& data) const;
 
     bool isConfigEnabled(const std::string& key) const;

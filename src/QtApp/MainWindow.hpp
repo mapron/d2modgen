@@ -50,6 +50,7 @@ public:
     bool saveConfig(const QString& filename) const;
     bool loadConfig(const QString& filename);
     bool loadConfig(const Mernel::PropertyTree& data);
+    bool loadPresetConfig(const QString& filename);
 
     struct AppSettings {
         QString m_langId;

@@ -88,7 +88,9 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
 {
     setWindowTitle("Diablo II Resurrected mod generator by mapron");
 
-    const auto appData = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    const auto    appData    = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    QString       binDir     = QApplication::applicationDirPath();
+    QFileInfoList presetList = QDir(binDir + "/presets").entryInfoList({ "*.json" });
 
     m_delayTimer = new DelayedTimer(
         1000, [this] { pushUndoCurrent(); }, this);
@@ -266,6 +268,7 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
     QAction*  saveConfigAction = fileMenu->addAction(tr("Save config..."));
     QAction*  loadConfigAction = fileMenu->addAction(tr("Load config..."));
     QAction*  clearConfig      = fileMenu->addAction(tr("Clear config"));
+    QMenu*    presetMenu       = fileMenu->addMenu(tr("Config from preset"));
     QAction*  browseToSettings = fileMenu->addAction(tr("Browse to settings folder"));
     fileMenu->addSeparator();
     QAction* quitNoSaveAction = fileMenu->addAction(tr("Quit without saving"));
@@ -286,6 +289,13 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
     newSeed->setShortcuts(QKeySequence::Refresh);
     m_undoAction->setShortcut(QKeySequence::Undo);
     generateMod->setShortcut(QKeySequence(Qt::Key_F9));
+
+    for (const auto& entry : presetList) {
+        QString  basename  = entry.baseName();
+        QString  absPath   = entry.absoluteFilePath();
+        QAction* presetAct = presetMenu->addAction(basename);
+        connect(presetAct, &QAction::triggered, this, [absPath, this](bool) { loadPresetConfig(absPath); });
+    }
 
     auto updateMenuState = [themeActionLight, themeActionDark, langActionEn, langActionRu]() {
         auto       appSettings = getAppSettings();
@@ -431,6 +441,13 @@ bool MainWindow::loadConfig(const QString& filename)
 bool MainWindow::loadConfig(const Mernel::PropertyTree& data)
 {
     const auto result = m_configHandler.loadConfig(data);
+    updateUIFromSettings();
+    return result;
+}
+
+bool MainWindow::loadPresetConfig(const QString& filename)
+{
+    const auto result = m_configHandler.loadConfig(filename.toStdString(), false);
     updateUIFromSettings();
     return result;
 }

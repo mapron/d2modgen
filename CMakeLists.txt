@@ -45,6 +45,7 @@ include(ext/mernel/mernel.cmake)
 # source
 set(sourceRoot ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(pluginRootBin ${CMAKE_CURRENT_BINARY_DIR}/plugins)
+set(presetsRootBin ${CMAKE_CURRENT_BINARY_DIR}/presets)
 
 AddTarget(TYPE shared NAME ModgenCore
     SOURCE_DIR ${sourceRoot}/CoreLib
@@ -61,6 +62,15 @@ foreach(filename ${resourceFiles})
 		COMMAND ${CMAKE_COMMAND} ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/modules/${filename} ${pluginRootBin}/${filename}
 		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/modules/${filename})
 	target_sources(ModgenCore PRIVATE ${pluginRootBin}/${filename})
+endforeach()
+
+file(GLOB_RECURSE presetFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/presets
+    ${CMAKE_CURRENT_SOURCE_DIR}/presets/*.json ${CMAKE_CURRENT_SOURCE_DIR}/presets/*.txt)
+foreach(filename ${presetFiles})
+	add_custom_command(OUTPUT ${presetsRootBin}/${filename}
+		COMMAND ${CMAKE_COMMAND} ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/presets/${filename} ${presetsRootBin}/${filename}
+		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/presets/${filename})
+	target_sources(ModgenCore PRIVATE ${presetsRootBin}/${filename})
 endforeach()
 
 # ConsoleApp
@@ -112,6 +122,7 @@ AddResourceCustomTarget("all_resources" Translations breeze)
 
 install(TARGETS modgen ModgenCore RUNTIME DESTINATION bin)
 install(DIRECTORY ${pluginRootBin} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
+install(DIRECTORY ${presetsRootBin} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
 foreach(th IN ITEMS dark light)
 	install(FILES theme/${th}.conf DESTINATION bin/theme)
 	configure_file(theme/${th}.conf ${CMAKE_CURRENT_BINARY_DIR}/theme/${th}.conf COPYONLY)

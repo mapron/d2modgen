@@ -62,16 +62,16 @@ ConfigHandler::ConfigHandler(const std::string& pluginsRoot)
     m_modules[std::string(IModule::Key::testConfig)].m_enabled = true;
 }
 
-bool ConfigHandler::loadConfig(const std::string& filename)
+bool ConfigHandler::loadConfig(const std::string& filename, bool resetMain)
 {
     Logger() << "Load:" << filename;
     std::string          buffer;
     Mernel::PropertyTree doc;
     if (!Mernel::readFileIntoBufferNoexcept(string2path(filename), buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
-        loadConfig(Mernel::PropertyTree{});
+        loadConfig(Mernel::PropertyTree{}, resetMain);
         return false;
     }
-    return loadConfig(doc);
+    return loadConfig(doc, resetMain);
 }
 
 bool ConfigHandler::saveConfig(const std::string& filename) const
@@ -85,7 +85,7 @@ bool ConfigHandler::saveConfig(const std::string& filename) const
     return Mernel::writeFileFromBufferNoexcept(string2path(filename), buffer);
 }
 
-bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data)
+bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data, bool resetMain)
 {
     for (auto& p : m_modules) {
         p.second.m_enabled = data.value(p.first + "_enabled", Mernel::PropertyTreeScalar(false)).toBool();
@@ -95,9 +95,11 @@ bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data)
             p.second.m_currentConfig = data[p.first];
     }
     m_modules[std::string(IModule::Key::testConfig)].m_enabled = true;
-    m_currentMainConfig                                        = {};
-    if (data.contains(std::string(IModule::Key::main)))
-        m_currentMainConfig = data[std::string(IModule::Key::main)];
+    if (resetMain) {
+        m_currentMainConfig = {};
+        if (data.contains(std::string(IModule::Key::main)))
+            m_currentMainConfig = data[std::string(IModule::Key::main)];
+    }
     return true;
 }
 
