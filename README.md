@@ -36,6 +36,11 @@ Note: all you offline character still exist in non-modded save folder.
 Note 2: mod do not affect online play in any way, you won't get banned for it.  
 Note 3: if you want to return to unmodded, press "Reset launch to unmodded" (again, BNet must be closed when you press this button).
 
+# Start new config from preset
+![presets_menu](docs/presets_menu.png "Presets menu")  
+There are 4 premade configs to quickly start rando!  
+Go to [Presets readme](presets/readme.txt) to learn more about them.  
+
 # How it looks like
 ![density](docs/density.png "Density")  
 High density setting in Lost City  
