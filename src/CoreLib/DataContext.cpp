@@ -7,7 +7,7 @@
 #include "TableUtils.hpp"
 #include "FileIOUtils.hpp"
 #include "Logger.hpp"
-#include "Formats/FileFormatCSV.hpp"
+#include "MernelPlatform/FileFormatCSV.hpp"
 #include "MernelPlatform/FileFormatJson.hpp"
 
 namespace D2ModGen {
