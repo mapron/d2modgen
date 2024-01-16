@@ -16,24 +16,35 @@ namespace D2ModGen {
 
 IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames) const noexcept
 {
-    const std::string  utf8data  = m_storageRoot + "d2data.mpq";
-    const std::string  utf8patch = m_storageRoot + "patch_d2.mpq";
-    const std::wstring wdata     = string2path(utf8data).wstring();
-    const std::wstring pdata     = string2path(utf8patch).wstring();
-    bool               hasData   = true;
-    HANDLE             mpq;
-    if (!SFileOpenArchive(wdata.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
-        hasData = false;
-        if (!SFileOpenArchive(pdata.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
-            return {};
+    const std::string utf8data  = m_storageRoot + "d2data.mpq";
+    const std::string utf8data2 = m_storageRoot + "pd2data.mpq";
+    const std::string utf8patch = m_storageRoot + "patch_d2.mpq";
+
+    const std::wstring basedata  = string2path(utf8data).wstring();
+    const std::wstring basedata2 = string2path(utf8data2).wstring();
+    const std::wstring patchdata = string2path(utf8patch).wstring();
+
+    bool   hasData   = true;
+    bool   needPatch = true;
+    HANDLE mpq;
+    if (!SFileOpenArchive(basedata.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
+        if (Mernel::std_fs::exists(Mernel::string2path(utf8data2))) {
+            if (!SFileOpenArchive(basedata2.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
+                hasData = false;
+            } else {
+                needPatch = false;
+            }
         } else {
-            Logger() << "patch_d2.mpq found, but d2data.mpq is missing";
+            hasData = false;
         }
+    }
+    if (!hasData) {
+        return {};
     }
 
     MODGEN_SCOPE_EXIT([mpq] { SFileCloseArchive(mpq); });
 
-    if (hasData && !SFileOpenPatchArchive(mpq, pdata.c_str(), nullptr, STREAM_FLAG_READ_ONLY)) {
+    if (needPatch && !SFileOpenPatchArchive(mpq, patchdata.c_str(), nullptr, STREAM_FLAG_READ_ONLY)) {
         Logger() << "d2data.mpq found, but patch_d2.mpq is missing";
         return {};
     }
