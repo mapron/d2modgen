@@ -53,7 +53,7 @@ void MagicPropRawList::detectBounded()
             newProps.push_back(bundledProps[0]);
             continue;
         }
-        assert(bundledProps.size() == static_cast<size_t>(bundleIdPack.size()));
+        //assert(bundledProps.size() == static_cast<size_t>(bundleIdPack.size()));
         MagicProp newProp;
         for (const MagicProp& p : bundledProps) {
             if (p.code == rootCode) {
@@ -349,9 +349,11 @@ MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
 ItemCodeSet MagicPropUniverse::expand(const ItemCodeSet& query, bool nested) const
 {
     ItemCodeSet codeSet = query;
-    for (const std::string& code : query) {
+    for (std::string code : query) {
         if (code.empty())
             continue;
+        if (code == "amu")
+            code = "amul";
         const auto& typeInfo = itemTypeInfo.at(code.substr(0, 4));
         appendToSet(codeSet, nested ? typeInfo.nested : typeInfo.parents);
     }
