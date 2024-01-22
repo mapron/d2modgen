@@ -7,8 +7,6 @@
 
 #include "ConfigPageAbstract.hpp"
 
-class QQuickWidget;
-
 namespace D2ModGen {
 
 class PluginConfigPage : public ConfigPageAbstract {
@@ -17,15 +15,10 @@ public:
     PluginConfigPage(const std::string& localeId, const IModule::Ptr& module, QWidget* parent);
     ~PluginConfigPage();
 
-    Q_INVOKABLE void qmlDataChanged();
-
     // IConfigPage interface
 public:
     void updateUIFromSettings(const Mernel::PropertyTree& data) override;
     void writeSettingsFromUI(Mernel::PropertyTree& data) const override;
-
-private:
-    QQuickWidget* m_quick = nullptr;
 };
 
 }

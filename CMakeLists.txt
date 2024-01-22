@@ -14,16 +14,13 @@ project(modgen)
 set(MERNEL_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/mernel)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake ${MERNEL_ROOT}/cmake)
 
-
-option(ENABLE_TEST_PLUGINS "Enable plugins for testing" OFF)
-
 if (WIN32)
     add_definitions(-DNOMINMAX -D_UNICODE -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES)
 endif()
 
 
 # Qt Setup
-set(QT_MODULE_LIST Core Gui Widgets Svg Qml Network QmlModels QmlWorkerScript Quick QuickWidgets QuickTemplates2 QuickControls2)
+set(QT_MODULE_LIST Core Gui Widgets Svg)
 find_package(Qt5 COMPONENTS ${QT_MODULE_LIST} LinguistTools)
 
 set(QT_CMAKE_EXPORT_NAMESPACE Qt5)
@@ -79,30 +76,6 @@ AddTarget( TYPE app_console NAME modgen_console
     LINK_LIBRARIES ModgenCore MernelPlatform
     )
 
-# TestPlugin
-if (ENABLE_TEST_PLUGINS)
-	set(pluginRootSrc ${sourceRoot}/Plugins/TestPlugin)
-	file(GLOB src_Plugin
-		${pluginRootSrc}/*.hpp
-		${pluginRootSrc}/*.cpp
-		)
-	add_library(simpleTest SHARED ${src_Plugin})
-	target_link_libraries(simpleTest PRIVATE modgenCore)
-	generate_export_header(simpleTest BASE_NAME Plugin EXPORT_FILE_NAME PluginExport.hpp)
-	
-	set_target_properties(simpleTest PROPERTIES 
-		RUNTIME_OUTPUT_DIRECTORY ${pluginRootBin}/simpleTest
-		)
-	file(GLOB_RECURSE resourceFiles RELATIVE ${pluginRootSrc}/dist
-		${pluginRootSrc}/dist/*)
-	foreach(filename ${resourceFiles})
-		add_custom_command(OUTPUT ${pluginRootBin}/${filename}
-			COMMAND ${CMAKE_COMMAND} ARGS -E copy ${pluginRootSrc}/dist/${filename} ${pluginRootBin}/${filename}
-			DEPENDS ${pluginRootSrc}/dist/${filename})
-		target_sources(simpleTest PRIVATE ${pluginRootBin}/${filename})
-	endforeach()
-endif()
-
 if (NOT Qt5Core_DIR)
 	return()
 endif()
@@ -113,27 +86,19 @@ AddTarget( TYPE app_ui NAME modgen
     SOURCE_DIR ${sourceRoot}/QtApp
     INCLUDES   ${sourceRoot}/QtApp
     LINK_LIBRARIES ModgenCore MernelPlatform
-    QT_MODULES Widgets Quick QuickWidgets QuickControls2
+    QT_MODULES Widgets
     )
 
 GenerateQrcWithTranslations(Translations ${CMAKE_CURRENT_SOURCE_DIR}/translations qrcName)
 AddQrcTarget(${CMAKE_CURRENT_SOURCE_DIR}/theme/breeze.qrc)
 AddResourceCustomTarget("all_resources" Translations breeze)
 
-install(TARGETS modgen ModgenCore RUNTIME DESTINATION bin)
 install(DIRECTORY ${pluginRootBin} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
 install(DIRECTORY ${presetsRootBin} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
 foreach(th IN ITEMS dark light)
 	install(FILES theme/${th}.conf DESTINATION bin/theme)
 	configure_file(theme/${th}.conf ${CMAKE_CURRENT_BINARY_DIR}/theme/${th}.conf COPYONLY)
 endforeach()
-
-InstallQmlFiles(
-	QtQuick.2
-	QtQuick/Controls.2
-	QtQuick/Window.2
-	QtQuick/Templates.2
-	)
 
 #[[
 ########## Installation (Win32 only at the moment) ##########
