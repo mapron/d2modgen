@@ -168,7 +168,7 @@
 			},
 			"controlsHelps": {
 				"crazyLevel": ["Crazyness level - determine level difference to be used when selecting new properties for item/rune/etc.",
-					"With '10' it will select between level-10 and level+10 at first, if there are &lt;50 candidates,",
+					"With '10' it will select between level-10 and level+10 at first, if there are <50 candidates,",
 					"then it will select level-30..level+30, and finally it will try fully random. ",
 					"In short, lower value = more balance in terms of original affix level and item level."],
 				"itemFitPercent": ["Item fit slider allow you to select how much item affixes will be related to original item type.",

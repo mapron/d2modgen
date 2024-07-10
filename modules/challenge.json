@@ -55,7 +55,7 @@
 		},
 		"en_US": {
 			"title": "Challenge",
-			"help": "First, you can disable potion drops entirely (that&apos;s not the same as drop filter).\nSecond, you can change resistance penalty for each difficulty from default 0/40/100.\nAnd the last, you can adjust level area on all maps; \nnote that max value of 85 is still used (so set to 20 to basically make all Hell areas lvl 85).",
+			"help": "First, you can disable potion drops entirely (that's not the same as drop filter).\nSecond, you can change resistance penalty for each difficulty from default 0/40/100.\nAnd the last, you can adjust level area on all maps; \nnote that max value of 85 is still used (so set to 20 to basically make all Hell areas lvl 85).",
 			
 			"presets": [],
 			"controlsTitles": {

@@ -63,7 +63,7 @@
 			"controlsHelps": {
 				"zod_factor": ["Эта настройка крайне сильно увеличивает шансы выпадения редких рун!",
 					"Вам скорее всего не нужно больше 50х.",
-					"Значение здесь повышает шанс выпадения Zod руны в &apos;Runes 17&apos; TC",
+					"Значение здесь повышает шанс выпадения Zod руны в 'Runes 17' TC",
 					"Редкость остальных рун меняется пропорционально",
 					"(но все равно нелинейно как и прежде)."],
 				"rune_factor": ["Когда кидается Good TC, руны будут выпадать намного чаще ",
@@ -88,7 +88,7 @@
 			},
 			"controlsHelps": {
 				"zod_factor": ["That will drastically improve High Rune drop rates! You probably don&apos;t need more than 50x.",
-					"Value here increases chance of dropping Zod in &apos;Runes 17&apos; TC",
+					"Value here increases chance of dropping Zod in 'Runes 17' TC",
 					"Rarity of other runes will change proportionally ",
 					"(so High Runes still be more rare in the same manner)."],
 				"rune_factor": ["When dropping from Good TC, that will make Runes drop more often ",

@@ -71,7 +71,7 @@
 				"reduceCost": "Reduce costs of skills and stats on items (affects repair cost mostly)"
 			},
 			"controlsHelps": {
-				"quiverSize": "D2R already have 500 quiever size, so use this for LoD",
+				"quiverSize": "D2R already have 500 quiver size, so use this for LoD",
 				"disableExpPenalty": "That means you won't have around 1% EXP at higher levels, so high level grind will be much faster."
 			}
 		},

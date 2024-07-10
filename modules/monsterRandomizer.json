@@ -50,7 +50,7 @@
 			"title": "Monster Randomizer",
 			"help": ["When this feature enabled, now any area in the game can spawn any basic monsters (Super Uniques, Act bosses etc not affected).",
 				"For normal difficulty, each monster will have a 'level-adjusted' copy which corresponds",
-				"to area&apos;s level (so you will have adequate monster stats in Act 1 for guest from Act 5).",
+				"to area's level (so you will have adequate monster stats in Act 1 for guest from Act 5).",
 				"For Nightmare/Hell, adjustment is done by area level.",
 				"Monster will have adjusted their minion spawns and skill levels, too."],
 			

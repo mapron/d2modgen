@@ -99,8 +99,8 @@
 					"It affects resistance perent indirectly, through this calculation:",
 					"Lets say you have 200% selected for multiply, and monster has 80% basic Fire resist.",
 					"That means, he has 20% damage taken from fire, and new value will be 40% damage, or 60% resist.",
-					"Damage is capped at 100%, so you won&apos;t get negative reistance.",
-					"Also monster can&apos;t become immune to element, maximum resistance is 99%"]
+					"Damage is capped at 100%, so you won't get negative reistance.",
+					"Also monster can't become immune to element, maximum resistance is 99%"]
 			}
 		},
 		"ko_KR": {
