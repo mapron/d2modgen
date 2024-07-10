@@ -282,6 +282,7 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
     QAction* themeActionDark  = themeMenu->addAction("Dark");
     QAction* langActionEn     = langMenu->addAction("English");
     QAction* langActionRu     = langMenu->addAction("Russian");
+    QAction* langActionKo     = langMenu->addAction("Korean");
 
     saveConfigAction->setShortcuts(QKeySequence::Save);
     loadConfigAction->setShortcuts(QKeySequence::Open);
@@ -297,18 +298,19 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
         connect(presetAct, &QAction::triggered, this, [absPath, this](bool) { loadPresetConfig(absPath); });
     }
 
-    auto updateMenuState = [themeActionLight, themeActionDark, langActionEn, langActionRu]() {
+    auto updateMenuState = [themeActionLight, themeActionDark, langActionEn, langActionRu, langActionKo]() {
         auto       appSettings = getAppSettings();
         const bool themeLight  = appSettings.m_themeId == "light";
-        const bool langEn      = appSettings.m_langId == "en_US";
         themeActionLight->setCheckable(true);
         themeActionDark->setCheckable(true);
         langActionEn->setCheckable(true);
         langActionRu->setCheckable(true);
+        langActionKo->setCheckable(true);
         themeActionLight->setChecked(themeLight);
         themeActionDark->setChecked(!themeLight);
-        langActionEn->setChecked(langEn);
-        langActionRu->setChecked(!langEn);
+        langActionEn->setChecked(appSettings.m_langId == "en_US");
+        langActionRu->setChecked(appSettings.m_langId == "ru_RU");
+        langActionKo->setChecked(appSettings.m_langId == "ko_KR");
     };
     auto setNewAppValue = [updateMenuState, this](const QString& key, const QString& val) {
         auto ini = makeAppSettings();
@@ -394,6 +396,7 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
     connect(themeActionDark, &QAction::triggered, this, [setNewAppValue] { setNewAppValue("themeId", "dark"); });
     connect(langActionEn, &QAction::triggered, this, [setNewAppValue] { setNewAppValue("langId", "en_US"); });
     connect(langActionRu, &QAction::triggered, this, [setNewAppValue] { setNewAppValue("langId", "ru_RU"); });
+    connect(langActionKo, &QAction::triggered, this, [setNewAppValue] { setNewAppValue("langId", "ko_KR"); });
 
     // misc
     //updateModList();

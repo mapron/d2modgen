@@ -1,18 +1,21 @@
 {
-	"hasDylib": false,
-	"hasQML": false,
-	"category": "misc",
-	"order": 30,
-	"loadOrder": 210,
-	"defaults": {
-		"sourceCount": 0
-	},
-	"locales": {
-		"ru_RU": {
-			"title": "Пост-генерация"
-		},
-		"en_US": {
-			"title": "Post-gen data"
-		}
-	}
+    "hasDylib": false,
+    "hasQML": false,
+    "category": "misc",
+    "order": 30,
+    "loadOrder": 210,
+    "defaults": {
+        "sourceCount": 0
+    },
+    "locales": {
+        "ru_RU": {
+            "title": "Пост-генерация"
+        },
+        "en_US": {
+            "title": "Post-gen data"
+        },
+        "ko_KR": {
+            "title": "후처리 데이터"
+        }
+    }
 }

@@ -4,14 +4,14 @@
 <context>
     <name>D2ModGen::ConfigPageMergeMods</name>
     <message>
-        <location filename="../src/QtApp/ConfigPages/ConfigPageMergeMods.cpp" line="141"/>
+        <location filename="../src/QtApp/ConfigPages/ConfigPageMergeMods.cpp" line="146"/>
         <source>Overall order of data load is: D2 source from Main settings -&gt;
 -&gt; Pre-gen data -&gt; modgen features -&gt; Post-gen data -&gt; output folder.</source>
         <translation>Общий порядок загрузки источников: D2директория из Основных настроек -&gt;
 -&gt; Пре-генерация -&gt; работа вкладок modgen -&gt; Пост-генерация -&gt; выходная директория.</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/ConfigPageMergeMods.cpp" line="198"/>
+        <location filename="../src/QtApp/ConfigPages/ConfigPageMergeMods.cpp" line="203"/>
         <source>You can add aditional steps to mod generation, prior or after the d2modgen work
 Two additional type of sources are supported:
 1. folder with .txt files
@@ -97,87 +97,87 @@ for the case additional source contains a file which already been generated.</so
 <context>
     <name>D2ModGen::MainConfigPage</name>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="91"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="92"/>
         <source>Use Diablo II legacy installation</source>
         <translation>Использовать установку Diablo II legacy</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="109"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="110"/>
         <source>Add key to new char inventory (Basic mod test)</source>
         <translation>Добавить ключи в инвентарь нового персонажа</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="111"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="112"/>
         <source>Export all *.txt (for further manual edit)</source>
         <translation>Экспортировать все .txt файлы (для дальнейшего редактирования)</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="114"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="115"/>
         <source>Copy Settings.json</source>
         <translation>Скопировать Settings.json</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="116"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="117"/>
         <source>Set launch to mod</source>
         <translation>Установить запуск BNet на мод</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="117"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="118"/>
         <source>Reset launch to unmodded</source>
         <translation>Сбросить запуск на немод.</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="118"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="119"/>
         <source>Make shortcut on Desktop</source>
         <translation>Создать ярлык на рабочем столе</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="133"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="134"/>
         <source>Mod id:</source>
         <translation>Идентификатор мода:</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="148"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="149"/>
         <source>D2R path:</source>
         <translation>Путь к D2R:</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="159"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="160"/>
         <source>D2 legacy path:</source>
         <translation>Путь к D2 Legacy:</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="170"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="171"/>
         <source>D2R save and user settings root:</source>
         <translation>D2R директория с сохранениями и настройками:</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="175"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="176"/>
         <source>(this will copy default settings to mod folder)</source>
         <translation>(это скопирует ваши настройки в новую папку мода)</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="184"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="185"/>
         <source>D2R command arguments (read-only):</source>
         <translation>D2R командная строка (только чтение):</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="196"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="197"/>
         <source>(&lt;b&gt;Close Battlenet launcher before actions!&lt;/b&gt;)</source>
         <translation>(&lt;b&gt;Закройте Battlenet перед этими действиями!&lt;/b&gt;)</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="214"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="215"/>
         <source>Output directory (leave empty to output to D2R path):</source>
         <translation>Выходная директория (оставьте пустой чтобы сохранить мод по пути D2R):</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="309"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="313"/>
         <source>Main</source>
         <translation>Главные настройки</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="314"/>
+        <location filename="../src/QtApp/ConfigPages/MainConfigPage.cpp" line="318"/>
         <source>This page allow you to select most important options:
 -Where input and output data is (D2 installation - Resurrected or Legacy);
 -Create new D2R save folder with global settings;
@@ -201,117 +201,122 @@ You can edit seed manually or press F5 to generate new one.
 <context>
     <name>D2ModGen::MainWindow</name>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="100"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="102"/>
         <source>Generate</source>
         <translation>Генерировать</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="109"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="111"/>
         <source>Status label.</source>
         <translation>Статусная строка.</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="164"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="166"/>
         <source>Reset to default</source>
         <translation>Сброс на умолчания</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="165"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="167"/>
         <source>Enable this tab</source>
         <translation>Включить эту вкладку</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="201"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="203"/>
         <source>Select preset...</source>
         <translation>Выбрать пресет...</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="212"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="214"/>
         <source>Do not know where to start? Select a preset:</source>
         <translation>Не знаете откуда начать? Выберите пресет:</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="263"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="265"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="264"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="266"/>
         <source>Actions</source>
         <translation>Действия</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="265"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="267"/>
         <source>About</source>
         <translation>О программе</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="266"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="268"/>
         <source>Save config...</source>
         <translation>Сохранить конфиг...</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="267"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="269"/>
         <source>Load config...</source>
         <translation>Загрузить конфиг...</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="268"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="270"/>
         <source>Clear config</source>
         <translation>Очистить конфиг</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="269"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="271"/>
+        <source>Config from preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/QtApp/MainWindow.cpp" line="272"/>
         <source>Browse to settings folder</source>
         <translation>Открыть папку с настройками</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="271"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="274"/>
         <source>Quit without saving</source>
         <translation>Выйти без сохранения</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="272"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="275"/>
         <source>Save and quit</source>
         <translation>Сохранить и выйти</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="273"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="276"/>
         <source>Generate mod</source>
         <translation>Генерация мода</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="274"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="277"/>
         <source>Create seed</source>
         <translation>Создать новый seed</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="275"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="278"/>
         <source>Undo</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="276"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="279"/>
         <source>Theme</source>
         <translation>Тема оформления</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="277"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="280"/>
         <source>Language</source>
         <translation>Язык</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="306"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="318"/>
         <source>You need to restart for changes apply.</source>
         <translation>Нужно перезагрузить для применения.</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="404"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="417"/>
         <source>Start...</source>
         <translation>Старт...</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="414"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="427"/>
         <source>Mod &apos;%1&apos; successfully updated (%2).</source>
         <translation>Мод &apos;%1&apos; успешно обновлен (%2).</translation>
     </message>
@@ -319,27 +324,27 @@ You can edit seed manually or press F5 to generate new one.
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="122"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="124"/>
         <source>Randomizers</source>
         <translation>Рандомизация</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="123"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="125"/>
         <source>Make harder</source>
         <translation>Сделать сложней</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="124"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="126"/>
         <source>Make easier</source>
         <translation>Сделать легче</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="125"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="127"/>
         <source>Misc</source>
         <translation>Прочее</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainWindow.cpp" line="126"/>
+        <location filename="../src/QtApp/MainWindow.cpp" line="128"/>
         <source>Plugins</source>
         <translation>Плагины</translation>
     </message>

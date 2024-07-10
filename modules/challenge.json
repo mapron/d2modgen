@@ -73,6 +73,27 @@
 			},
 			"controlsHelps": {
 			}
+		},
+		"ko_KR": {
+			"title": "도전",
+			"help": "첫째, 포션 드롭을 완전히 비활성화할 수 있습니다 (드롭 필터와는 다릅니다).\n둘째, 각 난이도에 대한 저항력 페널티를 기본값 0/40/100에서 변경할 수 있습니다.\n마지막으로, 모든 맵의 지역 레벨을 조정할 수 있습니다;\n최대값 85는 여전히 적용됩니다 (예: 20으로 설정하면 모든 헬 난이도 지역이 레벨 85가 됩니다).",
+			
+			"presets": [],
+			"controlsTitles": {
+				"nodrop_hpsa": "드롭 비활성화: 모든 체력 물약",
+				"nodrop_mpsa": "드롭 비활성화: 모든 마나 물약",
+				"nodrop_rvs": "드롭 비활성화: 활력 및 대량의 활력 물약",
+				
+				"normal_minus_res" : "일반 난이도 저항력 페널티, -전체%",
+				"nightmare_minus_res" : "악몽 난이도 저항 페널티, -전체%",
+				"hell_minus_res" : "지옥 난이도 저항 페널티, -전체%",
+				"levelIncreaseNightmare" : "악몽 난이도 레벨 증가, +레벨",
+				"levelIncreaseHell" : "지옥 난이도 레벨 증가, +레벨",
+				
+				"levelIncreaseUltra" : "지역 레벨을 85 이상으로 설정"
+			},
+			"controlsHelps": {
+			}
 		}
 	}
 }

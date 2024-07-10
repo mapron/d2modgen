@@ -73,7 +73,33 @@
 			"controlsHelps": {
 				"quiverSize": "D2R already have 500 quiever size, so use this for LoD",
 				"disableExpPenalty": "That means you won't have around 1% EXP at higher levels, so high level grind will be much faster."
-				
+			}
+		},
+		"ko_KR": {
+			"title": "삶의 질 향상",
+			"help": [
+				"당신의 삶을 더 쉽게 만들어줄 작은 품질 개선사항들:",
+				"1. 책/화살통/열쇠의 스택 증가;",
+				"2. 유니크 참의 제한 제거 (랜덤화기와 함께 사용 시 유용);",
+				"3. 마을에서 일부 스킬 사용 허용;",
+				"4. 아이템 비용 감소."
+			],
+			
+			"presets": [],
+			"controlsTitles": {
+				"tomeSize": "책 크기 증가 20 -> 60",
+				"keySize": "열쇠 묶음 증가 12 -> 50",
+				"quiverSize": "화살통 크기 증가 -> 511",
+				"uniqueCharmLimit": "유니크 참의 제한 제거",
+				"weakenTownSkills": "마을에서 텔레포트, 전투 명령, 전투 외침 사용 허용",
+				"weakenTownSkillsExt": "마을에서 모든 스킬 사용 허용",
+				"showItemLevel": "아이템 이름에 아이템 레벨 표시",
+				"disableExpPenalty": "70레벨 이후 경험치 페널티 비활성화",
+				"reduceCost": "아이템의 스킬과 스탯 비용 감소 (주로 수리 비용에 영향)"
+			},
+			"controlsHelps": {
+				"quiverSize": "D2R은 이미 500 크기의 화살통을 가지고 있으므로, LoD에서 사용하세요",
+				"disableExpPenalty": "이는 높은 레벨에서 약 1%의 경험치를 얻지 않는다는 의미이므로, 높은 레벨 그라인딩이 훨씬 빨라질 것입니다."
 			}
 		}
 	}
