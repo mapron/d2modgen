@@ -8,7 +8,7 @@
         <source>Overall order of data load is: D2 source from Main settings -&gt;
 -&gt; Pre-gen data -&gt; modgen features -&gt; Post-gen data -&gt; output folder.</source>
         <translation>전체 데이터 로드 순서: 메인 설정에서 D2 소스 -&gt;
--&gt; 사전 생성 데이터 -&gt; modgen 기능 -&gt; 사후 생성 데이터 -&gt; 출력 폴더.</translation>
+-&gt; 사전 생성 데이터 -&gt; modgen 기능 -&gt; 후처리 데이터 -&gt; 출력 폴더.</translation>
     </message>
     <message>
         <location filename="../src/QtApp/ConfigPages/ConfigPageMergeMods.cpp" line="198"/>
@@ -40,27 +40,27 @@ for the case additional source contains a file which already been generated.</so
     <message>
         <location filename="../src/QtApp/ConfigPages/ConfigPageMergeMods.cpp" line="48"/>
         <source>Replace - clear previous data</source>
-        <translation>교체 - 이전 데이터 지우기</translation>
+        <translation>대체 - 기존 데이터 삭제</translation>
     </message>
     <message>
         <location filename="../src/QtApp/ConfigPages/ConfigPageMergeMods.cpp" line="49"/>
         <source>Append - place all data at the end</source>
-        <translation>추가 - 모든 데이터를 끝에 배치</translation>
+        <translation>추가 - 모든 데이터를 끝에 삽입</translation>
     </message>
     <message>
         <location filename="../src/QtApp/ConfigPages/ConfigPageMergeMods.cpp" line="50"/>
         <source>Update - overwrite records with same key</source>
-        <translation>업데이트 - 동일한 키로 기록 덮어쓰기</translation>
+        <translation>업데이트 - 동일한 키의 데이터 덮어쓰기</translation>
     </message>
     <message>
         <location filename="../src/QtApp/ConfigPages/ConfigPageMergeMods.cpp" line="51"/>
         <source>AppendNew - add non-existent data to the end</source>
-        <translation>AppendNew - 존재하지 않는 데이터를 끝에 추가</translation>
+        <translation>새 항목 추가 - 존재하지 않는 빈 데이터를 끝에 추가</translation>
     </message>
     <message>
         <location filename="../src/QtApp/ConfigPages/ConfigPageMergeMods.cpp" line="52"/>
         <source>Merge - try Update, then AppendNew</source>
-        <translation>병합 - 업데이트 시도 후 AppendNew</translation>
+        <translation>병합 - 기존 항목 업데이트 후 새 항목 추가</translation>
     </message>
     <message>
         <location filename="../src/QtApp/ConfigPages/ConfigPageMergeMods.cpp" line="53"/>
@@ -219,12 +219,12 @@ You can edit seed manually or press F5 to generate new one.
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="165"/>
         <source>Enable this tab</source>
-        <translation>이 탭 활성화</translation>
+        <translation>탭 활성화</translation>
     </message>
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="201"/>
         <source>Select preset...</source>
-        <translation>프리셋 선택...</translation>
+        <translation>프리셋 선택</translation>
     </message>
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="212"/>
@@ -249,12 +249,12 @@ You can edit seed manually or press F5 to generate new one.
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="266"/>
         <source>Save config...</source>
-        <translation>설정 저장...</translation>
+        <translation>설정 저장</translation>
     </message>
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="267"/>
         <source>Load config...</source>
-        <translation>설정 불러오기...</translation>
+        <translation>설정 불러오기</translation>
     </message>
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="268"/>
@@ -309,7 +309,7 @@ You can edit seed manually or press F5 to generate new one.
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="404"/>
         <source>Start...</source>
-        <translation>시작...</translation>
+        <translation>시작</translation>
     </message>
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="414"/>
@@ -322,17 +322,17 @@ You can edit seed manually or press F5 to generate new one.
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="122"/>
         <source>Randomizers</source>
-        <translation>랜덤 생성기</translation>
+        <translation>랜덤화 설정</translation>
     </message>
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="123"/>
         <source>Make harder</source>
-        <translation>어렵게 만들기</translation>
+        <translation>난이도 설정</translation>
     </message>
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="124"/>
         <source>Make easier</source>
-        <translation>쉽게 만들기</translation>
+        <translation>편의성 설정</translation>
     </message>
     <message>
         <location filename="../src/QtApp/MainWindow.cpp" line="125"/>

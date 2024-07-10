@@ -84,29 +84,29 @@
 			}
 		},
 		"ko_KR": {
-			"title": "완벽한 롤",
-			"help": ["무언가의 최소값과 최대값 사이에서 무작위로 결정되는 효과를 제거합니다."],
+			"title": "완벽한 수치",
+			"help": ["아이템 속성의 최소값과 최대값 사이에서 무작위로 결정되는 효과를 제거합니다."],
 			
 			"presets": [],
 			"controlsTitles": {
-				"craft": "호라드릭의 함에서 제작 시 완벽한 롤",
-				"uniques": "완벽한 유니크 아이템",
-				"runeWords": "완벽한 룬워드 롤",
-				"setItems": "완벽한 세트 아이템",
-				"affixes": "완벽한 매직/레어 접사",
-				"crafted": "완벽한 사전 정의된 제작 접사",
-				"armor": "항상 최대 방어력 방어구",
+				"craft": "호라드릭의 함 제작 시 완벽한 수치",
+				"uniques": "유니크 아이템 완벽한 수치",
+				"runeWords": "룬워드 완벽한 수치",
+				"setItems": "세트 아이템 완벽한 수치",
+				"affixes": "매직/레어 아이템 접사 완벽한 수치",
+				"crafted": "제작 아이템의 고정 접사 완벽한 수치",
+				"armor": "방어구 항상 최대 방어력",
 				
-				"uniques_power_l1": "레벨 1 유니크 아이템 파워 배수",
-				"uniques_power_l50": "레벨 50 유니크 아이템 파워 배수",
-				"rw_power_l50": "레벨 50 룬워드 파워 배수",
-				"set_power_l1": "레벨 1 세트 아이템 파워 배수",
-				"set_power_l50": "레벨 50 세트 아이템 파워 배수",
-				"affix_power_l1": "레벨 1 매직 접사 파워 배수",
-				"affix_power_l50": "레벨 50 매직 접사 파워 배수",
-				"rw_power": "룬워드 파워 배수",
-				"crafted_power": "제작 아이템 파워 배수",
-				"gem_power": "룬/보석 파워 배수"
+				"uniques_power_l1": "레벨 1 유니크 아이템 능력치 배율",
+				"uniques_power_l50": "레벨 50 유니크 아이템 능력치 배율",
+				"rw_power_l50": "레벨 50 룬워드 능력치 배율",
+				"set_power_l1": "레벨 1 세트 아이템 능력치 배율",
+				"set_power_l50": "레벨 50 세트 아이템 능력치 배율",
+				"affix_power_l1": "레벨 1 매직 접사 능력치 배율",
+				"affix_power_l50": "레벨 50 매직 접사 능력치 배율",
+				"rw_power": "룬워드 능력치 배율",
+				"crafted_power": "제작 아이템 능력치 배율",
+				"gem_power": "룬/보석 능력치 배율"
 			},
 			"controlsHelps": {
 			}
