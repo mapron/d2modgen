@@ -29,7 +29,8 @@ set(cascSrc
 	common/Sockets.cpp
 	# DllMain.c
 	jenkins/lookup3.c
-	md5/md5.cpp
+	hashes/md5.cpp
+	hashes/sha1.cpp
 	zlib/adler32.c
 	zlib/crc32.c
 	zlib/inffast.c
@@ -37,6 +38,9 @@ set(cascSrc
 	zlib/inftrees.c
 	zlib/trees.c
 	zlib/zutil.c
+	overwatch/apm.cpp
+	overwatch/cmf.cpp
+	overwatch/aes.cpp
 	
 	CascCommon.h
 	CascLib.h
@@ -53,7 +57,8 @@ set(cascSrc
 	common/Mime.h
 	common/Sockets.h
 	#FileStream.h
-	md5/md5.h
+	hashes/md5.h
+	hashes/sha1.h
 	zlib/deflate.h
 	)
 set(cascSrcFull)
