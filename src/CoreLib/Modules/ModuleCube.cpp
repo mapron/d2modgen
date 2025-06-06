@@ -71,7 +71,7 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
     const bool craftNoStrict = input.getInt("craftNoStrict");
     const bool craftNoRunes  = input.getInt("craftNoRunes");
     const bool craftHighIlvl = input.getInt("craftHighIlvl");
-    const bool runeDowngrade = input.getInt("runeDowngrade");
+    const bool cheatCharms   = input.getInt("cheatCharms");
 
     auto&     tableSet = output.tableSet;
     TableView view(tableSet.tables[TableId::cubemain], true);
@@ -285,25 +285,136 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
         view.appendRow(weapNor);
     }
 
-    if (runeDowngrade) {
-        auto runeId = [](int i) -> std::string {
-            auto res = std::to_string(i);
-            if (res.size() == 1)
-                res = "0" + res;
-            return "r" + res;
+    if (cheatCharms) {
+        struct Affix {
+            std::string m_name;
+            std::string m_value;
         };
-        for (int i = 2; i <= 33; ++i) {
-            StringMap rune{
-                { "description", "Rune downgrade" },
+        struct CraftResult {
+            std::string        m_name;
+            std::string        m_i1;
+            std::string        m_i2;
+            std::vector<Affix> m_affixes;
+        };
+        const std::vector<CraftResult> crs{
+            //----------------
+            CraftResult{
+                .m_name    = "Cheat SC: key + stamina = all skills + all stats",
+                .m_i1      = "key",
+                .m_i2      = "vps",
+                .m_affixes = { { "allskills", "7" }, { "all-stats", "20" }, { "ac", "1" }, { "att", "1" }, { "dmg-max", "1" } },
+            },
+            CraftResult{
+                .m_name    = "Cheat SC: key + antidote = damage reduction",
+                .m_i1      = "key",
+                .m_i2      = "yps",
+                .m_affixes = { { "red-dmg", "15" }, { "red-mag", "15" }, { "red-dmg%", "10" }, { "ac", "1" }, { "att", "1" } },
+            },
+            CraftResult{
+                .m_name    = "Cheat SC: key + thawing = absorb",
+                .m_i1      = "key",
+                .m_i2      = "wms",
+                .m_affixes = { { "abs-fire%", "10" }, { "abs-ltng%", "10" }, { "abs-mag%", "10" }, { "abs-cold%", "10" }, { "ac", "1" } },
+            },
+
+            CraftResult{
+                .m_name    = "Cheat SC: key + any hp = HP and vitality",
+                .m_i1      = "key",
+                .m_i2      = "hpot",
+                .m_affixes = { { "hp", "300" }, { "hp%", "10" }, { "vit", "20" }, { "ac", "1" }, { "att", "1" } },
+            },
+            CraftResult{
+                .m_name    = "Cheat SC: key + any mana = Mana and energy",
+                .m_i1      = "key",
+                .m_i2      = "mpot",
+                .m_affixes = { { "mana", "150" }, { "mana%", "20" }, { "enr", "20" }, { "ac", "1" }, { "att", "1" } },
+            },
+
+            //----------------
+            CraftResult{
+                .m_name    = "Cheat SC: TP + stamina = faster frames",
+                .m_i1      = "tsc",
+                .m_i2      = "vps",
+                .m_affixes = { { "move2", "30" }, { "cast2", "80" }, { "balance2", "80" }, { "block2", "50" }, { "ac", "1" } },
+            },
+            CraftResult{
+                .m_name    = "Cheat SC: TP + antidote = max res + poison len",
+                .m_i1      = "tsc",
+                .m_i2      = "yps",
+                .m_affixes = { { "res-fire-max", "8" }, { "res-ltng-max", "8" }, { "res-cold-max", "8" }, { "res-pois-max", "8" }, { "res-pois-len", "50" } },
+            },
+            CraftResult{
+                .m_name    = "Cheat SC: TP + thawing = all res",
+                .m_i1      = "tsc",
+                .m_i2      = "wms",
+                .m_affixes = { { "res-all", "50" }, { "ac", "1" }, { "att", "1" }, { "dmg-min", "1" }, { "dmg-max", "1" } },
+            },
+            CraftResult{
+                .m_name    = "Cheat SC: TP + any hp = hp regen",
+                .m_i1      = "tsc",
+                .m_i2      = "hpot",
+                .m_affixes = { { "lifesteal", "10" }, { "regen", "30" }, { "heal-kill", "20" }, { "regen-stam", "50" }, { "ac", "1" } },
+            },
+            CraftResult{
+                .m_name    = "Cheat SC: TP + any mana = mana regen",
+                .m_i1      = "tsc",
+                .m_i2      = "mpot",
+                .m_affixes = { { "manasteal", "5" }, { "regen-mana", "50" }, { "mana-kill", "5" }, { "dmg-to-mana", "20" }, { "ac", "1" } },
+            },
+
+            //----------------
+            CraftResult{
+                .m_name    = "Cheat SC: ID + stamina = pierce res",
+                .m_i1      = "isc",
+                .m_i2      = "vps",
+                .m_affixes = { { "pierce-pois", "20" }, { "pierce-fire", "20" }, { "pierce-ltng", "20" }, { "pierce-cold", "20" }, { "ac", "1" } },
+            },
+            CraftResult{
+                .m_name    = "Cheat SC: ID + antidote = +elemental dmg",
+                .m_i1      = "isc",
+                .m_i2      = "yps",
+                .m_affixes = { { "extra-ltng", "50" }, { "extra-cold", "50" }, { "extra-pois", "50" }, { "extra-fire", "50" }, { "ac", "1" } },
+            },
+            CraftResult{
+                .m_name    = "Cheat SC: ID + thawing = OW/CB/DS",
+                .m_i1      = "isc",
+                .m_i2      = "wms",
+                .m_affixes = { { "crush", "20" }, { "openwounds", "20" }, { "deadly", "20" }, { "noheal", "1" }, { "ac", "1" } },
+            },
+            CraftResult{
+                .m_name    = "Cheat SC: ID + any hp = IAS and Enh Dmg",
+                .m_i1      = "isc",
+                .m_i2      = "hpot",
+                .m_affixes = { { "swing2", "30" }, { "dmg-max", "20" }, { "dmg%", "100" }, { "dmg-demon", "100" }, { "dmg-undead", "100" } },
+            },
+            CraftResult{
+                .m_name    = "Cheat SC: ID + any mana = attack rating and defence",
+                .m_i1      = "isc",
+                .m_i2      = "mpot",
+                .m_affixes = { { "att%", "20" }, { "att", "200" }, { "ac", "100" }, { "dmg-min", "1" }, { "dmg-max", "1" } },
+            },
+        };
+        for (const CraftResult& c : crs) {
+            StringMap data{
+                { "description", c.m_name },
                 { "enabled", "1" },
+                { "lvl", "1" },
                 { "version", "100" },
                 { "*eol", "0" },
                 { "numinputs", "3" },
-                { "input 1", runeId(i) },
-                { "input 2", "\"key,qty=2\"" },
-                { "output", runeId(i - 1) },
+                { "input 1", "cm1" },
+                { "input 2", c.m_i1 },
+                { "input 3", c.m_i2 },
+                { "output", "\"usetype,crf\"" },
             };
-            view.appendRow(rune);
+            for (size_t i = 1; auto&& af : c.m_affixes) {
+                data["mod " + std::to_string(i)]             = af.m_name;
+                data["mod " + std::to_string(i) + " chance"] = "100";
+                data["mod " + std::to_string(i) + " min"]    = af.m_value;
+                data["mod " + std::to_string(i) + " max"]    = af.m_value;
+                i++;
+            }
+            view.appendRow(data);
         }
     }
 }

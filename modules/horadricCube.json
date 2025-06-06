@@ -12,7 +12,7 @@
 		"quickQuests": false,
 		"socketing": false,
 		"upgrading": false,
-		"runeDowngrade": false,
+		"cheatCharms": false,
 		"craftNoStrict": false,
 		"craftNoRunes": false,
 		"craftHighIlvl": false
@@ -25,7 +25,7 @@
 		{ "id": "quickQuests", "type": "checkbox"},
 		{ "id": "socketing", "type": "checkbox"},
 		{ "id": "upgrading", "type": "checkbox"},
-		{ "id": "runeDowngrade", "type": "checkbox"},
+		{ "id": "cheatCharms", "type": "checkbox"},
 		{ "id": "_label1", "type": "label"},
 		{ "id": "craftNoStrict", "type": "checkbox"},
 		{ "id": "craftNoRunes", "type": "checkbox"},
@@ -45,7 +45,7 @@
 				"quickQuests": "Рецепты для быстрого получения квестовых предметов:",
 				"socketing": "Добавить рецепты для получения точного числа сокетов:",
 				"upgrading": "Добавить рецепты на апгрейд предметов:",
-				"runeDowngrade": "Добавить понижение рун:",
+				"cheatCharms": "Добавить читерские рецепты на Small Charm:",
 				"_label1" :"Упростить рецепты для крафта:",
 				"craftNoStrict": "Убрать жесткие требования по типу предмета (=любой шлем, любые перчатки и тд)",
 				"craftNoRunes": "Убрать необходимость рун и драгоценностей для крафта\n(т.о. достаточно предмета и камня)",
@@ -66,7 +66,7 @@
 				"quickQuests": "Add quick quest recipes:",
 				"socketing": "Add socketing recipes:",
 				"upgrading": "Add upgrade recipes:",
-				"runeDowngrade": "Add Rune downgrade:",
+				"cheatCharms": "Add cheat Small Charm recipies:",
 				"_label1" :"Simplyfy crafting:",
 				"craftNoStrict": "Remove strict item types for Crafted (any helm, any gloves etc)",
 				"craftNoRunes": "Remove Rune/Jewel requirement for Crafted\n(So any recipe is 'item + gem')",
@@ -96,9 +96,18 @@
 					"3. Any item + Stamina x2 = Add Ethereal",
 					"4. Magic (magic,rare,unique,set) item  + Stamina = Normal item of same type"
 				],
-				"runeDowngrade": "Rune + key + key = Lower rune"
+				"cheatCharms": [
+					"1. Any small charm + TP scroll x1 + one of (h pot, mana pot, stamina, antidote, thawing)",
+					"2. Any small charm + Id scroll x1 + one of (h pot, mana pot, stamina, antidote, thawing)",
+					"3. Any small charm + key       x1 + one of (h pot, mana pot, stamina, antidote, thawing)"
+				]
 			},
 			"controlsHelps": {
+				"cheatCharms": [
+					"Different combinations provide one of 10 stat combinations.",
+					"Just two charms of each kind suppose to provide reasonable endgame stat.",
+					"Item level is 1, so try several times to craft charm with 0 requirements."
+				]
 			}
 		},
 		"ko_KR": {
@@ -114,7 +123,7 @@
 				"quickQuests": "퀘스트 아이템 제작 레시피 추가:",
 				"socketing": "소켓 추가 레시피 추가:",
 				"upgrading": "아이템 등급 상승 레시피 추가:",
-				"runeDowngrade": "룬 등급 하락 레시피 추가:",
+				"cheatCharms": "Add cheat Small Charm recipies:",
 				"_label1": "크래프팅 간소화:",
 				"craftNoStrict": "크래프트 아이템 제작 시 아이템 종류 제한 해제 (모든 투구, 모든 장갑 등)",
 				"craftNoRunes": "크래프트 시 룬/주얼 요구사항 제거\n(모든 레시피가 '아이템 + 보석'으로 변경)",
@@ -144,7 +153,11 @@
 					"3. 모든 아이템 + 스태미나 물약 2개 = 에테리얼 속성 추가",
 					"4. 매직 이상 아이템 (매직, 레어, 유니크, 세트) + 스태미나 물약 = 같은 종류의 일반 아이템으로 변경"
 				],
-				"runeDowngrade": "룬 + 열쇠 2개 = 하위 룬"
+				"cheatCharms": [
+					"1. Any small charm + TP scroll x1 + one of (h pot, mana pot, stamina, antidote, thawing)",
+					"2. Any small charm + Id scroll x1 + one of (h pot, mana pot, stamina, antidote, thawing)",
+					"3. Any small charm + key       x1 + one of (h pot, mana pot, stamina, antidote, thawing)"
+				]
 			},
 			"controlsHelps": {
 			}
