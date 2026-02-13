@@ -11,8 +11,9 @@ namespace D2ModGen {
 
 class CascStorage final : virtual public IInputStorage {
 public:
-    CascStorage(const std::string& storageRoot)
+    CascStorage(const std::string& storageRoot, bool needBaseSubfolder)
         : m_storageRoot(storageRoot)
+        , m_needBaseSubfolder(needBaseSubfolder)
     {}
 
 private:
@@ -20,6 +21,7 @@ private:
 
 private:
     const std::string m_storageRoot;
+    const bool        m_needBaseSubfolder;
 };
 
 }

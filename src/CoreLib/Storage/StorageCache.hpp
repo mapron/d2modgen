@@ -18,12 +18,14 @@ public:
         StorageType m_storage;
         std::string m_root;
         RequestList m_inMemoryFiles;
+        bool        m_needBaseSubfolder = false;
 
         bool operator==(const Context& rh) const noexcept
         {
             return m_storage == rh.m_storage
                    && m_root == rh.m_root
-                   && m_inMemoryFiles == rh.m_inMemoryFiles;
+                   && m_inMemoryFiles == rh.m_inMemoryFiles
+                   && m_needBaseSubfolder == rh.m_needBaseSubfolder;
         }
     };
 
@@ -40,11 +42,13 @@ public:
 
     IStorage::StoredData load(StorageType        storage,
                               const std::string& root,
-                              const RequestList& inMemoryFiles)
+                              const RequestList& inMemoryFiles,
+                              bool               needBaseSubfolder)
     {
         return load({ storage,
                       root,
-                      inMemoryFiles });
+                      inMemoryFiles,
+                      needBaseSubfolder });
     }
 
 private:

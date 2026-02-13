@@ -136,21 +136,22 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         return {};
     }
 
-    const StorageType storage    = (env.isLegacy) ? StorageType::D2LegacyInternal : StorageType::D2ResurrectedInternal;
-    const StorageType storageOut = (env.isLegacy) ? StorageType::D2LegacyFolder : StorageType::D2ResurrectedModFolder;
+    const StorageType storage           = (env.isLegacy) ? StorageType::D2LegacyInternal : StorageType::D2ResurrectedInternal;
+    const StorageType storageOut        = (env.isLegacy) ? StorageType::D2LegacyFolder : StorageType::D2ResurrectedModFolder;
+    const bool        needBaseSubfolder = !env.isLegacy && !env.d2rUseROTW;
 
-    FolderStorage outStorage(string2path(env.outPath), storageOut, env.modName);
+    FolderStorage outStorage(string2path(env.outPath), storageOut, env.modName, needBaseSubfolder);
 
     Logger() << "started generation in " << env.outPath;
     if (!outStorage.prepareForWrite()) {
         return { "Failed to write data in destination folder; try to launch as admin." };
     }
 
-    auto mergeContext = [this, &env](DataContext& targetContext, const IModule::ExtraDependencies::Source& source) -> bool {
+    auto mergeContext = [this, &env, needBaseSubfolder](DataContext& targetContext, const IModule::ExtraDependencies::Source& source) -> bool {
         const auto    logInfo = source.srcRoot + " / " + source.modname;
         const bool    isMod   = source.type == StorageType::D2ResurrectedModFolder;
         const auto    root    = isMod ? env.outPath : source.srcRoot;
-        FolderStorage inStorage(string2path(root), source.type, isMod ? source.modname : "");
+        FolderStorage inStorage(string2path(root), source.type, isMod ? source.modname : "", needBaseSubfolder);
         auto          storedData = inStorage.readData({});
         if (!storedData.valid) {
             Logger(Logger::Warning) << "Failed to read data files from D2 folder:" << logInfo.c_str();
@@ -188,7 +189,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     }
     {
         Logger() << "Loading data from main storage...";
-        const IStorage::StoredData data = m_mainStorageCache->load(storage, env.d2rPath, pregenContext.m_extraJson);
+        const IStorage::StoredData data = m_mainStorageCache->load(storage, env.d2rPath, pregenContext.m_extraJson, needBaseSubfolder);
         if (!data.valid) {
             return { "Failed to read data files from D2 folder." };
         }
@@ -273,6 +274,7 @@ GenerationEnvironment ConfigHandler::getEnv() const
     GenerationEnvironment env;
     env.modName         = c.value("modname", Mernel::PropertyTreeScalar("")).toString();
     env.isLegacy        = c.value("isLegacy", Mernel::PropertyTreeScalar(false)).toBool();
+    env.d2rUseROTW      = c.value("d2rUseROTW", Mernel::PropertyTreeScalar(true)).toBool();
     env.d2rPath         = ensureTrailingSlash(c.value(env.isLegacy ? "d2legacyPath" : "d2rPath", Mernel::PropertyTreeScalar("")).toString());
     env.exportAllTables = c.value("exportAllTables", Mernel::PropertyTreeScalar(false)).toBool();
     env.seed            = static_cast<uint32_t>(c.value("seed", Mernel::PropertyTreeScalar(0)).toInt());

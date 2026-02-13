@@ -17,6 +17,7 @@ namespace D2ModGen {
 namespace {
 static const std::string s_tableSubfolder     = "data/global/excel/";
 static const std::string s_tableSubfolderBack = "data\\global\\excel\\";
+static const std::string s_tableBase          = "base";
 
 void removeRecursively(const std_path& folder)
 {
@@ -40,16 +41,21 @@ void removeRecursively(const std_path& folder)
 
 }
 
-std::string IStorage::makeTableRelativePath(const std::string& id, bool backslash)
+std::string IStorage::makeTableRelativePath(const std::string& id, bool backslash, bool baseSub)
 {
-    const std::string& base = backslash ? s_tableSubfolderBack : s_tableSubfolder;
+    std::string base = backslash ? s_tableSubfolderBack : s_tableSubfolder;
+    if (baseSub) {
+        base += s_tableBase;
+        base += backslash ? "\\" : "/";
+    }
     return base + id + ".txt";
 }
 
-FolderStorage::FolderStorage(const std_path& storageRoot, StorageType storage, const std::string& modname)
+FolderStorage::FolderStorage(const std_path& storageRoot, StorageType storage, const std::string& modname, bool needBaseSubfolder)
     : m_storageType(storage)
     , m_modName(modname)
     , m_root(storage == StorageType::D2ResurrectedModFolder ? storageRoot / "mods" / modname / (modname + ".mpq") : (storageRoot / "fake").parent_path())
+    , m_needBaseSubfolder(needBaseSubfolder)
 {
 }
 
@@ -139,7 +145,7 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
         return !ec;
     };
     for (const auto& tableData : data.tables) {
-        const std::string relPath = m_storageType == StorageType::CsvFolder ? tableData.id + ".txt" : makeTableRelativePath(tableData.id, false);
+        const std::string relPath = m_storageType == StorageType::CsvFolder ? tableData.id + ".txt" : makeTableRelativePath(tableData.id, false, m_needBaseSubfolder);
         const auto        absPath = m_root / relPath;
         if (!writeData(tableData.data, absPath)) {
             Logger(Logger::Warning) << "failed to write to:" << absPath;

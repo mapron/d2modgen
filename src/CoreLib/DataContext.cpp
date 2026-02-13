@@ -37,7 +37,7 @@ bool DataContext::readData(const IStorage::StoredData& data)
             return false;
         }
         tableSet.tables[id] = std::move(table);
-        tableSet.relativeNames.insert(string2path(IStorage::makeTableRelativePath(fileData.id, false)));
+        tableSet.relativeNames.insert(string2path(IStorage::makeTableRelativePath(fileData.id, false, false)));
     }
     for (const auto& fileData : data.inMemoryFiles) {
         if (fileData.data.empty()) {

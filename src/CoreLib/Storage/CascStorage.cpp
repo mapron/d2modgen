@@ -50,7 +50,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
 
     for (const std::string& id : getTableNames()) {
         std::string buffer;
-        if (!readCascFile(buffer, IStorage::makeTableRelativePath(id, true)))
+        if (!readCascFile(buffer, IStorage::makeTableRelativePath(id, true, m_needBaseSubfolder)))
             continue;
 
         result.tables.push_back(StoredFileTable{ std::move(buffer), id });

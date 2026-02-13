@@ -61,6 +61,7 @@ struct GenerationEnvironment {
     std::string outPath;
     bool        exportAllTables;
     bool        isLegacy;
+    bool        d2rUseROTW;
     uint32_t    seed;
 };
 

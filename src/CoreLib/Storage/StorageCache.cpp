@@ -18,7 +18,7 @@ IStorage::StoredData StorageCache::loadImpl(const Context& input)
 {
     IInputStorage::Ptr storage;
     if (input.m_storage == StorageType::D2ResurrectedInternal)
-        storage = std::make_shared<CascStorage>(input.m_root);
+        storage = std::make_shared<CascStorage>(input.m_root, input.m_needBaseSubfolder);
     else if (input.m_storage == StorageType::D2LegacyInternal)
         storage = std::make_shared<StormStorage>(input.m_root);
     else {

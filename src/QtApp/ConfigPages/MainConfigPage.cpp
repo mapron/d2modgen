@@ -64,6 +64,7 @@ QString getBattleNetConfig()
 struct MainConfigPage::Impl {
     QLineEdit* modName;
     QCheckBox* d2legacyMode;
+    QCheckBox* d2rUseROTW;
     QLineEdit* d2rPath;
     QLineEdit* d2legacyPath;
     QLineEdit* d2rSaves;
@@ -90,6 +91,7 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
     m_impl->modName->setValidator(validator);
 
     m_impl->d2legacyMode = new QCheckBox(tr("Use Diablo II legacy installation"), this);
+    m_impl->d2rUseROTW   = new QCheckBox(tr("Target for D2R Reign of the Warlock"), this);
 
     m_impl->d2rPath      = new QLineEdit(this);
     m_impl->d2legacyPath = new QLineEdit(this);
@@ -139,7 +141,11 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
         mainLayout->addLayout(rowLayout);
         rowLayout->addWidget(m_impl->d2legacyMode);
     }
-
+    {
+        QVBoxLayout* rowLayout = new QVBoxLayout();
+        mainLayout->addLayout(rowLayout);
+        rowLayout->addWidget(m_impl->d2rUseROTW);
+    }
     {
         QWidget*     rowWidget = new QWidget(this);
         QVBoxLayout* rowLayout = new QVBoxLayout(rowWidget);
@@ -282,6 +288,7 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
         updateArgs();
     });
     connect(m_impl->d2legacyMode, &QCheckBox::clicked, this, &IConfigPage::dataChanged);
+    connect(m_impl->d2rUseROTW, &QCheckBox::clicked, this, &IConfigPage::dataChanged);
     connect(m_impl->exportAll, &QCheckBox::clicked, this, &IConfigPage::dataChanged);
 
     m_impl->modName->setText("rando");
@@ -364,6 +371,7 @@ void MainConfigPage::updateUIFromSettingsMain(const Mernel::PropertyTree& data)
         m_impl->d2legacyPath->setText(getInstallLocationFromRegistry(false));
 
     m_impl->d2legacyMode->setChecked(data.value("isLegacy", Mernel::PropertyTreeScalar(false)).toBool());
+    m_impl->d2rUseROTW->setChecked(data.value("d2rUseROTW", Mernel::PropertyTreeScalar(true)).toBool());
     m_impl->exportAll->setChecked(data.value("exportAllTables", Mernel::PropertyTreeScalar(false)).toBool());
     m_impl->outPath->setText(QString::fromStdString(data.value("outPath", Mernel::PropertyTreeScalar("")).toString()));
 }
@@ -375,6 +383,7 @@ void MainConfigPage::writeSettingsFromUIMain(Mernel::PropertyTree& data) const
     data["d2rPath"]         = Mernel::PropertyTreeScalar{ m_impl->d2rPath->text().toStdString() };
     data["d2legacyPath"]    = Mernel::PropertyTreeScalar{ m_impl->d2legacyPath->text().toStdString() };
     data["isLegacy"]        = Mernel::PropertyTreeScalar{ m_impl->d2legacyMode->isChecked() };
+    data["d2rUseROTW"]      = Mernel::PropertyTreeScalar{ m_impl->d2rUseROTW->isChecked() };
     data["exportAllTables"] = Mernel::PropertyTreeScalar{ m_impl->exportAll->isChecked() };
     data["outPath"]         = Mernel::PropertyTreeScalar{ m_impl->outPath->text().toStdString() };
 

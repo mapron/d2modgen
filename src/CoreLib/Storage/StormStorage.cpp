@@ -78,7 +78,7 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
 
     for (const std::string& id : getTableNames()) {
         std::string buffer;
-        if (!readStormFile(buffer, IStorage::makeTableRelativePath(id, true)))
+        if (!readStormFile(buffer, IStorage::makeTableRelativePath(id, true, false)))
             continue;
 
         result.tables.push_back(StoredFileTable{ std::move(buffer), id });

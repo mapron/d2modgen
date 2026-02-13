@@ -14,7 +14,7 @@ namespace D2ModGen {
 
 class IStorage {
 public:
-    static std::string makeTableRelativePath(const std::string& id, bool backslash);
+    static std::string makeTableRelativePath(const std::string& id, bool backslash, bool baseSub);
 
     struct StoredFileTable {
         std::string data;
