@@ -1,3 +1,107 @@
+## 0.6.6
+
+New Features:
+
+* Added compatibility checkbox on main page to create mod for D2R Pre-RotW expansion.
+* Added Horadric cube recipe option to make cheat small charms.  
+
+Here are all Small Charm cheat recipes (SC + X + Y). You should be able to craft them on level 1. If you get too high lvl req, just re-craft again.
+
+* key + stamina = all skills + all stats
+* key + antidote = damage reduction
+* key + thawing = absorb
+* key + any hp = HP and vitality
+* key + any mana = Mana and energy
+* TP + stamina = faster frames
+* TP + antidote = max res + poison len
+* TP + thawing = all res
+* TP + any hp = hp regen
+* TP + any mana = mana regen
+* ID + stamina = pierce res
+* ID + antidote = +elemental dmg
+* ID + thawing = OW/CB/DS
+* ID + any hp = IAS and Enh Dmg
+* ID + any mana = attack rating and defence
+
+
+## 0.6.5
+Fixed some issues were reported with newer D2R installation (inability to read CASC storage). CASC library was updated to fresh master.
+
+## 0.6.4
+Added Korean translation. Thanks to 반졔 (Ban)!
+
+## 0.6.3
+Added version to window's title.
+
+## 0.6.2
+Tiny tech release: reduced install zip size from 16 to 10 megabytes (removed unnecessary dlls)
+
+## 0.6.1
+Fixed a bug related to ProjectD2 mpq load process.
+
+## 0.6.0
+
+Main change of new version is 4 pre-made overall config preset to start:
+* basic;
+* friendly_chaos;
+* magic_rando;
+* oh_no
+
+[Read more about them](presets/readme.txt)
+
+
+## 0.5.9
+Small bugfixes to support current ProjectD2 update in Randomizer.
+
+## 0.5.8
+Changes:
+* Removed "enable Sunder Charms" feature as it no needed anymore
+* Huge internal code refactor (some regressions in functionality can happen).
+
+## 0.5.7
+Various bug fixes:
+* Fixed "Bug: Always max defense armor from Perfect rolls doesn't work."
+* Fixed missing change notification on D2 legacy path edit (that's why it could not be edited)
+* Fixed pregen step as 'csv folder' no working
+* Set partial bonuses are no more greedy in generation with randomizer (there was a few of them, now much more)
+
+## 0.5.6
+Small bugfixes:
+* Added option to disable XP penalty.
+* Improve set partial bonuses. Now they can be added in rando when initial item did not have them.
+* Added feature 'Multiple sets copies'. This will create separate sets with number in the end, like 'Sigons Complete Steel 3', 'Angelic Wings 6' etc.
+* Added separate slider for number of properties for sets in rando
+* Fixed crash with CSV pregen, if there was slash at the end of folder path.
+* Auto create item-names translations so user can have extra custom sets.
+
+## 0.5.5
+Just another fix for D2R 2.5 patch (updated 'monstat' column aliases - thx blizzard mentioning this in changelog.)
+
+## 0.5.4
+Release with support of new Sunder Charms introduced in D2R 2.5:
+* New Sunder properties correctly randomized;
+* Minus res do not convert to +1% res for some charms;
+* Added QoL checkbox to enable drops of Sunder Charms anywhere (check zones with TC75 and above).
+
+## 0.5.3
+Main 2 changes related to better bug diagnostics:
+* Added exception handling to generation phase so you getting message like 'Generation failed in step 'randomizer' with error X' instead of crash;
+* Added exception to common error (missing columns) so you again getting nice dialog instead of crash, reporting 'unknown column 'blah' in table 'runes'
+
+## 0.5.2
+Various bugfixes related to pre-gen step:
+* Data change in 'D2R mod' combo works correctly;
+* Improved json merge (e.g. if mod have some item.json changes and modgen have them too);
+* Added workaround for column 'worldevent' renamed to 'diablocloneweight' in 2.4.
+* Added couple options: 'Quest drops' and 'Show item level'
+
+## 0.5.1
+Couple bug fixes after 0.5:
+* fixed random seed not restored;
+* fixed random seed not applied on 'create new seed' action;
+* fixed monsters HP slider was invisible on Monster Stat tab;
+* fixed resistance penalty was applying with wrong sign (+100% instead of -100% for example)
+
 ## 0.5
 New features:
 * Added New tab - Requirements!
