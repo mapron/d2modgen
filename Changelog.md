@@ -1,3 +1,9 @@
+## 0.6.7
+Updated stormlib and Casclib, recent version of Casclib contains fix for Steam version of D2R. Thank you, Ladislav Zezula!
+
+Small feature: added support for new RotW attributes (like magic pierce and Warlock skills) in rando.
+
+
 ## 0.6.6
 
 New Features:

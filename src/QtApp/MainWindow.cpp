@@ -86,7 +86,7 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
     : QMainWindow(nullptr)
     , m_configHandler(configHandler)
 {
-    setWindowTitle("Diablo II Resurrected mod generator by mapron - 0.6.6");
+    setWindowTitle("Diablo II Resurrected mod generator by mapron - 0.6.7");
 
     const auto    appData    = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
     QString       binDir     = QApplication::applicationDirPath();

@@ -317,6 +317,13 @@ const std::vector<AttributeDesc> s_attributes{
     { "pierce-immunity-poison", {} },
     { "pierce-immunity-damage", {} },
     { "pierce-immunity-magic", {} },
+    { "charge-noconsume", {} },
+
+    // RotW:
+    { "pierce-mag", { AttributeFlag::HasRange }, {}, 1, 255, 34 },               // -#% to Enemy Magic Resistance
+    { "extra-mag", { AttributeFlag::HasRange }, {}, -50, 461, 50 },              // +#% to Magic Skill Damage
+    { "war", { AttributeFlag::Skills, AttributeFlag::HasRange }, {}, 1, 7, 34 }, // +# to Warlock Skill Levels
+    { "skilltab-war", { AttributeFlag::Skills } },                               // +# to Warlock Skill tab Levels
 
 };
 
