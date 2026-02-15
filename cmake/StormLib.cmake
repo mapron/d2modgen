@@ -234,6 +234,7 @@ set(stormSrc
 	SFilePatchArchives.cpp
 	SFileReadFile.cpp
 	SFileVerify.cpp
+	SMemUtf8.cpp
 	sparse/sparse.cpp
 	zlib/adler32.c
 	zlib/compress_zlib.c
@@ -253,3 +254,4 @@ endforeach()
 
 add_library(stormlib STATIC ${stormSrcFull})
 target_include_directories(stormlib PUBLIC ${stormInc})
+target_compile_definitions(stormlib PUBLIC __STORMLIB_NO_STATIC_LINK__)
