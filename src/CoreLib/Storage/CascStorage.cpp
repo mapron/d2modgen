@@ -20,7 +20,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
     const std::wstring wdata    = string2path(utf8path).wstring();
     HANDLE             storage;
     if (!CascOpenStorage(wdata.c_str(), 0, &storage)) {
-        Logger(Logger::Warning) << "failed to open storage:" << utf8path;
+        Logger(Logger::Warning) << "failed to open storage:" << utf8path << ", err=" << GetCascError();
         return {};
     }
     MODGEN_SCOPE_EXIT([storage] { CascCloseStorage(storage); });
@@ -30,7 +30,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
         HANDLE            fileHandle;
 
         if (!CascOpenFile(storage, fullId.c_str(), CASC_LOCALE_ALL, 0, &fileHandle)) {
-            Logger(Logger::Warning) << "failed to open:" << fullId;
+            Logger(Logger::Warning) << "failed to open:" << fullId << ", err=" << GetCascError();
             return false;
         }
         MODGEN_SCOPE_EXIT([fileHandle] { CascCloseFile(fileHandle); });
@@ -40,7 +40,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
         data.resize(dataSize);
         DWORD wread;
         if (!CascReadFile(fileHandle, data.data(), dataSize, &wread)) {
-            Logger(Logger::Warning) << "failed to read:" << fullId;
+            Logger(Logger::Warning) << "failed to read:" << fullId << ", err=" << GetCascError();
             return false;
         }
         return true;
