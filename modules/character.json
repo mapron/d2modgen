@@ -9,6 +9,7 @@
 		"addCube": false,
 		"idTome": false,
 		"manaPots": false,
+		"addTeleport": false,
 		"statPerLevel": 5,
 		"skillPerLevel": 1,
 		"skillPointLimit": 20,
@@ -21,6 +22,7 @@
 		{ "id": "addCube", "type": "checkbox"},
 		{ "id": "idTome", "type": "checkbox"},
 		{ "id": "manaPots", "type": "checkbox"},
+		{ "id": "addTeleport", "type": "checkbox"},
 
 		{ "id": "statPerLevel", "type": "sliderMinMax", "min": 1, "max": 25},
 		{ "id": "skillPerLevel", "type": "sliderMinMax", "min": 1, "max": 20 },
@@ -59,6 +61,7 @@
 				"addCube": "Add Horadric Cube as starting item",
 				"idTome": "Replace ID scroll with ID tome",
 				"manaPots": "Replace starting Health pots with Mana",
+				"addTeleport": "Add Teleport as starting skill for all classes",
 				
 				"statPerLevel" : "Stat points gain per level",
 				"skillPerLevel" : "Skill points gain per level (D2R only!)",
