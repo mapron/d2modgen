@@ -95,6 +95,18 @@ void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const 
                     item.code = "mp1";
             }
         items.write(row);
+
+        if (input.getInt("addTeleport")) {
+            for (int i = 1; i <= 10; ++i) {
+                std::string skillCol = argCompat("Skill %1", i);
+                auto&       skill    = row[skillCol];
+                if (skill.str.empty()) {
+                    row[skillCol].str = "Teleport";
+                    break;
+                }
+            }
+        }
+
         row["StatPerLevel"].setInt(statPerLevel);
         if (!input.m_env.isLegacy)
             row["SkillsPerLevel"].setInt(skillPerLevel);

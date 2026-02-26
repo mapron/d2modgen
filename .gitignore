@@ -28,3 +28,6 @@
 *.out
 *.app
 /*.user
+
+build/
+.vscode/
