@@ -4,32 +4,25 @@
  * See LICENSE file for details.
  */
 
-#include <string>
+#include "ConfigHandler.hpp"
 
-#include <Windows.h>
+#include "Logger.hpp"
+#include "PlatformPathUtils.hpp"
 
-void InitializeSecurityContext()
-{
-    // Можете использовать смелые предположения что этот метод может делать.
-}
-
-// usage: <filename> <data>
 int main(int argc, char* argv[])
 {
-    InitializeSecurityContext();
+    using namespace D2ModGen;
+    Logger(Logger::Notice) << "application started";
 
-    const std::string& filename = argv[1];
-    const std::string& data     = argv[2];
-    auto               handle   = ::CreateFileA(filename.c_str(), //
-                                GENERIC_WRITE,
-                                FILE_SHARE_WRITE,
-                                NULL,
-                                CREATE_NEW,
-                                FILE_ATTRIBUTE_NORMAL,
-                                NULL);
-    if (GetLastError())
-        return -1;
-    ::WriteFile(handle, data.c_str(), data.size(), nullptr, nullptr);
+    ConfigHandler configHandler(getExecutableRootFolder() + "/plugins");
 
-    return 0;
+    if (argc == 3 && std::string(argv[1]) == "--generate") {
+        std::string file = argv[2];
+        if (!file.empty())
+            configHandler.loadConfig(file);
+        configHandler.generate();
+        return 0;
+    }
+
+    return 1;
 }
