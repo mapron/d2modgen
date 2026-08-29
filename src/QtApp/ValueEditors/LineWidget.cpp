@@ -24,7 +24,7 @@ LineWidget::LineWidget(const Params& params,
     m_helpButton->hide();
 
     QHBoxLayout* mainLayout = new QHBoxLayout(this);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(4);
     mainLayout->addWidget(new QLabel(params.m_title, this));
     mainLayout->addWidget(m_lineEdit);

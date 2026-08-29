@@ -57,7 +57,7 @@ ConfigPageMergeModsItem::ConfigPageMergeModsItem(QWidget* parent)
 
     QWidget*     modSelectWrap       = new QWidget(this);
     QHBoxLayout* modSelectWrapLayout = new QHBoxLayout(modSelectWrap);
-    modSelectWrapLayout->setMargin(0);
+    modSelectWrapLayout->setContentsMargins(0, 0, 0, 0);
     m_modSelect = new QComboBox(this);
     modSelectWrapLayout->addWidget(new QLabel(tr("Mod name:"), this));
     modSelectWrapLayout->addWidget(m_modSelect);
@@ -65,7 +65,7 @@ ConfigPageMergeModsItem::ConfigPageMergeModsItem(QWidget* parent)
 
     QWidget*     folderSelectWrap       = new QWidget(this);
     QHBoxLayout* folderSelectWrapLayout = new QHBoxLayout(folderSelectWrap);
-    folderSelectWrapLayout->setMargin(0);
+    folderSelectWrapLayout->setContentsMargins(0, 0, 0, 0);
     m_folderCSV = new QLineEdit(this);
     m_folderCSV->setMinimumWidth(300);
     folderSelectWrapLayout->addWidget(new QLabel(tr("Folder with .txt files:"), this));
@@ -106,8 +106,8 @@ void ConfigPageMergeModsItem::setModList(const QStringList& mods)
 void ConfigPageMergeModsItem::readSettings(const Mernel::PropertyTree& data)
 {
     m_readingSettings = true;
-    m_typeSelect->setCurrentIndex(std::max(0, m_typeIndex.indexOf(static_cast<StorageType>(data["type"].getScalar().toInt()))));
-    m_policySelect->setCurrentIndex(std::max(0, m_policyIndex.indexOf(static_cast<ConflictPolicy>(data["policy"].getScalar().toInt()))));
+    m_typeSelect->setCurrentIndex(std::max(0ll, m_typeIndex.indexOf(static_cast<StorageType>(data["type"].getScalar().toInt()))));
+    m_policySelect->setCurrentIndex(std::max(0ll, m_policyIndex.indexOf(static_cast<ConflictPolicy>(data["policy"].getScalar().toInt()))));
     setMod(QString::fromStdString(data["mod"].getScalar().toString()));
     m_folderCSV->setText(QString::fromStdString(data["folder"].getScalar().toString()));
     m_readingSettings = false;

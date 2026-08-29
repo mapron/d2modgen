@@ -63,10 +63,10 @@ SliderWidget::SliderWidget(const Params& params,
         mainLayout = new QHBoxLayout(this);
     else
         mainLayout = new QVBoxLayout(this);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(4);
     QHBoxLayout* captionLayout = new QHBoxLayout();
-    captionLayout->setMargin(0);
+    captionLayout->setContentsMargins(0, 0, 0, 0);
     captionLayout->addWidget(new QLabel(params.m_title, this));
     captionLayout->addWidget(m_helpButton);
     captionLayout->addStretch(0);
@@ -166,10 +166,10 @@ SliderWidgetMinMax::SliderWidgetMinMax(const Params& params,
         mainLayout = new QHBoxLayout(this);
     else
         mainLayout = new QVBoxLayout(this);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(4);
     QHBoxLayout* captionLayout = new QHBoxLayout();
-    captionLayout->setMargin(0);
+    captionLayout->setContentsMargins(0, 0, 0, 0);
     captionLayout->addWidget(new QLabel(params.m_title, this));
     captionLayout->addWidget(m_helpButton);
     captionLayout->addStretch(0);

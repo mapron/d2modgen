@@ -23,7 +23,7 @@ CheckboxWidget::CheckboxWidget(const Params& params,
     m_helpButton = new HelpToolButton(params.m_help, this);
 
     QHBoxLayout* mainLayout = new QHBoxLayout(this);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(4);
     mainLayout->addWidget(m_checkBox);
     mainLayout->addWidget(m_helpButton);

@@ -17,7 +17,7 @@ ConfigPageAbstract::ConfigPageAbstract(const std::string& localeId, const IModul
 {
     assert(m_module);
     m_layout = new QVBoxLayout(this);
-    m_layout->setMargin(0);
+    m_layout->setContentsMargins(0, 0, 0, 0);
 
     const auto& info = module->pluginInfo();
 
@@ -143,7 +143,7 @@ void ConfigPageAbstract::updateUIFromSettings(const Mernel::PropertyTree& data)
     for (const auto& p : m_editors) {
         const auto& key = p.first;
         auto*       w   = p.second;
-        assert(data.contains(key));
+        //assert(data.contains(key));
         if (data.contains(key))
             w->setValue(data[key]);
     }

@@ -39,7 +39,7 @@ QString getInstallLocationFromRegistry(bool resurrected)
 {
     static const QString base("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II");
     QSettings            set(base + (resurrected ? " Resurrected" : ""),
-                  QSettings::Registry32Format);
+                             QSettings::Registry32Format);
     return ensureTrailingSlash(set.value("InstallLocation").toString());
 }
 
@@ -127,7 +127,7 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(15);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
     {
         QHBoxLayout* rowLayout = new QHBoxLayout();
@@ -150,7 +150,7 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
         QWidget*     rowWidget = new QWidget(this);
         QVBoxLayout* rowLayout = new QVBoxLayout(rowWidget);
         rowLayout->setSpacing(5);
-        rowLayout->setMargin(0);
+        rowLayout->setContentsMargins(0, 0, 0, 0);
         mainLayout->addWidget(rowWidget);
         rowLayout->addWidget(new QLabel(tr("D2R path:"), this));
         rowLayout->addWidget(m_impl->d2rPath);
@@ -161,7 +161,7 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
         QWidget*     rowWidget = new QWidget(this);
         QVBoxLayout* rowLayout = new QVBoxLayout(rowWidget);
         rowLayout->setSpacing(5);
-        rowLayout->setMargin(0);
+        rowLayout->setContentsMargins(0, 0, 0, 0);
         mainLayout->addWidget(rowWidget);
         rowLayout->addWidget(new QLabel(tr("D2 legacy path:"), this));
         rowLayout->addWidget(m_impl->d2legacyPath);
@@ -172,7 +172,7 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
         QWidget*     rowWidget = new QWidget(this);
         QVBoxLayout* rowLayout = new QVBoxLayout(rowWidget);
         rowLayout->setSpacing(5);
-        rowLayout->setMargin(0);
+        rowLayout->setContentsMargins(0, 0, 0, 0);
         mainLayout->addWidget(rowWidget);
         rowLayout->addWidget(new QLabel(tr("D2R save and user settings root:"), this));
         rowLayout->addWidget(m_impl->d2rSaves);
@@ -197,7 +197,7 @@ MainConfigPage::MainConfigPage(const IModule::Ptr& module, QWidget* parent)
         QWidget*     rowWidget        = new QWidget(this);
         QHBoxLayout* rowLayoutButtons = new QHBoxLayout(rowWidget);
         rowLayout->addWidget(rowWidget);
-        rowLayoutButtons->setMargin(0);
+        rowLayoutButtons->setContentsMargins(0, 0, 0, 0);
         rowLayoutButtons->addWidget(launchArgsClear);
         rowLayoutButtons->addWidget(launchArgs);
         rowLayoutButtons->addWidget(new QLabel(tr("(<b>Close Battlenet launcher before actions!</b>)"), this));

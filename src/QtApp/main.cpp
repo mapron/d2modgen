@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 
     Logger() << "application started";
     QApplication      app(argc, argv);
-    const auto        appData = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    const auto        appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     const std::string logDir  = (appData + "/applog").toStdString();
 
     {

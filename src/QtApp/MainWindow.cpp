@@ -34,6 +34,7 @@
 #include <QSettings>
 #include <QToolButton>
 #include <QTime>
+#include <QStandardPaths>
 
 namespace D2ModGen {
 
@@ -51,7 +52,7 @@ struct PageGroup {
 
 QSettings makeAppSettings()
 {
-    return QSettings(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/settings.ini", QSettings::IniFormat);
+    return QSettings(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/settings.ini", QSettings::IniFormat);
 }
 }
 
@@ -88,7 +89,7 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
 {
     setWindowTitle("Diablo II Resurrected mod generator by mapron - 0.6.9");
 
-    const auto    appData    = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    const auto    appData    = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
     QString       binDir     = QApplication::applicationDirPath();
     QFileInfoList presetList = QDir(binDir + "/presets").entryInfoList({ "*.json" });
 
@@ -121,11 +122,11 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
     };
     QMap<std::string, QMap<int, QList<IConfigPage*>>> pluginConfigPagesOrd;
     std::vector<std::pair<std::string, QString>>      known{
-             { "randomizer", QObject::tr("Randomizers") },
-             { "harder", QObject::tr("Make harder") },
-             { "easier", QObject::tr("Make easier") },
-             { "misc", QObject::tr("Misc") },
-             { "", QObject::tr("Plugins") },
+        { "randomizer", QObject::tr("Randomizers") },
+        { "harder", QObject::tr("Make harder") },
+        { "easier", QObject::tr("Make easier") },
+        { "misc", QObject::tr("Misc") },
+        { "", QObject::tr("Plugins") },
     };
     for (auto key : m_configHandler.m_pluginIds) {
         auto module = m_configHandler.getModule(key);
@@ -182,7 +183,7 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
             auto* pageHelp = new HelpToolButton(page->pageHelp(), this);
 
             QVBoxLayout* pageWrapperMain = new QVBoxLayout(pageWrapper);
-            pageWrapperMain->setMargin(8);
+            pageWrapperMain->setContentsMargins(8, 8, 8, 8);
             pageWrapperMain->setSpacing(10);
             QHBoxLayout* pageWrapperHeader       = new QHBoxLayout();
             QHBoxLayout* pageWrapperPresetHeader = new QHBoxLayout();
@@ -216,7 +217,7 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
             }
 
             QHBoxLayout* buttonPanelRow = new QHBoxLayout();
-            buttonPanelRow->setMargin(0);
+            buttonPanelRow->setContentsMargins(0, 0, 0, 0);
             buttonPanelRow->setSpacing(3);
             buttonPanelRow->addWidget(sideEnabler);
             buttonPanelRow->addWidget(pageButton, 1);
@@ -332,7 +333,7 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
         QHBoxLayout* tabLayoutOuter = new QHBoxLayout();
         tabLayoutOuter->setSpacing(0);
         buttonPanel->setContentsMargins(0, 0, 0, 0);
-        buttonPanelLayout->setMargin(0);
+        buttonPanelLayout->setContentsMargins(0, 0, 0, 0);
         buttonPanelLayout->setSpacing(5);
         buttonPanelLayout->addStretch();
         tabLayoutOuter->addWidget(buttonPanel);
@@ -372,7 +373,7 @@ MainWindow::MainWindow(ConfigHandler& configHandler)
         pushUndo(Mernel::PropertyTree{});
     });
     connect(browseToSettings, &QAction::triggered, this, [this, appData] {
-        QFileInfo dir = appData;
+        QFileInfo dir{ appData };
         QProcess::startDetached("explorer.exe", QStringList() << QDir::toNativeSeparators(dir.canonicalFilePath()));
     });
     connect(quitAction, &QAction::triggered, this, [this] {

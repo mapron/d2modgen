@@ -141,7 +141,6 @@ struct MonResist {
         Light,
         Cold,
         Poison,
-
     };
     std::map<Elem, int> m_resist;
 

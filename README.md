@@ -131,9 +131,9 @@ NB: author do not respond for any issues in D2R itself (all on your own risk!). 
 
 # How to build from the source
 Prerequisites:
-1. **Qt 5.15 LTS**
-2. **CMake 3.20**  (prior versions should be fine though).
-3. **C++17 capable compiler**. Tested: MSVC 2019 16.11.  
+1. **Qt 6.12 **
+2. **CMake 4.0** 
+3. **C++20 compiler**. Tested: MSVC 2026  
 
 If requirements are met, then go "cmake/build/build install". For windows platform, "build install" creates install in binary directory with all runtime dependencies.
 

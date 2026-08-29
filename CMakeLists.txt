@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/install CACHE STRING "" FORCE)
 
-cmake_minimum_required(VERSION 3.12...3.19)
+cmake_minimum_required(VERSION 4.0)
 
 project(modgen)
 
@@ -21,12 +21,7 @@ endif()
 
 # Qt Setup
 set(QT_MODULE_LIST Core Gui Widgets Svg)
-find_package(Qt5 COMPONENTS ${QT_MODULE_LIST} LinguistTools)
-
-set(QT_CMAKE_EXPORT_NAMESPACE Qt5)
-set(${QT_CMAKE_EXPORT_NAMESPACE}::uic ${Qt5Widgets_UIC_EXECUTABLE})
-set(${QT_CMAKE_EXPORT_NAMESPACE}::rcc ${Qt5Core_RCC_EXECUTABLE})
-set(${QT_CMAKE_EXPORT_NAMESPACE}::lrelease ${Qt5_LRELEASE_EXECUTABLE})
+find_package(Qt6 COMPONENTS ${QT_MODULE_LIST} LinguistTools)
 
 include(targets)
 include(qt_helpers)
@@ -76,7 +71,7 @@ AddTarget( TYPE app_console NAME modgen_console
     LINK_LIBRARIES ModgenCore MernelPlatform
     )
 
-if (NOT Qt5Core_DIR)
+if (NOT Qt6_FOUND)
 	return()
 endif()
 
@@ -106,11 +101,11 @@ endforeach()
 
 if(WIN32)
 # Qt install - plugins
-set(QtPluginsList Qt5::QSvgPlugin)
+set(QtPluginsList Qt6::QSvgPlugin)
 if(APPLE)
-    list(APPEND QtPluginsList Qt5::QCocoaIntegrationPlugin)
+    list(APPEND QtPluginsList Qt6::QCocoaIntegrationPlugin)
 elseif(WIN32)
-    list(APPEND QtPluginsList Qt5::QWindowsIntegrationPlugin Qt5::QWindowsVistaStylePlugin)
+    list(APPEND QtPluginsList Qt6::QWindowsIntegrationPlugin Qt6::QModernWindowsStylePlugin)
 endif()
 foreach(plugin ${QtPluginsList})
     get_target_property(imploc_RELEASE ${plugin} IMPORTED_LOCATION_RELEASE)
@@ -125,9 +120,9 @@ foreach(plugin ${QtPluginsList})
 endforeach()
 
 # Qt install - shared libs
-foreach(qt5Module ${QT_MODULE_LIST})
-    get_target_property(imploc_RELEASE Qt5::${qt5Module} IMPORTED_LOCATION_RELEASE)
-    get_target_property(imploc_DEBUG   Qt5::${qt5Module} IMPORTED_LOCATION_DEBUG)
+foreach(qt6Module ${QT_MODULE_LIST})
+    get_target_property(imploc_RELEASE Qt6::${qt6Module} IMPORTED_LOCATION_RELEASE)
+    get_target_property(imploc_DEBUG   Qt6::${qt6Module} IMPORTED_LOCATION_DEBUG)
     if (EXISTS "${imploc_DEBUG}")
         install(FILES ${imploc_DEBUG}   DESTINATION bin CONFIGURATIONS Debug    )
     endif()
