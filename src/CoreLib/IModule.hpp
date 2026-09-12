@@ -64,7 +64,10 @@ public:
 
         const Mernel::PropertyTreeScalar& getScalar(const std::string& key) const noexcept(false)
         {
-            return m_mergedSettings.getMap().at(key).getScalar();
+            auto it = m_mergedSettings.getMap().find(key);
+            if (it == m_mergedSettings.getMap().cend())
+                throw std::runtime_error("no key'" + key + "'");
+            return it->second.getScalar();
         }
 
         int getInt(const std::string& key) const noexcept(false)

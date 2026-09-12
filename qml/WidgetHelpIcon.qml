@@ -7,8 +7,9 @@ Label {
 
     // Only show if tooltip text is provided
     visible: tooltipText !== ""
-    text: "❓"
-    font.pointSize: 11
+    text: "🛈"
+    font.pointSize: 14
+    color: window.palette.highlight
 
     MouseArea {
         anchors.fill: parent

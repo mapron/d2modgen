@@ -26,7 +26,6 @@ MenuBar {
                 Label {
                     text: menuItem.action && menuItem.action.shortcut ? menuItem.action.shortcut : ""
                     color: menuItem.highlighted ? window.palette.highlightedText : window.palette.text
-                    font.pixelSize: 11
                     horizontalAlignment: Text.AlignRight
                 }
             }
@@ -89,7 +88,29 @@ MenuBar {
     }
 
     Menu {
-        delegate: mainMenuFile.delegate
+        delegate: MenuItem {
+            id: menuItem2
+            implicitHeight: 26
+
+            contentItem: RowLayout {
+                spacing: 20
+                width: menuItem2.width - menuItem2.leftPadding - menuItem2.rightPadding
+
+                // Left Text Component (Action name)
+                Label {
+                    text: menuItem2.text
+                    color: menuItem2.highlighted ? window.palette.highlightedText : window.palette.text
+                    Layout.fillWidth: true
+                }
+
+                // Right Text Component (The Shortcut description indicator)
+                Label {
+                    text: menuItem2.action && menuItem2.action.shortcut ? menuItem2.action.shortcut : ""
+                    color: menuItem2.highlighted ? window.palette.highlightedText : window.palette.text
+                    horizontalAlignment: Text.AlignRight
+                }
+            }
+        }
 
         title: qsTr("Actions")
 

@@ -25,12 +25,13 @@ WidgetCommonControl {
             from: 0
             to: 100
             value: root.value
-            handle.implicitWidth: 18
-            handle.implicitHeight: 18
+            handle.implicitWidth: 16
+            handle.implicitHeight: 16
 
             onMoved: {
                 root.value = internalSlider.value;
                 root.setValue();
+                textInput.text = root.value.toString();
             }
             live: true
         }
@@ -39,30 +40,30 @@ WidgetCommonControl {
         RowLayout {
             spacing: 4
 
-            Rectangle {
+            TextField {
+                id: textInput
 
-                width: 45
-                height: 22
-                radius: 2
-                border.width: textInput.acceptableInput ? 1 : 2
-                border.color: textInput.acceptableInput ? palette.mid : "red"
+                color: textInput.palette.text
 
-                TextInput {
-                    id: textInput
-                    anchors.centerIn: parent
-                    text: root.value.toString()
-                    validator: IntValidator {
-                        bottom: root.from
-                        top: root.to
-                    }
-                    font.pointSize: 10
-                    selectByMouse: true
+                background: Rectangle {
+                    implicitWidth: 45
+                    implicitHeight: 22
+                    color: textInput.palette.base
+                    border.color: textInput.acceptableInput ? palette.mid : "red"
+                    border.width: textInput.acceptableInput ? 1 : 2
+                }
 
-                    // Allow input box typing to update the slider position
-                    onAccepted: {
-                        root.value = parseInt(text);
-                        root.setValue();
-                    }
+                text: root.value.toString()
+                validator: IntValidator {
+                    bottom: root.from
+                    top: root.to
+                }
+                selectByMouse: true
+
+                // Allow input box typing to update the slider position
+                onAccepted: {
+                    root.value = parseInt(text);
+                    root.setValue();
                 }
             }
 

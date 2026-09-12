@@ -19,10 +19,8 @@ WidgetCommonControl {
             id: checkBox
             checked: root.value == 1
 
-            indicator.implicitWidth: 22
-            indicator.implicitHeight: 22
-
-            font.pointSize: 11
+            indicator.implicitWidth: 18
+            indicator.implicitHeight: 18
 
             // Remove default right label behavior from standard control
             text: root.caption

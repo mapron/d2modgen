@@ -9,6 +9,10 @@
 
 #include "ConfigHandler.hpp"
 
+#include <QDateTime>
+#include <QCoreApplication>
+#include <QTimer>
+
 namespace D2ModGen {
 
 namespace {
@@ -383,18 +387,8 @@ UIController::~UIController()
 
 void UIController::generate()
 {
-    //m_status->setText(tr("Start..."));
-    //m_status->repaint();
-
-    auto result = m_configHandler.generate();
-    if (!result.m_success) {
-        //if (!result.m_error.empty())
-        //    QMessageBox::warning(this, "error", QString::fromStdString(result.m_error));
-        return;
-    }
-
-    // m_status->setText(tr("Mod '%1' successfully updated (%2).")
-    //                       .arg(QString::fromStdString(m_configHandler.getEnv().modName), QTime::currentTime().toString("mm:ss")));
+    emit statusUpdate(tr("Start..."));
+    QTimer::singleShot(30, this, &UIController::generateFinish);
 }
 
 bool UIController::saveConfig(const QString& filename) const
@@ -530,6 +524,18 @@ void UIController::makeUndo()
 void UIController::updateUndoAction()
 {
     //
+}
+
+void UIController::generateFinish()
+{
+    auto result = m_configHandler.generate();
+    if (!result.m_success) {
+        emit statusUpdate(tr("Error: %1").arg(QString::fromStdString(result.m_error)));
+        return;
+    }
+
+    emit statusUpdate(tr("Mod '%1' successfully updated (%2).")
+                          .arg(QString::fromStdString(m_configHandler.getEnv().modName), QTime::currentTime().toString("mm:ss")));
 }
 
 }

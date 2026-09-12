@@ -82,8 +82,8 @@ WidgetCommonControl {
             from: 0
             to: 1000
             live: true
-            handle.implicitWidth: 18
-            handle.implicitHeight: 18
+            handle.implicitWidth: 16
+            handle.implicitHeight: 16
 
             // Explicitly sync visual handle from the real application value
             value: root.valueToSlider(root.value)
@@ -92,37 +92,37 @@ WidgetCommonControl {
             onMoved: {
                 root.value = root.sliderToValue(internalSlider.value);
                 root.setValue();
+                textInput.text = root.value.toString();
             }
         }
 
         RowLayout {
             spacing: 4
 
-            Rectangle {
-                width: 45
-                height: 22
-                radius: 2
-                border.width: textInput.acceptableInput ? 1 : 2
-                border.color: textInput.acceptableInput ? palette.mid : "red"
+            TextField {
+                id: textInput
 
-                TextInput {
-                    id: textInput
-                    anchors.centerIn: parent
-                    text: root.value.toString()
-                    font.pointSize: 10
-                    selectByMouse: true
+                color: textInput.palette.text
 
-                    // Input validation: Restricts entry exclusively to integers
-                    validator: IntValidator {
-                        bottom: root.from
-                        top: root.to
-                    }
+                background: Rectangle {
+                    implicitWidth: 45
+                    implicitHeight: 22
+                    color: textInput.palette.base
+                    border.color: textInput.acceptableInput ? palette.mid : "red"
+                    border.width: textInput.acceptableInput ? 1 : 2
+                }
 
-                    // Ensures manual edits are committed even if the user just clicks away
-                    onEditingFinished: {
-                        root.value = parseInt(text);
-                        root.setValue();
-                    }
+                text: root.value.toString()
+                validator: IntValidator {
+                    bottom: root.from
+                    top: root.to
+                }
+                selectByMouse: true
+
+                // Allow input box typing to update the slider position
+                onAccepted: {
+                    root.value = parseInt(text);
+                    root.setValue();
                 }
             }
 

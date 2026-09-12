@@ -77,11 +77,14 @@ public:
 signals:
     void dataChanged();
     void dataChangedInternal();
+    void statusUpdate(QString status);
+    void generateInternal();
 
 private:
     void pushUndo(const Mernel::PropertyTree& data);
     void pushUndoCurrent();
     void updateUndoAction();
+    void generateFinish();
 
 private:
     QList<IConfigPage*>                   m_pages;

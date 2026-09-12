@@ -14,7 +14,6 @@ RowLayout {
 
     Label {
         text: qsTr("Don't know where to start? Select a preset:")
-        font.pointSize: 11
     }
 
     ComboBox {

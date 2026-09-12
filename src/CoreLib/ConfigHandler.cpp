@@ -155,7 +155,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     const GenerationEnvironment env = getEnv();
     if (env.d2rPath.empty()) {
         Logger(Logger::Warning) << "D2R path is empty";
-        return {};
+        return { "D2R path is empty" };
     }
 
     const StorageType storage           = (env.isLegacy) ? StorageType::D2LegacyInternal : StorageType::D2ResurrectedInternal;
@@ -256,7 +256,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
                 module.m_module->generate(output, r, input);
             }
             catch (const std::exception& ex) {
-                return { std::string("Generate failed in module '" + module.m_key + "': " + std::string(ex.what())) };
+                return { std::string("module '" + module.m_key + "': " + std::string(ex.what())) };
             }
         }
     }

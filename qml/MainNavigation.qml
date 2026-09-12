@@ -188,62 +188,47 @@ ColumnLayout {
                 anchors.leftMargin: 6
                 anchors.verticalCenter: parent.verticalCenter
                 font.bold: true
-                font.pointSize: 10
                 color: window.palette.text
             }
 
             // --- 2. THE SIMPLE SINGLE-CLICK BUTTON FRAME ---
-            AbstractButton {
+            RowLayout {
                 anchors.fill: parent
+                anchors.leftMargin: 6
+                anchors.rightMargin: 6
+                spacing: 8
+
                 visible: !isHeader
 
-                // Tells the button to draw the selection highlight blue block
-                background: Rectangle {
-                    color: (tabSelection.activeTabIndex === tabIndex) ? window.palette.highlight : "transparent"
-                    radius: 2
-                }
+                CheckBox {
+                    id: tabCheckbox
+                    visible: hasCheckbox
+                    indicator.implicitWidth: 18
+                    indicator.implicitHeight: 18
 
-                // Clicking anywhere on this row switches the active layout view
-                onClicked: {
-                    tabSelection.activeTabIndex = tabIndex;
-                }
+                    checked: hasCheckbox ? appui.getEnabled(checkedKey) : false
 
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.leftMargin: 6
-                    anchors.rightMargin: 6
-                    spacing: 8
-
-                    CheckBox {
-                        id: tabCheckbox
-                        visible: hasCheckbox
-                        Layout.preferredWidth: 18
-                        Layout.preferredHeight: 18
-
-                        checked: hasCheckbox ? appui.getEnabled(checkedKey) : false
-
-                        Connections {
-                            target: appui
-                            function onDataChanged() {
-                                if (hasCheckbox)
-                                    tabCheckbox.checked = appui.getEnabled(checkedKey);
-                            }
-                        }
-
-                        onClicked: {
-                            appui.setEnabled(checkedKey, checked);
+                    Connections {
+                        target: appui
+                        function onDataChanged() {
+                            if (hasCheckbox)
+                                tabCheckbox.checked = appui.getEnabled(checkedKey);
                         }
                     }
 
-                    Label {
-                        text: name
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
-                        font.pointSize: 10
-
-                        // Flips font color between white and gray based on highlights
-                        color: (tabSelection.activeTabIndex === tabIndex) ? window.palette.highlightedText : window.palette.text
+                    onClicked: {
+                        appui.setEnabled(checkedKey, checked);
                     }
+                }
+
+                Button {
+                    text: name
+                    Layout.fillWidth: true
+                    onClicked: {
+                        tabSelection.activeTabIndex = tabIndex;
+                    }
+
+                    palette.button: (tabSelection.activeTabIndex === tabIndex) ? window.palette.highlight : window.palette.button
                 }
             }
         }

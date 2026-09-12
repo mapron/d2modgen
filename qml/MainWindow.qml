@@ -37,11 +37,11 @@ ApplicationWindow {
     Palette {
         id: darkPalette
 
-        window: "#353535"
+        window: "#31363B"
         windowText: "#ffffff"
         base: "#191919"
         text: "#ffffff"
-        button: "#353535"
+        button: "#33383D"
         buttonText: "#ffffff"
         highlight: "#2a82da"
 
@@ -55,42 +55,91 @@ ApplicationWindow {
         }
     }
 
-    minimumWidth: 800
+    minimumWidth: 900
     minimumHeight: 700
 
-    RowLayout {
-        id: mainLayout
+    ColumnLayout {
         anchors.fill: parent
         anchors.margins: 10
-        spacing: 15
+        spacing: 10
 
-        MainNavigation {
-            id: tabSelection
-        }
-        StackLayout {
-            id: mainStack
+        RowLayout {
             Layout.fillWidth: true
-            Layout.minimumWidth: 420 // Prevents the text strings from clipping out horizontally
-            Layout.fillHeight: true
-            currentIndex: tabSelection.activeTabIndex
+            Layout.fillHeight: true // Tells it to take up all remaining vertical space
+            spacing: 5
 
-            PageMain {}
-            PageTool {}
-            TabChallenge {}
-            TabCharacter {}
-            TabCube {}
-            TabDropFiltering {}
-            TabGambling {}
-            TabItemDrops {}
-            TabItemRandomizer {}
-            TabMonDensity {}
-            TabMonRandomizer {}
-            TabMonStats {}
-            TabPerfectRoll {}
-            TabQol {}
-            TabRequirements {}
-            TabRuneDrops {}
-            TabSkillRandomizer {}
+            MainNavigation {
+                id: tabSelection
+            }
+            Frame {
+                id: stackContainer
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.minimumWidth: 420
+
+                // Customizing the frame to have your accent-colored border
+                background: Rectangle {
+                    color: "transparent" // Keeps the internal background transparent
+                    border.color: window.palette.highlight
+                    border.width: 1
+                }
+                StackLayout {
+                    id: mainStack
+
+                    anchors.fill: parent // Fills the inside of the frame
+                    currentIndex: tabSelection.activeTabIndex
+
+                    PageMain {}
+                    PageTool {}
+                    TabChallenge {}
+                    TabCharacter {}
+                    TabCube {}
+                    TabDropFiltering {}
+                    TabGambling {}
+                    TabItemDrops {}
+                    TabItemRandomizer {}
+                    TabMonDensity {}
+                    TabMonRandomizer {}
+                    TabMonStats {}
+                    TabPerfectRoll {}
+                    TabQol {}
+                    TabRequirements {}
+                    TabRuneDrops {}
+                    TabSkillRandomizer {}
+                }
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 40 // Fixed height for the bottom bar
+            spacing: 15
+
+            Item {
+                Layout.fillWidth: true
+            }
+
+            Label {
+                id: statusLabel
+                text: qsTr("Status label: Ready")
+                verticalAlignment: Text.AlignVCenter
+                color: window.palette.windowText
+
+                Connections {
+                    target: appui
+                    function onStatusUpdate(status) {
+                        statusLabel.text = status;
+                    }
+                }
+            }
+
+            Button {
+                id: generateButton
+                text: qsTr("Generate")
+                font.pointSize: 13
+
+                onClicked: appui.generate()
+            }
         }
     }
 }

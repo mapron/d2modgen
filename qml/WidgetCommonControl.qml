@@ -22,6 +22,10 @@ GridLayout {
     }
 
     function setValue() {
+        //console.log("SetValue");
+        //console.log(value_context);
+        //console.log(value_key);
+        //console.log(value);
         appui.set(value_context, value_key, value);
     }
 
@@ -29,7 +33,7 @@ GridLayout {
 
     // Grid properties adjust based on compactness
     columns: isCompact ? 2 : 1
-    rowSpacing: 4
+    rowSpacing: 1
     columnSpacing: 10
     Layout.fillWidth: true
 
@@ -54,7 +58,6 @@ GridLayout {
 
         Label {
             text: root.hideCaption ? "" : root.caption
-            font.pointSize: 11
         }
 
         WidgetHelpIcon {
