@@ -63,7 +63,16 @@ public:
     Q_INVOKABLE void     setEnabled(const QString& context, bool val);
 
     Q_INVOKABLE QString getApp(const QString& key, const QString& def) const;
-    Q_INVOKABLE void    setApp(const QString& key, const QString& value) const;
+    Q_INVOKABLE void    setApp(const QString& key, const QString& value);
+
+    Q_INVOKABLE void activatePreset(const QString& context, int index);
+    Q_INVOKABLE void resetToDefault(const QString& context);
+
+    Q_INVOKABLE void makeUndo();
+    Q_INVOKABLE void disableAutoSave()
+    {
+        m_autoSave = false;
+    }
 
 signals:
     void dataChanged();
@@ -72,12 +81,7 @@ signals:
 private:
     void pushUndo(const Mernel::PropertyTree& data);
     void pushUndoCurrent();
-    void makeUndo();
     void updateUndoAction();
-
-    void updateUIFromSettings();
-    void updateUIFromSettings(IConfigPage* page, const Mernel::PropertyTree& currentConfig);
-    void writeSettingsFromUI(IConfigPage* page);
 
 private:
     QList<IConfigPage*>                   m_pages;
@@ -87,8 +91,7 @@ private:
     bool                                  m_autoSave = true;
     DelayedTimer*                         m_delayTimer;
     QList<Mernel::PropertyTree>           m_undo;
-    //QAction*                              m_undoAction;
-    ConfigHandler& m_configHandler;
+    ConfigHandler&                        m_configHandler;
 };
 
 }

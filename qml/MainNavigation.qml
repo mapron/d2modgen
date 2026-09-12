@@ -215,6 +215,7 @@ ColumnLayout {
                     spacing: 8
 
                     CheckBox {
+                        id: tabCheckbox
                         visible: hasCheckbox
                         Layout.preferredWidth: 18
                         Layout.preferredHeight: 18
@@ -225,11 +226,11 @@ ColumnLayout {
                             target: appui
                             function onDataChanged() {
                                 if (hasCheckbox)
-                                    checked = appui.getEnabled(checkedKey);
+                                    tabCheckbox.checked = appui.getEnabled(checkedKey);
                             }
                         }
 
-                        onToggled: {
+                        onClicked: {
                             appui.setEnabled(checkedKey, checked);
                         }
                     }

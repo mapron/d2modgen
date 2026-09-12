@@ -23,6 +23,15 @@ ApplicationWindow {
         button: "#e1e1e1"
         buttonText: "#000000"
         highlight: "#308cc6"
+
+        // Colors applied only when an item/window is disabled
+        disabled {
+            windowText: "#a0a0a0"
+            text: "#a0a0a0"
+            button: "#e1e1e1"
+            buttonText: "#a0a0a0"
+            highlight: "#a0a0a0" // Grays out the slider track/handle progress
+        }
     }
 
     Palette {
@@ -35,6 +44,15 @@ ApplicationWindow {
         button: "#353535"
         buttonText: "#ffffff"
         highlight: "#2a82da"
+
+        // Colors applied only when an item/window is disabled
+        disabled {
+            windowText: "#666666"
+            text: "#666666"
+            button: "#353535"
+            buttonText: "#666666"
+            highlight: "#555555"
+        }
     }
 
     minimumWidth: 800

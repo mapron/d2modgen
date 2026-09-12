@@ -73,6 +73,7 @@ ModuleItemDrops::ModuleItemDrops()
                        { "chance_set", Mernel::PropertyTreeScalar{ 1 } },
                        { "chance_uni", Mernel::PropertyTreeScalar{ 1 } },
                        { "equal_uniques", Mernel::PropertyTreeScalar{ false } },
+                       { "boss_quest_drops", Mernel::PropertyTreeScalar{ false } },
                        { "equip_percent", Mernel::PropertyTreeScalar{ 100 } },
                        { "gold_percent", Mernel::PropertyTreeScalar{ 100 } },
                        { "good_percent", Mernel::PropertyTreeScalar{ 100 } },
@@ -81,7 +82,31 @@ ModuleItemDrops::ModuleItemDrops()
                        { "nodrop_percent", Mernel::PropertyTreeScalar{ 100 } },
                    },
                    std::string(key))
-{}
+{
+    setPresets({
+        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
+            { "chance_uni", Mernel::PropertyTreeScalar{ 50 } },
+            { "chance_set", Mernel::PropertyTreeScalar{ 30 } },
+            { "chance_highlevel", Mernel::PropertyTreeScalar{ 15 } },
+            { "high_elite_drops", Mernel::PropertyTreeScalar{ true } },
+            { "boss_quest_drops", Mernel::PropertyTreeScalar{ true } },
+            { "equal_uniques", Mernel::PropertyTreeScalar{ true } },
+        } },
+        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
+            { "chance_uni", Mernel::PropertyTreeScalar{ 15 } },
+            { "chance_set", Mernel::PropertyTreeScalar{ 10 } },
+            { "high_elite_drops", Mernel::PropertyTreeScalar{ true } },
+            { "boss_quest_drops", Mernel::PropertyTreeScalar{ true } },
+        } },
+        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
+            { "chance_uni", Mernel::PropertyTreeScalar{ 5 } },
+            { "chance_set", Mernel::PropertyTreeScalar{ 5 } },
+            { "nodrop_percent", Mernel::PropertyTreeScalar{ 50 } },
+            { "nodrop_percent", Mernel::PropertyTreeScalar{ 50 } },
+            { "nodrop_percent", Mernel::PropertyTreeScalar{ 10 } },
+        } },
+    });
+}
 
 void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {

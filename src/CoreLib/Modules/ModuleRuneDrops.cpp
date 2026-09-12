@@ -19,7 +19,27 @@ ModuleRuneDrops::ModuleRuneDrops()
                        { "zod_factor", Mernel::PropertyTreeScalar{ 1 } },
                    },
                    std::string(key))
-{}
+{
+    setPresets({
+        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
+            { "zod_factor", Mernel::PropertyTreeScalar{ 200 } },
+            { "rune_factor", Mernel::PropertyTreeScalar{ 10 } },
+            { "countess_rune_higher", Mernel::PropertyTreeScalar{ true } },
+            { "countess_rune_more", Mernel::PropertyTreeScalar{ true } },
+            { "wraith_runes", Mernel::PropertyTreeScalar{ true } },
+        } },
+        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
+            { "zod_factor", Mernel::PropertyTreeScalar{ 10 } },
+            { "rune_factor", Mernel::PropertyTreeScalar{ 3 } },
+        } },
+        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
+            { "zod_factor", Mernel::PropertyTreeScalar{ 3 } },
+            { "countess_rune_higher", Mernel::PropertyTreeScalar{ true } },
+            { "countess_rune_more", Mernel::PropertyTreeScalar{ true } },
+            { "wraith_runes", Mernel::PropertyTreeScalar{ true } },
+        } },
+    });
+}
 
 void ModuleRuneDrops::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {

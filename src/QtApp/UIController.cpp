@@ -8,7 +8,6 @@
 #include "FileIOUtils.hpp"
 
 #include "ConfigHandler.hpp"
-#include "Logger.hpp"
 
 namespace D2ModGen {
 
@@ -406,21 +405,24 @@ bool UIController::saveConfig(const QString& filename) const
 bool UIController::loadConfig(const QString& filename)
 {
     const auto result = m_configHandler.loadConfig(filename.toStdString());
-    updateUIFromSettings();
+
+    emit dataChangedInternal();
     return result;
 }
 
 bool UIController::loadConfig(const Mernel::PropertyTree& data)
 {
     const auto result = m_configHandler.loadConfig(data);
-    updateUIFromSettings();
+
+    emit dataChangedInternal();
     return result;
 }
 
 bool UIController::loadPresetConfig(const QString& filename)
 {
     const auto result = m_configHandler.loadConfig(filename.toStdString(), false);
-    updateUIFromSettings();
+
+    emit dataChangedInternal();
     return result;
 }
 
@@ -464,6 +466,7 @@ void UIController::setEnabled(const QString& context, bool val)
     auto&               cfg = m_configHandler.m_moduleIndex16.at(contextView)->m_enabled;
     cfg                     = val;
     m_delayTimer->start();
+    emit dataChangedInternal();
 }
 
 QString UIController::getApp(const QString& key, const QString& def) const
@@ -471,14 +474,34 @@ QString UIController::getApp(const QString& key, const QString& def) const
     return QString::fromStdString(m_configHandler.m_appConfig.value(key.toStdString(), Mernel::PropertyTreeScalar(def.toStdString())).toString());
 }
 
-void UIController::setApp(const QString& key, const QString& value) const
+void UIController::setApp(const QString& key, const QString& value)
 {
     m_configHandler.m_appConfig.getMap()[key.toStdString()] = Mernel::PropertyTreeScalar{ value.toStdString() };
 }
 
+void UIController::activatePreset(const QString& context, int index)
+{
+    if (index < 1)
+        return;
+    std::u16string_view contextView(reinterpret_cast<const char16_t*>(context.utf16()), static_cast<size_t>(context.length()));
+    auto&               module = *m_configHandler.m_moduleIndex16.at(contextView);
+    module.m_currentConfig     = module.m_module->presets().at(index - 1);
+
+    m_delayTimer->start();
+    emit dataChangedInternal();
+}
+
+void UIController::resetToDefault(const QString& context)
+{
+    std::u16string_view contextView(reinterpret_cast<const char16_t*>(context.utf16()), static_cast<size_t>(context.length()));
+    auto&               cfg = m_configHandler.m_moduleIndex16.at(contextView)->m_currentConfig;
+    cfg                     = {};
+    cfg.convertToMap();
+    emit dataChangedInternal();
+}
+
 void UIController::pushUndo(const Mernel::PropertyTree& data)
 {
-    Logger() << "pushing undo, current undo size=" << m_undo.size();
     m_undo << data;
     while (m_undo.size() > 50)
         m_undo.removeFirst();
@@ -496,15 +519,14 @@ void UIController::pushUndoCurrent()
 void UIController::makeUndo()
 {
     m_delayTimer->stop();
+    if (m_undo.size() < 2)
+        return;
+
     m_undo.removeLast();
     loadConfig(m_undo.last());
     updateUndoAction();
 }
 
-void UIController::updateUIFromSettings()
-{
-    emit dataChangedInternal();
-}
 void UIController::updateUndoAction()
 {
     //

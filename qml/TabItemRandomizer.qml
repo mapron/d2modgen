@@ -8,6 +8,11 @@ WidgetCommonTab {
     caption: qsTr("Item Randomizer")
     tooltip: qsTr("What item randomizer does in short - it reads all possible item properties from Uniques, Sets, etc,<br>And then reassign properties back, but in random order (also it does not mean every original will be used)<br>For details, check descriptions of every option.")
 
+    WidgetPreset {
+        model: [qsTr("Select preset..."), qsTr("I want to be overpowered machine!"), qsTr("Want to have some fun without flying to space"), qsTr("Want to have fresh experience but balanced if possible"),]
+        value_context: root.value_context
+    }
+
     WidgetSlider {
         caption: qsTr("Crazy-ness (or 'NON-balance level', lower = more balance, 100=chaos)")
         tooltip: qsTr("Crazyness level - determine level difference to be used when selecting new properties for item/rune/etc.<br>With '10' it will select between level-10 and level+10 at first, if there are <50 candidates,<br>then it will select level-30..level+30, and finally it will try fully random. <br>In short, lower value = more balance in terms of original affix level and item level.")

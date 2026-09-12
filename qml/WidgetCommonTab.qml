@@ -15,18 +15,11 @@ ScrollView {
     default property alias contentSlot: contentContainer.data
 
     ColumnLayout {
-        //anchors.centerIn: parent
-
-        id: contentContainer
-        //width: 500
         spacing: 16
 
         RowLayout {
             id: pageHeaderRow
             spacing: 6
-
-            // Dynamically compute grid cell based on switches
-            Layout.fillWidth: true
 
             Label {
                 text: root.caption
@@ -36,6 +29,40 @@ ScrollView {
             WidgetHelpIcon {
                 tooltipText: root.tooltip
             }
+
+            Item {
+                Layout.fillWidth: true
+            }
+
+            CheckBox {
+                id: headerCheckbox
+
+                checked: appui.getEnabled(value_context)
+                text: qsTr("Enable this tab")
+
+                Connections {
+                    target: appui
+                    function onDataChanged() {
+                        headerCheckbox.checked = appui.getEnabled(value_context);
+                        contentContainer.enabled = headerCheckbox.checked;
+                    }
+                }
+
+                onClicked: {
+                    appui.setEnabled(value_context, checked);
+                }
+            }
+            Button {
+                text: qsTr("Reset to default")
+                onClicked: {
+                    appui.resetToDefault(value_context);
+                }
+            }
+        }
+
+        ColumnLayout {
+            id: contentContainer
+            enabled: appui.getEnabled(value_context)
         }
     }
 }

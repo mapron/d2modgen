@@ -76,7 +76,8 @@ public:
 public:
     virtual const std::string& settingKey() const = 0;
 
-    virtual const Mernel::PropertyTreeMap& defaultValues() const = 0;
+    virtual const Mernel::PropertyTreeMap&  defaultValues() const = 0;
+    virtual const Mernel::PropertyTreeList& presets() const       = 0;
 
     virtual void gatherInfo(PreGenerationContext& output, const InputContext& input) const            = 0;
     virtual void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const = 0;

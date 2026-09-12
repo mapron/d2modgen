@@ -76,7 +76,10 @@ MenuBar {
         Action {
 
             text: qsTr("Quit without saving")
-            onTriggered: window.close()
+            onTriggered: {
+                appui.disableAutoSave();
+                window.close();
+            }
         }
         Action {
 
@@ -103,7 +106,7 @@ MenuBar {
         Action {
             text: qsTr("Undo")
             shortcut: "Ctrl+Z"
-            onTriggered: console.log("Undo")
+            onTriggered: appui.makeUndo()
         }
         Menu {
             title: qsTr("Theme")

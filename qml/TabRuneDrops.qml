@@ -8,6 +8,11 @@ WidgetCommonTab {
     caption: qsTr("Increase Rune drops")
     tooltip: qsTr("All help and explanation on this page assume you are familiar with Treasure Class (TC) and NoDrop terminology.<br>Basically all options here modifying TC pick weights - so one preferred option become less rare.")
 
+    WidgetPreset {
+        model: [qsTr("Select preset..."), qsTr("Gimme pile of Ber runes!"), qsTr("I want to make Infinity at least once in my life"), qsTr("I want high runes to be rare, but want more rune drops overall"),]
+        value_context: root.value_context
+    }
+
     WidgetSlider {
         caption: qsTr("Increase Rare Rune drops")
         tooltip: qsTr("That will drastically improve High Rune drop rates! You probably don&apos;t need more than 50x.<br>Value here increases chance of dropping Zod in 'Runes 17' TC<br>Rarity of other runes will change proportionally <br>(so High Runes still be more rare in the same manner).")

@@ -67,7 +67,44 @@ ModuleItemRandomizer::ModuleItemRandomizer()
                        { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
                    },
                    std::string(key))
-{}
+{
+    setPresets({
+        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
+            { "crazyLevel", Mernel::PropertyTreeScalar{ 100 } },
+            { "itemFitPercent", Mernel::PropertyTreeScalar{ 0 } },
+            { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 0 } },
+            { "relativeCountMin", Mernel::PropertyTreeScalar{ 1000 } },
+            { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
+            { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 1000 } },
+            { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
+            { "affixRandom", Mernel::PropertyTreeScalar{ true } },
+            { "gemsRandom", Mernel::PropertyTreeScalar{ true } },
+            { "replaceSkills", Mernel::PropertyTreeScalar{ true } },
+            { "replaceCharges", Mernel::PropertyTreeScalar{ true } },
+        } },
+        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
+            { "crazyLevel", Mernel::PropertyTreeScalar{ 30 } },
+            { "itemFitPercent", Mernel::PropertyTreeScalar{ 50 } },
+            { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 20 } },
+            { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+            { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
+            { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+            { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
+            { "affixRandom", Mernel::PropertyTreeScalar{ true } },
+            { "replaceSkills", Mernel::PropertyTreeScalar{ true } },
+            { "replaceCharges", Mernel::PropertyTreeScalar{ true } },
+        } },
+        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
+            { "crazyLevel", Mernel::PropertyTreeScalar{ 10 } },
+            { "itemFitPercent", Mernel::PropertyTreeScalar{ 70 } },
+            { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 50 } },
+            { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+            { "relativeCountMax", Mernel::PropertyTreeScalar{ 120 } },
+            { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+            { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 150 } },
+        } },
+    });
+}
 
 void ModuleItemRandomizer::gatherInfo(PreGenerationContext& output, const InputContext& input) const
 {
