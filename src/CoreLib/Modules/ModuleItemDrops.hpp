@@ -13,9 +13,7 @@ class ModuleItemDrops : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::itemDrops;
 
-    ModuleItemDrops(Mernel::PropertyTree moduleMetadata, std::string id)
-        : PluginModule(std::move(moduleMetadata), std::move(id))
-    {}
+    ModuleItemDrops();
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
     using namespace D2ModGen;
     Logger(Logger::Notice) << "application started";
 
-    ConfigHandler configHandler(getExecutableRootFolder() + "/plugins");
+    ConfigHandler configHandler;
 
     if (argc == 3 && std::string(argv[1]) == "--generate") {
         std::string file = argv[2];

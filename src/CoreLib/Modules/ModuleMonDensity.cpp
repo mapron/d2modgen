@@ -10,9 +10,15 @@
 
 namespace D2ModGen {
 
-namespace {
-const bool s_init = registerHelper<ModuleMonDensity>();
-}
+ModuleMonDensity::ModuleMonDensity()
+    : PluginModule(Mernel::PropertyTreeMap{
+                       { "density", Mernel::PropertyTreeScalar{ 1 } },
+                       { "hellPacks", Mernel::PropertyTreeScalar{ false } },
+                       { "mon_groups", Mernel::PropertyTreeScalar{ 0 } },
+                       { "packs", Mernel::PropertyTreeScalar{ 1 } },
+                   },
+                   std::string(key))
+{}
 
 void ModuleMonDensity::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {

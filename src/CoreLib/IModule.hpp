@@ -71,17 +71,12 @@ public:
         {
             return getScalar(key).toInt();
         }
-        std::string getString(const std::string& key) const noexcept(false)
-        {
-            return getScalar(key).toString();
-        }
     };
 
 public:
-    virtual std::string settingKey() const = 0;
+    virtual const std::string& settingKey() const = 0;
 
-    virtual const Mernel::PropertyTree& pluginInfo() const    = 0;
-    virtual const Mernel::PropertyTree& defaultValues() const = 0;
+    virtual const Mernel::PropertyTreeMap& defaultValues() const = 0;
 
     virtual void gatherInfo(PreGenerationContext& output, const InputContext& input) const            = 0;
     virtual void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const = 0;
@@ -106,7 +101,6 @@ public:
         static constexpr const std::string_view runeDrops{ "rune_drops" };
         static constexpr const std::string_view skillRandomizer{ "skillRandomizer" };
 
-        static constexpr const std::string_view testConfig{ "testConfig" };
         static constexpr const std::string_view main{ "main" };
     };
 };

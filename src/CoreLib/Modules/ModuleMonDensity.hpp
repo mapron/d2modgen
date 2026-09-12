@@ -13,9 +13,7 @@ class ModuleMonDensity : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::monsterDensity;
 
-    ModuleMonDensity(Mernel::PropertyTree moduleMetadata, std::string id)
-        : PluginModule(std::move(moduleMetadata), std::move(id))
-    {}
+    ModuleMonDensity();
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

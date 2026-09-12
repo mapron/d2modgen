@@ -12,9 +12,7 @@ class ModuleMonRandomizer : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::monsterRandomizer;
 
-    ModuleMonRandomizer(Mernel::PropertyTree moduleMetadata, std::string id)
-        : PluginModule(std::move(moduleMetadata), std::move(id))
-    {}
+    ModuleMonRandomizer();
 
     void gatherInfo(PreGenerationContext& output, const InputContext& input) const override;
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;

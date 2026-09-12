@@ -20,7 +20,7 @@ class ModuleChallenge : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::challenge;
 
-    ModuleChallenge(Mernel::PropertyTree moduleMetadata, std::string id);
+    ModuleChallenge();
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

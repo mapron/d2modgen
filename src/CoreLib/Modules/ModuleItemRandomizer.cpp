@@ -13,8 +13,6 @@
 namespace D2ModGen {
 
 namespace {
-const bool s_init = registerHelper<ModuleItemRandomizer>();
-
 constexpr const int s_maxUnbalanceLevel = 100;
 
 const std::string s_itemsJson = "data\\local\\lng\\strings\\item-names.json";
@@ -48,6 +46,28 @@ inline StringVector splitLine(const std::string& line, char sep, bool skipEmpty 
 }
 
 }
+
+ModuleItemRandomizer::ModuleItemRandomizer()
+    : PluginModule(Mernel::PropertyTreeMap{
+                       { "affixRandom", Mernel::PropertyTreeScalar{ true } },
+                       { "crazyLevel", Mernel::PropertyTreeScalar{ 20 } },
+                       { "extraKnown", Mernel::PropertyTreeScalar{} },
+                       { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
+                       { "itemFitPercent", Mernel::PropertyTreeScalar{ 70 } },
+                       { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 70 } },
+                       { "noDuplicates", Mernel::PropertyTreeScalar{ true } },
+                       { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
+                       { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+                       { "removeKnock", Mernel::PropertyTreeScalar{ true } },
+                       { "repeat_sets", Mernel::PropertyTreeScalar{ 5 } },
+                       { "repeat_uniques", Mernel::PropertyTreeScalar{ 10 } },
+                       { "replaceCharges", Mernel::PropertyTreeScalar{ false } },
+                       { "replaceSkills", Mernel::PropertyTreeScalar{ false } },
+                       { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
+                       { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+                   },
+                   std::string(key))
+{}
 
 void ModuleItemRandomizer::gatherInfo(PreGenerationContext& output, const InputContext& input) const
 {
@@ -166,8 +186,9 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     const int repeatUniques = input.getInt("repeat_uniques");
     const int repeatSets    = input.getInt("repeat_sets");
 
-    const StringVector extraKnownCodesList = splitLine(input.getString("extraKnown"), ',', true);
-    const StringSet    extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
+    //const StringVector extraKnownCodesList = splitLine(input.getString("extraKnown"), ',', true);
+    //const StringSet    extraKnownCodes(extraKnownCodesList.cbegin(), extraKnownCodesList.cend());
+    const StringSet extraKnownCodes{};
 
     using LevelCallback               = std::function<int(const Row& row)>;
     using SupportedAttributesCallback = std::function<AttributeFlagSet(const Row& row)>;

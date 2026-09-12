@@ -7,6 +7,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/install CACHE STRING "" FORCE)
 
+set(Qt6Quick3D_FOUND TRUE CACHE BOOL "" FORCE)
+set(Qt6ShaderTools_FOUND TRUE CACHE BOOL "" FORCE)
+set(Qt6TaskTree_FOUND TRUE CACHE BOOL "" FORCE)
+
 cmake_minimum_required(VERSION 4.0)
 
 project(modgen)
@@ -20,7 +24,9 @@ endif()
 
 
 # Qt Setup
-set(QT_MODULE_LIST Core Gui Widgets Svg)
+set(QT_MODULE_LIST Core Gui Widgets Svg Qml Quick
+QuickWidgets QuickControls2 QuickLayouts
+)
 find_package(Qt6 COMPONENTS ${QT_MODULE_LIST} LinguistTools)
 
 include(targets)
@@ -36,8 +42,6 @@ include(ext/mernel/mernel.cmake)
 
 # source
 set(sourceRoot ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(pluginRootBin ${CMAKE_CURRENT_BINARY_DIR}/plugins)
-set(presetsRootBin ${CMAKE_CURRENT_BINARY_DIR}/presets)
 
 AddTarget(TYPE shared NAME ModgenCore
     SOURCE_DIR ${sourceRoot}/CoreLib
@@ -46,24 +50,24 @@ AddTarget(TYPE shared NAME ModgenCore
     LINK_LIBRARIES rapidjson casclib stormlib MernelPlatform
     )
 
+function(InstallTextFiles folder)
+    set(presetsRootBin ${CMAKE_CURRENT_BINARY_DIR}/${folder})
+    file(GLOB_RECURSE presetFiles RELATIVE
+        ${CMAKE_CURRENT_SOURCE_DIR}/${folder}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${folder}/*.json
+        ${CMAKE_CURRENT_SOURCE_DIR}/${folder}/*.txt)
+    foreach(filename ${presetFiles})
+        add_custom_command(OUTPUT ${presetsRootBin}/${filename}
+            COMMAND ${CMAKE_COMMAND} ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${folder}/${filename} ${presetsRootBin}/${filename}
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${folder}/${filename})
+        target_sources(ModgenCore PRIVATE ${presetsRootBin}/${filename})
+    endforeach()
+    
+    install(DIRECTORY ${presetsRootBin} DESTINATION bin)
+endfunction()
 
-file(GLOB_RECURSE resourceFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/modules
-    ${CMAKE_CURRENT_SOURCE_DIR}/modules/*.json)
-foreach(filename ${resourceFiles})
-	add_custom_command(OUTPUT ${pluginRootBin}/${filename}
-		COMMAND ${CMAKE_COMMAND} ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/modules/${filename} ${pluginRootBin}/${filename}
-		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/modules/${filename})
-	target_sources(ModgenCore PRIVATE ${pluginRootBin}/${filename})
-endforeach()
+InstallTextFiles(presets)
 
-file(GLOB_RECURSE presetFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/presets
-    ${CMAKE_CURRENT_SOURCE_DIR}/presets/*.json ${CMAKE_CURRENT_SOURCE_DIR}/presets/*.txt)
-foreach(filename ${presetFiles})
-	add_custom_command(OUTPUT ${presetsRootBin}/${filename}
-		COMMAND ${CMAKE_COMMAND} ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/presets/${filename} ${presetsRootBin}/${filename}
-		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/presets/${filename})
-	target_sources(ModgenCore PRIVATE ${presetsRootBin}/${filename})
-endforeach()
 
 # ConsoleApp
 AddTarget( TYPE app_console NAME modgen_console
@@ -75,65 +79,74 @@ if (NOT Qt6_FOUND)
 	return()
 endif()
 
-# QtApp
 
-AddTarget( TYPE app_ui NAME modgen
+set(CMAKE_AUTOMOC ON)
+
+# QtApp
+qt_standard_project_setup()
+
+AddTarget( TYPE app_qt NAME modgen_ui
     SOURCE_DIR ${sourceRoot}/QtApp
     INCLUDES   ${sourceRoot}/QtApp
     LINK_LIBRARIES ModgenCore MernelPlatform
-    QT_MODULES Widgets
+    QT_MODULES Widgets Qml Quick 
     )
 
-GenerateQrcWithTranslations(Translations ${CMAKE_CURRENT_SOURCE_DIR}/translations qrcName)
-AddQrcTarget(${CMAKE_CURRENT_SOURCE_DIR}/theme/breeze.qrc)
-AddResourceCustomTarget("all_resources" Translations breeze)
+file(GLOB_RECURSE qmlFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/**/*.qml)
 
-install(DIRECTORY ${pluginRootBin} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
-install(DIRECTORY ${presetsRootBin} DESTINATION bin PATTERN *.ilk EXCLUDE PATTERN *.pdb EXCLUDE)
-foreach(th IN ITEMS dark light)
-	install(FILES theme/${th}.conf DESTINATION bin/theme)
-	configure_file(theme/${th}.conf ${CMAKE_CURRENT_BINARY_DIR}/theme/${th}.conf COPYONLY)
-endforeach()
+qt6_add_qml_module(modgen_ui
+    NO_RESOURCE_TARGET_PATH
+    URI MainModule
+    VERSION 1.0
+    QML_FILES
+        ${qmlFiles}
+        
+)
+
+qt_add_translations(modgen_ui
+    TS_FILES
+        translations/modgen_ru_RU.ts
+        translations/modgen_ko_KR.ts
+    SOURCES
+        ${qmlFiles}
+    RESOURCE_PREFIX 
+        "/i18n"
+)
+
+# a "shortcut"
+AddTarget( TYPE app_ui NAME modgen
+    SOURCE_DIR ${sourceRoot}/Shortcut
+    STATIC_RUNTIME
+    SKIP_INSTALL
+    )
+install(TARGETS modgen RUNTIME DESTINATION .)
+
 
 #[[
 ########## Installation (Win32 only at the moment) ##########
 #]]
 
 if(WIN32)
-# Qt install - plugins
-set(QtPluginsList Qt6::QSvgPlugin)
-if(APPLE)
-    list(APPEND QtPluginsList Qt6::QCocoaIntegrationPlugin)
-elseif(WIN32)
-    list(APPEND QtPluginsList Qt6::QWindowsIntegrationPlugin Qt6::QModernWindowsStylePlugin)
-endif()
-foreach(plugin ${QtPluginsList})
-    get_target_property(imploc_RELEASE ${plugin} IMPORTED_LOCATION_RELEASE)
-    get_target_property(imploc_DEBUG   ${plugin} IMPORTED_LOCATION_DEBUG)
 
-    get_filename_component(pluginPath ${imploc_RELEASE} DIRECTORY)
-    get_filename_component(pluginDir ${pluginPath} NAME)
-    if (EXISTS "${imploc_DEBUG}")
-        install(FILES ${imploc_DEBUG}   DESTINATION bin/${pluginDir} CONFIGURATIONS Debug )
-    endif()
-    install(FILES ${imploc_RELEASE} DESTINATION bin/${pluginDir} CONFIGURATIONS Release )
-endforeach()
-
-# Qt install - shared libs
-foreach(qt6Module ${QT_MODULE_LIST})
-    get_target_property(imploc_RELEASE Qt6::${qt6Module} IMPORTED_LOCATION_RELEASE)
-    get_target_property(imploc_DEBUG   Qt6::${qt6Module} IMPORTED_LOCATION_DEBUG)
-    if (EXISTS "${imploc_DEBUG}")
-        install(FILES ${imploc_DEBUG}   DESTINATION bin CONFIGURATIONS Debug    )
-    endif()
-    install(FILES ${imploc_RELEASE} DESTINATION bin CONFIGURATIONS Release  )
-endforeach()
-
-# Compiler runtime
 set(CMAKE_INSTALL_UCRT_LIBRARIES TRUE)
 if (NOT(CMAKE_BUILD_TYPE STREQUAL Release))
     set(CMAKE_INSTALL_DEBUG_LIBRARIES TRUE)
 endif()
-include (InstallRequiredSystemLibraries)
+include(InstallRequiredSystemLibraries)
+
+include(CMakePackageConfigHelpers)
+
+qt6_generate_deploy_qml_app_script(
+    TARGET modgen_ui
+    OUTPUT_SCRIPT deploy_script
+   # INCLUDE_PLUGINS qsvg
+    NO_TRANSLATIONS
+    NO_COMPILER_RUNTIME
+
+    DEPLOY_TOOL_OPTIONS
+        --no-system-dxc-compiler
+)
+
+install(SCRIPT ${deploy_script})
 
 endif(WIN32)

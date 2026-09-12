@@ -9,12 +9,19 @@
 
 namespace D2ModGen {
 
-namespace {
-const bool s_init = registerHelper<ModuleChallenge>();
-}
-
-ModuleChallenge::ModuleChallenge(Mernel::PropertyTree moduleMetadata, std::string id)
-    : PluginModule(std::move(moduleMetadata), std::move(id))
+ModuleChallenge::ModuleChallenge()
+    : PluginModule(Mernel::PropertyTreeMap{
+                       { "hell_minus_res", Mernel::PropertyTreeScalar{ 100 } },
+                       { "levelIncreaseHell", Mernel::PropertyTreeScalar{ 0 } },
+                       { "levelIncreaseNightmare", Mernel::PropertyTreeScalar{ 0 } },
+                       { "levelIncreaseUltra", Mernel::PropertyTreeScalar{ false } },
+                       { "nightmare_minus_res", Mernel::PropertyTreeScalar{ 40 } },
+                       { "nodrop_hpsa", Mernel::PropertyTreeScalar{ false } },
+                       { "nodrop_mpsa", Mernel::PropertyTreeScalar{ false } },
+                       { "nodrop_rvs", Mernel::PropertyTreeScalar{ false } },
+                       { "normal_minus_res", Mernel::PropertyTreeScalar{ 0 } },
+                   },
+                   std::string(key))
     , m_items{
         { { "hp1", "hp2", "hp3", "hp4", "hp5" }, "hpsa" },
         { { "mp1", "mp2", "mp3", "mp4", "mp5" }, "mpsa" },

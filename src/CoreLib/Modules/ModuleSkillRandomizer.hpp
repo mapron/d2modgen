@@ -12,9 +12,7 @@ class ModuleSkillRandomizer : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::skillRandomizer;
 
-    ModuleSkillRandomizer(Mernel::PropertyTree moduleMetadata, std::string id)
-        : PluginModule(std::move(moduleMetadata), std::move(id))
-    {}
+    ModuleSkillRandomizer();
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

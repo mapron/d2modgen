@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  * See LICENSE file for details.
  */
-#include "MainWindow.hpp"
+#include "UIController.hpp"
 
 #include "MernelPlatform/Logger_details.hpp"
 
@@ -20,37 +20,33 @@
 #include <QTextStream>
 #include <QResource>
 
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+
 namespace {
-
-bool setEnvVariable(const std::string& varName, const std::string& value)
-{
-#ifdef _WIN32
-    return _putenv_s(varName.c_str(), value.c_str()) != 0;
-#else
-    return setenv(varName.c_str(), value.c_str(), 1) != 0;
-#endif
-}
-
-QString stripDir(QString s)
-{
-    s = s.mid(s.lastIndexOf('\\') + 1);
-    s = s.mid(s.lastIndexOf('/') + 1);
-    return s;
-}
 
 class RAIITranslator {
     std::unique_ptr<QTranslator> m_tr;
 
 public:
     RAIITranslator(const QString& localeId)
-        : m_tr(std::make_unique<QTranslator>())
     {
-        m_tr->load(QString(":/Translations/modgen_%1.qm").arg(localeId));
-        QApplication::installTranslator(m_tr.get());
+        if (localeId == "en_US")
+            return;
+        m_tr = std::make_unique<QTranslator>();
+
+        auto res = QString(":/i18n/modgen_%1.qm").arg(localeId);
+        if (!m_tr->load(res))
+            qWarning() << "Failed to load " << res;
+
+        if (!QApplication::installTranslator(m_tr.get()))
+            qWarning() << "Failed to install translator for " << localeId;
     }
     ~RAIITranslator()
     {
-        QApplication::removeTranslator(m_tr.get());
+        if (m_tr)
+            QApplication::removeTranslator(m_tr.get());
     }
 };
 
@@ -111,47 +107,17 @@ int main(int argc, char* argv[])
             string2path(logDir)));
         Logger() << "Started log redirection to:" << logDir;
     }
-    //qWarning() << "test qwarn";
     auto          exeRoot = getExecutableRootFolder();
-    ConfigHandler configHandler(exeRoot + "/plugins");
+    ConfigHandler configHandler;
+    configHandler.loadAppConfig();
 
-    auto args = app.arguments();
-    if (args.value(1) == "--generate") {
-        QString file = args.value(2);
-        if (!file.isEmpty())
-            configHandler.loadConfig(file.toStdString());
-        configHandler.generate();
-        return 0;
-    }
+    UIController   appui(configHandler);
+    RAIITranslator trans(appui.getApp("langId", "en_US"));
 
-    auto [langId, themeId] = D2ModGen::MainWindow::getAppSettings();
-    Logger() << "langId=" << langId.toStdString();
-    Logger() << "themeId=" << themeId.toStdString();
+    QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("appui", &appui);
+    engine.load(QUrl(QStringLiteral("qrc:/qml/mainapp.qml")));
 
-    const bool isDark = themeId == "dark";
-    setEnvVariable("QT_QUICK_CONTROLS_CONF", exeRoot + "/theme/" + (isDark ? "dark.conf" : "light.conf"));
-
-    {
-        QStringList qrc{ "Translations", "breeze" };
-        QString     binDir = QApplication::applicationDirPath();
-        for (QString qrcName : qrc) {
-            [[maybe_unused]] bool registered = QResource::registerResource(QString("%1/assetsCompiled/%2.rcc").arg(binDir).arg(qrcName));
-            assert(registered);
-        }
-
-        //Q_INIT_RESOURCE(breeze);
-        QFile file(QString(":/%1/stylesheet.qss").arg(themeId));
-        file.open(QFile::ReadOnly | QFile::Text);
-        QTextStream stream(&file);
-        app.setStyleSheet(stream.readAll());
-    }
-
-    //Q_INIT_RESOURCE(Translations);
-    RAIITranslator trans(langId);
-
-    D2ModGen::MainWindow w(configHandler);
-    Logger() << "main window created";
-    w.show();
     auto res = app.exec();
     Logger() << "closing app";
     return res;

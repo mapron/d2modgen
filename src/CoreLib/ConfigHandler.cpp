@@ -9,7 +9,22 @@
 #include "DataContext.hpp"
 #include "FileIOUtils.hpp"
 #include "Logger.hpp"
-#include "PluginModule.hpp"
+
+#include "Modules/ModuleChallenge.hpp"
+#include "Modules/ModuleCharacter.hpp"
+#include "Modules/ModuleCube.hpp"
+#include "Modules/ModuleDropFiltering.hpp"
+#include "Modules/ModuleGambling.hpp"
+#include "Modules/ModuleItemDrops.hpp"
+#include "Modules/ModuleItemRandomizer.hpp"
+#include "Modules/ModuleMonDensity.hpp"
+#include "Modules/ModuleMonRandomizer.hpp"
+#include "Modules/ModuleMonStats.hpp"
+#include "Modules/ModulePerfectRoll.hpp"
+#include "Modules/ModuleQol.hpp"
+#include "Modules/ModuleRequirements.hpp"
+#include "Modules/ModuleRuneDrops.hpp"
+#include "Modules/ModuleSkillRandomizer.hpp"
 
 #include "Storage/StorageCache.hpp"
 #include "Storage/FolderStorage.hpp"
@@ -18,83 +33,101 @@
 
 #include <random>
 
+#include "MernelPlatform/AppLocations.hpp"
+
 namespace D2ModGen {
 
-ConfigHandler::ConfigHandler(const std::string& pluginsRoot)
+ConfigHandler::ConfigHandler()
     : m_mainStorageCache(std::make_unique<StorageCache>())
+    , m_appData(Mernel::AppLocations("D2R mod generator").getAppdataDir())
+    , m_defaultPath(m_appData / "config.json")
 {
-    for (const auto& it : std_fs::directory_iterator(string2path(pluginsRoot))) {
-        if (!it.is_regular_file())
-            continue;
+    std::vector<IModule::Ptr> modules{
+        // light modules
+        std::make_shared<ModuleChallenge>(),
+        std::make_shared<ModuleCharacter>(),
+        std::make_shared<ModuleGambling>(),
+        std::make_shared<ModuleItemDrops>(),
+        std::make_shared<ModuleMonDensity>(),
+        std::make_shared<ModuleMonStats>(),
+        std::make_shared<ModulePerfectRoll>(),
+        std::make_shared<ModuleQol>(),
+        std::make_shared<ModuleRequirements>(),
+        std::make_shared<ModuleRuneDrops>(),
 
-        const std_path& jsonDeclFilepath = it.path();
-        std::string     id               = path2string(jsonDeclFilepath.stem());
-        if (jsonDeclFilepath.extension() != ".json" || id.empty())
-            continue;
-
-        std::string          buffer;
-        Mernel::PropertyTree info;
-        if (!Mernel::readFileIntoBufferNoexcept(jsonDeclFilepath, buffer) || !readJsonFromBufferNoexcept(buffer, info)) {
-            Logger(Logger::Err) << "Failed to read json file for plugin:" << jsonDeclFilepath;
-            continue;
-        }
-        if (info.value("id", Mernel::PropertyTreeScalar("")).toString().empty())
-            info["id"] = Mernel::PropertyTreeScalar(id);
-        id           = info.value("id", Mernel::PropertyTreeScalar("")).toString();
-        info["root"] = Mernel::PropertyTreeScalar(path2string(jsonDeclFilepath.parent_path() / id));
-
-        try {
-            auto pluginModule = createModule(info, id);
-            if (m_modules.contains(pluginModule->settingKey())) {
-                Logger(Logger::Err) << "Duplicate plugin id:" << pluginModule->settingKey();
-                continue;
-            }
-
-            m_modules[pluginModule->settingKey()] = { pluginModule, {}, true, pluginModule->pluginInfo().value("loadOrder", Mernel::PropertyTreeScalar(1000)).toInt() };
-
-            if (pluginModule->settingKey() != IModule::Key::testConfig)
-                m_pluginIds.push_back(pluginModule->settingKey());
-        }
-        catch (std::exception& e) {
-            Logger(Logger::Err) << "Error on loading (" << jsonDeclFilepath << ") = " << e.what();
-        }
+        // modules that can add more rows, thus in the end
+        std::make_shared<ModuleCube>(),
+        std::make_shared<ModuleDropFiltering>(),
+        std::make_shared<ModuleMonRandomizer>(),
+        std::make_shared<ModuleItemRandomizer>(),
+        std::make_shared<ModuleSkillRandomizer>(),
+    };
+    for (auto&& module : modules) {
+        std::string id = module->settingKey();
+        m_modules.push_back(ModuleData{ .m_module = std::move(module), .m_key = id, .m_key16 = std::u16string(id.cbegin(), id.cend()) });
     }
-    m_modules[std::string(IModule::Key::testConfig)].m_enabled = true;
+    for (auto&& module : m_modules) {
+        m_moduleIndex8[module.m_key]    = &module;
+        m_moduleIndex16[module.m_key16] = &module;
+    }
 }
 
-bool ConfigHandler::loadConfig(const std::string& filename, bool resetMain)
+bool ConfigHandler::loadAppConfig()
 {
-    Logger() << "Load:" << filename;
+    const Mernel::std_path filename = m_appData / "app.json";
+    Logger() << "Load:" << path2string(filename);
+    std::string buffer;
+    m_appConfig = {};
+    m_appConfig.convertToMap();
+    if (!Mernel::readFileIntoBufferNoexcept((filename), buffer) || !readJsonFromBufferNoexcept(buffer, m_appConfig)) {
+        return false;
+    }
+    return true;
+}
+
+bool ConfigHandler::saveAppConfig() const
+{
+    const Mernel::std_path filename = m_appData / "app.json";
+    Logger() << "Save:" << path2string(filename);
+    if (!createDirectoriesForFile((filename)))
+        return false;
+    std::string buffer;
+    Mernel::writeJsonToBufferNoexcept(buffer, m_appConfig);
+    return Mernel::writeFileFromBufferNoexcept((filename), buffer);
+}
+
+bool ConfigHandler::loadConfig(const Mernel::std_path& filename, bool resetMain)
+{
+    Logger() << "Load:" << path2string(filename);
     std::string          buffer;
     Mernel::PropertyTree doc;
-    if (!Mernel::readFileIntoBufferNoexcept(string2path(filename), buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
+    if (!Mernel::readFileIntoBufferNoexcept((filename), buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
         loadConfig(Mernel::PropertyTree{}, resetMain);
         return false;
     }
     return loadConfig(doc, resetMain);
 }
 
-bool ConfigHandler::saveConfig(const std::string& filename) const
+bool ConfigHandler::saveConfig(const Mernel::std_path& filename) const
 {
+    Logger() << "Save:" << path2string(filename);
     Mernel::PropertyTree data;
     saveConfig(data);
-    if (!createDirectoriesForFile(string2path(filename)))
+    if (!createDirectoriesForFile((filename)))
         return false;
     std::string buffer;
     Mernel::writeJsonToBufferNoexcept(buffer, data);
-    return Mernel::writeFileFromBufferNoexcept(string2path(filename), buffer);
+    return Mernel::writeFileFromBufferNoexcept((filename), buffer);
 }
 
 bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data, bool resetMain)
 {
     for (auto& p : m_modules) {
-        p.second.m_enabled = data.value(p.first + "_enabled", Mernel::PropertyTreeScalar(false)).toBool();
-
-        p.second.m_currentConfig = {};
-        if (data.contains(p.first))
-            p.second.m_currentConfig = data[p.first];
+        p.m_enabled       = data.value(p.m_key + "_enabled", Mernel::PropertyTreeScalar(false)).toBool();
+        p.m_currentConfig = {};
+        if (data.contains(p.m_key))
+            p.m_currentConfig = data[p.m_key];
     }
-    m_modules[std::string(IModule::Key::testConfig)].m_enabled = true;
     if (resetMain) {
         m_currentMainConfig = {};
         if (data.contains(std::string(IModule::Key::main)))
@@ -106,26 +139,15 @@ bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data, bool resetMain)
 bool ConfigHandler::saveConfig(Mernel::PropertyTree& data) const
 {
     for (auto& p : m_modules) {
-        data[p.first]              = p.second.m_currentConfig;
-        data[p.first + "_enabled"] = Mernel::PropertyTreeScalar{ p.second.m_enabled };
+        data[p.m_key] = p.m_currentConfig;
+
+        auto defValues = Mernel::PropertyTree{ p.m_module->defaultValues() };
+        Mernel::PropertyTree::removeEqualValues(data[p.m_key], defValues);
+
+        data[p.m_key + "_enabled"] = Mernel::PropertyTreeScalar{ p.m_enabled };
     }
     data[std::string(IModule::Key::main)] = m_currentMainConfig;
     return true;
-}
-
-bool ConfigHandler::isConfigEnabled(const std::string& key) const
-{
-    return m_modules.at(key).m_enabled;
-}
-
-void ConfigHandler::setConfigEnabled(const std::string& key, bool value)
-{
-    m_modules.at(key).m_enabled = value;
-}
-
-IModule::Ptr ConfigHandler::getModule(std::string_view key) const
-{
-    return m_modules.at(std::string(key)).m_module;
 }
 
 ConfigHandler::GenerateResult ConfigHandler::generate()
@@ -174,17 +196,17 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     IModule::PreGenerationContext pregenContext;
     {
         for (auto& p : m_modules) {
-            if (!p.second.m_enabled)
+            if (!p.m_enabled)
                 continue;
 
             IModule::InputContext input;
-            input.m_env      = env;
-            input.m_settings = p.second.m_currentConfig;
-            Mernel::PropertyTree::mergePatch(input.m_mergedSettings, p.second.m_module->defaultValues());
+            input.m_env            = env;
+            input.m_settings       = p.m_currentConfig;
+            input.m_mergedSettings = Mernel::PropertyTree{ p.m_module->defaultValues() };
             if (!input.m_settings.isNull())
                 Mernel::PropertyTree::mergePatch(input.m_mergedSettings, input.m_settings);
 
-            p.second.m_module->gatherInfo(pregenContext, input);
+            p.m_module->gatherInfo(pregenContext, input);
         }
     }
     {
@@ -213,21 +235,15 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         using Distribution32 = std::uniform_int_distribution<int32_t>;
         std::mt19937_64 engine;
         engine.seed(env.seed); // really we need A LOT of bits to safely seed mt engine. But for our purpose 32 bits more then enough.
-        std::vector<ModuleData*> orderedModules;
-        for (auto& p : m_modules) {
-            if (!p.second.m_enabled)
+        for (ModuleData& module : m_modules) {
+            if (!module.m_enabled)
                 continue;
-            orderedModules.push_back(&p.second);
-        }
-        std::sort(orderedModules.begin(), orderedModules.end(), [](ModuleData* lh, ModuleData* rh) {
-            return lh->m_order < rh->m_order;
-        });
-        for (ModuleData* module : orderedModules) {
-            Logger() << "start module:" << module->m_module->settingKey();
+
+            Logger() << "start module:" << module.m_key;
             IModule::InputContext input;
-            input.m_env      = env;
-            input.m_settings = module->m_currentConfig;
-            Mernel::PropertyTree::mergePatch(input.m_mergedSettings, module->m_module->defaultValues());
+            input.m_env            = env;
+            input.m_settings       = module.m_currentConfig;
+            input.m_mergedSettings = Mernel::PropertyTree{ module.m_module->defaultValues() };
             if (!input.m_settings.isNull())
                 Mernel::PropertyTree::mergePatch(input.m_mergedSettings, input.m_settings);
 
@@ -237,10 +253,10 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
                 return Distribution32(0, bound - 1)(engine);
             };
             try {
-                module->m_module->generate(output, r, input);
+                module.m_module->generate(output, r, input);
             }
             catch (const std::exception& ex) {
-                return { std::string("Generate failed in module '" + module->m_module->settingKey() + "': " + std::string(ex.what())) };
+                return { std::string("Generate failed in module '" + module.m_key + "': " + std::string(ex.what())) };
             }
         }
     }

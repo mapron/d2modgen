@@ -12,9 +12,7 @@ class ModuleRequirements : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::requirements;
 
-    ModuleRequirements(Mernel::PropertyTree moduleMetadata, std::string id)
-        : PluginModule(std::move(moduleMetadata), std::move(id))
-    {}
+    ModuleRequirements();
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

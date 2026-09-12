@@ -97,8 +97,11 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
 
 bool FolderStorage::prepareForWrite() const noexcept
 {
-    if (std_fs::exists(m_root / "data"))
-        removeRecursively(m_root / "data");
+    const auto data = m_root / "data";
+    if (std_fs::exists(data)) {
+        removeRecursively(data);
+        Logger() << "Remove dir: " << path2string(data);
+    }
 
     if (!createDirectories(m_root)) {
         Logger() << "Failed to create: " << m_root;
@@ -117,6 +120,8 @@ bool FolderStorage::prepareForWrite() const noexcept
         if (!Mernel::writeFileFromBufferNoexcept(jsonPath, buffer)) {
             Logger() << "Failed to write: " << jsonPath;
             return false;
+        } else {
+            Logger() << "Write: " << path2string(jsonPath);
         }
     }
     if (m_storageType != StorageType::CsvFolder) {
@@ -133,8 +138,11 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
     auto writeData = [](const std::string& data, const std_path& absPath) {
         if (!createDirectoriesForFile(absPath))
             return false;
-
-        return Mernel::writeFileFromBufferNoexcept(absPath, data);
+        auto res = Mernel::writeFileFromBufferNoexcept(absPath, data);
+        if (res) {
+            Logger() << "Write: " << path2string(absPath);
+        }
+        return res;
     };
     auto copyFile = [](const std_path& absSrc, const std_path& absDest) {
         if (!createDirectoriesForFile(absDest))

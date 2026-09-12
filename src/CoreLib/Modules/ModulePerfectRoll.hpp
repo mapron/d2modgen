@@ -12,9 +12,7 @@ class ModulePerfectRoll : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::perfectRolls;
 
-    ModulePerfectRoll(Mernel::PropertyTree moduleMetadata, std::string id)
-        : PluginModule(std::move(moduleMetadata), std::move(id))
-    {}
+    ModulePerfectRoll();
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

@@ -11,8 +11,6 @@
 namespace D2ModGen {
 
 namespace {
-const bool s_init = registerHelper<ModuleCube>();
-
 const std::map<std::string, std::string> s_craftedTypeReplace{
     { "\"fhl,mag,upg\"", "\"helm,mag\"" },
     { "\"mbt,mag,upg\"", "\"boot,mag\"" },
@@ -57,6 +55,21 @@ const std::map<std::string, std::string> s_craftedGemReplace{
 };
 
 }
+
+ModuleCube::ModuleCube()
+    : PluginModule(Mernel::PropertyTreeMap{
+                       { "cheatCharms", Mernel::PropertyTreeScalar{ false } },
+                       { "craftHighIlvl", Mernel::PropertyTreeScalar{ false } },
+                       { "craftNoRunes", Mernel::PropertyTreeScalar{ false } },
+                       { "craftNoStrict", Mernel::PropertyTreeScalar{ false } },
+                       { "noGemUpgrade", Mernel::PropertyTreeScalar{ false } },
+                       { "quickPortals", Mernel::PropertyTreeScalar{ false } },
+                       { "quickQuests", Mernel::PropertyTreeScalar{ false } },
+                       { "socketing", Mernel::PropertyTreeScalar{ false } },
+                       { "upgrading", Mernel::PropertyTreeScalar{ false } },
+                   },
+                   std::string(key))
+{}
 
 void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {

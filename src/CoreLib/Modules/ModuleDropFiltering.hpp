@@ -21,7 +21,7 @@ class ModuleDropFiltering : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::dropFiltering;
 
-    ModuleDropFiltering(Mernel::PropertyTree moduleMetadata, std::string id);
+    ModuleDropFiltering();
 
     void gatherInfo(PreGenerationContext& output, const InputContext& input) const override;
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;

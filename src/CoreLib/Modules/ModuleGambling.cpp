@@ -8,9 +8,17 @@
 
 namespace D2ModGen {
 
-namespace {
-const bool s_init = registerHelper<ModuleGambling>();
-}
+ModuleGambling::ModuleGambling()
+    : PluginModule(Mernel::PropertyTreeMap{
+                       { "charmGamble", Mernel::PropertyTreeScalar{ false } },
+                       { "ratioElite", Mernel::PropertyTreeScalar{ 1 } },
+                       { "ratioExc", Mernel::PropertyTreeScalar{ 1 } },
+                       { "ratioRare", Mernel::PropertyTreeScalar{ 1 } },
+                       { "ratioSet", Mernel::PropertyTreeScalar{ 1 } },
+                       { "ratioUnique", Mernel::PropertyTreeScalar{ 1 } },
+                   },
+                   std::string(key))
+{}
 
 void ModuleGambling::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {

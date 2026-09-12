@@ -12,9 +12,28 @@
 
 namespace D2ModGen {
 
-namespace {
-const bool s_init = registerHelper<ModulePerfectRoll>();
-}
+ModulePerfectRoll::ModulePerfectRoll()
+    : PluginModule(
+          Mernel::PropertyTreeMap{
+              { "affix_power_l1", Mernel::PropertyTreeScalar{ 100 } },
+              { "affix_power_l50", Mernel::PropertyTreeScalar{ 100 } },
+              { "affixes", Mernel::PropertyTreeScalar{ true } },
+              { "armor", Mernel::PropertyTreeScalar{ true } },
+              { "craft", Mernel::PropertyTreeScalar{ true } },
+              { "crafted", Mernel::PropertyTreeScalar{ true } },
+              { "crafted_power", Mernel::PropertyTreeScalar{ 100 } },
+              { "gem_power", Mernel::PropertyTreeScalar{ 100 } },
+              { "runeWords", Mernel::PropertyTreeScalar{ true } },
+              { "rw_power", Mernel::PropertyTreeScalar{ 100 } },
+              { "setItems", Mernel::PropertyTreeScalar{ true } },
+              { "set_power_l1", Mernel::PropertyTreeScalar{ 100 } },
+              { "set_power_l50", Mernel::PropertyTreeScalar{ 100 } },
+              { "uniques", Mernel::PropertyTreeScalar{ true } },
+              { "uniques_power_l1", Mernel::PropertyTreeScalar{ 100 } },
+              { "uniques_power_l50", Mernel::PropertyTreeScalar{ 100 } },
+          },
+          std::string(key))
+{}
 
 void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {

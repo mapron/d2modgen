@@ -13,9 +13,7 @@ class ModuleGambling : public PluginModule {
 public:
     static constexpr const std::string_view key = Key::gambling;
 
-    ModuleGambling(Mernel::PropertyTree moduleMetadata, std::string id)
-        : PluginModule(std::move(moduleMetadata), std::move(id))
-    {}
+    ModuleGambling();
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };

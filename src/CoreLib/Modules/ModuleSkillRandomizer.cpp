@@ -9,7 +9,6 @@
 namespace D2ModGen {
 
 namespace {
-const bool s_init = registerHelper<ModuleSkillRandomizer>();
 
 const StringSet s_skillsOkToRandomizeDamage{
     "Fire Bolt",
@@ -231,6 +230,15 @@ struct SkillTree {
 };
 
 }
+
+ModuleSkillRandomizer::ModuleSkillRandomizer()
+    : PluginModule(Mernel::PropertyTreeMap{
+                       { "ensureDifferent", Mernel::PropertyTreeScalar{ true } },
+                       { "skillDamage", Mernel::PropertyTreeScalar{ true } },
+                       { "skillTree", Mernel::PropertyTreeScalar{ true } },
+                   },
+                   std::string(key))
+{}
 
 void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {

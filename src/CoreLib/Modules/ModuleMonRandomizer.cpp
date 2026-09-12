@@ -13,8 +13,6 @@
 namespace D2ModGen {
 
 namespace {
-const bool s_init = registerHelper<ModuleMonRandomizer>();
-
 constexpr const int s_maxIngameLevel = 110;
 const std::string   s_monstersJson   = "data\\hd\\character\\monsters.json";
 }
@@ -218,6 +216,17 @@ struct MonResist {
         m_resist = newResist;
     }
 };
+
+ModuleMonRandomizer::ModuleMonRandomizer()
+    : PluginModule(Mernel::PropertyTreeMap{
+                       { "hellResistances", Mernel::PropertyTreeScalar{ false } },
+                       { "maxTypes", Mernel::PropertyTreeScalar{ 25 } },
+                       { "randomizeResistances", Mernel::PropertyTreeScalar{ false } },
+                       { "randomizeSpawns", Mernel::PropertyTreeScalar{ true } },
+                       { "spawnedCount", Mernel::PropertyTreeScalar{ 5 } },
+                   },
+                   std::string(key))
+{}
 
 void ModuleMonRandomizer::gatherInfo(PreGenerationContext& output, const InputContext& input) const
 {
