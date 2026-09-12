@@ -2,7 +2,7 @@ import QtQuick.Controls.Fusion
 import QtQuick.Layouts
 import QtQuick
 
-AppCommonTab {
+WidgetCommonTab {
     id: root
     value_context: "drop_filter"
     caption: qsTr("Drops filtering")
@@ -12,14 +12,14 @@ AppCommonTab {
         text: qsTr("<b>Make item names compact</b>: this will make item names take less space, e.g. '!HP2' for health potion.")
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Compact potion names")
         tooltip: ""
         value_context: root.value_context
         value_key: "compact_pots"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Compact TP/ID scrolls")
         tooltip: ""
         value_context: root.value_context
@@ -30,84 +30,84 @@ AppCommonTab {
         text: qsTr("<b>Hide items on the ground</b>: this will make item names transparent; <br>you still can pickup them, but their labels will be invisible on Alt press.")
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("ID scroll")
         tooltip: ""
         value_context: root.value_context
         value_key: "hide_isc"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("TP scroll")
         tooltip: ""
         value_context: root.value_context
         value_key: "hide_tsc"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Health pots 1-3")
         tooltip: ""
         value_context: root.value_context
         value_key: "hide_hps"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("All Health pots")
         tooltip: ""
         value_context: root.value_context
         value_key: "hide_hpsa"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Mana pots 1-3")
         tooltip: ""
         value_context: root.value_context
         value_key: "hide_mps"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("All Mana pots")
         tooltip: ""
         value_context: root.value_context
         value_key: "hide_mpsa"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Rejuv pots")
         tooltip: ""
         value_context: root.value_context
         value_key: "hide_rvs"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Full Rejuv pots")
         tooltip: ""
         value_context: root.value_context
         value_key: "hide_rvl"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Bolts/Arrows")
         tooltip: ""
         value_context: root.value_context
         value_key: "hide_ammo"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Stamina/Antidote/Thawing")
         tooltip: ""
         value_context: root.value_context
         value_key: "hide_stam"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Keys,Fire/Poison pots")
         tooltip: ""
         value_context: root.value_context
         value_key: "hide_junks"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Hide low quality/damaged/cracked items")
         tooltip: ""
         value_context: root.value_context

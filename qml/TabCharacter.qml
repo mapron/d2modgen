@@ -2,41 +2,41 @@ import QtQuick.Controls.Fusion
 import QtQuick.Layouts
 import QtQuick
 
-AppCommonTab {
+WidgetCommonTab {
     id: root
     value_context: "character"
     caption: qsTr("Character")
     tooltip: qsTr("First three options allow you to change starting items for characters: <br>add Cube, replace id scroll with Tome (useful for No-town runs), and replace health with mana potions. <br>Next two sliders allow you to change how many skill and stat poits you get on levelup. <br>Last slider allow you to lower Strength and Dexterity requirements on all items. ")
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Add Horadric Cube as starting item")
         tooltip: ""
         value_context: root.value_context
         value_key: "addCube"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Replace ID scroll with ID tome")
         tooltip: ""
         value_context: root.value_context
         value_key: "idTome"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Replace starting Health pots with Mana")
         tooltip: ""
         value_context: root.value_context
         value_key: "manaPots"
     }
 
-    AppCheckbox {
+    WidgetCheckbox {
         caption: qsTr("Add Teleport as starting skill for all classes")
         tooltip: ""
         value_context: root.value_context
         value_key: "addTeleport"
     }
 
-    AppSlider {
+    WidgetSlider {
         caption: qsTr("Stat points gain per level")
         tooltip: ""
         from: 1
@@ -46,7 +46,7 @@ AppCommonTab {
         isCompact: false
     }
 
-    AppSlider {
+    WidgetSlider {
         caption: qsTr("Skill points gain per level (D2R only!)")
         tooltip: ""
         from: 1
@@ -56,7 +56,7 @@ AppCommonTab {
         isCompact: false
     }
 
-    AppSlider {
+    WidgetSlider {
         caption: qsTr("Maximum hard points for skill (D2R only!)")
         tooltip: ""
         from: 1
@@ -66,7 +66,7 @@ AppCommonTab {
         isCompact: false
     }
 
-    AppExponentialSlider {
+    WidgetExponentialSlider {
         caption: qsTr("Change mercenaries Health, multiply by")
         tooltip: ""
         denom: 5
@@ -77,7 +77,7 @@ AppCommonTab {
         suffix: "%"
     }
 
-    AppExponentialSlider {
+    WidgetExponentialSlider {
         caption: qsTr("Change mercenaries Damage, multiply by")
         tooltip: ""
         denom: 5

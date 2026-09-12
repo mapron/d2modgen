@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
 
-AppCommonControl {
+WidgetCommonControl {
     id: root
 
     isCompact: true

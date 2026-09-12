@@ -57,7 +57,7 @@ GridLayout {
             font.pointSize: 11
         }
 
-        HelpIcon {
+        WidgetHelpIcon {
             tooltipText: root.tooltip
         }
 

@@ -33,7 +33,7 @@ ScrollView {
                 font.pointSize: 12
             }
 
-            HelpIcon {
+            WidgetHelpIcon {
                 tooltipText: root.tooltip
             }
         }

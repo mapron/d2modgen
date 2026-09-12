@@ -46,7 +46,7 @@ ApplicationWindow {
         anchors.margins: 10
         spacing: 15
 
-        Navigation {
+        MainNavigation {
             id: tabSelection
         }
         StackLayout {

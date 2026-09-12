@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("appui", &appui);
-    engine.load(QUrl(QStringLiteral("qrc:/qml/mainapp.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/qml/MainWindow.qml")));
 
     auto res = app.exec();
     Logger() << "closing app";
