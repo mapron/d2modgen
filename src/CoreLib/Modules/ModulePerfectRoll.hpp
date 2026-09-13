@@ -10,7 +10,8 @@ namespace D2ModGen {
 
 class ModulePerfectRoll : public PluginModule {
 public:
-    static constexpr const std::string_view key = Key::perfectRolls;
+    static constexpr const std::string_view configKey{ "perfect_rolls" };
+    static constexpr const std::string_view moduleKey{ "appModulePerfectRoll" };
 
     ModulePerfectRoll();
 

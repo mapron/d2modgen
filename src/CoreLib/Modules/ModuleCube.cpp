@@ -58,17 +58,16 @@ const std::map<std::string, std::string> s_craftedGemReplace{
 
 ModuleCube::ModuleCube()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "cheatCharms", Mernel::PropertyTreeScalar{ false } },
-                       { "craftHighIlvl", Mernel::PropertyTreeScalar{ false } },
-                       { "craftNoRunes", Mernel::PropertyTreeScalar{ false } },
-                       { "craftNoStrict", Mernel::PropertyTreeScalar{ false } },
-                       { "noGemUpgrade", Mernel::PropertyTreeScalar{ false } },
-                       { "quickPortals", Mernel::PropertyTreeScalar{ false } },
-                       { "quickQuests", Mernel::PropertyTreeScalar{ false } },
-                       { "socketing", Mernel::PropertyTreeScalar{ false } },
-                       { "upgrading", Mernel::PropertyTreeScalar{ false } },
-                   },
-                   std::string(key))
+          { "cheatCharms", Mernel::PropertyTreeScalar{ false } },
+          { "craftHighIlvl", Mernel::PropertyTreeScalar{ false } },
+          { "craftNoRunes", Mernel::PropertyTreeScalar{ false } },
+          { "craftNoStrict", Mernel::PropertyTreeScalar{ false } },
+          { "noGemUpgrade", Mernel::PropertyTreeScalar{ false } },
+          { "quickPortals", Mernel::PropertyTreeScalar{ false } },
+          { "quickQuests", Mernel::PropertyTreeScalar{ false } },
+          { "socketing", Mernel::PropertyTreeScalar{ false } },
+          { "upgrading", Mernel::PropertyTreeScalar{ false } },
+      })
 {}
 
 void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const

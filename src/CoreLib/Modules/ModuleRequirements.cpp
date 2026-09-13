@@ -10,17 +10,16 @@ namespace D2ModGen {
 
 ModuleRequirements::ModuleRequirements()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "affixItemLevel", Mernel::PropertyTreeScalar{ 100 } },
-                       { "affixReqLevel", Mernel::PropertyTreeScalar{ 100 } },
-                       { "equipItemLevel", Mernel::PropertyTreeScalar{ 100 } },
-                       { "equipReqLevel", Mernel::PropertyTreeScalar{ 100 } },
-                       { "reqDex", Mernel::PropertyTreeScalar{ 100 } },
-                       { "reqStr", Mernel::PropertyTreeScalar{ 100 } },
-                       { "skillsReqLevel", Mernel::PropertyTreeScalar{ 100 } },
-                       { "uniquesItemLevel", Mernel::PropertyTreeScalar{ 100 } },
-                       { "uniquesReqLevel", Mernel::PropertyTreeScalar{ 100 } },
-                   },
-                   std::string(key))
+          { "affixItemLevel", Mernel::PropertyTreeScalar{ 100 } },
+          { "affixReqLevel", Mernel::PropertyTreeScalar{ 100 } },
+          { "equipItemLevel", Mernel::PropertyTreeScalar{ 100 } },
+          { "equipReqLevel", Mernel::PropertyTreeScalar{ 100 } },
+          { "reqDex", Mernel::PropertyTreeScalar{ 100 } },
+          { "reqStr", Mernel::PropertyTreeScalar{ 100 } },
+          { "skillsReqLevel", Mernel::PropertyTreeScalar{ 100 } },
+          { "uniquesItemLevel", Mernel::PropertyTreeScalar{ 100 } },
+          { "uniquesReqLevel", Mernel::PropertyTreeScalar{ 100 } },
+      })
 {}
 
 void ModuleRequirements::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const

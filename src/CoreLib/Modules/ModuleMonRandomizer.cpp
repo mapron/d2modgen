@@ -219,13 +219,12 @@ struct MonResist {
 
 ModuleMonRandomizer::ModuleMonRandomizer()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "hellResistances", Mernel::PropertyTreeScalar{ false } },
-                       { "maxTypes", Mernel::PropertyTreeScalar{ 25 } },
-                       { "randomizeResistances", Mernel::PropertyTreeScalar{ false } },
-                       { "randomizeSpawns", Mernel::PropertyTreeScalar{ true } },
-                       { "spawnedCount", Mernel::PropertyTreeScalar{ 5 } },
-                   },
-                   std::string(key))
+          { "hellResistances", Mernel::PropertyTreeScalar{ false } },
+          { "maxTypes", Mernel::PropertyTreeScalar{ 25 } },
+          { "randomizeResistances", Mernel::PropertyTreeScalar{ false } },
+          { "randomizeSpawns", Mernel::PropertyTreeScalar{ true } },
+          { "spawnedCount", Mernel::PropertyTreeScalar{ 5 } },
+      })
 {}
 
 void ModuleMonRandomizer::gatherInfo(PreGenerationContext& output, const InputContext& input) const

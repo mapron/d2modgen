@@ -4,7 +4,7 @@ import QtQuick
 
 WidgetCommonTab {
     id: root
-    value_context: "monster_stats"
+    value_context: appModuleMonStats
     caption: qsTr("Monster stats")
     tooltip: qsTr("Sliders allow you to change monster stats on all difficulties.<br>You can either lower or raise stats up 10x or 10x times.<br>That is orthogonal to /playersX setting - it will multiply stats independent.")
 

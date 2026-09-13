@@ -8,7 +8,6 @@
 #include "RAIIUtils.hpp"
 #include "TableId.hpp"
 #include "Logger.hpp"
-#include "FileIOUtils.hpp"
 
 #include <StormLib.h>
 
@@ -16,19 +15,19 @@ namespace D2ModGen {
 
 IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames) const noexcept
 {
-    const std::string utf8data  = m_storageRoot + "d2data.mpq";
-    const std::string utf8data2 = m_storageRoot + "pd2data.mpq";
-    const std::string utf8patch = m_storageRoot + "patch_d2.mpq";
+    const Mernel::std_path utf8data  = m_storageRoot / "d2data.mpq";
+    const Mernel::std_path utf8data2 = m_storageRoot / "pd2data.mpq";
+    const Mernel::std_path utf8patch = m_storageRoot / "patch_d2.mpq";
 
-    const std::wstring basedata  = string2path(utf8data).wstring();
-    const std::wstring basedata2 = string2path(utf8data2).wstring();
-    const std::wstring patchdata = string2path(utf8patch).wstring();
+    const std::wstring basedata  = (utf8data).wstring();
+    const std::wstring basedata2 = (utf8data2).wstring();
+    const std::wstring patchdata = (utf8patch).wstring();
 
     bool   hasData   = true;
     bool   needPatch = true;
     HANDLE mpq;
     if (!SFileOpenArchive(basedata.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
-        if (Mernel::std_fs::exists(Mernel::string2path(utf8data2))) {
+        if (Mernel::std_fs::exists(utf8data2)) {
             if (!SFileOpenArchive(basedata2.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
                 hasData = false;
             } else {

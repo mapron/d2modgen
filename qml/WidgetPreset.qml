@@ -5,7 +5,7 @@ import QtQuick.Controls.Fusion
 RowLayout {
 
     property alias model: internalCombo.model
-    property string value_context: "global"
+    property var value_context: null
     spacing: 6
 
     Item {
@@ -29,7 +29,7 @@ RowLayout {
         leftPadding: 4
 
         onActivated: index => {
-            appui.activatePreset(value_context, index);
+            value_context.activatePreset(index);
         }
     }
 }

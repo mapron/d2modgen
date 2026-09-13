@@ -12,19 +12,18 @@ namespace D2ModGen {
 
 ModuleMonStats::ModuleMonStats()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "max_resist", Mernel::PropertyTreeScalar{ 250 } },
-                       { "mon_ar", Mernel::PropertyTreeScalar{ 100 } },
-                       { "mon_dam", Mernel::PropertyTreeScalar{ 100 } },
-                       { "mon_def", Mernel::PropertyTreeScalar{ 100 } },
-                       { "mon_hp", Mernel::PropertyTreeScalar{ 100 } },
-                       { "mon_xp", Mernel::PropertyTreeScalar{ 100 } },
-                       { "rel_resist", Mernel::PropertyTreeScalar{ 100 } },
-                       { "resist_apply_elem", Mernel::PropertyTreeScalar{ true } },
-                       { "resist_apply_magic", Mernel::PropertyTreeScalar{ false } },
-                       { "resist_apply_physical", Mernel::PropertyTreeScalar{ false } },
-                       { "resist_apply_poison", Mernel::PropertyTreeScalar{ true } },
-                   },
-                   std::string(key))
+          { "max_resist", Mernel::PropertyTreeScalar{ 250 } },
+          { "mon_ar", Mernel::PropertyTreeScalar{ 100 } },
+          { "mon_dam", Mernel::PropertyTreeScalar{ 100 } },
+          { "mon_def", Mernel::PropertyTreeScalar{ 100 } },
+          { "mon_hp", Mernel::PropertyTreeScalar{ 100 } },
+          { "mon_xp", Mernel::PropertyTreeScalar{ 100 } },
+          { "rel_resist", Mernel::PropertyTreeScalar{ 100 } },
+          { "resist_apply_elem", Mernel::PropertyTreeScalar{ true } },
+          { "resist_apply_magic", Mernel::PropertyTreeScalar{ false } },
+          { "resist_apply_physical", Mernel::PropertyTreeScalar{ false } },
+          { "resist_apply_poison", Mernel::PropertyTreeScalar{ true } },
+      })
 {}
 
 void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const

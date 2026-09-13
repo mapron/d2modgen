@@ -11,14 +11,13 @@ namespace D2ModGen {
 
 ModuleRuneDrops::ModuleRuneDrops()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "countess_rune_higher", Mernel::PropertyTreeScalar{ false } },
-                       { "countess_rune_more", Mernel::PropertyTreeScalar{ false } },
-                       { "highrune_switch", Mernel::PropertyTreeScalar{ false } },
-                       { "rune_factor", Mernel::PropertyTreeScalar{ 1 } },
-                       { "wraith_runes", Mernel::PropertyTreeScalar{ false } },
-                       { "zod_factor", Mernel::PropertyTreeScalar{ 1 } },
-                   },
-                   std::string(key))
+          { "countess_rune_higher", Mernel::PropertyTreeScalar{ false } },
+          { "countess_rune_more", Mernel::PropertyTreeScalar{ false } },
+          { "highrune_switch", Mernel::PropertyTreeScalar{ false } },
+          { "rune_factor", Mernel::PropertyTreeScalar{ 1 } },
+          { "wraith_runes", Mernel::PropertyTreeScalar{ false } },
+          { "zod_factor", Mernel::PropertyTreeScalar{ 1 } },
+      })
 {
     setPresets({
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{

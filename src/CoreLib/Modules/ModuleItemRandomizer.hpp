@@ -11,7 +11,8 @@ namespace D2ModGen {
 
 class ModuleItemRandomizer : public PluginModule {
 public:
-    static constexpr const std::string_view key = Key::itemRandomizer;
+    static constexpr const std::string_view configKey{ "randomizer" };
+    static constexpr const std::string_view moduleKey{ "appModuleItemRandomizer" };
 
     ModuleItemRandomizer();
 

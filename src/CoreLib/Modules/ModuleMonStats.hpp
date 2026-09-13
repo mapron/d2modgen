@@ -11,7 +11,8 @@ namespace D2ModGen {
 
 class ModuleMonStats : public PluginModule {
 public:
-    static constexpr const std::string_view key = Key::monsterStats;
+    static constexpr const std::string_view configKey{ "monster_stats" };
+    static constexpr const std::string_view moduleKey{ "appModuleMonStats" };
 
     ModuleMonStats();
 

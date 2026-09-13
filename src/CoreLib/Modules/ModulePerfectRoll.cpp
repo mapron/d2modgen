@@ -31,8 +31,7 @@ ModulePerfectRoll::ModulePerfectRoll()
               { "uniques", Mernel::PropertyTreeScalar{ true } },
               { "uniques_power_l1", Mernel::PropertyTreeScalar{ 100 } },
               { "uniques_power_l50", Mernel::PropertyTreeScalar{ 100 } },
-          },
-          std::string(key))
+          })
 {}
 
 void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const

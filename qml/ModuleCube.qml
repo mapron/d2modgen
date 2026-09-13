@@ -4,7 +4,7 @@ import QtQuick
 
 WidgetCommonTab {
     id: root
-    value_context: "cube"
+    value_context: appModuleCube
     caption: qsTr("Horadric Cube")
     tooltip: qsTr("Create some recipes to cheese/cut corners around the game. <br>Input and results are self-explanatory.")
 

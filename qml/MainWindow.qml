@@ -91,21 +91,21 @@ ApplicationWindow {
 
                     PageMain {}
                     PageTool {}
-                    TabChallenge {}
-                    TabCharacter {}
-                    TabCube {}
-                    TabDropFiltering {}
-                    TabGambling {}
-                    TabItemDrops {}
-                    TabItemRandomizer {}
-                    TabMonDensity {}
-                    TabMonRandomizer {}
-                    TabMonStats {}
-                    TabPerfectRoll {}
-                    TabQol {}
-                    TabRequirements {}
-                    TabRuneDrops {}
-                    TabSkillRandomizer {}
+                    ModuleChallenge {}
+                    ModuleCharacter {}
+                    ModuleCube {}
+                    ModuleDropFiltering {}
+                    ModuleGambling {}
+                    ModuleItemDrops {}
+                    ModuleItemRandomizer {}
+                    ModuleMonDensity {}
+                    ModuleMonRandomizer {}
+                    ModuleMonStats {}
+                    ModulePerfectRoll {}
+                    ModuleQol {}
+                    ModuleRequirements {}
+                    ModuleRuneDrops {}
+                    ModuleSkillRandomizer {}
                 }
             }
         }

@@ -4,7 +4,7 @@ import QtQuick
 
 WidgetCommonTab {
     id: root
-    value_context: "challenge"
+    value_context: appModuleChallenge
     caption: qsTr("Challenge")
     tooltip: qsTr("First, you can disable potion drops entirely (that's not the same as drop filter).<br>Second, you can change resistance penalty for each difficulty from default 0/40/100.<br>And the last, you can adjust level area on all maps; <br>note that max value of 85 is still used (so set to 20 to basically make all Hell areas lvl 85).")
 

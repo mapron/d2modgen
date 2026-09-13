@@ -4,11 +4,10 @@ import QtQuick.Controls.Fusion
 import QtQuick.Dialogs
 
 WidgetScrollable {
-
-    property string value_context: "main"
+    id: root
+    property var value_context: appModuleMain
 
     RowLayout {
-        id: pageHeaderRow
         spacing: 6
 
         Label {
@@ -20,56 +19,55 @@ WidgetScrollable {
             tooltipText: qsTr("Main")
         }
 
+        Button {
+            text: qsTr("Reset to default")
+            onClicked: value_context.resetToDefault()
+        }
         Item {
             Layout.fillWidth: true
         }
-
-        Button {
-            text: qsTr("Reset to default")
-            onClicked: {
-                appui.resetToDefault(value_context);
-            }
-        }
     }
 
-    RowLayout {
-        spacing: 10
-        Layout.fillWidth: true
-
-        Label {
-            text: qsTr("Mod id:")
-            Layout.preferredWidth: 60
-        }
-        TextField {
-            id: modIdInput
-            text: "rando"
-            Layout.fillWidth: true
-        }
+    WidgetLineEdit {
+        caption: qsTr("Mod id:")
+        tooltip: ""
+        value_context: root.value_context
+        value_key: "modname"
+        isCompact: true
+        implicitWidth: 100
     }
 
-    CheckBox {
-        id: legacyInstallCheck
-        text: qsTr("Use Diablo II legacy installation")
+    WidgetCheckbox {
+        id: isLegacy
+        caption: qsTr("Use Diablo II legacy installation")
+        tooltip: ""
+        value_context: root.value_context
+        value_key: "isLegacy"
     }
 
-    CheckBox {
-        id: targetWarlockCheck
-        text: qsTr("Target for D2R Reign of the Warlock")
-        checked: true
+    WidgetCheckbox {
+        caption: qsTr("Target for D2R Reign of the Warlock")
+        tooltip: ""
+        value_context: root.value_context
+        value_key: "d2rUseROTW"
+        visible: !isLegacy.checked
     }
 
-    ColumnLayout {
-        Layout.fillWidth: true
-        spacing: 4
-
-        Label {
-            text: qsTr("D2R path:")
-        }
-        TextField {
-            id: d2rPathInput
-            text: "E:\\Games\\Diablo II Resurrected\\"
-            Layout.fillWidth: true
-        }
+    WidgetLineEdit {
+        caption: qsTr("D2 Resurrected game root:")
+        tooltip: ""
+        value_context: root.value_context
+        value_key: "d2rPath"
+        implicitWidth: 300
+        visible: !isLegacy.checked
+    }
+    WidgetLineEdit {
+        caption: qsTr("D2 Legacy game root:")
+        tooltip: ""
+        value_context: root.value_context
+        value_key: "d2legacyPath"
+        implicitWidth: 300
+        visible: isLegacy.checked
     }
 
     RowLayout {
@@ -79,29 +77,33 @@ WidgetScrollable {
         Label {
             text: qsTr("Random seed:")
         }
-        TextField {
-            id: randomSeedInput
-            text: "2246554441"
-            Layout.preferredWidth: 150
+        DynamicLineEdit {
+            value_context: root.value_context
+            value_key: "seed"
+        }
+        Button {
+            text: qsTr("Generate new")
+            onClicked: appui.newSeed()
+        }
+        WidgetCheckbox {
+            caption: qsTr("Create new seed on every Generate call")
+            tooltip: ""
+            value_context: root.value_context
+            value_key: "refreshSeed"
         }
     }
 
-    ColumnLayout {
-        Layout.fillWidth: true
-        spacing: 4
-
-        Label {
-            text: qsTr("Output directory (leave empty to output to D2R path):")
-        }
-        TextField {
-            id: outputDirInput
-            text: ""
-            Layout.fillWidth: true
-        }
+    WidgetLineEdit {
+        caption: qsTr("Output directory (leave empty to output to D2R path):")
+        tooltip: ""
+        value_context: root.value_context
+        value_key: "outPath"
     }
 
-    CheckBox {
-        id: exportTxtCheck
-        text: qsTr("Export all *.txt (for further manual edit)")
+    WidgetCheckbox {
+        caption: qsTr("Export all *.txt (for further manual edit)")
+        tooltip: ""
+        value_context: root.value_context
+        value_key: "exportTxtCheck"
     }
 }

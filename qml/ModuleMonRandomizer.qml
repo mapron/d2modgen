@@ -4,7 +4,7 @@ import QtQuick
 
 WidgetCommonTab {
     id: root
-    value_context: "monRandomizer"
+    value_context: appModuleMonRandomizer
     caption: qsTr("Monster Randomizer")
     tooltip: qsTr("When this feature enabled, now any area in the game can spawn any basic monsters (Super Uniques, Act bosses etc not affected).<br>For normal difficulty, each monster will have a 'level-adjusted' copy which corresponds<br>to area's level (so you will have adequate monster stats in Act 1 for guest from Act 5).<br>For Nightmare/Hell, adjustment is done by area level.<br>Monster will have adjusted their minion spawns and skill levels, too.")
 

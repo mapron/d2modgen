@@ -11,7 +11,7 @@ namespace D2ModGen {
 
 class StormStorage final : public IInputStorage {
 public:
-    StormStorage(const std::string& storageRoot)
+    StormStorage(const Mernel::std_path& storageRoot)
         : m_storageRoot(storageRoot)
     {}
 
@@ -19,7 +19,7 @@ private:
     StoredData readData(const RequestInMemoryList& filenames) const noexcept override;
 
 private:
-    const std::string m_storageRoot;
+    const Mernel::std_path m_storageRoot;
 };
 
 }

@@ -6,8 +6,6 @@
 #pragma once
 #include "PluginModule.hpp"
 
-#include <set>
-
 namespace D2ModGen {
 
 class ModuleChallenge : public PluginModule {
@@ -18,7 +16,8 @@ class ModuleChallenge : public PluginModule {
     const std::vector<Item> m_items;
 
 public:
-    static constexpr const std::string_view key = Key::challenge;
+    static constexpr const std::string_view configKey{ "challenge" };
+    static constexpr const std::string_view moduleKey{ "appModuleChallenge" };
 
     ModuleChallenge();
 

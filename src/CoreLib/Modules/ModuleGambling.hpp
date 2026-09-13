@@ -11,7 +11,8 @@ namespace D2ModGen {
 
 class ModuleGambling : public PluginModule {
 public:
-    static constexpr const std::string_view key = Key::gambling;
+    static constexpr const std::string_view configKey{ "gambling" };
+    static constexpr const std::string_view moduleKey{ "appModuleGambling" };
 
     ModuleGambling();
 

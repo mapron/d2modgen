@@ -11,6 +11,8 @@
 #include <vector>
 #include <functional>
 
+#include "MernelPlatform/FsUtils.hpp"
+
 namespace D2ModGen {
 
 using StringVector = std::vector<std::string>;
@@ -56,13 +58,13 @@ enum class StorageType
 };
 
 struct GenerationEnvironment {
-    std::string modName;
-    std::string d2rPath;
-    std::string outPath;
-    bool        exportAllTables;
-    bool        isLegacy;
-    bool        d2rUseROTW;
-    uint32_t    seed;
+    std::string      modName;
+    Mernel::std_path d2Path;
+    Mernel::std_path outPath;
+    bool             exportAllTables;
+    bool             isLegacy;
+    bool             d2rUseROTW;
+    uint32_t         seed;
 };
 
 enum class ConflictPolicy

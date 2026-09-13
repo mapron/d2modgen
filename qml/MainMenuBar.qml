@@ -142,7 +142,7 @@ MenuBar {
         Action {
             text: qsTr("New seed")
             shortcut: "F5"
-            onTriggered: console.log("New seed")
+            onTriggered: appui.newSeed()
         }
         Action {
             text: qsTr("Undo")

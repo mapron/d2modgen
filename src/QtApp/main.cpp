@@ -116,6 +116,9 @@ int main(int argc, char* argv[])
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("appui", &appui);
+    for (auto& [key, value] : appui.getTabs())
+        engine.rootContext()->setContextProperty(key, value);
+
     engine.load(QUrl(QStringLiteral("qrc:/qml/MainWindow.qml")));
 
     auto res = app.exec();

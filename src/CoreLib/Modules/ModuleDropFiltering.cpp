@@ -34,22 +34,21 @@ const std::vector<std::string> s_locales{
 
 ModuleDropFiltering::ModuleDropFiltering()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "compact_pots", Mernel::PropertyTreeScalar{ false } },
-                       { "compact_scrolls", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_ammo", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_hps", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_hpsa", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_isc", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_junks", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_lowq", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_mps", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_mpsa", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_rvl", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_rvs", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_stam", Mernel::PropertyTreeScalar{ false } },
-                       { "hide_tsc", Mernel::PropertyTreeScalar{ false } },
-                   },
-                   std::string(key))
+          { "compact_pots", Mernel::PropertyTreeScalar{ false } },
+          { "compact_scrolls", Mernel::PropertyTreeScalar{ false } },
+          { "hide_ammo", Mernel::PropertyTreeScalar{ false } },
+          { "hide_hps", Mernel::PropertyTreeScalar{ false } },
+          { "hide_hpsa", Mernel::PropertyTreeScalar{ false } },
+          { "hide_isc", Mernel::PropertyTreeScalar{ false } },
+          { "hide_junks", Mernel::PropertyTreeScalar{ false } },
+          { "hide_lowq", Mernel::PropertyTreeScalar{ false } },
+          { "hide_mps", Mernel::PropertyTreeScalar{ false } },
+          { "hide_mpsa", Mernel::PropertyTreeScalar{ false } },
+          { "hide_rvl", Mernel::PropertyTreeScalar{ false } },
+          { "hide_rvs", Mernel::PropertyTreeScalar{ false } },
+          { "hide_stam", Mernel::PropertyTreeScalar{ false } },
+          { "hide_tsc", Mernel::PropertyTreeScalar{ false } },
+      })
     , m_items{
         { { "isc" }, "isc" },
         { { "tsc" }, "tsc" },

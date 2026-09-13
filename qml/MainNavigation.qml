@@ -5,155 +5,149 @@ import QtQuick.Controls.Fusion
 ColumnLayout {
     id: leftNavigationColumn
 
-    ListModel {
-        id: navigationModel
-
-        ListElement {
-            name: qsTr("Main")
-            isHeader: false
-            hasCheckbox: false
+    property var navigationModel: [
+        {
+            name: qsTr("Main"),
+            isHeader: false,
+            hasCheckbox: false,
             tabIndex: 0
-        }
-        ListElement {
-            name: qsTr("Tool")
-            isHeader: false
-            hasCheckbox: false
+        },
+        {
+            name: qsTr("Tool"),
+            isHeader: false,
+            hasCheckbox: false,
             tabIndex: 1
-        }
-
-        ListElement {
-            name: qsTr("Randomizers")
-            isHeader: true
-            hasCheckbox: false
+        },
+        {
+            name: qsTr("Randomizers"),
+            isHeader: true,
+            hasCheckbox: false,
             tabIndex: -1
-        }
-        ListElement {
-            name: qsTr("Item Randomizer")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "randomizer"
+        },
+        {
+            name: qsTr("Item Randomizer"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleItemRandomizer,
             tabIndex: 8
-        }
-        ListElement {
-            name: qsTr("Monster Randomizer")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "monRandomizer"
+        },
+        {
+            name: qsTr("Monster Randomizer"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleMonRandomizer,
             tabIndex: 10
-        }
-        ListElement {
-            name: qsTr("Skill Randomizer")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "skillRandomizer"
+        },
+        {
+            name: qsTr("Skill Randomizer"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleSkillRandomizer,
             tabIndex: 16
-        }
-
-        ListElement {
-            name: qsTr("Make harder")
-            isHeader: true
-            hasCheckbox: false
+        },
+        {
+            name: qsTr("Make harder"),
+            isHeader: true,
+            hasCheckbox: false,
             tabIndex: -1
-        }
-        ListElement {
-            name: qsTr("Monster stats")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "monster_stats"
+        },
+        {
+            name: qsTr("Monster stats"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleMonStats,
             tabIndex: 11
-        }
-        ListElement {
-            name: qsTr("Monster density")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "density"
+        },
+        {
+            name: qsTr("Monster density"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleMonDensity,
             tabIndex: 9
-        }
-        ListElement {
-            name: qsTr("Challenge")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "challenge"
+        },
+        {
+            name: qsTr("Challenge"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleChallenge,
             tabIndex: 2
-        }
-
-        ListElement {
-            name: qsTr("Make easier")
-            isHeader: true
-            hasCheckbox: false
+        },
+        {
+            name: qsTr("Make easier"),
+            isHeader: true,
+            hasCheckbox: false,
             tabIndex: -1
-        }
-        ListElement {
-            name: qsTr("Horadric Cube")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "cube"
+        },
+        {
+            name: qsTr("Horadric Cube"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleCube,
             tabIndex: 4
-        }
-        ListElement {
-            name: qsTr("Gambling")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "gambling"
+        },
+        {
+            name: qsTr("Gambling"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleGambling,
             tabIndex: 6
-        }
-        ListElement {
-            name: qsTr("Character")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "character"
+        },
+        {
+            name: qsTr("Character"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleCharacter,
             tabIndex: 3
-        }
-        ListElement {
-            name: qsTr("Increase Item Drops")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "item_drops"
+        },
+        {
+            name: qsTr("Increase Item Drops"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleItemDrops,
             tabIndex: 7
-        }
-        ListElement {
-            name: qsTr("Increase Rune Drops")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "rune_drops"
+        },
+        {
+            name: qsTr("Increase Rune Drops"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleRuneDrops,
             tabIndex: 15
-        }
-        ListElement {
-            name: qsTr("Perfect Rolls")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "perfect_rolls"
+        },
+        {
+            name: qsTr("Perfect Rolls"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModulePerfectRoll,
             tabIndex: 12
-        }
-        ListElement {
-            name: qsTr("Requirements")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "requirements"
+        },
+        {
+            name: qsTr("Requirements"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleRequirements,
             tabIndex: 14
-        }
-
-        ListElement {
-            name: qsTr("Misc")
-            isHeader: true
-            hasCheckbox: false
+        },
+        {
+            name: qsTr("Misc"),
+            isHeader: true,
+            hasCheckbox: false,
             tabIndex: -1
-        }
-        ListElement {
-            name: qsTr("Quality of life")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "qol"
+        },
+        {
+            name: qsTr("Quality of life"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleQol,
             tabIndex: 13
-        }
-        ListElement {
-            name: qsTr("Drops filtering")
-            isHeader: false
-            hasCheckbox: true
-            checkedKey: "drop_filter"
+        },
+        {
+            name: qsTr("Drops filtering"),
+            isHeader: false,
+            hasCheckbox: true,
+            value_context: appModuleDropFiltering,
             tabIndex: 5
-        }
-    }
+        },
+    ]
     // Block horizontal growth, keeping this sidebar strictly predictable
     Layout.fillWidth: false
     Layout.preferredWidth: 200
@@ -169,21 +163,20 @@ ColumnLayout {
         id: tabSelection
         Layout.fillWidth: true
         Layout.fillHeight: true
-        model: navigationModel
-        clip: true
-        spacing: 1 // Tiny gap between items for clean alignment
-
         // Track the active StackLayout index separately from the ListView's raw row index
         property int activeTabIndex: 0
 
+        model: navigationModel
+        clip: true
+
         delegate: Item {
             width: tabSelection.width
-            height: isHeader ? 22 : 28
+            height: modelData.isHeader ? 22 : 28
 
             // --- 1. GROUP HEADER BANNER ---
             Label {
-                text: name
-                visible: isHeader
+                text: modelData.name
+                visible: modelData.isHeader
                 anchors.left: parent.left
                 anchors.leftMargin: 45
                 anchors.verticalCenter: parent.verticalCenter
@@ -198,37 +191,25 @@ ColumnLayout {
                 anchors.rightMargin: 0
                 spacing: 6
 
-                visible: !isHeader
+                visible: !modelData.isHeader
 
                 CheckBox {
                     id: tabCheckbox
-                    visible: hasCheckbox
+                    visible: modelData.hasCheckbox
                     indicator.implicitWidth: 18
                     indicator.implicitHeight: 18
 
-                    checked: hasCheckbox ? appui.getEnabled(checkedKey) : false
-
-                    Connections {
-                        target: appui
-                        function onDataChanged() {
-                            if (hasCheckbox)
-                                tabCheckbox.checked = appui.getEnabled(checkedKey);
-                        }
-                    }
-
-                    onClicked: {
-                        appui.setEnabled(checkedKey, checked);
-                    }
+                    checked: modelData.hasCheckbox ? modelData.value_context.enabled : false
+                    onClicked: modelData.value_context.enabled = checked
                 }
 
                 Button {
-                    text: name
+                    text: modelData.name
                     Layout.fillWidth: true
-                    onClicked: {
-                        tabSelection.activeTabIndex = tabIndex;
-                    }
 
-                    palette.button: (tabSelection.activeTabIndex === tabIndex) ? window.palette.highlight : window.palette.button
+                    onClicked: tabSelection.activeTabIndex = modelData.tabIndex
+
+                    palette.button: (tabSelection.activeTabIndex === modelData.tabIndex) ? window.palette.highlight : window.palette.button
                 }
             }
         }

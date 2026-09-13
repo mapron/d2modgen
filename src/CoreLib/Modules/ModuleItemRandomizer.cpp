@@ -49,24 +49,23 @@ inline StringVector splitLine(const std::string& line, char sep, bool skipEmpty 
 
 ModuleItemRandomizer::ModuleItemRandomizer()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "affixRandom", Mernel::PropertyTreeScalar{ true } },
-                       { "crazyLevel", Mernel::PropertyTreeScalar{ 20 } },
-                       { "extraKnown", Mernel::PropertyTreeScalar{} },
-                       { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
-                       { "itemFitPercent", Mernel::PropertyTreeScalar{ 70 } },
-                       { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 70 } },
-                       { "noDuplicates", Mernel::PropertyTreeScalar{ true } },
-                       { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
-                       { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
-                       { "removeKnock", Mernel::PropertyTreeScalar{ true } },
-                       { "repeat_sets", Mernel::PropertyTreeScalar{ 5 } },
-                       { "repeat_uniques", Mernel::PropertyTreeScalar{ 10 } },
-                       { "replaceCharges", Mernel::PropertyTreeScalar{ false } },
-                       { "replaceSkills", Mernel::PropertyTreeScalar{ false } },
-                       { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
-                       { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
-                   },
-                   std::string(key))
+          { "affixRandom", Mernel::PropertyTreeScalar{ true } },
+          { "crazyLevel", Mernel::PropertyTreeScalar{ 20 } },
+          { "extraKnown", Mernel::PropertyTreeScalar{} },
+          { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
+          { "itemFitPercent", Mernel::PropertyTreeScalar{ 70 } },
+          { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 70 } },
+          { "noDuplicates", Mernel::PropertyTreeScalar{ true } },
+          { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
+          { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+          { "removeKnock", Mernel::PropertyTreeScalar{ true } },
+          { "repeat_sets", Mernel::PropertyTreeScalar{ 5 } },
+          { "repeat_uniques", Mernel::PropertyTreeScalar{ 10 } },
+          { "replaceCharges", Mernel::PropertyTreeScalar{ false } },
+          { "replaceSkills", Mernel::PropertyTreeScalar{ false } },
+          { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
+          { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+      })
 {
     setPresets({
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{

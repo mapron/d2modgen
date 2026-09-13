@@ -15,10 +15,10 @@ class StorageCache {
 public:
     using RequestList = IInputStorage::RequestInMemoryList;
     struct Context {
-        StorageType m_storage;
-        std::string m_root;
-        RequestList m_inMemoryFiles;
-        bool        m_needBaseSubfolder = false;
+        StorageType      m_storage;
+        Mernel::std_path m_root;
+        RequestList      m_inMemoryFiles;
+        bool             m_needBaseSubfolder = false;
 
         bool operator==(const Context& rh) const noexcept
         {
@@ -40,10 +40,10 @@ public:
         return m_cache;
     }
 
-    IStorage::StoredData load(StorageType        storage,
-                              const std::string& root,
-                              const RequestList& inMemoryFiles,
-                              bool               needBaseSubfolder)
+    IStorage::StoredData load(StorageType             storage,
+                              const Mernel::std_path& root,
+                              const RequestList&      inMemoryFiles,
+                              bool                    needBaseSubfolder)
     {
         return load({ storage,
                       root,

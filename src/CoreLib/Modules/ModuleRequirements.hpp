@@ -10,7 +10,8 @@ namespace D2ModGen {
 
 class ModuleRequirements : public PluginModule {
 public:
-    static constexpr const std::string_view key = Key::requirements;
+    static constexpr const std::string_view configKey{ "requirements" };
+    static constexpr const std::string_view moduleKey{ "appModuleRequirements" };
 
     ModuleRequirements();
 

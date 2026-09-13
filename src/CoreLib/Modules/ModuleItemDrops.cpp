@@ -68,20 +68,19 @@ const std::map<std::string, std::string> s_bossTC{
 
 ModuleItemDrops::ModuleItemDrops()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "chance_highlevel", Mernel::PropertyTreeScalar{ 1 } },
-                       { "chance_rare", Mernel::PropertyTreeScalar{ 1 } },
-                       { "chance_set", Mernel::PropertyTreeScalar{ 1 } },
-                       { "chance_uni", Mernel::PropertyTreeScalar{ 1 } },
-                       { "equal_uniques", Mernel::PropertyTreeScalar{ false } },
-                       { "boss_quest_drops", Mernel::PropertyTreeScalar{ false } },
-                       { "equip_percent", Mernel::PropertyTreeScalar{ 100 } },
-                       { "gold_percent", Mernel::PropertyTreeScalar{ 100 } },
-                       { "good_percent", Mernel::PropertyTreeScalar{ 100 } },
-                       { "high_elite_drops", Mernel::PropertyTreeScalar{ false } },
-                       { "junk_percent", Mernel::PropertyTreeScalar{ 100 } },
-                       { "nodrop_percent", Mernel::PropertyTreeScalar{ 100 } },
-                   },
-                   std::string(key))
+          { "chance_highlevel", Mernel::PropertyTreeScalar{ 1 } },
+          { "chance_rare", Mernel::PropertyTreeScalar{ 1 } },
+          { "chance_set", Mernel::PropertyTreeScalar{ 1 } },
+          { "chance_uni", Mernel::PropertyTreeScalar{ 1 } },
+          { "equal_uniques", Mernel::PropertyTreeScalar{ false } },
+          { "boss_quest_drops", Mernel::PropertyTreeScalar{ false } },
+          { "equip_percent", Mernel::PropertyTreeScalar{ 100 } },
+          { "gold_percent", Mernel::PropertyTreeScalar{ 100 } },
+          { "good_percent", Mernel::PropertyTreeScalar{ 100 } },
+          { "high_elite_drops", Mernel::PropertyTreeScalar{ false } },
+          { "junk_percent", Mernel::PropertyTreeScalar{ 100 } },
+          { "nodrop_percent", Mernel::PropertyTreeScalar{ 100 } },
+      })
 {
     setPresets({
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{

@@ -10,7 +10,8 @@ namespace D2ModGen {
 
 class ModuleCharacter : public PluginModule {
 public:
-    static constexpr const std::string_view key = Key::character;
+    static constexpr const std::string_view configKey{ "character" };
+    static constexpr const std::string_view moduleKey{ "appModuleCharacter" };
 
     ModuleCharacter();
 

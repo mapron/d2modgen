@@ -92,7 +92,8 @@ AddTarget( TYPE app_qt NAME modgen_ui
     QT_MODULES Widgets Qml Quick 
     )
 
-file(GLOB_RECURSE qmlFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/**/*.qml)
+file(GLOB qmlFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/qml/*.qml)
+file(GLOB cppFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/QtApp/*.cpp)
 
 qt6_add_qml_module(modgen_ui
     NO_RESOURCE_TARGET_PATH
@@ -109,6 +110,7 @@ qt_add_translations(modgen_ui
         translations/modgen_ko_KR.ts
     SOURCES
         ${qmlFiles}
+        ${cppFiles}
     RESOURCE_PREFIX 
         "/i18n"
 )

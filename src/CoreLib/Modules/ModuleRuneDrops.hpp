@@ -11,7 +11,8 @@ namespace D2ModGen {
 
 class ModuleRuneDrops : public PluginModule {
 public:
-    static constexpr const std::string_view key = Key::runeDrops;
+    static constexpr const std::string_view configKey{ "rune_drops" };
+    static constexpr const std::string_view moduleKey{ "appModuleRuneDrops" };
 
     ModuleRuneDrops();
 

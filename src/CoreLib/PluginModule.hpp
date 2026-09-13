@@ -11,12 +11,11 @@ namespace D2ModGen {
 
 class PluginModule : public IModule {
 public:
-    PluginModule(Mernel::PropertyTreeMap defaults, std::string id);
+    PluginModule(Mernel::PropertyTreeMap defaults);
     const Mernel::PropertyTreeMap&  defaultValues() const override { return m_defaults; }
     const Mernel::PropertyTreeList& presets() const override { return m_presets; }
 
-    void               gatherInfo(PreGenerationContext& output, const InputContext& input) const override {}
-    const std::string& settingKey() const override { return m_id; }
+    void gatherInfo(PreGenerationContext& output, const InputContext& input) const override {}
 
 protected:
     void setPresets(Mernel::PropertyTreeList presets)
@@ -26,7 +25,6 @@ protected:
 
 private:
     const Mernel::PropertyTreeMap m_defaults;
-    const std::string             m_id;
     Mernel::PropertyTreeList      m_presets;
 };
 

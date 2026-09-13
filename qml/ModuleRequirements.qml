@@ -4,7 +4,7 @@ import QtQuick
 
 WidgetCommonTab {
     id: root
-    value_context: "requirements"
+    value_context: appModuleRequirements
     caption: qsTr("Requirements")
     tooltip: qsTr("Options for lowering/raising requirements for equimpemnt. ")
 

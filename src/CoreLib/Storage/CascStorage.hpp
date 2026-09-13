@@ -9,9 +9,9 @@
 
 namespace D2ModGen {
 
-class CascStorage final : virtual public IInputStorage {
+class CascStorage final : public IInputStorage {
 public:
-    CascStorage(const std::string& storageRoot, bool needBaseSubfolder)
+    CascStorage(const Mernel::std_path& storageRoot, bool needBaseSubfolder)
         : m_storageRoot(storageRoot)
         , m_needBaseSubfolder(needBaseSubfolder)
     {}
@@ -20,8 +20,8 @@ private:
     StoredData readData(const RequestInMemoryList& filenames) const noexcept override;
 
 private:
-    const std::string m_storageRoot;
-    const bool        m_needBaseSubfolder;
+    const Mernel::std_path m_storageRoot;
+    const bool             m_needBaseSubfolder;
 };
 
 }

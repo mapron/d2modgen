@@ -30,38 +30,6 @@
 
 namespace D2ModGen {
 
-namespace {
-
-QString ensureTrailingSlash(QString value)
-{
-    return QString::fromStdString(::D2ModGen::ensureTrailingSlash(value.toStdString()));
-}
-
-QString getInstallLocationFromRegistry(bool resurrected)
-{
-    static const QString base("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II");
-    QSettings            set(base + (resurrected ? " Resurrected" : ""),
-                             QSettings::Registry32Format);
-    return ensureTrailingSlash(set.value("InstallLocation").toString());
-}
-
-QString getUserHome()
-{
-    return ensureTrailingSlash(QStandardPaths::standardLocations(QStandardPaths::HomeLocation).value(0));
-}
-
-QString getSaveRoot()
-{
-    return getUserHome() + "Saved Games/Diablo II Resurrected/";
-}
-
-QString getBattleNetConfig()
-{
-    const QString config = getUserHome() + "AppData/Roaming/Battle.net/Battle.net.config";
-    return QFileInfo::exists(config) ? config : "";
-}
-
-}
 
 struct MainConfigPage::Impl {
     QLineEdit* modName;
@@ -397,31 +365,6 @@ const IModule& MainConfigPage::getModule() const
     return *(m_impl->module);
 }
 
-void MainConfigPage::setLaunch(QString arg)
-{
-    const QString config = getBattleNetConfig();
-    if (config.isEmpty()) {
-        QMessageBox::warning(this, "warning", "Failed to locate Battle.net.config");
-        return;
-    }
-    const auto           configPath = string2path(config.toStdString());
-    Mernel::PropertyTree doc;
-    std::string          buffer;
-    if (!Mernel::readFileIntoBufferNoexcept(configPath, buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
-        QMessageBox::warning(this, "warning", "Failed to read data from Battle.net.config");
-        return;
-    }
-
-    auto& valGames                      = doc["Games"].getMap();
-    auto& valOsi                        = valGames["osi"];
-    valOsi["AdditionalLaunchArguments"] = Mernel::PropertyTreeScalar(arg.toStdString());
-
-    buffer.clear();
-    writeJsonToBufferNoexcept(buffer, doc);
-    // buffer.replace(QByteArray("/"), QByteArray("\\/")); // weird battlenet format.
-    if (!Mernel::writeFileFromBufferNoexcept(configPath, buffer))
-        QMessageBox::warning(this, "warning", "Failed to write data to Battle.net.config");
-}
 
 }
 

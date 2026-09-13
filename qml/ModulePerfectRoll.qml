@@ -4,7 +4,7 @@ import QtQuick
 
 WidgetCommonTab {
     id: root
-    value_context: "perfect_rolls"
+    value_context: appModulePerfectRoll
     caption: qsTr("Perfect rolls")
     tooltip: qsTr("Remove random effect when rolling between min and max value for something.")
 

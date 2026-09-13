@@ -7,22 +7,19 @@
 #include "ConfigHandler.hpp"
 
 #include "Logger.hpp"
-#include "PlatformPathUtils.hpp"
 
 int main(int argc, char* argv[])
 {
     using namespace D2ModGen;
-    Logger(Logger::Notice) << "application started";
 
     ConfigHandler configHandler;
-
-    if (argc == 3 && std::string(argv[1]) == "--generate") {
-        std::string file = argv[2];
-        if (!file.empty())
-            configHandler.loadConfig(file);
-        configHandler.generate();
-        return 0;
+    configHandler.loadConfig(configHandler.m_defaultPath);
+    auto res = configHandler.generate();
+    if (!res.m_success) {
+        Logger(Logger::Err) << res.m_error;
+        return 1;
     }
-
-    return 1;
+    configHandler.saveConfig(configHandler.m_defaultPath);
+    Logger(Logger::Notice) << "Success!";
+    return 0;
 }

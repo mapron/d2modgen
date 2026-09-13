@@ -11,25 +11,7 @@ GridLayout {
     property bool controlAfterCaption: true // used only for isCompact==true
     property bool hideCaption: false // used only for isCompact==true
 
-    property int value: getValue()
     property string suffix: "" // Useful for adding "%" or units
-
-    property string value_context: "global"
-    property string value_key: "key"
-
-    function getValue() {
-        return appui.getInt(value_context, value_key);
-    }
-
-    function setValue() {
-        //console.log("SetValue");
-        //console.log(value_context);
-        //console.log(value_key);
-        //console.log(value);
-        appui.set(value_context, value_key, value);
-    }
-
-    signal appDataChanged
 
     // Grid properties adjust based on compactness
     columns: isCompact ? 2 : 1
@@ -38,15 +20,7 @@ GridLayout {
     Layout.fillWidth: true
     uniformCellWidths: true
 
-    // THE MAGIC: Child files drop inputs directly into the data array alias
     default property alias contentSlot: contentContainer.data
-
-    Connections {
-        target: appui
-        function onDataChanged() {
-            root.appDataChanged();
-        }
-    }
 
     RowLayout {
         id: headerRow
@@ -60,15 +34,12 @@ GridLayout {
         Label {
             visible: !root.hideCaption
             text: root.caption
-            //Layout.fillWidth: true
         }
 
         WidgetHelpIcon {
             tooltipText: root.tooltip
         }
 
-        // This spacer absorbs extra row width, keeping text left-aligned
-        // when a CheckBox sits to the left of it.
         Item {
             Layout.fillWidth: true
         }

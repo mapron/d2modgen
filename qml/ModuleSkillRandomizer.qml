@@ -4,7 +4,7 @@ import QtQuick
 
 WidgetCommonTab {
     id: root
-    value_context: "skillRandomizer"
+    value_context: appModuleSkillRandomizer
     caption: qsTr("Skill Randomizer")
     tooltip: qsTr("This allow to bring 'some' randomization into character skills.")
 

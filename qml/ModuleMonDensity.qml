@@ -4,7 +4,7 @@ import QtQuick
 
 WidgetCommonTab {
     id: root
-    value_context: "density"
+    value_context: appModuleMonDensity
     caption: qsTr("Monster density")
     tooltip: qsTr("Density slider - that will affect increase of density of regular monsters <br>(note that it is higly dependant on map and tiles; max density can be reached on open area tiles.)<br>Boss packs slider icrease number of Champion/Uniques in zones; again, that also not a precise setting.<br>Last Checkbox can be used to quickly setup boss count on Normal and Nightmare exactly equal to Hell count.")
 

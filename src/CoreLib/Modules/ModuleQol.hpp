@@ -10,7 +10,8 @@ namespace D2ModGen {
 
 class ModuleQol : public PluginModule {
 public:
-    static constexpr const std::string_view key = Key::qualityOfLife;
+    static constexpr const std::string_view configKey{ "qol" };
+    static constexpr const std::string_view moduleKey{ "appModuleQol" };
 
     ModuleQol();
 

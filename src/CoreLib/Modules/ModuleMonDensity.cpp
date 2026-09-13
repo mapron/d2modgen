@@ -12,12 +12,11 @@ namespace D2ModGen {
 
 ModuleMonDensity::ModuleMonDensity()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "density", Mernel::PropertyTreeScalar{ 1 } },
-                       { "hellPacks", Mernel::PropertyTreeScalar{ false } },
-                       { "mon_groups", Mernel::PropertyTreeScalar{ 0 } },
-                       { "packs", Mernel::PropertyTreeScalar{ 1 } },
-                   },
-                   std::string(key))
+          { "density", Mernel::PropertyTreeScalar{ 1 } },
+          { "hellPacks", Mernel::PropertyTreeScalar{ false } },
+          { "mon_groups", Mernel::PropertyTreeScalar{ 0 } },
+          { "packs", Mernel::PropertyTreeScalar{ 1 } },
+      })
 {}
 
 void ModuleMonDensity::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const

@@ -7,9 +7,8 @@
 
 namespace D2ModGen {
 
-PluginModule::PluginModule(Mernel::PropertyTreeMap defaults, std::string id)
+PluginModule::PluginModule(Mernel::PropertyTreeMap defaults)
     : m_defaults(std::move(defaults))
-    , m_id(std::move(id))
 {
 }
 

@@ -28,6 +28,8 @@ public:
     bool loadConfig(const Mernel::PropertyTree& data, bool resetMain = true);
     bool saveConfig(Mernel::PropertyTree& data) const;
 
+    void updateSeed(bool onGenerate = false);
+
     struct GenerateResult {
         std::string m_error;
         bool        m_success = false;
@@ -39,23 +41,14 @@ public:
 
     Mernel::PropertyTree m_appConfig;
 
-    Mernel::PropertyTree m_currentMainConfig;
-
     struct ModuleData {
         IModule::Ptr         m_module;
+        std::string          m_uiKey;
         std::string          m_key;
-        std::u16string       m_key16;
         Mernel::PropertyTree m_currentConfig;
         bool                 m_enabled = true;
     };
-
-    using ModuleMap16 = std::map<std::u16string_view, ModuleData*>;
-    using ModuleMap8  = std::map<std::string_view, ModuleData*>;
-
     std::vector<ModuleData> m_modules;
-
-    ModuleMap16 m_moduleIndex16;
-    ModuleMap8  m_moduleIndex8;
 
     std::unique_ptr<StorageCache> m_mainStorageCache;
 

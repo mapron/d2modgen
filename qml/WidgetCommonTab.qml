@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls.Fusion
 
 WidgetScrollable {
-    property string value_context: ""
+    property var value_context: null
     property string caption: ""
     property string tooltip: ""
 
@@ -32,31 +32,19 @@ WidgetScrollable {
             indicator.implicitWidth: 18
             indicator.implicitHeight: 18
 
-            checked: appui.getEnabled(value_context)
+            checked: value_context.enabled
             text: qsTr("Enable this tab")
 
-            Connections {
-                target: appui
-                function onDataChanged() {
-                    headerCheckbox.checked = appui.getEnabled(value_context);
-                    contentContainer.enabled = headerCheckbox.checked;
-                }
-            }
-
-            onClicked: {
-                appui.setEnabled(value_context, checked);
-            }
+            onClicked: value_context.enabled = checked
         }
         Button {
             text: qsTr("Reset to default")
-            onClicked: {
-                appui.resetToDefault(value_context);
-            }
+            onClicked: value_context.resetToDefault()
         }
     }
 
     ColumnLayout {
         id: contentContainer
-        enabled: appui.getEnabled(value_context)
+        enabled: value_context.enabled
     }
 }

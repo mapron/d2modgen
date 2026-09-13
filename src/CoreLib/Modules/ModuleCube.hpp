@@ -11,7 +11,8 @@ namespace D2ModGen {
 
 class ModuleCube : public PluginModule {
 public:
-    static constexpr const std::string_view key = Key::horadricCube;
+    static constexpr const std::string_view configKey{ "cube" };
+    static constexpr const std::string_view moduleKey{ "appModuleCube" };
 
     ModuleCube();
 

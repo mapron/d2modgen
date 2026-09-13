@@ -19,6 +19,7 @@
 #include "Modules/ModuleGambling.hpp"
 #include "Modules/ModuleItemDrops.hpp"
 #include "Modules/ModuleItemRandomizer.hpp"
+#include "Modules/ModuleMain.hpp"
 #include "Modules/ModuleMonDensity.hpp"
 #include "Modules/ModuleMonRandomizer.hpp"
 #include "Modules/ModuleMonStats.hpp"
@@ -48,39 +49,44 @@
 
 namespace D2ModGen {
 
+namespace {
+
+template<class T>
+ConfigHandler::ModuleData create()
+{
+    return ConfigHandler::ModuleData{ std::make_shared<T>(), std::string(T::moduleKey), std::string(T::configKey) };
+}
+
+}
+
 ConfigHandler::ConfigHandler()
-    : m_mainStorageCache(std::make_unique<StorageCache>())
+    : m_modules({
+          create<ModuleMain>(),
+
+          // light modules
+          create<ModuleChallenge>(),
+          create<ModuleCharacter>(),
+          create<ModuleGambling>(),
+          create<ModuleItemDrops>(),
+          create<ModuleMonDensity>(),
+          create<ModuleMonStats>(),
+          create<ModulePerfectRoll>(),
+          create<ModuleQol>(),
+          create<ModuleRequirements>(),
+          create<ModuleRuneDrops>(),
+
+          // modules that can add more rows, thus in the end
+          create<ModuleCube>(),
+          create<ModuleDropFiltering>(),
+          create<ModuleMonRandomizer>(),
+          create<ModuleItemRandomizer>(),
+          create<ModuleSkillRandomizer>(),
+
+      })
+    , m_mainStorageCache(std::make_unique<StorageCache>())
     , m_appData(Mernel::AppLocations("D2R mod generator").getAppdataDir())
     , m_defaultPath(m_appData / "config.json")
 {
-    std::vector<IModule::Ptr> modules{
-        // light modules
-        std::make_shared<ModuleChallenge>(),
-        std::make_shared<ModuleCharacter>(),
-        std::make_shared<ModuleGambling>(),
-        std::make_shared<ModuleItemDrops>(),
-        std::make_shared<ModuleMonDensity>(),
-        std::make_shared<ModuleMonStats>(),
-        std::make_shared<ModulePerfectRoll>(),
-        std::make_shared<ModuleQol>(),
-        std::make_shared<ModuleRequirements>(),
-        std::make_shared<ModuleRuneDrops>(),
-
-        // modules that can add more rows, thus in the end
-        std::make_shared<ModuleCube>(),
-        std::make_shared<ModuleDropFiltering>(),
-        std::make_shared<ModuleMonRandomizer>(),
-        std::make_shared<ModuleItemRandomizer>(),
-        std::make_shared<ModuleSkillRandomizer>(),
-    };
-    for (auto&& module : modules) {
-        std::string id = module->settingKey();
-        m_modules.push_back(ModuleData{ .m_module = std::move(module), .m_key = id, .m_key16 = std::u16string(id.cbegin(), id.cend()) });
-    }
-    for (auto&& module : m_modules) {
-        m_moduleIndex8[module.m_key]    = &module;
-        m_moduleIndex16[module.m_key16] = &module;
-    }
 }
 
 bool ConfigHandler::loadAppConfig()
@@ -115,7 +121,6 @@ bool ConfigHandler::loadConfig(const Mernel::std_path& filename, bool resetMain)
     std::string          buffer;
     Mernel::PropertyTree doc;
     if (!Mernel::readFileIntoBufferNoexcept((filename), buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
-        loadConfig(Mernel::PropertyTree{}, resetMain);
         return false;
     }
     result = loadConfig(doc, resetMain);
@@ -138,16 +143,18 @@ bool ConfigHandler::saveConfig(const Mernel::std_path& filename) const
 bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data, bool resetMain)
 {
     for (auto& p : m_modules) {
+        if (!resetMain && p.m_key == ModuleMain::configKey)
+            continue;
+
         p.m_enabled       = data.value(p.m_key + "_enabled", Mernel::PropertyTreeScalar(false)).toBool();
         p.m_currentConfig = {};
         if (data.contains(p.m_key))
             p.m_currentConfig = data[p.m_key];
+
+        p.m_currentConfig.convertToMap();
     }
-    if (resetMain) {
-        m_currentMainConfig = {};
-        if (data.contains(std::string(IModule::Key::main)))
-            m_currentMainConfig = data[std::string(IModule::Key::main)];
-    }
+    updateSeed(false);
+
     return true;
 }
 
@@ -169,50 +176,44 @@ bool ConfigHandler::saveConfig(Mernel::PropertyTree& data) const
         if (!cfg.isNull() && !cfg.getMap().empty())
             data[p.m_key] = std::move(cfg);
     }
-    data[std::string(IModule::Key::main)] = m_currentMainConfig;
     return true;
+}
+
+void ConfigHandler::updateSeed(bool onGenerate)
+{
+    auto&    main = m_modules[0].m_currentConfig;
+    uint32_t seed = static_cast<uint32_t>(main.value("seed", Mernel::PropertyTreeScalar(0)).toInt());
+
+    bool refreshSeed = main.value("refreshSeed", Mernel::PropertyTreeScalar(false)).toBool();
+    if (seed == 0 || refreshSeed && onGenerate) {
+        std::random_device rd;
+        seed         = rd();
+        main["seed"] = Mernel::PropertyTreeScalar(seed);
+    }
 }
 
 ConfigHandler::GenerateResult ConfigHandler::generate()
 {
+    updateSeed(true);
+
     const GenerationEnvironment env = getEnv();
-    if (env.d2rPath.empty()) {
-        Logger(Logger::Warning) << "D2R path is empty";
-        return { "D2R path is empty" };
+    if (env.d2Path.empty()) {
+        return { "D2 path is empty" };
+    }
+    if (!Mernel::isExistingDirectory(env.d2Path)) {
+        return { "D2 path is not a valid dir:" + path2string(env.d2Path) };
     }
 
     const StorageType storage           = (env.isLegacy) ? StorageType::D2LegacyInternal : StorageType::D2ResurrectedInternal;
     const StorageType storageOut        = (env.isLegacy) ? StorageType::D2LegacyFolder : StorageType::D2ResurrectedModFolder;
     const bool        needBaseSubfolder = !env.isLegacy && !env.d2rUseROTW;
 
-    FolderStorage outStorage(string2path(env.outPath), storageOut, env.modName, needBaseSubfolder);
+    FolderStorage outStorage(env.outPath, storageOut, env.modName, needBaseSubfolder);
 
-    Logger() << "started generation in " << env.outPath;
+    Logger(Logger::Notice) << "started generation in " << env.outPath << ", seed:" << env.seed;
     if (!outStorage.prepareForWrite()) {
         return { "Failed to write data in destination folder; try to launch as admin." };
     }
-
-    auto mergeContext = [this, &env, needBaseSubfolder](DataContext& targetContext, const IModule::ExtraDependencies::Source& source) -> bool {
-        const auto    logInfo = source.srcRoot + " / " + source.modname;
-        const bool    isMod   = source.type == StorageType::D2ResurrectedModFolder;
-        const auto    root    = isMod ? env.outPath : source.srcRoot;
-        FolderStorage inStorage(string2path(root), source.type, isMod ? source.modname : "", needBaseSubfolder);
-        auto          storedData = inStorage.readData({});
-        if (!storedData.valid) {
-            Logger(Logger::Warning) << "Failed to read data files from D2 folder:" << logInfo.c_str();
-            return false;
-        }
-        DataContext dataContext;
-        if (!dataContext.readData(storedData)) {
-            Logger(Logger::Warning) << "Failed to parse files into input:" << logInfo.c_str();
-            return false;
-        }
-        if (!targetContext.mergeWith(dataContext, source.policy)) {
-            Logger(Logger::Warning) << "Merge failed:" << logInfo.c_str();
-            return false;
-        }
-        return true;
-    };
 
     DataContext output;
 
@@ -234,7 +235,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     }
     {
         Logger() << "Loading data from main storage...";
-        const IStorage::StoredData data = m_mainStorageCache->load(storage, env.d2rPath, pregenContext.m_extraJson, needBaseSubfolder);
+        const IStorage::StoredData data = m_mainStorageCache->load(storage, env.d2Path, pregenContext.m_extraJson, needBaseSubfolder);
         if (!data.valid) {
             return { "Failed to read data files from D2 folder." };
         }
@@ -246,14 +247,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             for (auto& p : output.tableSet.tables)
                 p.second.forceOutput = true;
     }
-    Logger() << "Loading pre-gen data.";
-    {
-        for (const auto& source : pregenContext.m_preGen.m_sources)
-            if (!mergeContext(output, source)) {
-                return { std::string("Failed to merge with source: ") + source.srcRoot + " / " + source.modname };
-            }
-    }
-    Logger() << "prepare ended; Starting generate phase. seed=" << env.seed;
+    Logger() << "prepare ended; Starting generate phase.";
     {
         using Distribution32 = std::uniform_int_distribution<int32_t>;
         std::mt19937_64 engine;
@@ -283,13 +277,6 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             }
         }
     }
-    Logger() << "Loading post-gen data.";
-    {
-        for (const auto& source : pregenContext.m_postGen.m_sources)
-            if (!mergeContext(output, source)) {
-                return { std::string("Failed to merge with source: ") + source.srcRoot + " / " + source.modname };
-            }
-    }
     Logger() << "prepare output data.";
 
     IStorage::StoredData outData;
@@ -309,17 +296,17 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
 
 GenerationEnvironment ConfigHandler::getEnv() const
 {
-    const auto&           c = m_currentMainConfig;
+    const auto&           c = m_modules[0].m_currentConfig;
     GenerationEnvironment env;
-    env.modName         = c.value("modname", Mernel::PropertyTreeScalar("")).toString();
+    env.modName         = c.value("modname", Mernel::PropertyTreeScalar("rando")).toString();
     env.isLegacy        = c.value("isLegacy", Mernel::PropertyTreeScalar(false)).toBool();
     env.d2rUseROTW      = c.value("d2rUseROTW", Mernel::PropertyTreeScalar(true)).toBool();
-    env.d2rPath         = ensureTrailingSlash(c.value(env.isLegacy ? "d2legacyPath" : "d2rPath", Mernel::PropertyTreeScalar("")).toString());
+    env.d2Path          = string2path(c.value(env.isLegacy ? "d2legacyPath" : "d2rPath", Mernel::PropertyTreeScalar("")).toString());
     env.exportAllTables = c.value("exportAllTables", Mernel::PropertyTreeScalar(false)).toBool();
     env.seed            = static_cast<uint32_t>(c.value("seed", Mernel::PropertyTreeScalar(0)).toInt());
-    env.outPath         = ensureTrailingSlash(c.value("outPath", Mernel::PropertyTreeScalar("")).toString());
+    env.outPath         = string2path(c.value("outPath", Mernel::PropertyTreeScalar("")).toString());
     if (env.outPath.empty())
-        env.outPath = env.d2rPath;
+        env.outPath = env.d2Path;
 
     return env;
 }

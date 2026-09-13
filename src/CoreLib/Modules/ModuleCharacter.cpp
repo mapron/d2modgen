@@ -63,17 +63,16 @@ struct CharItems {
 
 ModuleCharacter::ModuleCharacter()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "addCube", Mernel::PropertyTreeScalar{ false } },
-                       { "addTeleport", Mernel::PropertyTreeScalar{ false } },
-                       { "idTome", Mernel::PropertyTreeScalar{ false } },
-                       { "manaPots", Mernel::PropertyTreeScalar{ false } },
-                       { "mercDam", Mernel::PropertyTreeScalar{ 100 } },
-                       { "mercHP", Mernel::PropertyTreeScalar{ 100 } },
-                       { "skillPerLevel", Mernel::PropertyTreeScalar{ 1 } },
-                       { "skillPointLimit", Mernel::PropertyTreeScalar{ 20 } },
-                       { "statPerLevel", Mernel::PropertyTreeScalar{ 5 } },
-                   },
-                   std::string(key))
+          { "addCube", Mernel::PropertyTreeScalar{ false } },
+          { "addTeleport", Mernel::PropertyTreeScalar{ false } },
+          { "idTome", Mernel::PropertyTreeScalar{ false } },
+          { "manaPots", Mernel::PropertyTreeScalar{ false } },
+          { "mercDam", Mernel::PropertyTreeScalar{ 100 } },
+          { "mercHP", Mernel::PropertyTreeScalar{ 100 } },
+          { "skillPerLevel", Mernel::PropertyTreeScalar{ 1 } },
+          { "skillPointLimit", Mernel::PropertyTreeScalar{ 20 } },
+          { "statPerLevel", Mernel::PropertyTreeScalar{ 5 } },
+      })
 {}
 
 void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const

@@ -4,34 +4,16 @@ import QtQuick.Controls.Fusion
 
 WidgetCommonControl {
     id: root
+    property alias value_context: internal.value_context
+    property alias value_key: internal.value_key
+    property alias checked: internal.checked
 
     isCompact: true
     controlAfterCaption: false
     hideCaption: true
 
-    onAppDataChanged: {
-        value = getValue();
-        checkBox.checked = value == 1;
-    }
-
-    RowLayout {
-        CheckBox {
-            id: checkBox
-            checked: root.value == 1
-
-            indicator.implicitWidth: 18
-            indicator.implicitHeight: 18
-
-            // Remove default right label behavior from standard control
-            text: root.caption
-            onClicked: {
-                root.value = checked ? 1 : 0;
-                root.setValue();
-            }
-        }
-
-        Item {
-            Layout.fillWidth: true
-        } // Keeps elements left-aligned
+    DynamicCheckbox {
+        id: internal
+        text: root.caption
     }
 }

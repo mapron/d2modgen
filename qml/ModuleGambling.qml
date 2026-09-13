@@ -4,7 +4,7 @@ import QtQuick
 
 WidgetCommonTab {
     id: root
-    value_context: "gambling"
+    value_context: appModuleGambling
     caption: qsTr("Gambling")
     tooltip: qsTr("First option enables Charms in Gambling window, but only for D2 Legacy.<br>Next sliders allow you increase basic chance of getting Unique/Rare/Set/High-quality item.")
 

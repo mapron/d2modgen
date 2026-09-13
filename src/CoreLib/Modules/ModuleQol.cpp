@@ -10,17 +10,16 @@ namespace D2ModGen {
 
 ModuleQol::ModuleQol()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "keySize", Mernel::PropertyTreeScalar{ false } },
-                       { "disableExpPenalty", Mernel::PropertyTreeScalar{ false } },
-                       { "quiverSize", Mernel::PropertyTreeScalar{ false } },
-                       { "reduceCost", Mernel::PropertyTreeScalar{ 100 } },
-                       { "showItemLevel", Mernel::PropertyTreeScalar{ false } },
-                       { "tomeSize", Mernel::PropertyTreeScalar{ false } },
-                       { "uniqueCharmLimit", Mernel::PropertyTreeScalar{ false } },
-                       { "weakenTownSkills", Mernel::PropertyTreeScalar{ false } },
-                       { "weakenTownSkillsExt", Mernel::PropertyTreeScalar{ false } },
-                   },
-                   std::string(key))
+          { "keySize", Mernel::PropertyTreeScalar{ false } },
+          { "disableExpPenalty", Mernel::PropertyTreeScalar{ false } },
+          { "quiverSize", Mernel::PropertyTreeScalar{ false } },
+          { "reduceCost", Mernel::PropertyTreeScalar{ 100 } },
+          { "showItemLevel", Mernel::PropertyTreeScalar{ false } },
+          { "tomeSize", Mernel::PropertyTreeScalar{ false } },
+          { "uniqueCharmLimit", Mernel::PropertyTreeScalar{ false } },
+          { "weakenTownSkills", Mernel::PropertyTreeScalar{ false } },
+          { "weakenTownSkillsExt", Mernel::PropertyTreeScalar{ false } },
+      })
 {}
 
 void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const

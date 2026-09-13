@@ -18,20 +18,8 @@ public:
     using Ptr    = std::shared_ptr<const IModule>;
     using PtrMap = std::map<std::string, Ptr>;
 
-    struct ExtraDependencies {
-        struct Source {
-            StorageType    type   = StorageType::CsvFolder;
-            ConflictPolicy policy = ConflictPolicy::RaiseError;
-            std::string    srcRoot;
-            std::string    modname;
-        };
-        std::vector<Source> m_sources;
-    };
-
     struct PreGenerationContext {
-        StringSet         m_extraJson;
-        ExtraDependencies m_preGen;
-        ExtraDependencies m_postGen;
+        StringSet m_extraJson;
     };
 
     struct InputContext {
@@ -77,36 +65,11 @@ public:
     };
 
 public:
-    virtual const std::string& settingKey() const = 0;
-
     virtual const Mernel::PropertyTreeMap&  defaultValues() const = 0;
     virtual const Mernel::PropertyTreeList& presets() const       = 0;
 
     virtual void gatherInfo(PreGenerationContext& output, const InputContext& input) const            = 0;
     virtual void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const = 0;
-
-public:
-    struct Key {
-        static constexpr const std::string_view challenge{ "challenge" };
-        static constexpr const std::string_view character{ "character" };
-        static constexpr const std::string_view horadricCube{ "cube" };
-        static constexpr const std::string_view dropFiltering{ "drop_filter" };
-        static constexpr const std::string_view gambling{ "gambling" };
-        static constexpr const std::string_view itemDrops{ "item_drops" };
-        static constexpr const std::string_view itemRandomizer{ "randomizer" };
-        static constexpr const std::string_view mergePregen{ "mergePregen" };
-        static constexpr const std::string_view mergePostgen{ "mergePostgen" };
-        static constexpr const std::string_view monsterDensity{ "density" };
-        static constexpr const std::string_view monsterRandomizer{ "monRandomizer" };
-        static constexpr const std::string_view monsterStats{ "monster_stats" };
-        static constexpr const std::string_view perfectRolls{ "perfect_rolls" };
-        static constexpr const std::string_view qualityOfLife{ "qol" };
-        static constexpr const std::string_view requirements{ "requirements" };
-        static constexpr const std::string_view runeDrops{ "rune_drops" };
-        static constexpr const std::string_view skillRandomizer{ "skillRandomizer" };
-
-        static constexpr const std::string_view main{ "main" };
-    };
 };
 
 }

@@ -233,11 +233,10 @@ struct SkillTree {
 
 ModuleSkillRandomizer::ModuleSkillRandomizer()
     : PluginModule(Mernel::PropertyTreeMap{
-                       { "ensureDifferent", Mernel::PropertyTreeScalar{ true } },
-                       { "skillDamage", Mernel::PropertyTreeScalar{ true } },
-                       { "skillTree", Mernel::PropertyTreeScalar{ true } },
-                   },
-                   std::string(key))
+          { "ensureDifferent", Mernel::PropertyTreeScalar{ true } },
+          { "skillDamage", Mernel::PropertyTreeScalar{ true } },
+          { "skillTree", Mernel::PropertyTreeScalar{ true } },
+      })
 {}
 
 void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const

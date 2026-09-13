@@ -7,8 +7,6 @@
 
 #include "PluginModule.hpp"
 
-#include <set>
-
 namespace D2ModGen {
 
 class ModuleDropFiltering : public PluginModule {
@@ -19,7 +17,8 @@ class ModuleDropFiltering : public PluginModule {
     const std::vector<Item> m_items;
 
 public:
-    static constexpr const std::string_view key = Key::dropFiltering;
+    static constexpr const std::string_view configKey{ "drop_filter" };
+    static constexpr const std::string_view moduleKey{ "appModuleDropFiltering" };
 
     ModuleDropFiltering();
 

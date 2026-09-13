@@ -4,7 +4,7 @@ import QtQuick
 
 WidgetCommonTab {
     id: root
-    value_context: "drop_filter"
+    value_context: appModuleDropFiltering
     caption: qsTr("Drops filtering")
     tooltip: qsTr("This tab consists of two sections:<br>1. Make some items have compact names, like &quot;!MP5&quot; for Super Mana Potion. <br>2. Hide item labels on the ground (you still be able to pick them). ")
 

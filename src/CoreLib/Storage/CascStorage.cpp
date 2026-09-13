@@ -16,9 +16,9 @@ namespace D2ModGen {
 
 IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames) const noexcept
 {
-    const std::string  utf8path = m_storageRoot;
-    const std::wstring wdata    = string2path(utf8path).wstring();
-    HANDLE             storage;
+    const Mernel::std_path utf8path = m_storageRoot;
+    const std::wstring     wdata    = utf8path.wstring();
+    HANDLE                 storage;
 
     CASC_OPEN_STORAGE_ARGS openArgs = { sizeof(CASC_OPEN_STORAGE_ARGS) };
 

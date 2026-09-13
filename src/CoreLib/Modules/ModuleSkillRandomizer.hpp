@@ -10,7 +10,8 @@ namespace D2ModGen {
 
 class ModuleSkillRandomizer : public PluginModule {
 public:
-    static constexpr const std::string_view key = Key::skillRandomizer;
+    static constexpr const std::string_view configKey{ "skillRandomizer" };
+    static constexpr const std::string_view moduleKey{ "appModuleSkillRandomizer" };
 
     ModuleSkillRandomizer();
 

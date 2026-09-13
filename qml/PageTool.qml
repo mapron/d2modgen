@@ -5,7 +5,7 @@ import QtQuick.Dialogs
 
 WidgetScrollable {
 
-    property string value_context: "main"
+    property var value_context: appModuleMain
 
     RowLayout {
         id: pageHeaderRow
