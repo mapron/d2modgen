@@ -10,6 +10,8 @@
 #include "FileIOUtils.hpp"
 #include "Logger.hpp"
 
+#include "MernelPlatform/ScopeExit.hpp"
+
 #include "Modules/ModuleChallenge.hpp"
 #include "Modules/ModuleCharacter.hpp"
 #include "Modules/ModuleCube.hpp"
@@ -34,6 +36,15 @@
 #include <random>
 
 #include "MernelPlatform/AppLocations.hpp"
+
+#define TRACK_IO(filename, title) \
+    bool result = false; \
+    MERNEL_SCOPE_EXIT([&result, &filename]() { \
+        if (result) \
+            Mernel::Logger() << title << " OK: " << path2string(filename); \
+        else \
+            Mernel::Logger(Mernel::Logger::LogLevel::Err) << title << " FAIL: " << path2string(filename); \
+    });
 
 namespace D2ModGen {
 
@@ -75,49 +86,53 @@ ConfigHandler::ConfigHandler()
 bool ConfigHandler::loadAppConfig()
 {
     const Mernel::std_path filename = m_appData / "app.json";
-    Logger() << "Load:" << path2string(filename);
+    TRACK_IO(filename, "Load");
     std::string buffer;
     m_appConfig = {};
     m_appConfig.convertToMap();
     if (!Mernel::readFileIntoBufferNoexcept((filename), buffer) || !readJsonFromBufferNoexcept(buffer, m_appConfig)) {
         return false;
     }
-    return true;
+    result = true;
+    return result;
 }
 
 bool ConfigHandler::saveAppConfig() const
 {
     const Mernel::std_path filename = m_appData / "app.json";
-    Logger() << "Save:" << path2string(filename);
+    TRACK_IO(filename, "Save");
     if (!createDirectoriesForFile((filename)))
         return false;
     std::string buffer;
     Mernel::writeJsonToBufferNoexcept(buffer, m_appConfig);
-    return Mernel::writeFileFromBufferNoexcept((filename), buffer);
+    result = Mernel::writeFileFromBufferNoexcept((filename), buffer);
+    return result;
 }
 
 bool ConfigHandler::loadConfig(const Mernel::std_path& filename, bool resetMain)
 {
-    Logger() << "Load:" << path2string(filename);
+    TRACK_IO(filename, "Load");
     std::string          buffer;
     Mernel::PropertyTree doc;
     if (!Mernel::readFileIntoBufferNoexcept((filename), buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
         loadConfig(Mernel::PropertyTree{}, resetMain);
         return false;
     }
-    return loadConfig(doc, resetMain);
+    result = loadConfig(doc, resetMain);
+    return result;
 }
 
 bool ConfigHandler::saveConfig(const Mernel::std_path& filename) const
 {
-    Logger() << "Save:" << path2string(filename);
+    TRACK_IO(filename, "Save");
     Mernel::PropertyTree data;
     saveConfig(data);
     if (!createDirectoriesForFile((filename)))
         return false;
     std::string buffer;
     Mernel::writeJsonToBufferNoexcept(buffer, data);
-    return Mernel::writeFileFromBufferNoexcept((filename), buffer);
+    result = Mernel::writeFileFromBufferNoexcept((filename), buffer);
+    return result;
 }
 
 bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data, bool resetMain)
@@ -139,12 +154,20 @@ bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data, bool resetMain)
 bool ConfigHandler::saveConfig(Mernel::PropertyTree& data) const
 {
     for (auto& p : m_modules) {
-        data[p.m_key] = p.m_currentConfig;
+        Mernel::PropertyTree cfg = p.m_currentConfig;
+        cfg.convertToMap();
 
         auto defValues = Mernel::PropertyTree{ p.m_module->defaultValues() };
-        Mernel::PropertyTree::removeEqualValues(data[p.m_key], defValues);
+        std::erase_if(cfg.getMap(), [&defValues](const auto& pair) {
+            return !defValues.contains(pair.first);
+        });
+        Mernel::PropertyTree::removeEqualValues(cfg, defValues);
 
-        data[p.m_key + "_enabled"] = Mernel::PropertyTreeScalar{ p.m_enabled };
+        if (p.m_enabled)
+            data[p.m_key + "_enabled"] = Mernel::PropertyTreeScalar{ true };
+
+        if (!cfg.isNull() && !cfg.getMap().empty())
+            data[p.m_key] = std::move(cfg);
     }
     data[std::string(IModule::Key::main)] = m_currentMainConfig;
     return true;

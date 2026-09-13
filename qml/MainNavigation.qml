@@ -185,7 +185,7 @@ ColumnLayout {
                 text: name
                 visible: isHeader
                 anchors.left: parent.left
-                anchors.leftMargin: 6
+                anchors.leftMargin: 45
                 anchors.verticalCenter: parent.verticalCenter
                 font.bold: true
                 color: window.palette.text
@@ -194,9 +194,9 @@ ColumnLayout {
             // --- 2. THE SIMPLE SINGLE-CLICK BUTTON FRAME ---
             RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: 6
-                anchors.rightMargin: 6
-                spacing: 8
+                anchors.leftMargin: 0
+                anchors.rightMargin: 0
+                spacing: 6
 
                 visible: !isHeader
 

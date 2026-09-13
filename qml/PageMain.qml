@@ -3,61 +3,105 @@ import QtQuick.Layouts
 import QtQuick.Controls.Fusion
 import QtQuick.Dialogs
 
-RowLayout {
-    Label {
-        text: "Main"
-    }
+WidgetScrollable {
 
-    // ----------------------------------------------------
-    // FILE DIALOG (Replacement for QFileDialog)
-    // ----------------------------------------------------
-    FileDialog {
-        id: fileDialog
-        title: qsTr("Please choose a file")
-        //currentFolder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-        nameFilters: ["Text files (*.txt)", "All files (*)"]
+    property string value_context: "main"
 
-        onAccepted: {
-            console.log("User selected file: " + fileDialog.selectedFile);
-            // Tip: Note the switch from 'fileUrl' (Qt5) to 'selectedFile' (Qt6)
+    RowLayout {
+        id: pageHeaderRow
+        spacing: 6
+
+        Label {
+            text: qsTr("Main")
+            font.pointSize: 11
         }
-        onRejected: {
-            console.log("File selection canceled");
+
+        WidgetHelpIcon {
+            tooltipText: qsTr("Main")
         }
-    }
 
-    // ----------------------------------------------------
-    // MESSAGE DIALOG (Replacement for QMessageBox)
-    // ----------------------------------------------------
-    MessageDialog {
-        id: msgDialog
-        title: qsTr("Critical Action Required")
-        text: qsTr("Do you want to save changes before exiting?")
-        buttons: MessageDialog.Save | MessageDialog.Discard | MessageDialog.Cancel
+        Item {
+            Layout.fillWidth: true
+        }
 
-        onButtonClicked: (button, role) => {
-            if (button === MessageDialog.Save) {
-                console.log("Save clicked");
-            } else if (button === MessageDialog.Discard) {
-                console.log("Discard clicked");
+        Button {
+            text: qsTr("Reset to default")
+            onClicked: {
+                appui.resetToDefault(value_context);
             }
         }
     }
 
-    // ----------------------------------------------------
-    // UI LAYOUT TO TRIGGER THEM
-    // ----------------------------------------------------
-    Column {
-        spacing: 15
+    RowLayout {
+        spacing: 10
+        Layout.fillWidth: true
 
-        Button {
-            text: qsTr("Open File...")
-            onClicked: fileDialog.open() // 💡 Use .open() to trigger
+        Label {
+            text: qsTr("Mod id:")
+            Layout.preferredWidth: 60
         }
+        TextField {
+            id: modIdInput
+            text: "rando"
+            Layout.fillWidth: true
+        }
+    }
 
-        Button {
-            text: qsTr("Show Alert Message")
-            onClicked: msgDialog.open()  // 💡 Use .open() to trigger
+    CheckBox {
+        id: legacyInstallCheck
+        text: qsTr("Use Diablo II legacy installation")
+    }
+
+    CheckBox {
+        id: targetWarlockCheck
+        text: qsTr("Target for D2R Reign of the Warlock")
+        checked: true
+    }
+
+    ColumnLayout {
+        Layout.fillWidth: true
+        spacing: 4
+
+        Label {
+            text: qsTr("D2R path:")
         }
+        TextField {
+            id: d2rPathInput
+            text: "E:\\Games\\Diablo II Resurrected\\"
+            Layout.fillWidth: true
+        }
+    }
+
+    RowLayout {
+        spacing: 10
+        Layout.fillWidth: true
+
+        Label {
+            text: qsTr("Random seed:")
+        }
+        TextField {
+            id: randomSeedInput
+            text: "2246554441"
+            Layout.preferredWidth: 150
+        }
+    }
+
+    ColumnLayout {
+        Layout.fillWidth: true
+        spacing: 4
+
+        Label {
+            text: qsTr("Output directory (leave empty to output to D2R path):")
+        }
+        TextField {
+            id: outputDirInput
+            text: ""
+            Layout.fillWidth: true
+        }
+    }
+
+    CheckBox {
+        id: exportTxtCheck
+        text: qsTr("Export all *.txt (for further manual edit)")
     }
 }

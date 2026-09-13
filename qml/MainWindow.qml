@@ -128,7 +128,7 @@ ApplicationWindow {
                 Connections {
                     target: appui
                     function onStatusUpdate(status) {
-                        statusLabel.text = status;
+                        statusLabel.text = Qt.formatDateTime(new Date(), "[HH:mm:ss] ") + status;
                     }
                 }
             }

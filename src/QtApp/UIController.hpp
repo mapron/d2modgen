@@ -48,8 +48,10 @@ public:
 
     Q_INVOKABLE void generate();
 
-    bool saveConfig(const QString& filename) const;
-    bool loadConfig(const QString& filename);
+    Q_INVOKABLE void saveConfig(QString filename);
+    Q_INVOKABLE void loadConfig(QString filename);
+    Q_INVOKABLE void clearConfig();
+
     bool loadConfig(const Mernel::PropertyTree& data);
     bool loadPresetConfig(const QString& filename);
 
@@ -69,10 +71,9 @@ public:
     Q_INVOKABLE void resetToDefault(const QString& context);
 
     Q_INVOKABLE void makeUndo();
-    Q_INVOKABLE void disableAutoSave()
-    {
-        m_autoSave = false;
-    }
+    Q_INVOKABLE void disableAutoSave();
+
+    Q_INVOKABLE void browseToAppSettings();
 
 signals:
     void dataChanged();

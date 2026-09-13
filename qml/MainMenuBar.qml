@@ -1,9 +1,29 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
+import QtQuick.Dialogs
 
 MenuBar {
     id: mainMenuBar
+    FileDialog {
+        id: fileDialogSave
+        fileMode: FileDialog.SaveFile
+        nameFilters: ["Config (*.json)"]
+
+        onAccepted: {
+            appui.saveConfig(fileDialogSave.selectedFile);
+        }
+    }
+
+    FileDialog {
+        id: fileDialogOpen
+        fileMode: FileDialog.OpenFile
+        nameFilters: ["Config (*.json)"]
+
+        onAccepted: {
+            appui.loadConfig(fileDialogOpen.selectedFile);
+        }
+    }
 
     Menu {
         id: mainMenuFile
@@ -36,17 +56,17 @@ MenuBar {
         Action {
             text: qsTr("Save config...")
             shortcut: "Ctrl+S"
-            onTriggered: console.log("sabve")
+            onTriggered: fileDialogSave.open()
         }
         Action {
             text: qsTr("Load config...")
             shortcut: "Ctrl+O"
-            onTriggered: console.log("Open e")
+            onTriggered: fileDialogOpen.open()
         }
         Action {
             text: qsTr("Clear config")
             shortcut: "Ctrl+N"
-            onTriggered: console.log("clear")
+            onTriggered: appui.clearConfig()
         }
 
         Menu {
@@ -67,7 +87,7 @@ MenuBar {
         }
         Action {
             text: qsTr("Browse to settings folder")
-            onTriggered: console.log("Browse")
+            onTriggered: appui.browseToAppSettings()
         }
 
         MenuSeparator {} // Clean divider rule line separating file options from app close

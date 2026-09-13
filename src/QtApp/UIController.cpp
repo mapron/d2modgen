@@ -12,6 +12,8 @@
 #include <QDateTime>
 #include <QCoreApplication>
 #include <QTimer>
+#include <QProcess>
+#include <QDir>
 
 namespace D2ModGen {
 
@@ -391,17 +393,35 @@ void UIController::generate()
     QTimer::singleShot(30, this, &UIController::generateFinish);
 }
 
-bool UIController::saveConfig(const QString& filename) const
+void UIController::saveConfig(QString filename)
 {
-    return m_configHandler.saveConfig(filename.toStdString());
+    filename.replace("file:///", "");
+    if (m_configHandler.saveConfig(filename.toStdString())) {
+        emit statusUpdate(tr("Saved."));
+    } else {
+        emit statusUpdate(tr("Error when saving!"));
+    }
 }
 
-bool UIController::loadConfig(const QString& filename)
+void UIController::loadConfig(QString filename)
 {
+    filename.replace("file:///", "");
     const auto result = m_configHandler.loadConfig(filename.toStdString());
 
+    if (result) {
+        emit dataChangedInternal();
+        emit statusUpdate(tr("Loaded."));
+    } else {
+        emit statusUpdate(tr("Error when loading!"));
+    }
+}
+
+void UIController::clearConfig()
+{
+    m_configHandler.loadConfig(Mernel::PropertyTree{}, false);
+
     emit dataChangedInternal();
-    return result;
+    emit statusUpdate(tr("Config is cleared."));
 }
 
 bool UIController::loadConfig(const Mernel::PropertyTree& data)
@@ -521,6 +541,16 @@ void UIController::makeUndo()
     updateUndoAction();
 }
 
+void UIController::disableAutoSave()
+{
+    m_autoSave = false;
+}
+
+void UIController::browseToAppSettings()
+{
+    QProcess::startDetached("explorer.exe", QStringList() << QDir::toNativeSeparators(QString::fromStdString(path2string(m_configHandler.m_appData))));
+}
+
 void UIController::updateUndoAction()
 {
     //
@@ -534,8 +564,8 @@ void UIController::generateFinish()
         return;
     }
 
-    emit statusUpdate(tr("Mod '%1' successfully updated (%2).")
-                          .arg(QString::fromStdString(m_configHandler.getEnv().modName), QTime::currentTime().toString("mm:ss")));
+    emit statusUpdate(tr("Mod '%1' is updated.")
+                          .arg(QString::fromStdString(m_configHandler.getEnv().modName)));
 }
 
 }

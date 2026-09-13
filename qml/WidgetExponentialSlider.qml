@@ -120,7 +120,7 @@ WidgetCommonControl {
                 selectByMouse: true
 
                 // Allow input box typing to update the slider position
-                onAccepted: {
+                onEditingFinished: {
                     root.value = parseInt(text);
                     root.setValue();
                 }
@@ -128,7 +128,7 @@ WidgetCommonControl {
 
             Label {
                 text: root.suffix
-                visible: root.suffix !== ""
+                Layout.minimumWidth: 20
             }
         }
     }
