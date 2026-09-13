@@ -58,13 +58,36 @@ enum class StorageType
 };
 
 struct GenerationEnvironment {
+    enum class Version
+    {
+        Legacy,
+        D2R_LoD,
+        D2R_RotW,
+    };
+    enum class InputMode
+    {
+        Game,
+        FullFolders,
+        Txt,
+    };
+    enum class OutputMode
+    {
+        D2RMod,
+        FullFolders,
+        Txt,
+    };
+
     std::string      modName;
-    Mernel::std_path d2Path;
-    Mernel::std_path outPath;
-    bool             exportAllTables;
-    bool             isLegacy;
-    bool             d2rUseROTW;
-    uint32_t         seed;
+    Mernel::std_path inputPath;
+    Mernel::std_path outputPath;
+    bool             exportAll         = false;
+    bool             refreshSeed       = false;
+    bool             needDataSubfolder = false;
+    bool             isLegacy          = false;
+    StorageType      inputMode         = StorageType::D2ResurrectedInternal;
+    StorageType      outputMode        = StorageType::D2ResurrectedModFolder;
+
+    uint32_t seed;
 };
 
 enum class ConflictPolicy

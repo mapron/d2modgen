@@ -129,7 +129,7 @@ void UIController::loadConfig(QString filename)
     const auto result = m_configHandler.loadConfig(filename.toStdString());
 
     if (result) {
-        emit dataChangedInternal();
+        sendDataChange();
         emit statusUpdate(tr("Loaded."));
     } else {
         emit statusUpdate(tr("Error when loading!"));
@@ -140,7 +140,7 @@ void UIController::clearConfig()
 {
     m_configHandler.loadConfig(Mernel::PropertyTree{}, false);
 
-    emit dataChangedInternal();
+    sendDataChange();
     emit statusUpdate(tr("Config is cleared."));
 }
 
@@ -148,16 +148,14 @@ bool UIController::loadConfig(const Mernel::PropertyTree& data)
 {
     const auto result = m_configHandler.loadConfig(data);
 
-    emit dataChangedInternal();
+    sendDataChange();
     return result;
 }
 
-bool UIController::loadPresetConfig(const QString& filename)
+void UIController::loadPresetConfig(const QString& filename)
 {
-    const auto result = m_configHandler.loadConfig(filename.toStdString(), false);
-
-    emit dataChangedInternal();
-    return result;
+    if (m_configHandler.loadConfig(QString("presets/%1.json").arg(filename).toStdString(), false))
+        sendDataChange();
 }
 
 QString UIController::getApp(const QString& key, const QString& def) const
@@ -216,17 +214,50 @@ void UIController::newSeed()
 
 void UIController::detectPath()
 {
+    auto& cfg         = m_configHandler.m_modules[0].m_currentConfig;
+    bool  resurrected = cfg.value("version", Mernel::PropertyTreeScalar{ 2 }).toInt() >= 1;
+    cfg["inputPath"]  = Mernel::PropertyTreeScalar{ getInstallLocationFromRegistry(resurrected).toStdString() };
+    m_tabsList[0]->sendDataChange(); // to refresh paths
 }
 
 void UIController::sendDataChange()
 {
-    for (auto* w : m_tabsList)
+    for (auto* w : m_tabsList) {
         w->sendDataChange();
+        w->sendEnabledChange();
+    }
 }
 
 void UIController::updateUndoAction()
 {
     //
+#if 0
+    connect(copySettings, &QPushButton::clicked, this, [this] {
+        const QString saves = ensureTrailingSlash(m_impl->d2rSaves->text());
+        if (saves.isEmpty() || !QFileInfo::exists(saves))
+            return;
+        const QString modSaves = saves + "mods/" + m_impl->modName->text() + "/";
+        if (!QFileInfo::exists(modSaves))
+            QDir().mkpath(modSaves);
+        const QString name = "Settings.json";
+        QFile::remove(modSaves + name);
+        QFile::copy(saves + name, modSaves + name);
+    });
+    connect(launchArgsClear, &QPushButton::clicked, this, [this] {
+        setLaunch("");
+    });
+    connect(launchArgs, &QPushButton::clicked, this, [this] {
+        setLaunch(m_impl->d2rArgs->text());
+    });
+    connect(makeShortcut, &QPushButton::clicked, this, [this] {
+        const bool legacy  = m_impl->d2legacyMode->isChecked();
+        auto       d2rpath = ensureTrailingSlash(legacy ? m_impl->d2legacyPath->text() : m_impl->d2rPath->text());
+        auto       desk    = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+        createShortCut((desk + "Diablo II - " + m_impl->modName->text() + " Mod").toStdString(),
+                       (d2rpath + (legacy ? "Diablo II.exe" : "D2R.exe")).toStdString(),
+                       m_impl->d2rArgs->text().toStdString());
+    });
+#endif
 }
 
 void UIController::generateFinish()
@@ -237,8 +268,9 @@ void UIController::generateFinish()
         return;
     }
 
-    emit statusUpdate(tr("Mod '%1' is updated.")
-                          .arg(QString::fromStdString(m_configHandler.getEnv().modName)));
+    std::string err;
+    emit        statusUpdate(tr("Mod '%1' is updated.")
+                                 .arg(QString::fromStdString(m_configHandler.getEnv(err).modName)));
 
     m_tabsList[0]->sendDataChange(); // to refresh seed
 }
@@ -346,6 +378,11 @@ void TabController::resetToDefault()
 void TabController::sendDataChange()
 {
     emit dataChangedInternal();
+}
+
+void TabController::sendEnabledChange()
+{
+    emit enabledChanged();
 }
 
 }

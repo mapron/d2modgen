@@ -196,21 +196,15 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
 {
     updateSeed(true);
 
-    const GenerationEnvironment env = getEnv();
-    if (env.d2Path.empty()) {
-        return { "D2 path is empty" };
-    }
-    if (!Mernel::isExistingDirectory(env.d2Path)) {
-        return { "D2 path is not a valid dir:" + path2string(env.d2Path) };
+    std::string                 err;
+    const GenerationEnvironment env = getEnv(err);
+    if (!err.empty()) {
+        return { err };
     }
 
-    const StorageType storage           = (env.isLegacy) ? StorageType::D2LegacyInternal : StorageType::D2ResurrectedInternal;
-    const StorageType storageOut        = (env.isLegacy) ? StorageType::D2LegacyFolder : StorageType::D2ResurrectedModFolder;
-    const bool        needBaseSubfolder = !env.isLegacy && !env.d2rUseROTW;
+    FolderStorage outStorage(env.outputPath, env.outputMode, env.modName, env.needDataSubfolder);
 
-    FolderStorage outStorage(env.outPath, storageOut, env.modName, needBaseSubfolder);
-
-    Logger(Logger::Notice) << "started generation in " << env.outPath << ", seed:" << env.seed;
+    Logger(Logger::Notice) << "started generation in " << path2string(env.outputPath) << ", seed:" << env.seed;
     if (!outStorage.prepareForWrite()) {
         return { "Failed to write data in destination folder; try to launch as admin." };
     }
@@ -235,7 +229,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     }
     {
         Logger() << "Loading data from main storage...";
-        const IStorage::StoredData data = m_mainStorageCache->load(storage, env.d2Path, pregenContext.m_extraJson, needBaseSubfolder);
+        const IStorage::StoredData data = m_mainStorageCache->load(env.inputMode, env.inputPath, pregenContext.m_extraJson, env.needDataSubfolder);
         if (!data.valid) {
             return { "Failed to read data files from D2 folder." };
         }
@@ -243,7 +237,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         if (!output.readData(data)) {
             return { "Failed parse D2 data files." };
         }
-        if (env.exportAllTables)
+        if (env.exportAll)
             for (auto& p : output.tableSet.tables)
                 p.second.forceOutput = true;
     }
@@ -294,19 +288,65 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     return { "", true };
 }
 
-GenerationEnvironment ConfigHandler::getEnv() const
+GenerationEnvironment ConfigHandler::getEnv(std::string& err) const
 {
     const auto&           c = m_modules[0].m_currentConfig;
     GenerationEnvironment env;
-    env.modName         = c.value("modname", Mernel::PropertyTreeScalar("rando")).toString();
-    env.isLegacy        = c.value("isLegacy", Mernel::PropertyTreeScalar(false)).toBool();
-    env.d2rUseROTW      = c.value("d2rUseROTW", Mernel::PropertyTreeScalar(true)).toBool();
-    env.d2Path          = string2path(c.value(env.isLegacy ? "d2legacyPath" : "d2rPath", Mernel::PropertyTreeScalar("")).toString());
-    env.exportAllTables = c.value("exportAllTables", Mernel::PropertyTreeScalar(false)).toBool();
-    env.seed            = static_cast<uint32_t>(c.value("seed", Mernel::PropertyTreeScalar(0)).toInt());
-    env.outPath         = string2path(c.value("outPath", Mernel::PropertyTreeScalar("")).toString());
-    if (env.outPath.empty())
-        env.outPath = env.d2Path;
+
+    auto version    = GenerationEnvironment::Version(c.value("version", Mernel::PropertyTreeScalar(2)).toInt());
+    auto inputMode  = GenerationEnvironment::InputMode(c.value("inputMode", Mernel::PropertyTreeScalar(0)).toInt());
+    auto outputMode = GenerationEnvironment::OutputMode(c.value("outputMode", Mernel::PropertyTreeScalar(0)).toInt());
+
+    env.modName     = c.value("modname", Mernel::PropertyTreeScalar("rando")).toString();
+    env.inputPath   = string2path(c.value("inputPath", Mernel::PropertyTreeScalar("")).toString());
+    env.outputPath  = string2path(c.value("outputPath", Mernel::PropertyTreeScalar("")).toString());
+    env.exportAll   = c.value("exportAll", Mernel::PropertyTreeScalar(false)).toBool();
+    env.refreshSeed = c.value("refreshSeed", Mernel::PropertyTreeScalar(false)).toBool();
+    env.seed        = static_cast<uint32_t>(c.value("seed", Mernel::PropertyTreeScalar(0)).toInt());
+    if (env.outputPath.empty()) {
+        if (inputMode != GenerationEnvironment::InputMode::Game) {
+            err = "Cannot detect output path.";
+            return env;
+        }
+        env.outputPath = env.inputPath;
+    }
+
+    if (env.inputPath.empty()) {
+        err = "Input path is empty!";
+        return env;
+    }
+
+    if (!Mernel::isExistingDirectory(env.inputPath)) {
+        err = "Input path is not a valid dir:" + path2string(env.inputPath);
+        return env;
+    }
+
+    env.isLegacy          = version == GenerationEnvironment::Version::Legacy;
+    env.needDataSubfolder = version == GenerationEnvironment::Version::D2R_LoD;
+    if (inputMode == GenerationEnvironment::InputMode::Game) {
+        if (env.isLegacy) {
+            env.inputMode = StorageType::D2LegacyInternal;
+        }
+    } else if (inputMode == GenerationEnvironment::InputMode::FullFolders) {
+        if (env.isLegacy) {
+            env.inputMode = StorageType::D2LegacyFolder;
+        } else {
+            env.inputMode = StorageType::D2ResurrectedModFolder;
+        }
+    } else {
+        env.inputMode = StorageType::CsvFolder;
+    }
+
+    if (outputMode == GenerationEnvironment::OutputMode::D2RMod) {
+        if (env.isLegacy) {
+            err = "You must select another output mode!";
+            return env;
+        }
+    } else if (outputMode == GenerationEnvironment::OutputMode::FullFolders) {
+        env.outputMode = StorageType::D2LegacyFolder;
+    } else {
+        env.outputMode = StorageType::CsvFolder;
+    }
 
     return env;
 }

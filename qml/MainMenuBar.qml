@@ -73,16 +73,20 @@ MenuBar {
             title: qsTr("Config from preset")
 
             Action {
-                text: "basic"
+                text: qsTr("Basic")
+                onTriggered: appui.loadPresetConfig("basic")
             }
             Action {
-                text: "friendly_chaos"
+                text: qsTr("Friendly chaos")
+                onTriggered: appui.loadPresetConfig("friendly_chaos")
             }
             Action {
-                text: "magic_rando"
+                text: qsTr("Magic rando")
+                onTriggered: appui.loadPresetConfig("magic_rando")
             }
             Action {
-                text: "oh_no"
+                text: qsTr("Oh, no!")
+                onTriggered: appui.loadPresetConfig("oh_no")
             }
         }
         Action {

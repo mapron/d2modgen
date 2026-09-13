@@ -37,7 +37,7 @@ public:
 
     GenerateResult generate();
 
-    GenerationEnvironment getEnv() const;
+    GenerationEnvironment getEnv(std::string& err) const;
 
     Mernel::PropertyTree m_appConfig;
 

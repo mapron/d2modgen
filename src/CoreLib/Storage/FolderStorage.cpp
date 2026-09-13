@@ -63,7 +63,7 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
 {
     StoredData result{ true };
     const auto rootLength = path2string(m_root).size() + 1;
-    for (auto it : std_fs::recursive_directory_iterator(m_root)) {
+    for (auto& it : std_fs::recursive_directory_iterator(m_root)) {
         if (!it.is_regular_file())
             continue;
         const std_path&   path           = it.path();
@@ -79,7 +79,7 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
                 return {};
 
             result.tables.push_back(StoredFileTable{ std::move(buffer), id });
-        } else {
+        } else if (m_storageType != StorageType::CsvFolder) {
             if (filenames.contains(currentRelPath) || path.extension() == ".json") {
                 std::string buffer;
                 if (!Mernel::readFileIntoBufferNoexcept(path, buffer))
@@ -92,6 +92,8 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
         }
     }
 
+    if (result.tables.empty())
+        result.valid = false;
     return result;
 }
 
@@ -160,18 +162,20 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
             return false;
         }
     }
-    for (const auto& memoryData : data.inMemoryFiles) {
-        const auto absPath = m_root / memoryData.relFilepath;
-        if (!writeData(memoryData.data, absPath)) {
-            Logger(Logger::Warning) << "failed to write to:" << absPath;
-            return false;
+    if (m_storageType != StorageType::CsvFolder) {
+        for (const auto& memoryData : data.inMemoryFiles) {
+            const auto absPath = m_root / memoryData.relFilepath;
+            if (!writeData(memoryData.data, absPath)) {
+                Logger(Logger::Warning) << "failed to write to:" << absPath;
+                return false;
+            }
         }
-    }
-    for (const auto& refData : data.refFiles) {
-        const auto absPathDest = m_root / refData.relFilepath;
-        if (!copyFile(refData.absSrcFilepath, absPathDest)) {
-            Logger(Logger::Warning) << "failed to copy file:" << refData.absSrcFilepath << " -> " << absPathDest;
-            return false;
+        for (const auto& refData : data.refFiles) {
+            const auto absPathDest = m_root / refData.relFilepath;
+            if (!copyFile(refData.absSrcFilepath, absPathDest)) {
+                Logger(Logger::Warning) << "failed to copy file:" << refData.absSrcFilepath << " -> " << absPathDest;
+                return false;
+            }
         }
     }
 

@@ -12,7 +12,7 @@ WidgetScrollable {
         spacing: 6
 
         Label {
-            text: qsTr("Tool")
+            text: qsTr("Tool - warning - not working for now, will be fixed in next release!")
             font.pointSize: 11
         }
 
@@ -34,7 +34,7 @@ WidgetScrollable {
         }
         TextField {
             id: d2rSaveRootInput
-            text: "C:/Users/mapron/Saved Games/Diablo II Resurrected/"
+            text: ""
             Layout.fillWidth: true
         }
     }

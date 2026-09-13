@@ -54,6 +54,7 @@ public:
     Q_INVOKABLE void resetToDefault();
 
     void sendDataChange();
+    void sendEnabledChange();
 
 signals:
     void dataChangedInternal();
@@ -79,8 +80,8 @@ public:
     Q_INVOKABLE void loadConfig(QString filename);
     Q_INVOKABLE void clearConfig();
 
-    bool loadConfig(const Mernel::PropertyTree& data);
-    bool loadPresetConfig(const QString& filename);
+    bool             loadConfig(const Mernel::PropertyTree& data);
+    Q_INVOKABLE void loadPresetConfig(const QString& filename);
 
     Q_INVOKABLE QString getApp(const QString& key, const QString& def) const;
     Q_INVOKABLE void    setApp(const QString& key, const QString& value);
@@ -96,8 +97,6 @@ public:
     void sendDataChange();
 
 signals:
-    void dataChanged();
-    void dataChangedInternal();
     void statusUpdate(QString status);
     void generateInternal();
 
