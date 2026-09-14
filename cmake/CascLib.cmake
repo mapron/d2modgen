@@ -1,5 +1,5 @@
 # casclib
-set(cascRoot ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/casclib/src)
+set(cascRoot ${CMAKE_CURRENT_SOURCE_DIR}/ext/casclib/src)
 set(cascInc ${cascRoot})
 set(cascSrc 
 	CascDecompress.cpp

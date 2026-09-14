@@ -1,6 +1,6 @@
 
 # stormlib
-set(stormRoot ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/stormlib/src)
+set(stormRoot ${CMAKE_CURRENT_SOURCE_DIR}/ext/stormlib/src)
 set(stormInc ${stormRoot})
 set(stormSrc 
 	adpcm/adpcm.cpp
