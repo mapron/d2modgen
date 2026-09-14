@@ -5,7 +5,7 @@ import QtQuick.Controls.Fusion
 ApplicationWindow {
     id: window
     visible: true
-    title: qsTr("D2 mod generator by mapron - 0.7.0")
+    title: qsTr("D2 mod generator by mapron - 0.7.2")
 
     menuBar: MainMenuBar {}
 

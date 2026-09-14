@@ -39,6 +39,7 @@ static const std::map<TableId, AliasConfig> s_tableColumnAliases{
                        } },
     { TableId::uniqueitems, AliasConfig{
                                 { "diablocloneweight", "worldevent" },
+                                { "level", "lvl" },
                             } },
     { TableId::setitems, AliasConfig{
                              { "diablocloneweight", "worldevent" },
