@@ -107,17 +107,12 @@ Also, as you noticed, support for Dark and Light theme is available - choose wha
 #### Filter your drops
 ![Drops filter](docs/tab_misc_filter.png)  
 
-#### Merge with other mods or custom files
-![Merge](docs/tab_misc_merge.png)  
-
 
 # Using commandline
-You also can run d2modgen in commandline mode (without UI). Two commands are supported:  
-```d2modgen.exe --generate /path/to/config.json```  
-will run generation using specific json file;  
-```d2modgen.exe --generate```  
-will generate output using default application config.  
-Warning: please note, if any error dialog appear, it willbe shown and block execution. So use this with already well formed configuration.
+You also can run d2modgen in commandline mode (without UI). ```bin/modgen_console.exe```  
+will generate output using default application config (in LOCAPAPPDATA).  
+You can create script/batch file/global hotkey command that runs this executeable, and it will generate and update mod files.  
+If you want to have new seed on every run, use "Create new seed on every Generate call" checkbox.  
 
 # KnownIssues
 1. If there is many dead bodies on the screen, some portals won't open (e.g. near Summoner). Workaround - go far away to another location, wait while corpses disappeared and then trigger the portal.
@@ -138,17 +133,17 @@ Prerequisites:
 If requirements are met, then go "cmake/build/build install". For windows platform, "build install" creates install in binary directory with all runtime dependencies.
 
 # Contribute
-1. follow clang-format rules in src/ directory;
-2. ConfigPage(Someting).cpp is probably your main focus of interest for adding new rules. Either create new configpage file or edit existent one.
+1. follow clang-format rules in `src/` directory;
+2. Generator logic is in `src/CoreLib/Modules/`;
+3. Corresponding ui configs are in `qml/Module-Something-.qml`
 
 # Used thirdparty products
 - (MIT) CascLib (https://github.com/ladislav-zezula/CascLib) is used for Blizzard CASC data storage read;
-- (Zlib) Zlib library used internally by CascLib;
+- (Zlib) Zlib library is used internally by CascLib;
 - (MIT) StormLib (https://github.com/ladislav-zezula/StormLib) is used for reading MPQ files.
-- (MIT) BreezeStylesheet (https://github.com/Alexhuszagh/BreezeStyleSheets) for theme support.
 
 # Third party components as non-distributed dependency
 - Qt , https://www.qt.io/, GPL/LGPL/Commercial; components utilized by d2modgen are available under LGPL.
 
 # License
-Project source code is licensed under [MIT license](LICENSE).
+Project source code is licensed under [BSL-1.0 license](LICENSE) - copyleft, permissive, no attribution is required in binaries.
