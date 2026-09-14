@@ -19,5 +19,5 @@ ComboBox {
     bottomPadding: 2
     leftPadding: 4
 
-    onActivated: item.dynamicValue = index
+    onActivated: item.dynamicValue = currentIndex
 }

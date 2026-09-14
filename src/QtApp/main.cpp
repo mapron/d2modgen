@@ -9,7 +9,6 @@
 
 #include "ConfigHandler.hpp"
 #include "Logger.hpp"
-#include "PlatformPathUtils.hpp"
 #include "FileIOUtils.hpp"
 
 #include <QApplication>
@@ -107,7 +106,6 @@ int main(int argc, char* argv[])
             string2path(logDir)));
         Logger() << "Started log redirection to:" << logDir;
     }
-    auto          exeRoot = getExecutableRootFolder();
     ConfigHandler configHandler;
     configHandler.loadAppConfig();
 

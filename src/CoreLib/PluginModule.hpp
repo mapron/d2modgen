@@ -15,7 +15,7 @@ public:
     const Mernel::PropertyTreeMap&  defaultValues() const override { return m_defaults; }
     const Mernel::PropertyTreeList& presets() const override { return m_presets; }
 
-    void gatherInfo(PreGenerationContext& output, const InputContext& input) const override {}
+    void gatherInfo(PreGenerationContext& output) const override {}
 
 protected:
     void setPresets(Mernel::PropertyTreeList presets)

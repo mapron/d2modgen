@@ -7,8 +7,6 @@
 
 #include <QObject>
 #include <QScopedPointer>
-#include <QSet>
-#include <QMap>
 #include <QVariant>
 
 #include "ConfigHandler.hpp"
@@ -56,6 +54,8 @@ public:
     void sendDataChange();
     void sendEnabledChange();
 
+    void enableChangeOnSet() { m_changeOnSet = true; }
+
 signals:
     void dataChangedInternal();
     void dataChanged();
@@ -64,10 +64,12 @@ signals:
 private:
     ConfigHandler::ModuleData& m_module;
     DelayedTimer* const        m_delayTimer;
+    bool                       m_changeOnSet = false;
 };
 
 class UIController : public QObject {
     Q_OBJECT
+    Q_PROPERTY(QString saveFolder READ getSaveFolder NOTIFY saveFolderChanged FINAL)
 public:
     UIController(ConfigHandler& configHandler);
     ~UIController();
@@ -93,12 +95,18 @@ public:
     Q_INVOKABLE void newSeed();
     Q_INVOKABLE void detectPath();
     Q_INVOKABLE void setLaunch(QString arg);
+    Q_INVOKABLE void makeShortCut(QString arg);
+
+    Q_INVOKABLE void    copyModSettings();
+    Q_INVOKABLE void    copySaves();
+    Q_INVOKABLE QString getSaveFolder();
 
     void sendDataChange();
 
 signals:
     void statusUpdate(QString status);
     void generateInternal();
+    void saveFolderChanged();
 
 private:
     void pushUndo(const Mernel::PropertyTree& data);

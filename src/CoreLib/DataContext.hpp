@@ -6,7 +6,6 @@
 #pragma once
 
 #include "Storage/IStorage.hpp"
-#include "CommonTypes.hpp"
 #include "MernelPlatform/PropertyTree.hpp"
 #include "TableId.hpp"
 #include "TableBase.hpp"
@@ -23,14 +22,13 @@ struct DataContext {
     std::map<std_path, Mernel::PropertyTree>      jsonFiles; // data of extra json files
     std::map<std_path, IStorage::StoredFileRef>   copyFiles; // files for plain copy.
     std::map<TableId, std::shared_ptr<TableView>> pluginTables;
+    int64_t                                       dataVersion = 0;
 
     DataContext();
     ~DataContext();
 
     bool readData(const IStorage::StoredData& data);
     bool writeData(IStorage::StoredData& data) const;
-
-    bool mergeWith(const DataContext& source, ConflictPolicy policy);
 };
 
 }

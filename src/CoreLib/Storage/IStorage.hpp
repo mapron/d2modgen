@@ -16,6 +16,8 @@ class IStorage {
 public:
     static std::string makeTableRelativePath(const std::string& id, bool backslash, bool baseSub);
 
+    static constexpr std::string_view s_dataVersionPath = "data\\global\\dataversionbuild.txt";
+
     struct StoredFileTable {
         std::string data;
         std::string id;
@@ -39,6 +41,7 @@ public:
         StoredFileTableList  tables;
         StoredFileMemoryList inMemoryFiles;
         StoredFileRefList    refFiles;
+        int64_t              dataVersion = 0;
     };
 
 public:

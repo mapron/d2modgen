@@ -11,6 +11,7 @@
 #include "PropertyUtil.hpp"
 
 #include "MernelPlatform/FileFormatJson.hpp"
+#include "MernelPlatform/ShellUtils.hpp"
 
 #include <QDateTime>
 #include <QCoreApplication>
@@ -94,6 +95,7 @@ UIController::UIController(ConfigHandler& configHandler)
 
         m_tabsList.push_back(uimod);
     }
+    m_tabsList[0]->enableChangeOnSet();
 
     m_configHandler.loadConfig(m_configHandler.m_defaultPath);
 
@@ -231,33 +233,6 @@ void UIController::sendDataChange()
 void UIController::updateUndoAction()
 {
     //
-#if 0
-    connect(copySettings, &QPushButton::clicked, this, [this] {
-        const QString saves = ensureTrailingSlash(m_impl->d2rSaves->text());
-        if (saves.isEmpty() || !QFileInfo::exists(saves))
-            return;
-        const QString modSaves = saves + "mods/" + m_impl->modName->text() + "/";
-        if (!QFileInfo::exists(modSaves))
-            QDir().mkpath(modSaves);
-        const QString name = "Settings.json";
-        QFile::remove(modSaves + name);
-        QFile::copy(saves + name, modSaves + name);
-    });
-    connect(launchArgsClear, &QPushButton::clicked, this, [this] {
-        setLaunch("");
-    });
-    connect(launchArgs, &QPushButton::clicked, this, [this] {
-        setLaunch(m_impl->d2rArgs->text());
-    });
-    connect(makeShortcut, &QPushButton::clicked, this, [this] {
-        const bool legacy  = m_impl->d2legacyMode->isChecked();
-        auto       d2rpath = ensureTrailingSlash(legacy ? m_impl->d2legacyPath->text() : m_impl->d2rPath->text());
-        auto       desk    = ensureTrailingSlash(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
-        createShortCut((desk + "Diablo II - " + m_impl->modName->text() + " Mod").toStdString(),
-                       (d2rpath + (legacy ? "Diablo II.exe" : "D2R.exe")).toStdString(),
-                       m_impl->d2rArgs->text().toStdString());
-    });
-#endif
 }
 
 void UIController::generateFinish()
@@ -304,6 +279,66 @@ void UIController::setLaunch(QString arg)
     emit statusUpdate(tr("Battle.net launch options updated"));
 }
 
+void UIController::makeShortCut(QString arg)
+{
+    std::string err;
+    auto        env = m_configHandler.getEnv(err);
+    if (!err.empty())
+        return;
+
+    const bool        legacy = env.isLegacy;
+    auto              d2path = env.inputPath;
+    auto              desk   = string2path(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation).toStdString());
+    const std::string title  = "Diablo II - " + env.modName + " Mod";
+
+    if (!Mernel::createShortCut(desk, title, d2path, (legacy ? "Diablo II.exe" : "D2R.exe"), arg.toStdString())) {
+        emit statusUpdate(tr("Failed to write shortcut"));
+        return;
+    }
+
+    emit statusUpdate(tr("Shortcut created!"));
+}
+
+void UIController::copyModSettings()
+{
+    std::string   err;
+    auto          env   = m_configHandler.getEnv(err);
+    const QString saves = ensureTrailingSlash(getSaveRoot());
+    if (saves.isEmpty() || !QFileInfo::exists(saves))
+        return;
+    const QString modSaves = saves + "mods/" + QString::fromStdString(env.modName) + "/";
+    if (!QFileInfo::exists(modSaves))
+        QDir().mkpath(modSaves);
+    const QString name = "Settings.json";
+    QFile::remove(modSaves + name);
+    QFile::copy(saves + name, modSaves + name);
+    emit statusUpdate(tr("Settings updated!"));
+}
+
+void UIController::copySaves()
+{
+    std::string   err;
+    auto          env   = m_configHandler.getEnv(err);
+    const QString saves = ensureTrailingSlash(getSaveRoot());
+    if (saves.isEmpty() || !QFileInfo::exists(saves))
+        return;
+    const QString modSaves = saves + "mods/" + QString::fromStdString(env.modName) + "/";
+    if (!QFileInfo::exists(modSaves))
+        QDir().mkpath(modSaves);
+
+    auto files = QDir(saves).entryInfoList(QStringList() << "*.d2s");
+    for (auto& file : files) {
+        QFile::copy(saves + file.fileName(), modSaves + file.fileName());
+    }
+
+    emit statusUpdate(tr("Save files copied (%1)").arg(files.size()));
+}
+
+QString UIController::getSaveFolder()
+{
+    return getSaveRoot() + "mods/";
+}
+
 TabController::TabController(ConfigHandler::ModuleData& module, DelayedTimer* delayTimer, QObject* parent)
     : QObject(parent)
     , m_module(module)
@@ -338,9 +373,17 @@ QString TabController::getStr(const QString& key) const
 
 void TabController::set(const QString& key, const QVariant& val)
 {
-    m_module.m_currentConfig.getMap()[key.toStdString()] = qvariantToProperty(val);
+    auto& old     = m_module.m_currentConfig.getMap()[key.toStdString()];
+    auto  newVal  = qvariantToProperty(val);
+    bool  changed = old != newVal;
+    if (!changed)
+        return;
+    old = std::move(newVal);
 
     m_delayTimer->start();
+
+    if (m_changeOnSet)
+        sendDataChange();
 }
 
 bool TabController::getEnabled() const

@@ -5,7 +5,6 @@
  */
 #include "ConfigHandler.hpp"
 
-#include "ModuleFactory.hpp"
 #include "DataContext.hpp"
 #include "FileIOUtils.hpp"
 #include "Logger.hpp"
@@ -212,21 +211,12 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     DataContext output;
 
     IModule::PreGenerationContext pregenContext;
-    {
-        for (auto& p : m_modules) {
-            if (!p.m_enabled)
-                continue;
 
-            IModule::InputContext input;
-            input.m_env            = env;
-            input.m_settings       = p.m_currentConfig;
-            input.m_mergedSettings = Mernel::PropertyTree{ p.m_module->defaultValues() };
-            if (!input.m_settings.isNull())
-                Mernel::PropertyTree::mergePatch(input.m_mergedSettings, input.m_settings);
-
-            p.m_module->gatherInfo(pregenContext, input);
-        }
+    for (auto& p : m_modules) {
+        if (env.exportAll || p.m_enabled)
+            p.m_module->gatherInfo(pregenContext);
     }
+
     {
         Logger() << "Loading data from main storage...";
         const IStorage::StoredData data = m_mainStorageCache->load(env.inputMode, env.inputPath, pregenContext.m_extraJson, env.needDataSubfolder);
@@ -239,7 +229,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         }
         if (env.exportAll)
             for (auto& p : output.tableSet.tables)
-                p.second.forceOutput = true;
+                p.second.modified = true;
     }
     Logger() << "prepare ended; Starting generate phase.";
     {

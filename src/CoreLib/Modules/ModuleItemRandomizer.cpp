@@ -15,7 +15,7 @@ namespace D2ModGen {
 namespace {
 constexpr const int s_maxUnbalanceLevel = 100;
 
-const std::string s_itemsJson = "data\\local\\lng\\strings\\item-names.json";
+const std::string s_itemnamesJson = "data\\local\\lng\\strings\\item-names.json";
 
 inline void ltrim(std::string& s)
 {
@@ -105,14 +105,9 @@ ModuleItemRandomizer::ModuleItemRandomizer()
     });
 }
 
-void ModuleItemRandomizer::gatherInfo(PreGenerationContext& output, const InputContext& input) const
+void ModuleItemRandomizer::gatherInfo(PreGenerationContext& output) const
 {
-    if (input.m_env.isLegacy)
-        return;
-
-    const int repeatSets = input.getInt("repeat_sets");
-    if (repeatSets > 1)
-        output.m_extraJson.insert(s_itemsJson);
+    output.m_extraJson.insert(s_itemnamesJson);
 }
 
 void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
@@ -577,8 +572,8 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         fillProps(view, s_descSets, commonSetReq, commonTypeAll, setsTypes, false, false);
     }
     {
-        if (repeatSets > 1 && output.jsonFiles.contains(s_itemsJson)) {
-            auto&                                       jsonDoc = output.jsonFiles[s_itemsJson];
+        if (repeatSets > 1 && output.jsonFiles.contains(s_itemnamesJson)) {
+            auto&                                       jsonDoc = output.jsonFiles[s_itemnamesJson];
             std::map<std::string, Mernel::PropertyTree> itemNamesByKey;
             for (const auto& itemDesc : jsonDoc.getList()) {
                 const std::string key = itemDesc["Key"].getScalar().toString();

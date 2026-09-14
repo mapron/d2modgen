@@ -227,11 +227,8 @@ ModuleMonRandomizer::ModuleMonRandomizer()
       })
 {}
 
-void ModuleMonRandomizer::gatherInfo(PreGenerationContext& output, const InputContext& input) const
+void ModuleMonRandomizer::gatherInfo(PreGenerationContext& output) const
 {
-    if (input.m_env.isLegacy)
-        return;
-
     output.m_extraJson.insert(s_monstersJson);
 }
 

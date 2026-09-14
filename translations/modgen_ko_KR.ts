@@ -265,63 +265,83 @@ You can edit seed manually or press F5 to generate new one.
 <context>
     <name>D2ModGen::UIController</name>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="112"/>
+        <location filename="../src/QtApp/UIController.cpp" line="114"/>
         <source>Start...</source>
         <translation type="unfinished">시작</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="120"/>
+        <location filename="../src/QtApp/UIController.cpp" line="122"/>
         <source>Saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="122"/>
+        <location filename="../src/QtApp/UIController.cpp" line="124"/>
         <source>Error when saving!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="133"/>
+        <location filename="../src/QtApp/UIController.cpp" line="135"/>
         <source>Loaded.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="135"/>
+        <location filename="../src/QtApp/UIController.cpp" line="137"/>
         <source>Error when loading!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="144"/>
+        <location filename="../src/QtApp/UIController.cpp" line="146"/>
         <source>Config is cleared.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="236"/>
+        <location filename="../src/QtApp/UIController.cpp" line="242"/>
         <source>Error: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="240"/>
+        <location filename="../src/QtApp/UIController.cpp" line="247"/>
         <source>Mod &apos;%1&apos; is updated.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="250"/>
+        <location filename="../src/QtApp/UIController.cpp" line="257"/>
         <source>Failed to locate Battle.net.config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="257"/>
+        <location filename="../src/QtApp/UIController.cpp" line="264"/>
         <source>Failed to read data from Battle.net.config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="268"/>
+        <location filename="../src/QtApp/UIController.cpp" line="275"/>
         <source>Failed to write data to Battle.net.config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="272"/>
+        <location filename="../src/QtApp/UIController.cpp" line="279"/>
         <source>Battle.net launch options updated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/QtApp/UIController.cpp" line="295"/>
+        <source>Failed to write shortcut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/QtApp/UIController.cpp" line="299"/>
+        <source>Shortcut created!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/QtApp/UIController.cpp" line="315"/>
+        <source>Settings updated!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/QtApp/UIController.cpp" line="334"/>
+        <source>Save files copied (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -332,94 +352,72 @@ You can edit seed manually or press F5 to generate new one.
 <context>
     <name>MainConfigPage</name>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="63"/>
         <source>Use Diablo II legacy installation</source>
-        <translation type="unfinished">Diablo II 레거시 설치 사용</translation>
+        <translation type="obsolete">Diablo II 레거시 설치 사용</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="64"/>
-        <source>Target for D2R Reign of the Warlock</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="82"/>
         <source>Add key to new char inventory (Basic mod test)</source>
-        <translation type="unfinished">새 캐릭터 인벤토리에 키 추가 (기본 모드 테스트)</translation>
+        <translation type="obsolete">새 캐릭터 인벤토리에 키 추가 (기본 모드 테스트)</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="84"/>
         <source>Export all *.txt (for further manual edit)</source>
-        <translation type="unfinished">모든 *.txt 내보내기 (추가 수동 편집용)</translation>
+        <translation type="obsolete">모든 *.txt 내보내기 (추가 수동 편집용)</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="87"/>
         <source>Copy Settings.json</source>
-        <translation type="unfinished">Settings.json 복사</translation>
+        <translation type="obsolete">Settings.json 복사</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="89"/>
         <source>Set launch to mod</source>
-        <translation type="unfinished">모드로 실행 설정</translation>
+        <translation type="obsolete">모드로 실행 설정</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="90"/>
         <source>Reset launch to unmodded</source>
-        <translation type="unfinished">모드 해제된 상태로 실행 초기화</translation>
+        <translation type="obsolete">모드 해제된 상태로 실행 초기화</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="91"/>
         <source>Make shortcut on Desktop</source>
-        <translation type="unfinished">바탕화면에 바로가기 만들기</translation>
+        <translation type="obsolete">바탕화면에 바로가기 만들기</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="106"/>
         <source>Mod id:</source>
-        <translation type="unfinished">모드 ID:</translation>
+        <translation type="obsolete">모드 ID:</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="125"/>
         <source>D2R path:</source>
-        <translation type="unfinished">D2R 경로:</translation>
+        <translation type="obsolete">D2R 경로:</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="136"/>
         <source>D2 legacy path:</source>
-        <translation type="unfinished">D2 레거시 경로:</translation>
+        <translation type="obsolete">D2 레거시 경로:</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="147"/>
         <source>D2R save and user settings root:</source>
-        <translation type="unfinished">D2R 저장 및 사용자 설정 루트:</translation>
+        <translation type="obsolete">D2R 저장 및 사용자 설정 루트:</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="152"/>
         <source>(this will copy default settings to mod folder)</source>
-        <translation type="unfinished">(기본 설정이 모드 폴더로 복사됩니다)</translation>
+        <translation type="obsolete">(기본 설정이 모드 폴더로 복사됩니다)</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="161"/>
         <source>D2R command arguments (read-only):</source>
-        <translation type="unfinished">D2R 명령 인수 (읽기 전용):</translation>
+        <translation type="obsolete">D2R 명령 인수 (읽기 전용):</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="173"/>
         <source>(&lt;b&gt;Close Battlenet launcher before actions!&lt;/b&gt;)</source>
-        <translation type="unfinished">(&lt;b&gt;행동 전에 Battlenet 런처를 닫으세요!&lt;/b&gt;)</translation>
+        <translation type="obsolete">(&lt;b&gt;행동 전에 Battlenet 런처를 닫으세요!&lt;/b&gt;)</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="191"/>
         <source>Output directory (leave empty to output to D2R path):</source>
-        <translation type="unfinished">출력 디렉토리 (
+        <translation type="obsolete">출력 디렉토리 (
 
 비워두면 D2R 경로로 출력):</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="290"/>
         <source>Main</source>
-        <translation type="unfinished">메인</translation>
+        <translation type="obsolete">메인</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/MainConfigPage.cpp" line="295"/>
         <source>This page allow you to select most important options:
 -Where input and output data is (D2 installation - Resurrected or Legacy);
 -Create new D2R save folder with global settings;
@@ -429,7 +427,7 @@ However, there are some less important abilities:
 If seed is unchaged, then all generation will be the same every time 
 You can edit seed manually or press F5 to generate new one.
 -Add key to character inventory for fresh character - now you are sure you started modded version.</source>
-        <translation type="unfinished">이 페이지에서는 가장 중요한 옵션을 선택할 수 있습니다:
+        <translation type="obsolete">이 페이지에서는 가장 중요한 옵션을 선택할 수 있습니다:
 - 입력 및 출력 데이터 위치 (D2 설치 - 레저렉티드 또는 레거시);
 - 글로벌 설정으로 새 D2R 저장 폴더 생성;
 - 모드를 실행할 바탕화면 바로가기 생성.
@@ -468,82 +466,102 @@ You can edit seed manually or press F5 to generate new one.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="89"/>
+        <location filename="../qml/MainMenuBar.qml" line="76"/>
+        <source>Basic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MainMenuBar.qml" line="80"/>
+        <source>Friendly chaos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MainMenuBar.qml" line="84"/>
+        <source>Magic rando</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MainMenuBar.qml" line="88"/>
+        <source>Oh, no!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MainMenuBar.qml" line="93"/>
         <source>Browse to settings folder</source>
         <translation type="unfinished">설정 폴더로 이동</translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="97"/>
+        <location filename="../qml/MainMenuBar.qml" line="101"/>
         <source>Quit without saving</source>
         <translation type="unfinished">저장하지 않고 종료</translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="105"/>
+        <location filename="../qml/MainMenuBar.qml" line="109"/>
         <source>Save and quit</source>
         <translation type="unfinished">저장하고 종료</translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="135"/>
+        <location filename="../qml/MainMenuBar.qml" line="139"/>
         <source>Actions</source>
         <translation type="unfinished">행동</translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="138"/>
+        <location filename="../qml/MainMenuBar.qml" line="142"/>
         <source>Generate mod</source>
         <translation type="unfinished">모드 생성</translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="143"/>
+        <location filename="../qml/MainMenuBar.qml" line="147"/>
         <source>New seed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="148"/>
+        <location filename="../qml/MainMenuBar.qml" line="152"/>
         <source>Undo</source>
         <translation type="unfinished">실행 취소</translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="153"/>
+        <location filename="../qml/MainMenuBar.qml" line="157"/>
         <source>Theme</source>
         <translation type="unfinished">테마</translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="158"/>
+        <location filename="../qml/MainMenuBar.qml" line="162"/>
         <source>Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="167"/>
+        <location filename="../qml/MainMenuBar.qml" line="171"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="176"/>
+        <location filename="../qml/MainMenuBar.qml" line="180"/>
         <source>Language</source>
         <translation type="unfinished">언어</translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="180"/>
+        <location filename="../qml/MainMenuBar.qml" line="184"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="185"/>
+        <location filename="../qml/MainMenuBar.qml" line="189"/>
         <source>Russian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="190"/>
+        <location filename="../qml/MainMenuBar.qml" line="194"/>
         <source>Korean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="197"/>
+        <location filename="../qml/MainMenuBar.qml" line="201"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/MainMenuBar.qml" line="199"/>
+        <location filename="../qml/MainMenuBar.qml" line="203"/>
         <source>About</source>
         <translation type="unfinished">정보</translation>
     </message>
@@ -557,7 +575,7 @@ You can edit seed manually or press F5 to generate new one.
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="16"/>
-        <source>Tool</source>
+        <source>Extra</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -660,7 +678,7 @@ You can edit seed manually or press F5 to generate new one.
     <name>MainWindow</name>
     <message>
         <location filename="../qml/MainWindow.qml" line="8"/>
-        <source>D2 mod generator</source>
+        <source>D2 mod generator by mapron - 0.7.0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1904,9 +1922,13 @@ You can edit seed manually or press F5 to generate new one.
     <name>PageMain</name>
     <message>
         <location filename="../qml/PageMain.qml" line="14"/>
-        <location filename="../qml/PageMain.qml" line="19"/>
         <source>Main</source>
         <translation type="unfinished">메인</translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="19"/>
+        <source>This page contains mandatory inputs for generation.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/PageMain.qml" line="23"/>
@@ -1915,106 +1937,234 @@ You can edit seed manually or press F5 to generate new one.
     </message>
     <message>
         <location filename="../qml/PageMain.qml" line="32"/>
-        <source>Mod id:</source>
-        <translation type="unfinished">모드 ID:</translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="42"/>
-        <source>Use Diablo II legacy installation</source>
-        <translation type="unfinished">Diablo II 레거시 설치 사용</translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="49"/>
-        <source>Target for D2R Reign of the Warlock</source>
+        <source>Input folder (mandatory):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="57"/>
-        <source>D2 Resurrected game root:</source>
+        <location filename="../qml/PageMain.qml" line="33"/>
+        <source>Generally, just choose folder with Game.exe.&lt;br&gt;Note: for ProjectD2, select subfolder named &apos;ProjectD2&apos; in Diablo II.&lt;br&gt;Press Detect! to find information in Windows Registry.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="65"/>
-        <source>D2 Legacy game root:</source>
+        <location filename="../qml/PageMain.qml" line="45"/>
+        <source>Detect!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="52"/>
+        <source>Output folder (optional, leave empty to auto-detect):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="63"/>
+        <source>Target D2 Game version:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="64"/>
+        <source>D2 Legacy (Pre-D2R): 1.14, ProjectD2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="64"/>
+        <source>D2 Resurrected - LoD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="64"/>
+        <source>D2 Resurrected - RotW</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="70"/>
+        <source>Input mode, where to read game data:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="71"/>
+        <source>This determines source data that is used by randomizer&lt;br&gt;Game data archive - For D2R Resurrected, this is CASC storage;&lt;br&gt;Game data archive - For D2 Legacy this is .mpq files;&lt;br&gt;Folder with extracted data - If you want to use D2R select folder containing modinfo.json&lt;br&gt;Last option is for folder with .txt files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="72"/>
+        <source>Game data archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="72"/>
+        <source>Folder with extracted data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="72"/>
+        <location filename="../qml/PageMain.qml" line="80"/>
+        <source>Only .txt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/PageMain.qml" line="78"/>
+        <source>Output format, how files and folders will be created:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="79"/>
+        <source>This determines output type:&lt;br&gt;First one will create D2R mod with all needed subfolders,&lt;br&gt;Second one will create folder structure with txt/json&lt;br&gt;Last one will only output .txt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="80"/>
+        <source>D2 Resurrected mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="80"/>
+        <source>Full folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mod id:</source>
+        <translation type="obsolete">모드 ID:</translation>
+    </message>
+    <message>
+        <source>Use Diablo II legacy installation</source>
+        <translation type="obsolete">Diablo II 레거시 설치 사용</translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="90"/>
         <source>Random seed:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="85"/>
+        <location filename="../qml/PageMain.qml" line="93"/>
+        <source>Seed determine how reproduceable generation results are.&lt;br&gt;If seed stays the same, output of generation is also always exactly the same.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="100"/>
         <source>Generate new</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="89"/>
+        <location filename="../qml/PageMain.qml" line="104"/>
         <source>Create new seed on every Generate call</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="97"/>
         <source>Output directory (leave empty to output to D2R path):</source>
-        <translation type="unfinished">출력 디렉토리 (
+        <translation type="obsolete">출력 디렉토리 (
 
 비워두면 D2R 경로로 출력):</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="104"/>
         <source>Export all *.txt (for further manual edit)</source>
-        <translation type="unfinished">모든 *.txt 내보내기 (추가 수동 편집용)</translation>
+        <translation type="obsolete">모든 *.txt 내보내기 (추가 수동 편집용)</translation>
     </message>
 </context>
 <context>
     <name>PageTool</name>
     <message>
-        <location filename="../qml/PageTool.qml" line="15"/>
-        <source>Tool</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PageTool.qml" line="20"/>
         <source>Main</source>
-        <translation type="unfinished">메인</translation>
+        <translation type="obsolete">메인</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="33"/>
         <source>D2R save and user settings root:</source>
-        <translation type="unfinished">D2R 저장 및 사용자 설정 루트:</translation>
+        <translation type="obsolete">D2R 저장 및 사용자 설정 루트:</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="48"/>
+        <location filename="../qml/PageTool.qml" line="76"/>
         <source>Copy Settings.json</source>
         <translation type="unfinished">Settings.json 복사</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="51"/>
         <source>(this will copy default settings to mod folder)</source>
-        <translation type="unfinished">(기본 설정이 모드 폴더로 복사됩니다)</translation>
+        <translation type="obsolete">(기본 설정이 모드 폴더로 복사됩니다)</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="63"/>
         <source>D2R command arguments (read-only):</source>
-        <translation type="unfinished">D2R 명령 인수 (읽기 전용):</translation>
+        <translation type="obsolete">D2R 명령 인수 (읽기 전용):</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="76"/>
+        <location filename="../qml/PageTool.qml" line="21"/>
+        <source>Extra helpful utilities</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="31"/>
+        <source>Mod id:</source>
+        <translation type="unfinished">모드 ID:</translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="32"/>
+        <source>That will affect game&apos;s saves folder subdirectory and mod subfolder for D2R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="44"/>
+        <source>Force output for all txt/json (for further manual edit)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="45"/>
+        <source>This will force to output all game files,&lt;br&gt;not only used by randomizer in current configuration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="61"/>
+        <source>D2R folder for mod save and settings:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="80"/>
+        <source>This will copy Game Settings to mod folder&lt;br&gt;That will allow to skip configuring mod on launch.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="86"/>
+        <source>Copy all save files (.d2s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="90"/>
+        <source>this will copy all your character save files to modded folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="108"/>
+        <source>D2 commandline arguments (read-only):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="119"/>
+        <source>Choose convenient way to launch the mod:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="124"/>
+        <source>Option 1:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="128"/>
         <source>Make shortcut on Desktop</source>
         <translation type="unfinished">바탕화면에 바로가기 만들기</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="85"/>
+        <location filename="../qml/PageTool.qml" line="140"/>
+        <source>Option 2:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageTool.qml" line="143"/>
         <source>Reset launch to unmodded</source>
         <translation type="unfinished">모드 해제된 상태로 실행 초기화</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="89"/>
+        <location filename="../qml/PageTool.qml" line="148"/>
         <source>Set launch to mod</source>
         <translation type="unfinished">모드로 실행 설정</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="93"/>
+        <location filename="../qml/PageTool.qml" line="153"/>
         <source>(Close Battlenet launcher before actions!)</source>
         <translation type="unfinished"></translation>
     </message>

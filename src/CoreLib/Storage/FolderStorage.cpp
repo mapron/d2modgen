@@ -22,7 +22,7 @@ static const std::string s_tableBase          = "base";
 void removeRecursively(const std_path& folder)
 {
     std::deque<std_path> forDelete;
-    for (auto it : std_fs::recursive_directory_iterator(folder)) {
+    for (auto& it : std_fs::recursive_directory_iterator(folder)) {
         if (it.is_regular_file()) {
             const std_path& path = it.path();
 
@@ -163,6 +163,13 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
         }
     }
     if (m_storageType != StorageType::CsvFolder) {
+        if (data.dataVersion) {
+            const auto absPath = m_root / IStorage::s_dataVersionPath;
+            if (!writeData(std::to_string(data.dataVersion), absPath)) {
+                Logger(Logger::Warning) << "failed to write to:" << absPath;
+                return false;
+            }
+        }
         for (const auto& memoryData : data.inMemoryFiles) {
             const auto absPath = m_root / memoryData.relFilepath;
             if (!writeData(memoryData.data, absPath)) {

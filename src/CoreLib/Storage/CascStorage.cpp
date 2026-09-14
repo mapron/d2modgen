@@ -8,7 +8,6 @@
 #include "RAIIUtils.hpp"
 #include "TableId.hpp"
 #include "Logger.hpp"
-#include "FileIOUtils.hpp"
 
 #include <CascLib.h>
 
@@ -66,6 +65,12 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
 
         result.inMemoryFiles.push_back(StoredFileMemory{ std::move(buffer), relativePath });
     }
+
+    std::string buffer;
+    if (readCascFile(buffer, std::string(IStorage::s_dataVersionPath))) {
+        result.dataVersion = std::atoll(buffer.c_str());
+    }
+
     return result;
 }
 

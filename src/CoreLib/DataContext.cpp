@@ -4,7 +4,6 @@
  * See LICENSE file for details.
  */
 #include "DataContext.hpp"
-#include "TableUtils.hpp"
 #include "FileIOUtils.hpp"
 #include "Logger.hpp"
 #include "MernelPlatform/FileFormatCSV.hpp"
@@ -18,6 +17,7 @@ DataContext::~DataContext() = default;
 
 bool DataContext::readData(const IStorage::StoredData& data)
 {
+    dataVersion = data.dataVersion;
     for (const auto& fileData : data.tables) {
         if (fileData.id.empty()) {
             Logger(Logger::Warning) << "Empty csv id found!";
@@ -25,17 +25,18 @@ bool DataContext::readData(const IStorage::StoredData& data)
         }
         TableId id;
         if (!findTableId(fileData.id, id)) {
-            Logger(Logger::Warning) << "Unknown table id:" << fileData.id;
-            return false;
+            Logger() << "Skip table:" << fileData.id;
+            continue;
         }
 
         Table table;
         table.id = id;
-        //Logger() << "read txt:" << fileData.id;
+        Logger() << "read txt table:" << fileData.id;
         if (!readCSVFromBuffer(fileData.data, table)) {
             Logger(Logger::Warning) << "failed to parse csv:" << fileData.id;
             return false;
         }
+        table.valid         = true;
         tableSet.tables[id] = std::move(table);
         tableSet.relativeNames.insert(string2path(IStorage::makeTableRelativePath(fileData.id, false, false)));
     }
@@ -46,7 +47,7 @@ bool DataContext::readData(const IStorage::StoredData& data)
         }
 
         Mernel::PropertyTree doc;
-        //Logger() << "read json:" << fileData.relFilepath;
+        Logger() << "read json:" << fileData.relFilepath;
         if (!readJsonFromBufferNoexcept(fileData.data, doc)) {
             Logger(Logger::Warning) << "failed to parse json:" << fileData.relFilepath;
             return false;
@@ -84,10 +85,16 @@ bool DataContext::readData(const IStorage::StoredData& data)
 
 bool DataContext::writeData(IStorage::StoredData& data) const
 {
+    data.dataVersion = dataVersion;
     for (const auto& p : tableSet.tables) {
         const Table& table = p.second;
-        if (!table.modified && !table.forceOutput)
+        if (!table.modified)
             continue;
+
+        if (!table.valid) {
+            Logger(Logger::Warning) << "Skipped invalid table that was modified: " << getTableIdString(p.first);
+            continue;
+        }
 
         std::string tableStr;
         if (!writeCSVToBuffer(tableStr, table))
@@ -102,102 +109,6 @@ bool DataContext::writeData(IStorage::StoredData& data) const
     for (const auto& p : copyFiles) {
         data.refFiles.push_back(p.second);
     }
-    return true;
-}
-
-bool DataContext::mergeWith(const DataContext& source, ConflictPolicy policy)
-{
-    for (const auto& p : source.tableSet.tables) {
-        const Table& sourceTable = p.second;
-        Table&       destTable   = tableSet.tables[sourceTable.id];
-        if (destTable.modified) {
-            if (policy == ConflictPolicy::RaiseError)
-                return false;
-            if (policy == ConflictPolicy::Skip)
-                continue;
-        }
-
-        const TableView sourceView(sourceTable);
-        TableView       destView(destTable);
-        destTable.modified = true;
-
-        // already modified, need to resolve conflicts:
-        switch (policy) {
-            case ConflictPolicy::Skip:
-            case ConflictPolicy::RaiseError:
-            case ConflictPolicy::Replace: // clear previous data
-            {
-                destView.clear();
-                destView.concat(sourceView);
-                break;
-            }
-            case ConflictPolicy::Append: // place all data at the end
-            {
-                destView.concat(sourceView);
-                break;
-            }
-            case ConflictPolicy::Update: // overwrite records with same key
-            {
-                if (!destView.createRowIndex())
-                    return false;
-
-                destView.merge(sourceView, false, true);
-                break;
-            }
-            case ConflictPolicy::AppendNew: // place new data at the end
-            {
-                if (!destView.createRowIndex())
-                    return false;
-
-                destView.merge(sourceView, true, false);
-                break;
-            }
-            case ConflictPolicy::Merge: // try Update, then AppendNew
-            {
-                if (!destView.createRowIndex())
-                    return false;
-
-                destView.merge(sourceView, true, true);
-                break;
-            }
-        };
-    }
-
-    for (const auto& p : source.jsonFiles) {
-        if (jsonFiles.contains(p.first)) {
-            if (policy == ConflictPolicy::RaiseError)
-                return false;
-            if (policy == ConflictPolicy::Skip)
-                continue;
-        }
-        if (copyFiles.contains(p.first)) {
-            if (policy == ConflictPolicy::Skip)
-                continue;
-            return false;
-        }
-        jsonFiles[p.first] = p.second;
-    }
-
-    for (const auto& p : source.copyFiles) {
-        if (copyFiles.contains(p.first)) {
-            if (policy == ConflictPolicy::RaiseError)
-                return false;
-            if (policy == ConflictPolicy::Skip)
-                continue;
-        }
-        if (jsonFiles.contains(p.first)) {
-            if (policy == ConflictPolicy::Skip)
-                continue;
-            return false;
-        }
-        if (tableSet.relativeNames.contains(p.first)) {
-            if (policy == ConflictPolicy::Skip)
-                continue;
-            return false;
-        }
-        copyFiles[p.first] = p.second;
-    }
-
     return true;
 }
 

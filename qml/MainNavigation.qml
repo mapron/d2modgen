@@ -13,7 +13,7 @@ ColumnLayout {
             tabIndex: 0
         },
         {
-            name: qsTr("Tool"),
+            name: qsTr("Extra"),
             isHeader: false,
             hasCheckbox: false,
             tabIndex: 1

@@ -16,7 +16,7 @@ WidgetScrollable {
         }
 
         WidgetHelpIcon {
-            tooltipText: qsTr("Main")
+            tooltipText: qsTr("This page contains mandatory inputs for generation.")
         }
 
         Button {
@@ -32,14 +32,19 @@ WidgetScrollable {
         caption: qsTr("Input folder (mandatory):")
         tooltip: qsTr("Generally, just choose folder with Game.exe.<br>Note: for ProjectD2, select subfolder named 'ProjectD2' in Diablo II.<br>Press Detect! to find information in Windows Registry.")
 
-        DynamicLineEdit {
-            Layout.minimumWidth: 300
-            value_context: root.value_context
-            value_key: "inputPath"
-        }
-        Button {
-            text: qsTr("Detect!")
-            onClicked: appui.detectPath()
+        ColumnLayout {
+            Layout.fillWidth: true
+
+            DynamicLineEdit {
+
+                Layout.fillWidth: true
+                value_context: root.value_context
+                value_key: "inputPath"
+            }
+            Button {
+                text: qsTr("Detect!")
+                onClicked: appui.detectPath()
+            }
         }
     }
 
@@ -48,7 +53,7 @@ WidgetScrollable {
         tooltip: ""
 
         DynamicLineEdit {
-            Layout.minimumWidth: 300
+            Layout.fillWidth: true
             value_context: root.value_context
             value_key: "outputPath"
         }
@@ -59,8 +64,6 @@ WidgetScrollable {
         model: [qsTr("D2 Legacy (Pre-D2R): 1.14, ProjectD2"), qsTr("D2 Resurrected - LoD"), qsTr("D2 Resurrected - RotW"),]
         value_context: root.value_context
         value_key: "version"
-        isCompact: true
-        implicitWidth: 100
     }
 
     WidgetComboBox {
@@ -69,8 +72,6 @@ WidgetScrollable {
         model: [qsTr("Game data archive"), qsTr("Folder with extracted data"), qsTr("Only .txt")]
         value_context: root.value_context
         value_key: "inputMode"
-        isCompact: true
-        implicitWidth: 100
     }
 
     WidgetComboBox {
@@ -79,20 +80,6 @@ WidgetScrollable {
         model: [qsTr("D2 Resurrected mod"), qsTr("Full folders"), qsTr("Only .txt")]
         value_context: root.value_context
         value_key: "outputMode"
-        isCompact: true
-        implicitWidth: 100
-    }
-
-    WidgetCommonControl {
-        caption: qsTr("Mod id:")
-        tooltip: qsTr("That will affect game's saves folder subdirectory and mod subfolder for D2R")
-        isCompact: true
-
-        DynamicLineEdit {
-            Layout.minimumWidth: 100
-            value_context: root.value_context
-            value_key: "modname"
-        }
     }
 
     RowLayout {
@@ -119,12 +106,5 @@ WidgetScrollable {
             value_context: root.value_context
             value_key: "refreshSeed"
         }
-    }
-
-    WidgetCheckbox {
-        caption: qsTr("Force output for all txt/json (for further manual edit)")
-        tooltip: qsTr("This will force to output all game files,<br>not only used by randomizer in current configuration.")
-        value_context: root.value_context
-        value_key: "exportAll"
     }
 }

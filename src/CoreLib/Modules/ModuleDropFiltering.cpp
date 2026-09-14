@@ -66,11 +66,8 @@ ModuleDropFiltering::ModuleDropFiltering()
 {
 }
 
-void ModuleDropFiltering::gatherInfo(PreGenerationContext& output, const InputContext& input) const
+void ModuleDropFiltering::gatherInfo(PreGenerationContext& output) const
 {
-    if (input.m_env.isLegacy || input.isAllDefault())
-        return;
-
     output.m_extraJson.insert(s_itemnamesJson);
     output.m_extraJson.insert(s_affixnamesJson);
 }

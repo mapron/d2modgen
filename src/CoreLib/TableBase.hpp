@@ -16,8 +16,8 @@ using TableRow  = Mernel::CSVTableRow;
 
 struct Table : public Mernel::CSVTable {
     TableId id;
-    bool    modified    = false;
-    bool    forceOutput = false;
+    bool    modified = false;
+    bool    valid    = false;
 };
 
 }

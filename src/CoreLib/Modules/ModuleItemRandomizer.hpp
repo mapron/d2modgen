@@ -16,7 +16,7 @@ public:
 
     ModuleItemRandomizer();
 
-    void gatherInfo(PreGenerationContext& output, const InputContext& input) const override;
+    void gatherInfo(PreGenerationContext& output) const override;
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 };
 
