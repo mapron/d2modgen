@@ -1,8 +1,8 @@
 [submodule "thirdparty/casclib"]
-	path = thirdparty/casclib
+	path = ext/casclib
 	url = https://github.com/ladislav-zezula/CascLib.git
 [submodule "thirdparty/stormlib"]
-	path = thirdparty/stormlib
+	path = ext/stormlib
 	url = https://github.com/ladislav-zezula/StormLib.git
 [submodule "ext/mernel"]
 	path = ext/mernel
