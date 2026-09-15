@@ -45,8 +45,6 @@ jobs:
         target: 'desktop'
         # modules: qtmultimedia
         install-deps: 'true'   # Double-checks and installs missing base-Qt system packages
-        cached: 'true'
-        aqt-cached-key: 'qt-cache-${{ matrix.os }}-6.8.1'
 
     - name: Configure CMake
       run: >

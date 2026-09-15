@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include <windows.h>
 #include <wchar.h>
 
@@ -48,3 +49,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     return 1;
 }
+#else
+int main() { return 0;}
+#endif
