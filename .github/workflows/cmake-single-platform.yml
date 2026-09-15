@@ -25,6 +25,13 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
+        
+    - name: Install Linux System Dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build
+
 
     # Step 2: Install Qt6 SDK via an official community action
     - name: Install Qt6
@@ -39,7 +46,7 @@ jobs:
     # Step 3: Configure CMake (No need to pass explicit Qt paths; the action sets them up)
     - name: Configure CMake
       run: >
-        cmake -B ${{ github.workspace }}/build
+        cmake -B ${{ github.workspace }}/build -G Ninja
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
