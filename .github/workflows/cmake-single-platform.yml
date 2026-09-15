@@ -37,7 +37,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y clang-format-23
 
-    # Step 2: Install Qt6 SDK via an official community action
     - name: Install Qt6
       uses: jurplel/install-qt-action@v4
       with:
@@ -46,8 +45,9 @@ jobs:
         target: 'desktop'
         # modules: qtmultimedia
         install-deps: 'true'   # Double-checks and installs missing base-Qt system packages
+        cached: 'true'
+        aqt-cached-key: 'qt-cache-${{ matrix.os }}-6.8.1'
 
-    # Step 3: Configure CMake (No need to pass explicit Qt paths; the action sets them up)
     - name: Configure CMake
       run: >
         cmake -B ${{ github.workspace }}/build -G Ninja
@@ -57,6 +57,5 @@ jobs:
         -DCLANG_FORMAT_COMMAND:PATH=/usr/bin/clang-format-23
         -S ${{ github.workspace }}
 
-    # Step 4: Build
     - name: Build
       run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }}
