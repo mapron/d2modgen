@@ -30,8 +30,12 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y ninja-build
-
+        sudo apt-get install -y ninja-build wget 
+        wget https://apt.llvm.org/llvm.sh
+        chmod u+x llvm.sh
+        sudo ./llvm.sh 23
+        sudo apt-get update
+        sudo apt-get install -y clang-format-23
 
     # Step 2: Install Qt6 SDK via an official community action
     - name: Install Qt6
@@ -50,6 +54,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCLANG_FORMAT_COMMAND:PATH=/usr/bin/clang-format-23
         -S ${{ github.workspace }}
 
     # Step 4: Build
