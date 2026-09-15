@@ -32,6 +32,7 @@ QString ensureTrailingSlash(QString value)
     return str;
 }
 
+#ifdef _WIN32
 QString getInstallLocationFromRegistry(bool resurrected)
 {
     static const QString base("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II");
@@ -39,6 +40,11 @@ QString getInstallLocationFromRegistry(bool resurrected)
                              QSettings::Registry32Format);
     return ensureTrailingSlash(set.value("InstallLocation").toString());
 }
+#else
+QString getInstallLocationFromRegistry(bool resurrected)
+{
+}
+#endif
 
 QString getUserHome()
 {
