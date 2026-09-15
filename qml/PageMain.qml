@@ -33,6 +33,7 @@ WidgetScrollable {
             Layout.fillWidth: true
 
             DynamicLineEdit {
+                id: folderInputEdit
                 validator: BasicPathValidator {}
                 Layout.fillWidth: true
                 value_context: root.value_context
@@ -42,6 +43,16 @@ WidgetScrollable {
                 text: qsTr("Detect!")
                 onClicked: appui.detectPath()
             }
+            Button {
+                text: qsTr("Browse...")
+                onClicked: folderDialogInputPath.open()
+            }
+        }
+
+        FolderDialog {
+            id: folderDialogInputPath
+            selectedFolder: folderInputEdit.text
+            onAccepted: folderInputEdit.text = folderDialogInputPath.selectedFolder.toString().substring(8)
         }
     }
 
@@ -49,10 +60,24 @@ WidgetScrollable {
         caption: qsTr("Output folder (optional, leave empty to auto-detect):")
         tooltip: ""
 
-        control: DynamicLineEdit {
+        control: RowLayout {
             Layout.fillWidth: true
-            value_context: root.value_context
-            value_key: "outputPath"
+            DynamicLineEdit {
+                id: folderOutputEdit
+                Layout.fillWidth: true
+                value_context: root.value_context
+                value_key: "outputPath"
+            }
+            Button {
+                text: qsTr("Browse...")
+                onClicked: folderDialogOutputPath.open()
+            }
+        }
+
+        FolderDialog {
+            id: folderDialogOutputPath
+            selectedFolder: folderOutputEdit.text
+            onAccepted: folderOutputEdit.text = folderDialogOutputPath.selectedFolder.toString().substring(8)
         }
     }
 
