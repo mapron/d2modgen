@@ -32,7 +32,7 @@ jobs:
         version: '6.8.1'      # Specify your preferred Qt6 version
         host: 'linux'          # Sets the builder host
         target: 'desktop'
-        modules: qtdeclarative
+        # modules: qtmultimedia
         install-deps: 'true'   # Double-checks and installs missing base-Qt system packages
 
     # Step 3: Configure CMake (No need to pass explicit Qt paths; the action sets them up)
