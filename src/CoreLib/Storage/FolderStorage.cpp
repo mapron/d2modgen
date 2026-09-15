@@ -99,6 +99,9 @@ IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filename
 
 bool FolderStorage::prepareForWrite() const noexcept
 {
+    if (m_storageType == StorageType::None)
+        return true;
+
     const auto data = m_root / "data";
     if (std_fs::exists(data)) {
         removeRecursively(data);
@@ -137,6 +140,8 @@ bool FolderStorage::prepareForWrite() const noexcept
 
 bool FolderStorage::writeData(const StoredData& data) const noexcept
 {
+    if (m_storageType == StorageType::None)
+        return true;
     auto writeData = [](const std::string& data, const std_path& absPath) {
         if (!createDirectoriesForFile(absPath))
             return false;

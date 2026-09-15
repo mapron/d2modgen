@@ -264,84 +264,84 @@ You can edit seed manually or press F5 to generate new one.
 <context>
     <name>D2ModGen::UIController</name>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="114"/>
+        <location filename="../src/QtApp/UIController.cpp" line="116"/>
         <source>Start...</source>
-        <translation type="unfinished">Старт...</translation>
-    </message>
-    <message>
-        <location filename="../src/QtApp/UIController.cpp" line="122"/>
-        <source>Saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Старт...</translation>
     </message>
     <message>
         <location filename="../src/QtApp/UIController.cpp" line="124"/>
-        <source>Error when saving!</source>
-        <translation type="unfinished"></translation>
+        <source>Saved.</source>
+        <translation>Сохранено.</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="135"/>
-        <source>Loaded.</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/QtApp/UIController.cpp" line="126"/>
+        <source>Error when saving!</source>
+        <translation>Ошибка при сохранении!</translation>
     </message>
     <message>
         <location filename="../src/QtApp/UIController.cpp" line="137"/>
+        <source>Loaded.</source>
+        <translation>Загружено.</translation>
+    </message>
+    <message>
+        <location filename="../src/QtApp/UIController.cpp" line="139"/>
         <source>Error when loading!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка при загрузке!</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="146"/>
+        <location filename="../src/QtApp/UIController.cpp" line="148"/>
         <source>Config is cleared.</source>
-        <translation type="unfinished"></translation>
+        <translation>Конфигурация очищена.</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="242"/>
+        <location filename="../src/QtApp/UIController.cpp" line="244"/>
         <source>Error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошика: %1</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="247"/>
+        <location filename="../src/QtApp/UIController.cpp" line="249"/>
         <source>Mod &apos;%1&apos; is updated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Мод &apos;%1&apos; обновлён.</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="257"/>
+        <location filename="../src/QtApp/UIController.cpp" line="259"/>
         <source>Failed to locate Battle.net.config</source>
-        <translation type="unfinished"></translation>
+        <translation>Не найден Battle.net.config</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="264"/>
+        <location filename="../src/QtApp/UIController.cpp" line="266"/>
         <source>Failed to read data from Battle.net.config</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось прочитать Battle.net.config</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="275"/>
+        <location filename="../src/QtApp/UIController.cpp" line="277"/>
         <source>Failed to write data to Battle.net.config</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось записать Battle.net.config</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="279"/>
+        <location filename="../src/QtApp/UIController.cpp" line="281"/>
         <source>Battle.net launch options updated</source>
-        <translation type="unfinished"></translation>
+        <translation>Battle.net параметры запуска обновлены</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="295"/>
+        <location filename="../src/QtApp/UIController.cpp" line="297"/>
         <source>Failed to write shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось записать ярлык</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="299"/>
+        <location filename="../src/QtApp/UIController.cpp" line="301"/>
         <source>Shortcut created!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ярлык создан!</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="315"/>
+        <location filename="../src/QtApp/UIController.cpp" line="317"/>
         <source>Settings updated!</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки обновлены!</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="334"/>
+        <location filename="../src/QtApp/UIController.cpp" line="336"/>
         <source>Save files copied (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Файлы сохранений скопированы (%1 шт)</translation>
     </message>
     <message>
         <source>Mod &apos;%1&apos; successfully updated (%2).</source>
@@ -440,127 +440,127 @@ You can edit seed manually or press F5 to generate new one.
     <message>
         <location filename="../qml/MainMenuBar.qml" line="54"/>
         <source>File</source>
-        <translation type="unfinished">Файл</translation>
+        <translation>Файл</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="57"/>
         <source>Save config...</source>
-        <translation type="unfinished">Сохранить конфиг...</translation>
+        <translation>Сохранить конфиг...</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="62"/>
         <source>Load config...</source>
-        <translation type="unfinished">Загрузить конфиг...</translation>
+        <translation>Загрузить конфиг...</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="67"/>
         <source>Clear config</source>
-        <translation type="unfinished">Очистить конфиг</translation>
+        <translation>Очистить конфиг</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="73"/>
         <source>Config from preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Конфиг из пресета</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="76"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translation>Базовый</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="80"/>
         <source>Friendly chaos</source>
-        <translation type="unfinished"></translation>
+        <translation>Дружный хаос</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="84"/>
         <source>Magic rando</source>
-        <translation type="unfinished"></translation>
+        <translation>Магический рандом</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="88"/>
         <source>Oh, no!</source>
-        <translation type="unfinished"></translation>
+        <translation>О, нет!</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="93"/>
         <source>Browse to settings folder</source>
-        <translation type="unfinished">Открыть папку с настройками</translation>
+        <translation>Открыть папку с настройками</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="101"/>
         <source>Quit without saving</source>
-        <translation type="unfinished">Выйти без сохранения</translation>
+        <translation>Выйти без сохранения</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="109"/>
         <source>Save and quit</source>
-        <translation type="unfinished">Сохранить и выйти</translation>
+        <translation>Сохранить и выйти</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="139"/>
         <source>Actions</source>
-        <translation type="unfinished">Действия</translation>
+        <translation>Действия</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="142"/>
         <source>Generate mod</source>
-        <translation type="unfinished">Генерация мода</translation>
+        <translation>Генерация мода</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="147"/>
         <source>New seed</source>
-        <translation type="unfinished"></translation>
+        <translation>Новый посев</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="152"/>
         <source>Undo</source>
-        <translation type="unfinished">Отменить</translation>
+        <translation>Отменить</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="157"/>
         <source>Theme</source>
-        <translation type="unfinished">Тема оформления</translation>
+        <translation>Тема оформления</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="162"/>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Тёмная</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="171"/>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Светлая</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="180"/>
         <source>Language</source>
-        <translation type="unfinished">Язык</translation>
+        <translation>Язык</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="184"/>
         <source>English</source>
-        <translation type="unfinished"></translation>
+        <translation>English</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="189"/>
         <source>Russian</source>
-        <translation type="unfinished"></translation>
+        <translation>Russian</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="194"/>
         <source>Korean</source>
-        <translation type="unfinished"></translation>
+        <translation>Korean</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="201"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Помощь</translation>
     </message>
     <message>
         <location filename="../qml/MainMenuBar.qml" line="203"/>
         <source>About</source>
-        <translation type="unfinished">О программе</translation>
+        <translation>О программе</translation>
     </message>
 </context>
 <context>
@@ -568,125 +568,125 @@ You can edit seed manually or press F5 to generate new one.
     <message>
         <location filename="../qml/MainNavigation.qml" line="10"/>
         <source>Main</source>
-        <translation type="unfinished">Главные настройки</translation>
+        <translation>Главные настройки</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="16"/>
         <source>Extra</source>
-        <translation type="unfinished"></translation>
+        <translation>Дополнительно</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="22"/>
         <source>Randomizers</source>
-        <translation type="unfinished">Рандомизация</translation>
+        <translation>Рандомизация</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="28"/>
         <source>Item Randomizer</source>
-        <translation type="unfinished">Рандомайзер предметов</translation>
+        <translation>Рандомайзер предметов</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="35"/>
         <source>Monster Randomizer</source>
-        <translation type="unfinished">Рандомайзер Монстров</translation>
+        <translation>Рандомайзер Монстров</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="42"/>
         <source>Skill Randomizer</source>
-        <translation type="unfinished">Рандомайзер Навыков</translation>
+        <translation>Рандомайзер Навыков</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="49"/>
         <source>Make harder</source>
-        <translation type="unfinished">Сделать сложней</translation>
+        <translation>Сделать сложней</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="55"/>
         <source>Monster stats</source>
-        <translation type="unfinished">Параметры монстров</translation>
+        <translation>Параметры монстров</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="62"/>
         <source>Monster density</source>
-        <translation type="unfinished">Плотность монстров</translation>
+        <translation>Плотность монстров</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="69"/>
         <source>Challenge</source>
-        <translation type="unfinished">Челендж</translation>
+        <translation>Челендж</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="76"/>
         <source>Make easier</source>
-        <translation type="unfinished">Сделать легче</translation>
+        <translation>Сделать легче</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="82"/>
         <source>Horadric Cube</source>
-        <translation type="unfinished">Куб Хорадрика</translation>
+        <translation>Куб Хорадрика</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="89"/>
         <source>Gambling</source>
-        <translation type="unfinished">Азартная игра</translation>
+        <translation>Азартная игра</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="96"/>
         <source>Character</source>
-        <translation type="unfinished">Персонаж</translation>
+        <translation>Персонаж</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="103"/>
         <source>Increase Item Drops</source>
-        <translation type="unfinished"></translation>
+        <translation>Больше предметов</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="110"/>
         <source>Increase Rune Drops</source>
-        <translation type="unfinished"></translation>
+        <translation>Больше рун</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="117"/>
         <source>Perfect Rolls</source>
-        <translation type="unfinished"></translation>
+        <translation>Идеальные параметры</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="124"/>
         <source>Requirements</source>
-        <translation type="unfinished">Требования</translation>
+        <translation>Требования</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="131"/>
         <source>Misc</source>
-        <translation type="unfinished">Прочее</translation>
+        <translation>Прочее</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="137"/>
         <source>Quality of life</source>
-        <translation type="unfinished">Упрощение жизни</translation>
+        <translation>Упрощение жизни</translation>
     </message>
     <message>
         <location filename="../qml/MainNavigation.qml" line="144"/>
         <source>Drops filtering</source>
-        <translation type="unfinished">Фильтр лута</translation>
+        <translation>Фильтр лута</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
         <location filename="../qml/MainWindow.qml" line="8"/>
-        <source>D2 mod generator by mapron - 0.7.0</source>
-        <translation type="unfinished"></translation>
+        <source>D2 mod generator by mapron - 0.7.2</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/MainWindow.qml" line="124"/>
         <source>Status label: Ready</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/MainWindow.qml" line="138"/>
         <source>Generate</source>
-        <translation type="unfinished">Генерировать</translation>
+        <translation>Генерировать</translation>
     </message>
 </context>
 <context>
@@ -777,7 +777,7 @@ You can edit seed manually or press F5 to generate new one.
     <message>
         <location filename="../qml/ModuleCharacter.qml" line="33"/>
         <source>Add Teleport as starting skill for all classes</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить Телепорт как стартовый навык</translation>
     </message>
     <message>
         <location filename="../qml/ModuleCharacter.qml" line="40"/>
@@ -800,7 +800,7 @@ You can edit seed manually or press F5 to generate new one.
         <translation>Изменить Здоровье наёмников, множитель</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleCharacter.qml" line="81"/>
+        <location filename="../qml/ModuleCharacter.qml" line="80"/>
         <source>Change mercenaries Damage, multiply by</source>
         <translation>Изменить Урон наёмников, множитель</translation>
     </message>
@@ -810,65 +810,107 @@ You can edit seed manually or press F5 to generate new one.
     <message>
         <location filename="../qml/ModuleCube.qml" line="8"/>
         <source>Horadric Cube</source>
-        <translation type="unfinished">Куб Хорадрика</translation>
+        <translation>Куб Хорадрика</translation>
     </message>
     <message>
         <location filename="../qml/ModuleCube.qml" line="9"/>
         <source>Create some recipes to cheese/cut corners around the game. &lt;br&gt;Input and results are self-explanatory.</source>
-        <translation type="unfinished">Позволяет включить рецепты которые ускоряют прохождение игры.&lt;br&gt;Вход и результаты должны быть понятны.</translation>
+        <translation>Позволяет включить рецепты которые ускоряют прохождение игры.&lt;br&gt;Вход и результаты должны быть понятны.</translation>
     </message>
     <message>
         <location filename="../qml/ModuleCube.qml" line="12"/>
-        <source>Remove gem component from Rune upgrade recipes (Rune x3,x2 =&amp;gt; next Rune)</source>
-        <translation type="unfinished">Убрать требования дракоценных камней для рецептов апгрейда рун (для апгрейда достаточно 2 или 3 руны)</translation>
+        <source>Remove gem component from Rune upgrade recipes (Rune x3,x2 =&gt; next Rune)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ModuleCube.qml" line="19"/>
-        <source>Add quick portal access recipes:&lt;br&gt;1. TP book + Id scroll = Cow Portal&lt;br&gt;2. TP book + Id scroll x2 = Minor Uber Portal&lt;br&gt;3. TP book + Id scroll x3 = Uber Tristram Portal</source>
+        <source>Add quick portal access recipes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="20"/>
+        <source>1. TP book + Id scroll = Cow Portal&lt;br&gt;2. TP book + Id scroll x2 = Minor Uber Portal&lt;br&gt;3. TP book + Id scroll x3 = Uber Tristram Portal&lt;br&gt;4. TP book + Id scroll x4 = Colossal Ancients Portal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ModuleCube.qml" line="26"/>
-        <source>Add quick quest recipes:&lt;br&gt;1. key + Id scroll = Horadric Staff&lt;br&gt;2. key + TP scroll = Khalim Will</source>
+        <source>Add quick quest recipes (Horadric Staff + Khalim Will)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="27"/>
+        <source>1. key + Id scroll = Horadric Staff&lt;br&gt;2. key + TP scroll = Khalim Will</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ModuleCube.qml" line="33"/>
-        <source>Add socketing recipes:&lt;br&gt;1. Normal item + TP scroll x1 + Id scroll x1 = Add 3 sockets&lt;br&gt;2. Normal item + TP scroll x1 + Id scroll x2 = Add 4 sockets&lt;br&gt;3. Normal item + TP scroll x2 + Id scroll x1 = Add 5 sockets&lt;br&gt;4. Normal item + TP scroll x2 + Id scroll x2 = Add 6 sockets&lt;br&gt;5. Unique/Set/Rare item + TP scroll x1 + Id scroll x1 = Add 1 socket&lt;br&gt;6. Socketed item + TP scroll x1 = Clear sockets</source>
+        <source>Add socketing recipes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="34"/>
+        <source>1. Normal item + TP scroll x1 + Id scroll x1 = Add 3 sockets&lt;br&gt;2. Normal item + TP scroll x1 + Id scroll x2 = Add 4 sockets&lt;br&gt;3. Normal item + TP scroll x2 + Id scroll x1 = Add 5 sockets&lt;br&gt;4. Normal item + TP scroll x2 + Id scroll x2 = Add 6 sockets&lt;br&gt;5. Unique/Set/Rare item + TP scroll x1 + Id scroll x1 = Add 1 socket&lt;br&gt;6. Socketed item + TP scroll x1 = Clear sockets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ModuleCube.qml" line="40"/>
-        <source>Add upgrade recipes:&lt;br&gt;1. Normal item (normal,magic,rare,unique,set) + Antidote = Exceptional item&lt;br&gt;2. Exceptional item (normal,magic,rare,unique,set) + Antidote = Elite item&lt;br&gt;3. Any item + Stamina x2 = Add Ethereal&lt;br&gt;4. Magic (magic,rare,unique,set) item  + Stamina = Normal item of same type</source>
+        <source>Add quality upgrade recipes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="41"/>
+        <source>1. Normal item (normal,magic,rare,unique,set) + Antidote = Exceptional item&lt;br&gt;2. Exceptional item (normal,magic,rare,unique,set) + Antidote = Elite item&lt;br&gt;3. Magic (magic,rare,unique,set) item  + Stamina = Normal item of same type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ModuleCube.qml" line="47"/>
-        <source>Add cheat Small Charm recipies:&lt;br&gt;1. Any small charm + TP scroll x1 + one of (h pot, mana pot, stamina, antidote, thawing)&lt;br&gt;2. Any small charm + Id scroll x1 + one of (h pot, mana pot, stamina, antidote, thawing)&lt;br&gt;3. Any small charm + key       x1 + one of (h pot, mana pot, stamina, antidote, thawing)</source>
+        <source>Add cheat Small Charm recipies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ModuleCube.qml" line="48"/>
-        <source>Different combinations provide one of 10 stat combinations.&lt;br&gt;Just two charms of each kind suppose to provide reasonable endgame stat.&lt;br&gt;Item level is 1, so try several times to craft charm with 0 requirements.</source>
+        <source>Any small charm + one of (TP scroll x1, Id scroll x1 , key x1) + one of (h pot, mana pot, stamina, antidote, thawing) = crafted char (see below all recipes)&lt;br&gt;Just two charms of each kind suppose to provide reasonable endgame stat.&lt;br&gt;Item level is 1, so try several times to craft charm with 0 requirements.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModuleCube.qml" line="54"/>
+        <location filename="../qml/ModuleCube.qml" line="74"/>
+        <source>Remove strict item types for Crafted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="75"/>
+        <source>Now any kind of gloves will be suitable, not specific type of gloves.&lt;br&gt;Same for helm, shield, weapon.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="81"/>
+        <source>Remove Rune/Jewel for Crafted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="82"/>
+        <source>So any craft recipe is &apos;item + gem&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove gem component from Rune upgrade recipes (Rune x3,x2 =&amp;gt; next Rune)</source>
+        <translation type="obsolete">Убрать требования дракоценных камней для рецептов апгрейда рун (для апгрейда достаточно 2 или 3 руны)</translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="70"/>
         <source>Simplyfy crafting:</source>
         <translation type="unfinished">Упростить рецепты для крафта:</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleCube.qml" line="58"/>
         <source>Remove strict item types for Crafted (any helm, any gloves etc)</source>
-        <translation type="unfinished">Убрать жесткие требования по типу предмета (=любой шлем, любые перчатки и тд)</translation>
+        <translation type="obsolete">Убрать жесткие требования по типу предмета (=любой шлем, любые перчатки и тд)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleCube.qml" line="65"/>
         <source>Remove Rune/Jewel requirement for Crafted&lt;br&gt;(So any recipe is &apos;item + gem&apos;)</source>
-        <translation type="unfinished">Убрать необходимость рун и драгоценностей для крафта&lt;br&gt;(т.о. достаточно предмета и камня)</translation>
+        <translation type="obsolete">Убрать необходимость рун и драгоценностей для крафта&lt;br&gt;(т.о. достаточно предмета и камня)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleCube.qml" line="72"/>
+        <location filename="../qml/ModuleCube.qml" line="88"/>
         <source>Make Item Level always 99</source>
         <translation type="unfinished">Генерировать item level равный 99</translation>
     </message>
@@ -906,62 +948,67 @@ You can edit seed manually or press F5 to generate new one.
         <translation>&lt;b&gt;Скрыть предметы&lt;/b&gt;: надписи становятся прозрачными; &lt;br&gt; вы сможете их подобрать, но надписи невидимы при нажатии Alt.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="34"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="30"/>
+        <source>&lt;br&gt;&lt;b&gt;With D2R: RotW - just use game loot filter! You don&apos;t need those anymore!&lt;b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleDropFiltering.qml" line="37"/>
         <source>ID scroll</source>
         <translation>ID свиток</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="41"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="44"/>
         <source>TP scroll</source>
         <translation>TP свиток</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="48"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="51"/>
         <source>Health pots 1-3</source>
         <translation>Зелья лечения 1-3</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="55"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="58"/>
         <source>All Health pots</source>
         <translation>Все лечебные зелья</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="62"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="65"/>
         <source>Mana pots 1-3</source>
         <translation>Зелья маны 1-3</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="69"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="72"/>
         <source>All Mana pots</source>
         <translation>Все зелья маны</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="76"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="80"/>
         <source>Rejuv pots</source>
         <translation>Зелье восстановления</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="83"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="87"/>
         <source>Full Rejuv pots</source>
         <translation>Зелье полного восстановления</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="90"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="93"/>
         <source>Bolts/Arrows</source>
         <translation>Колчаны</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="97"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="100"/>
         <source>Stamina/Antidote/Thawing</source>
         <translation>Зелья выносливости/противояд/разморозка</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="104"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="107"/>
         <source>Keys,Fire/Poison pots</source>
         <translation>Ключи,метательные зелья</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="111"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="114"/>
         <source>Hide low quality/damaged/cracked items</source>
         <translation>Скрыть низкокачественные/поврежденные предметы</translation>
     </message>
@@ -1095,102 +1142,110 @@ You can edit seed manually or press F5 to generate new one.
         <translation>Увеличить шанс Уникальных предметов</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="27"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="28"/>
         <source>Increase Set Chance</source>
         <translation>Увеличить шанс Наборных предметов</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="37"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="39"/>
         <source>Increase Rare Chance</source>
         <translation>Увеличить шанс Редких предметов</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="47"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="50"/>
         <source>Increase Chance of High-level equipment</source>
         <translation>Увеличить шанс предметов высокого уровня</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="48"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="51"/>
         <source>This will reduce the reduce the chance that equipment of lower level will drop as a fallback.&lt;br&gt;For example, for level 85 TC there is a 98% chance that it will drop from 84 level TC, and so on.</source>
         <translation>Эта настройка уменьшает шанс того что при попытке дропа &lt;br&gt;высокого уровня будет низкоуровневый дроп вместо него.&lt;br&gt;например, для TC 85 уровня существует 98% шанс что будет выброшен TC 84 и так далее.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="57"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="61"/>
         <source>Increase Champion/Unique item count</source>
         <translation>Увеличить число дропов с элитных монстров</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="58"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="62"/>
         <source>This will make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one.&lt;br&gt;Note that potion drops are slightly reduced.</source>
         <translation>Уникальные боссы теперь будут кидать 4 предмета вместо одного, и чемпионы 2 вместо одного.&lt;br&gt;Кол-во бросаемых зелий снижено.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="64"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="68"/>
         <source>Always quest drops from bosses</source>
         <translation>Всегда квестовые дропы с боссов</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="71"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="75"/>
         <source>Adjust proportion of main drop classes</source>
         <translation>Изменить соотношение между основными типами дропа</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="75"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="79"/>
+        <source>Increse drop count (via NoDrop)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleItemDrops.qml" line="80"/>
+        <source>This provides ability to gradually reduce NoDrop picks&lt;br&gt;(it basically similar to increasing players count in the game)&lt;br&gt;This only affect base monster drops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>NoDrop (higher=LESS drops)</source>
-        <translation>NoDrop (больше=МЕНЬШЕ дропов)</translation>
+        <translation type="vanished">NoDrop (больше=МЕНЬШЕ дропов)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="76"/>
         <source>NoDrop slider provides ability to gradually reduce NoDrop picks&lt;br&gt;(it basically similar to increasing players count in the game)</source>
-        <translation>NoDrop позволяет снизить долю NoDrop в TC&lt;br&gt;(механизм похож на повышение кол-ва игроков в игре)</translation>
+        <translation type="vanished">NoDrop позволяет снизить долю NoDrop в TC&lt;br&gt;(механизм похож на повышение кол-ва игроков в игре)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="86"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="90"/>
         <source>Good TC (Runes/Gems/Jewellery)</source>
         <translation>Good TC (Руны/Камни/Ювелирка)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="87"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="91"/>
         <source>That will make Gems/Runes/Rings/Amulets/Charms drop far more often&lt;br&gt;compared to equipment (armor/weapons).</source>
         <translation>Это позволит падать камням/рунам/кольцам/амулетам/талисманам намного чаще&lt;br&gt;в сравнении с другим снаряжением (броне и оружию).</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="97"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="101"/>
         <source>Equipment (armor/weapons)</source>
         <translation>Экипировка (доспехи/оружие)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="98"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="102"/>
         <source>Relative chance of equipment dropping compared to other items (or NoDrop).</source>
         <translation>Относительный шанс выпадания экипировки в соотношении с остальным (и NoDrop)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="108"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="112"/>
         <source>Gold (higher=MORE gold)</source>
         <translation>Золото (выше=БОЛЬШЕ золота)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="109"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="113"/>
         <source>Relative chance of gold compared to other items.</source>
         <translation>Относительный шанс на золото в сравнении с другими предметами.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="119"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="123"/>
         <source>Junk (keys/bolts/etc) (higher=MORE junk)</source>
         <translation>Барахло (ключи/болты/и тд) (выше=БОЛЬШЕ барахла)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="120"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="124"/>
         <source>Relative chance of junk items compared to other items.</source>
         <translation>Относительный шанс неценных предметов в сранвении с остальным.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="130"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="134"/>
         <source>Make all Uniques have equal rarity on same base</source>
         <translation>Все Уникальные предметы имеют одинаковую редкость для общей базы</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="131"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="135"/>
         <source>Now Uniques with equal item base will have equal chance to drop.&lt;br&gt;For example Tyrael&apos;s and Templar&apos;s will have equal chance. (and all rings too)</source>
         <translation>Если у предметов одинаковая база, то шанс выпадения у всех становится равный.&lt;br&gt;Например, Tyrael&apos;s и  Templar&apos;s имеют равный шанс. (и все кольца/амулеты)</translation>
     </message>
@@ -1491,27 +1546,27 @@ You can edit seed manually or press F5 to generate new one.
         <translation>НЕ ВЛИЯЕТ на ИММУННЫХ монстров и монстров с 0 сопротивлением!&lt;br&gt;Это изменяет сопротивление неявно, с помощью следующего вычисления:&lt;br&gt;Если  вы выбрали 200%, и у монстра уже есть 80% сопротивления Огню.&lt;br&gt;Т.о. монстр получает 20% урона от огня, и новое значение должно быть 40% урона, или 60% сопротивления.&lt;br&gt;Урон ограничен сверху 100%, что дает 0 сопротивление (отрицательного не будет).&lt;br&gt;Так же это не дает новых ИММУНОВ, т.е. новое сопротивление будет не больше 99%</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleMonStats.qml" line="88"/>
+        <location filename="../qml/ModuleMonStats.qml" line="87"/>
         <source>Apply resistance options to following:</source>
         <translation>Применить опции сопротивления к следующим стихиям:</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleMonStats.qml" line="92"/>
+        <location filename="../qml/ModuleMonStats.qml" line="93"/>
         <source>Elemental (Fire/Cold/Lightning)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModuleMonStats.qml" line="99"/>
+        <location filename="../qml/ModuleMonStats.qml" line="100"/>
         <source>Poison</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModuleMonStats.qml" line="106"/>
+        <location filename="../qml/ModuleMonStats.qml" line="108"/>
         <source>Magic (Non-elemental)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModuleMonStats.qml" line="113"/>
+        <location filename="../qml/ModuleMonStats.qml" line="115"/>
         <source>Physical</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1529,82 +1584,82 @@ You can edit seed manually or press F5 to generate new one.
         <translation>Убирает эффект разброса параметров для различных предметов. Всегда макс.</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="12"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="14"/>
         <source>Perfect rolls for crafting in the Cube</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="19"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="21"/>
         <source>Perfect Uniques</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="26"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="28"/>
         <source>Perfect Rune Word rolls</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="33"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="35"/>
         <source>Perfect Set items</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="40"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="43"/>
         <source>Perfect Magic/Rare affixes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="47"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="50"/>
         <source>Perfect predetermined crafted affixes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="54"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="57"/>
         <source>Always max defense Armor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="61"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="66"/>
         <source>Unique items level 1 power multiply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="72"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="77"/>
         <source>Unique items level 50 power multiply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="83"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="88"/>
         <source>Set items level 1 power multiply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="94"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="99"/>
         <source>Set items level 50 power multiply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="105"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="110"/>
         <source>Magic affix level 1 power multiply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="116"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="121"/>
         <source>Magic affix level 50 power multiply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="127"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="132"/>
         <source>Rune Words power multiply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="138"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="143"/>
         <source>Crafted items power multiply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="149"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="154"/>
         <source>Rune/Gems power multiply</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1622,57 +1677,57 @@ You can edit seed manually or press F5 to generate new one.
         <translation>Набор небольших твиков для упрощения жизни.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="12"/>
+        <location filename="../qml/ModuleQol.qml" line="14"/>
         <source>Increase tome sizes 20 -&gt; 60</source>
         <translation>Увеличить вместимость книг 20 -&gt; 60</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="19"/>
+        <location filename="../qml/ModuleQol.qml" line="21"/>
         <source>Increase key chain 12 -&gt; 50</source>
         <translation>Увеличить связки ключей 12 -&gt; 60</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="26"/>
+        <location filename="../qml/ModuleQol.qml" line="28"/>
         <source>Increase quivers size -&gt; 511</source>
         <translation>Увеличить колчаны до 511</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="27"/>
+        <location filename="../qml/ModuleQol.qml" line="29"/>
         <source>D2R already have 500 quiver size, so use this for LoD</source>
         <translation>В D2R колчаны уже 500 стрел, нужно только для D2 LoD</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="33"/>
+        <location filename="../qml/ModuleQol.qml" line="35"/>
         <source>Remove limit on Unique charms</source>
         <translation>Убрать ограничение на 1 уникальный талисман в инвентаре</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="40"/>
+        <location filename="../qml/ModuleQol.qml" line="43"/>
         <source>Allow using Teleport, BC, BO in town</source>
         <translation>Разрешить использовать Телепорт и боевые приказы в городе</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="47"/>
+        <location filename="../qml/ModuleQol.qml" line="50"/>
         <source>Allow all skills in town</source>
         <translation>Разрешить все заклинанияи в городе</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="54"/>
+        <location filename="../qml/ModuleQol.qml" line="57"/>
         <source>Show ilevel in items&apos; titles</source>
         <translation>Показывать ilevel в скобках</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="61"/>
+        <location filename="../qml/ModuleQol.qml" line="64"/>
         <source>Disable experience penalty after level 70</source>
         <translation>Отключить штраф опыт после уровня 70</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="62"/>
+        <location filename="../qml/ModuleQol.qml" line="65"/>
         <source>That means you won&apos;t have around 1% EXP at higher levels, so high level grind will be much faster.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="68"/>
+        <location filename="../qml/ModuleQol.qml" line="73"/>
         <source>Reduce costs of skills and stats on items (affects repair cost mostly)</source>
         <translation>Снизить стоимость (в золоте) для параметров на предметах (снизить цену починки)</translation>
     </message>
@@ -1700,57 +1755,57 @@ You can edit seed manually or press F5 to generate new one.
         <translation>Если выставить значение выше 100%, требования к Силе &lt;br&gt; станут выше, чем это было в оригинале.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="22"/>
+        <location filename="../qml/ModuleRequirements.qml" line="23"/>
         <source>Change Dexterity requirements on items, %</source>
         <translation>Изменить требования к Ловкости на предметах, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="32"/>
+        <location filename="../qml/ModuleRequirements.qml" line="34"/>
         <source>Change Character level requirement on regular items, %</source>
         <translation>Изменить требование к уровню персонажа на обычных предметах, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="33"/>
+        <location filename="../qml/ModuleRequirements.qml" line="35"/>
         <source>That controls &apos;Level required:&apos; you see on the items.</source>
         <translation>Влияет на поле &apos;Минимальный уровень:&apos; который вы видите в игре на предметах.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="42"/>
+        <location filename="../qml/ModuleRequirements.qml" line="45"/>
         <source>Change Character level requirement on Unique/Set items, %</source>
         <translation>Изменить требование к уровню персонажа на Уникальных/Наборных предметах, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="52"/>
+        <location filename="../qml/ModuleRequirements.qml" line="56"/>
         <source>Change Character level requirement on Magic/Rare items, %</source>
         <translation>Изменить требование к уровню персонажа на Магических/Редких предметах, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="62"/>
+        <location filename="../qml/ModuleRequirements.qml" line="67"/>
         <source>Change Minimal level required to spent points into skill, %</source>
         <translation>Изменить минимальный уровень необходимый для навыков персонажа, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="63"/>
+        <location filename="../qml/ModuleRequirements.qml" line="68"/>
         <source>For example, if you select 50%, you can get level 30 skill on level 15 instead.</source>
         <translation>Если вы выберете 50%, сможете распределить очки в навык 30 уровня уже на 15 уровне.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="72"/>
+        <location filename="../qml/ModuleRequirements.qml" line="78"/>
         <source>Change quality level on regular items, %</source>
         <translation>Изменить qlvl (качественный уровень) на обычных предметах, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="73"/>
+        <location filename="../qml/ModuleRequirements.qml" line="79"/>
         <source>That controls how valueable item is from drop calculation process.&lt;br&gt; Lower value means you get item dropped much earlier in the game.</source>
         <translation>Управляет тем, насколько ценный предмет с точки зрения расчета дропа.&lt;br&gt; Значение ниже дает возможность получать ценные и редкие предметы раньше.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="82"/>
+        <location filename="../qml/ModuleRequirements.qml" line="89"/>
         <source>Change quality level on Unique/Set items, %</source>
         <translation>Изменить qlvl (качественный уровень) на Уникальных/Наборных предметах, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="92"/>
+        <location filename="../qml/ModuleRequirements.qml" line="100"/>
         <source>Change quality level on Magic/Rare items, %</source>
         <translation>Изменить qlvl (качественный уровень) на Магических/Редких предметах, %</translation>
     </message>
@@ -1950,103 +2005,113 @@ You can edit seed manually or press F5 to generate new one.
 <context>
     <name>PageMain</name>
     <message>
-        <location filename="../qml/PageMain.qml" line="14"/>
+        <location filename="../qml/PageMain.qml" line="15"/>
         <source>Main</source>
-        <translation type="unfinished">Главные настройки</translation>
+        <translation>Главные настройки</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="19"/>
-        <source>This page contains mandatory inputs for generation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="23"/>
+        <location filename="../qml/PageMain.qml" line="20"/>
         <source>Reset to default</source>
-        <translation type="unfinished">Сброс на умолчания</translation>
+        <translation>Сброс на умолчания</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="32"/>
+        <location filename="../qml/PageMain.qml" line="29"/>
         <source>Input folder (mandatory):</source>
-        <translation type="unfinished"></translation>
+        <translation>Исходная директория (обязательно):</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="33"/>
+        <location filename="../qml/PageMain.qml" line="30"/>
         <source>Generally, just choose folder with Game.exe.&lt;br&gt;Note: for ProjectD2, select subfolder named &apos;ProjectD2&apos; in Diablo II.&lt;br&gt;Press Detect! to find information in Windows Registry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Обычно, просто выберите папку игры где находится Game.exe&lt;br&gt;Note: для ProjectD2, выберите подкаталог &apos;ProjectD2&apos; в Diablo II.&lt;br&gt;Нажмите Детктировать! чтобы найти установку в реестре</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="45"/>
+        <location filename="../qml/PageMain.qml" line="42"/>
         <source>Detect!</source>
-        <translation type="unfinished"></translation>
+        <translation>Детектировать!</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="52"/>
+        <location filename="../qml/PageMain.qml" line="49"/>
         <source>Output folder (optional, leave empty to auto-detect):</source>
-        <translation type="unfinished"></translation>
+        <translation>Выходная директория (опционально, оставьте пустым для автоопределения)</translation>
     </message>
     <message>
         <location filename="../qml/PageMain.qml" line="63"/>
         <source>Target D2 Game version:</source>
+        <translation>Целевая версия D2:</translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="91"/>
+        <source>D2 Legacy</source>
+        <translation>D2 Legacy</translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="91"/>
+        <source>D2 Resurrected</source>
+        <translation>D2 Resurrected</translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="108"/>
+        <source>D2R - LoD</source>
+        <translation>D2R - LoD</translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="108"/>
+        <source>D2R - RotW</source>
+        <translation>D2R - RotW</translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="125"/>
+        <source>This determines source data that is used by randomizer&lt;br&gt;&lt;b&gt;Game data archive&lt;/b&gt; - For D2R Resurrected, this is CASC storage;&lt;br&gt;&lt;b&gt;Game data archive&lt;/b&gt; - For D2 Legacy this is .mpq file;&lt;br&gt;&lt;b&gt;Folder with extracted data&lt;/b&gt; - If you want to use D2R select folder containing modinfo.json, otherwise select game root&lt;br&gt;&lt;b&gt;Only .txt&lt;/b&gt; - Folder with .txt files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="64"/>
-        <source>D2 Legacy (Pre-D2R): 1.14, ProjectD2</source>
+        <location filename="../qml/PageMain.qml" line="133"/>
+        <source>This determines output type:&lt;br&gt;&lt;b&gt;D2 Resurrected mod&lt;/b&gt; - create D2R mod with all needed subfolders, path is determined by config name (see Extra tab)&lt;br&gt;&lt;b&gt;Full folders&lt;/b&gt; - create folder structure (data/global/...) with txt/json&lt;br&gt;&lt;b&gt;Only .txt&lt;/b&gt; - Folder with .txt files, note that for D2R that will mean json files will not be written&lt;br&gt;&lt;b&gt;Dry run&lt;/b&gt; - read input, process randomizer, but don&apos;t write anything</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="64"/>
-        <source>D2 Resurrected - LoD</source>
+        <location filename="../qml/PageMain.qml" line="134"/>
+        <source>Dry run</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="64"/>
-        <source>D2 Resurrected - RotW</source>
+        <location filename="../qml/PageMain.qml" line="147"/>
+        <source>Seed determine how reproduceable generation results are.&lt;br&gt;If seed stays the same, output of generation is also always exactly the same.&lt;br&gt;If you want each generation be stable and reproduceable, remove &lt;b&gt;Create new seed&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="70"/>
+        <location filename="../qml/PageMain.qml" line="124"/>
         <source>Input mode, where to read game data:</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип входной директории:</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="71"/>
-        <source>This determines source data that is used by randomizer&lt;br&gt;Game data archive - For D2R Resurrected, this is CASC storage;&lt;br&gt;Game data archive - For D2 Legacy this is .mpq files;&lt;br&gt;Folder with extracted data - If you want to use D2R select folder containing modinfo.json&lt;br&gt;Last option is for folder with .txt files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="72"/>
-        <source>Game data archive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="72"/>
+        <location filename="../qml/PageMain.qml" line="126"/>
         <source>Folder with extracted data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="72"/>
-        <location filename="../qml/PageMain.qml" line="80"/>
+        <location filename="../qml/PageMain.qml" line="126"/>
+        <location filename="../qml/PageMain.qml" line="134"/>
         <source>Only .txt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="78"/>
+        <location filename="../qml/PageMain.qml" line="126"/>
+        <source>Game data archive (CASC or Storm=mpq)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="132"/>
         <source>Output format, how files and folders will be created:</source>
-        <translation type="unfinished"></translation>
+        <translation>Выходной формат директории:</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="79"/>
-        <source>This determines output type:&lt;br&gt;First one will create D2R mod with all needed subfolders,&lt;br&gt;Second one will create folder structure with txt/json&lt;br&gt;Last one will only output .txt</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="80"/>
+        <location filename="../qml/PageMain.qml" line="134"/>
         <source>D2 Resurrected mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="80"/>
+        <location filename="../qml/PageMain.qml" line="134"/>
         <source>Full folders</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2059,24 +2124,19 @@ You can edit seed manually or press F5 to generate new one.
         <translation type="obsolete">Использовать установку Diablo II legacy</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="90"/>
+        <location filename="../qml/PageMain.qml" line="144"/>
         <source>Random seed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Случайный посев:</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="93"/>
-        <source>Seed determine how reproduceable generation results are.&lt;br&gt;If seed stays the same, output of generation is also always exactly the same.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="100"/>
+        <location filename="../qml/PageMain.qml" line="156"/>
         <source>Generate new</source>
-        <translation type="unfinished"></translation>
+        <translation>Сгенерировать новый</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="104"/>
+        <location filename="../qml/PageMain.qml" line="160"/>
         <source>Create new seed on every Generate call</source>
-        <translation type="unfinished"></translation>
+        <translation>Пересоздавать при каждом нажатии Генерировать</translation>
     </message>
     <message>
         <source>Output directory (leave empty to output to D2R path):</source>
@@ -2098,9 +2158,9 @@ You can edit seed manually or press F5 to generate new one.
         <translation type="obsolete">D2R директория с сохранениями и настройками:</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="76"/>
+        <location filename="../qml/PageTool.qml" line="84"/>
         <source>Copy Settings.json</source>
-        <translation type="unfinished">Скопировать Settings.json</translation>
+        <translation>Скопировать Settings.json</translation>
     </message>
     <message>
         <source>(this will copy default settings to mod folder)</source>
@@ -2111,87 +2171,87 @@ You can edit seed manually or press F5 to generate new one.
         <translation type="obsolete">D2R командная строка (только чтение):</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="21"/>
+        <location filename="../qml/PageTool.qml" line="26"/>
         <source>Extra helpful utilities</source>
-        <translation type="unfinished"></translation>
+        <translation>Дополнительные возможности</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="31"/>
+        <location filename="../qml/PageTool.qml" line="49"/>
         <source>Mod id:</source>
-        <translation type="unfinished">Идентификатор мода:</translation>
+        <translation>Идентификатор мода:</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="32"/>
+        <location filename="../qml/PageTool.qml" line="50"/>
         <source>That will affect game&apos;s saves folder subdirectory and mod subfolder for D2R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="44"/>
+        <location filename="../qml/PageTool.qml" line="36"/>
         <source>Force output for all txt/json (for further manual edit)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="45"/>
+        <location filename="../qml/PageTool.qml" line="37"/>
         <source>This will force to output all game files,&lt;br&gt;not only used by randomizer in current configuration.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="61"/>
+        <location filename="../qml/PageTool.qml" line="68"/>
         <source>D2R folder for mod save and settings:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="80"/>
+        <location filename="../qml/PageTool.qml" line="88"/>
         <source>This will copy Game Settings to mod folder&lt;br&gt;That will allow to skip configuring mod on launch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="86"/>
+        <location filename="../qml/PageTool.qml" line="94"/>
         <source>Copy all save files (.d2s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="90"/>
+        <location filename="../qml/PageTool.qml" line="98"/>
         <source>this will copy all your character save files to modded folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="108"/>
+        <location filename="../qml/PageTool.qml" line="117"/>
         <source>D2 commandline arguments (read-only):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="119"/>
+        <location filename="../qml/PageTool.qml" line="128"/>
         <source>Choose convenient way to launch the mod:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="124"/>
+        <location filename="../qml/PageTool.qml" line="133"/>
         <source>Option 1:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="128"/>
+        <location filename="../qml/PageTool.qml" line="137"/>
         <source>Make shortcut on Desktop</source>
         <translation type="unfinished">Создать ярлык на рабочем столе</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="140"/>
+        <location filename="../qml/PageTool.qml" line="149"/>
         <source>Option 2:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="143"/>
+        <location filename="../qml/PageTool.qml" line="152"/>
         <source>Reset launch to unmodded</source>
-        <translation type="unfinished">Сбросить запуск на немод.</translation>
+        <translation>Сбросить запуск на &quot;без мода&quot;</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="148"/>
+        <location filename="../qml/PageTool.qml" line="157"/>
         <source>Set launch to mod</source>
         <translation type="unfinished">Установить запуск BNet на мод</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="153"/>
+        <location filename="../qml/PageTool.qml" line="162"/>
         <source>(Close Battlenet launcher before actions!)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2224,12 +2284,12 @@ You can edit seed manually or press F5 to generate new one.
     <message>
         <location filename="../qml/WidgetCommonTab.qml" line="36"/>
         <source>Enable this tab</source>
-        <translation type="unfinished">Включить эту вкладку</translation>
+        <translation>Включить эту вкладку</translation>
     </message>
     <message>
         <location filename="../qml/WidgetCommonTab.qml" line="41"/>
         <source>Reset to default</source>
-        <translation type="unfinished">Сброс на умолчания</translation>
+        <translation>Сброс на умолчания</translation>
     </message>
 </context>
 <context>
@@ -2237,7 +2297,7 @@ You can edit seed manually or press F5 to generate new one.
     <message>
         <location filename="../qml/WidgetPreset.qml" line="16"/>
         <source>Don&apos;t know where to start? Select a preset:</source>
-        <translation type="unfinished"></translation>
+        <translation>Не знаете с чего начать? Выберите пресет:</translation>
     </message>
 </context>
 </TS>

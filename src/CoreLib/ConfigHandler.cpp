@@ -337,8 +337,10 @@ GenerationEnvironment ConfigHandler::getEnv(std::string& err) const
         }
     } else if (outputMode == GenerationEnvironment::OutputMode::FullFolders) {
         env.outputMode = StorageType::D2LegacyFolder;
-    } else {
+    } else if (outputMode == GenerationEnvironment::OutputMode::Txt) {
         env.outputMode = StorageType::CsvFolder;
+    } else {
+        env.outputMode = StorageType::None;
     }
 
     return env;

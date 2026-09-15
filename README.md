@@ -120,8 +120,6 @@ Also, as you noticed, support for Dark and Light theme is available - choose wha
 ![Drops filter](docs/tab_misc_filter.png)  
 
 
-
-
 # Using commandline
 You also can run d2modgen in commandline mode (without UI). ```bin/modgen_console.exe```  
 will generate output using default application config (in LOCAPAPPDATA).  
@@ -132,15 +130,11 @@ If you want to have new seed on every run, use "Create new seed on every Generat
 1. If there is many dead bodies on the screen, some portals won't open (e.g. near Summoner). Workaround - go far away to another location, wait while corpses disappeared and then trigger the portal.
 2. If charges spawned on a gem/rune, it will constantly update count on gem mouse hover. This glitch is fixes after gem is inserted in socket.
 3. Game trying to render limited item label on the screen - if there are too many items, you will see only closest ones. Use DropFiltering tab feature.
-4. You need to completely quit out of the game for Diablo 2 Resurrected, to mod changes apply. In Diablo 2 legacy, however, you can just reload save again without quitting.
-
-# Q&A and Troubleshooting
-If you encounter an issue (hang/crash) in generator itself, grab applog.txt (File->Browse to settings folder) (make sure to copy file just after the crash). Then create an issue and attach this file.  
-NB: author do not respond for any issues in D2R itself (all on your own risk!). However, you can create an issue to address game problems if you know correct way to fix it.
+4. You need to completely quit out of the game for Diablo 2 Resurrected, for mod changes to apply. In Diablo 2 legacy, however, you can just reload save again without quitting.
 
 # How to build from the source
 Prerequisites:
-1. **Qt 6.12 **
+1. **Qt 6.12**
 2. **CMake 4.0** 
 3. **C++20 compiler**. Tested: MSVC 2026  
 

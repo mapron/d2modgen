@@ -55,6 +55,7 @@ enum class StorageType
     D2ResurrectedModFolder, // folder containing D2R mod structure (usually in mods/name/name.mpq)
     D2LegacyFolder,         // Folder containing 'data' folder where data can be extracted.
     CsvFolder,              // Folder containing plain 'txt' files. Can not be selected as output.
+    None,
 };
 
 struct GenerationEnvironment {
@@ -80,6 +81,7 @@ struct GenerationEnvironment {
         D2RMod,
         FullFolders,
         Txt,
+        Dry,
     };
 
     std::string      modName;

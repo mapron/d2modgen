@@ -265,82 +265,82 @@ You can edit seed manually or press F5 to generate new one.
 <context>
     <name>D2ModGen::UIController</name>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="114"/>
+        <location filename="../src/QtApp/UIController.cpp" line="116"/>
         <source>Start...</source>
         <translation type="unfinished">시작</translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="122"/>
+        <location filename="../src/QtApp/UIController.cpp" line="124"/>
         <source>Saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="124"/>
+        <location filename="../src/QtApp/UIController.cpp" line="126"/>
         <source>Error when saving!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="135"/>
+        <location filename="../src/QtApp/UIController.cpp" line="137"/>
         <source>Loaded.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="137"/>
+        <location filename="../src/QtApp/UIController.cpp" line="139"/>
         <source>Error when loading!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="146"/>
+        <location filename="../src/QtApp/UIController.cpp" line="148"/>
         <source>Config is cleared.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="242"/>
+        <location filename="../src/QtApp/UIController.cpp" line="244"/>
         <source>Error: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="247"/>
+        <location filename="../src/QtApp/UIController.cpp" line="249"/>
         <source>Mod &apos;%1&apos; is updated.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="257"/>
+        <location filename="../src/QtApp/UIController.cpp" line="259"/>
         <source>Failed to locate Battle.net.config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="264"/>
+        <location filename="../src/QtApp/UIController.cpp" line="266"/>
         <source>Failed to read data from Battle.net.config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="275"/>
+        <location filename="../src/QtApp/UIController.cpp" line="277"/>
         <source>Failed to write data to Battle.net.config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="279"/>
+        <location filename="../src/QtApp/UIController.cpp" line="281"/>
         <source>Battle.net launch options updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="295"/>
+        <location filename="../src/QtApp/UIController.cpp" line="297"/>
         <source>Failed to write shortcut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="299"/>
+        <location filename="../src/QtApp/UIController.cpp" line="301"/>
         <source>Shortcut created!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="315"/>
+        <location filename="../src/QtApp/UIController.cpp" line="317"/>
         <source>Settings updated!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/QtApp/UIController.cpp" line="334"/>
+        <location filename="../src/QtApp/UIController.cpp" line="336"/>
         <source>Save files copied (%1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -678,7 +678,7 @@ You can edit seed manually or press F5 to generate new one.
     <name>MainWindow</name>
     <message>
         <location filename="../qml/MainWindow.qml" line="8"/>
-        <source>D2 mod generator by mapron - 0.7.0</source>
+        <source>D2 mod generator by mapron - 0.7.2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -803,7 +803,7 @@ You can edit seed manually or press F5 to generate new one.
         <translation>용병의 생명력 변경 배율</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleCharacter.qml" line="81"/>
+        <location filename="../qml/ModuleCharacter.qml" line="80"/>
         <source>Change mercenaries Damage, multiply by</source>
         <translation>용병의 공격력 변경 배율</translation>
     </message>
@@ -822,8 +822,82 @@ You can edit seed manually or press F5 to generate new one.
     </message>
     <message>
         <location filename="../qml/ModuleCube.qml" line="12"/>
+        <source>Remove gem component from Rune upgrade recipes (Rune x3,x2 =&gt; next Rune)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="19"/>
+        <source>Add quick portal access recipes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="20"/>
+        <source>1. TP book + Id scroll = Cow Portal&lt;br&gt;2. TP book + Id scroll x2 = Minor Uber Portal&lt;br&gt;3. TP book + Id scroll x3 = Uber Tristram Portal&lt;br&gt;4. TP book + Id scroll x4 = Colossal Ancients Portal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="26"/>
+        <source>Add quick quest recipes (Horadric Staff + Khalim Will)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="27"/>
+        <source>1. key + Id scroll = Horadric Staff&lt;br&gt;2. key + TP scroll = Khalim Will</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="33"/>
+        <source>Add socketing recipes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="34"/>
+        <source>1. Normal item + TP scroll x1 + Id scroll x1 = Add 3 sockets&lt;br&gt;2. Normal item + TP scroll x1 + Id scroll x2 = Add 4 sockets&lt;br&gt;3. Normal item + TP scroll x2 + Id scroll x1 = Add 5 sockets&lt;br&gt;4. Normal item + TP scroll x2 + Id scroll x2 = Add 6 sockets&lt;br&gt;5. Unique/Set/Rare item + TP scroll x1 + Id scroll x1 = Add 1 socket&lt;br&gt;6. Socketed item + TP scroll x1 = Clear sockets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="40"/>
+        <source>Add quality upgrade recipes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="41"/>
+        <source>1. Normal item (normal,magic,rare,unique,set) + Antidote = Exceptional item&lt;br&gt;2. Exceptional item (normal,magic,rare,unique,set) + Antidote = Elite item&lt;br&gt;3. Magic (magic,rare,unique,set) item  + Stamina = Normal item of same type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="47"/>
+        <source>Add cheat Small Charm recipies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="48"/>
+        <source>Any small charm + one of (TP scroll x1, Id scroll x1 , key x1) + one of (h pot, mana pot, stamina, antidote, thawing) = crafted char (see below all recipes)&lt;br&gt;Just two charms of each kind suppose to provide reasonable endgame stat.&lt;br&gt;Item level is 1, so try several times to craft charm with 0 requirements.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="74"/>
+        <source>Remove strict item types for Crafted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="75"/>
+        <source>Now any kind of gloves will be suitable, not specific type of gloves.&lt;br&gt;Same for helm, shield, weapon.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="81"/>
+        <source>Remove Rune/Jewel for Crafted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleCube.qml" line="82"/>
+        <source>So any craft recipe is &apos;item + gem&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Remove gem component from Rune upgrade recipes (Rune x3,x2 =&amp;gt; next Rune)</source>
-        <translation>룬 업그레이드 시 보석 요구사항 제거 (룬 3개 또는 2개 =&gt; 상위 룬)</translation>
+        <translation type="vanished">룬 업그레이드 시 보석 요구사항 제거 (룬 3개 또는 2개 =&gt; 상위 룬)</translation>
     </message>
     <message>
         <source>Add quick portal access recipes:</source>
@@ -842,52 +916,20 @@ You can edit seed manually or press F5 to generate new one.
         <translation type="vanished">아이템 등급 상승 레시피 추가:</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleCube.qml" line="19"/>
-        <source>Add quick portal access recipes:&lt;br&gt;1. TP book + Id scroll = Cow Portal&lt;br&gt;2. TP book + Id scroll x2 = Minor Uber Portal&lt;br&gt;3. TP book + Id scroll x3 = Uber Tristram Portal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/ModuleCube.qml" line="26"/>
-        <source>Add quick quest recipes:&lt;br&gt;1. key + Id scroll = Horadric Staff&lt;br&gt;2. key + TP scroll = Khalim Will</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/ModuleCube.qml" line="33"/>
-        <source>Add socketing recipes:&lt;br&gt;1. Normal item + TP scroll x1 + Id scroll x1 = Add 3 sockets&lt;br&gt;2. Normal item + TP scroll x1 + Id scroll x2 = Add 4 sockets&lt;br&gt;3. Normal item + TP scroll x2 + Id scroll x1 = Add 5 sockets&lt;br&gt;4. Normal item + TP scroll x2 + Id scroll x2 = Add 6 sockets&lt;br&gt;5. Unique/Set/Rare item + TP scroll x1 + Id scroll x1 = Add 1 socket&lt;br&gt;6. Socketed item + TP scroll x1 = Clear sockets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/ModuleCube.qml" line="40"/>
-        <source>Add upgrade recipes:&lt;br&gt;1. Normal item (normal,magic,rare,unique,set) + Antidote = Exceptional item&lt;br&gt;2. Exceptional item (normal,magic,rare,unique,set) + Antidote = Elite item&lt;br&gt;3. Any item + Stamina x2 = Add Ethereal&lt;br&gt;4. Magic (magic,rare,unique,set) item  + Stamina = Normal item of same type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/ModuleCube.qml" line="47"/>
-        <source>Add cheat Small Charm recipies:&lt;br&gt;1. Any small charm + TP scroll x1 + one of (h pot, mana pot, stamina, antidote, thawing)&lt;br&gt;2. Any small charm + Id scroll x1 + one of (h pot, mana pot, stamina, antidote, thawing)&lt;br&gt;3. Any small charm + key       x1 + one of (h pot, mana pot, stamina, antidote, thawing)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/ModuleCube.qml" line="48"/>
-        <source>Different combinations provide one of 10 stat combinations.&lt;br&gt;Just two charms of each kind suppose to provide reasonable endgame stat.&lt;br&gt;Item level is 1, so try several times to craft charm with 0 requirements.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/ModuleCube.qml" line="54"/>
+        <location filename="../qml/ModuleCube.qml" line="70"/>
         <source>Simplyfy crafting:</source>
         <translation>크래프팅 간소화:</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleCube.qml" line="58"/>
         <source>Remove strict item types for Crafted (any helm, any gloves etc)</source>
-        <translation>크래프트 아이템 제작 시 아이템 종류 제한 해제 (모든 투구, 모든 장갑 등)</translation>
+        <translation type="vanished">크래프트 아이템 제작 시 아이템 종류 제한 해제 (모든 투구, 모든 장갑 등)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleCube.qml" line="65"/>
         <source>Remove Rune/Jewel requirement for Crafted&lt;br&gt;(So any recipe is &apos;item + gem&apos;)</source>
-        <translation>크래프트 시 룬/주얼 요구사항 제거&lt;br&gt;(모든 레시피가 &apos;아이템 + 보석&apos;으로 변경)</translation>
+        <translation type="vanished">크래프트 시 룬/주얼 요구사항 제거&lt;br&gt;(모든 레시피가 &apos;아이템 + 보석&apos;으로 변경)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleCube.qml" line="72"/>
+        <location filename="../qml/ModuleCube.qml" line="88"/>
         <source>Make Item Level always 99</source>
         <translation>크래프트 아이템 레벨을 항상 99로 설정</translation>
     </message>
@@ -925,62 +967,67 @@ You can edit seed manually or press F5 to generate new one.
         <translation>&lt;b&gt;바닥의 아이템 숨기기&lt;/b&gt;: 아이템 이름을 투명하게 만듭니다. &lt;br&gt;여전히 주울 수 있지만, Alt 키를 눌렀을 때 이름이 보이지 않습니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="34"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="30"/>
+        <source>&lt;br&gt;&lt;b&gt;With D2R: RotW - just use game loot filter! You don&apos;t need those anymore!&lt;b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleDropFiltering.qml" line="37"/>
         <source>ID scroll</source>
         <translation>아이템 식별 스크롤</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="41"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="44"/>
         <source>TP scroll</source>
         <translation>마을 포털 스크롤</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="48"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="51"/>
         <source>Health pots 1-3</source>
         <translation>하급/중급/상급 체력 물약</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="55"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="58"/>
         <source>All Health pots</source>
         <translation>모든 체력 물약</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="62"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="65"/>
         <source>Mana pots 1-3</source>
         <translation>하급/중급/상급 마나 물약</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="69"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="72"/>
         <source>All Mana pots</source>
         <translation>모든 마나 물약</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="76"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="80"/>
         <source>Rejuv pots</source>
         <translation>회복 물약</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="83"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="87"/>
         <source>Full Rejuv pots</source>
         <translation>대량의 활력 물약</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="90"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="93"/>
         <source>Bolts/Arrows</source>
         <translation>화살/볼트</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="97"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="100"/>
         <source>Stamina/Antidote/Thawing</source>
         <translation>체력 회복/해독/해동 물약</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="104"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="107"/>
         <source>Keys,Fire/Poison pots</source>
         <translation>열쇠, 폭발/독 물약</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleDropFiltering.qml" line="111"/>
+        <location filename="../qml/ModuleDropFiltering.qml" line="114"/>
         <source>Hide low quality/damaged/cracked items</source>
         <translation>질 낮은/손상된/파손된 아이템 숨기기</translation>
     </message>
@@ -1066,102 +1113,110 @@ You can edit seed manually or press F5 to generate new one.
         <translation>유니크 아이템 확률 증가</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="27"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="28"/>
         <source>Increase Set Chance</source>
         <translation>세트 아이템 확률 증가</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="37"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="39"/>
         <source>Increase Rare Chance</source>
         <translation>레어 아이템 확률 증가</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="47"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="50"/>
         <source>Increase Chance of High-level equipment</source>
         <translation>고레벨 장비 확률 증가</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="48"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="51"/>
         <source>This will reduce the reduce the chance that equipment of lower level will drop as a fallback.&lt;br&gt;For example, for level 85 TC there is a 98% chance that it will drop from 84 level TC, and so on.</source>
         <translation>이 설정은 고레벨 장비 드롭 시&lt;br&gt;낮은 레벨 장비 드롭 확률을 줄입니다.&lt;br&gt;예: 85레벨 TC의 경우 84레벨 TC에서 드롭될 확률이 98%입니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="57"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="61"/>
         <source>Increase Champion/Unique item count</source>
         <translation>챔피언/유니크 몬스터 아이템 드롭 개수 증가</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="58"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="62"/>
         <source>This will make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one.&lt;br&gt;Note that potion drops are slightly reduced.</source>
         <translation>이 설정으로 유니크 보스는 1개 대신 4개의 아이템을, 챔피언은 1개 대신 2개의 아이템을 드롭합니다.&lt;br&gt;물약 드롭 수가 약간 줄어듭니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="64"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="68"/>
         <source>Always quest drops from bosses</source>
         <translation>보스가 항상 퀘스트 아이템 드롭</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="71"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="75"/>
         <source>Adjust proportion of main drop classes</source>
         <translation>주요 드롭 클래스의 비율 조정</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="75"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="79"/>
+        <source>Increse drop count (via NoDrop)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ModuleItemDrops.qml" line="80"/>
+        <source>This provides ability to gradually reduce NoDrop picks&lt;br&gt;(it basically similar to increasing players count in the game)&lt;br&gt;This only affect base monster drops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>NoDrop (higher=LESS drops)</source>
-        <translation>노드롭 (높을수록 드롭률 낮음)</translation>
+        <translation type="vanished">노드롭 (높을수록 드롭률 낮음)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="76"/>
         <source>NoDrop slider provides ability to gradually reduce NoDrop picks&lt;br&gt;(it basically similar to increasing players count in the game)</source>
-        <translation>슬라이더로 노드롭 선택을 점진적으로 줄일 수 있습니다.&lt;br&gt;(게임 내 플레이어 수를 증가시키는 것과 유사한 효과)</translation>
+        <translation type="vanished">슬라이더로 노드롭 선택을 점진적으로 줄일 수 있습니다.&lt;br&gt;(게임 내 플레이어 수를 증가시키는 것과 유사한 효과)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="86"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="90"/>
         <source>Good TC (Runes/Gems/Jewellery)</source>
         <translation>룬/보석/장신구 드롭률 설정</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="87"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="91"/>
         <source>That will make Gems/Runes/Rings/Amulets/Charms drop far more often&lt;br&gt;compared to equipment (armor/weapons).</source>
         <translation>이 설정은 보석/룬/반지/목걸이/부적이&lt;br&gt;장비(방어구/무기)보다 훨씬 더 자주 드롭되도록 합니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="97"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="101"/>
         <source>Equipment (armor/weapons)</source>
         <translation>무기/방어구 드롭률 설정</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="98"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="102"/>
         <source>Relative chance of equipment dropping compared to other items (or NoDrop).</source>
         <translation>다른 아이템(또는 NoDrop)에 비해 장비가 드롭될 확률입니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="108"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="112"/>
         <source>Gold (higher=MORE gold)</source>
         <translation>골드 드롭량 설정</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="109"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="113"/>
         <source>Relative chance of gold compared to other items.</source>
         <translation>다른 아이템에 비해 골드가 드롭될 확률입니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="119"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="123"/>
         <source>Junk (keys/bolts/etc) (higher=MORE junk)</source>
         <translation>열쇠/화살 등의 잡화</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="120"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="124"/>
         <source>Relative chance of junk items compared to other items.</source>
         <translation>다른 아이템에 비해 잡화가 드롭될 확률입니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="130"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="134"/>
         <source>Make all Uniques have equal rarity on same base</source>
         <translation>동일한 기본 아이템에서 모든 유니크가 같은 희귀도를 가짐</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleItemDrops.qml" line="131"/>
+        <location filename="../qml/ModuleItemDrops.qml" line="135"/>
         <source>Now Uniques with equal item base will have equal chance to drop.&lt;br&gt;For example Tyrael&apos;s and Templar&apos;s will have equal chance. (and all rings too)</source>
         <translation>이제 같은 기본 아이템을 가진 유니크 아이템은 동일한 확률로 드롭됩니다.&lt;br&gt;예: 티리엘의 권능과 템플러의 갑옷이 동일한 확률로 드롭됩니다. (모든 유니크 반지도 마찬가지)</translation>
     </message>
@@ -1462,27 +1517,27 @@ You can edit seed manually or press F5 to generate new one.
         <translation>면역 몬스터와 0 저항력을 가진 몬스터에는 영향을 주지 않습니다.&lt;br&gt;이 설정은 몬스터가 받는 속성 피해량을 직접적으로 조절합니다:&lt;br&gt;- 면역(100% 저항)이나 무저항(0% 저항) 몬스터에는 영향을 주지 않습니다.&lt;br&gt;- 설정 값이 낮을수록 몬스터가 받는 속성 피해가 낮아집니다.&lt;br&gt;- 설정 값이 높을수록 몬스터가 받는 속성 피해가 높아집니다.&lt;br&gt;예(몬스터가 저항력이 80%, 20%의 속성 피해를 받을 때):&lt;br&gt;1. 설정 값 10%: 몬스터가 받는 새 속성 피해 = 2% (매우 낮아짐)&lt;br&gt;2. 설정 값 200%: 몬스터가 받는 새 속성 피해 = 40% (높아짐)&lt;br&gt;- 이 설정으로 몬스터가 100% 피해를 받게 되지는 않습니다.&lt;br&gt;- 몬스터가 받는 속성 피해는 최소 1%, 최대 99%로 제한됩니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleMonStats.qml" line="88"/>
+        <location filename="../qml/ModuleMonStats.qml" line="87"/>
         <source>Apply resistance options to following:</source>
         <translation>저항력 옵션 적용 대상:</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleMonStats.qml" line="92"/>
+        <location filename="../qml/ModuleMonStats.qml" line="93"/>
         <source>Elemental (Fire/Cold/Lightning)</source>
         <translation>원소 (화염/냉기/번개)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleMonStats.qml" line="99"/>
+        <location filename="../qml/ModuleMonStats.qml" line="100"/>
         <source>Poison</source>
         <translation>독</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleMonStats.qml" line="106"/>
+        <location filename="../qml/ModuleMonStats.qml" line="108"/>
         <source>Magic (Non-elemental)</source>
         <translation>마법 (비원소)</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleMonStats.qml" line="113"/>
+        <location filename="../qml/ModuleMonStats.qml" line="115"/>
         <source>Physical</source>
         <translation>물리</translation>
     </message>
@@ -1500,82 +1555,82 @@ You can edit seed manually or press F5 to generate new one.
         <translation>아이템 속성의 최소값과 최대값 사이에서 무작위로 결정되는 효과를 제거합니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="12"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="14"/>
         <source>Perfect rolls for crafting in the Cube</source>
         <translation>호라드릭의 함 제작 시 완벽한 수치</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="19"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="21"/>
         <source>Perfect Uniques</source>
         <translation>유니크 아이템 완벽한 수치</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="26"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="28"/>
         <source>Perfect Rune Word rolls</source>
         <translation>룬워드 완벽한 수치</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="33"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="35"/>
         <source>Perfect Set items</source>
         <translation>세트 아이템 완벽한 수치</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="40"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="43"/>
         <source>Perfect Magic/Rare affixes</source>
         <translation>매직/레어 아이템 접사 완벽한 수치</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="47"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="50"/>
         <source>Perfect predetermined crafted affixes</source>
         <translation>제작 아이템의 고정 접사 완벽한 수치</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="54"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="57"/>
         <source>Always max defense Armor</source>
         <translation>방어구 항상 최대 방어력</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="61"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="66"/>
         <source>Unique items level 1 power multiply</source>
         <translation>레벨 1 유니크 아이템 능력치 배율</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="72"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="77"/>
         <source>Unique items level 50 power multiply</source>
         <translation>레벨 50 유니크 아이템 능력치 배율</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="83"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="88"/>
         <source>Set items level 1 power multiply</source>
         <translation>레벨 1 세트 아이템 능력치 배율</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="94"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="99"/>
         <source>Set items level 50 power multiply</source>
         <translation>레벨 50 세트 아이템 능력치 배율</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="105"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="110"/>
         <source>Magic affix level 1 power multiply</source>
         <translation>레벨 1 매직 접사 능력치 배율</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="116"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="121"/>
         <source>Magic affix level 50 power multiply</source>
         <translation>레벨 50 매직 접사 능력치 배율</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="127"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="132"/>
         <source>Rune Words power multiply</source>
         <translation>룬워드 능력치 배율</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="138"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="143"/>
         <source>Crafted items power multiply</source>
         <translation>제작 아이템 능력치 배율</translation>
     </message>
     <message>
-        <location filename="../qml/ModulePerfectRoll.qml" line="149"/>
+        <location filename="../qml/ModulePerfectRoll.qml" line="154"/>
         <source>Rune/Gems power multiply</source>
         <translation>룬/보석 능력치 배율</translation>
     </message>
@@ -1593,57 +1648,57 @@ You can edit seed manually or press F5 to generate new one.
         <translation>게임 플레이를 더 편리하게 만들어줄 작은 개선사항들:&lt;br&gt;1. 책/화살통/열쇠의 최대 보유량 증가;&lt;br&gt;2. 유니크 부적의 제한 해제 (랜덤화 기능과 함께 사용 시 유용);&lt;br&gt;3. 마을에서 일부 스킬 사용 허용;&lt;br&gt;4. 아이템 비용 감소.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="12"/>
+        <location filename="../qml/ModuleQol.qml" line="14"/>
         <source>Increase tome sizes 20 -&gt; 60</source>
         <translation>책 최대 보유량 증가 20 -&gt; 60</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="19"/>
+        <location filename="../qml/ModuleQol.qml" line="21"/>
         <source>Increase key chain 12 -&gt; 50</source>
         <translation>열쇠 최대 보유량 증가 12 -&gt; 50</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="26"/>
+        <location filename="../qml/ModuleQol.qml" line="28"/>
         <source>Increase quivers size -&gt; 511</source>
         <translation>화살통 최대 보유량 증가 -&gt; 511</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="27"/>
+        <location filename="../qml/ModuleQol.qml" line="29"/>
         <source>D2R already have 500 quiver size, so use this for LoD</source>
         <translation>디아블로 2 레저렉션은 이미 500개의 화살/볼트를 보유할 수 있으므로, 디아블로 2 클래식에서 사용하세요</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="33"/>
+        <location filename="../qml/ModuleQol.qml" line="35"/>
         <source>Remove limit on Unique charms</source>
         <translation>유니크 부적의 제한 해제</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="40"/>
+        <location filename="../qml/ModuleQol.qml" line="43"/>
         <source>Allow using Teleport, BC, BO in town</source>
         <translation>마을에서 텔레포트, 전투 명령, 전투 외침 사용 허용</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="47"/>
+        <location filename="../qml/ModuleQol.qml" line="50"/>
         <source>Allow all skills in town</source>
         <translation>마을에서 모든 스킬 사용 허용</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="54"/>
+        <location filename="../qml/ModuleQol.qml" line="57"/>
         <source>Show ilevel in items&apos; titles</source>
         <translation>아이템 이름에 아이템 레벨 표시</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="61"/>
+        <location filename="../qml/ModuleQol.qml" line="64"/>
         <source>Disable experience penalty after level 70</source>
         <translation>70레벨 이후 경험치 페널티 비활성화</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="62"/>
+        <location filename="../qml/ModuleQol.qml" line="65"/>
         <source>That means you won&apos;t have around 1% EXP at higher levels, so high level grind will be much faster.</source>
         <translation>이는 높은 레벨에서 약 1%의 경험치 손실을 없앤다는 의미이므로, 높은 레벨에서의 경험치 획득이 훨씬 빨라질 것입니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleQol.qml" line="68"/>
+        <location filename="../qml/ModuleQol.qml" line="73"/>
         <source>Reduce costs of skills and stats on items (affects repair cost mostly)</source>
         <translation>아이템의 스킬과 능력치 요구사항 감소 (주로 수리 비용에 영향)</translation>
     </message>
@@ -1671,57 +1726,57 @@ You can edit seed manually or press F5 to generate new one.
         <translation>100% 이상으로 설정하면 힘 요구치가&lt;br&gt; 원래보다 높아집니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="22"/>
+        <location filename="../qml/ModuleRequirements.qml" line="23"/>
         <source>Change Dexterity requirements on items, %</source>
         <translation>아이템의 민첩 요구치 변경, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="32"/>
+        <location filename="../qml/ModuleRequirements.qml" line="34"/>
         <source>Change Character level requirement on regular items, %</source>
         <translation>일반 아이템의 요구 레벨 변경, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="33"/>
+        <location filename="../qml/ModuleRequirements.qml" line="35"/>
         <source>That controls &apos;Level required:&apos; you see on the items.</source>
         <translation>아이템에 표시되는 &apos;필요 레벨:&apos;을 조정합니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="42"/>
+        <location filename="../qml/ModuleRequirements.qml" line="45"/>
         <source>Change Character level requirement on Unique/Set items, %</source>
         <translation>유니크/세트 아이템의 요구 레벨 변경, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="52"/>
+        <location filename="../qml/ModuleRequirements.qml" line="56"/>
         <source>Change Character level requirement on Magic/Rare items, %</source>
         <translation>매직/레어 아이템의 요구 레벨 변경, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="62"/>
+        <location filename="../qml/ModuleRequirements.qml" line="67"/>
         <source>Change Minimal level required to spent points into skill, %</source>
         <translation>스킬 포인트 사용에 필요한 최소 레벨 변경, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="63"/>
+        <location filename="../qml/ModuleRequirements.qml" line="68"/>
         <source>For example, if you select 50%, you can get level 30 skill on level 15 instead.</source>
         <translation>예: 50%로 설정하면 원래 30레벨에 얻을 수 있는 스킬을 15레벨에 얻을 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="72"/>
+        <location filename="../qml/ModuleRequirements.qml" line="78"/>
         <source>Change quality level on regular items, %</source>
         <translation>일반 아이템의 아이템 레벨 변경, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="73"/>
+        <location filename="../qml/ModuleRequirements.qml" line="79"/>
         <source>That controls how valueable item is from drop calculation process.&lt;br&gt; Lower value means you get item dropped much earlier in the game.</source>
         <translation>아이템 드롭 계산 시 아이템의 등급을 조정합니다.&lt;br&gt; 낮은 값으로 설정하면 게임 초반에 해당 아이템을 얻을 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="82"/>
+        <location filename="../qml/ModuleRequirements.qml" line="89"/>
         <source>Change quality level on Unique/Set items, %</source>
         <translation>유니크/세트 아이템의 아이템 레벨 변경, %</translation>
     </message>
     <message>
-        <location filename="../qml/ModuleRequirements.qml" line="92"/>
+        <location filename="../qml/ModuleRequirements.qml" line="100"/>
         <source>Change quality level on Magic/Rare items, %</source>
         <translation>매직/레어 아이템의 아이템 레벨 변경, %</translation>
     </message>
@@ -1921,37 +1976,32 @@ You can edit seed manually or press F5 to generate new one.
 <context>
     <name>PageMain</name>
     <message>
-        <location filename="../qml/PageMain.qml" line="14"/>
+        <location filename="../qml/PageMain.qml" line="15"/>
         <source>Main</source>
         <translation type="unfinished">메인</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="19"/>
-        <source>This page contains mandatory inputs for generation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="23"/>
+        <location filename="../qml/PageMain.qml" line="20"/>
         <source>Reset to default</source>
         <translation type="unfinished">기본값으로 재설정</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="32"/>
+        <location filename="../qml/PageMain.qml" line="29"/>
         <source>Input folder (mandatory):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="33"/>
+        <location filename="../qml/PageMain.qml" line="30"/>
         <source>Generally, just choose folder with Game.exe.&lt;br&gt;Note: for ProjectD2, select subfolder named &apos;ProjectD2&apos; in Diablo II.&lt;br&gt;Press Detect! to find information in Windows Registry.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="45"/>
+        <location filename="../qml/PageMain.qml" line="42"/>
         <source>Detect!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="52"/>
+        <location filename="../qml/PageMain.qml" line="49"/>
         <source>Output folder (optional, leave empty to auto-detect):</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1961,63 +2011,78 @@ You can edit seed manually or press F5 to generate new one.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="64"/>
-        <source>D2 Legacy (Pre-D2R): 1.14, ProjectD2</source>
+        <location filename="../qml/PageMain.qml" line="91"/>
+        <source>D2 Legacy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="64"/>
-        <source>D2 Resurrected - LoD</source>
+        <location filename="../qml/PageMain.qml" line="91"/>
+        <source>D2 Resurrected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="64"/>
-        <source>D2 Resurrected - RotW</source>
+        <location filename="../qml/PageMain.qml" line="108"/>
+        <source>D2R - LoD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="70"/>
+        <location filename="../qml/PageMain.qml" line="108"/>
+        <source>D2R - RotW</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="125"/>
+        <source>This determines source data that is used by randomizer&lt;br&gt;&lt;b&gt;Game data archive&lt;/b&gt; - For D2R Resurrected, this is CASC storage;&lt;br&gt;&lt;b&gt;Game data archive&lt;/b&gt; - For D2 Legacy this is .mpq file;&lt;br&gt;&lt;b&gt;Folder with extracted data&lt;/b&gt; - If you want to use D2R select folder containing modinfo.json, otherwise select game root&lt;br&gt;&lt;b&gt;Only .txt&lt;/b&gt; - Folder with .txt files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="133"/>
+        <source>This determines output type:&lt;br&gt;&lt;b&gt;D2 Resurrected mod&lt;/b&gt; - create D2R mod with all needed subfolders, path is determined by config name (see Extra tab)&lt;br&gt;&lt;b&gt;Full folders&lt;/b&gt; - create folder structure (data/global/...) with txt/json&lt;br&gt;&lt;b&gt;Only .txt&lt;/b&gt; - Folder with .txt files, note that for D2R that will mean json files will not be written&lt;br&gt;&lt;b&gt;Dry run&lt;/b&gt; - read input, process randomizer, but don&apos;t write anything</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="134"/>
+        <source>Dry run</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="147"/>
+        <source>Seed determine how reproduceable generation results are.&lt;br&gt;If seed stays the same, output of generation is also always exactly the same.&lt;br&gt;If you want each generation be stable and reproduceable, remove &lt;b&gt;Create new seed&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="124"/>
         <source>Input mode, where to read game data:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="71"/>
-        <source>This determines source data that is used by randomizer&lt;br&gt;Game data archive - For D2R Resurrected, this is CASC storage;&lt;br&gt;Game data archive - For D2 Legacy this is .mpq files;&lt;br&gt;Folder with extracted data - If you want to use D2R select folder containing modinfo.json&lt;br&gt;Last option is for folder with .txt files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="72"/>
-        <source>Game data archive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="72"/>
+        <location filename="../qml/PageMain.qml" line="126"/>
         <source>Folder with extracted data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="72"/>
-        <location filename="../qml/PageMain.qml" line="80"/>
+        <location filename="../qml/PageMain.qml" line="126"/>
+        <location filename="../qml/PageMain.qml" line="134"/>
         <source>Only .txt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="78"/>
+        <location filename="../qml/PageMain.qml" line="126"/>
+        <source>Game data archive (CASC or Storm=mpq)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PageMain.qml" line="132"/>
         <source>Output format, how files and folders will be created:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="79"/>
-        <source>This determines output type:&lt;br&gt;First one will create D2R mod with all needed subfolders,&lt;br&gt;Second one will create folder structure with txt/json&lt;br&gt;Last one will only output .txt</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="80"/>
+        <location filename="../qml/PageMain.qml" line="134"/>
         <source>D2 Resurrected mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="80"/>
+        <location filename="../qml/PageMain.qml" line="134"/>
         <source>Full folders</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2030,22 +2095,17 @@ You can edit seed manually or press F5 to generate new one.
         <translation type="obsolete">Diablo II 레거시 설치 사용</translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="90"/>
+        <location filename="../qml/PageMain.qml" line="144"/>
         <source>Random seed:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="93"/>
-        <source>Seed determine how reproduceable generation results are.&lt;br&gt;If seed stays the same, output of generation is also always exactly the same.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PageMain.qml" line="100"/>
+        <location filename="../qml/PageMain.qml" line="156"/>
         <source>Generate new</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageMain.qml" line="104"/>
+        <location filename="../qml/PageMain.qml" line="160"/>
         <source>Create new seed on every Generate call</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2071,7 +2131,7 @@ You can edit seed manually or press F5 to generate new one.
         <translation type="obsolete">D2R 저장 및 사용자 설정 루트:</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="76"/>
+        <location filename="../qml/PageTool.qml" line="84"/>
         <source>Copy Settings.json</source>
         <translation type="unfinished">Settings.json 복사</translation>
     </message>
@@ -2084,87 +2144,87 @@ You can edit seed manually or press F5 to generate new one.
         <translation type="obsolete">D2R 명령 인수 (읽기 전용):</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="21"/>
+        <location filename="../qml/PageTool.qml" line="26"/>
         <source>Extra helpful utilities</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="31"/>
+        <location filename="../qml/PageTool.qml" line="49"/>
         <source>Mod id:</source>
         <translation type="unfinished">모드 ID:</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="32"/>
+        <location filename="../qml/PageTool.qml" line="50"/>
         <source>That will affect game&apos;s saves folder subdirectory and mod subfolder for D2R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="44"/>
+        <location filename="../qml/PageTool.qml" line="36"/>
         <source>Force output for all txt/json (for further manual edit)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="45"/>
+        <location filename="../qml/PageTool.qml" line="37"/>
         <source>This will force to output all game files,&lt;br&gt;not only used by randomizer in current configuration.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="61"/>
+        <location filename="../qml/PageTool.qml" line="68"/>
         <source>D2R folder for mod save and settings:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="80"/>
+        <location filename="../qml/PageTool.qml" line="88"/>
         <source>This will copy Game Settings to mod folder&lt;br&gt;That will allow to skip configuring mod on launch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="86"/>
+        <location filename="../qml/PageTool.qml" line="94"/>
         <source>Copy all save files (.d2s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="90"/>
+        <location filename="../qml/PageTool.qml" line="98"/>
         <source>this will copy all your character save files to modded folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="108"/>
+        <location filename="../qml/PageTool.qml" line="117"/>
         <source>D2 commandline arguments (read-only):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="119"/>
+        <location filename="../qml/PageTool.qml" line="128"/>
         <source>Choose convenient way to launch the mod:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="124"/>
+        <location filename="../qml/PageTool.qml" line="133"/>
         <source>Option 1:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="128"/>
+        <location filename="../qml/PageTool.qml" line="137"/>
         <source>Make shortcut on Desktop</source>
         <translation type="unfinished">바탕화면에 바로가기 만들기</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="140"/>
+        <location filename="../qml/PageTool.qml" line="149"/>
         <source>Option 2:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="143"/>
+        <location filename="../qml/PageTool.qml" line="152"/>
         <source>Reset launch to unmodded</source>
         <translation type="unfinished">모드 해제된 상태로 실행 초기화</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="148"/>
+        <location filename="../qml/PageTool.qml" line="157"/>
         <source>Set launch to mod</source>
         <translation type="unfinished">모드로 실행 설정</translation>
     </message>
     <message>
-        <location filename="../qml/PageTool.qml" line="153"/>
+        <location filename="../qml/PageTool.qml" line="162"/>
         <source>(Close Battlenet launcher before actions!)</source>
         <translation type="unfinished"></translation>
     </message>
