@@ -23,7 +23,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
+      with:
+        submodules: recursive
 
     # Step 2: Install Qt6 SDK via an official community action
     - name: Install Qt6
