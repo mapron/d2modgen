@@ -9,6 +9,7 @@
 #include "TableId.hpp"
 #include "Logger.hpp"
 
+#ifdef _WIN32
 #include <StormLib.h>
 
 namespace D2ModGen {
@@ -93,3 +94,14 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
 }
 
 }
+
+#else
+
+namespace D2ModGen {
+
+IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames) const noexcept
+{
+    return {};
+}
+}
+#endif

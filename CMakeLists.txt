@@ -34,8 +34,10 @@ include(qt_helpers)
 
 add_definitions(-DCASCLIB_NO_AUTO_LINK_LIBRARY -DSTORMLIB_NO_AUTO_LINK)
 
+if (WIN32)
 include(CascLib)
 include(StormLib)
+endif()
 
 include(ext/mernel/mernel_thirdparty.cmake)
 include(ext/mernel/mernel.cmake)
@@ -47,7 +49,7 @@ AddTarget(TYPE shared NAME ModgenCore
     SOURCE_DIR ${sourceRoot}/CoreLib
 	INCLUDES   ${sourceRoot}/CoreLib
     EXPORT_INCLUDES
-    LINK_LIBRARIES rapidjson casclib stormlib MernelPlatform
+    LINK_LIBRARIES [ WIN33 ? casclib stormlib ] rapidjson MernelPlatform
     )
 
 function(InstallTextFiles folder)

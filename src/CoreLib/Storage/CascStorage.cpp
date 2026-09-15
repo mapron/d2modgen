@@ -9,6 +9,7 @@
 #include "TableId.hpp"
 #include "Logger.hpp"
 
+#ifdef _WIN32
 #include <CascLib.h>
 
 namespace D2ModGen {
@@ -75,3 +76,12 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
 }
 
 }
+#else
+namespace D2ModGen {
+
+IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames) const noexcept
+{
+    return {};
+}
+}
+#endif
