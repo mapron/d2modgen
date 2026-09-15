@@ -50,5 +50,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     return 1;
 }
 #else
-int main() { return 0;}
+int main()
+{
+    return 0;
+}
 #endif
