@@ -36,7 +36,7 @@ WidgetCommonTab {
         value_key: "addTeleport"
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Stat points gain per level")
         tooltip: ""
         from: 1
@@ -46,7 +46,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Skill points gain per level (D2R only!)")
         tooltip: ""
         from: 1
@@ -56,7 +56,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Maximum hard points for skill (D2R only!)")
         tooltip: ""
         from: 1
@@ -74,7 +74,6 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "mercHP"
         isCompact: false
-        suffix: "%"
     }
 
     WidgetExponentialSlider {
@@ -85,6 +84,5 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "mercDam"
         isCompact: false
-        suffix: "%"
     }
 }

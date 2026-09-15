@@ -6,7 +6,7 @@ WidgetCommonControl {
     property alias value_context: internal.value_context
     property alias value_key: internal.value_key
 
-    DynamicLineEdit {
+    control: DynamicLineEdit {
         id: internal
         Layout.fillWidth: true
     }

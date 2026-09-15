@@ -15,7 +15,7 @@ WidgetCommonTab {
         value_key: "charmGamble"
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Unique chance, times<br>Note: you still can get a lot of failed uniques for no known reason.")
         tooltip: ""
         from: 1
@@ -25,7 +25,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Set chance, times")
         tooltip: ""
         from: 1
@@ -35,7 +35,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Rare chance, times")
         tooltip: ""
         from: 1
@@ -45,7 +45,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Exceptional upgrade chance, times")
         tooltip: ""
         from: 1
@@ -55,7 +55,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Elite upgrade chance, times<br>Note: seems like Exc. check is done beforehead, so if it&apos;s high enough, elite won&apos;t generate.")
         tooltip: ""
         from: 1

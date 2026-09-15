@@ -86,6 +86,7 @@ ConfigHandler::ConfigHandler()
     , m_appData(Mernel::AppLocations("D2R mod generator").getAppdataDir())
     , m_defaultPath(m_appData / "config.json")
 {
+    loadConfig(Mernel::PropertyTree{}, true);
 }
 
 bool ConfigHandler::loadAppConfig()
@@ -159,6 +160,7 @@ bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data, bool resetMain)
 
 bool ConfigHandler::saveConfig(Mernel::PropertyTree& data) const
 {
+    data.convertToMap();
     for (auto& p : m_modules) {
         Mernel::PropertyTree cfg = p.m_currentConfig;
         cfg.convertToMap();
@@ -283,9 +285,10 @@ GenerationEnvironment ConfigHandler::getEnv(std::string& err) const
     const auto&           c = m_modules[0].m_currentConfig;
     GenerationEnvironment env;
 
-    auto version    = GenerationEnvironment::Version(c.value("version", Mernel::PropertyTreeScalar(2)).toInt());
-    auto inputMode  = GenerationEnvironment::InputMode(c.value("inputMode", Mernel::PropertyTreeScalar(0)).toInt());
-    auto outputMode = GenerationEnvironment::OutputMode(c.value("outputMode", Mernel::PropertyTreeScalar(0)).toInt());
+    auto versionMajor = GenerationEnvironment::VersionMajor(c.value("versionMajor", Mernel::PropertyTreeScalar(1)).toInt());
+    auto versionD2R   = GenerationEnvironment::VersionD2R(c.value("versionD2R", Mernel::PropertyTreeScalar(1)).toInt());
+    auto inputMode    = GenerationEnvironment::InputMode(c.value("inputMode", Mernel::PropertyTreeScalar(0)).toInt());
+    auto outputMode   = GenerationEnvironment::OutputMode(c.value("outputMode", Mernel::PropertyTreeScalar(0)).toInt());
 
     env.modName     = c.value("modname", Mernel::PropertyTreeScalar("rando")).toString();
     env.inputPath   = string2path(c.value("inputPath", Mernel::PropertyTreeScalar("")).toString());
@@ -311,8 +314,8 @@ GenerationEnvironment ConfigHandler::getEnv(std::string& err) const
         return env;
     }
 
-    env.isLegacy          = version == GenerationEnvironment::Version::Legacy;
-    env.needDataSubfolder = version == GenerationEnvironment::Version::D2R_LoD;
+    env.isLegacy          = versionMajor == GenerationEnvironment::VersionMajor::Legacy;
+    env.needDataSubfolder = versionD2R == GenerationEnvironment::VersionD2R::LoD;
     if (inputMode == GenerationEnvironment::InputMode::Game) {
         if (env.isLegacy) {
             env.inputMode = StorageType::D2LegacyInternal;

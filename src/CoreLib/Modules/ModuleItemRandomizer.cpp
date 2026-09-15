@@ -250,8 +250,11 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     };
 
-    auto commonLvlReq = [](const Row& row) { return row["lvl"].toInt(); };
-    auto commonRWreq  = [&determineRWlevel](const Row& row) {
+    auto commonLvlReq = [](const Row& row) {
+        int ilvl = row["lvl"].toInt();
+        return ilvl > 1 ? ilvl : row["lvl req"].toInt();
+    };
+    auto commonRWreq = [&determineRWlevel](const Row& row) {
         return determineRWlevel({ row["Rune1"].str, row["Rune2"].str, row["Rune3"].str, row["Rune4"].str, row["Rune5"].str, row["Rune6"].str });
     };
     auto commonSetReq = [&setLevels](const Row& row) {

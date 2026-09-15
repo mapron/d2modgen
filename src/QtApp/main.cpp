@@ -22,6 +22,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QValidator>
 
 namespace {
 
@@ -111,6 +112,8 @@ int main(int argc, char* argv[])
 
     UIController   appui(configHandler);
     RAIITranslator trans(appui.getApp("langId", "en_US"));
+
+    qmlRegisterType<D2ModGen::BasicPathValidator>("CustomValidators", 1, 0, "BasicPathValidator");
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("appui", &appui);

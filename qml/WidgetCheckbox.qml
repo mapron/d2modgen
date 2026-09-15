@@ -12,7 +12,7 @@ WidgetCommonControl {
     controlAfterCaption: false
     hideCaption: true
 
-    DynamicCheckbox {
+    control: DynamicCheckbox {
         id: internal
         text: root.caption
     }

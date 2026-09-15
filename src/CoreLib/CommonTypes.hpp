@@ -58,12 +58,17 @@ enum class StorageType
 };
 
 struct GenerationEnvironment {
-    enum class Version
+    enum class VersionMajor
     {
         Legacy,
-        D2R_LoD,
-        D2R_RotW,
+        D2R,
     };
+    enum class VersionD2R
+    {
+        LoD,
+        RotW,
+    };
+
     enum class InputMode
     {
         Game,

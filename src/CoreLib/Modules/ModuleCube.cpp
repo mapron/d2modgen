@@ -63,8 +63,8 @@ ModuleCube::ModuleCube()
           { "craftNoRunes", Mernel::PropertyTreeScalar{ false } },
           { "craftNoStrict", Mernel::PropertyTreeScalar{ false } },
           { "noGemUpgrade", Mernel::PropertyTreeScalar{ false } },
-          { "quickPortals", Mernel::PropertyTreeScalar{ false } },
-          { "quickQuests", Mernel::PropertyTreeScalar{ false } },
+          { "quickPortals", Mernel::PropertyTreeScalar{ true } },
+          { "quickQuests", Mernel::PropertyTreeScalar{ true } },
           { "socketing", Mernel::PropertyTreeScalar{ false } },
           { "upgrading", Mernel::PropertyTreeScalar{ false } },
       })

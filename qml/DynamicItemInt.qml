@@ -2,6 +2,7 @@ import QtQuick
 
 Item {
     id: root
+    visible: false
 
     property var value_context: null
     property string value_key: "key"

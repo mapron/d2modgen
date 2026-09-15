@@ -29,7 +29,7 @@ WidgetCommonTab {
         value_key: "nodrop_rvs"
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Normal difficulty resistance penalty, -all%")
         tooltip: ""
         from: 0
@@ -39,7 +39,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Nightmare difficulty resistance penalty, -all%")
         tooltip: ""
         from: 0
@@ -49,7 +49,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Hell difficulty resistance penalty, -all%")
         tooltip: ""
         from: 0
@@ -59,7 +59,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Nightmare area levels, +levels")
         tooltip: ""
         from: 0
@@ -69,7 +69,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Hell area levels, +levels")
         tooltip: ""
         from: 0

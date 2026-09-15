@@ -19,4 +19,10 @@ TextField {
     selectByMouse: true
 
     onEditingFinished: item.dynamicValue = text
+
+    background: Rectangle {
+        color: textInput.palette.base
+        border.color: textInput.acceptableInput ? palette.accent : "red"
+        border.width: textInput.acceptableInput ? 1 : 2
+    }
 }

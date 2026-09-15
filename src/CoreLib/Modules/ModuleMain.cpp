@@ -11,12 +11,13 @@ ModuleMain::ModuleMain()
     : PluginModule(Mernel::PropertyTreeMap{
           { "inputPath", Mernel::PropertyTreeScalar{ "" } },
           { "outputPath", Mernel::PropertyTreeScalar{ "" } },
-          { "version", Mernel::PropertyTreeScalar{ 2 } },
+          { "versionMajor", Mernel::PropertyTreeScalar{ 1 } }, // 0 = LoD, 1 = D2R
+          { "versionD2R", Mernel::PropertyTreeScalar{ 1 } },   // 0 D2R-LoD, 1=D2R-RotW
           { "inputMode", Mernel::PropertyTreeScalar{ 0 } },
           { "outputMode", Mernel::PropertyTreeScalar{ 0 } },
           { "modname", Mernel::PropertyTreeScalar{ "rando" } },
           { "seed", Mernel::PropertyTreeScalar{ 0 } },
-          { "refreshSeed", Mernel::PropertyTreeScalar{ false } },
+          { "refreshSeed", Mernel::PropertyTreeScalar{ true } },
           { "exportAll", Mernel::PropertyTreeScalar{ false } },
       })
 {

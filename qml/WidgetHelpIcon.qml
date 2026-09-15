@@ -20,7 +20,7 @@ Label {
             text: root.tooltipText
             visible: parent.containsMouse
             delay: 0
-            timeout: 5000
+            timeout: 10000
 
             // Automatically flips text color matching light/dark states
             contentItem: Text {

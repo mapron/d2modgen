@@ -13,7 +13,7 @@ WidgetCommonTab {
         value_context: root.value_context
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Crazy-ness (or 'NON-balance level', lower = more balance, 100=chaos)")
         tooltip: qsTr("Crazyness level - determine level difference to be used when selecting new properties for item/rune/etc.<br>With '10' it will select between level-10 and level+10 at first, if there are <50 candidates,<br>then it will select level-30..level+30, and finally it will try fully random. <br>In short, lower value = more balance in terms of original affix level and item level.")
         from: 5
@@ -23,7 +23,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Item type fit percent (0% = fully random, 100% = all according to item type)")
         tooltip: qsTr("Item fit slider allow you to select how much item affixes will be related to original item type.<br>For example, if you choose 80%, then 4 of 5 affixes will be selected to pool for specific item type<br>Item can have have several pools related to its type - say, scepter is a rod and a melee weapon.<br>Item type-specific properties will be picked in proportion to all types.")
         from: 0
@@ -33,7 +33,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("How many original properties to keep, percent")
         tooltip: qsTr("You can select how many properties of original item you want to keep.<br>If 0, then every item will be fully randomized.<br>If 50, then half of genereted properties will be original, and half randomized.<br>If 100, then every property will be property of original item. (you can reduce an amount of props)")
         from: 0
@@ -55,7 +55,7 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "relativeCountMin"
         isCompact: true
-        suffix: "%"
+        stretchCaption: true
     }
 
     WidgetExponentialSlider {
@@ -66,7 +66,7 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "relativeCountMax"
         isCompact: true
-        suffix: "%"
+        stretchCaption: true
     }
 
     WidgetExponentialSlider {
@@ -77,7 +77,7 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "setRelativeCountMin"
         isCompact: true
-        suffix: "%"
+        stretchCaption: true
     }
 
     WidgetExponentialSlider {
@@ -88,10 +88,10 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "setRelativeCountMax"
         isCompact: true
-        suffix: "%"
+        stretchCaption: true
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Number of versions of each unique")
         tooltip: qsTr("allow you to have different uniques with same name and level, but different properties,<br>you will have N different uniques with differnet stats;<br>so you have an opportunity to pick same item again to check it out.<br>This works only with Uniques, not Sets.")
         from: 1
@@ -101,7 +101,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Number of different incompatible Sets")
         tooltip: qsTr("Whis will create additional sets (Angelic 2, Angelic 3) with different properties.")
         from: 1

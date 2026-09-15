@@ -15,8 +15,8 @@ WidgetCommonTab {
         mult: 10
         value_context: root.value_context
         value_key: "mon_ar"
-        isCompact: false
-        suffix: "%"
+        isCompact: true
+        stretchCaption: true
     }
 
     WidgetExponentialSlider {
@@ -26,8 +26,8 @@ WidgetCommonTab {
         mult: 10
         value_context: root.value_context
         value_key: "mon_def"
-        isCompact: false
-        suffix: "%"
+        isCompact: true
+        stretchCaption: true
     }
 
     WidgetExponentialSlider {
@@ -37,8 +37,8 @@ WidgetCommonTab {
         mult: 10
         value_context: root.value_context
         value_key: "mon_hp"
-        isCompact: false
-        suffix: "%"
+        isCompact: true
+        stretchCaption: true
     }
 
     WidgetExponentialSlider {
@@ -48,8 +48,8 @@ WidgetCommonTab {
         mult: 10
         value_context: root.value_context
         value_key: "mon_dam"
-        isCompact: false
-        suffix: "%"
+        isCompact: true
+        stretchCaption: true
     }
 
     WidgetExponentialSlider {
@@ -59,11 +59,11 @@ WidgetCommonTab {
         mult: 10
         value_context: root.value_context
         value_key: "mon_xp"
-        isCompact: false
-        suffix: "%"
+        isCompact: true
+        stretchCaption: true
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Maximum resistance allowed for base monsters, percent:")
         tooltip: qsTr("If you make this below 100, then regular monsters will have NO IMMUNITIES at all!<br>Use with caution. You can set this to 110-115, to make cold immunes breakable.<br>Also this do not prevent Enchanted monsters to have immunities.")
         from: 90
@@ -81,38 +81,42 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "rel_resist"
         isCompact: false
-        suffix: "%"
     }
 
     Label {
         text: qsTr("Apply resistance options to following:")
     }
 
-    WidgetCheckbox {
-        caption: qsTr("Elemental (Fire/Cold/Lightning)")
-        tooltip: ""
-        value_context: root.value_context
-        value_key: "resist_apply_elem"
-    }
+    RowLayout {
+        ColumnLayout {
+            WidgetCheckbox {
+                caption: qsTr("Elemental (Fire/Cold/Lightning)")
+                tooltip: ""
+                value_context: root.value_context
+                value_key: "resist_apply_elem"
+            }
 
-    WidgetCheckbox {
-        caption: qsTr("Poison")
-        tooltip: ""
-        value_context: root.value_context
-        value_key: "resist_apply_poison"
-    }
+            WidgetCheckbox {
+                caption: qsTr("Poison")
+                tooltip: ""
+                value_context: root.value_context
+                value_key: "resist_apply_poison"
+            }
+        }
+        ColumnLayout {
+            WidgetCheckbox {
+                caption: qsTr("Magic (Non-elemental)")
+                tooltip: ""
+                value_context: root.value_context
+                value_key: "resist_apply_magic"
+            }
 
-    WidgetCheckbox {
-        caption: qsTr("Magic (Non-elemental)")
-        tooltip: ""
-        value_context: root.value_context
-        value_key: "resist_apply_magic"
-    }
-
-    WidgetCheckbox {
-        caption: qsTr("Physical")
-        tooltip: ""
-        value_context: root.value_context
-        value_key: "resist_apply_physical"
+            WidgetCheckbox {
+                caption: qsTr("Physical")
+                tooltip: ""
+                value_context: root.value_context
+                value_key: "resist_apply_physical"
+            }
+        }
     }
 }

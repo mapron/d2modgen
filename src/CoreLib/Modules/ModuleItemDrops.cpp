@@ -79,7 +79,7 @@ ModuleItemDrops::ModuleItemDrops()
           { "good_percent", Mernel::PropertyTreeScalar{ 100 } },
           { "high_elite_drops", Mernel::PropertyTreeScalar{ false } },
           { "junk_percent", Mernel::PropertyTreeScalar{ 100 } },
-          { "nodrop_percent", Mernel::PropertyTreeScalar{ 100 } },
+          { "drop_percent", Mernel::PropertyTreeScalar{ 100 } },
       })
 {
     setPresets({
@@ -100,9 +100,7 @@ ModuleItemDrops::ModuleItemDrops()
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{
             { "chance_uni", Mernel::PropertyTreeScalar{ 5 } },
             { "chance_set", Mernel::PropertyTreeScalar{ 5 } },
-            { "nodrop_percent", Mernel::PropertyTreeScalar{ 50 } },
-            { "nodrop_percent", Mernel::PropertyTreeScalar{ 50 } },
-            { "nodrop_percent", Mernel::PropertyTreeScalar{ 10 } },
+            { "drop_percent", Mernel::PropertyTreeScalar{ 200 } },
         } },
     });
 }
@@ -126,7 +124,7 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
         const int  factorSet       = input.getInt("chance_set");
         const int  factorRare      = input.getInt("chance_rare");
         const int  factorHighlevel = input.getInt("chance_highlevel");
-        const int  percentNoDrop   = input.getInt("nodrop_percent");
+        const int  percentDrop     = input.getInt("drop_percent");
         const int  percentGoodTC   = input.getInt("good_percent");
         const int  percentGold     = input.getInt("gold_percent");
         const int  percentEquip    = input.getInt("equip_percent");
@@ -181,7 +179,7 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
             DropSet dropSet;
             dropSet.readRow(questRow ? *questRow : row);
 
-            dropSet.m_noDrop = adjustPick(dropSet.m_noDrop, percentNoDrop, 100);
+            dropSet.m_noDrop = adjustPick(dropSet.m_noDrop, 100, percentDrop);
 
             if (highDropsCount) {
                 if (treasureGroup == 15) { // Uniques, insead of 1 item + 2*2 potion, make 4 items + 1*2 potion

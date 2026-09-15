@@ -26,8 +26,10 @@ ScrollView {
 
     ColumnLayout {
         width: rootScrollView.availableWidth
+        Layout.fillWidth: true
         ColumnLayout {
             id: scrollViewContainer
+            Layout.fillWidth: true
             spacing: 16
         }
     }

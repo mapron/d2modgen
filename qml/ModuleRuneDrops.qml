@@ -13,7 +13,7 @@ WidgetCommonTab {
         value_context: root.value_context
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Rare Rune drops")
         tooltip: qsTr("That will drastically improve High Rune drop rates! You probably don&apos;t need more than 50x.<br>Value here increases chance of dropping Zod in 'Runes 17' TC<br>Rarity of other runes will change proportionally <br>(so High Runes still be more rare in the same manner).")
         from: 1
@@ -23,7 +23,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Runes chance in Good TC")
         tooltip: qsTr("When dropping from Good TC, that will make Runes drop more often <br>compared to other jewellery (Gems/Rings/Amulets/Charms)")
         from: 1

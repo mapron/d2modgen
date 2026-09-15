@@ -8,10 +8,13 @@ RowLayout {
     Layout.fillWidth: true
 
     // --- PUBLIC API ---
+    property string suffix: ""
     property int denom: 5
     property int mult: 10
     property int from: s_spinboxAverage / denom
     property int to: s_spinboxAverage * mult
+    property int visualWidth: 50
+    property bool isLinear: false
 
     property alias value_context: item.value_context
     property alias value_key: item.value_key
@@ -36,7 +39,9 @@ RowLayout {
 
     // Converts visual slider track position (0-1000) to actual application value
     function sliderToValue(sliderVal) {
-        if (sliderVal === s_sliderAverage) {
+        if (isLinear) {
+            return sliderVal;
+        } else if (sliderVal === s_sliderAverage) {
             return s_spinboxAverage;
         } else if (sliderVal < s_sliderAverage) {
             let lowRange = s_spinboxAverage - root.from;
@@ -52,7 +57,9 @@ RowLayout {
 
     // Converts actual application value back to visual slider track position (0-1000)
     function valueToSlider(appVal) {
-        if (appVal === s_spinboxAverage) {
+        if (isLinear) {
+            return appVal;
+        } else if (appVal === s_spinboxAverage) {
             return s_sliderAverage;
         } else if (appVal < s_spinboxAverage) {
             let lowRange = s_spinboxAverage - root.from;
@@ -65,7 +72,7 @@ RowLayout {
             if (highRange === 0)
                 return s_sliderAverage;
             let ratio = highRatio / highRange;
-            let ratioLog = expGrowthReverse(ratio);
+            let ratioLog = isLinear ? ratio : expGrowthReverse(ratio);
             return s_sliderAverage + (ratioLog * s_sliderAverage);
         }
     }
@@ -77,8 +84,8 @@ RowLayout {
     Slider {
         id: internalSlider
         Layout.fillWidth: true
-        from: 0.0
-        to: 2.0
+        from: isLinear ? root.from : 0.0
+        to: isLinear ? root.to : 2.0
         value: valueToSlider(item.dynamicValue)
         handle.implicitWidth: 16
         handle.implicitHeight: 16
@@ -91,12 +98,11 @@ RowLayout {
         id: textInput
 
         color: textInput.palette.text
+        implicitWidth: root.visualWidth
 
         background: Rectangle {
-            implicitWidth: 45
-            implicitHeight: 22
             color: textInput.palette.base
-            border.color: textInput.acceptableInput ? palette.mid : "red"
+            border.color: textInput.acceptableInput ? palette.accent : "red"
             border.width: textInput.acceptableInput ? 1 : 2
         }
 
@@ -110,5 +116,23 @@ RowLayout {
 
         // Allow input box typing to update the slider position
         onEditingFinished: item.dynamicValue = parseInt(text)
+
+        rightPadding: root.suffix !== "" ? percentSign.width + 12 : 8
+
+        Text {
+            id: percentSign
+            visible: text !== ""
+            text: root.suffix
+            font: textInput.font
+
+            // Match the text color to the input text (or make it slightly lighter/gray)
+            color: textInput.color
+            opacity: 0.8
+
+            // Position it at the right edge, matching the vertical center of the input text
+            anchors.right: parent.right
+            anchors.rightMargin: 8
+            anchors.verticalCenter: parent.verticalCenter
+        }
     }
 }

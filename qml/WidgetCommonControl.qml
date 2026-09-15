@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
 
-GridLayout {
+ColumnLayout {
     id: root
     // Base properties for data and strings
     property string caption: ""
@@ -10,29 +10,21 @@ GridLayout {
     property bool isCompact: false // do not place caption on separate baseline
     property bool controlAfterCaption: true // used only for isCompact==true
     property bool hideCaption: false // used only for isCompact==true
+    property bool stretchCaption: false // used only for isCompact==true
 
     property string suffix: "" // Useful for adding "%" or units
 
-    // Grid properties adjust based on compactness
-    columns: isCompact ? 2 : 1
-    rowSpacing: 1
-    columnSpacing: 10
+    spacing: 4
     Layout.fillWidth: true
-    uniformCellWidths: true
 
-    default property alias contentSlot: contentContainer.data
+    required property Item control
 
     RowLayout {
-        id: headerRow
         spacing: 6
-
-        // Dynamically compute grid cell based on switches
-        Layout.row: 0
-        Layout.column: (!root.isCompact) ? 0 : (root.controlAfterCaption ? 0 : 1)
+        visible: !root.isCompact
         Layout.fillWidth: true
 
         Label {
-            visible: !root.hideCaption
             text: root.caption
         }
 
@@ -46,14 +38,47 @@ GridLayout {
     }
 
     RowLayout {
-        id: contentContainer
-        spacing: 10
+        spacing: 6
+        RowLayout {
+            spacing: 6
+            visible: root.isCompact && root.controlAfterCaption
+            Layout.fillWidth: root.stretchCaption
+            Layout.horizontalStretchFactor: root.stretchCaption ? 1 : -1
 
-        // Dynamically shift cells down or sideways
-        Layout.row: root.isCompact ? 0 : 1
-        Layout.column: root.isCompact ? (root.controlAfterCaption ? 1 : 0) : 0
+            Label {
+                visible: !hideCaption
+                text: root.caption
+            }
 
-        // Let sliders expand, but allow compact widgets to remain tightly bound
-        Layout.fillWidth: !root.isCompact || root.controlAfterCaption
+            WidgetHelpIcon {
+                tooltipText: root.tooltip
+            }
+            Item {
+                visible: root.stretchCaption
+                Layout.fillWidth: root.stretchCaption
+            }
+        }
+        RowLayout {
+            id: contentContainer
+            Layout.horizontalStretchFactor: 1
+            Layout.fillWidth: true
+        }
+        RowLayout {
+            spacing: 6
+            visible: root.isCompact && !root.controlAfterCaption
+
+            Label {
+                visible: !hideCaption
+                text: root.caption
+            }
+
+            WidgetHelpIcon {
+                tooltipText: root.tooltip
+            }
+        }
+
+        Component.onCompleted: {
+            root.control.parent = contentContainer;
+        }
     }
 }

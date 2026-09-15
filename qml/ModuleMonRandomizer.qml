@@ -15,7 +15,7 @@ WidgetCommonTab {
         value_key: "randomizeSpawns"
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Spawned different types in one area")
         tooltip: qsTr("This option choose how many different types will spawn at once (default is 3, which is D2 original behavior).<br>Note that some map tiles have predefined spawns (shaman camps etc) that can not be randomized.")
         from: 2
@@ -25,7 +25,7 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Maximum possible monster types in one area (population variety)")
         tooltip: qsTr("This option defines how many possibilites for monster types are exist in one zone;<br>Make this value lower if you want less variety between game restarts.<br>Note: D2 legacy support only 12 max, so value will be lowered implicitly.")
         from: 3

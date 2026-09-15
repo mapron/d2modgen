@@ -27,7 +27,9 @@ namespace {
 
 QString ensureTrailingSlash(QString value)
 {
-    return QString::fromStdString(::D2ModGen::ensureTrailingSlash(value.toStdString()));
+    auto str = QString::fromStdString(::D2ModGen::ensureTrailingSlash(value.toStdString()));
+    str.replace('\\', '/');
+    return str;
 }
 
 QString getInstallLocationFromRegistry(bool resurrected)
@@ -217,7 +219,7 @@ void UIController::newSeed()
 void UIController::detectPath()
 {
     auto& cfg         = m_configHandler.m_modules[0].m_currentConfig;
-    bool  resurrected = cfg.value("version", Mernel::PropertyTreeScalar{ 2 }).toInt() >= 1;
+    bool  resurrected = cfg.value("versionMajor", Mernel::PropertyTreeScalar{ 1 }).toInt() == 1;
     cfg["inputPath"]  = Mernel::PropertyTreeScalar{ getInstallLocationFromRegistry(resurrected).toStdString() };
     m_tabsList[0]->sendDataChange(); // to refresh paths
 }

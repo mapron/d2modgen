@@ -19,21 +19,30 @@ If you interested in history of changes, [changelog is here](Changelog.md)
 Main Window  
 1. Download zip archive from [releases page](https://github.com/mapron/d2modgen/releases);
 2. Extract wherever you want and go inside extracted folder;
-3. Run modgen.exe (see the screenshot);
-4. Check if "D2R path" is filled correctly; if not, edit it manually to point "Diablo II Resurrected/" folder;
-5. Optional; press "Copy Settings.json" to initialize new mod with your default game settings (music volume, etc);
-6. Now you need to setup modded launch of D2R - that can be done either by creating the shortcut or modifying launch option in BNet launcher, choose what is suitable for you:  
+3. Run modgen.exe in root folder; (see the screenshot);
+4. Check if "Input folder" is filled correctly; if not, edit it manually to point "Diablo II Resurrected/" folder;
+5. Select "File" => "Config from preset" => "Basic";
+6. Press "Generate" button.
+
+Now randomizer mod is created, see next chapter how to set launch for D2R.
+
+# Set launch for mod in D2R
+![mainwindow](docs/extrawindow.png "Extra Tab")  
+Go to "Extra" Tab
+1. Optional; press "Copy Settings.json" to initialize new mod with your default game settings (music volume, etc);
+2. Optional; press "Copy all save files" to copy character files to randomizer mod;
+3. Now you need to setup modded launch of D2R - that can be done either by creating the shortcut or modifying launch option in BNet launcher, choose what is suitable for you:  
 a) Press "Make shortcut on Desktop", that will make "Diablo II - modname Mod" link on your Desktop;  
 b) OR copy value from "D2R command arguments" and create shortcut by yourself, pointing to D2R.exe and use this as extra args;  
 c) OR close Battlenet client, press "Set launch to mod" to setup game launch as modded by default and launch BNet again;  
 d) OR make it manually, by going  "Settings near Play button" - "Game Settings" - "Diablo II Resurrected" - "Additional command line arguments" and paste string from "D2R commandline"  
-7. Press "Generate" button;
-9. Launch the game and go to offline tab mode. Create a new character and start;
-10. If you done all correctly, character will have chest key in the inventory after creation.  
+4. Launch the game and go to offline tab mode. Create a new character and start;
+
+If you done everything correct, new character will have Horadric Cube in the inventory after creation.  
 
 Now, go and play around with other settings, click "Generate" and restart D2R again!  
-Note: all you offline character still exist in non-modded save folder.  
-Note 2: mod do not affect online play in any way, you won't get banned for it.  
+Note 1: all you offline character still exist in non-modded save folder.  
+Note 2: mod does not affect online play in any way, you won't get banned for it.  
 Note 3: if you want to return to unmodded, press "Reset launch to unmodded" (again, BNet must be closed when you press this button).
 
 # Start new config from preset
@@ -92,9 +101,6 @@ Also, as you noticed, support for Dark and Light theme is available - choose wha
 #### Character
 ![Character](docs/tab_easy_character.png)  
 
-#### Quality of life
-![Qol](docs/tab_easy_qol.png)  
-
 #### Increase item drops
 ![Drops](docs/tab_easy_drops.png)  
 
@@ -104,8 +110,16 @@ Also, as you noticed, support for Dark and Light theme is available - choose wha
 #### Make everything perfect
 ![Perfect](docs/tab_easy_perfect.png)  
 
+#### Change requirements
+![requirements](docs/tab_easy_requirements.png)  
+
+#### Quality of life
+![Qol](docs/tab_misc_qol.png)  
+
 #### Filter your drops
 ![Drops filter](docs/tab_misc_filter.png)  
+
+
 
 
 # Using commandline

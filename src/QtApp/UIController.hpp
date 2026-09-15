@@ -8,6 +8,7 @@
 #include <QObject>
 #include <QScopedPointer>
 #include <QVariant>
+#include <QValidator>
 
 #include "ConfigHandler.hpp"
 
@@ -121,6 +122,25 @@ private:
     ConfigHandler&              m_configHandler;
     std::map<QString, QObject*> m_tabs;
     std::vector<TabController*> m_tabsList;
+};
+
+class BasicPathValidator : public QValidator {
+    Q_OBJECT
+public:
+    explicit BasicPathValidator(QObject* parent = nullptr)
+        : QValidator(parent)
+    {}
+
+    State validate(QString& input, int& pos) const override
+    {
+        //if (input.isEmpty()) {
+        //return Intermediate;
+        //}
+        if (input.length() < 5) {
+            return Intermediate;
+        }
+        return Acceptable;
+    }
 };
 
 }

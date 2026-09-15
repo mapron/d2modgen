@@ -13,44 +13,48 @@ WidgetCommonTab {
         value_context: root.value_context
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Unique Chance")
         tooltip: ""
         from: 1
         to: 50
         value_context: root.value_context
         value_key: "chance_uni"
-        isCompact: false
+        isCompact: true
+        stretchCaption: true
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Set Chance")
         tooltip: ""
         from: 1
         to: 30
         value_context: root.value_context
         value_key: "chance_set"
-        isCompact: false
+        isCompact: true
+        stretchCaption: true
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Rare Chance")
         tooltip: ""
         from: 1
         to: 15
         value_context: root.value_context
         value_key: "chance_rare"
-        isCompact: false
+        isCompact: true
+        stretchCaption: true
     }
 
-    WidgetSlider {
+    WidgetRangeSlider {
         caption: qsTr("Increase Chance of High-level equipment")
         tooltip: qsTr("This will reduce the reduce the chance that equipment of lower level will drop as a fallback.<br>For example, for level 85 TC there is a 98% chance that it will drop from 84 level TC, and so on.")
         from: 1
         to: 15
         value_context: root.value_context
         value_key: "chance_highlevel"
-        isCompact: false
+        isCompact: true
+        stretchCaption: true
     }
 
     WidgetCheckbox {
@@ -72,14 +76,14 @@ WidgetCommonTab {
     }
 
     WidgetExponentialSlider {
-        caption: qsTr("NoDrop (higher=LESS drops)")
-        tooltip: qsTr("NoDrop slider provides ability to gradually reduce NoDrop picks<br>(it basically similar to increasing players count in the game)")
-        denom: 20
-        mult: 5
+        caption: qsTr("Increse drop count (via NoDrop)")
+        tooltip: qsTr("This provides ability to gradually reduce NoDrop picks<br>(it basically similar to increasing players count in the game)<br>This only affect base monster drops")
+        denom: 2
+        mult: 90
         value_context: root.value_context
-        value_key: "nodrop_percent"
+        value_key: "drop_percent"
         isCompact: true
-        suffix: "%"
+        stretchCaption: true
     }
 
     WidgetExponentialSlider {
@@ -90,7 +94,7 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "good_percent"
         isCompact: true
-        suffix: "%"
+        stretchCaption: true
     }
 
     WidgetExponentialSlider {
@@ -101,7 +105,7 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "equip_percent"
         isCompact: true
-        suffix: "%"
+        stretchCaption: true
     }
 
     WidgetExponentialSlider {
@@ -112,7 +116,7 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "gold_percent"
         isCompact: true
-        suffix: "%"
+        stretchCaption: true
     }
 
     WidgetExponentialSlider {
@@ -123,7 +127,7 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "junk_percent"
         isCompact: true
-        suffix: "%"
+        stretchCaption: true
     }
 
     WidgetCheckbox {
