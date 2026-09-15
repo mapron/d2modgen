@@ -13,19 +13,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest] # Add windows-latest or macos-latest here if building cross-platform
+        os: [ubuntu-latest, windows-latest]
         build_type: [Release]
-        c_compiler: [gcc]
         include:
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
+            qt_host: 'linux'
+          - os: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
+            qt_host: 'windows'
 
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
         
+    # Linux-only setup step
     - name: Install Linux System Dependencies
       if: matrix.os == 'ubuntu-latest'
       run: |
@@ -37,14 +42,22 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y clang-format-23
 
+    # On Windows, we need to initialize the MSVC developer environment for Ninja to find 'cl'
+    - name: Set up MSVC Developer Command Prompt
+      if: matrix.os == 'windows-latest'
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
     - name: Install Qt6
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.8.1'      # Specify your preferred Qt6 version
-        host: 'linux'          # Sets the builder host
+        version: '6.8.1'      
+        host: ${{ matrix.qt_host }} # Dynamic host matching the current runner OS
         target: 'desktop'
         # modules: qtmultimedia
-        install-deps: 'true'   # Double-checks and installs missing base-Qt system packages
+        arch: ${{ matrix.os == 'windows-latest' && 'win64_msvc2022_64' || '' }} # Sets the specific pre-compiled ABI for Windows
+        install-deps: 'true'   
 
     - name: Configure CMake
       run: >
@@ -52,7 +65,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCLANG_FORMAT_COMMAND:PATH=/usr/bin/clang-format-23
+        ${{ matrix.os == 'ubuntu-latest' && '-DCLANG_FORMAT_COMMAND:PATH=/usr/bin/clang-format-23' || '' }}
         -S ${{ github.workspace }}
 
     - name: Build
