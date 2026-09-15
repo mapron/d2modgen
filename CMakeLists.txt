@@ -11,7 +11,7 @@ set(Qt6Quick3D_FOUND TRUE CACHE BOOL "" FORCE)
 set(Qt6ShaderTools_FOUND TRUE CACHE BOOL "" FORCE)
 set(Qt6TaskTree_FOUND TRUE CACHE BOOL "" FORCE)
 
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.31...4.0)
 
 project(modgen)
 
