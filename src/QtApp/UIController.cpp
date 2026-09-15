@@ -43,6 +43,7 @@ QString getInstallLocationFromRegistry(bool resurrected)
 #else
 QString getInstallLocationFromRegistry(bool resurrected)
 {
+    return {}
 }
 #endif
 

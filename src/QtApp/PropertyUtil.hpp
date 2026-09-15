@@ -61,7 +61,7 @@ inline QVariant propertyToQVariant(const Mernel::PropertyTree& value)
         if (sc.isBool())
             return QVariant(sc.toBool());
         if (sc.isInt())
-            return sc.toInt();
+            return qlonglong(sc.toInt());
         if (sc.isDouble())
             return sc.toDouble();
         if (sc.isString())
