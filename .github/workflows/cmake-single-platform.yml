@@ -1,0 +1,49 @@
+name: CMake on multiple platforms
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest] # Add windows-latest or macos-latest here if building cross-platform
+        build_type: [Release]
+        c_compiler: [gcc]
+        include:
+          - os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+
+    steps:
+    - uses: actions/checkout@v4
+
+
+    # Step 2: Install Qt6 SDK via an official community action
+    - name: Install Qt6
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.1'      # Specify your preferred Qt6 version
+        host: 'linux'          # Sets the builder host
+        target: 'desktop'
+        modules: qttranslations qttools qtmultimedia
+        install-deps: 'true'   # Double-checks and installs missing base-Qt system packages
+
+    # Step 3: Configure CMake (No need to pass explicit Qt paths; the action sets them up)
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ github.workspace }}/build
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -S ${{ github.workspace }}
+
+    # Step 4: Build
+    - name: Build
+      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }}
