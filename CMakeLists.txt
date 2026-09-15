@@ -50,7 +50,7 @@ AddTarget(TYPE shared NAME ModgenCore
     SOURCE_DIR ${sourceRoot}/CoreLib
 	INCLUDES   ${sourceRoot}/CoreLib
     EXPORT_INCLUDES
-    LINK_LIBRARIES [ WIN33 ? casclib stormlib ] rapidjson MernelPlatform
+    LINK_LIBRARIES [ WIN32 ? casclib stormlib ] rapidjson MernelPlatform
     )
 
 function(InstallTextFiles folder)
