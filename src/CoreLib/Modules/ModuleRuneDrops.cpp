@@ -7,6 +7,8 @@
 #include "AttributeHelper.hpp"
 #include "TableUtils.hpp"
 
+#include <cmath>
+
 namespace D2ModGen {
 
 ModuleRuneDrops::ModuleRuneDrops()
