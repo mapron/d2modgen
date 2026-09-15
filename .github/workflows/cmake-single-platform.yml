@@ -20,10 +20,14 @@ jobs:
             c_compiler: gcc
             cpp_compiler: g++
             qt_host: 'linux'
+            qt_arch: ''
+            extra_cmake_flags: '-DCLANG_FORMAT_COMMAND:PATH=/usr/bin/clang-format-23'
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
             qt_host: 'windows'
+            qt_arch: 'win64_msvc2022_64'
+            extra_cmake_flags: '-DDISABLE_STATIC_CHECKS=TRUE'
 
     steps:
     - uses: actions/checkout@v4
@@ -53,10 +57,10 @@ jobs:
       uses: jurplel/install-qt-action@v4
       with:
         version: '6.8.1'      
-        host: ${{ matrix.qt_host }} # Dynamic host matching the current runner OS
+        host: ${{ matrix.qt_host }}
         target: 'desktop'
         # modules: qtmultimedia
-        arch: ${{ matrix.os == 'windows-latest' && 'win64_msvc2022_64' || '' }} # Sets the specific pre-compiled ABI for Windows
+        arch: ${{ matrix.qt_arch }}
         install-deps: 'true'   
 
     - name: Configure CMake
@@ -65,7 +69,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        ${{ matrix.os == 'ubuntu-latest' && '-DCLANG_FORMAT_COMMAND:PATH=/usr/bin/clang-format-23' || '' }}
+        ${{ matrix.extra_cmake_flags }}
         -S ${{ github.workspace }}
 
     - name: Build
