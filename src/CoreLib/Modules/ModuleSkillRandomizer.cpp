@@ -4,7 +4,7 @@
  * See LICENSE file for details.
  */
 #include "ModuleSkillRandomizer.hpp"
-#include "TableUtils.hpp"
+#include "MernelPlatform/StringUtils.hpp"
 
 namespace D2ModGen {
 
@@ -82,45 +82,40 @@ struct SkillInfo {
     SkillDamageInfo dmg;
     StringVector    reqSkills;
 
-    void readFromRowMain(const TableView::RowView& row)
+    void readFromRowMain(const DataRow_skills& row)
     {
-        uppercaseKey = row["skill"].str;
-        lowercaseKey = row["skill"].toLower();
-        charClass    = row["charclass"].str;
-        loc.reqlevel = row["reqlevel"].toInt();
-        for (int i = 1; i <= 3; ++i) {
-            const auto& req = row[argCompat("reqskill%1", i)];
-            if (!req.isEmpty())
-                reqSkills << req.str;
-        }
-        dmg.ELen     = row["ELen"].toInt();
-        dmg.HitShift = row["HitShift"].toInt();
-        dmg.EType    = row["EType"].str;
+        uppercaseKey = row.skill;
+        lowercaseKey = Mernel::strToLower(row.skill);
+        charClass    = row.charclass;
+        loc.reqlevel = row.lvlreq.value_or(0);
+        reqSkills    = row.reqskills;
+        dmg.ELen     = row.eLen.value_or(0);
+        dmg.HitShift = row.hitShift.value_or(0);
+        dmg.EType    = row.eType;
     }
-    void readFromRowDesc(const TableView::RowView& row)
+    void readFromRowDesc(const DataRow_skilldesc& row)
     {
-        loc.skillPage   = row["SkillPage"].toInt();
-        loc.skillRow    = row["SkillRow"].toInt();
-        loc.skillColumn = row["SkillColumn"].toInt();
-        loc.listRow     = row["ListRow"].toInt();
+        loc.skillPage   = row.skillPage.value_or(0);
+        loc.skillRow    = row.skillRow.value_or(0);
+        loc.skillColumn = row.skillColumn.value_or(0);
+        loc.listRow     = row.listRow.value_or(0);
     }
-    void writeToRowMain(TableView::RowView& row)
+    void writeToRowMain(DataRow_skills& row)
     {
-        row["reqlevel"] = argCompat("%1", loc.reqlevel);
-        for (int i = 1; i <= 3; ++i) {
-            auto& req = row[argCompat("reqskill%1", i)];
-            req.str   = reqSkills.size() >= i ? reqSkills[i - 1] : "";
-        }
-        row["ELen"]     = dmg.ELen ? argCompat("%1", dmg.ELen) : "";
-        row["HitShift"] = argCompat("%1", dmg.HitShift);
-        row["EType"]    = dmg.EType;
+        row.lvlreq    = loc.reqlevel;
+        row.reqskills = reqSkills;
+        row.eLen      = dmg.ELen;
+        if (!row.eLen.value())
+            row.eLen.reset();
+        row.hitShift = dmg.HitShift;
+        row.eType    = dmg.EType;
     }
-    void writeToRowDesc(TableView::RowView& row)
+    void writeToRowDesc(DataRow_skilldesc& row)
     {
-        row["SkillPage"]   = argCompat("%1", loc.skillPage);
-        row["SkillRow"]    = argCompat("%1", loc.skillRow);
-        row["SkillColumn"] = argCompat("%1", loc.skillColumn);
-        row["ListRow"]     = argCompat("%1", loc.listRow);
+        row.skillPage   = loc.skillPage;
+        row.skillRow    = loc.skillRow;
+        row.skillColumn = loc.skillColumn;
+        row.listRow     = loc.listRow;
     }
 };
 
@@ -245,13 +240,9 @@ void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, 
     const bool skillDamageRandomize = input.getInt("skillDamage");
     const bool ensureDifferent      = input.getInt("ensureDifferent");
 
-    Table&          skillsTable = output.tableSet.tables[TableId::skills];
-    TableView       skillsTableView(skillsTable, true);
-    Table&          descTable = output.tableSet.tables[TableId::skilldesc];
-    TableView       descTableView(descTable, true);
     SkillParsedData skillParsedData;
     SkillTree       charTree;
-    for (auto& row : skillsTableView) {
+    for (auto& row : output.skills.rows) {
         SkillInfo info;
         info.readFromRowMain(row);
         if (info.charClass.empty())
@@ -259,8 +250,8 @@ void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, 
 
         skillParsedData[info.lowercaseKey] = std::move(info);
     }
-    for (auto& row : descTableView) {
-        auto& skilldescKey = row["skilldesc"].str;
+    for (auto& row : output.skilldesc.rows) {
+        const auto& skilldescKey = Mernel::strToLower(row.skilldesc);
         if (!skillParsedData.contains(skilldescKey))
             continue;
         skillParsedData[skilldescKey].readFromRowDesc(row);
@@ -273,15 +264,15 @@ void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, 
     if (skillDamageRandomize)
         charTree.randomizeDmg(skillParsedData, rng, ensureDifferent);
     // write out
-    for (auto& row : skillsTableView) {
-        const auto& skilldescKey = row["skill"].toLower();
+    for (auto& row : output.skills.rows) {
+        const auto& skilldescKey = Mernel::strToLower(row.skill);
         if (!skillParsedData.contains(skilldescKey))
             continue;
 
         skillParsedData[skilldescKey].writeToRowMain(row);
     }
-    for (auto& row : descTableView) {
-        const auto& skilldescKey = row["skilldesc"].toLower();
+    for (auto& row : output.skilldesc.rows) {
+        const auto& skilldescKey = Mernel::strToLower(row.skilldesc);
         if (!skillParsedData.contains(skilldescKey))
             continue;
 

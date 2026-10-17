@@ -4,7 +4,6 @@
  * See LICENSE file for details.
  */
 #include "ModuleQol.hpp"
-#include "TableUtils.hpp"
 
 namespace D2ModGen {
 
@@ -24,9 +23,6 @@ ModuleQol::ModuleQol()
 
 void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    if (input.isAllDefault())
-        return;
-
     const bool tomeSize            = input.getInt("tomeSize");
     const bool keySize             = input.getInt("keySize");
     const bool quiverSize          = input.getInt("quiverSize");
@@ -37,75 +33,56 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputC
     const bool disableExpPenalty   = input.getInt("disableExpPenalty");
     const int  reduceCost          = input.getInt("reduceCost");
     if (tomeSize || keySize || quiverSize) {
-        Table&    table = output.tableSet.tables[TableId::misc];
-        TableView tableView(table, true);
-        for (auto& row : tableView) {
-            auto& code     = row["code"];
-            auto& maxstack = row["maxstack"];
-            if (tomeSize && (code == "ibk" || code == "tbk"))
-                maxstack.str = "60";
+        for (auto& row : output.misc.rows) {
+            auto& code = row.code;
+            if (tomeSize && (row.code == "ibk" || row.code == "tbk"))
+                row.maxstack = 60;
             if (keySize && code == "key")
-                maxstack.str = "50";
+                row.maxstack = 50;
             if (quiverSize && (code == "aqv" || code == "cqv"))
-                maxstack.str = "511";
+                row.maxstack = 511;
         }
     }
     if (uniqueCharmLimit) {
-        Table&    table = output.tableSet.tables[TableId::uniqueitems];
-        TableView tableView(table, true);
-        for (auto& row : tableView) {
-            row["carry1"].str = "";
+        for (auto& row : output.uniqueitems.rows) {
+            row.carry1.reset();
         }
     }
     if (weakenTownSkills || weakenTownSkillsExt) {
         static const StringSet s_exceptions{ "Teleport", "Battle Orders", "Battle Command" };
-        Table&                 table = output.tableSet.tables[TableId::skills];
-        TableView              tableView(table, true);
-        for (auto& row : tableView) {
-            if (s_exceptions.contains(row["skill"].str) || weakenTownSkillsExt)
-                row["InTown"].str = "1";
+        for (auto& row : output.skills.rows) {
+            if (s_exceptions.contains(row.skill) || weakenTownSkillsExt)
+                row.inTown = true;
         }
     }
     if (reduceCost != 100) {
-        {
-            Table&    table = output.tableSet.tables[TableId::skills];
-            TableView tableView(table, true);
-            for (auto& row : tableView) {
-                auto& mult = row["cost mult"];
-                auto& add  = row["cost add"];
-                if (mult.isEmpty())
-                    continue;
-                mult.setInt(mult.toInt() * reduceCost / 100);
-                add.setInt(add.toInt() * reduceCost / 100);
-            }
+        for (auto& row : output.skills.rows) {
+            auto& mult = row.costMult;
+            auto& add  = row.costAdd;
+            if (!mult.has_value())
+                continue;
+            mult = (mult.value() * reduceCost / 100);
+            add  = (add.value_or(0) * reduceCost / 100);
         }
-        {
-            Table&    table = output.tableSet.tables[TableId::itemstatcost];
-            TableView tableView(table, true);
-            for (auto& row : tableView) {
-                auto& mult = row["Multiply"];
-                auto& add  = row["Add"];
-                if (mult.isEmpty())
-                    continue;
-                mult.setInt(mult.toInt() * reduceCost / 100);
-                add.setInt(add.toInt() * reduceCost / 100);
-            }
+
+        for (auto& row : output.itemstatcost.rows) {
+            auto& mult = row.multiply;
+            auto& add  = row.add;
+            if (!mult.has_value())
+                continue;
+            mult = (mult.value() * reduceCost / 100);
+            add  = (add.value_or(0) * reduceCost / 100);
         }
     }
-    if (showItemLevel && !input.m_env.isLegacy) {
-        for (TableId tableid : { TableId::armor, TableId::weapons }) {
-            TableView tableView(output.tableSet.tables[tableid], true);
-            for (auto& row : tableView) {
-                row["ShowLevel"].setInt(1);
-            }
-        }
+    if (showItemLevel) {
+        for (auto& row : output.armor.rows)
+            row.showLevel = true;
+        for (auto& row : output.weapons.rows)
+            row.showLevel = true;
     }
     if (disableExpPenalty) {
-        Table&    table = output.tableSet.tables[TableId::experience];
-        TableView tableView(table, true);
-        for (auto& row : tableView) {
-            row["ExpRatio"].setInt(1024);
-        }
+        for (auto& row : output.experience.rows)
+            row.expRatio = 1024;
     }
 }
 

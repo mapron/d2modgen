@@ -15,7 +15,6 @@ public:
 
     ModuleMonRandomizer();
 
-    void gatherInfo(PreGenerationContext& output) const override;
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 
 private:
@@ -24,6 +23,7 @@ private:
 
 private:
     void generateSpawns(DataContext& output, RandomGenerator& rng, const InputContext& input, MonTypeTable& typeTable, TCTable& tcTable) const;
+    bool generateCopies(DataContext& output, RandomGenerator& rng, const InputContext& input, MonTypeTable& typeTable, TCTable& tcTable) const;
 };
 
 }

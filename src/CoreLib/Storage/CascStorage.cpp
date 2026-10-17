@@ -5,7 +5,7 @@
  */
 #include "CascStorage.hpp"
 
-#include "RAIIUtils.hpp"
+#include "MernelPlatform/ScopeExit.hpp"
 #include "TableId.hpp"
 #include "Logger.hpp"
 
@@ -14,7 +14,7 @@
 
 namespace D2ModGen {
 
-IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames) const noexcept
+IStorage::StoredData CascStorage::readData() const noexcept
 {
     const Mernel::std_path utf8path = m_storageRoot;
     const std::wstring     wdata    = utf8path.wstring();
@@ -27,7 +27,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
         Logger(Logger::Warning) << "failed to open storage:" << utf8path << ", err=" << GetCascError();
         return {};
     }
-    MODGEN_SCOPE_EXIT([storage] { CascCloseStorage(storage); });
+    MERNEL_SCOPE_EXIT([storage] { CascCloseStorage(storage); });
 
     auto readCascFile = [storage](std::string& data, const std::string& filename) -> bool {
         const std::string fullId = "data:" + filename;
@@ -37,7 +37,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
             Logger(Logger::Warning) << "failed to open:" << fullId << ", err=" << GetCascError();
             return false;
         }
-        MODGEN_SCOPE_EXIT([fileHandle] { CascCloseFile(fileHandle); });
+        MERNEL_SCOPE_EXIT([fileHandle] { CascCloseFile(fileHandle); });
 
         auto dataSize = CascGetFileSize(fileHandle, nullptr);
 
@@ -52,25 +52,26 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
 
     IStorage::StoredData result{ true };
 
-    for (const std::string& id : getTableNames()) {
+    for (TableId id : getTableIds()) {
         std::string buffer;
-        if (!readCascFile(buffer, IStorage::makeTableRelativePath(id, true, m_needBaseSubfolder)))
+        if (!readCascFile(buffer, IStorage::makeTableRelativePath(id, m_needBaseSubfolder)))
             continue;
 
-        result.tables.push_back(StoredFileTable{ std::move(buffer), id });
+        result.tables[id] = std::move(buffer);
     }
-    for (const std::string& relativePath : filenames) {
+    for (JsonId id : getJsonIds()) {
         std::string buffer;
-        if (!readCascFile(buffer, relativePath))
+        if (!readCascFile(buffer, std::string(getJsonRelPath(id))))
             continue;
 
-        result.inMemoryFiles.push_back(StoredFileMemory{ std::move(buffer), relativePath });
+        result.jsonFiles[id] = std::move(buffer);
     }
 
     std::string buffer;
     if (readCascFile(buffer, std::string(IStorage::s_dataVersionPath))) {
         result.dataVersion = std::atoll(buffer.c_str());
     }
+    result.valid = !result.tables.empty();
 
     return result;
 }
@@ -79,7 +80,7 @@ IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames)
 #else
 namespace D2ModGen {
 
-IStorage::StoredData CascStorage::readData(const RequestInMemoryList& filenames) const noexcept
+IStorage::StoredData CascStorage::readData() const noexcept
 {
     return {};
 }

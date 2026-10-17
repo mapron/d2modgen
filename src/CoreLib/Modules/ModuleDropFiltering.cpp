@@ -11,8 +11,6 @@
 namespace D2ModGen {
 
 namespace {
-const std::string s_itemnamesJson  = "data\\local\\lng\\strings\\item-names.json";
-const std::string s_affixnamesJson = "data\\local\\lng\\strings\\item-nameaffixes.json";
 
 const std::vector<std::string> s_locales{
     "deDE",
@@ -66,18 +64,9 @@ ModuleDropFiltering::ModuleDropFiltering()
 {
 }
 
-void ModuleDropFiltering::gatherInfo(PreGenerationContext& output) const
-{
-    output.m_extraJson.insert(s_itemnamesJson);
-    output.m_extraJson.insert(s_affixnamesJson);
-}
-
 void ModuleDropFiltering::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    if (input.isAllDefault())
-        return;
-
-    auto replaceJson = [&output](const std::map<std::string, std::string>& replacements, const std::string& name) {
+    auto replaceJson = [&output](const std::map<std::string, std::string>& replacements, const JsonId& name) {
         if (replacements.empty() || !output.jsonFiles.contains(name))
             return;
         auto& jsonDoc   = output.jsonFiles[name];
@@ -134,8 +123,8 @@ void ModuleDropFiltering::generate(DataContext& output, RandomGenerator& rng, co
         }
     }
 
-    replaceJson(replacementsItems, s_itemnamesJson);
-    replaceJson(replacementsAffix, s_affixnamesJson);
+    replaceJson(replacementsItems, JsonId::ItemNames);
+    replaceJson(replacementsAffix, JsonId::ItemNameAffixes);
 }
 
 }

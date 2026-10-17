@@ -91,8 +91,8 @@ void MagicPropRawList::postProcess(bool replaceSkills, bool replaceCharges, bool
                 continue;
             }
             prop.code = "oskill";
-            if (prop.max.starts_with("-")) {
-                prop.min = prop.max = prop.max.substr(1);
+            if (prop.max < 0) {
+                prop.min = prop.max = -prop.max;
             }
         }
         if (skipKnock && (prop.code == "knock" || prop.code == "howl"))
@@ -115,57 +115,56 @@ void MagicPropRawList::makePerfect()
     }
 }
 
-void MagicPropRawList::readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const StringSet& extraKnownCodes, bool grab)
+void MagicPropRawList::readFromRow(AffixPropList& propList, bool grab)
 {
-    for (const auto& col : columns.m_cols) {
+    for (const auto& col : propList) {
         MagicProp mp;
-        mp.code = (row[col.code].str);
-        mp.par  = (row[col.par].str);
-        mp.min  = (row[col.min].str);
-        mp.max  = (row[col.max].str);
+        mp.code = col.code;
+        mp.par  = col.par;
+        mp.min  = col.min.value_or(0);
+        mp.max  = col.max.value_or(0);
 
-        if (mp.code.empty())
-            continue; // PD2 writes properties to the end of a list.
-        if (!extraKnownCodes.contains(mp.code)) {
-            auto cons = getAttributeConsume(mp.code);
-            if (cons == AttributeConsume::Skip)
-                continue;
-            if (cons == AttributeConsume::Keep) {
-                keptProps.push_back(std::move(mp));
-                continue;
-            }
+        auto cons = getAttributeConsume(mp.code);
+        if (cons == AttributeConsume::Skip)
+            continue;
+        if (cons == AttributeConsume::Keep) {
+            keptProps.push_back(std::move(mp));
+            continue;
         }
+
         parsedProps.push_back(std::move(mp));
     }
     detectBounded();
 }
 
-void MagicPropRawList::writeToRow(TableView::RowView& row, const ColumnsDesc& columns) const
+void MagicPropRawList::writeToRow(AffixPropList& propList) const
 {
-    int  col     = 0;
-    auto consume = [&row, &col, &columns](const MagicProp& prop) {
-        const auto& colDesc   = columns.m_cols[col];
-        row[colDesc.code].str = prop.code;
-        row[colDesc.par].str  = prop.par;
-        row[colDesc.min].str  = prop.min;
-        row[colDesc.max].str  = prop.max;
-        col++;
+    propList.clear();
+
+    auto isFull = [propList](size_t more) {
+        return (propList.size() + more > propList.getLimit());
+    };
+
+    auto consume = [&propList](const MagicProp& prop) {
+        propList.push_back(AffixProp{
+            .code = prop.code,
+            .par  = prop.par,
+            .min  = prop.min,
+            .max  = prop.max,
+        });
     };
     for (const MagicProp& prop : keptProps) {
-        if (col + 1 > columns.m_cols.size())
+        if (isFull(1))
             break;
         consume(prop);
     }
     for (const MagicProp& prop : parsedProps) {
-        const int propSize = 1 + prop.bounded.size();
-        if (col + propSize > columns.m_cols.size())
+        if (isFull(1 + prop.bounded.size()))
             break;
         consume(prop);
         for (const MagicProp& propBounded : prop.bounded)
             consume(propBounded);
     }
-    while (col < columns.m_cols.size())
-        consume({});
 }
 
 int MagicPropRawList::getTotalSize() const
@@ -419,14 +418,14 @@ std::string MagicProp::toDebugString() const
 {
     std::string result;
     if (isMinMaxRange(code)) {
-        result = code + ": " + min + "-" + max;
+        result = code + ": " + std::to_string(min) + "-" + std::to_string(max);
         if (!par.empty())
             result += " (" + par + ")";
     } else {
-        result = code + ": " + par + "," + min + "," + max;
+        result = code + ": " + par + "," + std::to_string(min) + "," + std::to_string(max);
     }
     if (!bounded.empty())
-        result += argCompat(" +[%1]", bounded.size());
+        result += " +[" + std::to_string(bounded.size()) + "]";
     return result;
 }
 

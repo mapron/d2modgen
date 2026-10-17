@@ -68,7 +68,7 @@ bool             isMinMaxRange(const std::string& code);
 
 const AttributeDesc& getAttributeDesc(const std::string& code);
 
-std::string powerMultiply(const std::string& code, const std::string& value, int powerMultPercent);
+int powerMultiply(const std::string& code, int value, int powerMultPercent);
 
 class UniqueAttributeChecker {
     StringSet m_data;

@@ -6,7 +6,6 @@
 #include "ModulePerfectRoll.hpp"
 
 #include "AttributeHelper.hpp"
-#include "TableUtils.hpp"
 
 #include "Logger.hpp"
 
@@ -36,114 +35,113 @@ ModulePerfectRoll::ModulePerfectRoll()
 
 void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
+    auto makePerfectMin = [](AffixPropList& affixes, bool perfectMin) {
+        if (!perfectMin)
+            return;
+
+        for (AffixProp& affixProp : affixes) {
+            if (!affixProp.hasRange())
+                continue;
+            if (isMinMaxRange(affixProp.code))
+                affixProp.min = affixProp.max;
+        }
+    };
+
     if (input.getInt("craft")) {
-        TableView view(output.tableSet.tables[TableId::cubemain], true);
-        for (auto& row : view) {
-            const bool isCrafted = row["output"] == "\"usetype,crf\"";
+        for (auto& row : output.cubemain.rows) {
+            const bool isCrafted = row.output == "\"usetype,crf\"";
             if (!isCrafted)
                 continue;
 
-            for (int i = 1; i <= 5; ++i) {
-                auto& mod = row[argCompat("mod %1", i)];
-                if (isMinMaxRange(mod.str)) {
-                    auto& modMin = row[argCompat("mod %1 min", i)];
-                    auto& modMax = row[argCompat("mod %1 max", i)];
-                    modMin       = modMax;
-                }
-            }
+            makePerfectMin(row.affixes_a, true);
+            makePerfectMin(row.affixes_b, true);
+            makePerfectMin(row.affixes_c, true);
         }
     }
 
-    auto makePerfectMin = [](TableView& view, const ColumnsDescList& columnsList, bool perfectMin) {
-        if (!perfectMin)
-            return;
-        view.markModified();
-        for (auto& row : view) {
-            for (const auto& cols : columnsList) {
-                for (const auto& col : cols.m_cols) {
-                    auto& min = row[col.min];
-                    if (min.isEmpty())
-                        continue;
-                    if (isMinMaxRange(row[col.code].str))
-                        min = row[col.max];
-                }
-            }
-        }
-    };
-    auto commonLvlReq = [](const TableView::RowView& row) { return row["lvl"].toInt(); };
-    auto makeEmpower  = [](TableView& view, const ColumnsDescList& columnsList, int level1, int level50, auto levelCallback) {
+    auto makeEmpower = [](AffixPropList& affixes, int level1, int level50, int level) {
         if (level1 == 100 && level50 == 100)
+            return;
+        if (!level)
             return;
 
         const int diff = level50 - level1;
 
-        view.markModified();
-        for (auto& row : view) {
-            int level = levelCallback(row);
-            if (!level)
-                continue;
+        const int levelDiff = diff * level / 50;
+        const int powerMult = level1 + levelDiff;
+        if (powerMult == 100)
+            return;
 
-            const int levelDiff = diff * level / 50;
-            const int powerMult = level1 + levelDiff;
-            if (powerMult == 100)
+        for (AffixProp& affixProp : affixes) {
+            if (!affixProp.hasRange())
                 continue;
-
-            for (const auto& cols : columnsList) {
-                for (const auto& col : cols.m_cols) {
-                    auto&       min  = row[col.min];
-                    auto&       max  = row[col.max];
-                    const auto& code = row[col.code].str;
-                    if (min.isEmpty() && max.isEmpty())
-                        continue;
-                    min.str = powerMultiply(code, min.str, powerMult);
-                    max.str = powerMultiply(code, max.str, powerMult);
-                }
-            }
+            affixProp.min = powerMultiply(affixProp.code, affixProp.min.value(), powerMult);
+            affixProp.max = powerMultiply(affixProp.code, affixProp.max.value(), powerMult);
         }
     };
 
     {
-        TableView view(output.tableSet.tables[TableId::uniqueitems], true);
-        makePerfectMin(view, Tables::s_descUniques, input.getInt("uniques"));
-        makeEmpower(view, Tables::s_descUniques, input.getInt("uniques_power_l1"), input.getInt("uniques_power_l50"), commonLvlReq);
-    }
-    {
-        TableView view(output.tableSet.tables[TableId::runes], true);
-        const int powerLevel = input.getInt("rw_power");
-        makePerfectMin(view, Tables::s_descRunewords, input.getInt("runeWords"));
-        makeEmpower(view, Tables::s_descRunewords, powerLevel, powerLevel, [](const TableView::RowView& row) { return 1; });
-    }
-    {
-        TableView view(output.tableSet.tables[TableId::setitems], true);
-        makePerfectMin(view, Tables::s_descSetItems, input.getInt("setItems"));
-        makeEmpower(view, Tables::s_descSetItems, input.getInt("set_power_l1"), input.getInt("set_power_l50"), commonLvlReq);
-    }
-    {
-        for (const auto table : { TableId::magicprefix, TableId::magicsuffix, TableId::automagic }) {
-            if (!output.tableSet.tables.contains(table))
-                continue;
-            TableView view(output.tableSet.tables[table], true);
-            makePerfectMin(view, Tables::s_descAffix, input.getInt("affixes"));
-            makeEmpower(view, Tables::s_descAffix, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), [](const TableView::RowView& row) {
-                return row["spawnable"] == "1" ? row["level"].toInt() : 0;
-            });
+        for (auto& row : output.uniqueitems.rows) {
+            makePerfectMin(row.affixes, input.getInt("uniques"));
+            makeEmpower(row.affixes, input.getInt("uniques_power_l1"), input.getInt("uniques_power_l50"), row.lvl.value_or(0));
         }
     }
     {
-        TableView view(output.tableSet.tables[TableId::cubemain], true);
-        const int powerLevel = input.getInt("crafted_power");
-        makePerfectMin(view, Tables::s_descCube, input.getInt("crafted"));
-        makeEmpower(view, Tables::s_descCube, powerLevel, powerLevel, [](const TableView::RowView& row) { return 1; });
+        const int powerLevel = input.getInt("rw_power");
+        for (auto& row : output.runes.rows) {
+            makePerfectMin(row.affixes, input.getInt("runeWords"));
+            makeEmpower(row.affixes, powerLevel, powerLevel, row.lvl);
+        }
     }
     {
-        TableView view(output.tableSet.tables[TableId::gems], true);
+        for (auto& row : output.setitems.rows) {
+            makePerfectMin(row.affixes_base, input.getInt("setItems"));
+            makePerfectMin(row.affixes_partial1, input.getInt("setItems"));
+            makePerfectMin(row.affixes_partial2, input.getInt("setItems"));
+            makeEmpower(row.affixes_base, input.getInt("set_power_l1"), input.getInt("set_power_l50"), row.lvl.value_or(0));
+            makeEmpower(row.affixes_partial1, input.getInt("set_power_l1"), input.getInt("set_power_l50"), row.lvl.value_or(0));
+            makeEmpower(row.affixes_partial2, input.getInt("set_power_l1"), input.getInt("set_power_l50"), row.lvl.value_or(0));
+        }
+    }
+    {
+        for (auto& row : output.magicprefix.rows) {
+            makePerfectMin(row.affixes, input.getInt("affixes"));
+            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getSpawnableLevel());
+        }
+        for (auto& row : output.magicsuffix.rows) {
+            makePerfectMin(row.affixes, input.getInt("affixes"));
+            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getSpawnableLevel());
+        }
+        for (auto& row : output.automagic.rows) {
+            makePerfectMin(row.affixes, input.getInt("affixes"));
+            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getSpawnableLevel());
+        }
+    }
+    {
+        const int powerLevel = input.getInt("crafted_power");
+        for (auto& row : output.cubemain.rows) {
+            makePerfectMin(row.affixes_a, input.getInt("crafted"));
+            makePerfectMin(row.affixes_b, input.getInt("crafted"));
+            makePerfectMin(row.affixes_c, input.getInt("crafted"));
+            int lvl = 1;
+            makeEmpower(row.affixes_a, powerLevel, powerLevel, lvl);
+            makeEmpower(row.affixes_b, powerLevel, powerLevel, lvl);
+            makeEmpower(row.affixes_c, powerLevel, powerLevel, lvl);
+        }
+    }
+    {
         const int powerLevel = input.getInt("gem_power");
-        makeEmpower(view, Tables::s_descGems, powerLevel, powerLevel, [](const TableView::RowView& row) { return 1; });
+        for (auto& row : output.gems.rows) {
+            int lvl = 1;
+            makeEmpower(row.affixes_weapon, powerLevel, powerLevel, lvl);
+            makeEmpower(row.affixes_helm, powerLevel, powerLevel, lvl);
+            makeEmpower(row.affixes_shield, powerLevel, powerLevel, lvl);
+        }
     }
     if (input.getInt("armor")) {
-        TableView view(output.tableSet.tables[TableId::armor], true);
-        for (auto& row : view) {
-            row["minac"] = row["maxac"];
+        for (auto& row : output.armor.rows) {
+            if (row.maxac.has_value())
+                row.minac = row.maxac;
         }
     }
 }

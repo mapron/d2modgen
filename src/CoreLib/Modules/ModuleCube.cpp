@@ -5,9 +5,6 @@
  */
 #include "ModuleCube.hpp"
 
-#include "AttributeHelper.hpp"
-#include "TableUtils.hpp"
-
 namespace D2ModGen {
 
 namespace {
@@ -72,9 +69,6 @@ ModuleCube::ModuleCube()
 
 void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    if (input.isAllDefault())
-        return;
-
     const bool noGemUpgrade  = input.getInt("noGemUpgrade");
     const bool quickPortals  = input.getInt("quickPortals");
     const bool quickQuests   = input.getInt("quickQuests");
@@ -85,227 +79,199 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
     const bool craftHighIlvl = input.getInt("craftHighIlvl");
     const bool cheatCharms   = input.getInt("cheatCharms");
 
-    auto&     tableSet = output.tableSet;
-    TableView view(tableSet.tables[TableId::cubemain], true);
-    for (auto& row : view) {
-        auto&        description = row["description"];
-        auto&        numinputs   = row["numinputs"];
-        std::string& input1      = row["input 1"].str;
-        std::string& input2      = row["input 2"].str;
-        std::string& input3      = row["input 3"].str;
-        std::string& input4      = row["input 4"].str;
-        const bool   isCrafted   = row["output"].str == "\"usetype,crf\"";
+    for (auto& row : output.cubemain.rows) {
+        auto& description = row.description;
 
-        if (noGemUpgrade && description.contains("->") && description.endsWith(" Rune") && !input2.empty()) {
-            numinputs.setInt(numinputs.toInt() - 1);
-            input2 = "";
+        if (noGemUpgrade && description.find("->") != std::string::npos && description.ends_with(" Rune") && row.inputs.size() >= 2) {
+            row.numinputs = row.numinputs.value() - 1;
+            row.inputs.pop_back();
         }
-        if (craftHighIlvl && (isCrafted || !row["ilvl"].isEmpty() || !row["plvl"].isEmpty() || !row["lvl"].isEmpty())) {
-            row["ilvl"].str = "";
-            row["plvl"].str = "";
-            row["lvl"].str  = "99";
+        if (craftHighIlvl && (row.isCrafted() || row.hasLvls())) {
+            row.ilvl.reset();
+            row.plvl.reset();
+            row.lvl = 99;
         }
-        if (isCrafted) {
+        if (row.isCrafted()) {
             if (craftNoStrict)
-                input1 = mapValue(s_craftedTypeReplace, input1, input1);
+                row.inputs[0] = mapValue(s_craftedTypeReplace, row.inputs[0], row.inputs[0]);
 
             if (craftNoRunes) {
-                input2 = input4;
-                input3 = input4 = "";
-                numinputs.setInt(2);
-                input2 = mapValue(s_craftedGemReplace, input2, input2);
+                row.inputs[1] = row.inputs[3];
+                row.inputs.resize(2);
+                row.numinputs = 2;
+                row.inputs[1] = mapValue(s_craftedGemReplace, row.inputs[1], row.inputs[1]);
             }
         }
     }
-    using StringMap = TableView::RowValues;
     if (quickPortals) {
-        const StringMap base{
-            { "description", "Quick Portal" },
-            { "enabled", "1" },
-            { "version", "100" },
-            { "op", "28" },
-            { "*eol", "0" },
-            { "input 1", "tbk" },
+        const DataRow_cubemain base{
+            .inputs      = std::vector<std::string>{ "tbk", "" },
+            .description = "Quick Portal",
+            .enabled     = true,
+            .version     = 100,
+            .op          = 28,
 
         };
-        StringMap cows    = base;
-        cows["numinputs"] = "2";
-        cows["input 2"]   = "isc";
-        cows["output"]    = "Cow Portal";
+        DataRow_cubemain cows = base;
+        cows.numinputs        = 2;
+        cows.inputs[1]        = "isc";
+        cows.output           = "Cow Portal";
 
-        StringMap uber1    = base;
-        uber1["numinputs"] = "3";
-        uber1["input 2"]   = "\"isc,qty=2\"";
-        uber1["output"]    = "Pandemonium Portal";
+        DataRow_cubemain uber1 = base;
+        uber1.numinputs        = 3;
+        uber1.inputs[1]        = "\"isc,qty=2\"";
+        uber1.output           = "Pandemonium Portal";
 
-        StringMap uber2    = base;
-        uber2["numinputs"] = "4";
-        uber2["input 2"]   = "\"isc,qty=3\"";
-        uber2["output"]    = "Pandemonium Finale Portal";
+        DataRow_cubemain uber2 = base;
+        uber2.numinputs        = 4;
+        uber2.inputs[1]        = "\"isc,qty=3\"";
+        uber2.output           = "Pandemonium Finale Portal";
 
-        StringMap uber3    = base;
-        uber2["numinputs"] = "5";
-        uber2["input 2"]   = "\"isc,qty=4\"";
-        uber2["output"]    = "\"Red Portal,lvl=137,qty=1\"";
+        DataRow_cubemain uber3 = base;
+        uber3.numinputs        = 5;
+        uber3.inputs[1]        = "\"isc,qty=4\"";
+        uber3.output           = "\"Red Portal,lvl=137,qty=1\"";
 
-        view.appendRow(cows);
-        view.appendRow(uber1);
-        view.appendRow(uber2);
+        output.cubemain.rows.push_back(cows);
+        output.cubemain.rows.push_back(uber1);
+        output.cubemain.rows.push_back(uber2);
+        output.cubemain.rows.push_back(uber3);
     }
     if (quickQuests) {
-        const StringMap base{
-            { "description", "Quick Quest" },
-            { "enabled", "1" },
-            { "version", "0" },
-            { "op", "28" },
-            { "*eol", "0" },
-            { "input 1", "key" },
-            { "numinputs", "2" },
+        const DataRow_cubemain base{
+            .inputs      = std::vector<std::string>{ "key", "" },
+            .description = "Quick Quest",
+            .enabled     = true,
+            .version     = 0,
+            .op          = 28,
+            .numinputs   = 2,
 
         };
-        StringMap staff  = base;
-        staff["input 2"] = "isc";
-        staff["output"]  = "hst";
 
-        StringMap khalim  = base;
-        khalim["input 2"] = "tsc";
-        khalim["output"]  = "qf2";
+        DataRow_cubemain staff = base;
+        staff.inputs[1]        = "isc";
+        staff.output           = "hst";
 
-        view.appendRow(staff);
-        view.appendRow(khalim);
+        DataRow_cubemain khalim = base;
+        khalim.inputs[1]        = "tsc";
+        khalim.output           = "qf2";
+
+        output.cubemain.rows.push_back(staff);
+        output.cubemain.rows.push_back(khalim);
     }
     if (newSocketing) {
-        const StringMap base{
-            { "description", "Quick Sockets" },
-            { "enabled", "1" },
-            { "version", "100" },
-            { "*eol", "0" },
-            { "input 1", "\"any,nor,nos\"" },
+        const DataRow_cubemain base{
+            .inputs      = std::vector<std::string>{ "\"any,nor,nos\"", "", "" },
+            .description = "Quick Sockets",
+            .enabled     = true,
+            .version     = 100,
 
         };
-        StringMap socket3    = base;
-        socket3["numinputs"] = "3";
-        socket3["input 2"]   = "tsc";
-        socket3["input 3"]   = "isc";
-        socket3["output"]    = "\"useitem,sock=3\"";
 
-        StringMap socket4    = base;
-        socket4["numinputs"] = "4";
-        socket4["input 2"]   = "tsc";
-        socket4["input 3"]   = "\"isc,qty=2\"";
-        socket4["output"]    = "\"useitem,sock=4\"";
+        DataRow_cubemain socket3 = base;
+        socket3.numinputs        = 3;
+        socket3.inputs[1]        = "tsc";
+        socket3.inputs[2]        = "isc";
+        socket3.output           = "\"useitem,sock=3\"";
 
-        StringMap socket5    = base;
-        socket5["numinputs"] = "4";
-        socket5["input 2"]   = "\"tsc,qty=2\"";
-        socket5["input 3"]   = "isc";
-        socket5["output"]    = "\"useitem,sock=5\"";
+        DataRow_cubemain socket4 = base;
+        socket4.numinputs        = 4;
+        socket4.inputs[1]        = "tsc";
+        socket4.inputs[2]        = "\"isc,qty=2\"";
+        socket4.output           = "\"useitem,sock=4\"";
 
-        StringMap socket6    = base;
-        socket6["numinputs"] = "5";
-        socket6["input 2"]   = "\"tsc,qty=2\"";
-        socket6["input 3"]   = "\"isc,qty=2\"";
-        socket6["output"]    = "\"useitem,sock=6\"";
+        DataRow_cubemain socket5 = base;
+        socket5.numinputs        = 4;
+        socket5.inputs[1]        = "\"tsc,qty=2\"";
+        socket5.inputs[2]        = "isc";
+        socket5.output           = "\"useitem,sock=5\"";
 
-        StringMap socket1    = base;
-        socket1["numinputs"] = "3";
-        socket1["input 1"]   = "\"any,uni,nos\"";
-        socket1["input 2"]   = "tsc";
-        socket1["input 3"]   = "isc";
-        socket1["output"]    = "\"useitem,sock=1\"";
+        DataRow_cubemain socket6 = base;
+        socket6.numinputs        = 5;
+        socket6.inputs[1]        = "\"tsc,qty=2\"";
+        socket6.inputs[2]        = "\"isc,qty=2\"";
+        socket6.output           = "\"useitem,sock=6\"";
 
-        StringMap socket1a  = socket1;
-        socket1a["input 1"] = "\"any,rar,nos\"";
+        DataRow_cubemain socket1 = base;
+        socket1.numinputs        = 3;
+        socket1.inputs[0]        = "\"any,uni,nos\"";
+        socket1.inputs[1]        = "tsc";
+        socket1.inputs[2]        = "isc";
+        socket1.output           = "\"useitem,sock=1\"";
 
-        StringMap socket1b  = socket1;
-        socket1b["input 1"] = "\"any,set,nos\"";
+        DataRow_cubemain socket1a = socket1;
+        socket1a.inputs[0]        = "\"any,rar,nos\"";
 
-        StringMap socketClear    = base;
-        socketClear["numinputs"] = "2";
-        socketClear["input 1"]   = "\"any,sock\"";
-        socketClear["input 2"]   = "tsc";
-        socketClear["output"]    = "\"useitem,uns\"";
+        DataRow_cubemain socket1b = socket1;
+        socket1b.inputs[0]        = "\"any,set,nos\"";
 
-        view.appendRow(socket3);
-        view.appendRow(socket4);
-        view.appendRow(socket5);
-        view.appendRow(socket6);
-        view.appendRow(socket1);
-        view.appendRow(socket1a);
-        view.appendRow(socket1b);
-        view.appendRow(socketClear);
+        DataRow_cubemain socketClear = base;
+        socketClear.numinputs        = 2;
+        socketClear.inputs.resize(2);
+        socketClear.inputs[0] = "\"any,sock\"";
+        socketClear.inputs[1] = "tsc";
+        socketClear.output    = "\"useitem,uns\"";
+
+        output.cubemain.rows.push_back(socket3);
+        output.cubemain.rows.push_back(socket4);
+        output.cubemain.rows.push_back(socket5);
+        output.cubemain.rows.push_back(socket6);
+        output.cubemain.rows.push_back(socket1);
+        output.cubemain.rows.push_back(socket1a);
+        output.cubemain.rows.push_back(socket1b);
+        output.cubemain.rows.push_back(socketClear);
     }
 
     if (upgrading) {
-        StringMap base{
-            { "description", "Quick Upgrading" },
-            { "enabled", "1" },
-            { "version", "100" },
-            { "*eol", "0" },
-            { "numinputs", "2" },
-            { "ilvl", "100" },
-            { "input 2", "yps" },
+        DataRow_cubemain base{
+            .inputs      = std::vector<std::string>{ "", "yps" },
+            .description = "Quick Upgrading",
+            .enabled     = true,
+            .version     = 100,
+            .numinputs   = 2,
+            .ilvl        = 100,
 
         };
+
         if (craftHighIlvl) {
-            base["ilvl"] = "";
-            base["plvl"] = "";
-            base["lvl"]  = "99";
+            base.ilvl.reset();
+            base.plvl.reset();
+            base.lvl = 99;
         }
-        StringMap armo1  = base;
-        armo1["input 1"] = "\"armo,bas\"";
-        armo1["output"]  = "\"useitem,mod,exc\"";
+        DataRow_cubemain armo1 = base;
+        armo1.inputs[0]        = "\"armo,bas\"";
+        armo1.output           = "\"useitem,mod,exc\"";
 
-        StringMap weap1  = armo1;
-        weap1["input 1"] = "\"weap,bas\"";
+        DataRow_cubemain weap1 = armo1;
+        weap1.inputs[0]        = "\"weap,bas\"";
 
-        StringMap armo2  = base;
-        armo2["input 1"] = "\"armo,exc\"";
-        armo2["output"]  = "\"useitem,mod,eli\"";
+        DataRow_cubemain armo2 = base;
+        armo2.inputs[0]        = "\"armo,exc\"";
+        armo2.output           = "\"useitem,mod,eli\"";
 
-        StringMap weap2  = armo2;
-        weap2["input 1"] = "\"weap,exc\"";
+        DataRow_cubemain weap2 = armo2;
+        weap2.inputs[0]        = "\"weap,exc\"";
 
-        StringMap armoEth      = base;
-        armoEth["numinputs"]   = "3";
-        armoEth["input 1"]     = "\"armo,noe\"";
-        armoEth["input 2"]     = "\"vps,qty=2\"";
-        armoEth["output"]      = "\"useitem\"";
-        armoEth["mod 1"]       = "ethereal";
-        armoEth["mod 1 param"] = "1";
-        armoEth["mod 1 min"]   = "1";
-        armoEth["mod 1 max"]   = "1";
+        DataRow_cubemain armoNor = base;
+        armoNor.inputs[0]        = "armo";
+        armoNor.inputs[1]        = "vps";
+        armoNor.output           = "\"usetype,nor\"";
 
-        armoEth["mod 2"]     = "ac%";
-        armoEth["mod 2 min"] = "50";
-        armoEth["mod 2 max"] = "50";
+        DataRow_cubemain weapNor = armoNor;
+        weapNor.inputs[0]        = "weap";
 
-        StringMap weapEth  = armoEth;
-        weapEth["input 1"] = "\"weap,noe\"";
-        weapEth["mod 2"]   = "dmg %";
-
-        StringMap armoNor  = base;
-        armoNor["input 1"] = "armo";
-        armoNor["input 2"] = "vps";
-        armoNor["output"]  = "\"usetype,nor\"";
-
-        StringMap weapNor  = armoNor;
-        weapNor["input 1"] = "weap";
-
-        view.appendRow(armo1);
-        view.appendRow(weap1);
-        view.appendRow(armo2);
-        view.appendRow(weap2);
-        view.appendRow(armoEth);
-        view.appendRow(weapEth);
-        view.appendRow(armoNor);
-        view.appendRow(weapNor);
+        output.cubemain.rows.push_back(armo1);
+        output.cubemain.rows.push_back(weap1);
+        output.cubemain.rows.push_back(armo2);
+        output.cubemain.rows.push_back(weap2);
+        output.cubemain.rows.push_back(armoNor);
+        output.cubemain.rows.push_back(weapNor);
     }
 
     if (cheatCharms) {
         struct Affix {
             std::string m_name;
-            std::string m_value;
+            int         m_value;
         };
         struct CraftResult {
             std::string        m_name;
@@ -319,32 +285,32 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
                 .m_name    = "Cheat SC: key + stamina = all skills + all stats",
                 .m_i1      = "key",
                 .m_i2      = "vps",
-                .m_affixes = { { "allskills", "7" }, { "all-stats", "20" }, { "ac", "1" }, { "att", "1" }, { "dmg-max", "1" } },
+                .m_affixes = { { "allskills", 7 }, { "all-stats", 20 }, { "ac", 1 }, { "att", 1 }, { "dmg-max", 1 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: key + antidote = damage reduction",
                 .m_i1      = "key",
                 .m_i2      = "yps",
-                .m_affixes = { { "red-dmg", "15" }, { "red-mag", "15" }, { "red-dmg%", "10" }, { "ac", "1" }, { "att", "1" } },
+                .m_affixes = { { "red-dmg", 15 }, { "red-mag", 15 }, { "red-dmg%", 10 }, { "ac", 1 }, { "att", 1 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: key + thawing = absorb",
                 .m_i1      = "key",
                 .m_i2      = "wms",
-                .m_affixes = { { "abs-fire%", "10" }, { "abs-ltng%", "10" }, { "abs-mag%", "10" }, { "abs-cold%", "10" }, { "ac", "1" } },
+                .m_affixes = { { "abs-fire%", 10 }, { "abs-ltng%", 10 }, { "abs-mag%", 10 }, { "abs-cold%", 10 }, { "ac", 1 } },
             },
 
             CraftResult{
                 .m_name    = "Cheat SC: key + any hp = HP and vitality",
                 .m_i1      = "key",
                 .m_i2      = "hpot",
-                .m_affixes = { { "hp", "300" }, { "hp%", "10" }, { "vit", "20" }, { "ac", "1" }, { "att", "1" } },
+                .m_affixes = { { "hp", 300 }, { "hp%", 10 }, { "vit", 20 }, { "ac", 1 }, { "att", 1 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: key + any mana = Mana and energy",
                 .m_i1      = "key",
                 .m_i2      = "mpot",
-                .m_affixes = { { "mana", "150" }, { "mana%", "20" }, { "enr", "20" }, { "ac", "1" }, { "att", "1" } },
+                .m_affixes = { { "mana", 150 }, { "mana%", 20 }, { "enr", 20 }, { "ac", 1 }, { "att", 1 } },
             },
 
             //----------------
@@ -352,31 +318,31 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
                 .m_name    = "Cheat SC: TP + stamina = faster frames",
                 .m_i1      = "tsc",
                 .m_i2      = "vps",
-                .m_affixes = { { "move2", "30" }, { "cast2", "80" }, { "balance2", "80" }, { "block2", "50" }, { "ac", "1" } },
+                .m_affixes = { { "move2", 30 }, { "cast2", 80 }, { "balance2", 80 }, { "block2", 50 }, { "ac", 1 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: TP + antidote = max res + poison len",
                 .m_i1      = "tsc",
                 .m_i2      = "yps",
-                .m_affixes = { { "res-fire-max", "8" }, { "res-ltng-max", "8" }, { "res-cold-max", "8" }, { "res-pois-max", "8" }, { "res-pois-len", "50" } },
+                .m_affixes = { { "res-fire-max", 8 }, { "res-ltng-max", 8 }, { "res-cold-max", 8 }, { "res-pois-max", 8 }, { "res-pois-len", 50 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: TP + thawing = all res",
                 .m_i1      = "tsc",
                 .m_i2      = "wms",
-                .m_affixes = { { "res-all", "50" }, { "ac", "1" }, { "att", "1" }, { "dmg-min", "1" }, { "dmg-max", "1" } },
+                .m_affixes = { { "res-all", 50 }, { "ac", 1 }, { "att", 1 }, { "dmg-min", 1 }, { "dmg-max", 1 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: TP + any hp = hp regen",
                 .m_i1      = "tsc",
                 .m_i2      = "hpot",
-                .m_affixes = { { "lifesteal", "10" }, { "regen", "30" }, { "heal-kill", "20" }, { "regen-stam", "50" }, { "ac", "1" } },
+                .m_affixes = { { "lifesteal", 10 }, { "regen", 30 }, { "heal-kill", 20 }, { "regen-stam", 50 }, { "ac", 1 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: TP + any mana = mana regen",
                 .m_i1      = "tsc",
                 .m_i2      = "mpot",
-                .m_affixes = { { "manasteal", "5" }, { "regen-mana", "50" }, { "mana-kill", "5" }, { "dmg-to-mana", "20" }, { "ac", "1" } },
+                .m_affixes = { { "manasteal", 5 }, { "regen-mana", 50 }, { "mana-kill", 5 }, { "dmg-to-mana", 20 }, { "ac", 1 } },
             },
 
             //----------------
@@ -384,54 +350,48 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
                 .m_name    = "Cheat SC: ID + stamina = pierce res",
                 .m_i1      = "isc",
                 .m_i2      = "vps",
-                .m_affixes = { { "pierce-pois", "20" }, { "pierce-fire", "20" }, { "pierce-ltng", "20" }, { "pierce-cold", "20" }, { "ac", "1" } },
+                .m_affixes = { { "pierce-pois", 20 }, { "pierce-fire", 20 }, { "pierce-ltng", 20 }, { "pierce-cold", 20 }, { "ac", 1 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: ID + antidote = +elemental dmg",
                 .m_i1      = "isc",
                 .m_i2      = "yps",
-                .m_affixes = { { "extra-ltng", "50" }, { "extra-cold", "50" }, { "extra-pois", "50" }, { "extra-fire", "50" }, { "ac", "1" } },
+                .m_affixes = { { "extra-ltng", 50 }, { "extra-cold", 50 }, { "extra-pois", 50 }, { "extra-fire", 50 }, { "ac", 1 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: ID + thawing = OW/CB/DS",
                 .m_i1      = "isc",
                 .m_i2      = "wms",
-                .m_affixes = { { "crush", "20" }, { "openwounds", "20" }, { "deadly", "20" }, { "noheal", "1" }, { "ac", "1" } },
+                .m_affixes = { { "crush", 20 }, { "openwounds", 20 }, { "deadly", 20 }, { "noheal", 1 }, { "ac", 1 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: ID + any hp = IAS and Enh Dmg",
                 .m_i1      = "isc",
                 .m_i2      = "hpot",
-                .m_affixes = { { "swing2", "30" }, { "dmg-max", "20" }, { "dmg%", "100" }, { "dmg-demon", "100" }, { "dmg-undead", "100" } },
+                .m_affixes = { { "swing2", 30 }, { "dmg-max", 20 }, { "dmg%", 100 }, { "dmg-demon", 100 }, { "dmg-undead", 100 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: ID + any mana = attack rating and defence",
                 .m_i1      = "isc",
                 .m_i2      = "mpot",
-                .m_affixes = { { "att%", "20" }, { "att", "200" }, { "ac", "100" }, { "dmg-min", "1" }, { "dmg-max", "1" } },
+                .m_affixes = { { "att%", 20 }, { "att", 200 }, { "ac", 100 }, { "dmg-min", 1 }, { "dmg-max", 1 } },
             },
         };
         for (const CraftResult& c : crs) {
-            StringMap data{
-                { "description", c.m_name },
-                { "enabled", "1" },
-                { "lvl", "1" },
-                { "version", "100" },
-                { "*eol", "0" },
-                { "numinputs", "3" },
-                { "input 1", "cm1" },
-                { "input 2", c.m_i1 },
-                { "input 3", c.m_i2 },
-                { "output", "\"usetype,crf\"" },
+            DataRow_cubemain data{
+                .inputs      = std::vector<std::string>{ "cm1", c.m_i1, c.m_i2 },
+                .output      = "\"usetype,crf\"",
+                .description = c.m_name,
+                .enabled     = true,
+                .version     = 100,
+                .numinputs   = 3,
+                .lvl         = 1,
             };
-            for (size_t i = 1; auto&& af : c.m_affixes) {
-                data["mod " + std::to_string(i)]             = af.m_name;
-                data["mod " + std::to_string(i) + " chance"] = "100";
-                data["mod " + std::to_string(i) + " min"]    = af.m_value;
-                data["mod " + std::to_string(i) + " max"]    = af.m_value;
-                i++;
+
+            for (auto&& af : c.m_affixes) {
+                data.affixes_a.push_back(AffixProp{ .code = af.m_name, .par = "", .min = af.m_value, .max = af.m_value, .chance = 100 });
             }
-            view.appendRow(data);
+            output.cubemain.rows.push_back(data);
         }
     }
 }

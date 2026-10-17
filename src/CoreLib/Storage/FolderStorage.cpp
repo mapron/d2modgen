@@ -15,9 +15,8 @@
 namespace D2ModGen {
 
 namespace {
-static const std::string s_tableSubfolder     = "data/global/excel/";
-static const std::string s_tableSubfolderBack = "data\\global\\excel\\";
-static const std::string s_tableBase          = "base";
+static const std::string s_tableSubfolder = "data\\global\\excel\\";
+static const std::string s_tableBase      = s_tableSubfolder + "base\\";
 
 void removeRecursively(const std_path& folder)
 {
@@ -41,14 +40,10 @@ void removeRecursively(const std_path& folder)
 
 }
 
-std::string IStorage::makeTableRelativePath(const std::string& id, bool backslash, bool baseSub)
+std::string IStorage::makeTableRelativePath(TableId id, bool baseSub)
 {
-    std::string base = backslash ? s_tableSubfolderBack : s_tableSubfolder;
-    if (baseSub) {
-        base += s_tableBase;
-        base += backslash ? "\\" : "/";
-    }
-    return base + id + ".txt";
+    const std::string& base = baseSub ? s_tableBase : s_tableSubfolder;
+    return base + std::string(getTableIdString(id)) + ".txt";
 }
 
 FolderStorage::FolderStorage(const std_path& storageRoot, StorageType storage, const std::string& modname, bool needBaseSubfolder)
@@ -59,41 +54,44 @@ FolderStorage::FolderStorage(const std_path& storageRoot, StorageType storage, c
 {
 }
 
-IStorage::StoredData FolderStorage::readData(const RequestInMemoryList& filenames) const noexcept
+IStorage::StoredData FolderStorage::readData() const noexcept
 {
     StoredData result{ true };
+
+    if (m_storageType == StorageType::None)
+        return result;
+
     const auto rootLength = path2string(m_root).size() + 1;
-    for (auto& it : std_fs::recursive_directory_iterator(m_root)) {
-        if (!it.is_regular_file())
-            continue;
-        const std_path&   path           = it.path();
-        const std::string currentAbsPath = path2string(path);
-        const std::string currentRelPath = currentAbsPath.substr(rootLength);
-        if (path.filename() == "modinfo.json")
+
+    auto readFile = [this](std::string& data, const std::string& relPath) -> bool {
+        const auto absPath = m_root / relPath;
+        if (!Mernel::readFileIntoBufferNoexcept(absPath, data))
+            return false;
+
+        Logger() << "read  " << path2string(absPath);
+        return true;
+    };
+
+    for (TableId id : getTableIds()) {
+        std::string       buffer;
+        const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + ".txt" : makeTableRelativePath(id, m_needBaseSubfolder);
+        if (!readFile(buffer, relPath))
             continue;
 
-        if (path.extension() == ".txt" && (path.parent_path().filename() == "excel" || path.parent_path() == m_root)) { // not a best guess, but however...
-            auto        id = toLower(path2string(path.stem()));
+        result.tables[id] = std::move(buffer);
+    }
+    if (m_storageType != StorageType::CsvFolder) {
+        for (JsonId id : getJsonIds()) {
             std::string buffer;
-            if (!Mernel::readFileIntoBufferNoexcept(path, buffer))
-                return {};
+            if (!readFile(buffer, std::string(getJsonRelPath(id))))
+                continue;
 
-            result.tables.push_back(StoredFileTable{ std::move(buffer), id });
-        } else if (m_storageType != StorageType::CsvFolder) {
-            if (filenames.contains(currentRelPath) || path.extension() == ".json") {
-                std::string buffer;
-                if (!Mernel::readFileIntoBufferNoexcept(path, buffer))
-                    return {};
-
-                result.inMemoryFiles.push_back(StoredFileMemory{ std::move(buffer), string2path(currentRelPath) });
-            } else {
-                result.refFiles.push_back(StoredFileRef{ path, string2path(currentRelPath) });
-            }
+            result.jsonFiles[id] = std::move(buffer);
         }
     }
 
-    if (result.tables.empty())
-        result.valid = false;
+    result.valid = !result.tables.empty();
+
     return result;
 }
 
@@ -103,9 +101,11 @@ bool FolderStorage::prepareForWrite() const noexcept
         return true;
 
     const auto data = m_root / "data";
-    if (std_fs::exists(data)) {
-        removeRecursively(data);
-        Logger() << "Remove dir: " << path2string(data);
+    if (m_storageType != StorageType::CsvFolder) {
+        if (std_fs::exists(data)) {
+            removeRecursively(data);
+            Logger() << "Remove dir: " << path2string(data);
+        }
     }
 
     if (!createDirectories(m_root)) {
@@ -148,22 +148,16 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
         auto res = Mernel::writeFileFromBufferNoexcept(absPath, data);
         if (res) {
             Logger() << "Write: " << path2string(absPath);
+        } else {
+            Logger(Logger::Warning) << "failed to write to:" << absPath;
         }
         return res;
     };
-    auto copyFile = [](const std_path& absSrc, const std_path& absDest) {
-        if (!createDirectoriesForFile(absDest))
-            return false;
 
-        std::error_code ec;
-        std_fs::copy(absSrc, absDest, std_fs::copy_options::overwrite_existing, ec);
-        return !ec;
-    };
-    for (const auto& tableData : data.tables) {
-        const std::string relPath = m_storageType == StorageType::CsvFolder ? tableData.id + ".txt" : makeTableRelativePath(tableData.id, false, m_needBaseSubfolder);
+    for (const auto& [id, tableData] : data.tables) {
+        const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + ".txt" : makeTableRelativePath(id, m_needBaseSubfolder);
         const auto        absPath = m_root / relPath;
-        if (!writeData(tableData.data, absPath)) {
-            Logger(Logger::Warning) << "failed to write to:" << absPath;
+        if (!writeData(tableData, absPath)) {
             return false;
         }
     }
@@ -171,21 +165,12 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
         if (data.dataVersion) {
             const auto absPath = m_root / IStorage::s_dataVersionPath;
             if (!writeData(std::to_string(data.dataVersion), absPath)) {
-                Logger(Logger::Warning) << "failed to write to:" << absPath;
                 return false;
             }
         }
-        for (const auto& memoryData : data.inMemoryFiles) {
-            const auto absPath = m_root / memoryData.relFilepath;
-            if (!writeData(memoryData.data, absPath)) {
-                Logger(Logger::Warning) << "failed to write to:" << absPath;
-                return false;
-            }
-        }
-        for (const auto& refData : data.refFiles) {
-            const auto absPathDest = m_root / refData.relFilepath;
-            if (!copyFile(refData.absSrcFilepath, absPathDest)) {
-                Logger(Logger::Warning) << "failed to copy file:" << refData.absSrcFilepath << " -> " << absPathDest;
+        for (const auto& [id, memoryData] : data.jsonFiles) {
+            const auto absPath = m_root / std::string(getJsonRelPath(id));
+            if (!writeData(memoryData, absPath)) {
                 return false;
             }
         }

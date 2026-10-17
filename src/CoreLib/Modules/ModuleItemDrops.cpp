@@ -5,7 +5,6 @@
  */
 #include "ModuleItemDrops.hpp"
 #include "AttributeHelper.hpp"
-#include "TableUtils.hpp"
 
 namespace D2ModGen {
 
@@ -107,19 +106,13 @@ ModuleItemDrops::ModuleItemDrops()
 
 void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    if (input.isAllDefault())
-        return;
-
     static const std::set<int> s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
     static const StringSet     s_modifyNames{
         "Cow",
         "Cow (N)",
         "Cow (H)",
     };
-    auto& tableSet = output.tableSet;
     {
-        TableView view(tableSet.tables[TableId::treasureclassex], true);
-
         const int  factorUnique    = input.getInt("chance_uni");
         const int  factorSet       = input.getInt("chance_set");
         const int  factorRare      = input.getInt("chance_rare");
@@ -132,15 +125,15 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
         const bool highDropsCount  = input.getInt("high_elite_drops");
         const bool alwaysQuest     = input.getInt("boss_quest_drops");
 
-        auto factorAdjust = [](TableCell& value, double factor, int maxFact) {
-            maxFact                     = std::max(maxFact, value.toInt());
-            const double prev           = value.toInt();
+        auto factorAdjust = [](std::optional<int>& value, double factor, int maxFact) {
+            maxFact                     = std::max(maxFact, value.value_or(0));
+            const double prev           = value.value_or(0);
             const double probReverseOld = (1024. - prev);
             const double probReverseNew = probReverseOld / factor;
             const double probNew        = (1024. - probReverseNew);
 
             const int next = static_cast<int>(probNew);
-            value.setInt(std::min(next, maxFact));
+            value          = (std::min(next, maxFact));
         };
         auto adjustPick = [](int value, int num, int denum) -> int {
             if (!value)
@@ -150,25 +143,25 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
             value = value * num / denum;
             return std::max(1, value);
         };
-        std::unordered_map<std::string, const TableView::RowView*> classes;
-        for (auto& row : view)
-            classes[row["Treasure Class"].str] = &row;
+        output.treasureclassex.makeIndex(&DataRow_treasureclassex::name);
 
-        for (auto& row : view) {
-            const auto                treasureGroup = row["group"].toInt();
-            std::string&              className     = row["Treasure Class"].str;
-            const TableView::RowView* questRow      = alwaysQuest && s_bossTC.contains(className) ? classes.at(s_bossTC.at(className)) : nullptr;
+        for (auto& row : output.treasureclassex.rows) {
+            const auto                     treasureGroup = row.group.value_or(0);
+            std::string&                   className     = row.name;
+            const DataRow_treasureclassex* questRow      = alwaysQuest && s_bossTC.contains(className) ? output.treasureclassex.index.at(s_bossTC.at(className)) : nullptr;
             if (questRow) {
-                row["Unique"] = (*questRow)["Unique"];
-                row["Set"]    = (*questRow)["Set"];
-                row["Rare"]   = (*questRow)["Rare"];
+                row.k_unique = questRow->k_unique;
+                row.k_set    = questRow->k_set;
+                row.k_rare   = questRow->k_rare;
+                row.items    = questRow->items;
+                row.noDrop   = questRow->noDrop;
             }
 
-            auto&      uniqueRatio        = row["Unique"];
-            auto&      setRatio           = row["Set"];
-            auto&      rareRatio          = row["Rare"];
+            auto&      uniqueRatio        = row.k_unique;
+            auto&      setRatio           = row.k_set;
+            auto&      rareRatio          = row.k_rare;
             const bool allowFillNewValues = s_modifyGroups.contains(treasureGroup) || s_modifyNames.contains(className);
-            const bool allowModifyValues  = !uniqueRatio.isEmpty() && uniqueRatio != "1024" && !setRatio.isEmpty();
+            const bool allowModifyValues  = uniqueRatio.has_value() && uniqueRatio.value() != 1024 && setRatio.has_value();
             if (allowFillNewValues || allowModifyValues) {
                 // these limits are empyrical - to prevent 100% drop chance on 1000% MF.
                 factorAdjust(uniqueRatio, factorUnique, 1010);
@@ -176,61 +169,54 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
                 factorAdjust(rareRatio, factorRare, 1024);
             }
 
-            DropSet dropSet;
-            dropSet.readRow(questRow ? *questRow : row);
-
-            dropSet.m_noDrop = adjustPick(dropSet.m_noDrop, 100, percentDrop);
+            row.noDrop = adjustPick(row.noDrop.value_or(0), 100, percentDrop);
 
             if (highDropsCount) {
                 if (treasureGroup == 15) { // Uniques, insead of 1 item + 2*2 potion, make 4 items + 1*2 potion
-                    dropSet.m_items[0].prob = 4;
-                    dropSet.m_items[1].prob = 1;
-                    row["Picks"].str        = "-5";
+                    row.items[0].prob = 4;
+                    row.items[1].prob = 1;
+                    row.picks         = -5;
                 }
                 if (treasureGroup == 13) { // Champions, insead of 1 item + 1-2*2 potion, make 2 items + 1*2 potion
-                    dropSet.m_items[0].prob = 2;
-                    dropSet.m_items[1].prob = 1;
-                    row["Picks"].str        = "-3";
+                    row.items[0].prob = 2;
+                    row.items[1].prob = 1;
+                    row.picks         = -3;
                 }
             }
 
             const auto rowTC = getTC(className);
             if (rowTC == TCType::Other) {
-                for (auto& item : dropSet.m_items) {
+                for (auto& item : row.items) {
                     int        percent   = 100;
-                    const auto subItemTC = getTC(item.tc.str);
+                    const auto subItemTC = getTC(item.tc);
 
-                    if (item.tc.endsWith(" Good"))
+                    if (item.tc.ends_with(" Good"))
                         percent = percentGoodTC;
-                    else if (item.tc.startsWith("gld") || item.tc.startsWith("\"gld"))
+                    else if (item.tc.starts_with("gld") || item.tc.starts_with("\"gld"))
                         percent = percentGold;
                     else if (subItemTC == TCType::Junk)
                         percent = percentJunk;
                     else if (subItemTC == TCType::Equip || subItemTC == TCType::Bow)
                         percent = percentEquip;
 
-                    item.prob = adjustPick(item.prob, percent, 100);
+                    item.prob = adjustPick(item.prob.value_or(0), percent, 100);
                 }
             }
             if (rowTC == TCType::Equip || rowTC == TCType::Bow) {
-                for (auto& item : dropSet.m_items) {
-                    const auto subItemTC = getTC(item.tc.str);
+                for (auto& item : row.items) {
+                    const auto subItemTC = getTC(item.tc);
                     if (subItemTC == TCType::Equip || subItemTC == TCType::Bow)
-                        item.prob = adjustPick(item.prob, 1, factorHighlevel);
+                        item.prob = adjustPick(item.prob.value_or(0), 1, factorHighlevel);
                 }
             }
-
-            dropSet.writeRow(row);
         }
     }
 
-    const bool equalRarity = input.getInt("equal_uniques");
-    if (equalRarity) {
-        TableView view(tableSet.tables[TableId::uniqueitems], true);
-        for (auto& row : view) {
-            auto& rarity = row["rarity"];
-            if (!rarity.isEmpty())
-                rarity.str = "1";
+    if (input.getInt("equal_uniques")) {
+        for (auto& row : output.uniqueitems.rows) {
+            auto& rarity = row.rarity;
+            if (rarity.has_value())
+                rarity = 1;
         }
     }
 }

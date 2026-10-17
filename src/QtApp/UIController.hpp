@@ -14,7 +14,6 @@
 
 namespace D2ModGen {
 
-class StorageCache;
 class DelayedTimer : public QObject {
     Q_OBJECT
 public:

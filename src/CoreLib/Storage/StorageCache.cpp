@@ -15,15 +15,15 @@ namespace D2ModGen {
 
 IStorage::StoredData StorageCache::loadImpl(const Context& input)
 {
-    IInputStorage::Ptr storage;
+    std::unique_ptr<IStorage> storage;
     if (input.m_storage == StorageType::D2ResurrectedInternal)
-        storage = std::make_shared<CascStorage>(input.m_root, input.m_needBaseSubfolder);
+        storage = std::make_unique<CascStorage>(input.m_root, input.m_needBaseSubfolder);
     else if (input.m_storage == StorageType::D2LegacyInternal)
-        storage = std::make_shared<StormStorage>(input.m_root);
+        storage = std::make_unique<StormStorage>(input.m_root);
     else {
-        storage = std::make_shared<FolderStorage>(input.m_root, input.m_storage, "", input.m_needBaseSubfolder);
+        storage = std::make_unique<FolderStorage>(input.m_root, input.m_storage, "", input.m_needBaseSubfolder);
     }
-    return storage->readData(input.m_inMemoryFiles);
+    return storage->readData();
 }
 
 }

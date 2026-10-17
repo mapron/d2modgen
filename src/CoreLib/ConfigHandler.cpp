@@ -212,32 +212,21 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
 
     DataContext output;
 
-    IModule::PreGenerationContext pregenContext;
-
-    for (auto& p : m_modules) {
-        if (env.exportAll || p.m_enabled)
-            p.m_module->gatherInfo(pregenContext);
+    Logger() << "Loading data from main storage...";
+    const IStorage::StoredData inData = m_mainStorageCache->load({ env.inputMode, env.inputPath, env.needDataSubfolder });
+    if (!inData.valid) {
+        return { "Failed to read data files from D2 folder." };
+    }
+    Logger() << "Parsing json and txt...";
+    if (!output.parseData(inData)) {
+        return { "Failed parse D2 data files." };
     }
 
-    {
-        Logger() << "Loading data from main storage...";
-        const IStorage::StoredData data = m_mainStorageCache->load(env.inputMode, env.inputPath, pregenContext.m_extraJson, env.needDataSubfolder);
-        if (!data.valid) {
-            return { "Failed to read data files from D2 folder." };
-        }
-        Logger() << "Parsing json and txt...";
-        if (!output.readData(data)) {
-            return { "Failed parse D2 data files." };
-        }
-        if (env.exportAll)
-            for (auto& p : output.tableSet.tables)
-                p.second.modified = true;
-    }
     Logger() << "prepare ended; Starting generate phase.";
     {
         using Distribution32 = std::uniform_int_distribution<int32_t>;
         std::mt19937_64 engine;
-        engine.seed(env.seed); // really we need A LOT of bits to safely seed mt engine. But for our purpose 32 bits more then enough.
+        engine.seed(env.seed); // really we need A LOT of bits to safely seed mt engine. But for our purpose 32 bits more than enough.
         for (ModuleData& module : m_modules) {
             if (!module.m_enabled)
                 continue;
@@ -266,7 +255,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     Logger() << "prepare output data.";
 
     IStorage::StoredData outData;
-    if (!output.writeData(outData)) {
+    if (!output.serializeData(outData)) {
         Logger() << "Failed to prepare data buffers"; // highly unlikely.
         return {};
     }
@@ -293,7 +282,6 @@ GenerationEnvironment ConfigHandler::getEnv(std::string& err) const
     env.modName     = c.value("modname", Mernel::PropertyTreeScalar("rando")).toString();
     env.inputPath   = string2path(c.value("inputPath", Mernel::PropertyTreeScalar("")).toString());
     env.outputPath  = string2path(c.value("outputPath", Mernel::PropertyTreeScalar("")).toString());
-    env.exportAll   = c.value("exportAll", Mernel::PropertyTreeScalar(false)).toBool();
     env.refreshSeed = c.value("refreshSeed", Mernel::PropertyTreeScalar(false)).toBool();
     env.seed        = static_cast<uint32_t>(c.value("seed", Mernel::PropertyTreeScalar(0)).toInt());
     if (env.outputPath.empty()) {

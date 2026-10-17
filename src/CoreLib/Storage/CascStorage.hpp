@@ -6,10 +6,11 @@
 #pragma once
 
 #include "IStorage.hpp"
+#include "FileIOUtils.hpp"
 
 namespace D2ModGen {
 
-class CascStorage final : public IInputStorage {
+class CascStorage final : public IStorage {
 public:
     CascStorage(const Mernel::std_path& storageRoot, bool needBaseSubfolder)
         : m_storageRoot(storageRoot)
@@ -17,7 +18,7 @@ public:
     {}
 
 private:
-    StoredData readData(const RequestInMemoryList& filenames) const noexcept override;
+    StoredData readData() const noexcept override;
 
 private:
     const Mernel::std_path m_storageRoot;

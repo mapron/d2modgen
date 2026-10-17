@@ -8,16 +8,16 @@
 #include "IStorage.hpp"
 
 #include "CommonTypes.hpp"
+#include "FileIOUtils.hpp"
 
 namespace D2ModGen {
 
 class FolderStorage final
-    : virtual public IOutputStorage
-    , virtual public IInputStorage {
+    : public IWriteableStorage {
 public:
     FolderStorage(const std_path& storageRoot, StorageType storage, const std::string& modname, bool needBaseSubfolder);
 
-    StoredData readData(const RequestInMemoryList& filenames) const noexcept override;
+    StoredData readData() const noexcept override;
 
     bool prepareForWrite() const noexcept override;
 

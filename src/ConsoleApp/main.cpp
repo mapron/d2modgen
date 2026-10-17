@@ -7,10 +7,16 @@
 #include "ConfigHandler.hpp"
 
 #include "Logger.hpp"
+#include "MernelPlatform/Logger_details.hpp"
 
 int main(int argc, char* argv[])
 {
     using namespace D2ModGen;
+
+    // verbose mode
+    const bool verbose = (argc == 2 && argv[1] == std::string_view("-v"));
+
+    Logger::SetLoggerBackend(std::make_unique<Mernel::LoggerBackendConsole>(verbose ? Logger::Debug : Logger::Info, false, false, false, Mernel::LoggerBackendConsole::Type::Cout));
 
     ConfigHandler configHandler;
     configHandler.loadConfig(configHandler.m_defaultPath);
@@ -20,6 +26,6 @@ int main(int argc, char* argv[])
         return 1;
     }
     configHandler.saveConfig(configHandler.m_defaultPath);
-    Logger(Logger::Notice) << "Success!";
+    Logger(Logger::Info) << "Success!";
     return 0;
 }

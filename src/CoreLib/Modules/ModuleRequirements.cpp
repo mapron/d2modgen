@@ -4,7 +4,6 @@
  * See LICENSE file for details.
  */
 #include "ModuleRequirements.hpp"
-#include "TableUtils.hpp"
 
 namespace D2ModGen {
 
@@ -24,13 +23,6 @@ ModuleRequirements::ModuleRequirements()
 
 void ModuleRequirements::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    if (input.isAllDefault())
-        return;
-
-    auto&     tableSet  = output.tableSet;
-    Table&    charTable = tableSet.tables[TableId::charstats];
-    TableView charTableView(charTable, true);
-
     const int reqStr = input.getInt("reqStr");
     const int reqDex = input.getInt("reqDex");
 
@@ -44,50 +36,54 @@ void ModuleRequirements::generate(DataContext& output, RandomGenerator& rng, con
     const int affixItemLevel   = input.getInt("affixItemLevel");
 
     auto makeLevelModifier = [](int percent) {
-        return [percent](const int value) {
-            if (value <= 0 || percent == 100)
-                return value;
-            const int newLevel = value * percent / 100;
-            return std::clamp(newLevel, 1, 110);
+        return [percent](std::optional<int>& data) {
+            if (!data.has_value())
+                return;
+
+            if (data.value() <= 0 || percent == 100)
+                return;
+            const int newLevel = data.value() * percent / 100;
+            data               = std::clamp(newLevel, 1, 110);
         };
     };
 
-    for (const auto tableName : { TableId::armor, TableId::weapons }) {
-        Table&    table = tableSet.tables[tableName];
-        TableView view(table, true);
-        view.applyIntTransform("reqstr", [reqStr](const int value) {
-            const int newStat = value * reqStr / 100;
-            return newStat < 10 ? 0 : newStat;
+    auto equipTransform = [reqStr, reqDex, &makeLevelModifier, equipItemLevel, equipReqLevel]<typename Row>(DataTable<Row>& table) {
+        table.applyTransform(&Row::reqstr, [reqStr](std::optional<int>& data) {
+            if (!data.has_value())
+                return;
+            const int newStat = data.value() * reqStr / 100;
+            data              = newStat < 10 ? 0 : newStat;
         });
-        view.applyIntTransform("reqdex", [reqDex](const int value) {
-            const int newStat = value * reqDex / 100;
-            return newStat < 10 ? 0 : newStat;
+        table.applyTransform(&Row::reqdex, [reqDex](std::optional<int>& data) {
+            if (!data.has_value())
+                return;
+            const int newStat = data.value() * reqDex / 100;
+            data              = newStat < 10 ? 0 : newStat;
         });
-        view.applyIntTransform("level", makeLevelModifier(equipItemLevel));
-        view.applyIntTransform("levelreq", makeLevelModifier(equipReqLevel));
-    }
 
-    for (const auto tableName : { TableId::automagic, TableId::magicprefix, TableId::magicsuffix }) {
-        Table&    table = tableSet.tables[tableName];
-        TableView view(table, true);
+        table.applyTransform(&Row::lvl, makeLevelModifier(equipItemLevel));
+        table.applyTransform(&Row::lvlreq, makeLevelModifier(equipReqLevel));
+    };
+    equipTransform(output.weapons);
+    equipTransform(output.armor);
 
-        view.applyIntTransform("level", makeLevelModifier(affixItemLevel));
-        view.applyIntTransform("maxlevel", makeLevelModifier(affixItemLevel));
-        view.applyIntTransform("levelreq", makeLevelModifier(affixReqLevel));
-    }
-    for (const auto tableName : { TableId::uniqueitems, TableId::setitems }) {
-        Table&    table = tableSet.tables[tableName];
-        TableView view(table, true);
+    auto affixTransform = [&makeLevelModifier, affixItemLevel, affixReqLevel]<typename Row>(DataTable<Row>& table) {
+        table.applyTransform(&Row::lvl, makeLevelModifier(affixItemLevel));
+        table.applyTransform(&Row::maxlevel, makeLevelModifier(affixItemLevel));
+        table.applyTransform(&Row::lvlreq, makeLevelModifier(affixReqLevel));
+    };
+    affixTransform(output.automagic);
+    affixTransform(output.magicprefix);
+    affixTransform(output.magicsuffix);
 
-        view.applyIntTransform("lvl", makeLevelModifier(uniquesItemLevel));
-        view.applyIntTransform("lvl req", makeLevelModifier(uniquesReqLevel));
-    }
+    auto itemTransform = [&makeLevelModifier, uniquesItemLevel, uniquesReqLevel]<typename Row>(DataTable<Row>& table) {
+        table.applyTransform(&Row::lvl, makeLevelModifier(uniquesItemLevel));
+        table.applyTransform(&Row::lvlreq, makeLevelModifier(uniquesReqLevel));
+    };
+    itemTransform(output.uniqueitems);
+    itemTransform(output.setitems);
 
-    if (skillsReqLevel != 100) {
-        Table&    skillTable = tableSet.tables[TableId::skills];
-        TableView skillTableView(skillTable, true);
-        skillTableView.applyIntTransform("reqlevel", makeLevelModifier(skillsReqLevel));
-    }
+    output.skills.applyTransform(&DataRow_skills::lvlreq, makeLevelModifier(skillsReqLevel));
 }
 
 }

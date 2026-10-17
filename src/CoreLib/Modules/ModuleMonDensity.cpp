@@ -4,7 +4,6 @@
  * See LICENSE file for details.
  */
 #include "ModuleMonDensity.hpp"
-#include "TableUtils.hpp"
 
 #include <algorithm>
 
@@ -24,80 +23,56 @@ void ModuleMonDensity::generate(DataContext& output, RandomGenerator& rng, const
     {
         const int groupIncrease = input.getInt("mon_groups");
         if (groupIncrease > 0) {
-            TableView view(output.tableSet.tables[TableId::monstats], true);
-            for (auto& row : view) {
-                if (row["Level"].isEmpty())
+            for (auto& row : output.monstats.rows) {
+                if (!row.isRegularMob())
                     continue;
-                TableCell& valueMin = row["MinGrp"];
-                TableCell& valueMax = row["MaxGrp"];
-                if (valueMin.isEmpty() || valueMax.isEmpty())
+                auto& valueMin = row.minGrp;
+                auto& valueMax = row.maxGrp;
+                if (!valueMin.has_value() || !valueMax.has_value())
                     continue;
-                if (valueMin.str == valueMax.str && valueMax == "1")
+                if (valueMin == valueMax && valueMax == 1)
                     continue;
-                for (TableCell* value : { &valueMin, &valueMax }) {
-                    const int prev = value->toInt();
+                for (auto* value : { &valueMin, &valueMax }) {
+                    const int prev = value->value();
                     const int next = prev + groupIncrease;
-                    value->setInt(std::min(next, 99));
+                    *value         = std::min(next, 99);
                 }
             }
         }
     }
-    if (!input.isAllDefault({ "density", "packs", "hellPacks" })) {
-        TableView view(output.tableSet.tables[TableId::levels], true);
-        auto      isEmptyCell = [](const TableCell& value) {
-            return value.isEmpty() || value == "0";
-        };
-        auto allCellsNonEmpty = [&isEmptyCell](const std::vector<TableCell>& values) -> bool {
-            for (const TableCell& value : values)
-                if (isEmptyCell(value))
-                    return false;
-            return true;
-        };
+    {
         const int density       = input.getInt("density");
-        auto      densityAdjust = [density](TableCell& value) {
-            const int prev = value.toInt();
+        auto      densityAdjust = [density](std::optional<int>& value) {
+            if (density == 1)
+                return;
+            const int prev = value.value();
             const int next = prev * density;
-            value.setInt(std::clamp(next, 100, 9900));
+            value          = std::clamp(next, 100, 9900);
         };
         const int packs       = input.getInt("packs");
-        auto      packsAdjust = [packs](TableCell& value) {
-            const int prev = value.toInt();
+        auto      packsAdjust = [packs](std::optional<int>& value) {
+            if (packs == 1)
+                return;
+            const int prev = value.value();
             const int next = prev * packs;
-            value.setInt(std::min(next, 255));
+            value          = (std::min(next, 255));
         };
-        for (auto& row : view) {
-            auto& normMin = row["MonUMin"];
-            auto& normMax = row["MonUMax"];
-            auto& nighMin = row["MonUMin(N)"];
-            auto& nighMax = row["MonUMax(N)"];
-            auto& hellMin = row["MonUMin(H)"];
-            auto& hellMax = row["MonUMax(H)"];
+        for (auto& row : output.levels.rows) {
+            if (!row.hasSpawns())
+                continue;
 
-            if (allCellsNonEmpty({ hellMin, hellMax })) {
-                if (input.getInt("hellPacks")) {
-                    normMin = nighMin = hellMin;
-                    normMax = nighMax = hellMax;
-                }
+            if (input.getInt("hellPacks")) {
+                row.monUMin[0] = row.monUMin[1] = row.monUMin[2];
+                row.monUMax[0] = row.monUMax[1] = row.monUMax[2];
             }
 
-            if (allCellsNonEmpty({ normMin, normMax, nighMin, nighMax, hellMin, hellMax })) {
-                if (!input.isDefault("packs")) {
-                    packsAdjust(normMin);
-                    packsAdjust(normMax);
-                    packsAdjust(nighMin);
-                    packsAdjust(nighMax);
-                    packsAdjust(hellMin);
-                    packsAdjust(hellMax);
-                }
-            }
-            if (!input.isDefault("density")) {
-                TableCell& normDen = row["MonDen"];
-                TableCell& nighDen = row["MonDen(N)"];
-                TableCell& hellDen = row["MonDen(H)"];
-                densityAdjust(normDen);
-                densityAdjust(nighDen);
-                densityAdjust(hellDen);
-            }
+            for (auto& val : row.monUMin)
+                packsAdjust(val);
+            for (auto& val : row.monUMax)
+                packsAdjust(val);
+
+            for (auto& val : row.monDen)
+                densityAdjust(val);
         }
     }
 }

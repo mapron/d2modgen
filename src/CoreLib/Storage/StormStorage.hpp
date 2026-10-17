@@ -6,17 +6,18 @@
 #pragma once
 
 #include "IStorage.hpp"
+#include "FileIOUtils.hpp"
 
 namespace D2ModGen {
 
-class StormStorage final : public IInputStorage {
+class StormStorage final : public IStorage {
 public:
     StormStorage(const Mernel::std_path& storageRoot)
         : m_storageRoot(storageRoot)
     {}
 
 private:
-    StoredData readData(const RequestInMemoryList& filenames) const noexcept override;
+    StoredData readData() const noexcept override;
 
 private:
     const Mernel::std_path m_storageRoot;

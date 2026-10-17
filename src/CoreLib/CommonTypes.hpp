@@ -54,7 +54,7 @@ enum class StorageType
     D2LegacyInternal,       // using Storm storage from D2 Legacy Installation (patch_d2.mpq)
     D2ResurrectedModFolder, // folder containing D2R mod structure (usually in mods/name/name.mpq)
     D2LegacyFolder,         // Folder containing 'data' folder where data can be extracted.
-    CsvFolder,              // Folder containing plain 'txt' files. Can not be selected as output.
+    CsvFolder,              // Folder containing plain 'txt' files.
     None,
 };
 
@@ -87,7 +87,6 @@ struct GenerationEnvironment {
     std::string      modName;
     Mernel::std_path inputPath;
     Mernel::std_path outputPath;
-    bool             exportAll         = false;
     bool             refreshSeed       = false;
     bool             needDataSubfolder = false;
     bool             isLegacy          = false;

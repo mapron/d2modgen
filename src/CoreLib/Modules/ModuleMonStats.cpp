@@ -4,7 +4,6 @@
  * See LICENSE file for details.
  */
 #include "ModuleMonStats.hpp"
-#include "TableUtils.hpp"
 
 #include <algorithm>
 
@@ -28,72 +27,65 @@ ModuleMonStats::ModuleMonStats()
 
 void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    if (input.isAllDefault())
-        return;
-
     {
-        TableView view(output.tableSet.tables[TableId::monlvl], true);
-        auto      proceedMonParam = [&view, &input](const std::string& key, const StringVector& cols) {
-            if (input.isDefault(key))
-                return;
+        auto proceedMonParam = [&input](const std::string& key, int& val) {
             const int percent = input.getInt(key);
-            for (auto& row : view) {
-                if (row["Level"] == "0")
-                    continue;
-                for (auto& col : cols) {
-                    if (!row.hasColumn(col))
-                        continue;
-
-                    auto& value = row[col];
-                    value.setInt(value.toInt() * percent / 100);
-                }
-            }
+            val               = val * percent / 100;
         };
-
-        proceedMonParam("mon_ar", { "TH", "TH(N)", "TH(H)", "L-TH", "L-TH(N)", "L-TH(H)" });
-        proceedMonParam("mon_def", { "AC", "AC(N)", "AC(H)", "L-AC", "L-AC(N)", "L-AC(H)" });
-        proceedMonParam("mon_hp", { "HP", "HP(N)", "HP(H)", "L-HP", "L-HP(N)", "L-HP(H)" });
-        proceedMonParam("mon_dam", { "DM", "DM(N)", "DM(H)", "L-DM", "L-DM(N)", "L-DM(H)" });
-        proceedMonParam("mon_xp", { "XP", "XP(N)", "XP(H)", "L-XP", "L-XP(N)", "L-XP(H)" });
+        for (auto& row : output.monlvl.rows) {
+            if (row.level <= 1)
+                continue;
+            for (size_t i = 0; i < 6; ++i) {
+                proceedMonParam("mon_ar", row.TH[i]);
+                proceedMonParam("mon_def", row.AC[i]);
+                proceedMonParam("mon_hp", row.HP[i]);
+                proceedMonParam("mon_dam", row.DM[i]);
+                proceedMonParam("mon_xp", row.XP[i]);
+            }
+        }
     }
 
     {
-        StringVector resColumns;
-        if (input.getInt("resist_apply_elem"))
-            resColumns << StringVector{ "ResFi", "ResLi", "ResCo", "ResFi(N)", "ResLi(N)", "ResCo(N)", "ResFi(H)", "ResLi(H)", "ResCo(H)" };
+        std::vector<decltype(&DataRow_monstats::resCo)> resCols;
+
+        if (input.getInt("resist_apply_elem")) {
+            resCols.push_back(&DataRow_monstats::resCo);
+            resCols.push_back(&DataRow_monstats::resLi);
+            resCols.push_back(&DataRow_monstats::resFi);
+        }
 
         if (input.getInt("resist_apply_poison"))
-            resColumns << StringVector{ "ResPo", "ResPo(N)", "ResPo(H)" };
+            resCols.push_back(&DataRow_monstats::resPo);
 
         if (input.getInt("resist_apply_magic"))
-            resColumns << StringVector{ "ResMa", "ResMa(N)", "ResMa(H)" };
+            resCols.push_back(&DataRow_monstats::resMa);
 
         if (input.getInt("resist_apply_physical"))
-            resColumns << StringVector{ "ResDm", "ResDm(N)", "ResDm(H)" };
+            resCols.push_back(&DataRow_monstats::resDm);
 
-        TableView view(output.tableSet.tables[TableId::monstats], true);
         const int maxResistCap = input.getInt("max_resist");
         const int relResist    = input.getInt("rel_resist");
-        for (auto& col : resColumns) {
-            if (!view.hasColumn(col))
+
+        for (auto& row : output.monstats.rows) {
+            if (!row.isRegularMob())
                 continue;
 
-            for (auto& row : view) {
-                const bool isRegular = row["isSpawn"] == "1" && row["killable"] == "1" && row["npc"] == "" && row["boss"] == "";
-                if (!isRegular)
-                    continue;
-                auto& res    = row[col];
-                int   resist = res.toInt();
-                resist       = std::min(maxResistCap, resist);
-                if (resist < 100 && relResist != 100) {
-                    const int damage    = 100 - resist;
-                    const int newDamage = damage * relResist / 100;
-                    resist              = std::clamp(100 - newDamage, 0, std::min(99, maxResistCap));
+            for (auto& col : resCols) {
+                for (size_t i = 0; i < 3; ++i) {
+                    std::optional<int>& value = (row.*col)[i];
+
+                    int resist = value.value_or(0);
+                    resist     = std::min(maxResistCap, resist);
+                    if (resist < 100 && relResist != 100) {
+                        const int damage    = 100 - resist;
+                        const int newDamage = damage * relResist / 100;
+                        resist              = std::clamp(100 - newDamage, 0, std::min(99, maxResistCap));
+                    }
+                    if (resist == 0)
+                        value.reset();
+                    else
+                        value = resist;
                 }
-                if (resist == 0)
-                    res.str = "";
-                else
-                    res.setInt(resist);
             }
         }
     }

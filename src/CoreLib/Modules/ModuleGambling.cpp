@@ -4,7 +4,6 @@
  * See LICENSE file for details.
  */
 #include "ModuleGambling.hpp"
-#include "TableUtils.hpp"
 
 namespace D2ModGen {
 
@@ -23,34 +22,19 @@ void ModuleGambling::generate(DataContext& output, RandomGenerator& rng, const I
 {
     const bool charmGamble = input.getInt("charmGamble") && input.m_env.isLegacy; // disabled for D2R now; it crashes the game.
     if (charmGamble) {
-        auto& table    = output.tableSet.tables[TableId::gamble];
-        table.modified = true;
-        table.rows.emplace_back(TableRow({ TableCell("Charm Small"), TableCell("cm1") }));
-        table.rows.emplace_back(TableRow({ TableCell("Charm Medium"), TableCell("cm2") }));
-        table.rows.emplace_back(TableRow({ TableCell("Charm Large"), TableCell("cm3") }));
-        table.rows.emplace_back(TableRow({ TableCell("Jewel"), TableCell("jew") }));
+        auto& table = output.gamble;
+        table.rows.push_back(DataRow_gamble{ .name = ("Charm Small"), .code = ("cm1") });
+        table.rows.push_back(DataRow_gamble{ .name = ("Charm Medium"), .code = ("cm2") });
+        table.rows.push_back(DataRow_gamble{ .name = ("Charm Large"), .code = ("cm3") });
+        table.rows.push_back(DataRow_gamble{ .name = ("Jewel"), .code = ("jew") });
     }
-    if (input.isAllDefault({ "ratioUnique", "ratioSet", "ratioRare", "ratioExc", "ratioElite" }))
-        return;
 
-    static const std::vector<std::pair<std::string, std::string>> s_columns{
-        { "GambleRare", "ratioRare" },
-        { "GambleSet", "ratioSet" },
-        { "GambleUnique", "ratioUnique" },
-        { "GambleUber", "ratioExc" },
-        { "GambleUltra", "ratioElite" },
-    };
-
-    {
-        TableView view(output.tableSet.tables[TableId::difficultylevels], true);
-        for (auto& row : view) {
-            for (auto& p : s_columns) {
-                auto&     col      = row[p.first];
-                const int multiply = input.getInt(p.second);
-                col.setInt(col.toInt() * multiply);
-            }
-        }
-    }
+    auto& table = output.difficultylevels;
+    table.applyIntTransform(&DataRow_difficultylevels::gambleRare, input.getInt("ratioRare"), 1);
+    table.applyIntTransform(&DataRow_difficultylevels::gambleSet, input.getInt("ratioSet"), 1);
+    table.applyIntTransform(&DataRow_difficultylevels::gambleUnique, input.getInt("ratioUnique"), 1);
+    table.applyIntTransform(&DataRow_difficultylevels::gambleUber, input.getInt("ratioExc"), 1);
+    table.applyIntTransform(&DataRow_difficultylevels::gambleUltra, input.getInt("ratioElite"), 1);
 }
 
 }

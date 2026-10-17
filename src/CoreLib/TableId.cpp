@@ -5,12 +5,12 @@
  */
 #include "TableId.hpp"
 
-#include <map>
+#include <array>
 
 namespace D2ModGen {
 
 namespace {
-const std::vector<std::string> s_tableNames{
+const std::array<std::string_view, size_t(TableId::count__)> s_tableNames{
     "weapons",
     "armor",
     "automagic",
@@ -29,7 +29,6 @@ const std::vector<std::string> s_tableNames{
     "misc",
     "monlvl",
     "monstats",
-    "monstats2",
     "runes",
     "setitems",
     "sets",
@@ -39,35 +38,11 @@ const std::vector<std::string> s_tableNames{
     "uniqueitems",
 };
 
-const std::map<std::string, TableId> s_tableIdCache = []() {
-    std::map<std::string, TableId> res;
-    for (size_t i = 0; i < s_tableNames.size(); ++i) {
-        res[s_tableNames[i]] = static_cast<TableId>(i);
-    }
-    return res;
-}();
-
 }
 
-const StringVector& getTableNames()
+std::string_view getTableIdString(TableId id)
 {
-    return s_tableNames;
-}
-
-std::string getTableIdString(TableId id)
-{
-    const int index = static_cast<int>(id);
-    return s_tableNames[index];
-}
-
-bool findTableId(const std::string& name, TableId& id)
-{
-    auto it = s_tableIdCache.find(name);
-    if (it == s_tableIdCache.cend())
-        return false;
-
-    id = it->second;
-    return true;
+    return s_tableNames[static_cast<size_t>(id)];
 }
 
 }

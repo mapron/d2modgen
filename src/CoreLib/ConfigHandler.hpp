@@ -50,7 +50,7 @@ public:
     };
     std::vector<ModuleData> m_modules;
 
-    std::unique_ptr<StorageCache> m_mainStorageCache;
+    const std::unique_ptr<StorageCache> m_mainStorageCache;
 
     const Mernel::std_path m_appData;
     const Mernel::std_path m_defaultPath;

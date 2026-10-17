@@ -5,7 +5,7 @@
  */
 #include "StormStorage.hpp"
 
-#include "RAIIUtils.hpp"
+#include "MernelPlatform/ScopeExit.hpp"
 #include "TableId.hpp"
 #include "Logger.hpp"
 
@@ -14,7 +14,7 @@
 
 namespace D2ModGen {
 
-IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames) const noexcept
+IStorage::StoredData StormStorage::readData() const noexcept
 {
     const Mernel::std_path utf8data  = m_storageRoot / "d2data.mpq";
     const Mernel::std_path utf8data2 = m_storageRoot / "pd2data.mpq";
@@ -42,7 +42,7 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
         return {};
     }
 
-    MODGEN_SCOPE_EXIT([mpq] { SFileCloseArchive(mpq); });
+    MERNEL_SCOPE_EXIT([mpq] { SFileCloseArchive(mpq); });
 
     if (needPatch && !SFileOpenPatchArchive(mpq, patchdata.c_str(), nullptr, STREAM_FLAG_READ_ONLY)) {
         Logger() << "d2data.mpq found, but patch_d2.mpq is missing";
@@ -61,7 +61,7 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
             Logger(Logger::Warning) << "failed to open:" << fullId;
             return false;
         }
-        MODGEN_SCOPE_EXIT([fileHandle] { SFileCloseFile(fileHandle); });
+        MERNEL_SCOPE_EXIT([fileHandle] { SFileCloseFile(fileHandle); });
 
         auto dataSize = SFileGetFileSize(fileHandle, nullptr);
         data.resize(dataSize);
@@ -75,21 +75,16 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
     };
 
     StoredData result{ true };
-
-    for (const std::string& id : getTableNames()) {
+    for (TableId id : getTableIds()) {
         std::string buffer;
-        if (!readStormFile(buffer, IStorage::makeTableRelativePath(id, true, false)))
+        if (!readStormFile(buffer, IStorage::makeTableRelativePath(id, false)))
             continue;
 
-        result.tables.push_back(StoredFileTable{ std::move(buffer), id });
+        result.tables[id] = std::move(buffer);
     }
-    for (const std::string& relativePath : filenames) {
-        std::string buffer;
-        if (!readStormFile(buffer, relativePath))
-            continue;
+    // hmm probably never will have json in mpq.
+    result.valid = !result.tables.empty();
 
-        result.inMemoryFiles.push_back(StoredFileMemory{ std::move(buffer), relativePath });
-    }
     return result;
 }
 
@@ -99,7 +94,7 @@ IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames
 
 namespace D2ModGen {
 
-IStorage::StoredData StormStorage::readData(const RequestInMemoryList& filenames) const noexcept
+IStorage::StoredData StormStorage::readData() const noexcept
 {
     return {};
 }

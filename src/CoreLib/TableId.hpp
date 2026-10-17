@@ -5,11 +5,10 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
+#include <array>
+#include <string>
 
 namespace D2ModGen {
-
-const StringVector& getTableNames();
 
 enum class TableId
 {
@@ -31,7 +30,6 @@ enum class TableId
     misc,
     monlvl,
     monstats,
-    monstats2,
     runes,
     setitems,
     sets,
@@ -39,9 +37,18 @@ enum class TableId
     skills,
     treasureclassex,
     uniqueitems,
+
+    count__,
 };
 
-std::string getTableIdString(TableId id);
-bool        findTableId(const std::string& name, TableId& id);
+inline auto getTableIds()
+{
+    std::array<TableId, size_t(TableId::count__)> result;
+    for (size_t i = 0; i < result.size(); ++i)
+        result[i] = static_cast<TableId>(i);
+    return result;
+}
+
+std::string_view getTableIdString(TableId id);
 
 }

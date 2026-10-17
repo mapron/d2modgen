@@ -5,70 +5,38 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
-#include "FileIOUtils.hpp"
+#include "TableId.hpp"
+#include "JsonId.hpp"
 
-#include <memory>
+#include <map>
 
 namespace D2ModGen {
 
 class IStorage {
 public:
-    static std::string makeTableRelativePath(const std::string& id, bool backslash, bool baseSub);
+    static std::string makeTableRelativePath(TableId id, bool baseSub);
 
     static constexpr std::string_view s_dataVersionPath = "data\\global\\dataversionbuild.txt";
 
-    struct StoredFileTable {
-        std::string data;
-        std::string id;
-    };
-    using StoredFileTableList = std::vector<StoredFileTable>;
-
-    struct StoredFileMemory {
-        std::string data;
-        std_path    relFilepath;
-    };
-    using StoredFileMemoryList = std::vector<StoredFileMemory>;
-
-    struct StoredFileRef {
-        std_path absSrcFilepath;
-        std_path relFilepath;
-    };
-    using StoredFileRefList = std::vector<StoredFileRef>;
-
     struct StoredData {
-        bool                 valid = false;
-        StoredFileTableList  tables;
-        StoredFileMemoryList inMemoryFiles;
-        StoredFileRefList    refFiles;
-        int64_t              dataVersion = 0;
+        bool                           valid = false;
+        std::map<TableId, std::string> tables;
+        std::map<JsonId, std::string>  jsonFiles;
+
+        int64_t dataVersion = 0;
+
+        bool operator==(const StoredData&) const = default;
     };
 
 public:
     virtual ~IStorage() = default;
+
+    virtual StoredData readData() const noexcept = 0;
 };
 
-class IInputStorage : virtual public IStorage {
+class IWriteableStorage : public IStorage {
 public:
-    using Ptr = std::shared_ptr<const IInputStorage>;
-
-    using RequestInMemoryList = StringSet;
-
-public:
-    virtual ~IInputStorage() = default;
-
-    virtual StoredData readData(const RequestInMemoryList& filenames) const noexcept = 0;
-};
-
-class IOutputStorage : virtual public IStorage {
-public:
-    using Ptr = std::shared_ptr<const IOutputStorage>;
-
-public:
-    virtual ~IOutputStorage() = default;
-
-    virtual bool prepareForWrite() const noexcept = 0;
-
+    virtual bool prepareForWrite() const noexcept                 = 0;
     virtual bool writeData(const StoredData& data) const noexcept = 0;
 };
 

@@ -32,13 +32,6 @@ WidgetScrollable {
         }
     }
 
-    WidgetCheckbox {
-        caption: qsTr("Force output for all txt/json (for further manual edit)")
-        tooltip: qsTr("This will force to output all game files,<br>not only used by randomizer in current configuration.")
-        value_context: root.value_context
-        value_key: "exportAll"
-    }
-
     Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: 1

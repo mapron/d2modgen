@@ -18,7 +18,6 @@ ModuleMain::ModuleMain()
           { "modname", Mernel::PropertyTreeScalar{ "rando" } },
           { "seed", Mernel::PropertyTreeScalar{ 0 } },
           { "refreshSeed", Mernel::PropertyTreeScalar{ true } },
-          { "exportAll", Mernel::PropertyTreeScalar{ false } },
       })
 {
 }

@@ -442,7 +442,7 @@ void UniqueAttributeChecker::add(const StringSet& attrs)
         add(attr);
 }
 
-std::string powerMultiply(const std::string& code, const std::string& value, int powerMultPercent)
+int powerMultiply(const std::string& code, int value, int powerMultPercent)
 {
     if (getAttributeConsume(code) != AttributeConsume::Known)
         return value;
@@ -452,16 +452,15 @@ std::string powerMultiply(const std::string& code, const std::string& value, int
     if (!hasRange)
         return value;
 
-    int val = std::atoi(value.c_str());
     if (powerMultPercent > 100) {
         const int diff = (powerMultPercent - 100) * desc.powerPercent / 100;
-        val            = val * (100 + diff) / 100;
+        value          = value * (100 + diff) / 100;
     } else if (powerMultPercent < 100) {
         const int diff = (100 - powerMultPercent) * desc.powerPercent / 100;
-        val            = val * (100 - diff) / 100;
+        value          = value * (100 - diff) / 100;
     }
-    val = std::clamp(val, desc.minValue, desc.maxValue);
-    return std::to_string(val);
+    value = std::clamp(value, desc.minValue, desc.maxValue);
+    return value;
 }
 
 }

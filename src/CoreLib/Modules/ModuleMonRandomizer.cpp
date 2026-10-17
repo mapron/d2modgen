@@ -4,7 +4,6 @@
  * See LICENSE file for details.
  */
 #include "ModuleMonRandomizer.hpp"
-#include "TableUtils.hpp"
 
 #include "Logger.hpp"
 
@@ -14,7 +13,6 @@ namespace D2ModGen {
 
 namespace {
 constexpr const int s_maxIngameLevel = 110;
-const std::string   s_monstersJson   = "data\\hd\\character\\monsters.json";
 }
 
 struct ModuleMonRandomizer::MonTypeTable {
@@ -39,16 +37,17 @@ struct ModuleMonRandomizer::MonTypeTable {
     };
     using MonCopyList = std::vector<MonCopy>;
     MonCopyList newCopies;
+    MonCopyList allCopies;
 
-    void add(const TableCell& id, const TableCell& baseId, int level, int index)
+    void add(const std::string& id, const std::string& baseId, int level, int index)
     {
-        MonType& mt = types[baseId.str];
-        mt.baseId   = baseId.str;
-        MonRecord r{ id.str, level };
+        MonType& mt = types[baseId];
+        mt.baseId   = baseId;
+        MonRecord r{ id, level };
         mt.children.push_back(r);
         mt.count++;
-        id2base[id.str]  = baseId.str;
-        id2index[id.str] = index;
+        id2base[id]  = baseId;
+        id2index[id] = index;
     }
 
     std::string pickRandomId(RandomGenerator& rng, const std::string& baseId) const
@@ -106,21 +105,21 @@ struct ModuleMonRandomizer::TCTable {
     std::map<int, TCGroup>     groups;
     std::map<std::string, int> tc2group;
 
-    void add(const TableCell& id, const TableCell& group, const TableCell& level)
+    void add(const std::string& id, int group, int level)
     {
-        if (group.isEmpty() || level.isEmpty())
+        if (!group || !level)
             return;
-        TCGroup& g = groups[group.toInt()];
-        g.records.push_back(TCGroup::TCRecord{ id.str, level.toInt() });
-        tc2group[id.str] = group.toInt();
+        TCGroup& g = groups[group];
+        g.records.push_back(TCGroup::TCRecord{ id, level });
+        tc2group[id] = group;
     }
-    std::string promote(const TableCell& tc, const int oldLevel, const int newLevel) const
+    std::string promote(const std::string& tc, const int oldLevel, const int newLevel) const
     {
-        if (!tc2group.contains(tc.str) || oldLevel == newLevel)
-            return tc.str;
-        const TCGroup& g = groups.at(tc2group.at(tc.str));
+        if (!tc2group.contains(tc) || oldLevel == newLevel)
+            return tc;
+        const TCGroup& g = groups.at(tc2group.at(tc));
 
-        std::string res = tc.str;
+        std::string res = tc;
         for (auto& rec : g.records) {
             if (rec.level > newLevel)
                 break;
@@ -142,24 +141,24 @@ struct MonResist {
     };
     std::map<Elem, int> m_resist;
 
-    void readFromRow(const TableView::RowView& row, const std::string& difficultySuffix)
+    void readFromRow(const DataRow_monstats& row, size_t i)
     {
-        m_resist[Elem::Physical] = row["ResDm" + difficultySuffix].toInt();
-        m_resist[Elem::Magic]    = row["ResMa" + difficultySuffix].toInt();
-        m_resist[Elem::Fire]     = row["ResFi" + difficultySuffix].toInt();
-        m_resist[Elem::Light]    = row["ResLi" + difficultySuffix].toInt();
-        m_resist[Elem::Cold]     = row["ResCo" + difficultySuffix].toInt();
-        m_resist[Elem::Poison]   = row["ResPo" + difficultySuffix].toInt();
+        m_resist[Elem::Physical] = row.resDm[i].value_or(0);
+        m_resist[Elem::Magic]    = row.resMa[i].value_or(0);
+        m_resist[Elem::Fire]     = row.resFi[i].value_or(0);
+        m_resist[Elem::Light]    = row.resLi[i].value_or(0);
+        m_resist[Elem::Cold]     = row.resCo[i].value_or(0);
+        m_resist[Elem::Poison]   = row.resPo[i].value_or(0);
     }
 
-    void writeToRow(TableView::RowView& row, const std::string& difficultySuffix) const
+    void writeToRow(DataRow_monstats& row, size_t i) const
     {
-        row["ResDm" + difficultySuffix].setInt(m_resist.at(Elem::Physical));
-        row["ResMa" + difficultySuffix].setInt(m_resist.at(Elem::Magic));
-        row["ResFi" + difficultySuffix].setInt(m_resist.at(Elem::Fire));
-        row["ResLi" + difficultySuffix].setInt(m_resist.at(Elem::Light));
-        row["ResCo" + difficultySuffix].setInt(m_resist.at(Elem::Cold));
-        row["ResPo" + difficultySuffix].setInt(m_resist.at(Elem::Poison));
+        row.resDm[i] = m_resist.at(Elem::Physical);
+        row.resMa[i] = m_resist.at(Elem::Magic);
+        row.resFi[i] = m_resist.at(Elem::Fire);
+        row.resLi[i] = m_resist.at(Elem::Light);
+        row.resCo[i] = m_resist.at(Elem::Cold);
+        row.resPo[i] = m_resist.at(Elem::Poison);
     }
 
     void shuffle(RandomGenerator& rng)
@@ -227,15 +226,8 @@ ModuleMonRandomizer::ModuleMonRandomizer()
       })
 {}
 
-void ModuleMonRandomizer::gatherInfo(PreGenerationContext& output) const
-{
-    output.m_extraJson.insert(s_monstersJson);
-}
-
 void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    auto& tableSet = output.tableSet;
-
     MonTypeTable typeTable;
     TCTable      tcTable;
 
@@ -246,33 +238,27 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
         generateSpawns(output, rng, input, typeTable, tcTable);
 
     if (randomizeResistances || hellResistances) {
-        Table&    table = tableSet.tables[TableId::monstats];
-        TableView tableView(table, true);
-        for (auto& row : tableView) {
-            MonResist norm, night, hell;
-            norm.readFromRow(row, "");
-            night.readFromRow(row, "(N)");
-            hell.readFromRow(row, "(H)");
+        for (auto& row : output.monstats.rows) {
+            std::array<MonResist, 3> r;
+            for (size_t i = 0; i < 3; ++i)
+                r[i].readFromRow(row, i);
 
             if (hellResistances) {
-                norm  = hell;
-                night = hell;
+                r[0] = r[2];
+                r[1] = r[2];
             }
             if (randomizeResistances) {
-                norm.shuffle(rng);
-                night.shuffle(rng);
-                hell.shuffle(rng);
+                for (size_t i = 0; i < 3; ++i)
+                    r[i].shuffle(rng);
             }
-
-            norm.writeToRow(row, "");
-            night.writeToRow(row, "(N)");
-            hell.writeToRow(row, "(H)");
+            for (size_t i = 0; i < 3; ++i)
+                r[i].writeToRow(row, i);
         }
     }
-    if (randomizeSpawns && output.jsonFiles.contains(s_monstersJson)) {
-        auto& jsonDoc    = output.jsonFiles[s_monstersJson];
+    if (randomizeSpawns && output.jsonFiles.contains(JsonId::Monsters)) {
+        auto& jsonDoc    = output.jsonFiles[JsonId::Monsters];
         auto& jsonObject = jsonDoc.getMap();
-        for (const auto& copy : typeTable.newCopies) {
+        for (const auto& copy : typeTable.allCopies) {
             const std::string sourceId  = copy.sourceId;
             const std::string newId     = copy.newId;
             const std::string modelName = jsonObject[sourceId].getScalar().toString();
@@ -284,61 +270,39 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
 
 void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& rng, const InputContext& input, MonTypeTable& typeTable, TCTable& tcTable) const
 {
-    auto& tableSet = output.tableSet;
     {
-        Table&    table = tableSet.tables[TableId::monstats];
-        TableView tableView(table);
-        for (auto& row : tableView) {
-            const int normalLevel = row["Level"].toInt();
-            if (normalLevel <= 0)
+        for (int index = -1; auto& row : output.monstats.rows) {
+            index++;
+            if (!row.isRegularMob())
                 continue;
-            typeTable.add(row["Id"], row["BaseId"], normalLevel, row.index());
+            typeTable.add(row.id, row.baseId, row.level.value(), index);
         }
     }
     {
-        Table&    table = tableSet.tables[TableId::treasureclassex];
-        TableView tableView(table);
-        for (auto& row : tableView)
-            tcTable.add(row["Treasure Class"], row["group"], row["level"]);
+        for (auto& row : output.treasureclassex.rows)
+            tcTable.add(row.name, row.group.value_or(0), row.level.value_or(0));
     }
     {
-        Table&    table = tableSet.tables[TableId::levels];
-        TableView tableView(table, true);
         StringSet baseIds, ubaseIds, nonUniqueBaseIds;
-        int       cols = 25;
-        for (const char* colTpl : { "mon%1", "nmon%1", "umon%1" }) {
-            for (int i = 1; i <= cols; ++i)
-                if (!tableView.hasColumn(argCompat(colTpl, i))) {
-                    cols = i - 1;
-                    break;
-                }
-        }
+
         const int spawnedCount = input.getInt("spawnedCount");
-        const int maxTypes     = std::min(input.getInt("maxTypes"), cols);
-        for (auto& row : tableView) {
-            if (row["Name"] == "Act 5 - Mountain Top")
+        const int maxTypes     = input.getInt("maxTypes");
+        for (auto& row : output.levels.rows) {
+            if (row.name == "Act 5 - Mountain Top")
                 continue;
-            for (int i = 1; i <= cols; ++i) {
-                auto& id = row[argCompat("mon%1", i)];
-                if (id.isEmpty())
-                    break;
-                auto base = mapValue(typeTable.id2base, id.str);
+
+            for (auto& id : row.mon) {
+                auto base = mapValue(typeTable.id2base, id);
                 if (!base.empty())
                     baseIds.insert(base);
             }
-            for (int i = 1; i <= cols; ++i) {
-                auto& id = row[argCompat("nmon%1", i)];
-                if (id.isEmpty())
-                    break;
-                auto base = mapValue(typeTable.id2base, id.str);
+            for (auto& id : row.nmon) {
+                auto base = mapValue(typeTable.id2base, id);
                 if (!base.empty())
                     baseIds.insert(base);
             }
-            for (int i = 1; i <= cols; ++i) {
-                auto& id = row[argCompat("umon%1", i)];
-                if (id.isEmpty())
-                    break;
-                auto base = mapValue(typeTable.id2base, id.str);
+            for (auto& id : row.umon) {
+                auto base = mapValue(typeTable.id2base, id);
                 if (!base.empty())
                     ubaseIds.insert(base);
             }
@@ -351,12 +315,12 @@ void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& r
         }
 
         StringVector idsList(baseIds.cbegin(), baseIds.cend());
-        for (auto& row : tableView) {
-            if (row["mon1"].isEmpty())
+        for (auto& row : output.levels.rows) {
+            if (row.mon.empty())
                 continue;
-            if (row["Name"] == "Act 5 - Mountain Top")
+            if (row.name == "Act 5 - Mountain Top")
                 continue;
-            const int normalLevel = row.hasColumn("MonLvlEx") ? row["MonLvlEx"].toInt() : row["MonLvl1Ex"].toInt();
+            const int normalLevel = row.monLvlEx[0].value_or(0);
             StringSet normalSet;
             for (int i = 0; i < maxTypes * 2; ++i) {
                 normalSet.insert(idsList[rng(idsList.size())]);
@@ -366,102 +330,58 @@ void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& r
 
             StringVector normalSetList;
             StringVector uniques;
-            for (auto baseId : normalSet) {
+            for (auto&& baseId : normalSet) {
                 auto id = typeTable.pickRandomId(rng, baseId, normalLevel);
                 normalSetList << id;
                 if (!nonUniqueBaseIds.contains(baseId))
                     uniques << id;
             }
+            row.mon  = normalSetList;
+            row.nmon = normalSetList;
+            row.umon = uniques;
 
-            for (int i = 1; i <= cols; ++i) {
-                row[argCompat("mon%1", i)]  = normalSetList.size() >= i ? normalSetList[i - 1] : "";
-                row[argCompat("nmon%1", i)] = normalSetList.size() >= i ? normalSetList[i - 1] : "";
-                row[argCompat("umon%1", i)] = uniques.size() >= i ? uniques[i - 1] : "";
-            }
-            row["NumMon"] = argCompat("%1", spawnedCount);
+            row.numMon = spawnedCount;
         }
     }
-    {
-        Table& table   = tableSet.tables[TableId::monstats];
-        table.modified = true;
-        TableView                 view(table);
-        MonTypeTable::MonCopyList newCopies;
-        auto                      insertNewRows = [&table, &view, &rng, &newCopies, &typeTable, &tcTable]() {
-            MonTypeTable::MonCopyList tmpList = std::move(typeTable.newCopies);
-            assert(!typeTable.types.empty());
-            newCopies.insert(newCopies.end(), tmpList.cbegin(), tmpList.cend());
-            int              idCol    = 0;
-            int              uidCol   = 1;
-            int              levelCol = table.indexOf("Level");
-            std::vector<int> minionCols;
-            std::vector<int> skillCols;
-            std::vector<int> tcCols;
-            for (const char* col : { "spawn", "minion1", "minion2" }) {
-                int colIndex = table.indexOf(col);
-                assert(colIndex > -1);
-                minionCols.push_back(colIndex);
-            }
-            for (int i = 1; i <= 8; ++i) {
-                int colIndex = table.indexOf(argCompat("Sk%1lvl", i));
-                assert(colIndex > -1);
-                skillCols.push_back(colIndex);
-            }
-            for (int i = 1; i <= 4; ++i) {
-                int colIndex = view.ind(argCompat("TreasureClass%1", i));
-                assert(colIndex > -1);
-                tcCols.push_back(colIndex);
-            }
-
-            // new 2.5 D2R TCs
-            const std::vector<std::string> extraClasses{ "TreasureClassDesecrated", "TreasureClassChampDesecrated", "TreasureClassUniqueDesecrated", "TreasureClassDesecrated(N)", "TreasureClassChampDesecrated(N)", "TreasureClassUniqueDesecrated(N)", "TreasureClassDesecrated(H)", "TreasureClassChampDesecrated(H)", "TreasureClassUniqueDesecrated(H)" };
-            for (auto& clas : extraClasses) {
-                int colIndex = view.ind(clas);
-                if (colIndex > -1)
-                    tcCols.push_back(colIndex);
-            }
-
-            for (const auto& copy : tmpList) {
-                auto newRow           = table.rows[copy.sourceIndex];
-                newRow.data[idCol]    = copy.newId;
-                newRow.data[levelCol] = argCompat("%1", copy.newLevel);
-                newRow.data[uidCol]   = argCompat("%1", table.rows.size());
-                for (int minionCol : minionCols) {
-                    auto& minion = newRow.data[minionCol];
-                    if (minion.isEmpty())
-                        continue;
-                    const auto minionBase = mapValue(typeTable.id2base, minion.str);
-                    if (minionBase.empty()) {
-                        minion.str = "";
-                        continue;
-                    }
-                    auto id                = typeTable.pickRandomId(rng, minionBase, copy.newLevel);
-                    newRow.data[minionCol] = id;
-                }
-                if (copy.oldLevel > copy.newLevel) {
-                    for (int skillCol : skillCols) {
-                        auto& cell = newRow.data[skillCol];
-                        if (cell.isEmpty())
-                            break;
-                        const int newLevel = copy.newLevel * cell.toInt() / copy.oldLevel;
-                        cell.setInt(std::max(1, newLevel));
-                    }
-                }
-                for (int tcCol : tcCols) {
-                    auto& cell = newRow.data[tcCol];
-                    if (cell.isEmpty())
-                        continue;
-                    cell = tcTable.promote(cell, copy.oldLevel, copy.newLevel);
-                }
-
-                table.rows.push_back(std::move(newRow));
-            }
-        };
-        assert(!typeTable.types.empty());
-        insertNewRows();
-        insertNewRows();
-        insertNewRows();
-        typeTable.newCopies = std::move(newCopies);
+    for (size_t i = 0; i < 5 && generateCopies(output, rng, input, typeTable, tcTable); ++i) {
     }
+}
+
+bool ModuleMonRandomizer::generateCopies(DataContext& output, RandomGenerator& rng, const InputContext& input, MonTypeTable& typeTable, TCTable& tcTable) const
+{
+    auto copies = typeTable.newCopies;
+    typeTable.newCopies.clear();
+    for (const auto& copy : copies) {
+        auto newRow  = output.monstats.rows[copy.sourceIndex];
+        newRow.id    = copy.newId;
+        newRow.level = copy.newLevel;
+        newRow.hcIdx = int(output.monstats.rows.size());
+        for (auto& minion : newRow.minionIds) {
+            if (minion.empty())
+                continue;
+            const auto minionBase = mapValue(typeTable.id2base, minion);
+            if (minionBase.empty()) {
+                minion = "";
+                continue;
+            }
+            auto id = typeTable.pickRandomId(rng, minionBase, copy.newLevel);
+            minion  = id;
+        }
+        if (copy.oldLevel > copy.newLevel) {
+            for (int& skill : newRow.skLevels) {
+                const int newLevel = copy.newLevel * skill / copy.oldLevel;
+                skill              = (std::max(1, newLevel));
+            }
+        }
+        for (auto& tc : newRow.tc) {
+            if (!tc.empty())
+                tc = tcTable.promote(tc, copy.oldLevel, copy.newLevel);
+        }
+
+        output.monstats.rows.push_back(std::move(newRow));
+    }
+    typeTable.allCopies.insert(typeTable.allCopies.end(), copies.cbegin(), copies.cend());
+    return !typeTable.newCopies.empty(); //pickRandomId can add more.
 }
 
 }

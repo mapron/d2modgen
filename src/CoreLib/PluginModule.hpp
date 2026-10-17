@@ -6,6 +6,7 @@
 #pragma once
 
 #include "IModule.hpp"
+#include "DataContext.hpp"
 
 namespace D2ModGen {
 
@@ -14,8 +15,6 @@ public:
     PluginModule(Mernel::PropertyTreeMap defaults);
     const Mernel::PropertyTreeMap&  defaultValues() const override { return m_defaults; }
     const Mernel::PropertyTreeList& presets() const override { return m_presets; }
-
-    void gatherInfo(PreGenerationContext& output) const override {}
 
 protected:
     void setPresets(Mernel::PropertyTreeList presets)

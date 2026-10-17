@@ -5,8 +5,6 @@
  */
 #include "ModuleChallenge.hpp"
 
-#include "TableUtils.hpp"
-
 namespace D2ModGen {
 
 ModuleChallenge::ModuleChallenge()
@@ -31,12 +29,7 @@ ModuleChallenge::ModuleChallenge()
 
 void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    if (input.isAllDefault())
-        return;
-
     {
-        TableView view(output.tableSet.tables[TableId::treasureclassex]);
-
         StringSet disabledIds;
         for (auto& item : m_items) {
             const bool disable = input.getInt("nodrop_" + item.settingKey);
@@ -45,32 +38,23 @@ void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const 
                     disabledIds.insert(id);
         }
         if (!disabledIds.empty()) {
-            view.markModified();
-            for (auto& row : view) {
-                DropSet dropSet;
-                dropSet.readRow(row);
-                for (int i = dropSet.m_items.size() - 1; i >= 0; i--) {
-                    auto&       dropItem = dropSet.m_items[i];
-                    std::string tcName   = dropItem.tc.str;
-                    if (disabledIds.contains(tcName)) {
-                        dropSet.m_noDrop += dropItem.prob;
-                        dropSet.m_items.erase(dropSet.m_items.begin() + i);
+            for (auto& row : output.treasureclassex.rows) {
+                for (int i = row.items.size() - 1; i >= 0; i--) {
+                    auto& dropItem = row.items[i];
+                    if (disabledIds.contains(dropItem.tc)) {
+                        row.noDrop = row.noDrop.value_or(0) + dropItem.prob.value_or(0);
+                        row.items.erase(row.items.begin() + i);
                     }
                 }
-                dropSet.writeRow(row);
             }
         }
     }
     {
-        TableView view(output.tableSet.tables[TableId::difficultylevels]);
-        auto      checkPenalty = [&input, &output, &view](const std::string& key, const std::string& name) {
-            if (input.isAllDefault({ key }))
-                return;
+        auto checkPenalty = [&input, &output](const std::string& key, const std::string& name) {
             const int penalty = input.getInt(key);
-            view.markModified();
-            for (auto& row : view) {
-                if (row["Name"].str == name) {
-                    row["ResistPenalty"].setInt(-penalty);
+            for (auto& row : output.difficultylevels.rows) {
+                if (row.name == name) {
+                    row.resistPenalty = -penalty;
                 }
             }
         };
@@ -83,20 +67,17 @@ void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const 
     const int levelIncreaseHell      = input.getInt("levelIncreaseHell");
 
     if (levelIncreaseNightmare || levelIncreaseHell) {
-        TableView view(output.tableSet.tables[TableId::levels], true);
         const int levelIncreaseUltra = input.getInt("levelIncreaseUltra") ? 105 : 85;
 
-        auto adjustLevel = [levelIncreaseUltra](TableView::RowView& row, const std::string& key, const int levelIncrease) {
-            auto& lev   = row[key];
-            int   level = lev.toInt();
-            if (!level || level > 85)
+        auto adjustLevel = [levelIncreaseUltra](std::optional<int>& value, const int levelIncrease) {
+            if (!value.has_value() || value.value() > 85)
                 return;
-            lev.setInt(std::min(levelIncreaseUltra, level + levelIncrease));
+            value = std::min(levelIncreaseUltra, value.value() + levelIncrease);
         };
 
-        for (auto& row : view) {
-            adjustLevel(row, "MonLvlEx(N)", levelIncreaseNightmare);
-            adjustLevel(row, "MonLvlEx(H)", levelIncreaseHell);
+        for (auto& row : output.levels.rows) {
+            adjustLevel(row.monLvlEx[1], levelIncreaseNightmare);
+            adjustLevel(row.monLvlEx[2], levelIncreaseHell);
         }
     }
 }

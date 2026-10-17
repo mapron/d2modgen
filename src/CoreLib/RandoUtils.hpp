@@ -9,7 +9,7 @@
 #include <algorithm>
 
 #include "AttributeHelper.hpp"
-#include "TableUtils.hpp"
+#include "DataContext.hpp"
 
 namespace D2ModGen {
 
@@ -28,8 +28,8 @@ using MagicPropList = std::vector<MagicProp>;
 struct MagicProp {
     std::string   code;
     std::string   par;
-    std::string   min;
-    std::string   max;
+    int           min = 0;
+    int           max = 0;
     MagicPropList bounded; // for properties
 
     std::string toDebugString() const;
@@ -118,8 +118,8 @@ struct MagicPropRawList {
     void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
     void makePerfect();
 
-    void readFromRow(TableView::RowView& row, const ColumnsDesc& columns, const StringSet& extraKnownCodes, bool grab);
-    void writeToRow(TableView::RowView& row, const ColumnsDesc& columns) const;
+    void readFromRow(AffixPropList& propList, bool grab);
+    void writeToRow(AffixPropList& propList) const;
 
     int       getTotalSize() const;
     StringSet getAllCodes() const;
