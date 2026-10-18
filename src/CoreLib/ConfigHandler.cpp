@@ -10,6 +10,7 @@
 #include "Logger.hpp"
 
 #include "MernelPlatform/ScopeExit.hpp"
+#include "MernelPlatform/ChronoPoint.hpp"
 
 #include "Modules/ModuleChallenge.hpp"
 #include "Modules/ModuleCharacter.hpp"
@@ -221,9 +222,18 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     if (!output.parseData(inData)) {
         return { "Failed parse D2 data files." };
     }
+    {
+        IStorage::StoredData inDebug;
+        output.writeDebug(inDebug);
+        FolderStorage outDebugStorage(m_appData / "debug", StorageType::CsvFolder, env.modName, false, ".in");
+        outDebugStorage.prepareForWrite();
+        outDebugStorage.writeData(inDebug);
+    }
 
     Logger() << "prepare ended; Starting generate phase.";
+
     {
+        auto start           = Mernel::ChronoPoint(true);
         using Distribution32 = std::uniform_int_distribution<int32_t>;
         std::mt19937_64 engine;
         engine.seed(env.seed); // really we need A LOT of bits to safely seed mt engine. But for our purpose 32 bits more than enough.
@@ -251,8 +261,17 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
                 return { std::string("module '" + module.m_key + "': " + std::string(ex.what())) };
             }
         }
+        Logger(Logger::Notice) << "generate finished in: " << start.GetElapsedTime().ToProfilingTime();
     }
     Logger() << "prepare output data.";
+
+    {
+        IStorage::StoredData outDebug;
+        output.writeDebug(outDebug);
+        FolderStorage outDebugStorage(m_appData / "debug", StorageType::CsvFolder, env.modName, false, ".out");
+        outDebugStorage.prepareForWrite();
+        outDebugStorage.writeData(outDebug);
+    }
 
     IStorage::StoredData outData;
     if (!output.serializeData(outData)) {

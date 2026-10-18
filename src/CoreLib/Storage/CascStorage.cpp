@@ -24,8 +24,10 @@ IStorage::StoredData CascStorage::readData() const noexcept
 
     openArgs.dwFlags = CASC_FEATURE_ALLOW_DOWNLOAD;
     if (!CascOpenStorageEx(wdata.c_str(), &openArgs, false, &storage)) {
-        Logger(Logger::Warning) << "failed to open storage:" << utf8path << ", err=" << GetCascError();
+        Logger(Logger::Warning) << "failed to open storage:" << path2string(utf8path) << ", err=" << GetCascError();
         return {};
+    } else {
+        Logger() << "Opened CASC:" << path2string(utf8path);
     }
     MERNEL_SCOPE_EXIT([storage] { CascCloseStorage(storage); });
 

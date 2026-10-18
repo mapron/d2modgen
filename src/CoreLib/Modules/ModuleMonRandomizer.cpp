@@ -373,9 +373,8 @@ bool ModuleMonRandomizer::generateCopies(DataContext& output, RandomGenerator& r
                 skill              = (std::max(1, newLevel));
             }
         }
-        for (auto& tc : newRow.tc) {
-            if (!tc.empty())
-                tc = tcTable.promote(tc, copy.oldLevel, copy.newLevel);
+        for (auto* tc : newRow.nonEmptyTCs()) {
+            *tc = tcTable.promote(*tc, copy.oldLevel, copy.newLevel);
         }
 
         output.monstats.rows.push_back(std::move(newRow));

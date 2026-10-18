@@ -148,12 +148,12 @@ const std::vector<AttributeDesc> s_attributes{
 
     { "sock", { AttributeFlag::Sockets } }, // Socketed (#)
 
-    { "dmg-fire", { AttributeFlag::Damage } }, // Adds #-# Fire Damage
-    { "dmg-ltng", { AttributeFlag::Damage } }, // Adds #-# Lightning Damage
-    { "dmg-mag", { AttributeFlag::Damage } },  // Adds #-# Magic Damage
-    { "dmg-cold", { AttributeFlag::Damage } }, // Adds #-# Cold Damage
-    { "dmg-pois", { AttributeFlag::Damage } }, // Adds #-# Poison Damage Over # Seconds
-    { "dmg-norm", { AttributeFlag::Damage } }, // Adds #-# Damage
+    { "dmg-fire", { AttributeFlag::Damage, AttributeFlag::NoMinMax } }, // Adds #-# Fire Damage
+    { "dmg-ltng", { AttributeFlag::Damage, AttributeFlag::NoMinMax } }, // Adds #-# Lightning Damage
+    { "dmg-mag", { AttributeFlag::Damage, AttributeFlag::NoMinMax } },  // Adds #-# Magic Damage
+    { "dmg-cold", { AttributeFlag::Damage, AttributeFlag::NoMinMax } }, // Adds #-# Cold Damage
+    { "dmg-pois", { AttributeFlag::Damage, AttributeFlag::NoMinMax } }, // Adds #-# Poison Damage Over # Seconds
+    { "dmg-norm", { AttributeFlag::Damage, AttributeFlag::NoMinMax } }, // Adds #-# Damage
 
     { "ac/lvl", { AttributeFlag::PerLevel, AttributeFlag::Defense } },               // +# Defense (Based on Character Level)
     { "ac%/lvl", { AttributeFlag::PerLevel, AttributeFlag::Defense } },              // +#% Enhanced Defense (Based on Character Level)

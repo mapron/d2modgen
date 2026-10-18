@@ -8,6 +8,11 @@ TextField {
     property alias value_context: item.value_context
     property alias value_key: item.value_key
 
+    function setTextValue(txt) {
+        text = txt;
+        item.dynamicValue = txt;
+    }
+
     DynamicItemStr {
         id: item
     }

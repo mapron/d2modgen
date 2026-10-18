@@ -88,10 +88,12 @@ struct RowBase {
     std::vector<std::string> _ser_unusedCells;
     std::vector<std::string> _ser_usedCells;
 
-    void serf(int& data);
-    void serf(std::optional<int>& data);
-    void serf(std::optional<bool>& data);
-    void serf(std::string& data);
+    std::map<std::string, std::string> getColumnAliases() const { return {}; }
+
+    void ser(int& data);
+    void ser(std::optional<int>& data);
+    void ser(std::optional<bool>& data);
+    void ser(std::string& data);
 
     template<class Item, class F1, class F2>
     void serArray(std::vector<Item>& data, size_t size, F1&& itemCallback, F2&& isValidCheck)
@@ -113,24 +115,30 @@ struct RowBase {
         }
     }
 
-    void serf(AffixPropList& data, bool useChance = false)
+    void ser(AffixPropList& data, bool useChance = false)
     {
         serArray(data, data.getLimit(), [this, useChance](AffixProp& item) {
-            serf(item.code);
-            serf(item.par);
-            serf(item.min);
-            serf(item.max);
+            ser(item.code);
+            ser(item.par);
+            ser(item.min);
+            ser(item.max);
             if (useChance)
-                serf(item.chance); }, [](AffixProp& item) { return !item.code.empty(); });
+                ser(item.chance); }, [](AffixProp& item) { return !item.code.empty(); });
     }
 
-    void serf(std::vector<std::string>& data, size_t size)
+    void ser(std::vector<std::string>& data, size_t size)
     {
-        serArray(data, size, [this](std::string& item) { serf(item); }, [](std::string& item) { return !item.empty(); });
+        serArray(data, size, [this](std::string& item) { ser(item); }, [](std::string& item) { return !item.empty(); });
     }
-    void serf(std::vector<int>& data, size_t size)
+    void ser(std::vector<int>& data, size_t size)
     {
-        serArray(data, size, [this](int& item) { serf(item); }, [](int& item) { return item > 0; });
+        serArray(data, size, [this](int& item) { ser(item); }, [](int& item) { return item > 0; });
+    }
+    template<class T, size_t size>
+    void ser(std::array<T, size>& data)
+    {
+        for (size_t i = 0; i < size; ++i)
+            ser(data[i]);
     }
 };
 
@@ -144,6 +152,13 @@ struct RowBaseAffixes : public RowBase {
     std::vector<std::string> itype; //7
     std::vector<std::string> etype; // 5
     ItemCodeFilter           filter;
+
+    std::string name;
+
+    std::string getId() const
+    {
+        return name;
+    }
 
     auto affixLists() const { return std::array{ &affixes }; }
     auto affixLists() { return std::array{ &affixes }; }
@@ -165,7 +180,7 @@ struct RowBaseAffixes : public RowBase {
     }
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 
 struct RowBaseEquipment : public RowBase {
@@ -178,6 +193,11 @@ struct RowBaseEquipment : public RowBase {
     std::string code;
     std::string itemTypeCode;
     ItemType    itemType = nullptr;
+
+    std::string getId() const
+    {
+        return code;
+    }
 
     int getLevel() const
     {
@@ -208,7 +228,7 @@ struct DataRow_weapons : public RowBaseEquipment {
 
     std::vector<std::string> getColumns() const;
 
-    void ser();
+    void serialize();
 };
 struct DataRow_armor : public RowBaseEquipment {
     std::optional<int> minac;
@@ -216,7 +236,7 @@ struct DataRow_armor : public RowBaseEquipment {
 
     std::vector<std::string> getColumns() const;
 
-    void ser();
+    void serialize();
 };
 struct DataRow_automagic : public RowBaseAffixes {
 };
@@ -227,7 +247,6 @@ struct DataRow_charstats : public RowBase {
         std::string        code;
         std::optional<int> count;
         std::string        loc;
-        std::string        quality;
     };
     std::vector<Item> items;
 
@@ -237,7 +256,7 @@ struct DataRow_charstats : public RowBase {
     std::optional<int> skillsPerLevel;
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 
 private:
     static const size_t maxItems  = 10;
@@ -268,7 +287,7 @@ struct DataRow_cubemain : public RowBase {
     bool hasLvls() const { return ilvl.has_value() || plvl.has_value() || lvl.has_value(); }
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 
 private:
     static const size_t maxInputs = 7;
@@ -283,20 +302,20 @@ struct DataRow_difficultylevels : public RowBase {
     std::optional<int> gambleUltra;
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 struct DataRow_experience : public RowBase {
     std::optional<int> expRatio;
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 struct DataRow_gamble : public RowBase {
     std::string name;
     std::string code;
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 struct DataRow_gems : public RowBase {
     AffixPropList affixes_weapon{ 3 };
@@ -308,6 +327,11 @@ struct DataRow_gems : public RowBase {
 
     auto affixLists() const { return std::array{ &affixes_weapon, &affixes_helm, &affixes_shield }; }
     auto affixLists() { return std::array{ &affixes_weapon, &affixes_helm, &affixes_shield }; }
+
+    std::string getId() const
+    {
+        return eqipmentType->getId();
+    }
 
     bool isValid() const
     {
@@ -329,7 +353,7 @@ struct DataRow_gems : public RowBase {
     }
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 struct DataRow_hireling : public RowBase {
     std::optional<int> hp;
@@ -339,14 +363,14 @@ struct DataRow_hireling : public RowBase {
     std::optional<int> dmg_lvl;
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 struct DataRow_itemstatcost : public RowBase {
     std::optional<int> multiply;
     std::optional<int> add;
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 struct DataRow_itemtypes : public RowBase {
     std::string code;
@@ -363,8 +387,9 @@ struct DataRow_itemtypes : public RowBase {
     ItemTypeSet      nested;
     ItemTypeSet      parents;
 
-    std::vector<std::string> getColumns() const;
-    void                     ser();
+    std::vector<std::string>           getColumns() const;
+    std::map<std::string, std::string> getColumnAliases() const;
+    void                               serialize();
 };
 struct DataRow_levels : public RowBase {
     std::array<std::optional<int>, 3> monUMin, monUMax, monDen;
@@ -379,8 +404,9 @@ struct DataRow_levels : public RowBase {
         return monUMin[0].has_value() && monUMin[1].has_value() && monUMin[2].has_value();
     }
 
-    std::vector<std::string> getColumns() const;
-    void                     ser();
+    std::vector<std::string>           getColumns() const;
+    std::map<std::string, std::string> getColumnAliases() const;
+    void                               serialize();
 
 private:
     static const size_t maxTypes = 25;
@@ -393,7 +419,7 @@ struct DataRow_misc : public RowBaseEquipment {
     std::optional<int> maxstack;
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 struct DataRow_monlvl : public RowBase {
     std::array<int, 6> TH; // to hit, attack rating
@@ -404,7 +430,7 @@ struct DataRow_monlvl : public RowBase {
     int                level = 0;
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 struct DataRow_monstats : public RowBase {
     std::array<std::optional<int>, 3> resFi, resLi, resCo, resPo, resMa, resDm;
@@ -417,7 +443,20 @@ struct DataRow_monstats : public RowBase {
     std::string baseId;
     int         hcIdx = 0;
 
-    std::vector<std::string> tc;
+    std::array<std::array<std::string, 3>, 4> tc;
+
+    std::vector<std::string*> nonEmptyTCs()
+    {
+        std::vector<std::string*> result;
+        for (auto& diffTC : tc) {
+            for (std::string& tcs : diffTC) {
+                if (!tcs.empty())
+                    result.push_back(&tcs);
+            }
+        }
+        return result;
+    }
+
     std::vector<int>         skLevels;
     std::vector<std::string> minionIds;
 
@@ -432,7 +471,9 @@ struct DataRow_monstats : public RowBase {
     }
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
+
+    std::map<std::string, std::string> getColumnAliases() const;
 
 private:
     static const size_t tcCount     = 4 + 9;
@@ -449,11 +490,19 @@ struct DataRow_runes : public RowBase {
     std::vector<std::string> etype;
     ItemCodeFilter           filter;
 
+    std::string name;
+
+    std::string getId() const
+    {
+        return name;
+    }
+
     auto affixLists() const { return std::array{ &affixes }; }
     auto affixLists() { return std::array{ &affixes }; }
 
-    std::vector<std::string> getColumns() const;
-    void                     ser();
+    std::vector<std::string>           getColumns() const;
+    std::map<std::string, std::string> getColumnAliases() const;
+    void                               serialize();
 
     int getLevel() const
     {
@@ -495,12 +544,17 @@ struct DataRow_setitems : public RowBase {
     AffixPropList affixes_partial1{ 5 };
     AffixPropList affixes_partial2{ 5 };
 
+    std::string getId() const
+    {
+        return index;
+    }
+
     auto affixLists() const { return std::array{ &affixes_base, &affixes_partial1, &affixes_partial2 }; }
     auto affixLists() { return std::array{ &affixes_base, &affixes_partial1, &affixes_partial2 }; }
 
     int getLevel() const
     {
-        if (lvl.has_value())
+        if (lvl.has_value() && lvl.value() > 1)
             return lvl.value();
 
         if (lvlreq.has_value())
@@ -522,8 +576,9 @@ struct DataRow_setitems : public RowBase {
         return !eqipmentCode.empty() && getLevel() > 0;
     }
 
-    std::vector<std::string> getColumns() const;
-    void                     ser();
+    std::vector<std::string>           getColumns() const;
+    std::map<std::string, std::string> getColumnAliases() const;
+    void                               serialize();
 };
 struct DataRow_sets : public RowBase {
     const DataRow_setitems* first_item = nullptr;
@@ -535,6 +590,11 @@ struct DataRow_sets : public RowBase {
     AffixPropList affixes_full{ 8 };
     AffixPropList affixes_partial1{ 4 };
     AffixPropList affixes_partial2{ 4 };
+
+    std::string getId() const
+    {
+        return index;
+    }
 
     auto affixLists() const { return std::array{ &affixes_full, &affixes_partial1, &affixes_partial2 }; }
     auto affixLists() { return std::array{ &affixes_full, &affixes_partial1, &affixes_partial2 }; }
@@ -548,7 +608,7 @@ struct DataRow_sets : public RowBase {
     }
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 struct DataRow_skilldesc : public RowBase {
     std::string        skilldesc;
@@ -558,7 +618,7 @@ struct DataRow_skilldesc : public RowBase {
     std::optional<int> listRow;
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 struct DataRow_skills : public RowBase {
     std::string         skill;
@@ -576,7 +636,7 @@ struct DataRow_skills : public RowBase {
     std::string              charclass;
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 };
 struct DataRow_treasureclassex : public RowBase {
     struct Item {
@@ -595,7 +655,7 @@ struct DataRow_treasureclassex : public RowBase {
     int getDropSomethingProb() const;
 
     std::vector<std::string> getColumns() const;
-    void                     ser();
+    void                     serialize();
 
 private:
     static const size_t maxItems = 10;
@@ -615,6 +675,11 @@ struct DataRow_uniqueitems : public RowBase {
 
     auto affixLists() const { return std::array{ &affixes }; }
     auto affixLists() { return std::array{ &affixes }; }
+
+    std::string getId() const
+    {
+        return index;
+    }
 
     int getLevel() const
     {
@@ -640,8 +705,9 @@ struct DataRow_uniqueitems : public RowBase {
         return eqipmentType ? eqipmentType->getAttributes() : AttributeFlagSet{};
     }
 
-    std::vector<std::string> getColumns() const;
-    void                     ser();
+    std::vector<std::string>           getColumns() const;
+    std::map<std::string, std::string> getColumnAliases() const;
+    void                               serialize();
 };
 
 struct DataContext {
@@ -683,12 +749,14 @@ struct DataContext {
     bool parseData(const IStorage::StoredData& data);
     bool serializeData(IStorage::StoredData& data) const;
 
+    void writeDebug(IStorage::StoredData& data) const;
+
 private:
     template<class Row>
     bool parseTable(DataTable<Row>& table, TableId tableId, const IStorage::StoredData& data);
 
     template<class Row>
-    bool serializeTable(const DataTable<Row>& table, TableId tableId, IStorage::StoredData& data) const;
+    bool serializeTable(const DataTable<Row>& table, TableId tableId, IStorage::StoredData& data, bool full) const;
 };
 
 }

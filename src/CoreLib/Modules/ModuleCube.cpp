@@ -95,7 +95,7 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
             if (craftNoStrict)
                 row.inputs[0] = mapValue(s_craftedTypeReplace, row.inputs[0], row.inputs[0]);
 
-            if (craftNoRunes) {
+            if (craftNoRunes && row.inputs.size() == 4) {
                 row.inputs[1] = row.inputs[3];
                 row.inputs.resize(2);
                 row.numinputs = 2;

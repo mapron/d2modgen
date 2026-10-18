@@ -45,14 +45,16 @@ WidgetScrollable {
             }
             Button {
                 text: qsTr("Browse...")
-                onClicked: folderDialogInputPath.open()
+                onClicked: {
+                    folderDialogInputPath.currentFolder = "file:///" + folderInputEdit.text;
+                    folderDialogInputPath.open();
+                }
             }
         }
 
         FolderDialog {
             id: folderDialogInputPath
-            selectedFolder: folderInputEdit.text
-            onAccepted: folderInputEdit.text = folderDialogInputPath.selectedFolder.toString().substring(8)
+            onAccepted: folderInputEdit.setTextValue(folderDialogInputPath.selectedFolder.toString().substring(8))
         }
     }
 
@@ -70,14 +72,16 @@ WidgetScrollable {
             }
             Button {
                 text: qsTr("Browse...")
-                onClicked: folderDialogOutputPath.open()
+                onClicked: {
+                    folderDialogOutputPath.currentFolder = "file:///" + folderOutputEdit.text;
+                    folderDialogOutputPath.open();
+                }
             }
         }
 
         FolderDialog {
             id: folderDialogOutputPath
-            selectedFolder: folderOutputEdit.text
-            onAccepted: folderOutputEdit.text = folderDialogOutputPath.selectedFolder.toString().substring(8)
+            onAccepted: folderOutputEdit.setTextValue(folderDialogOutputPath.selectedFolder.toString().substring(8))
         }
     }
 

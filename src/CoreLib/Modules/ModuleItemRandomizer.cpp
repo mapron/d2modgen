@@ -105,8 +105,6 @@ ModuleItemRandomizer::ModuleItemRandomizer()
 
 void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    auto start = Mernel::ChronoPoint(true);
-
     MagicPropUniverse props;
 
     std::vector<std::string> setItemsKeys;
@@ -117,7 +115,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     const bool removeKnock    = input.getInt("removeKnock");
 
     const int repeatUniques = input.getInt("repeat_uniques");
-    const int repeatSets    = input.getInt("repeat_sets");
+    const int repeatSets    = input.m_env.isLegacy ? 0 : input.getInt("repeat_sets");
 
     auto postProcessRawList = [replaceSkills, replaceCharges, removeKnock](MagicPropRawList& rawList) {
         rawList.postProcess(replaceSkills, replaceCharges, removeKnock);
@@ -132,7 +130,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
             for (const AffixPropList* affixList : row.affixLists()) {
                 MagicPropRawList rawList;
-                rawList.readFromRow(*affixList, true);
+                rawList.readFromRow(*affixList);
                 postProcessRawList(rawList);
                 props.add(std::move(rawList), types, level);
             }
@@ -274,7 +272,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
             for (AffixPropList* affixList : row.affixLists()) {
                 MagicPropRawList rawList;
-                rawList.readFromRow(*affixList, false);
+                rawList.readFromRow(*affixList);
                 if (skipEmptyList && rawList.parsedProps.empty())
                     continue;
 
@@ -317,66 +315,62 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             }
         }
     };
-    auto startProps = Mernel::ChronoPoint(true);
-    {
-        fillProps(output.uniqueitems, true, true);
-    }
+    auto startFillProps = Mernel::ChronoPoint(true);
 
-    {
-        fillProps(output.runes, true, false);
-    }
-    {
-        fillProps(output.setitems, false, false, true);
-    }
-    if (input.getInt("gemsRandom")) {
+    fillProps(output.uniqueitems, true, true);
+
+    fillProps(output.runes, true, false);
+
+    fillProps(output.setitems, false, false, true);
+
+    if (input.getInt("gemsRandom"))
         fillProps(output.gems, true, false);
-    }
+
     if (input.getInt("affixRandom")) {
         fillProps(output.magicprefix, true, true);
         fillProps(output.magicsuffix, true, true);
     }
-    {
-        fillProps(output.sets, false, false);
-    }
-    auto endProps = startProps.GetElapsedTime().ToProfilingTime();
-    {
-        if (repeatSets > 1 && output.jsonFiles.contains(JsonId::ItemNames)) {
-            auto&                                       jsonDoc = output.jsonFiles[JsonId::ItemNames];
-            std::map<std::string, Mernel::PropertyTree> itemNamesByKey;
-            for (const auto& itemDesc : jsonDoc.getList()) {
-                const std::string key = itemDesc["Key"].getScalar().toString();
-                itemNamesByKey[key]   = itemDesc;
-            }
-            int id = 1000000;
-            for (const auto& key : allItemsKeys) {
-                if (itemNamesByKey.contains(key))
-                    continue;
-                Mernel::PropertyTree itemDesc;
-                itemDesc["Key"]  = Mernel::PropertyTreeScalar(key);
-                itemDesc["enUS"] = Mernel::PropertyTreeScalar(key);
-                itemDesc["id"]   = Mernel::PropertyTreeScalar(id++);
-                jsonDoc.append(itemDesc);
-                itemNamesByKey[key] = itemDesc;
-            }
-            for (int i = 2; i <= repeatSets; ++i) {
-                for (const auto& key : setItemsKeys) {
-                    const std::string    keyCopy  = key + " " + std::to_string(i);
-                    Mernel::PropertyTree itemDesc = itemNamesByKey[key];
-                    itemDesc["Key"]               = Mernel::PropertyTreeScalar(keyCopy);
-                    itemDesc["id"]                = Mernel::PropertyTreeScalar(id++);
-                    for (auto& [locKey, locValue] : itemDesc.getMap()) {
-                        if (locKey == "Key" || locKey == "id")
-                            continue;
-                        const auto str = locValue.getScalar().toString();
-                        locValue       = Mernel::PropertyTreeScalar(str + " " + std::to_string(i));
-                    }
-                    jsonDoc.append(itemDesc);
+
+    fillProps(output.sets, false, false);
+
+    auto endFillProps = startFillProps.GetElapsedTime().ToProfilingTime();
+
+    if (repeatSets > 1 && output.jsonFiles.contains(JsonId::ItemNames)) {
+        auto&                                       jsonDoc = output.jsonFiles[JsonId::ItemNames];
+        std::map<std::string, Mernel::PropertyTree> itemNamesByKey;
+        for (const auto& itemDesc : jsonDoc.getList()) {
+            const std::string key = itemDesc["Key"].getScalar().toString();
+            itemNamesByKey[key]   = itemDesc;
+        }
+        int id = 1000000;
+        for (const auto& key : allItemsKeys) {
+            if (itemNamesByKey.contains(key))
+                continue;
+            Mernel::PropertyTree itemDesc;
+            itemDesc["Key"]  = Mernel::PropertyTreeScalar(key);
+            itemDesc["enUS"] = Mernel::PropertyTreeScalar(key);
+            itemDesc["id"]   = Mernel::PropertyTreeScalar(id++);
+            jsonDoc.append(itemDesc);
+            itemNamesByKey[key] = itemDesc;
+        }
+        for (int i = 2; i <= repeatSets; ++i) {
+            for (const auto& key : setItemsKeys) {
+                const std::string    keyCopy  = key + " " + std::to_string(i);
+                Mernel::PropertyTree itemDesc = itemNamesByKey[key];
+                itemDesc["Key"]               = Mernel::PropertyTreeScalar(keyCopy);
+                itemDesc["id"]                = Mernel::PropertyTreeScalar(id++);
+                for (auto& [locKey, locValue] : itemDesc.getMap()) {
+                    if (locKey == "Key" || locKey == "id")
+                        continue;
+                    const auto str = locValue.getScalar().toString();
+                    locValue       = Mernel::PropertyTreeScalar(str + " " + std::to_string(i));
                 }
+                jsonDoc.append(itemDesc);
             }
         }
     }
 
-    Logger() << "ModuleItemRandomizer::generate() full=" << start.GetElapsedTime().ToProfilingTime() << ", fillprops=" << endProps;
+    Logger() << "  randomizer::generate fillprops done in: " << endFillProps;
 }
 
 }

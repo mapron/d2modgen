@@ -116,7 +116,7 @@ struct MagicPropRawList {
     void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
     void makePerfect();
 
-    void readFromRow(const AffixPropList& propList, bool grab);
+    void readFromRow(const AffixPropList& propList);
     void writeToRow(AffixPropList& propList) const;
 
     int       getTotalSize() const;

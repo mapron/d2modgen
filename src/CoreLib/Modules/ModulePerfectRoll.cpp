@@ -35,109 +35,76 @@ ModulePerfectRoll::ModulePerfectRoll()
 
 void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    auto makePerfectMin = [](AffixPropList& affixes, bool perfectMin) {
-        if (!perfectMin)
-            return;
+    auto makeScaler2 = [&input](const std::string& power1, const std::string& power50) {
+        int scale1  = input.getInt(power1);
+        int scale50 = input.getInt(power50);
 
-        for (AffixProp& affixProp : affixes) {
-            if (!affixProp.hasRange())
+        return [scale1, scale50](int level) {
+            if (scale1 == 100 && scale50 == 100)
+                return 100;
+            const int diff = scale50 - scale1;
+
+            const int levelDiff = diff * level / 50;
+            const int powerMult = scale1 + levelDiff;
+            return powerMult;
+        };
+    };
+    auto makeScaler1 = [&input](const std::string& power) {
+        int scale = input.getInt(power);
+        return [scale](int level) {
+            return scale;
+        };
+    };
+
+    auto empowerRow = [](AffixPropList& affixList, int powerMult, bool perfectMin, bool scalePower = true) {
+        for (AffixProp& prop : affixList) {
+            if (!prop.hasRange())
                 continue;
-            if (isMinMaxRange(affixProp.code))
-                affixProp.min = affixProp.max;
+
+            if (perfectMin && isMinMaxRange(prop.code))
+                prop.min = prop.max;
+
+            if (!scalePower)
+                continue;
+
+            prop.min = powerMultiply(prop.code, prop.min.value(), powerMult);
+            prop.max = powerMultiply(prop.code, prop.max.value(), powerMult);
         }
     };
+
+    auto empowerTable = [&empowerRow]<typename Row>(DataTable<Row>& table, auto&& scaleFromLevel, bool perfectMin, bool scalePower = true) {
+        for (auto& row : table.rows) {
+            if (!row.isValid())
+                continue;
+
+            for (AffixPropList* affixList : row.affixLists()) {
+                empowerRow(*affixList, scaleFromLevel(row.getLevel()), perfectMin, scalePower);
+            }
+        }
+    };
+
+    empowerTable(output.uniqueitems, makeScaler2("uniques_power_l1", "uniques_power_l50"), input.getInt("uniques"));
+    empowerTable(output.runes, makeScaler1("rw_power"), input.getInt("runeWords"));
+    empowerTable(output.setitems, makeScaler2("set_power_l1", "set_power_l50"), input.getInt("setItems"));
+
+    empowerTable(output.magicprefix, makeScaler2("affix_power_l1", "affix_power_l50"), input.getInt("affixes"));
+    empowerTable(output.magicsuffix, makeScaler2("affix_power_l1", "affix_power_l50"), input.getInt("affixes"));
+    empowerTable(output.automagic, makeScaler2("affix_power_l1", "affix_power_l50"), input.getInt("affixes"));
+
+    empowerTable(output.runes, makeScaler1("crafted_power"), input.getInt("crafted"));
+    empowerTable(output.gems, makeScaler1("gem_power"), false);
 
     if (input.getInt("craft")) {
         for (auto& row : output.cubemain.rows) {
-            const bool isCrafted = row.output == "\"usetype,crf\"";
+            const bool isCrafted = row.isCrafted();
             if (!isCrafted)
                 continue;
 
-            makePerfectMin(row.affixes_a, true);
-            makePerfectMin(row.affixes_b, true);
-            makePerfectMin(row.affixes_c, true);
+            for (AffixPropList* affixList : row.affixLists())
+                empowerRow(*affixList, 100, true, false);
         }
     }
 
-    auto makeEmpower = [](AffixPropList& affixes, int level1, int level50, int level) {
-        if (level1 == 100 && level50 == 100)
-            return;
-        if (!level)
-            return;
-
-        const int diff = level50 - level1;
-
-        const int levelDiff = diff * level / 50;
-        const int powerMult = level1 + levelDiff;
-        if (powerMult == 100)
-            return;
-
-        for (AffixProp& affixProp : affixes) {
-            if (!affixProp.hasRange())
-                continue;
-            affixProp.min = powerMultiply(affixProp.code, affixProp.min.value(), powerMult);
-            affixProp.max = powerMultiply(affixProp.code, affixProp.max.value(), powerMult);
-        }
-    };
-
-    {
-        for (auto& row : output.uniqueitems.rows) {
-            makePerfectMin(row.affixes, input.getInt("uniques"));
-            makeEmpower(row.affixes, input.getInt("uniques_power_l1"), input.getInt("uniques_power_l50"), row.lvl.value_or(0));
-        }
-    }
-    {
-        const int powerLevel = input.getInt("rw_power");
-        for (auto& row : output.runes.rows) {
-            makePerfectMin(row.affixes, input.getInt("runeWords"));
-            makeEmpower(row.affixes, powerLevel, powerLevel, row.lvl);
-        }
-    }
-    {
-        for (auto& row : output.setitems.rows) {
-            makePerfectMin(row.affixes_base, input.getInt("setItems"));
-            makePerfectMin(row.affixes_partial1, input.getInt("setItems"));
-            makePerfectMin(row.affixes_partial2, input.getInt("setItems"));
-            makeEmpower(row.affixes_base, input.getInt("set_power_l1"), input.getInt("set_power_l50"), row.lvl.value_or(0));
-            makeEmpower(row.affixes_partial1, input.getInt("set_power_l1"), input.getInt("set_power_l50"), row.lvl.value_or(0));
-            makeEmpower(row.affixes_partial2, input.getInt("set_power_l1"), input.getInt("set_power_l50"), row.lvl.value_or(0));
-        }
-    }
-    {
-        for (auto& row : output.magicprefix.rows) {
-            makePerfectMin(row.affixes, input.getInt("affixes"));
-            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getLevel());
-        }
-        for (auto& row : output.magicsuffix.rows) {
-            makePerfectMin(row.affixes, input.getInt("affixes"));
-            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getLevel());
-        }
-        for (auto& row : output.automagic.rows) {
-            makePerfectMin(row.affixes, input.getInt("affixes"));
-            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getLevel());
-        }
-    }
-    {
-        const int powerLevel = input.getInt("crafted_power");
-        for (auto& row : output.cubemain.rows) {
-            makePerfectMin(row.affixes_a, input.getInt("crafted"));
-            makePerfectMin(row.affixes_b, input.getInt("crafted"));
-            makePerfectMin(row.affixes_c, input.getInt("crafted"));
-            int lvl = 1;
-            makeEmpower(row.affixes_a, powerLevel, powerLevel, lvl);
-            makeEmpower(row.affixes_b, powerLevel, powerLevel, lvl);
-            makeEmpower(row.affixes_c, powerLevel, powerLevel, lvl);
-        }
-    }
-    {
-        const int powerLevel = input.getInt("gem_power");
-        for (auto& row : output.gems.rows) {
-            int lvl = 1;
-            makeEmpower(row.affixes_weapon, powerLevel, powerLevel, lvl);
-            makeEmpower(row.affixes_helm, powerLevel, powerLevel, lvl);
-            makeEmpower(row.affixes_shield, powerLevel, powerLevel, lvl);
-        }
-    }
     if (input.getInt("armor")) {
         for (auto& row : output.armor.rows) {
             if (row.maxac.has_value())

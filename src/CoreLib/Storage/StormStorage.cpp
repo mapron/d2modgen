@@ -32,11 +32,14 @@ IStorage::StoredData StormStorage::readData() const noexcept
             if (!SFileOpenArchive(basedata2.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
                 hasData = false;
             } else {
+                Logger() << "Opened mpq: " << path2string(basedata2);
                 needPatch = false;
             }
         } else {
             hasData = false;
         }
+    } else {
+        Logger() << "Opened mpq: " << path2string(basedata);
     }
     if (!hasData) {
         return {};
@@ -44,9 +47,13 @@ IStorage::StoredData StormStorage::readData() const noexcept
 
     MERNEL_SCOPE_EXIT([mpq] { SFileCloseArchive(mpq); });
 
-    if (needPatch && !SFileOpenPatchArchive(mpq, patchdata.c_str(), nullptr, STREAM_FLAG_READ_ONLY)) {
-        Logger() << "d2data.mpq found, but patch_d2.mpq is missing";
-        return {};
+    if (needPatch) {
+        if (!SFileOpenPatchArchive(mpq, patchdata.c_str(), nullptr, STREAM_FLAG_READ_ONLY)) {
+            Logger() << "d2data.mpq found, but patch_d2.mpq is missing";
+            return {};
+        } else {
+            Logger() << "Opened patch mpq: " << path2string(patchdata);
+        }
     }
 
     auto readStormFile = [mpq](std::string& data, const std::string& filename) -> bool {

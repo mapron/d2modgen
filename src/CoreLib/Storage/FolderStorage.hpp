@@ -15,7 +15,7 @@ namespace D2ModGen {
 class FolderStorage final
     : public IWriteableStorage {
 public:
-    FolderStorage(const std_path& storageRoot, StorageType storage, const std::string& modname, bool needBaseSubfolder);
+    FolderStorage(const std_path& storageRoot, StorageType storage, const std::string& modname, bool needBaseSubfolder, std::string suffix = "");
 
     StoredData readData() const noexcept override;
 
@@ -28,6 +28,7 @@ private:
     const std::string m_modName;
     const std_path    m_root;
     const bool        m_needBaseSubfolder;
+    const std::string m_suffix;
 };
 
 }

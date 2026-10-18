@@ -62,9 +62,13 @@ void MagicPropRawList::detectBounded()
                 newProp.bounded.push_back(p);
             }
         }
-        assert(!newProp.code.empty());
         if (!newProp.code.empty())
             newProps.push_back(std::move(newProp));
+        else {
+            for (const MagicProp& p : bundledProps) {
+                newProps.push_back(p);
+            }
+        }
     }
     parsedProps = std::move(newProps);
 }
@@ -115,7 +119,7 @@ void MagicPropRawList::makePerfect()
     }
 }
 
-void MagicPropRawList::readFromRow(const AffixPropList& propList, bool grab)
+void MagicPropRawList::readFromRow(const AffixPropList& propList)
 {
     for (const auto& col : propList) {
         MagicProp mp;
@@ -351,8 +355,6 @@ ItemTypeSet MagicPropUniverse::expand(const ItemTypeSet& query, bool nested) con
     for (ItemType code : query) {
         if (!code)
             continue;
-        //if (code == "amu")
-        //    code = "amul";
         appendToSet(codeSet, nested ? code->nested : code->parents);
     }
     return codeSet;

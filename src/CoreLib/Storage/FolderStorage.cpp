@@ -46,11 +46,16 @@ std::string IStorage::makeTableRelativePath(TableId id, bool baseSub)
     return base + std::string(getTableIdString(id)) + ".txt";
 }
 
-FolderStorage::FolderStorage(const std_path& storageRoot, StorageType storage, const std::string& modname, bool needBaseSubfolder)
+FolderStorage::FolderStorage(const std_path&    storageRoot,
+                             StorageType        storage,
+                             const std::string& modname,
+                             bool               needBaseSubfolder,
+                             std::string        suffix)
     : m_storageType(storage)
     , m_modName(modname)
     , m_root(storage == StorageType::D2ResurrectedModFolder ? storageRoot / "mods" / modname / (modname + ".mpq") : (storageRoot / "fake").parent_path())
     , m_needBaseSubfolder(needBaseSubfolder)
+    , m_suffix(suffix)
 {
 }
 
@@ -155,7 +160,7 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
     };
 
     for (const auto& [id, tableData] : data.tables) {
-        const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + ".txt" : makeTableRelativePath(id, m_needBaseSubfolder);
+        const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + m_suffix + ".txt" : makeTableRelativePath(id, m_needBaseSubfolder);
         const auto        absPath = m_root / relPath;
         if (!writeData(tableData, absPath)) {
             return false;
