@@ -96,7 +96,7 @@ void MagicPropRawList::postProcess(bool replaceSkills, bool replaceCharges, bool
             }
             prop.code = "oskill";
             if (prop.max < 0) {
-                prop.min = prop.max = -prop.max;
+                prop.min = prop.max = -prop.max.value_or(0);
             }
         }
         if (skipKnock && (prop.code == "knock" || prop.code == "howl"))
@@ -125,8 +125,8 @@ void MagicPropRawList::readFromRow(const AffixPropList& propList)
         MagicProp mp;
         mp.code = col.code;
         mp.par  = col.par;
-        mp.min  = col.min.value_or(0);
-        mp.max  = col.max.value_or(0);
+        mp.min  = col.min;
+        mp.max  = col.max;
 
         auto cons = getAttributeConsume(mp.code);
         if (cons == AttributeConsume::Skip)
@@ -436,11 +436,11 @@ std::string MagicProp::toDebugString() const
 {
     std::string result;
     if (isMinMaxRange(code)) {
-        result = code + ": " + std::to_string(min) + "-" + std::to_string(max);
+        result = code + ": " + std::to_string(min.value_or(0)) + "-" + std::to_string(max.value_or(0));
         if (!par.empty())
             result += " (" + par + ")";
     } else {
-        result = code + ": " + par + "," + std::to_string(min) + "," + std::to_string(max);
+        result = code + ": " + par + "," + std::to_string(min.value_or(0)) + "," + std::to_string(max.value_or(0));
     }
     if (!bounded.empty())
         result += " +[" + std::to_string(bounded.size()) + "]";

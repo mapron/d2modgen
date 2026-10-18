@@ -537,8 +537,9 @@ struct DataRow_sets;
 struct DataRow_setitems : public RowBase {
     const DataRow_sets* parent_set = nullptr;
 
-    std::optional<int> lvl;
-    std::optional<int> lvlreq;
+    std::optional<int>  lvl;
+    std::optional<int>  lvlreq;
+    std::optional<bool> disableChronicle;
 
     std::string   index;
     std::string   setIndex;
@@ -671,6 +672,7 @@ struct DataRow_uniqueitems : public RowBase {
     std::optional<int>  lvlreq;
     std::optional<int>  carry1;
     std::optional<bool> spawnable;
+    std::optional<bool> disableChronicle;
 
     AffixPropList affixes{ 12 };
 

@@ -143,6 +143,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             if (!row.isValid())
                 continue;
             allItemsKeys.push_back(row.index);
+            row.disableChronicle = true;
             validRows.push_back(row);
         }
         if (repeatUniques > 1) {
@@ -162,6 +163,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 continue;
             setItemsKeys.push_back(row.index);
             allItemsKeys.push_back(row.index);
+            row.disableChronicle = true;
             validRows.push_back(row);
         }
 

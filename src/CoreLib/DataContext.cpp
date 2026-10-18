@@ -916,7 +916,7 @@ void DataRow_runes::serialize()
 
 std::vector<std::string> DataRow_setitems::getColumns() const
 {
-    std::vector<std::string> result{ "lvl", "lvl req", "index", "set", "item" };
+    std::vector<std::string> result{ "lvl", "lvl req", "index", "set", "item", "disablechronicle" };
     for (size_t i = 0; i < affixes_base.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("prop" + istr);
@@ -955,6 +955,7 @@ void DataRow_setitems::serialize()
     ser(index);
     ser(setIndex);
     ser(eqipmentCode);
+    ser(disableChronicle);
 
     for (auto* affixList : affixLists())
         ser(*affixList);
@@ -1091,7 +1092,7 @@ int DataRow_treasureclassex::getDropSomethingProb() const
 
 std::vector<std::string> DataRow_uniqueitems::getColumns() const
 {
-    std::vector<std::string> result{ "rarity", "lvl", "lvl req", "carry1", "spawnable", "code", "index" };
+    std::vector<std::string> result{ "rarity", "lvl", "lvl req", "carry1", "spawnable", "disablechronicle", "code", "index" };
     for (size_t i = 0; i < affixes.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("prop" + istr);
@@ -1114,6 +1115,7 @@ void DataRow_uniqueitems::serialize()
     ser(lvlreq);
     ser(carry1);
     ser(spawnable);
+    ser(disableChronicle);
     ser(eqipmentCode);
     ser(index);
     ser(affixes);

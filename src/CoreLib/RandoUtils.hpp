@@ -24,11 +24,11 @@ inline void appendToSet(ItemTypeSet& s, const ItemTypeSet& another)
 struct MagicProp;
 using MagicPropList = std::vector<MagicProp>;
 struct MagicProp {
-    std::string   code;
-    std::string   par;
-    int           min = 0;
-    int           max = 0;
-    MagicPropList bounded; // for properties
+    std::string        code;
+    std::string        par;
+    std::optional<int> min;
+    std::optional<int> max;
+    MagicPropList      bounded; // for properties
 
     std::string toDebugString() const;
     int         determineClass(bool checkOskill) const;
