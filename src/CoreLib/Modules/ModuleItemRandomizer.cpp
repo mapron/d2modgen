@@ -266,7 +266,11 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
             const ItemCodeFilter types = row.getItemFilter();
 
+            int existingClass = types.determineClass();
+
             int genCountPrev = 0;
+
+            StringSet existingCodes;
 
             for (AffixPropList* affixList : row.affixLists()) {
                 MagicPropRawList rawList;
@@ -292,11 +296,14 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 if (keepCnt < originalCount)
                     rawList.truncateRandom(rng, keepCnt);
 
-                int existingClass = types.determineClass();
                 if (existingClass == -1)
                     existingClass = rawList.determineClass(!replaceSkills);
+                if (isSet)
+                    appendToSet(existingCodes, rawList.getAllCodes());
+                else
+                    existingCodes = rawList.getAllCodes();
                 auto newProps = props.generate(rng,
-                                               rawList.getAllCodes(),
+                                               existingCodes,
                                                existingClass,
                                                supportedAttributes,
                                                types,
@@ -312,6 +319,9 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 if (!supportMinMax)
                     rawList.makePerfect();
 
+                if (isSet)
+                    appendToSet(existingCodes, rawList.getAllCodes());
+
                 rawList.writeToRow(*affixList);
             }
         }
@@ -320,9 +330,9 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     fillProps(output.uniqueitems, true, true);
 
-    fillProps(output.runes, true, false);
+    fillProps(output.runes, true, true);
 
-    fillProps(output.setitems, false, false, true);
+    fillProps(output.setitems, false, true, true);
 
     if (input.getInt("gemsRandom"))
         fillProps(output.gems, true, false);
@@ -332,7 +342,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         fillProps(output.magicsuffix, true, true);
     }
 
-    fillProps(output.sets, false, false);
+    fillProps(output.sets, false, false, true);
 
     auto endFillProps = startFillProps.GetElapsedTime().ToProfilingTime();
 
