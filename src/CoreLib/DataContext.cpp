@@ -137,6 +137,18 @@ bool DataContext::parseData(const IStorage::StoredData& data)
         row.eqipmentType = findEquip(row.eqipmentCode);
     }
 
+    const std::map<std::string, int> classes{
+
+        { "ama", 0 },
+        { "sor", 1 },
+        { "nec", 2 },
+        { "pal", 3 },
+        { "bar", 4 },
+        { "dru", 5 },
+        { "ass", 6 },
+        { "war", 7 },
+    };
+
     for (auto& row : itemtypes.rows) {
         const auto codeStr  = row.code;
         const auto itemType = row.itemType;
@@ -154,6 +166,12 @@ bool DataContext::parseData(const IStorage::StoredData& data)
             auto parent2ptr = const_cast<DataRow_itemtypes*>(itemtypes.index.at(parent2));
             row.parents.insert(parent2ptr);
             parent2ptr->nested.insert(&row);
+        }
+
+        if (!row.clas.empty()) {
+            auto it = classes.find(row.clas);
+            if (it != classes.cend())
+                row.classSpecific = it->second;
         }
     }
 
@@ -643,7 +661,7 @@ void DataRow_itemstatcost::serialize()
 
 std::vector<std::string> DataRow_itemtypes::getColumns() const
 {
-    return { "code", "itemtype", "equiv1", "equiv2", "throwable", "repair", "shoots", "maxsockets1", "maxsockets2", "maxsockets3" };
+    return { "code", "class", "itemtype", "equiv1", "equiv2", "throwable", "repair", "shoots", "maxsockets1", "maxsockets2", "maxsockets3" };
 }
 
 std::map<std::string, std::string> DataRow_itemtypes::getColumnAliases() const
@@ -658,6 +676,7 @@ std::map<std::string, std::string> DataRow_itemtypes::getColumnAliases() const
 void DataRow_itemtypes::serialize()
 {
     ser(code);
+    ser(clas);
     ser(itemType);
     ser(equiv1);
     ser(equiv2);
@@ -676,7 +695,7 @@ void DataRow_itemtypes::serialize()
 
         if (sockets[0].value_or(0))
             flags.insert(AttributeFlag::Sockets);
-        if (shoots.value_or(false))
+        if (!shoots.empty())
             flags.insert(AttributeFlag::Missile);
         if (itemType.starts_with("Map"))
             flags.insert(AttributeFlag::PD2Map);
@@ -1161,6 +1180,15 @@ void RowBase::ser(std::string& data)
 AttributeFlagSet RowBaseEquipment::getAttributes() const
 {
     return itemType ? itemType->flags : AttributeFlagSet{};
+}
+
+int ItemCodeFilter::determineClass() const
+{
+    for (ItemType type : include)
+        if (type->classSpecific != -1)
+            return type->classSpecific;
+
+    return -1;
 }
 
 }

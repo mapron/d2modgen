@@ -188,6 +188,16 @@ StringSet MagicPropRawList::getAllCodes() const
     return result;
 }
 
+int MagicPropRawList::determineClass(bool checkOskill) const
+{
+    for (const MagicProp& prop : parsedProps) {
+        int determined = prop.determineClass(checkOskill);
+        if (determined >= 0)
+            return determined;
+    }
+    return -1;
+}
+
 std::string MagicPropRawList::toDebugString() const
 {
     std::string result = "";
@@ -258,6 +268,7 @@ void MagicPropUniverse::dump(const MagicPropIdxSet& idxs) const
 
 MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
                                           const StringSet&        existingCodes,
+                                          int                     existingClass,
                                           const AttributeFlagSet& supportedAttributes,
                                           const ItemCodeFilter&   specificTypeQuery,
                                           int                     specificItemUsage,
@@ -319,13 +330,21 @@ MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
     MagicPropIdxSet        totalIndices;
     UniqueAttributeChecker attrCheck;
     attrCheck.add(existingCodes);
+    int currentClass = existingClass;
 
-    auto tryAdd = [&attrCheck, &totalIndices, &rng, this](const std::vector<uint32_t>& indices, bool force) -> bool {
+    auto tryAdd = [&attrCheck, &currentClass, &totalIndices, &rng, this](const std::vector<uint32_t>& indices, bool force) -> bool {
         const uint32_t indexOfIndex = rng(static_cast<int>(indices.size()));
         const uint32_t index        = indices[indexOfIndex];
         const auto&    code         = props[index].code;
-        if (attrCheck.contains(code))
+        int            nextClass    = props[index].determineClass(true);
+        if (code != "skilltab" && attrCheck.contains(code))
             return false;
+        if (currentClass != -1 && nextClass != -1) {
+            if (nextClass != currentClass)
+                return false;
+        }
+        if (nextClass != -1)
+            currentClass = nextClass;
         attrCheck.add(code);
         totalIndices << index;
         return true;
@@ -426,6 +445,50 @@ std::string MagicProp::toDebugString() const
     if (!bounded.empty())
         result += " +[" + std::to_string(bounded.size()) + "]";
     return result;
+}
+
+int MagicProp::determineClass(bool checkOskill) const
+{
+    if (code == "ama")
+        return 0;
+    if (code == "sor")
+        return 1;
+    if (code == "nec")
+        return 2;
+    if (code == "pal")
+        return 3;
+    if (code == "bar")
+        return 4;
+    if (code == "dru")
+        return 5;
+    if (code == "ass")
+        return 6;
+    if (code == "war")
+        return 7;
+
+    if (code == "skilltab") {
+        int tab = std::atoi(par.c_str());
+        return tab / 3;
+    }
+    if (code == "skilltab-war") {
+        return 7;
+    }
+    if (checkOskill && code == "oskill" || code == "skill") {
+        int skillId = std::atoi(par.c_str());
+        if (skillId == 0)
+            return -1;
+        // [6..155] = [ama...bar] = [0...4]
+        if (skillId >= 6 && skillId <= 155)
+            return (skillId - 6) / 30;
+        // [221...280] = [dru,ass] = [5,6]
+        if (skillId >= 221 && skillId <= 280)
+            return ((skillId - 221) / 30) + 5;
+
+        // [373...402] = [war] = [7]
+        if (skillId >= 373 && skillId <= 402)
+            return 7;
+    }
+    return -1;
 }
 
 }

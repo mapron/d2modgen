@@ -31,6 +31,7 @@ struct MagicProp {
     MagicPropList bounded; // for properties
 
     std::string toDebugString() const;
+    int         determineClass(bool checkOskill) const;
 };
 struct MagicPropIdxSet {
     std::vector<uint32_t> data;
@@ -121,6 +122,7 @@ struct MagicPropRawList {
 
     int       getTotalSize() const;
     StringSet getAllCodes() const;
+    int       determineClass(bool checkOskill) const;
 
     std::string toDebugString() const;
 
@@ -146,6 +148,7 @@ struct MagicPropUniverse {
 
     MagicPropList generate(RandomGenerator&        rng,
                            const StringSet&        existingCodes,
+                           int                     existingClass,
                            const AttributeFlagSet& narrowingFlags,
                            const ItemCodeFilter&   specificTypeQuery,
                            int                     specificItemUsage,

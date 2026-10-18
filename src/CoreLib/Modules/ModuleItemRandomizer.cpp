@@ -250,6 +250,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     auto fillProps = [&props,
                       &postProcessRawList,
+                      replaceSkills,
                       &rng,
                       &calcNewCount,
                       itemFitPercent,
@@ -291,8 +292,12 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 if (keepCnt < originalCount)
                     rawList.truncateRandom(rng, keepCnt);
 
+                int existingClass = types.determineClass();
+                if (existingClass == -1)
+                    existingClass = rawList.determineClass(!replaceSkills);
                 auto newProps = props.generate(rng,
                                                rawList.getAllCodes(),
+                                               existingClass,
                                                supportedAttributes,
                                                types,
                                                itemFitPercent,

@@ -23,6 +23,8 @@ using ItemTypeSet   = std::set<ItemType>;
 struct ItemCodeFilter {
     ItemTypeSet include;
     ItemTypeSet exclude;
+
+    int determineClass() const;
 };
 
 template<class Row>
@@ -373,14 +375,17 @@ struct DataRow_itemstatcost : public RowBase {
     void                     serialize();
 };
 struct DataRow_itemtypes : public RowBase {
+    std::string clas;
     std::string code;
     std::string itemType;
     std::string equiv1;
     std::string equiv2;
 
+    int classSpecific = -1;
+
     std::optional<bool>               throwable;
     std::optional<bool>               repair;
-    std::optional<bool>               shoots;
+    std::string                       shoots;
     std::array<std::optional<int>, 3> sockets;
 
     AttributeFlagSet flags;
