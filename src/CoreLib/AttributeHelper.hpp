@@ -27,7 +27,6 @@ enum class AttributeFlag
     Sockets,
     Leech,
     OP,
-    NoMinMax,
     PD2Map,
     HasRange,
 };
@@ -53,7 +52,14 @@ struct AttributeDesc {
     AttributeItemReqSet items;
     int                 minValue{ 0 };
     int                 maxValue{ 0 };
-    int                 powerPercent{ 0 };
+
+    AttributeDesc setRange(int min, int max) &&
+    {
+        minValue = min;
+        maxValue = max;
+        flags.insert(AttributeFlag::HasRange);
+        return *this;
+    }
 };
 
 enum class AttributeConsume
