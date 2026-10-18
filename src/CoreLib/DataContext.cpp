@@ -121,6 +121,136 @@ bool DataContext::parseData(const IStorage::StoredData& data)
     parse(treasureclassex);
     parse(uniqueitems);
 
+    itemtypes.makeIndex(&DataRow_itemtypes::code);
+    sets.makeIndex(&DataRow_sets::index);
+    armor.makeIndex(&RowBaseEquipment::code);
+    weapons.makeIndex(&RowBaseEquipment::code);
+    misc.makeIndex(&RowBaseEquipment::code);
+
+    auto getItemType = [this](std::string code) {
+        if (code == "staff")
+            code = "staf";
+        if (code == "amu")
+            code = "amul";
+        if (code == "ring ")
+            code = "ring";
+        return itemtypes.index.at(code);
+    };
+
+    auto bindEquip = [this, &getItemType](RowBaseEquipment& row) {
+        if (!row.isValid())
+            return;
+        row.itemType = getItemType(row.itemTypeCode);
+    };
+
+    auto bindAff = [this, &getItemType](auto& row) {
+        if (!row.isValid())
+            return;
+        for (auto& itype : row.itype)
+            row.filter.include.insert(getItemType(itype));
+        for (auto& etype : row.etype)
+            row.filter.exclude.insert(getItemType(etype));
+    };
+
+    for (auto& row : armor.rows)
+        bindEquip(row);
+    for (auto& row : weapons.rows)
+        bindEquip(row);
+    for (auto& row : misc.rows)
+        bindEquip(row);
+
+    for (auto& row : magicprefix.rows)
+        bindAff(row);
+    for (auto& row : magicsuffix.rows)
+        bindAff(row);
+    for (auto& row : automagic.rows)
+        bindAff(row);
+    for (auto& row : runes.rows)
+        bindAff(row);
+
+    auto findEquip = [this](const std::string& equipCode) -> EquipemntType {
+        if (auto it = armor.index.find(equipCode); it != armor.index.cend())
+            return it->second;
+        if (auto it = weapons.index.find(equipCode); it != weapons.index.cend())
+            return it->second;
+        if (auto it = misc.index.find(equipCode); it != misc.index.cend())
+            return it->second;
+        assert(false);
+        return nullptr;
+    };
+
+    for (auto& row : setitems.rows) {
+        if (!row.isValid())
+            continue;
+
+        row.parent_set   = sets.index.at(row.setIndex);
+        row.eqipmentType = findEquip(row.eqipmentCode);
+
+        const_cast<DataRow_sets*>(row.parent_set)->first_item = &row;
+    }
+    for (auto& row : uniqueitems.rows) {
+        if (!row.isValid())
+            continue;
+
+        row.eqipmentType = findEquip(row.eqipmentCode);
+    }
+
+    for (auto& row : gems.rows) {
+        if (!row.isValid())
+            continue;
+
+        row.eqipmentType = findEquip(row.eqipmentCode);
+    }
+
+    for (auto& row : itemtypes.rows) {
+        const auto codeStr  = row.code;
+        const auto itemType = row.itemType;
+        if (codeStr.empty())
+            continue;
+
+        const auto parent1 = row.equiv1;
+        const auto parent2 = row.equiv2;
+        if (!parent1.empty()) {
+            auto parent1ptr = const_cast<DataRow_itemtypes*>(itemtypes.index.at(parent1));
+            row.parents.insert(parent1ptr);
+            parent1ptr->nested.insert(&row);
+        }
+        if (!parent2.empty()) {
+            auto parent2ptr = const_cast<DataRow_itemtypes*>(itemtypes.index.at(parent2));
+            row.parents.insert(parent2ptr);
+            parent2ptr->nested.insert(&row);
+        }
+    }
+
+    auto expandNested = [this]() -> bool {
+        bool change = false;
+        for (auto& row : itemtypes.rows) {
+            const auto ncopy = row.nested;
+            for (const auto& nestedCode : ncopy) {
+                row.nested.insert(nestedCode->nested.cbegin(), nestedCode->nested.cend());
+            }
+            const auto pcopy = row.parents;
+            for (const auto& pCode : pcopy) {
+                row.parents.insert(pCode->parents.cbegin(), pCode->parents.cend());
+            }
+            change = change || ncopy != row.nested || pcopy != row.parents;
+        }
+        return change;
+    };
+    while (expandNested()) {
+        ;
+    }
+
+    for (auto& row : runes.rows) {
+        row.lvl = 0;
+        for (const std::string& rune : row.runeCodes)
+            row.lvl = std::max(row.lvl, misc.index.at(rune)->getLevel());
+    }
+    for (auto& row : sets.rows) {
+        if (row.isValid())
+            row.filter.include.insert(&setstypes);
+    }
+
     for (const auto& [id, fileData] : data.jsonFiles) {
         Mernel::PropertyTree doc;
         Logger() << "parse json: " << std::string(getJsonRelPath(id));
@@ -274,12 +404,20 @@ bool DataContext::serializeTable(const DataTable<Row>& table, TableId tableId, I
 std::vector<std::string> RowBaseAffixes::getColumns() const
 {
     std::vector<std::string> result{ "level", "maxlevel", "levelreq", "spawnable" };
-    for (size_t i = 0; i < maxAffixes; ++i) {
+    for (size_t i = 0; i < affixes.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("mod" + istr + "code");
         result.push_back("mod" + istr + "param");
         result.push_back("mod" + istr + "min");
         result.push_back("mod" + istr + "max");
+    }
+    for (size_t i = 0; i < 7; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("itype" + istr);
+    }
+    for (size_t i = 0; i < 5; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("itype" + istr);
     }
 
     return result;
@@ -291,12 +429,17 @@ void RowBaseAffixes::ser()
     serf(maxlevel);
     serf(lvlreq);
     serf(spawnable);
-    serf(affixes, maxAffixes);
+    serf(affixes);
+    serf(itype, 7);
+    serf(etype, 5);
 }
 
 std::vector<std::string> DataRow_weapons::getColumns() const
 {
-    return { "level", "levelreq", "reqstr", "reqdex", "showlevel", "mindam", "maxdam", "code", "type" };
+    // clang-format off
+    return { "level", "levelreq", "reqstr", "reqdex", "showlevel", "code", "type",
+            "mindam", "maxdam",  };
+    // clang-format on
 }
 
 void DataRow_weapons::ser()
@@ -305,15 +448,20 @@ void DataRow_weapons::ser()
     serf(lvlreq);
     serf(reqstr);
     serf(reqdex);
+    serf(showLevel);
+    serf(code);
+    serf(itemTypeCode);
+
     serf(mindam);
     serf(maxdam);
-    serf(code);
-    serf(type);
 }
 
 std::vector<std::string> DataRow_armor::getColumns() const
 {
-    return { "level", "levelreq", "reqstr", "reqdex", "showlevel", "minac", "maxac", "code", "type" };
+    // clang-format off
+    return { "level", "levelreq", "reqstr", "reqdex", "showlevel", "code", "type",
+            "minac", "maxac",  };
+    // clang-format on
 }
 
 void DataRow_armor::ser()
@@ -322,10 +470,12 @@ void DataRow_armor::ser()
     serf(lvlreq);
     serf(reqstr);
     serf(reqdex);
+    serf(showLevel);
+    serf(code);
+    serf(itemTypeCode);
+
     serf(minac);
     serf(maxac);
-    serf(code);
-    serf(type);
 }
 
 std::vector<std::string> DataRow_charstats::getColumns() const
@@ -374,8 +524,8 @@ std::vector<std::string> DataRow_cubemain::getColumns() const
         "plvl",
         "lvl",
     };
-
-    for (std::string a : { "", "b ", "c " }) {
+    using namespace std::literals;
+    for (const auto& a : { ""s, "b "s, "c "s }) {
         for (size_t i = 0; i < affixes_a.getLimit(); ++i) {
             auto istr = std::to_string(i + 1);
             result.push_back(a + "mod " + istr);
@@ -461,9 +611,10 @@ void DataRow_gamble::ser()
 
 std::vector<std::string> DataRow_gems::getColumns() const
 {
-    std::vector<std::string> result{};
+    std::vector<std::string> result{ "code" };
 
-    for (std::string a : { "weapon", "helm", "shield" }) {
+    using namespace std::literals;
+    for (const auto& a : { "weapon"s, "helm"s, "shield"s }) {
         for (size_t i = 0; i < affixes_weapon.getLimit(); ++i) {
             auto istr = std::to_string(i + 1);
             result.push_back(a + "mod" + istr + "code");
@@ -478,6 +629,7 @@ std::vector<std::string> DataRow_gems::getColumns() const
 
 void DataRow_gems::ser()
 {
+    serf(eqipmentCode);
     for (AffixPropList* list : affixLists()) {
         serf(*list);
     }
@@ -553,7 +705,8 @@ std::vector<std::string> DataRow_levels::getColumns() const
         "monlvlex" , "monlvlex(n)" , "monlvlex(h)",
         // clang-format on
     };
-    for (std::string colTpl : { "mon", "nmon", "umon" }) {
+    using namespace std::literals;
+    for (const auto& colTpl : { "mon"s, "nmon"s, "umon"s }) {
         for (size_t i = 0; i < maxTypes; ++i) {
             auto istr = std::to_string(i + 1);
             result.push_back(colTpl + istr);
@@ -582,16 +735,20 @@ void DataRow_levels::ser()
 
 std::vector<std::string> DataRow_misc::getColumns() const
 {
-    return { "code", "type", "maxstack", "levelreq", "level" };
+    // clang-format off
+    return { "code", "type", "levelreq", "level",
+             "maxstack" };
+    // clang-format on
 }
 
 void DataRow_misc::ser()
 {
     serf(code);
-    serf(type);
-    serf(maxstack);
+    serf(itemTypeCode);
     serf(lvlreq);
     serf(lvl);
+
+    serf(maxstack);
 }
 
 std::vector<std::string> DataRow_monlvl::getColumns() const
@@ -715,6 +872,14 @@ std::vector<std::string> DataRow_runes::getColumns() const
         auto istr = std::to_string(i + 1);
         result.push_back("rune" + istr);
     }
+    for (size_t i = 0; i < maxItype; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("itype" + istr);
+    }
+    for (size_t i = 0; i < maxEtype; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("etype" + istr);
+    }
     return result;
 }
 
@@ -723,11 +888,13 @@ void DataRow_runes::ser()
     serf(complete);
     serf(affixes);
     serf(runeCodes, maxRunes);
+    serf(itype, maxItype);
+    serf(etype, maxEtype);
 }
 
 std::vector<std::string> DataRow_setitems::getColumns() const
 {
-    std::vector<std::string> result{ "lvl", "lvl req" };
+    std::vector<std::string> result{ "lvl", "lvl req", "index", "set", "item" };
     for (size_t i = 0; i < affixes_base.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("prop" + istr);
@@ -758,13 +925,17 @@ void DataRow_setitems::ser()
     serf(lvl);
     serf(lvlreq);
 
+    serf(index);
+    serf(setIndex);
+    serf(eqipmentCode);
+
     for (auto* affixList : affixLists())
         serf(*affixList);
 }
 
 std::vector<std::string> DataRow_sets::getColumns() const
 {
-    std::vector<std::string> result{ "lvl" };
+    std::vector<std::string> result{ "index", "name" };
     for (size_t i = 0; i < affixes_full.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("fcode" + istr);
@@ -792,7 +963,8 @@ std::vector<std::string> DataRow_sets::getColumns() const
 
 void DataRow_sets::ser()
 {
-    serf(lvl);
+    serf(index);
+    serf(name);
     for (auto* affixList : affixLists())
         serf(*affixList);
 }
@@ -892,7 +1064,7 @@ int DataRow_treasureclassex::getDropSomethingProb() const
 
 std::vector<std::string> DataRow_uniqueitems::getColumns() const
 {
-    std::vector<std::string> result{ "rarity", "lvl", "lvl req", "carry1" };
+    std::vector<std::string> result{ "rarity", "lvl", "lvl req", "carry1", "spawnable", "code", "index" };
     for (size_t i = 0; i < affixes.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("prop" + istr);
@@ -909,6 +1081,9 @@ void DataRow_uniqueitems::ser()
     serf(lvl);
     serf(lvlreq);
     serf(carry1);
+    serf(spawnable);
+    serf(eqipmentCode);
+    serf(index);
     serf(affixes);
 }
 
@@ -968,6 +1143,11 @@ void RowBase::serf(std::string& data)
     } else {
         str = data;
     }
+}
+
+AttributeFlagSet RowBaseEquipment::getAttributes() const
+{
+    return itemType ? itemType->flags : AttributeFlagSet{};
 }
 
 }

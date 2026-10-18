@@ -17,12 +17,10 @@ inline void appendToSet(StringSet& s, const StringSet& another)
 {
     s.insert(another.cbegin(), another.cend());
 }
-
-using ItemCodeSet = StringSet;
-struct ItemCodeFilter {
-    ItemCodeSet include;
-    ItemCodeSet exclude;
-};
+inline void appendToSet(ItemTypeSet& s, const ItemTypeSet& another)
+{
+    s.insert(another.cbegin(), another.cend());
+}
 struct MagicProp;
 using MagicPropList = std::vector<MagicProp>;
 struct MagicProp {
@@ -118,7 +116,7 @@ struct MagicPropRawList {
     void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
     void makePerfect();
 
-    void readFromRow(AffixPropList& propList, bool grab);
+    void readFromRow(const AffixPropList& propList, bool grab);
     void writeToRow(AffixPropList& propList) const;
 
     int       getTotalSize() const;
@@ -131,12 +129,6 @@ struct MagicPropRawList {
     void truncateRandom(RandomGenerator& rng, const int newSize);
 };
 
-struct ItemTypeInfo {
-    std::set<AttributeFlag> flags;
-    ItemCodeSet             nested;
-    ItemCodeSet             parents;
-};
-
 struct MagicPropUniverse {
     MagicPropList props;
 
@@ -144,15 +136,13 @@ struct MagicPropUniverse {
     std::map<int, MagicPropIdxSet>           indexByLevel;
     std::map<std::string, MagicPropIdxSet>   indexByPropCode;
     std::map<AttributeFlag, MagicPropIdxSet> indexByAttributeUnsupported;
-    std::map<std::string, MagicPropIdxSet>   indexByIncludeType;
-    std::map<std::string, MagicPropIdxSet>   indexByExcludeType;
+    std::map<ItemType, MagicPropIdxSet>      indexByIncludeType;
+    std::map<ItemType, MagicPropIdxSet>      indexByExcludeType;
 
     mutable std::map<int, std::map<int, MagicPropIdxSet>> indexByLevelCache;
 
     void add(MagicPropRawList propList, const ItemCodeFilter& itemTypes, const int level);
     void dump(const MagicPropIdxSet& idxs) const;
-
-    std::map<std::string, ItemTypeInfo> itemTypeInfo;
 
     MagicPropList generate(RandomGenerator&        rng,
                            const StringSet&        existingCodes,
@@ -164,7 +154,7 @@ struct MagicPropUniverse {
                            int                     unbalance,
                            bool                    noDuplicateCode) const;
 
-    ItemCodeSet expand(const ItemCodeSet& query, bool nested) const;
+    ItemTypeSet expand(const ItemTypeSet& query, bool nested) const;
 
     MagicPropIdxSet getIndexByLevel(int levelMin,
                                     int levelMax) const;

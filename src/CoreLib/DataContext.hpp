@@ -15,6 +15,16 @@
 
 namespace D2ModGen {
 
+class DataRow_itemtypes;
+class RowBaseEquipment;
+using EquipemntType = const RowBaseEquipment*;
+using ItemType      = const DataRow_itemtypes*;
+using ItemTypeSet   = std::set<ItemType>;
+struct ItemCodeFilter {
+    ItemTypeSet include;
+    ItemTypeSet exclude;
+};
+
 template<class Row>
 struct DataTable {
     std::vector<Row> rows;
@@ -129,49 +139,80 @@ struct RowBaseAffixes : public RowBase {
     std::optional<int>  maxlevel;
     std::optional<int>  lvlreq;
     std::optional<bool> spawnable;
-    AffixPropList       affixes;
+    AffixPropList       affixes{ 3 };
+
+    std::vector<std::string> itype; //7
+    std::vector<std::string> etype; // 5
+    ItemCodeFilter           filter;
 
     auto affixLists() const { return std::array{ &affixes }; }
     auto affixLists() { return std::array{ &affixes }; }
 
-    int getSpawnableLevel() const { return spawnable.value_or(false) ? lvl.value_or(0) : 0; }
+    int getLevel() const { return spawnable.value_or(false) ? lvl.value_or(0) : 0; }
+
+    bool isValid() const
+    {
+        return getLevel() > 0;
+    }
+
+    ItemCodeFilter getItemFilter() const
+    {
+        return filter;
+    }
+    AttributeFlagSet getAttributes() const
+    {
+        return AttributeFlagSet{};
+    }
 
     std::vector<std::string> getColumns() const;
     void                     ser();
-
-private:
-    static const size_t maxAffixes = 3;
 };
 
-struct DataRow_weapons : public RowBase {
+struct RowBaseEquipment : public RowBase {
     std::optional<int>  lvl;
     std::optional<int>  lvlreq;
     std::optional<int>  reqstr;
     std::optional<int>  reqdex;
     std::optional<bool> showLevel;
 
+    std::string code;
+    std::string itemTypeCode;
+    ItemType    itemType = nullptr;
+
+    int getLevel() const
+    {
+        if (lvl.has_value())
+            return lvl.value();
+
+        if (lvlreq.has_value())
+            return lvlreq.value();
+        return 0;
+    }
+
+    bool isValid() const
+    {
+        return !itemTypeCode.empty() && getLevel() > 0;
+    }
+
+    ItemCodeFilter getItemFilter() const
+    {
+        return itemType ? ItemCodeFilter{ { itemType }, {} } : ItemCodeFilter{};
+    }
+
+    AttributeFlagSet getAttributes() const;
+};
+
+struct DataRow_weapons : public RowBaseEquipment {
     std::optional<int> mindam;
     std::optional<int> maxdam;
-
-    std::string code;
-    std::string type;
 
     std::vector<std::string> getColumns() const;
 
     void ser();
 };
-struct DataRow_armor : public RowBase {
-    std::optional<int>  lvl;
-    std::optional<int>  lvlreq;
-    std::optional<int>  reqstr;
-    std::optional<int>  reqdex;
-    std::optional<bool> showLevel;
-
+struct DataRow_armor : public RowBaseEquipment {
     std::optional<int> minac;
     std::optional<int> maxac;
-
-    std::string code;
-    std::string type;
 
     std::vector<std::string> getColumns() const;
 
@@ -262,8 +303,30 @@ struct DataRow_gems : public RowBase {
     AffixPropList affixes_helm{ 3 };
     AffixPropList affixes_shield{ 3 };
 
+    EquipemntType eqipmentType = nullptr;
+    std::string   eqipmentCode;
+
     auto affixLists() const { return std::array{ &affixes_weapon, &affixes_helm, &affixes_shield }; }
     auto affixLists() { return std::array{ &affixes_weapon, &affixes_helm, &affixes_shield }; }
+
+    bool isValid() const
+    {
+        return !eqipmentCode.empty();
+    }
+
+    int getLevel() const
+    {
+        return isValid() ? eqipmentType->getLevel() : 0;
+    }
+
+    ItemCodeFilter getItemFilter() const
+    {
+        return eqipmentType->getItemFilter();
+    }
+    AttributeFlagSet getAttributes() const
+    {
+        return eqipmentType->getAttributes();
+    }
 
     std::vector<std::string> getColumns() const;
     void                     ser();
@@ -296,7 +359,9 @@ struct DataRow_itemtypes : public RowBase {
     std::optional<bool>               shoots;
     std::array<std::optional<int>, 3> sockets;
 
-    std::set<AttributeFlag> flags;
+    AttributeFlagSet flags;
+    ItemTypeSet      nested;
+    ItemTypeSet      parents;
 
     std::vector<std::string> getColumns() const;
     void                     ser();
@@ -324,12 +389,8 @@ struct DataRow_magicprefix : public RowBaseAffixes {
 };
 struct DataRow_magicsuffix : public RowBaseAffixes {
 };
-struct DataRow_misc : public RowBase {
-    std::string        code;
-    std::string        type;
+struct DataRow_misc : public RowBaseEquipment {
     std::optional<int> maxstack;
-    std::optional<int> lvlreq;
-    std::optional<int> lvl;
 
     std::vector<std::string> getColumns() const;
     void                     ser();
@@ -384,6 +445,9 @@ struct DataRow_runes : public RowBase {
     std::vector<std::string> runeCodes;
     AffixPropList            affixes{ 7 };
     std::optional<bool>      complete;
+    std::vector<std::string> itype;
+    std::vector<std::string> etype;
+    ItemCodeFilter           filter;
 
     auto affixLists() const { return std::array{ &affixes }; }
     auto affixLists() { return std::array{ &affixes }; }
@@ -391,12 +455,41 @@ struct DataRow_runes : public RowBase {
     std::vector<std::string> getColumns() const;
     void                     ser();
 
+    int getLevel() const
+    {
+        return isValid() ? lvl : 0;
+    }
+
+    ItemCodeFilter getItemFilter() const
+    {
+        return filter;
+    }
+    AttributeFlagSet getAttributes() const
+    {
+        return AttributeFlagSet{ AttributeFlag::Durability };
+    }
+
+    bool isValid() const
+    {
+        return complete.value_or(false);
+    }
+
 private:
     static const size_t maxRunes = 6;
+    static const size_t maxItype = 6;
+    static const size_t maxEtype = 3;
 };
+struct DataRow_sets;
 struct DataRow_setitems : public RowBase {
+    const DataRow_sets* parent_set = nullptr;
+
     std::optional<int> lvl;
     std::optional<int> lvlreq;
+
+    std::string   index;
+    std::string   setIndex;
+    EquipemntType eqipmentType = nullptr;
+    std::string   eqipmentCode;
 
     AffixPropList affixes_base{ 9 };
     AffixPropList affixes_partial1{ 5 };
@@ -405,11 +498,39 @@ struct DataRow_setitems : public RowBase {
     auto affixLists() const { return std::array{ &affixes_base, &affixes_partial1, &affixes_partial2 }; }
     auto affixLists() { return std::array{ &affixes_base, &affixes_partial1, &affixes_partial2 }; }
 
+    int getLevel() const
+    {
+        if (lvl.has_value())
+            return lvl.value();
+
+        if (lvlreq.has_value())
+            return lvlreq.value();
+        return 0;
+    }
+
+    ItemCodeFilter getItemFilter() const
+    {
+        return eqipmentType ? eqipmentType->getItemFilter() : ItemCodeFilter{};
+    }
+    AttributeFlagSet getAttributes() const
+    {
+        return eqipmentType ? eqipmentType->getAttributes() : AttributeFlagSet{};
+    }
+
+    bool isValid() const
+    {
+        return !eqipmentCode.empty() && getLevel() > 0;
+    }
+
     std::vector<std::string> getColumns() const;
     void                     ser();
 };
 struct DataRow_sets : public RowBase {
-    std::optional<int> lvl;
+    const DataRow_setitems* first_item = nullptr;
+
+    std::string    index;
+    std::string    name;
+    ItemCodeFilter filter;
 
     AffixPropList affixes_full{ 8 };
     AffixPropList affixes_partial1{ 4 };
@@ -417,6 +538,14 @@ struct DataRow_sets : public RowBase {
 
     auto affixLists() const { return std::array{ &affixes_full, &affixes_partial1, &affixes_partial2 }; }
     auto affixLists() { return std::array{ &affixes_full, &affixes_partial1, &affixes_partial2 }; }
+
+    bool             isValid() const { return !name.empty(); }
+    int              getLevel() const { return first_item ? first_item->getLevel() : 0; }
+    ItemCodeFilter   getItemFilter() const { return filter; }
+    AttributeFlagSet getAttributes() const
+    {
+        return AttributeFlagSet{};
+    }
 
     std::vector<std::string> getColumns() const;
     void                     ser();
@@ -472,15 +601,44 @@ private:
     static const size_t maxItems = 10;
 };
 struct DataRow_uniqueitems : public RowBase {
-    std::optional<int> rarity;
-    std::optional<int> lvl;
-    std::optional<int> lvlreq;
-    std::optional<int> carry1;
+    std::optional<int>  rarity;
+    std::optional<int>  lvl;
+    std::optional<int>  lvlreq;
+    std::optional<int>  carry1;
+    std::optional<bool> spawnable;
 
     AffixPropList affixes{ 12 };
 
+    EquipemntType eqipmentType = nullptr;
+    std::string   eqipmentCode;
+    std::string   index;
+
     auto affixLists() const { return std::array{ &affixes }; }
     auto affixLists() { return std::array{ &affixes }; }
+
+    int getLevel() const
+    {
+        if (lvl.has_value())
+            return lvl.value();
+
+        if (lvlreq.has_value())
+            return lvlreq.value();
+        return 0;
+    }
+
+    bool isValid() const
+    {
+        return spawnable.value_or(false) && !eqipmentCode.empty() && getLevel() > 0;
+    }
+
+    ItemCodeFilter getItemFilter() const
+    {
+        return eqipmentType ? eqipmentType->getItemFilter() : ItemCodeFilter{};
+    }
+    AttributeFlagSet getAttributes() const
+    {
+        return eqipmentType ? eqipmentType->getAttributes() : AttributeFlagSet{};
+    }
 
     std::vector<std::string> getColumns() const;
     void                     ser();
@@ -512,6 +670,8 @@ struct DataContext {
     DataTable<DataRow_skills>           skills;
     DataTable<DataRow_treasureclassex>  treasureclassex;
     DataTable<DataRow_uniqueitems>      uniqueitems;
+
+    DataRow_itemtypes setstypes; // special marker for full sets so they have own fake item type.
 
     std::map<JsonId, Mernel::PropertyTree> jsonFiles;
 

@@ -115,7 +115,7 @@ void MagicPropRawList::makePerfect()
     }
 }
 
-void MagicPropRawList::readFromRow(AffixPropList& propList, bool grab)
+void MagicPropRawList::readFromRow(const AffixPropList& propList, bool grab)
 {
     for (const auto& col : propList) {
         MagicProp mp;
@@ -220,8 +220,8 @@ void MagicPropUniverse::add(MagicPropRawList propList, const ItemCodeFilter& ite
     if (propList.parsedProps.empty())
         return;
 
-    const ItemCodeSet include = expand(itemTypes.include, true);
-    const ItemCodeSet exclude = expand(itemTypes.exclude, true);
+    const ItemTypeSet include = expand(itemTypes.include, true);
+    const ItemTypeSet exclude = expand(itemTypes.exclude, true);
 
     for (MagicProp& prop : propList.parsedProps) {
         const auto i = static_cast<uint32_t>(props.size());
@@ -345,16 +345,15 @@ MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
     return result;
 }
 
-ItemCodeSet MagicPropUniverse::expand(const ItemCodeSet& query, bool nested) const
+ItemTypeSet MagicPropUniverse::expand(const ItemTypeSet& query, bool nested) const
 {
-    ItemCodeSet codeSet = query;
-    for (std::string code : query) {
-        if (code.empty())
+    ItemTypeSet codeSet = query;
+    for (ItemType code : query) {
+        if (!code)
             continue;
-        if (code == "amu")
-            code = "amul";
-        const auto& typeInfo = itemTypeInfo.at(code.substr(0, 4));
-        appendToSet(codeSet, nested ? typeInfo.nested : typeInfo.parents);
+        //if (code == "amu")
+        //    code = "amul";
+        appendToSet(codeSet, nested ? code->nested : code->parents);
     }
     return codeSet;
 }
@@ -397,15 +396,15 @@ MagicPropIdxSet MagicPropUniverse::getIndexBySupportedAttributes(const Attribute
 MagicPropIdxSet MagicPropUniverse::getIndexByTypeFilter(const ItemCodeFilter& query) const
 {
     MagicPropIdxSet   result;
-    const ItemCodeSet include = expand(query.include, true);
-    const ItemCodeSet exclude = expand(query.exclude, true);
-    for (const std::string& type : include) {
+    const ItemTypeSet include = expand(query.include, true);
+    const ItemTypeSet exclude = expand(query.exclude, true);
+    for (const ItemType& type : include) {
         auto it = indexByIncludeType.find(type);
         if (it == indexByIncludeType.cend())
             continue;
         result += it->second;
     }
-    for (const std::string& type : exclude) {
+    for (const ItemType& type : exclude) {
         auto it = indexByExcludeType.find(type);
         if (it == indexByExcludeType.cend())
             continue;

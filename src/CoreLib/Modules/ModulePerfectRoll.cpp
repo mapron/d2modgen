@@ -106,15 +106,15 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
     {
         for (auto& row : output.magicprefix.rows) {
             makePerfectMin(row.affixes, input.getInt("affixes"));
-            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getSpawnableLevel());
+            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getLevel());
         }
         for (auto& row : output.magicsuffix.rows) {
             makePerfectMin(row.affixes, input.getInt("affixes"));
-            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getSpawnableLevel());
+            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getLevel());
         }
         for (auto& row : output.automagic.rows) {
             makePerfectMin(row.affixes, input.getInt("affixes"));
-            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getSpawnableLevel());
+            makeEmpower(row.affixes, input.getInt("affix_power_l1"), input.getInt("affix_power_l50"), row.getLevel());
         }
     }
     {
