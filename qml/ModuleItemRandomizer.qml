@@ -112,13 +112,6 @@ WidgetCommonTab {
     }
 
     WidgetCheckbox {
-        caption: qsTr("Prevent duplicate properties on items")
-        tooltip: ""
-        value_context: root.value_context
-        value_key: "noDuplicates"
-    }
-
-    WidgetCheckbox {
         caption: qsTr("Randomize magix/rare affixes")
         tooltip: qsTr("This will modify rare and magic suffixes - <br>so they can include properties of any other item in the game. <br>Note that their properties are read even without this option.")
         value_context: root.value_context

@@ -53,7 +53,6 @@ ModuleItemRandomizer::ModuleItemRandomizer()
           { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
           { "itemFitPercent", Mernel::PropertyTreeScalar{ 70 } },
           { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 70 } },
-          { "noDuplicates", Mernel::PropertyTreeScalar{ true } },
           { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
           { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
           { "removeKnock", Mernel::PropertyTreeScalar{ true } },
@@ -206,14 +205,13 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
 
-    const int  unbalance               = input.getInt("crazyLevel");
-    const int  itemFitPercent          = input.getInt("itemFitPercent");
-    const int  keepOriginalPercent     = input.getInt("keepOriginalPercent");
-    const int  relativeGeneralCountMin = input.getInt("relativeCountMin");
-    const int  relativeGeneralCountMax = input.getInt("relativeCountMax");
-    const int  relativeSetCountMin     = input.getInt("setRelativeCountMin");
-    const int  relativeSetCountMax     = input.getInt("setRelativeCountMax");
-    const bool noDuplicates            = input.getInt("noDuplicates");
+    const int unbalance               = input.getInt("crazyLevel");
+    const int itemFitPercent          = input.getInt("itemFitPercent");
+    const int keepOriginalPercent     = input.getInt("keepOriginalPercent");
+    const int relativeGeneralCountMin = input.getInt("relativeCountMin");
+    const int relativeGeneralCountMax = input.getInt("relativeCountMax");
+    const int relativeSetCountMin     = input.getInt("setRelativeCountMin");
+    const int relativeSetCountMax     = input.getInt("setRelativeCountMax");
 
     auto calcNewCount = [&rng,
                          relativeGeneralCountMin,
@@ -255,11 +253,10 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                       &rng,
                       &calcNewCount,
                       itemFitPercent,
-                      unbalance,
-                      noDuplicates]<typename Row>(DataTable<Row>& table,
-                                                  const bool      skipEmptyList,
-                                                  const bool      supportMinMax,
-                                                  const bool      isSet = false) {
+                      unbalance]<typename Row>(DataTable<Row>& table,
+                                               const bool      skipEmptyList,
+                                               const bool      supportMinMax,
+                                               const bool      isSet = false) {
         for (auto& row : table.rows) {
             if (!row.isValid())
                 continue;
@@ -301,8 +298,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                                                itemFitPercent,
                                                genCount,
                                                level,
-                                               unbalance == s_maxUnbalanceLevel ? -1 : unbalance,
-                                               noDuplicates);
+                                               unbalance == s_maxUnbalanceLevel ? -1 : unbalance);
 
                 rawList.append(std::move(newProps));
                 if (rawList.getTotalSize() > affixList->getLimit())

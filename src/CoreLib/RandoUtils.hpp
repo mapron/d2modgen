@@ -151,8 +151,7 @@ struct MagicPropUniverse {
                            int                     specificItemUsage,
                            int                     count,
                            int                     level,
-                           int                     unbalance,
-                           bool                    noDuplicateCode) const;
+                           int                     unbalance) const;
 
     ItemTypeSet expand(const ItemTypeSet& query, bool nested) const;
 

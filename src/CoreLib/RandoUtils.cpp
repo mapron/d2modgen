@@ -263,8 +263,7 @@ MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
                                           int                     specificItemUsage,
                                           int                     count,
                                           int                     level,
-                                          int                     unbalance,
-                                          bool                    noDuplicateCode) const
+                                          int                     unbalance) const
 {
     if (count <= 0)
         return {};
@@ -319,14 +318,13 @@ MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
     const int              generalCount = count - typefitCount;
     MagicPropIdxSet        totalIndices;
     UniqueAttributeChecker attrCheck;
-    if (noDuplicateCode)
-        attrCheck.add(existingCodes);
+    attrCheck.add(existingCodes);
 
-    auto tryAdd = [&attrCheck, &totalIndices, &rng, noDuplicateCode, this](const std::vector<uint32_t>& indices, bool force) -> bool {
+    auto tryAdd = [&attrCheck, &totalIndices, &rng, this](const std::vector<uint32_t>& indices, bool force) -> bool {
         const uint32_t indexOfIndex = rng(static_cast<int>(indices.size()));
         const uint32_t index        = indices[indexOfIndex];
         const auto&    code         = props[index].code;
-        if (noDuplicateCode && attrCheck.contains(code))
+        if (attrCheck.contains(code))
             return false;
         attrCheck.add(code);
         totalIndices << index;
