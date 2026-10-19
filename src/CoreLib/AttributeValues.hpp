@@ -103,4 +103,8 @@ std::string printMap(const ApproximationResultsSimpleMap& data);
 int smartRound(int value, int rounding);
 int smartRoundDetect(int value);
 
+const NonPropAttributeRecordList&    globalNonPropAttributes();
+const PropAttributeRecordList&       globalPropAttributes();
+const ApproximationResultsSimpleMap& globalSlotScale();
+
 }

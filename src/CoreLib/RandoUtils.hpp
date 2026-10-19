@@ -49,6 +49,18 @@ struct MagicPropRawList {
     void fill(UniqueAttributeChecker& checker) const;
 };
 
+struct MagicContext {
+    NonPropAttributeRecordList    generatedNonPropAttributes;
+    PropAttributeRecordList       generatedPropAttributes;
+    ApproximationResultsSimpleMap generatedSlotScale;
+
+    std::set<AttributeId> existingGameAttributes;
+    std::set<AttributeId> configAttributes;
+
+    void calculateConfigAttributes();
+    void eraseNonGame();
+};
+
 struct MagicPropUniverse {
     struct PropGenerator {
         int frequencyCumulative = 0;
@@ -67,8 +79,9 @@ struct MagicPropUniverse {
         std::set<AttributeId>      allIds;
 
         PropGeneratorContainer() = default;
-        explicit PropGeneratorContainer(const PropAttributeRecordList& extra, const CodePowerMap& powerMap, SlotType slotType, size_t levelBracket20);
+        explicit PropGeneratorContainer(const MagicContext& magicContext, const CodePowerMap& powerMap, SlotType slotType, size_t levelBracket20);
         const PropGenerator* getRandomAttributeGenerator(RandomGenerator& rng) const;
+        const PropGenerator* findAttributeGenerator(AttributeId id) const;
     };
 
     struct CommonGen {
@@ -76,11 +89,11 @@ struct MagicPropUniverse {
         std::map<SlotType, PropGeneratorContainer> bySlot;
 
         CommonGen() = default;
-        explicit CommonGen(const PropAttributeRecordList& extra, size_t levelBracket20);
+        explicit CommonGen(const MagicContext& magicContext, size_t levelBracket20);
     };
     std::map<size_t, CommonGen> levelGen;
 
-    MagicPropUniverse(const PropAttributeRecordList& extra);
+    MagicPropUniverse(const MagicContext& magicContext);
 
     MagicPropList generate(RandomGenerator&        rng,
                            UniqueAttributeChecker& existingCodes,
@@ -91,7 +104,10 @@ struct MagicPropUniverse {
                            int                     count,
                            size_t                  levelBracket20) const;
 
-    bool isHandled(AttributeId id) const;
+    void update(MagicPropRawList& propList,
+                RandomGenerator&  rng,
+                SlotType          specificTypeQuery,
+                size_t            levelBracket20) const;
 };
 
 }

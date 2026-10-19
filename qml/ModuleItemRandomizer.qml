@@ -154,4 +154,11 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "removeKnock"
     }
+
+    WidgetCheckbox {
+        caption: qsTr("Update existing properties")
+        tooltip: qsTr("Properties that are selected to remain will be updated with new value range.")
+        value_context: root.value_context
+        value_key: "updateRange"
+    }
 }

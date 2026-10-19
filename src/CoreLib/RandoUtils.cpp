@@ -5,8 +5,7 @@
  */
 #include "RandoUtils.hpp"
 
-#include "AttributeValuesGen.hpp"
-#include "AttributeValuesFixed.hpp"
+#include "AttributeValues.hpp"
 
 #include "Logger.hpp"
 
@@ -78,6 +77,12 @@ void MagicPropRawList::readFromRow(const AffixPropList& propList)
         if (mp.id == AttributeId::SKIP)
             continue;
         if (mp.id == AttributeId::INVALID) {
+            keptProps.push_back(col);
+            continue;
+        }
+
+        const auto& desc = getAttributeDesc(mp.id);
+        if (desc.flags.contains(AttributeFlag::Keep)) {
             keptProps.push_back(col);
             continue;
         }
@@ -159,10 +164,10 @@ void MagicPropRawList::fill(UniqueAttributeChecker& checker) const
         checker.add(prop.id, prop.par);
 }
 
-MagicPropUniverse::MagicPropUniverse(const PropAttributeRecordList& extra)
+MagicPropUniverse::MagicPropUniverse(const MagicContext& magicContext)
 {
     for (size_t i = 0; i < 5; ++i)
-        levelGen[i] = CommonGen(extra, i);
+        levelGen[i] = CommonGen(magicContext, i);
 }
 
 MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
@@ -235,19 +240,29 @@ MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
             tryAddWrap(commonGen.bySlot.at(specificTypeQuery), typefitCount, 5);
     }
 
-    auto cur = result.size();
     tryAddWrap(commonGen.general, count - result.size(), 5);
-    //Logger() << "gen " << cur << " - " << result.size();
 
     return result;
 }
 
-bool MagicPropUniverse::isHandled(AttributeId id) const
+void MagicPropUniverse::update(MagicPropRawList& propList, RandomGenerator& rng, SlotType specificTypeQuery, size_t levelBracket20) const
 {
-    for (const auto& [_, gen] : levelGen)
-        if (gen.general.allIds.contains(id))
-            return true;
-    return false;
+    const CommonGen& commonGen = levelGen.at(levelBracket20);
+
+    const bool noTypeSlot = specificTypeQuery == SlotType::Undefined;
+
+    for (auto& prop : propList.parsedProps) {
+        const MagicPropUniverse::PropGenerator* gen = nullptr;
+        if (!noTypeSlot) {
+            if (commonGen.bySlot.contains(specificTypeQuery))
+                gen = commonGen.bySlot.at(specificTypeQuery).findAttributeGenerator(prop.id);
+        }
+        if (!gen)
+            gen = commonGen.general.findAttributeGenerator(prop.id);
+        if (!gen)
+            continue;
+        prop = gen->generate(rng);
+    }
 }
 
 Character MagicProp::determineClass(bool checkOskill) const
@@ -325,9 +340,10 @@ MagicProp MagicPropUniverse::PropGenerator::generate(RandomGenerator& rng) const
     }
     return result;
 }
-MagicPropUniverse::PropGeneratorContainer::PropGeneratorContainer(const PropAttributeRecordList& extra, const CodePowerMap& powerMap, SlotType slotType, size_t levelBracket20)
+
+MagicPropUniverse::PropGeneratorContainer::PropGeneratorContainer(const MagicContext& magicContext, const CodePowerMap& powerMap, SlotType slotType, size_t levelBracket20)
 {
-    for (const NonPropAttributeRecord& rec : g_generatedNonPropAttributes) {
+    for (const NonPropAttributeRecord& rec : magicContext.generatedNonPropAttributes) {
         if (!rec.goodValues.results[levelBracket20].avg)
             continue;
 
@@ -350,30 +366,40 @@ MagicPropUniverse::PropGeneratorContainer::PropGeneratorContainer(const PropAttr
         }
     }
 
-    for (const PropAttributeRecordList* list : { &extra, &g_generatedPropAttributes }) {
-        for (const PropAttributeRecord& rec : *list) {
-            PropGenerator gen;
-            gen.id       = rec.code;
-            auto& filter = gen.fixedLevelAffixes;
+    for (const PropAttributeRecord& rec : magicContext.generatedPropAttributes) {
+        PropGenerator gen;
+        gen.id       = rec.code;
+        auto& filter = gen.fixedLevelAffixes;
 
-            for (const auto& [slot, slotValues] : rec.slotValues) {
-                if (slotType != SlotType::Undefined && slotType != slot)
-                    continue;
-                for (const auto& propValue : slotValues) {
-                    const size_t bracket = std::min(4, propValue.level / 20);
-                    if (bracket == levelBracket20) {
-                        filter.push_back(propValue);
-                    }
+        for (const auto& [slot, slotValues] : rec.slotValues) {
+            if (slotType != SlotType::Undefined && slotType != slot)
+                continue;
+            for (const auto& propValue : slotValues) {
+                const size_t bracket = std::min(4, propValue.level / 20);
+                if (bracket == levelBracket20) {
+                    filter.push_back(propValue);
                 }
             }
-            if (!filter.empty()) {
-                frequency += filter.size() * rec.freqPercent / 100;
-                gen.frequencyCumulative = frequency;
-                gens.push_back(gen);
-                allIds.insert(rec.code);
-            }
+        }
+        if (!filter.empty()) {
+            frequency += filter.size() * rec.freqPercent / 100;
+            gen.frequencyCumulative = frequency;
+            gens.push_back(gen);
+            allIds.insert(rec.code);
         }
     }
+}
+
+const MagicPropUniverse::PropGenerator* MagicPropUniverse::PropGeneratorContainer::findAttributeGenerator(AttributeId id) const
+{
+    auto it = std::find_if(gens.begin(), gens.end(), [id](const PropGenerator& entry) {
+        return entry.id == id;
+    });
+
+    if (it != gens.end()) {
+        return &*it;
+    }
+    return nullptr;
 }
 
 const MagicPropUniverse::PropGenerator* MagicPropUniverse::PropGeneratorContainer::getRandomAttributeGenerator(RandomGenerator& rng) const
@@ -391,12 +417,32 @@ const MagicPropUniverse::PropGenerator* MagicPropUniverse::PropGeneratorContaine
     return nullptr;
 }
 
-MagicPropUniverse::CommonGen::CommonGen(const PropAttributeRecordList& extra, size_t levelBracket20)
+MagicPropUniverse::CommonGen::CommonGen(const MagicContext& magicContext, size_t levelBracket20)
 {
-    for (const auto& [slot, power] : g_generatedSlotScale) {
-        bySlot[slot] = PropGeneratorContainer(extra, power, slot, levelBracket20);
+    for (const auto& [slot, power] : magicContext.generatedSlotScale) {
+        bySlot[slot] = PropGeneratorContainer(magicContext, power, slot, levelBracket20);
     }
-    general = PropGeneratorContainer(extra, CodePowerMap{}, SlotType::Undefined, levelBracket20);
+    general = PropGeneratorContainer(magicContext, CodePowerMap{}, SlotType::Undefined, levelBracket20);
+}
+
+void MagicContext::calculateConfigAttributes()
+{
+    for (const auto& rec : generatedNonPropAttributes) {
+        configAttributes.insert(rec.code);
+    }
+    for (const auto& rec : generatedPropAttributes) {
+        configAttributes.insert(rec.code);
+    }
+}
+
+void MagicContext::eraseNonGame()
+{
+    std::erase_if(generatedNonPropAttributes, [this](const NonPropAttributeRecord& rec) {
+        return !existingGameAttributes.contains(rec.code);
+    });
+    std::erase_if(generatedPropAttributes, [this](const PropAttributeRecord& rec) {
+        return !existingGameAttributes.contains(rec.code);
+    });
 }
 
 }

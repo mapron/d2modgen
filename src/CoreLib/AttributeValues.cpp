@@ -24,7 +24,7 @@ void replaceAll(std::string& str, const std::string& from, const std::string& to
 std::string printEnum(AttributeId code)
 {
     auto str = idToString(code);
-    replaceAll(str, "/lvl", "_perlvl");
+    replaceAll(str, "/", "_per");
     replaceAll(str, "%", "_percent");
     replaceAll(str, "-", "_");
     return "AttributeId::" + str;

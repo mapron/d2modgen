@@ -149,6 +149,41 @@ const std::vector<AttributeDesc> s_attributes{
     AttributeDesc{ AttributeId::dmg_pois, { AF::Damage } }, // Adds #-# Poison Damage Over # Seconds
     AttributeDesc{ AttributeId::dmg_norm, { AF::Damage } }, // Adds #-# Damage
 
+    AttributeDesc{ AttributeId::rep_dur, { AF::Durability, AF::SinglePar } },           // Repairs 1 durability in # seconds
+    AttributeDesc{ AttributeId::rep_quant, { AF::Quantity, AF::SinglePar } },           // Replenishes quantity
+    AttributeDesc{ AttributeId::stack, { AF::Quantity } },                              // Increased Stack Size
+    AttributeDesc{ AttributeId::pierce_fire }.setRange(1, 255),                         // -#% to Enemy Fire Resistance
+    AttributeDesc{ AttributeId::pierce_ltng }.setRange(1, 255),                         // -#% to Enemy Lightning Resistance
+    AttributeDesc{ AttributeId::pierce_cold }.setRange(1, 255),                         // -#% to Enemy Cold Resistance
+    AttributeDesc{ AttributeId::pierce_pois }.setRange(1, 255),                         // -#% to Enemy Poison Resistance
+    AttributeDesc{ AttributeId::indestruct, { AF::Durability } }.setRange(1, 1),        // Indestructible
+    AttributeDesc{ AttributeId::charged, { AF::SkillPar } },                            // Level # [Skill] (#/# Charges)  par: [SKill], min:-ChargesCount, max: -Level
+    AttributeDesc{ AttributeId::extra_fire }.setRange(-50, 461),                        // +#% to Fire Skill Damage
+    AttributeDesc{ AttributeId::extra_ltng }.setRange(-50, 461),                        // +#% to Lightning Skill Damage
+    AttributeDesc{ AttributeId::extra_cold }.setRange(-50, 461),                        // +#% to Cold Skill Damage
+    AttributeDesc{ AttributeId::extra_pois }.setRange(-50, 461),                        // +#% to Poison Skill Damage
+    AttributeDesc{ AttributeId::dmg_elem, { AF::Damage } },                             // Adds #-# Fire_perLightning_perCold Damage
+    AttributeDesc{ AttributeId::dmg_elem_min, { AF::Damage } },                         // +# to Minimum Fire_perLightning_perCold Damage
+    AttributeDesc{ AttributeId::dmg_elem_max, { AF::Damage } },                         // +# to Maximum Fire_perLightning_perCold Damage
+    AttributeDesc{ AttributeId::all_stats, { AF::Stats } }.setRange(-32, 95),           // +# to all Attributes
+    AttributeDesc{ AttributeId::addxp, { AF::OP } }.setRange(-50, 461),                 // +#% to Experience Gained
+    AttributeDesc{ AttributeId::heal_kill },                                            // +# Life after each Kill
+    AttributeDesc{ AttributeId::cheap }.setRange(1, 127),                               // Reduces all Vendor Prices #%
+    AttributeDesc{ AttributeId::rip },                                                  // Slain Monsters Rest in Peace
+    AttributeDesc{ AttributeId::att_mon_percent, { AF::Attack } },                      // #% to Attack Rating versus [Monster Type]
+    AttributeDesc{ AttributeId::dmg_mon_percent, { AF::Damage } },                      // #% to Damage versus [Monster Type]
+    AttributeDesc{ AttributeId::kill_skill },                                           // #% Chance to cast level # [Skill] when you Kill an Enemy
+    AttributeDesc{ AttributeId::death_skill },                                          // #% Chance to cast level # [Skill] when you Die
+    AttributeDesc{ AttributeId::levelup_skill },                                        // #% Chance to cast level # [Skill] when you Level_Up
+    AttributeDesc{ AttributeId::skill_rand, { AF::Skills } },                           // +# to [Skill] ([Class] only)
+    AttributeDesc{ AttributeId::fade, { AF::Keep } },                                   // Visuals Only
+    AttributeDesc{ AttributeId::levelreq },                                             // Required Level: #
+    AttributeDesc{ AttributeId::ethereal, { AF::Durability } },                         // Ethereal
+    AttributeDesc{ AttributeId::oskill, { AF::Skills, AF::SkillPar } }.setRange(1, 63), // +# to [Skill]   par: [SKill], min:MinLevel, max: MaxLevel
+    AttributeDesc{ AttributeId::state, { AF::Keep } },                                  // Applies a State on the unit
+    AttributeDesc{ AttributeId::randclassskill, { AF::Skills, AF::NoRange } },          // +# to [Class] Skill Levels
+
+    /// perlevel
     AttributeDesc{ AttributeId::ac_perlvl, { AF::PerLevel, AF::Defense } }.setRange(1, 63),               // +# Defense (Based on Character Level)
     AttributeDesc{ AttributeId::ac_percent_perlvl, { AF::PerLevel, AF::Defense } }.setRange(1, 63),       // +#% Enhanced Defense (Based on Character Level)
     AttributeDesc{ AttributeId::hp_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                 // +# to Life (Based on Character Level)
@@ -187,40 +222,7 @@ const std::vector<AttributeDesc> s_attributes{
     AttributeDesc{ AttributeId::kick_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),              // +# Kick Damage (Based on Character Level)
     AttributeDesc{ AttributeId::deadly_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),            // #% Deadly Strike (Based on Character Level)
 
-    AttributeDesc{ AttributeId::rep_dur, { AF::Durability, AF::SinglePar } },           // Repairs 1 durability in # seconds
-    AttributeDesc{ AttributeId::rep_quant, { AF::Quantity, AF::SinglePar } },           // Replenishes quantity
-    AttributeDesc{ AttributeId::stack, { AF::Quantity } },                              // Increased Stack Size
-    AttributeDesc{ AttributeId::pierce_fire }.setRange(1, 255),                         // -#% to Enemy Fire Resistance
-    AttributeDesc{ AttributeId::pierce_ltng }.setRange(1, 255),                         // -#% to Enemy Lightning Resistance
-    AttributeDesc{ AttributeId::pierce_cold }.setRange(1, 255),                         // -#% to Enemy Cold Resistance
-    AttributeDesc{ AttributeId::pierce_pois }.setRange(1, 255),                         // -#% to Enemy Poison Resistance
-    AttributeDesc{ AttributeId::indestruct, { AF::Durability } }.setRange(1, 1),        // Indestructible
-    AttributeDesc{ AttributeId::charged, { AF::SkillPar } },                            // Level # [Skill] (#/# Charges)  par: [SKill], min:-ChargesCount, max: -Level
-    AttributeDesc{ AttributeId::extra_fire }.setRange(-50, 461),                        // +#% to Fire Skill Damage
-    AttributeDesc{ AttributeId::extra_ltng }.setRange(-50, 461),                        // +#% to Lightning Skill Damage
-    AttributeDesc{ AttributeId::extra_cold }.setRange(-50, 461),                        // +#% to Cold Skill Damage
-    AttributeDesc{ AttributeId::extra_pois }.setRange(-50, 461),                        // +#% to Poison Skill Damage
-    AttributeDesc{ AttributeId::dmg_elem, { AF::Damage } },                             // Adds #-# Fire_perLightning_perCold Damage
-    AttributeDesc{ AttributeId::dmg_elem_min, { AF::Damage } },                         // +# to Minimum Fire_perLightning_perCold Damage
-    AttributeDesc{ AttributeId::dmg_elem_max, { AF::Damage } },                         // +# to Maximum Fire_perLightning_perCold Damage
-    AttributeDesc{ AttributeId::all_stats, { AF::Stats } }.setRange(-32, 95),           // +# to all Attributes
-    AttributeDesc{ AttributeId::addxp, { AF::OP } }.setRange(-50, 461),                 // +#% to Experience Gained
-    AttributeDesc{ AttributeId::heal_kill },                                            // +# Life after each Kill
-    AttributeDesc{ AttributeId::cheap }.setRange(1, 127),                               // Reduces all Vendor Prices #%
-    AttributeDesc{ AttributeId::rip },                                                  // Slain Monsters Rest in Peace
-    AttributeDesc{ AttributeId::att_mon_percent, { AF::Attack } },                      // #% to Attack Rating versus [Monster Type]
-    AttributeDesc{ AttributeId::dmg_mon_percent, { AF::Damage } },                      // #% to Damage versus [Monster Type]
-    AttributeDesc{ AttributeId::kill_skill },                                           // #% Chance to cast level # [Skill] when you Kill an Enemy
-    AttributeDesc{ AttributeId::death_skill },                                          // #% Chance to cast level # [Skill] when you Die
-    AttributeDesc{ AttributeId::levelup_skill },                                        // #% Chance to cast level # [Skill] when you Level_Up
-    AttributeDesc{ AttributeId::skill_rand, { AF::Skills } },                           // +# to [Skill] ([Class] only)
-    AttributeDesc{ AttributeId::fade },                                                 // Visuals Only
-    AttributeDesc{ AttributeId::levelreq },                                             // Required Level: #
-    AttributeDesc{ AttributeId::ethereal, { AF::Durability } },                         // Ethereal
-    AttributeDesc{ AttributeId::oskill, { AF::Skills, AF::SkillPar } }.setRange(1, 63), // +# to [Skill]   par: [SKill], min:MinLevel, max: MaxLevel
-    AttributeDesc{ AttributeId::state },                                                // Applies a State on the unit
-    AttributeDesc{ AttributeId::randclassskill, { AF::Skills, AF::NoRange } },          // +# to [Class] Skill Levels
-
+    // PD2 maps
     AttributeDesc{ AttributeId::map_glob_monsterrarity, { AF::PD2Map } },
     AttributeDesc{ AttributeId::map_mon_extra_fire, { AF::PD2Map } },
     AttributeDesc{ AttributeId::map_glob_density, { AF::PD2Map } },
@@ -268,7 +270,28 @@ const std::vector<AttributeDesc> s_attributes{
     AttributeDesc{ AttributeId::map_play_res_all, { AF::PD2Map } },
     AttributeDesc{ AttributeId::map_play_ac_percent, { AF::PD2Map } },
     AttributeDesc{ AttributeId::map_play_block, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_add_mon_shriek, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_boss_dropcorruptedunique, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_boss_dropfacet, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_boss_droppuzzlebox, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_boss_dropskillers, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_boss_dropubermats, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_bossdropstreasure, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_dropbonus, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_dropcorrupted, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_dropethereal, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_dropsocketed, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_glob_extra_boss, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_mon_cannotbefrozen, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_mon_deadlystrike, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_mon_droparmor, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_mon_dropcharms, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_mon_dropcrafting, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_mon_dropjewels, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_mon_dropweapons, { AF::PD2Map } },
+    AttributeDesc{ AttributeId::map_play_speed_all, { AF::PD2Map } },
 
+    // PD2
     AttributeDesc{ AttributeId::inc_splash_radius },
     AttributeDesc{ AttributeId::leapspeed },
     AttributeDesc{ AttributeId::blood_warp_life_reduction },
@@ -300,22 +323,51 @@ const std::vector<AttributeDesc> s_attributes{
     AttributeDesc{ AttributeId::infinityspeed },
     AttributeDesc{ AttributeId::extra_golem },
     AttributeDesc{ AttributeId::mana_steal },
+    AttributeDesc{ AttributeId::block_skill },
+    AttributeDesc{ AttributeId::cast_skill },
+    AttributeDesc{ AttributeId::crit_strike_chance },
+    AttributeDesc{ AttributeId::crit_strike_multiplier },
+    AttributeDesc{ AttributeId::crush_efficiency },
+    AttributeDesc{ AttributeId::curse_effectiveness },
+    AttributeDesc{ AttributeId::deadly_strike_multiplier },
+    AttributeDesc{ AttributeId::deep_wounds },
+    AttributeDesc{ AttributeId::dmg_percent_pereth },
+    AttributeDesc{ AttributeId::eaglehorn_raven },
+    AttributeDesc{ AttributeId::equipped_skill },
+    AttributeDesc{ AttributeId::es_efficiency },
+    AttributeDesc{ AttributeId::es_efficiency_and_es_when_equip },
+    AttributeDesc{ AttributeId::extra_cold_arrows },
+    AttributeDesc{ AttributeId::extra_grizzly },
+    AttributeDesc{ AttributeId::extra_shadow },
+    AttributeDesc{ AttributeId::extra_skele_archer },
+    AttributeDesc{ AttributeId::extra_spiritwolf },
+    AttributeDesc{ AttributeId::joust_reduction_leorics },
+    AttributeDesc{ AttributeId::joust_reduction_zeraes },
+    AttributeDesc{ AttributeId::lifesteal_cap },
+    AttributeDesc{ AttributeId::max_deadly },
+    AttributeDesc{ AttributeId::mindmg_perenergy },
+    AttributeDesc{ AttributeId::no_wolves },
+    AttributeDesc{ AttributeId::sorc_skill_rand_ctc },
+    AttributeDesc{ AttributeId::splash, { AF::Keep } },
+    AttributeDesc{ AttributeId::splash_percent_permissinghp_percent },
+    AttributeDesc{ AttributeId::str_and_vit },
 
+    // D2R:
     AttributeDesc{ AttributeId::pierce_immunity_cold },
     AttributeDesc{ AttributeId::pierce_immunity_fire },
     AttributeDesc{ AttributeId::pierce_immunity_light },
     AttributeDesc{ AttributeId::pierce_immunity_poison },
     AttributeDesc{ AttributeId::pierce_immunity_damage },
     AttributeDesc{ AttributeId::pierce_immunity_magic },
-    AttributeDesc{ AttributeId::charge_noconsume },
+    AttributeDesc{ AttributeId::charge_noconsume, { AF::Keep } },
 
-    // RotW:
-    AttributeDesc{ AttributeId::pierce_mag }.setRange(1, 255),                                   // -#% to Enemy Magic Resistance
-    AttributeDesc{ AttributeId::extra_mag }.setRange(-50, 461),                                  // +#% to Magic Skill Damage
-    AttributeDesc{ AttributeId::war, { AF::Skills } }.setRange(1, 7).setClass(CH::war),          // +# to Warlock Skill Levels
-    AttributeDesc{ AttributeId::skilltab_war, { AF::Skills } }.setRange(1, 7).setClass(CH::war), // +# to Warlock Skill random tab Levels
-    AttributeDesc{ AttributeId::magdam_rand }.setRange(1, 1),                                    // Random magic damage
-    AttributeDesc{ AttributeId::roguesbow_affix1 }.setRange(1, 1).setClass(CH::ama),             // +3 to Cold or Fire arrow
+    // D2R RotW:
+    AttributeDesc{ AttributeId::pierce_mag }.setRange(1, 255),                                     // -#% to Enemy Magic Resistance
+    AttributeDesc{ AttributeId::extra_mag }.setRange(-50, 461),                                    // +#% to Magic Skill Damage
+    AttributeDesc{ AttributeId::war, { AF::Skills } }.setRange(1, 7).setClass(CH::war),            // +# to Warlock Skill Levels
+    AttributeDesc{ AttributeId::skilltab_war, { AF::Skills } }.setRange(1, 7).setClass(CH::war),   // +# to Warlock Skill random tab Levels
+    AttributeDesc{ AttributeId::magdam_rand }.setRange(1, 1),                                      // Random magic damage
+    AttributeDesc{ AttributeId::roguesbow_affix1, { AF::Keep } }.setRange(1, 1).setClass(CH::ama), // +3 to Cold or Fire arrow
 
 };
 
@@ -446,44 +498,6 @@ const std::string_view s_attrCodes[]{
     "dmg-cold",
     "dmg-pois",
     "dmg-norm",
-    "ac/lvl",
-    "ac%/lvl",
-    "hp/lvl",
-    "mana/lvl",
-    "dmg/lvl",
-    "dmg%/lvl",
-    "str/lvl",
-    "dex/lvl",
-    "enr/lvl",
-    "vit/lvl",
-    "att/lvl",
-    "att%/lvl",
-    "dmg-cold/lvl",
-    "dmg-fire/lvl",
-    "dmg-ltng/lvl",
-    "dmg-pois/lvl",
-    "res-cold/lvl",
-    "res-fire/lvl",
-    "res-ltng/lvl",
-    "res-pois/lvl",
-    "abs-cold/lvl",
-    "abs-fire/lvl",
-    "abs-ltng/lvl",
-    "abs-pois/lvl",
-    "thorns/lvl",
-
-    "gold%/lvl",
-    "mag%/lvl",
-    "regen-stam/lvl",
-    "stam/lvl",
-    "dmg-dem/lvl",
-    "dmg-und/lvl",
-    "att-dem/lvl",
-    "att-und/lvl",
-    "crush/lvl",
-    "wounds/lvl",
-    "kick/lvl",
-    "deadly/lvl",
     "rep-dur",
     "rep-quant",
     "stack",
@@ -517,6 +531,47 @@ const std::string_view s_attrCodes[]{
     "oskill",
     "state",
     "randclassskill",
+
+    /// perlevel
+    "ac/lvl",
+    "ac%/lvl",
+    "hp/lvl",
+    "mana/lvl",
+    "dmg/lvl",
+    "dmg%/lvl",
+    "str/lvl",
+    "dex/lvl",
+    "enr/lvl",
+    "vit/lvl",
+    "att/lvl",
+    "att%/lvl",
+    "dmg-cold/lvl",
+    "dmg-fire/lvl",
+    "dmg-ltng/lvl",
+    "dmg-pois/lvl",
+    "res-cold/lvl",
+    "res-fire/lvl",
+    "res-ltng/lvl",
+    "res-pois/lvl",
+    "abs-cold/lvl",
+    "abs-fire/lvl",
+    "abs-ltng/lvl",
+    "abs-pois/lvl",
+    "thorns/lvl",
+    "gold%/lvl",
+    "mag%/lvl",
+    "regen-stam/lvl",
+    "stam/lvl",
+    "dmg-dem/lvl",
+    "dmg-und/lvl",
+    "att-dem/lvl",
+    "att-und/lvl",
+    "crush/lvl",
+    "wounds/lvl",
+    "kick/lvl",
+    "deadly/lvl",
+
+    /// PD2 Maps
     "map-glob-monsterrarity",
     "map-mon-extra-fire",
     "map-glob-density",
@@ -564,6 +619,28 @@ const std::string_view s_attrCodes[]{
     "map-play-res-all",
     "map-play-ac%",
     "map-play-block",
+    "map-glob-add-mon-shriek",
+    "map-glob-boss-dropcorruptedunique",
+    "map-glob-boss-dropfacet",
+    "map-glob-boss-droppuzzlebox",
+    "map-glob-boss-dropskillers",
+    "map-glob-boss-dropubermats",
+    "map-glob-bossdropstreasure",
+    "map-glob-dropbonus",
+    "map-glob-dropcorrupted",
+    "map-glob-dropethereal",
+    "map-glob-dropsocketed",
+    "map-glob-extra-boss",
+    "map-mon-cannotbefrozen",
+    "map-mon-deadlystrike",
+    "map-mon-droparmor",
+    "map-mon-dropcharms",
+    "map-mon-dropcrafting",
+    "map-mon-dropjewels",
+    "map-mon-dropweapons",
+    "map-play-speed-all",
+
+    /// PD2
     "inc-splash-radius",
     "leapspeed",
     "blood-warp-life-reduction",
@@ -595,6 +672,36 @@ const std::string_view s_attrCodes[]{
     "infinityspeed",
     "extra-golem",
     "mana-steal",
+    "block-skill",
+    "cast-skill",
+    "crit-strike-chance",
+    "crit-strike-multiplier",
+    "crush-efficiency",
+    "curse-effectiveness",
+    "deadly-strike-multiplier",
+    "deep-wounds",
+    "dmg%/eth",
+    "eaglehorn-raven",
+    "equipped-skill",
+    "es-efficiency",
+    "es-efficiency-and-es-when-equip",
+    "extra-cold-arrows",
+    "extra-grizzly",
+    "extra-shadow",
+    "extra-skele-archer",
+    "extra-spiritwolf",
+    "joust-reduction-leorics",
+    "joust-reduction-zeraes",
+    "lifesteal-cap",
+    "max-deadly",
+    "mindmg/energy",
+    "no-wolves",
+    "sorc-skill-rand-ctc",
+    "splash",
+    "splash%/missinghp%",
+    "str-and-vit",
+
+    /// D2R
     "pierce-immunity-cold",
     "pierce-immunity-fire",
     "pierce-immunity-light",
@@ -602,12 +709,15 @@ const std::string_view s_attrCodes[]{
     "pierce-immunity-damage",
     "pierce-immunity-magic",
     "charge-noconsume",
+
+    /// D2R - ROTW
     "pierce-mag",
     "extra-mag",
     "war",
     "skilltab-war",
     "magdam-rand",
     "roguesbow-affix1",
+
 };
 
 const std::unordered_map<std::string_view, AttributeId> s_attributesIndex = [] {

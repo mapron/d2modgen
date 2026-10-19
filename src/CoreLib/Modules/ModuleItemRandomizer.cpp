@@ -31,6 +31,7 @@ ModuleItemRandomizer::ModuleItemRandomizer()
           { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
           { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
           { "removeKnock", Mernel::PropertyTreeScalar{ true } },
+          { "updateRange", Mernel::PropertyTreeScalar{ true } },
           { "repeat_sets", Mernel::PropertyTreeScalar{ 5 } },
           { "repeat_uniques", Mernel::PropertyTreeScalar{ 10 } },
           { "replaceCharges", Mernel::PropertyTreeScalar{ false } },
@@ -82,12 +83,18 @@ ModuleItemRandomizer::ModuleItemRandomizer()
 
 void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
+    MagicContext context;
+    context.generatedNonPropAttributes = globalNonPropAttributes();
+    context.generatedPropAttributes    = globalPropAttributes();
+    context.generatedSlotScale         = globalSlotScale();
+
     std::vector<std::string> setItemsKeys;
     std::vector<std::string> allItemsKeys;
 
     const bool replaceSkills  = input.getInt("replaceSkills");
     const bool replaceCharges = input.getInt("replaceCharges");
     const bool removeKnock    = input.getInt("removeKnock");
+    const bool updateRange    = input.getInt("updateRange");
 
     const int repeatUniques = input.getInt("repeat_uniques");
     const int repeatSets    = input.m_env.isLegacy ? 0 : input.getInt("repeat_sets");
@@ -101,7 +108,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     std::set<std::string> skippedAttributes;
     std::set<std::string> unknownAttributes;
 
-    auto grabProps = [&skippedAttributes, &unknownAttributes, &allProps]<typename Row>(const DataTable<Row>& table) {
+    auto grabProps = [&skippedAttributes, &unknownAttributes, &context, &allProps]<typename Row>(const DataTable<Row>& table) {
         for (auto& row : table.rows) {
             if (!row.isValid())
                 continue;
@@ -120,6 +127,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                     } else if (id == AttributeId::SKIP) {
                         skippedAttributes.insert(prop.code);
                     } else {
+                        context.existingGameAttributes.insert(id);
                         allProps[id][slot][level].push_back(prop);
                     }
                 }
@@ -208,7 +216,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         if (!skippedAttributes.empty())
             Logger(Logger::Warning) << "Unknown attributes: " << skipped.str();
     }
-    PropAttributeRecordList extraAttrib;
+    context.eraseNonGame();
     {
         auto fillPropList = [&input](AffixPropLeveledList& props, int level, int min, int max) {
             for (int i = 0, cnt = input.m_env.isRotW ? 24 : 21; i < cnt; ++i) {
@@ -237,22 +245,29 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         fillPropList2(SlotType::Weapon, std::array{ 2, 2, 3, 5 }, std::array{ 2, 3, 4, 7 });
         fillPropList2(SlotType::Charm, std::array{ 1, 1, 1 }, std::array{ 1, 1, 2 });
 
-        extraAttrib.push_back(std::move(skilltabs));
+        context.generatedPropAttributes.push_back(std::move(skilltabs));
     }
+    context.calculateConfigAttributes();
 
-    MagicPropUniverse propsEmpty(extraAttrib);
     {
         NonPropAttributeRecordList nonPropList;
+        PropAttributeRecordList    propList;
 
         ApproximationResultsSimpleMap approxMapSimple;
 
         for (const auto& [code, codeProps] : allProps) {
-            if (propsEmpty.isHandled(code))
+            if (context.configAttributes.contains(code))
                 continue;
-            const bool isPositive      = isPositiveRange(code);
-            const bool hasMinMaxLimits = isMinMaxRange(code);
-            const bool hasNoRange      = hasFlag(code, AttributeFlag::NoRange);
-            const bool hasSkillPar     = hasFlag(code, AttributeFlag::SkillPar);
+            const auto& desc = getAttributeDesc(code);
+
+            const bool ignore = desc.flags.contains(AttributeFlag::Keep) || desc.flags.contains(AttributeFlag::PD2Map);
+            if (ignore)
+                continue;
+
+            const bool isPositive      = !desc.flags.contains(AttributeFlag::Negative);
+            const bool hasMinMaxLimits = desc.flags.contains(AttributeFlag::HasRange);
+            const bool hasNoRange      = desc.flags.contains(AttributeFlag::NoRange);
+            const bool hasSkillPar     = desc.flags.contains(AttributeFlag::SkillPar);
 
             ApproximationResultsMap approxMap;
             LevelValueList          allValues;
@@ -332,7 +347,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 });
 
             } else {
-                extraAttrib.push_back(PropAttributeRecord{
+                propList.push_back(PropAttributeRecord{
                     .code       = code,
                     .slotValues = std::move(regularMap),
                 });
@@ -363,7 +378,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
             dump << "static inline const PropAttributeRecordList g_generatedPropAttributes1{\n";
 
-            for (const auto& prop : extraAttrib)
+            for (const auto& prop : propList)
                 dump << prop.toString();
             dump << "\n};\n";
 
@@ -372,9 +387,13 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             if (oldData != dump.str())
                 Mernel::writeFileFromBufferNoexcept(dumpFileName, dump.str());
         }
+
+        context.generatedNonPropAttributes.insert(context.generatedNonPropAttributes.cend(), nonPropList.cbegin(), nonPropList.cend());
+        context.generatedPropAttributes.insert(context.generatedPropAttributes.cend(), propList.cbegin(), propList.cend());
+        context.calculateConfigAttributes();
     }
 
-    MagicPropUniverse props(extraAttrib);
+    MagicPropUniverse props(context);
 
     const int levelPlus               = input.getInt("levelPlus");
     const int levelMinus              = input.getInt("levelMinus");
@@ -425,6 +444,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                       replaceSkills,
                       &rng,
                       &calcNewCount,
+                      updateRange,
                       itemFitPercent,
                       levelPlus,
                       levelMinus]<typename Row>(DataTable<Row>& table,
@@ -475,6 +495,9 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
                 if (keepCnt < originalCount)
                     rawList.truncateRandom(rng, keepCnt);
+
+                if (updateRange)
+                    props.update(rawList, rng, slotType, levelBracket20);
 
                 if (existingClass == Character::none)
                     existingClass = rawList.determineClass(true);
