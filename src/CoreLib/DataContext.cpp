@@ -121,7 +121,7 @@ bool DataContext::parseData(const IStorage::StoredData& data)
         row.parent_set   = sets.index.at(row.setIndex);
         row.eqipmentType = findEquip(row.eqipmentCode);
 
-        const_cast<DataRow_sets*>(row.parent_set)->first_item = &row;
+        const_cast<DataRow_sets*>(row.parent_set)->level = row.getLevel();
     }
     for (auto& row : uniqueitems.rows) {
         if (!row.isValid())
@@ -137,16 +137,16 @@ bool DataContext::parseData(const IStorage::StoredData& data)
         row.eqipmentType = findEquip(row.eqipmentCode);
     }
 
-    const std::map<std::string, int> classes{
+    const std::map<std::string, Character> classes{
 
-        { "ama", 0 },
-        { "sor", 1 },
-        { "nec", 2 },
-        { "pal", 3 },
-        { "bar", 4 },
-        { "dru", 5 },
-        { "ass", 6 },
-        { "war", 7 },
+        { "ama", Character::ama },
+        { "sor", Character::sor },
+        { "nec", Character::nec },
+        { "pal", Character::pal },
+        { "bar", Character::bar },
+        { "dru", Character::dru },
+        { "ass", Character::ass },
+        { "war", Character::war },
     };
 
     for (auto& row : itemtypes.rows) {
@@ -199,6 +199,7 @@ bool DataContext::parseData(const IStorage::StoredData& data)
         for (const std::string& rune : row.runeCodes)
             row.lvl = std::max(row.lvl, misc.index.at(rune)->getLevel());
     }
+    setstypes.equiv1 = "SET";
     for (auto& row : sets.rows) {
         if (row.isValid())
             row.filter.include.insert(&setstypes);
@@ -659,9 +660,44 @@ void DataRow_itemstatcost::serialize()
     ser(add);
 }
 
+SlotType DataRow_itemtypes::determineSlot() const
+{
+    if (code == "shld" || code == "pala")
+        return SlotType::MainArmor;
+    if (code == "weap")
+        return SlotType::Weapon;
+    if (code == "armo")
+        return SlotType::OtherArmor;
+    if (bodyLoc1 == "head" || bodyLoc1 == "tors")
+        return SlotType::MainArmor;
+    if (bodyLoc1 == "feet" || bodyLoc1 == "glov" || bodyLoc1 == "belt")
+        return SlotType::OtherArmor;
+    if (bodyLoc1 == "rrin")
+        return SlotType::Ring;
+    if (bodyLoc1 == "neck")
+        return SlotType::Amulet;
+    if (bodyLoc1 == "rarm")
+        return SlotType::Weapon;
+
+    if (equiv1 == "char")
+        return SlotType::Charm;
+    if (equiv1 == "gem" || equiv1 == "sock")
+        return SlotType::Socketable;
+    if (equiv1 == "SET")
+        return SlotType::Set;
+
+    for (auto* parent : parents) {
+        SlotType parentType = parent->determineSlot();
+        if (parentType != SlotType::Undefined)
+            return parentType;
+    }
+
+    return SlotType::Undefined;
+}
+
 std::vector<std::string> DataRow_itemtypes::getColumns() const
 {
-    return { "code", "class", "itemtype", "equiv1", "equiv2", "throwable", "repair", "shoots", "maxsockets1", "maxsockets2", "maxsockets3" };
+    return { "code", "class", "itemtype", "equiv1", "equiv2", "bodyloc1", "throwable", "repair", "shoots", "maxsockets1", "maxsockets2", "maxsockets3" };
 }
 
 std::map<std::string, std::string> DataRow_itemtypes::getColumnAliases() const
@@ -680,6 +716,7 @@ void DataRow_itemtypes::serialize()
     ser(itemType);
     ser(equiv1);
     ser(equiv2);
+    ser(bodyLoc1);
 
     ser(throwable);
     ser(repair);
@@ -1184,13 +1221,24 @@ AttributeFlagSet RowBaseEquipment::getAttributes() const
     return itemType ? itemType->flags : AttributeFlagSet{};
 }
 
-int ItemCodeFilter::determineClass() const
+Character ItemCodeFilter::determineClass() const
 {
     for (ItemType type : include)
-        if (type->classSpecific != -1)
+        if (type->classSpecific != Character::none)
             return type->classSpecific;
 
-    return -1;
+    return Character::none;
+}
+
+SlotType ItemCodeFilter::determineSlot() const
+{
+    for (ItemType type : include) {
+        auto slot = type->determineSlot();
+        if (slot != SlotType::Undefined)
+            return slot;
+    }
+
+    return SlotType::Undefined;
 }
 
 }

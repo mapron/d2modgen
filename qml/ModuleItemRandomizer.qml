@@ -14,12 +14,21 @@ WidgetCommonTab {
     }
 
     WidgetRangeSlider {
-        caption: qsTr("Crazy-ness (or 'NON-balance level', lower = more balance, 100=chaos)")
-        tooltip: qsTr("Crazyness level - determine level difference to be used when selecting new properties for item/rune/etc.<br>With '10' it will select between level-10 and level+10 at first, if there are <50 candidates,<br>then it will select level-30..level+30, and finally it will try fully random. <br>In short, lower value = more balance in terms of original affix level and item level.")
+        caption: qsTr("Buff level range")
+        tooltip: qsTr("Crazyness level - determine level difference to be used when selecting new properties for item/rune/etc.<br>For example, with value '10', new item can be 10 levels higher in terms of used properties.<br>That does not affect item level or its requirements.")
         from: 5
         to: 100
         value_context: root.value_context
-        value_key: "crazyLevel"
+        value_key: "levelPlus"
+        isCompact: false
+    }
+    WidgetRangeSlider {
+        caption: qsTr("Nerf level range")
+        tooltip: qsTr("This is just as previous option, but forces item to be sometimes worse than original.")
+        from: 5
+        to: 100
+        value_context: root.value_context
+        value_key: "levelMinus"
         isCompact: false
     }
 

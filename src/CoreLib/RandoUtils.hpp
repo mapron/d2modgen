@@ -5,9 +5,6 @@
  */
 #pragma once
 
-#include <iterator>
-#include <algorithm>
-
 #include "AttributeHelper.hpp"
 #include "DataContext.hpp"
 
@@ -24,96 +21,18 @@ inline void appendToSet(ItemTypeSet& s, const ItemTypeSet& another)
 struct MagicProp;
 using MagicPropList = std::vector<MagicProp>;
 struct MagicProp {
-    std::string        code;
+    AttributeId        id;
     std::string        par;
     std::optional<int> min;
     std::optional<int> max;
-    MagicPropList      bounded; // for properties
 
-    std::string toDebugString() const;
-    int         determineClass(bool checkOskill) const;
-};
-struct MagicPropIdxSet {
-    std::vector<uint32_t> data;
-    using T = uint32_t;
-
-    void insert(const T& value)
-    {
-        if (data.empty())
-            data.push_back(value);
-        else
-            data.insert(std::upper_bound(data.begin(), data.end(), value),
-                        value);
-    }
-    MagicPropIdxSet& unite(const MagicPropIdxSet& other)
-    {
-        std::vector<uint32_t> resultData;
-        resultData.reserve(data.size() + other.data.size());
-        std::set_union(data.cbegin(), data.cend(), other.data.cbegin(), other.data.cend(), std::back_inserter(resultData));
-        std::swap(data, resultData);
-        return *this;
-    }
-    MagicPropIdxSet& intersect(const MagicPropIdxSet& other)
-    {
-        std::vector<uint32_t> resultData;
-        resultData.reserve(std::min(data.size(), other.data.size()));
-        std::set_intersection(data.cbegin(), data.cend(), other.data.cbegin(), other.data.cend(), std::back_inserter(resultData));
-        std::swap(data, resultData);
-        return *this;
-    }
-    MagicPropIdxSet& subtract(const MagicPropIdxSet& other)
-    {
-        std::vector<uint32_t> resultData;
-        resultData.reserve(data.size());
-        std::set_difference(data.cbegin(), data.cend(), other.data.cbegin(), other.data.cend(), std::back_inserter(resultData));
-        std::swap(data, resultData);
-        return *this;
-    }
-    bool contains(const T& value);
-
-    // STL compatibility
-    auto begin() { return data.begin(); }
-    auto end() { return data.end(); }
-    auto cbegin() const { return data.begin(); }
-    auto cend() const { return data.end(); }
-    auto begin() const { return data.begin(); }
-    auto end() const { return data.end(); }
-
-    bool   empty() const { return data.empty(); }
-    size_t size() const { return data.size(); }
-    // comfort
-    inline MagicPropIdxSet& operator<<(const T& value)
-    {
-        insert(value);
-        return *this;
-    }
-    inline MagicPropIdxSet& operator|=(const MagicPropIdxSet& other)
-    {
-        unite(other);
-        return *this;
-    }
-    inline MagicPropIdxSet& operator&=(const MagicPropIdxSet& other)
-    {
-        intersect(other);
-        return *this;
-    }
-    inline MagicPropIdxSet& operator+=(const MagicPropIdxSet& other)
-    {
-        unite(other);
-        return *this;
-    }
-    inline MagicPropIdxSet& operator-=(const MagicPropIdxSet& other)
-    {
-        subtract(other);
-        return *this;
-    }
+    Character determineClass(bool checkOskill) const;
 };
 
 struct MagicPropRawList {
-    MagicPropList parsedProps;
-    MagicPropList keptProps;
+    MagicPropList          parsedProps;
+    std::vector<AffixProp> keptProps;
 
-    void detectBounded();
     void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
     void makePerfect();
 
@@ -121,49 +40,58 @@ struct MagicPropRawList {
     void writeToRow(AffixPropList& propList) const;
 
     int       getTotalSize() const;
-    StringSet getAllCodes() const;
-    int       determineClass(bool checkOskill) const;
-
-    std::string toDebugString() const;
+    Character determineClass(bool checkOskill) const;
 
     void append(MagicPropList added);
 
     void truncateRandom(RandomGenerator& rng, const int newSize);
+
+    void fill(UniqueAttributeChecker& checker) const;
 };
 
 struct MagicPropUniverse {
-    MagicPropList props;
+    struct PropGenerator {
+        int frequencyCumulative = 0;
+        int powerScalePercent   = 100;
 
-    MagicPropIdxSet                          indexAll;
-    std::map<int, MagicPropIdxSet>           indexByLevel;
-    std::map<std::string, MagicPropIdxSet>   indexByPropCode;
-    std::map<AttributeFlag, MagicPropIdxSet> indexByAttributeUnsupported;
-    std::map<ItemType, MagicPropIdxSet>      indexByIncludeType;
-    std::map<ItemType, MagicPropIdxSet>      indexByExcludeType;
+        AttributeId id = AttributeId::INVALID;
 
-    mutable std::map<int, std::map<int, MagicPropIdxSet>> indexByLevelCache;
+        std::optional<ApproximationResult> ar;
+        std::vector<AffixPropLeveled>      fixedLevelAffixes;
 
-    void add(MagicPropRawList propList, const ItemCodeFilter& itemTypes, const int level);
-    void dump(const MagicPropIdxSet& idxs) const;
+        MagicProp generate(RandomGenerator& rng) const;
+    };
+    struct PropGeneratorContainer {
+        int                        frequency = 0;
+        std::vector<PropGenerator> gens;
+        std::set<AttributeId>      allIds;
+
+        PropGeneratorContainer() = default;
+        explicit PropGeneratorContainer(const PropAttributeRecordList& extra, const CodePowerMap& powerMap, SlotType slotType, size_t levelBracket20);
+        const PropGenerator* getRandomAttributeGenerator(RandomGenerator& rng) const;
+    };
+
+    struct CommonGen {
+        PropGeneratorContainer                     general;
+        std::map<SlotType, PropGeneratorContainer> bySlot;
+
+        CommonGen() = default;
+        explicit CommonGen(const PropAttributeRecordList& extra, size_t levelBracket20);
+    };
+    std::map<size_t, CommonGen> levelGen;
+
+    MagicPropUniverse(const PropAttributeRecordList& extra);
 
     MagicPropList generate(RandomGenerator&        rng,
-                           const StringSet&        existingCodes,
-                           int                     existingClass,
+                           UniqueAttributeChecker& existingCodes,
+                           Character               existingClass,
                            const AttributeFlagSet& narrowingFlags,
-                           const ItemCodeFilter&   specificTypeQuery,
+                           SlotType                specificTypeQuery,
                            int                     specificItemUsage,
                            int                     count,
-                           int                     level,
-                           int                     unbalance) const;
+                           size_t                  levelBracket20) const;
 
-    ItemTypeSet expand(const ItemTypeSet& query, bool nested) const;
-
-    MagicPropIdxSet getIndexByLevel(int levelMin,
-                                    int levelMax) const;
-
-    MagicPropIdxSet getIndexBySupportedAttributes(const AttributeFlagSet& supportedAttributes) const;
-
-    MagicPropIdxSet getIndexByTypeFilter(const ItemCodeFilter& query) const;
+    bool isHandled(AttributeId id) const;
 };
 
 }

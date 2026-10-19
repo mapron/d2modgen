@@ -323,6 +323,7 @@ GenerationEnvironment ConfigHandler::getEnv(std::string& err) const
 
     env.isLegacy          = versionMajor == GenerationEnvironment::VersionMajor::Legacy;
     env.needDataSubfolder = versionD2R == GenerationEnvironment::VersionD2R::LoD;
+    env.isRotW            = !env.isLegacy && versionD2R == GenerationEnvironment::VersionD2R::RotW;
     if (inputMode == GenerationEnvironment::InputMode::Game) {
         if (env.isLegacy) {
             env.inputMode = StorageType::D2LegacyInternal;

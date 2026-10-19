@@ -61,14 +61,15 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
             if (!prop.hasRange())
                 continue;
 
-            if (perfectMin && isMinMaxRange(prop.code))
+            auto id = getAttributeId(prop.code);
+            if (perfectMin && isMinMaxRange(id))
                 prop.min = prop.max;
 
             if (!scalePower)
                 continue;
 
-            prop.min = powerMultiply(prop.code, prop.min.value(), powerMult);
-            prop.max = powerMultiply(prop.code, prop.max.value(), powerMult);
+            prop.min = powerMultiply(id, prop.min.value(), powerMult);
+            prop.max = powerMultiply(id, prop.max.value(), powerMult);
         }
     };
 

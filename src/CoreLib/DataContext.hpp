@@ -9,6 +9,7 @@
 #include "MernelPlatform/PropertyTree.hpp"
 #include "TableId.hpp"
 #include "AttributeHelper.hpp"
+#include "AttributeValues.hpp"
 
 #include <optional>
 #include <unordered_map>
@@ -24,7 +25,9 @@ struct ItemCodeFilter {
     ItemTypeSet include;
     ItemTypeSet exclude;
 
-    int determineClass() const;
+    Character determineClass() const;
+
+    SlotType determineSlot() const;
 };
 
 template<class Row>
@@ -70,8 +73,20 @@ struct AffixProp {
     std::optional<int> max;
     std::optional<int> chance;
 
+    bool moveParToMinMax()
+    {
+        int val = parAsInt();
+        if (!val)
+            return false;
+        min = max = val;
+        par.clear();
+        return true;
+    }
+    bool hasPar() const { return !(par.empty() || par == "0" || par == " "); }
+    int  parAsInt() const { return hasPar() ? std::atoi(par.c_str()) : 0; }
     bool hasRange() const { return min.has_value() && max.has_value(); }
 };
+
 class AffixPropList : public std::vector<AffixProp> {
     size_t m_limit = 0;
 
@@ -203,7 +218,7 @@ struct RowBaseEquipment : public RowBase {
 
     int getLevel() const
     {
-        if (lvl.has_value())
+        if (lvl.has_value() && lvl.value() > 0)
             return lvl.value();
 
         if (lvlreq.has_value())
@@ -380,8 +395,9 @@ struct DataRow_itemtypes : public RowBase {
     std::string itemType;
     std::string equiv1;
     std::string equiv2;
+    std::string bodyLoc1;
 
-    int classSpecific = -1;
+    Character classSpecific = Character::none;
 
     std::optional<bool>               throwable;
     std::optional<bool>               repair;
@@ -391,6 +407,8 @@ struct DataRow_itemtypes : public RowBase {
     AttributeFlagSet flags;
     ItemTypeSet      nested;
     ItemTypeSet      parents;
+
+    SlotType determineSlot() const;
 
     std::vector<std::string>           getColumns() const;
     std::map<std::string, std::string> getColumnAliases() const;
@@ -587,7 +605,7 @@ struct DataRow_setitems : public RowBase {
     void                               serialize();
 };
 struct DataRow_sets : public RowBase {
-    const DataRow_setitems* first_item = nullptr;
+    int level = 0;
 
     std::string    index;
     std::string    name;
@@ -606,7 +624,7 @@ struct DataRow_sets : public RowBase {
     auto affixLists() { return std::array{ &affixes_full, &affixes_partial1, &affixes_partial2 }; }
 
     bool             isValid() const { return !name.empty(); }
-    int              getLevel() const { return first_item ? first_item->getLevel() : 0; }
+    int              getLevel() const { return level; }
     ItemCodeFilter   getItemFilter() const { return filter; }
     AttributeFlagSet getAttributes() const
     {

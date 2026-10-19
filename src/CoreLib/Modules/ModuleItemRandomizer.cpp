@@ -6,49 +6,24 @@
 #include "ModuleItemRandomizer.hpp"
 #include "RandoUtils.hpp"
 #include "AttributeHelper.hpp"
+#include "MernelPlatform/FileIOUtils.hpp"
 
 #include "Logger.hpp"
 #include "MernelPlatform/ChronoPoint.hpp"
+
+#include <cstdlib>
 
 namespace D2ModGen {
 
 namespace {
 constexpr const int s_maxUnbalanceLevel = 100;
-
-inline void ltrim(std::string& s)
-{
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
-                return ch < 0 || !std::isspace(ch);
-            }));
-}
-inline void rtrim(std::string& s)
-{
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
-                return ch < 0 || !std::isspace(ch);
-            }).base(),
-            s.end());
-}
-
-inline StringVector splitLine(const std::string& line, char sep, bool skipEmpty = false)
-{
-    std::vector<std::string> result;
-    std::string              token;
-    std::istringstream       ss(line);
-    while (std::getline(ss, token, sep)) {
-        ltrim(token);
-        rtrim(token);
-        if (!token.empty() || !skipEmpty)
-            result.push_back(token);
-    }
-    return result;
-}
-
 }
 
 ModuleItemRandomizer::ModuleItemRandomizer()
     : PluginModule(Mernel::PropertyTreeMap{
           { "affixRandom", Mernel::PropertyTreeScalar{ true } },
-          { "crazyLevel", Mernel::PropertyTreeScalar{ 20 } },
+          { "levelPlus", Mernel::PropertyTreeScalar{ 20 } },
+          { "levelMinus", Mernel::PropertyTreeScalar{ 10 } },
           { "extraKnown", Mernel::PropertyTreeScalar{} },
           { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
           { "itemFitPercent", Mernel::PropertyTreeScalar{ 70 } },
@@ -66,7 +41,8 @@ ModuleItemRandomizer::ModuleItemRandomizer()
 {
     setPresets({
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "crazyLevel", Mernel::PropertyTreeScalar{ 100 } },
+            { "levelPlus", Mernel::PropertyTreeScalar{ 100 } },
+            { "levelMinus", Mernel::PropertyTreeScalar{ 0 } },
             { "itemFitPercent", Mernel::PropertyTreeScalar{ 0 } },
             { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 0 } },
             { "relativeCountMin", Mernel::PropertyTreeScalar{ 1000 } },
@@ -79,7 +55,8 @@ ModuleItemRandomizer::ModuleItemRandomizer()
             { "replaceCharges", Mernel::PropertyTreeScalar{ true } },
         } },
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "crazyLevel", Mernel::PropertyTreeScalar{ 30 } },
+            { "levelPlus", Mernel::PropertyTreeScalar{ 30 } },
+            { "levelMinus", Mernel::PropertyTreeScalar{ 15 } },
             { "itemFitPercent", Mernel::PropertyTreeScalar{ 50 } },
             { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 20 } },
             { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
@@ -91,7 +68,8 @@ ModuleItemRandomizer::ModuleItemRandomizer()
             { "replaceCharges", Mernel::PropertyTreeScalar{ true } },
         } },
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "crazyLevel", Mernel::PropertyTreeScalar{ 10 } },
+            { "levelPlus", Mernel::PropertyTreeScalar{ 10 } },
+            { "levelMinus", Mernel::PropertyTreeScalar{ 10 } },
             { "itemFitPercent", Mernel::PropertyTreeScalar{ 70 } },
             { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 50 } },
             { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
@@ -104,8 +82,6 @@ ModuleItemRandomizer::ModuleItemRandomizer()
 
 void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    MagicPropUniverse props;
-
     std::vector<std::string> setItemsKeys;
     std::vector<std::string> allItemsKeys;
 
@@ -119,19 +95,34 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     auto postProcessRawList = [replaceSkills, replaceCharges, removeKnock](MagicPropRawList& rawList) {
         rawList.postProcess(replaceSkills, replaceCharges, removeKnock);
     };
-    auto grabProps = [&props, &postProcessRawList]<typename Row>(const DataTable<Row>& table) {
+
+    std::map<AttributeId, std::map<SlotType, std::map<int, AffixPropList>>> allProps;
+
+    std::set<std::string> skippedAttributes;
+    std::set<std::string> unknownAttributes;
+
+    auto grabProps = [&skippedAttributes, &unknownAttributes, &allProps]<typename Row>(const DataTable<Row>& table) {
         for (auto& row : table.rows) {
             if (!row.isValid())
                 continue;
             const int level = row.getLevel();
+            assert(level >= -1 && level < 260);
 
             ItemCodeFilter types = row.getItemFilter();
+            auto           slot  = types.determineSlot();
+            assert(slot != SlotType::Undefined);
 
             for (const AffixPropList* affixList : row.affixLists()) {
-                MagicPropRawList rawList;
-                rawList.readFromRow(*affixList);
-                postProcessRawList(rawList);
-                props.add(std::move(rawList), types, level);
+                for (const auto& prop : *affixList) {
+                    auto id = getAttributeId(prop.code);
+                    if (id == AttributeId::INVALID) {
+                        unknownAttributes.insert(prop.code);
+                    } else if (id == AttributeId::SKIP) {
+                        skippedAttributes.insert(prop.code);
+                    } else {
+                        allProps[id][slot][level].push_back(prop);
+                    }
+                }
             }
         }
     };
@@ -206,8 +197,187 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             output.sets.rows.insert(output.sets.rows.end(), rowsCopy.cbegin(), rowsCopy.cend());
         }
     }
+    {
+        std::ostringstream skipped, unknown;
+        for (auto& str : skippedAttributes)
+            skipped << str << ", ";
+        for (auto& str : unknownAttributes)
+            unknown << str << ", ";
+        if (!unknownAttributes.empty())
+            Logger(Logger::Warning) << "Unknown attributes: " << unknown.str();
+        if (!skippedAttributes.empty())
+            Logger(Logger::Warning) << "Unknown attributes: " << skipped.str();
+    }
+    PropAttributeRecordList extraAttrib;
+    {
+        auto fillPropList = [&input](AffixPropLeveledList& props, int level, int min, int max) {
+            for (int i = 0, cnt = input.m_env.isRotW ? 24 : 21; i < cnt; ++i) {
+                props.push_back(AffixPropLeveled{ .level = level, .par = std::to_string(i), .min = min, .max = max });
+            }
+        };
+        PropAttributeRecord skilltabs{
+            .code        = AttributeId::skilltab,
+            .freqPercent = 75,
+        };
+        auto fillPropList2 = [&fillPropList, &skilltabs]<size_t size>(SlotType type, const std::array<int, size> valuesMin, const std::array<int, size> valuesMax) {
+            std::vector<int> levels{ 21, 41, 61, 81 };
+            while (levels.size() > size)
+                levels.erase(levels.begin());
+            for (size_t i = 0; i < size; ++i) {
+                fillPropList(skilltabs.slotValues[type], levels[i], valuesMin[i], valuesMax[i]);
+            }
+        };
+        fillPropList2(SlotType::MainArmor, std::array{ 1, 1, 2, 3 }, std::array{ 1, 1, 3, 5 });
 
-    const int unbalance               = input.getInt("crazyLevel");
+        fillPropList2(SlotType::OtherArmor, std::array{ 1, 1, 2, 3 }, std::array{ 1, 2, 3, 3 });
+
+        fillPropList2(SlotType::Amulet, std::array{ 1, 2, 3, 3 }, std::array{ 1, 2, 3, 4 });
+
+        fillPropList2(SlotType::Ring, std::array{ 1, 2 }, std::array{ 2, 3 });
+        fillPropList2(SlotType::Weapon, std::array{ 2, 2, 3, 5 }, std::array{ 2, 3, 4, 7 });
+        fillPropList2(SlotType::Charm, std::array{ 1, 1, 1 }, std::array{ 1, 1, 2 });
+
+        extraAttrib.push_back(std::move(skilltabs));
+    }
+
+    MagicPropUniverse propsEmpty(extraAttrib);
+    {
+        NonPropAttributeRecordList nonPropList;
+
+        ApproximationResultsSimpleMap approxMapSimple;
+
+        for (const auto& [code, codeProps] : allProps) {
+            if (propsEmpty.isHandled(code))
+                continue;
+            const bool isPositive      = isPositiveRange(code);
+            const bool hasMinMaxLimits = isMinMaxRange(code);
+            const bool hasNoRange      = hasFlag(code, AttributeFlag::NoRange);
+            const bool hasSkillPar     = hasFlag(code, AttributeFlag::SkillPar);
+
+            ApproximationResultsMap approxMap;
+            LevelValueList          allValues;
+            LevelValueList          allExceptions;
+            AffixPropLeveledMap     regularMap;
+
+            bool parEmptyAll = true;
+            for (const auto& [slot, slotProps] : codeProps) {
+                LevelValueList slotValues;
+
+                bool parEmpty = true;
+                auto add      = [&allValues, hasMinMaxLimits, hasNoRange, hasSkillPar, &allExceptions, &slotValues, &regularMap, slot, isPositive, &parEmpty, &parEmptyAll](AffixProp prop, int level) {
+                    if (hasMinMaxLimits && !hasSkillPar) {
+                        if (!prop.hasRange() && !prop.moveParToMinMax())
+                            return;
+                        prop.par.clear();
+                    }
+
+                    assert(level >= -1 && level < 260);
+                    if (!hasNoRange && !prop.hasPar() && prop.hasRange()) {
+                        const auto min = prop.min.value();
+                        const auto max = prop.max.value();
+
+                        if (isPositive) {
+                            if (min <= 0 || max <= 0) {
+                                allExceptions.push_back({ level, min, max });
+                                return;
+                            }
+                        } else {
+                            if (min >= 0 || max >= 0) {
+                                allExceptions.push_back({ level, min, max });
+                                return;
+                            }
+                        }
+                        allValues.push_back({ level, min, max });
+                        slotValues.push_back({ level, min, max });
+
+                    } else {
+                        parEmpty    = false;
+                        parEmptyAll = false;
+                    }
+                    regularMap[slot].push_back(AffixPropLeveled{
+                        .level = level,
+                        .par   = prop.par,
+                        .min   = prop.min,
+                        .max   = prop.max,
+                    });
+                };
+                for (const auto& [level, props] : slotProps) {
+                    for (const auto& prop : props) {
+                        add(prop, level);
+                    }
+                }
+                if (parEmpty && slotValues.size()) {
+                    approxMap[slot].linearApprox(slotValues);
+                }
+            }
+            if (parEmptyAll) {
+                ApproximationResults approxGlobal;
+                ApproximationResults approxGlobalBad;
+                if (allValues.size()) {
+                    approxGlobal.linearApprox(allValues);
+                    approxGlobal.makeMonotonic(isPositive);
+                }
+                if (allExceptions.size()) {
+                    approxGlobalBad.linearApprox(allExceptions);
+                }
+                for (const auto& [slot, approxSlot] : approxMap) {
+                    if (approxSlot.frequency && approxGlobal.frequency)
+                        approxMapSimple[slot][code] = buildResultsSimple(approxSlot, approxGlobal);
+                };
+                nonPropList.push_back(NonPropAttributeRecord{
+                    .code       = code,
+                    .frequency  = allValues.size() + allExceptions.size(),
+                    .goodValues = std::move(approxGlobal),
+                    .badValues  = std::move(approxGlobalBad),
+                });
+
+            } else {
+                extraAttrib.push_back(PropAttributeRecord{
+                    .code       = code,
+                    .slotValues = std::move(regularMap),
+                });
+            }
+        }
+
+        auto* dumpFileName = getenv("MODGEN_ATTRIBUTE_DUMP");
+        if (dumpFileName) {
+            const Mernel::std_path dumpFile = Mernel::string2path(dumpFileName);
+            std::string            oldData;
+            Mernel::readFileIntoBufferNoexcept(dumpFileName, oldData);
+
+            std::ostringstream dump;
+
+            dump << "#pragma once\n"
+                 << "// this is generated, do not edit\n\n"
+                 << "#include \"AttributeValues.hpp\"\n\n"
+                 << "namespace D2ModGen {\n\n"
+                 << "// clang-format off\n"
+                 << "static inline const NonPropAttributeRecordList g_generatedNonPropAttributes1{\n";
+            ;
+            for (const auto& prop : nonPropList)
+                dump << prop.toString();
+            dump << "\n};\n\n";
+
+            dump << "static inline const ApproximationResultsSimpleMap g_generatedSlotScale1" << printMap(approxMapSimple);
+            dump << ";\n\n";
+
+            dump << "static inline const PropAttributeRecordList g_generatedPropAttributes1{\n";
+
+            for (const auto& prop : extraAttrib)
+                dump << prop.toString();
+            dump << "\n};\n";
+
+            dump << "// clang-format on\n}\n";
+
+            if (oldData != dump.str())
+                Mernel::writeFileFromBufferNoexcept(dumpFileName, dump.str());
+        }
+    }
+
+    MagicPropUniverse props(extraAttrib);
+
+    const int levelPlus               = input.getInt("levelPlus");
+    const int levelMinus              = input.getInt("levelMinus");
     const int itemFitPercent          = input.getInt("itemFitPercent");
     const int keepOriginalPercent     = input.getInt("keepOriginalPercent");
     const int relativeGeneralCountMin = input.getInt("relativeCountMin");
@@ -250,37 +420,45 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         return { keepCount, generatedCount };
     };
 
-    auto fillProps = [&props,
-                      &postProcessRawList,
+    auto fillProps = [&postProcessRawList,
+                      &props,
                       replaceSkills,
                       &rng,
                       &calcNewCount,
                       itemFitPercent,
-                      unbalance]<typename Row>(DataTable<Row>& table,
-                                               const bool      skipEmptyList,
-                                               const bool      supportMinMax,
-                                               const bool      isSet = false) {
+                      levelPlus,
+                      levelMinus]<typename Row>(DataTable<Row>& table,
+                                                const bool      skipEmptyList,
+                                                const bool      supportMinMax,
+                                                const bool      isSet = false) {
         for (auto& row : table.rows) {
             if (!row.isValid())
                 continue;
-            const int              level               = row.getLevel();
+            const int              originalLevel       = row.getLevel();
             const AttributeFlagSet supportedAttributes = row.getAttributes();
+            const int              targetLevel         = [originalLevel, &rng, levelPlus, levelMinus]() {
+                if (rng(2)) {
+                    return levelPlus ? originalLevel + rng(levelPlus) : originalLevel;
+                } else {
+                    return levelMinus ? originalLevel - rng(levelMinus) : originalLevel;
+                }
+            }();
+            const size_t levelBracket20 = std::clamp(targetLevel, 0, 99) / 20;
 
-            const ItemCodeFilter types = row.getItemFilter();
+            const ItemCodeFilter types    = row.getItemFilter();
+            const SlotType       slotType = types.determineSlot();
 
-            int existingClass = types.determineClass();
+            Character existingClass = types.determineClass();
 
             int genCountPrev = 0;
 
-            StringSet existingCodes;
+            UniqueAttributeChecker attrChecker;
 
             for (AffixPropList* affixList : row.affixLists()) {
                 MagicPropRawList rawList;
                 rawList.readFromRow(*affixList);
                 if (skipEmptyList && rawList.parsedProps.empty())
                     continue;
-
-                postProcessRawList(rawList);
 
                 const int originalCount  = rawList.getTotalSize();
                 auto [keepCnt, genCount] = calcNewCount(originalCount, isSet);
@@ -298,21 +476,21 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 if (keepCnt < originalCount)
                     rawList.truncateRandom(rng, keepCnt);
 
-                if (existingClass == -1)
-                    existingClass = rawList.determineClass(!replaceSkills);
-                if (isSet)
-                    appendToSet(existingCodes, rawList.getAllCodes());
-                else
-                    existingCodes = rawList.getAllCodes();
+                if (existingClass == Character::none)
+                    existingClass = rawList.determineClass(true);
+                if (!isSet) {
+                    attrChecker = {};
+                }
+                rawList.fill(attrChecker);
+
                 auto newProps = props.generate(rng,
-                                               existingCodes,
+                                               attrChecker,
                                                existingClass,
                                                supportedAttributes,
-                                               types,
+                                               slotType,
                                                itemFitPercent,
                                                genCount,
-                                               level,
-                                               unbalance == s_maxUnbalanceLevel ? -1 : unbalance);
+                                               levelBracket20);
 
                 rawList.append(std::move(newProps));
                 if (rawList.getTotalSize() > affixList->getLimit())
@@ -321,9 +499,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 if (!supportMinMax)
                     rawList.makePerfect();
 
-                if (isSet)
-                    appendToSet(existingCodes, rawList.getAllCodes());
-
+                postProcessRawList(rawList);
                 rawList.writeToRow(*affixList);
             }
         }

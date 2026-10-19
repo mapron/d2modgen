@@ -5,6 +5,9 @@
  */
 #include "RandoUtils.hpp"
 
+#include "AttributeValuesGen.hpp"
+#include "AttributeValuesFixed.hpp"
+
 #include "Logger.hpp"
 
 namespace D2ModGen {
@@ -16,61 +19,8 @@ static const std::vector<AttributeFlag> s_attFlags{
     AttributeFlag::Quantity,
     AttributeFlag::Sockets,
     AttributeFlag::Missile,
-    AttributeFlag::PD2Map,
 };
 
-}
-
-void MagicPropRawList::detectBounded()
-{
-    if (parsedProps.empty())
-        return;
-
-    static const std::vector<StringVector> s_bundledIds{
-        StringVector{ "ltng-min", "ltng-max" },
-        StringVector{ "fire-min", "fire-max" },
-        StringVector{ "cold-min", "cold-max", "cold-len" },
-        StringVector{ "pois-min", "pois-max", "pois-len" },
-    };
-    auto getBundledKey = [](const std::string& code) -> std::string {
-        for (const auto& pack : s_bundledIds)
-            if (std::find(pack.cbegin(), pack.cend(), code) != pack.cend())
-                return pack[0];
-        return "";
-    };
-    std::map<std::string, MagicPropList> listsByBundledProp;
-    for (const auto& prop : parsedProps) {
-        listsByBundledProp[getBundledKey(prop.code)].push_back(prop);
-    }
-    MagicPropList newProps = std::move(listsByBundledProp[""]);
-    for (const StringVector& bundleIdPack : s_bundledIds) {
-        const std::string& rootCode = bundleIdPack[0];
-        if (!listsByBundledProp.contains(rootCode))
-            continue;
-        const MagicPropList& bundledProps = listsByBundledProp[rootCode];
-        // Sometimes items have only one propery. Like 'Cathan's Rule' has only "fire-max".
-        if (bundledProps.size() == 1) {
-            newProps.push_back(bundledProps[0]);
-            continue;
-        }
-        //assert(bundledProps.size() == static_cast<size_t>(bundleIdPack.size()));
-        MagicProp newProp;
-        for (const MagicProp& p : bundledProps) {
-            if (p.code == rootCode) {
-                newProp = p;
-            } else {
-                newProp.bounded.push_back(p);
-            }
-        }
-        if (!newProp.code.empty())
-            newProps.push_back(std::move(newProp));
-        else {
-            for (const MagicProp& p : bundledProps) {
-                newProps.push_back(p);
-            }
-        }
-    }
-    parsedProps = std::move(newProps);
 }
 
 void MagicPropRawList::postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock)
@@ -80,26 +30,27 @@ void MagicPropRawList::postProcess(bool replaceSkills, bool replaceCharges, bool
 
     MagicPropList newProps;
     for (MagicProp prop : parsedProps) {
-        if (replaceSkills && prop.code == "skill") {
+        if (replaceSkills && prop.id == AttributeId::skill) {
             if (prop.par == "132") // Leap
             {
                 newProps.push_back(std::move(prop));
                 continue;
             }
-            prop.code = "oskill";
+            prop.id = AttributeId::oskill;
         }
-        if (replaceCharges && prop.code == "charged") {
+        if (replaceCharges && prop.id == AttributeId::charged) {
             if (prop.par == "132") // Leap
             {
                 newProps.push_back(std::move(prop));
                 continue;
             }
-            prop.code = "oskill";
+            prop.id = AttributeId::oskill;
             if (prop.max < 0) {
-                prop.min = prop.max = -prop.max.value_or(0);
+                prop.max = -prop.max.value_or(0);
             }
+            prop.min = prop.max;
         }
-        if (skipKnock && (prop.code == "knock" || prop.code == "howl"))
+        if (skipKnock && (prop.id == AttributeId::knock || prop.id == AttributeId::howl))
             continue;
 
         newProps.push_back(std::move(prop));
@@ -110,12 +61,8 @@ void MagicPropRawList::postProcess(bool replaceSkills, bool replaceCharges, bool
 void MagicPropRawList::makePerfect()
 {
     for (MagicProp& prop : parsedProps) {
-        if (isMinMaxRange(prop.code))
+        if (isMinMaxRange(prop.id))
             prop.min = prop.max;
-        for (MagicProp& boundedProp : prop.bounded) {
-            if (isMinMaxRange(boundedProp.code))
-                boundedProp.min = boundedProp.max;
-        }
     }
 }
 
@@ -123,22 +70,20 @@ void MagicPropRawList::readFromRow(const AffixPropList& propList)
 {
     for (const auto& col : propList) {
         MagicProp mp;
-        mp.code = col.code;
-        mp.par  = col.par;
-        mp.min  = col.min;
-        mp.max  = col.max;
+        mp.par = col.par;
+        mp.min = col.min;
+        mp.max = col.max;
+        mp.id  = getAttributeId(col.code);
 
-        auto cons = getAttributeConsume(mp.code);
-        if (cons == AttributeConsume::Skip)
+        if (mp.id == AttributeId::SKIP)
             continue;
-        if (cons == AttributeConsume::Keep) {
-            keptProps.push_back(std::move(mp));
+        if (mp.id == AttributeId::INVALID) {
+            keptProps.push_back(col);
             continue;
         }
 
         parsedProps.push_back(std::move(mp));
     }
-    detectBounded();
 }
 
 void MagicPropRawList::writeToRow(AffixPropList& propList) const
@@ -151,59 +96,39 @@ void MagicPropRawList::writeToRow(AffixPropList& propList) const
 
     auto consume = [&propList](const MagicProp& prop) {
         propList.push_back(AffixProp{
-            .code = prop.code,
+            .code = idToString(prop.id),
             .par  = prop.par,
             .min  = prop.min,
             .max  = prop.max,
         });
     };
-    for (const MagicProp& prop : keptProps) {
+    for (const auto& prop : keptProps) {
+        if (isFull(1))
+            break;
+        propList.push_back(prop);
+    }
+    for (const MagicProp& prop : parsedProps) {
         if (isFull(1))
             break;
         consume(prop);
-    }
-    for (const MagicProp& prop : parsedProps) {
-        if (isFull(1 + prop.bounded.size()))
-            break;
-        consume(prop);
-        for (const MagicProp& propBounded : prop.bounded)
-            consume(propBounded);
     }
 }
 
 int MagicPropRawList::getTotalSize() const
 {
     int result = static_cast<int>(parsedProps.size());
-    for (const MagicProp& prop : parsedProps)
-        result += static_cast<int>(prop.bounded.size());
     result += keptProps.size();
     return result;
 }
 
-StringSet MagicPropRawList::getAllCodes() const
-{
-    StringSet result;
-    for (const MagicProp& prop : parsedProps)
-        result.insert(prop.code); // don't need bounded, we do not index them.
-    return result;
-}
-
-int MagicPropRawList::determineClass(bool checkOskill) const
+Character MagicPropRawList::determineClass(bool checkOskill) const
 {
     for (const MagicProp& prop : parsedProps) {
-        int determined = prop.determineClass(checkOskill);
-        if (determined >= 0)
+        Character determined = prop.determineClass(checkOskill);
+        if (determined > Character::none)
             return determined;
     }
-    return -1;
-}
-
-std::string MagicPropRawList::toDebugString() const
-{
-    std::string result = "";
-    for (const MagicProp& prop : parsedProps)
-        result += prop.toDebugString() + "; ";
-    return result;
+    return Character::none;
 }
 
 void MagicPropRawList::append(MagicPropList added)
@@ -222,99 +147,39 @@ void MagicPropRawList::truncateRandom(RandomGenerator& rng, const int newSize)
     const int     kept = keptProps.size();
     for (int i = 0; i < newSize - kept; ++i) {
         auto r = rng(static_cast<int>(parsedProps.size()));
-        i += parsedProps[r].bounded.size();
         newProps.push_back(parsedProps[r]);
         parsedProps.erase(parsedProps.begin() + r);
     }
     parsedProps = std::move(newProps);
 }
 
-void MagicPropUniverse::add(MagicPropRawList propList, const ItemCodeFilter& itemTypes, const int level)
+void MagicPropRawList::fill(UniqueAttributeChecker& checker) const
 {
-    if (propList.parsedProps.empty())
-        return;
-
-    const ItemTypeSet include = expand(itemTypes.include, true);
-    const ItemTypeSet exclude = expand(itemTypes.exclude, true);
-
-    for (MagicProp& prop : propList.parsedProps) {
-        const auto i = static_cast<uint32_t>(props.size());
-        indexByLevel[level] << i;
-        indexByPropCode[prop.code] << i;
-
-        const auto& desc = getAttributeDesc(prop.code);
-        for (AttributeFlag f : s_attFlags)
-            if (!desc.flags.contains(f))
-                indexByAttributeUnsupported[f] << i;
-
-        for (const auto& type : include)
-            indexByIncludeType[type] << i;
-
-        for (const auto& type : exclude)
-            indexByExcludeType[type] << i;
-
-        indexAll << i;
-
-        props.push_back(std::move(prop));
-    }
+    for (auto& prop : parsedProps)
+        checker.add(prop.id, prop.par);
 }
 
-void MagicPropUniverse::dump(const MagicPropIdxSet& idxs) const
+MagicPropUniverse::MagicPropUniverse(const PropAttributeRecordList& extra)
 {
-    for (const auto idx : idxs) {
-        Logger() << "[" << idx << "] " << props[idx].toDebugString();
-    }
+    for (size_t i = 0; i < 5; ++i)
+        levelGen[i] = CommonGen(extra, i);
 }
 
 MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
-                                          const StringSet&        existingCodes,
-                                          int                     existingClass,
+                                          UniqueAttributeChecker& existingCodes,
+                                          Character               existingClass,
                                           const AttributeFlagSet& supportedAttributes,
-                                          const ItemCodeFilter&   specificTypeQuery,
+                                          SlotType                specificTypeQuery,
                                           int                     specificItemUsage,
                                           int                     count,
-                                          int                     level,
-                                          int                     unbalance) const
+                                          size_t                  levelBracket20) const
 {
     if (count <= 0)
         return {};
 
-    const MagicPropIdxSet flagsIndexAnd = getIndexBySupportedAttributes(supportedAttributes);
-    auto                  makeIndex     = [this, &flagsIndexAnd, &specificTypeQuery, unbalance, level](int balanceMult, bool typeFit) -> MagicPropIdxSet {
-        MagicPropIdxSet idx = (unbalance < 0 || balanceMult == 0) ? indexAll : getIndexByLevel(level - unbalance * balanceMult, level + unbalance * balanceMult);
-        idx &= flagsIndexAnd;
-        if (typeFit)
-            idx &= getIndexByTypeFilter(specificTypeQuery);
-        return idx;
-    };
+    const bool noTypeSlot = specificTypeQuery == SlotType::Undefined;
 
-    auto makeIndexWrap = [&makeIndex](bool typeFit) -> MagicPropIdxSet {
-        const int varietyMinimum = 50; // arbitrary value from nowhere;
-
-        auto idx = makeIndex(1, typeFit);
-        if (idx.size() > varietyMinimum)
-            return idx;
-
-        idx = makeIndex(3, typeFit);
-        if (idx.size() > varietyMinimum)
-            return idx;
-        idx = makeIndex(0, typeFit);
-        return idx;
-    };
-
-    const MagicPropIdxSet generalIndexes = makeIndexWrap(false);
-    const MagicPropIdxSet typefitIndexes = makeIndexWrap(true);
-
-    const std::vector<uint32_t> generalIndexesVec(generalIndexes.cbegin(), generalIndexes.cend());
-    const std::vector<uint32_t> typefitIndexesVec(typefitIndexes.cbegin(), typefitIndexes.cend());
-
-    assert(generalIndexes.size() > 1);
-    //assert(typefitIndexes.size() > 1);
-
-    if (typefitIndexesVec.size() < 2)
-        specificItemUsage = 0;
-
-    const int typefitCount = [count, specificItemUsage, &rng]() -> int {
+    const int typefitCount = noTypeSlot ? 0 : [count, specificItemUsage, &rng]() -> int {
         if (specificItemUsage == 100)
             return count;
         if (specificItemUsage == 0)
@@ -326,169 +191,212 @@ MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
         }
         return specificCount;
     }();
-    const int              generalCount = count - typefitCount;
-    MagicPropIdxSet        totalIndices;
-    UniqueAttributeChecker attrCheck;
-    attrCheck.add(existingCodes);
-    int currentClass = existingClass;
+    MagicPropList result;
 
-    auto tryAdd = [&attrCheck, &currentClass, &totalIndices, &rng, this](const std::vector<uint32_t>& indices, bool force) -> bool {
-        const uint32_t indexOfIndex = rng(static_cast<int>(indices.size()));
-        const uint32_t index        = indices[indexOfIndex];
-        const auto&    code         = props[index].code;
-        int            nextClass    = props[index].determineClass(true);
-        if (code != "skilltab" && attrCheck.contains(code))
-            return false;
-        if (currentClass != -1 && nextClass != -1) {
+    Character currentClass = existingClass;
+
+    auto tryAdd = [&existingCodes, &result, &supportedAttributes, &currentClass, &rng, this](const PropGeneratorContainer& container, bool isLastAttempt) -> bool {
+        auto* someGenerator = container.getRandomAttributeGenerator(rng);
+
+        const MagicProp prop = someGenerator->generate(rng);
+        const auto&     desc = getAttributeDesc(prop.id);
+
+        Character nextClass = prop.determineClass(true);
+        if (currentClass != Character::none && nextClass != Character::none) {
             if (nextClass != currentClass)
                 return false;
         }
-        if (nextClass != -1)
+        for (auto flag : s_attFlags) {
+            if (desc.flags.contains(flag) && !supportedAttributes.contains(flag))
+                return false;
+        }
+
+        if (!existingCodes.add(prop.id, prop.par))
+            return false;
+        if (nextClass != Character::none)
             currentClass = nextClass;
-        attrCheck.add(code);
-        totalIndices << index;
+
+        result.push_back(prop);
         return true;
     };
-    auto tryAddWrap = [&tryAdd](const std::vector<uint32_t>& indices, int totalCount, int retries) {
+    auto tryAddWrap = [&tryAdd](const PropGeneratorContainer& container, int totalCount, int retries) {
         for (int i = 0; i < totalCount; ++i) {
             for (int r = 0; r <= retries; ++r)
-                if (tryAdd(indices, r == retries))
+                if (tryAdd(container, r == retries))
                     break;
         }
     };
-    tryAddWrap(typefitIndexesVec, typefitCount, 5);
-    tryAddWrap(generalIndexesVec, generalCount, 5);
 
-    MagicPropList result;
-    result.reserve(totalIndices.size());
-    for (const auto idx : totalIndices)
-        result.push_back(props[idx]);
+    assert(levelBracket20 >= 0 && levelBracket20 <= 4);
+
+    const CommonGen& commonGen = levelGen.at(levelBracket20);
+    if (!noTypeSlot) {
+        if (commonGen.bySlot.contains(specificTypeQuery))
+            tryAddWrap(commonGen.bySlot.at(specificTypeQuery), typefitCount, 5);
+    }
+
+    auto cur = result.size();
+    tryAddWrap(commonGen.general, count - result.size(), 5);
+    //Logger() << "gen " << cur << " - " << result.size();
+
     return result;
 }
 
-ItemTypeSet MagicPropUniverse::expand(const ItemTypeSet& query, bool nested) const
+bool MagicPropUniverse::isHandled(AttributeId id) const
 {
-    ItemTypeSet codeSet = query;
-    for (ItemType code : query) {
-        if (!code)
-            continue;
-        appendToSet(codeSet, nested ? code->nested : code->parents);
-    }
-    return codeSet;
+    for (const auto& [_, gen] : levelGen)
+        if (gen.general.allIds.contains(id))
+            return true;
+    return false;
 }
 
-MagicPropIdxSet MagicPropUniverse::getIndexByLevel(int levelMin, int levelMax) const
+Character MagicProp::determineClass(bool checkOskill) const
 {
-    auto cacheMinIt = indexByLevelCache.find(levelMin);
-    if (cacheMinIt != indexByLevelCache.end()) {
-        auto cacheMaxit = cacheMinIt->second.find(levelMax);
-        if (cacheMaxit != cacheMinIt->second.end()) {
-            return cacheMaxit->second;
-        }
-    }
-    MagicPropIdxSet result;
-    for (int l = levelMin; l <= levelMax; ++l) {
-        auto it = indexByLevel.find(l);
-        if (it == indexByLevel.cend())
-            continue;
-        result += it->second;
-    }
-    indexByLevelCache[levelMin][levelMax] = result;
-    return result;
-}
+    Character cs = getAttributeDesc(id).classSpecific;
+    if (cs != Character::none)
+        return cs;
 
-MagicPropIdxSet MagicPropUniverse::getIndexBySupportedAttributes(const AttributeFlagSet& supportedAttributes) const
-{
-    MagicPropIdxSet result = indexAll;
-    for (AttributeFlag flag : s_attFlags) {
-        if (supportedAttributes.contains(flag))
-            continue;
-        // so, requested item does not support one of our attrubutes - exclude them.
-        auto it = indexByAttributeUnsupported.find(flag);
-        if (it == indexByAttributeUnsupported.cend())
-            continue;
-        result &= it->second;
-    }
-    return result;
-}
-
-MagicPropIdxSet MagicPropUniverse::getIndexByTypeFilter(const ItemCodeFilter& query) const
-{
-    MagicPropIdxSet   result;
-    const ItemTypeSet include = expand(query.include, true);
-    const ItemTypeSet exclude = expand(query.exclude, true);
-    for (const ItemType& type : include) {
-        auto it = indexByIncludeType.find(type);
-        if (it == indexByIncludeType.cend())
-            continue;
-        result += it->second;
-    }
-    for (const ItemType& type : exclude) {
-        auto it = indexByExcludeType.find(type);
-        if (it == indexByExcludeType.cend())
-            continue;
-        result -= it->second; // important -=
-    }
-    return result;
-}
-
-std::string MagicProp::toDebugString() const
-{
-    std::string result;
-    if (isMinMaxRange(code)) {
-        result = code + ": " + std::to_string(min.value_or(0)) + "-" + std::to_string(max.value_or(0));
-        if (!par.empty())
-            result += " (" + par + ")";
-    } else {
-        result = code + ": " + par + "," + std::to_string(min.value_or(0)) + "," + std::to_string(max.value_or(0));
-    }
-    if (!bounded.empty())
-        result += " +[" + std::to_string(bounded.size()) + "]";
-    return result;
-}
-
-int MagicProp::determineClass(bool checkOskill) const
-{
-    if (code == "ama")
-        return 0;
-    if (code == "sor")
-        return 1;
-    if (code == "nec")
-        return 2;
-    if (code == "pal")
-        return 3;
-    if (code == "bar")
-        return 4;
-    if (code == "dru")
-        return 5;
-    if (code == "ass")
-        return 6;
-    if (code == "war")
-        return 7;
-
-    if (code == "skilltab") {
+    if (id == AttributeId::skilltab) {
         int tab = std::atoi(par.c_str());
-        return tab / 3;
+        return static_cast<Character>(tab / 3);
     }
-    if (code == "skilltab-war") {
-        return 7;
-    }
-    if (checkOskill && code == "oskill" || code == "skill") {
+    if (checkOskill && id == AttributeId::oskill || id == AttributeId::skill) {
         int skillId = std::atoi(par.c_str());
         if (skillId == 0)
-            return -1;
+            return Character::none;
         // [6..155] = [ama...bar] = [0...4]
         if (skillId >= 6 && skillId <= 155)
-            return (skillId - 6) / 30;
+            return static_cast<Character>((skillId - 6) / 30);
         // [221...280] = [dru,ass] = [5,6]
         if (skillId >= 221 && skillId <= 280)
-            return ((skillId - 221) / 30) + 5;
+            return static_cast<Character>(((skillId - 221) / 30) + 5);
 
         // [373...402] = [war] = [7]
         if (skillId >= 373 && skillId <= 402)
-            return 7;
+            return Character::war;
     }
-    return -1;
+    return Character::none;
+}
+
+MagicProp MagicPropUniverse::PropGenerator::generate(RandomGenerator& rng) const
+{
+    MagicProp result;
+    result.id = id;
+    if (ar.has_value()) {
+        const ApproximationResult& are   = ar.value();
+        int                        value = [&are, &rng]() -> int {
+            if (!are.minus && !are.plus)
+                return are.avg;
+            if (rng(2)) {
+                return are.avg + rng(are.plus);
+            } else {
+                return are.avg - rng(-are.minus);
+            }
+        }();
+
+        value = value * powerScalePercent / 100;
+        if (are.avg > 0)
+            value = std::max(1, value);
+        else
+            value = std::min(-1, value);
+
+        auto desc     = getAttributeDesc(id);
+        int  rounding = desc.rounding;
+        if (rounding <= 1)
+            rounding = smartRoundDetect(value);
+        value = smartRound(value, rounding);
+
+        result.par = "";
+        if (result.id == AttributeId::dmg_cold || result.id == AttributeId::dmg_pois)
+            result.par = "100";
+        if (desc.flags.contains(AttributeFlag::SinglePar)) {
+            result.par = std::to_string(value);
+            result.min.reset();
+            result.max.reset();
+        } else {
+            result.min = result.max = value;
+        }
+    } else if (fixedLevelAffixes.size()) {
+        int  idx   = rng(fixedLevelAffixes.size());
+        auto prop  = fixedLevelAffixes[idx];
+        result.min = prop.min;
+        result.max = prop.max;
+        result.par = prop.par;
+    }
+    return result;
+}
+MagicPropUniverse::PropGeneratorContainer::PropGeneratorContainer(const PropAttributeRecordList& extra, const CodePowerMap& powerMap, SlotType slotType, size_t levelBracket20)
+{
+    for (const NonPropAttributeRecord& rec : g_generatedNonPropAttributes) {
+        if (!rec.goodValues.results[levelBracket20].avg)
+            continue;
+
+        PropGenerator gen;
+        gen.id = rec.code;
+        gen.ar = rec.goodValues.results[levelBracket20]; /// @todo: bad values?
+        if (powerMap.empty()) {
+            frequency += rec.frequency;
+            gen.frequencyCumulative = frequency;
+            gens.push_back(gen);
+            allIds.insert(rec.code);
+        } else {
+            if (auto it = powerMap.find(rec.code); it != powerMap.cend()) {
+                frequency += rec.frequency;
+                gen.frequencyCumulative = frequency;
+                gen.powerScalePercent   = it->second;
+                gens.push_back(gen);
+                allIds.insert(rec.code);
+            }
+        }
+    }
+
+    for (const PropAttributeRecordList* list : { &extra, &g_generatedPropAttributes }) {
+        for (const PropAttributeRecord& rec : *list) {
+            PropGenerator gen;
+            gen.id       = rec.code;
+            auto& filter = gen.fixedLevelAffixes;
+
+            for (const auto& [slot, slotValues] : rec.slotValues) {
+                if (slotType != SlotType::Undefined && slotType != slot)
+                    continue;
+                for (const auto& propValue : slotValues) {
+                    const size_t bracket = std::min(4, propValue.level / 20);
+                    if (bracket == levelBracket20) {
+                        filter.push_back(propValue);
+                    }
+                }
+            }
+            if (!filter.empty()) {
+                frequency += filter.size() * rec.freqPercent / 100;
+                gen.frequencyCumulative = frequency;
+                gens.push_back(gen);
+                allIds.insert(rec.code);
+            }
+        }
+    }
+}
+
+const MagicPropUniverse::PropGenerator* MagicPropUniverse::PropGeneratorContainer::getRandomAttributeGenerator(RandomGenerator& rng) const
+{
+    int value = rng(frequency);
+
+    auto it = std::lower_bound(gens.begin(), gens.end(), value, [](const PropGenerator& entry, int val) {
+        return entry.frequencyCumulative <= val;
+    });
+
+    if (it != gens.end()) {
+        return &*it;
+    }
+    throw std::runtime_error("WTF");
+    return nullptr;
+}
+
+MagicPropUniverse::CommonGen::CommonGen(const PropAttributeRecordList& extra, size_t levelBracket20)
+{
+    for (const auto& [slot, power] : g_generatedSlotScale) {
+        bySlot[slot] = PropGeneratorContainer(extra, power, slot, levelBracket20);
+    }
+    general = PropGeneratorContainer(extra, CodePowerMap{}, SlotType::Undefined, levelBracket20);
 }
 
 }

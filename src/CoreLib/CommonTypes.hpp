@@ -90,6 +90,7 @@ struct GenerationEnvironment {
     bool             refreshSeed       = false;
     bool             needDataSubfolder = false;
     bool             isLegacy          = false;
+    bool             isRotW            = false;
     StorageType      inputMode         = StorageType::D2ResurrectedInternal;
     StorageType      outputMode        = StorageType::D2ResurrectedModFolder;
 
