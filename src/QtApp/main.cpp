@@ -6,6 +6,7 @@
 #include "UIController.hpp"
 
 #include "MernelPlatform/Logger_details.hpp"
+#include "MernelPlatform/AppLocations.hpp"
 
 #include "ConfigHandler.hpp"
 #include "Logger.hpp"
@@ -91,9 +92,9 @@ int main(int argc, char* argv[])
     QApplication::setApplicationName("D2R mod generator");
 
     Logger() << "application started";
-    QApplication      app(argc, argv);
-    const auto        appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    const std::string logDir  = (appData + "/applog").toStdString();
+    QApplication app(argc, argv);
+    const auto   appData = Mernel::AppLocations("D2R mod generator").getAppdataDir();
+    const auto   logDir  = appData / "applog";
 
     {
         Logger::SetLoggerBackend(std::make_unique<Mernel::LoggerBackendFiles>(
@@ -104,8 +105,8 @@ int main(int argc, char* argv[])
             false, /*outputTimeoffsets*/
             10,
             5000,
-            string2path(logDir)));
-        Logger() << "Started log redirection to:" << logDir;
+            logDir));
+        Logger() << "Started log redirection to:" << path2string(logDir);
     }
     ConfigHandler configHandler;
     configHandler.loadAppConfig();
