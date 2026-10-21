@@ -400,6 +400,13 @@ enum class Character
     war,
 };
 
+enum class AttributeIdiom
+{
+    Any,
+    Caster,
+    Brawler,
+};
+
 using AttributeFlagSet = std::set<AttributeFlag>;
 
 enum class AttributeItemReq
@@ -423,6 +430,7 @@ struct AttributeDesc {
     int                 maxValue{ 0 };
     int                 rounding{ 1 };
     Character           classSpecific = Character::none;
+    AttributeIdiom      idiom         = AttributeIdiom::Any;
 
     AttributeDesc setRange(int min, int max) &&
     {
@@ -439,6 +447,11 @@ struct AttributeDesc {
     AttributeDesc setRounding(int r) &&
     {
         rounding = r;
+        return *this;
+    }
+    AttributeDesc setIdiom(AttributeIdiom i) &&
+    {
+        idiom = i;
         return *this;
     }
 };

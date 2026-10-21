@@ -15,8 +15,9 @@
 namespace D2ModGen {
 
 namespace {
-using AF = AttributeFlag;
-using CH = Character;
+using AF  = AttributeFlag;
+using CH  = Character;
+using IDI = AttributeIdiom;
 
 const std::vector<AttributeDesc> s_attributes{
 
@@ -35,21 +36,21 @@ const std::vector<AttributeDesc> s_attributes{
     AttributeDesc{ AttributeId::mana_percent, { AF::Stats } }.setRange(-10, 53),                                 // Increase Maximum Mana #%
     AttributeDesc{ AttributeId::hp, { AF::Stats } }.setRange(-32, 479),                                          // +# to Life
     AttributeDesc{ AttributeId::hp_percent, { AF::Stats } }.setRange(-10, 53),                                   // Increase Maximum Life #%
-    AttributeDesc{ AttributeId::att, { AF::Attack } }.setRange(1, 1023),                                         // +# to Attack Rating
+    AttributeDesc{ AttributeId::att, { AF::Attack } }.setIdiom(IDI::Brawler).setRange(1, 1023),                  // +# to Attack Rating
     AttributeDesc{ AttributeId::block, {}, { AttributeItemReq::Shield } },                                       // #% Increased Chance of Blocking
-    AttributeDesc{ AttributeId::cold_min, { AF::Damage } }.setRange(1, 255),                                     // +# to Minimum Cold Damage
-    AttributeDesc{ AttributeId::cold_max, { AF::Damage } }.setRange(1, 511),                                     // +# to Maximum Cold Damage
-    AttributeDesc{ AttributeId::cold_len, { AF::Damage } },                                                      // # of Frames (25 Frames = 1 Second)
-    AttributeDesc{ AttributeId::fire_min, { AF::Damage } }.setRange(1, 255),                                     // +# to Minimum Fire Damage
-    AttributeDesc{ AttributeId::fire_max, { AF::Damage } }.setRange(1, 511),                                     // +# to Maximum Fire Damage
-    AttributeDesc{ AttributeId::ltng_min, { AF::Damage } }.setRange(1, 63),                                      // +# to Minimum Lightning Damage
-    AttributeDesc{ AttributeId::ltng_max, { AF::Damage } }.setRange(1, 1023),                                    // +# to Maximum Lightning Damage
-    AttributeDesc{ AttributeId::pois_min, { AF::Damage } },                                                      // +# to Minimum Poison Damage
-    AttributeDesc{ AttributeId::pois_max, { AF::Damage } },                                                      // +# to Maximum Poison Damage
-    AttributeDesc{ AttributeId::pois_len, { AF::Damage } },                                                      // # of Frames (25 Frames = 1 Second)
-    AttributeDesc{ AttributeId::dmg_min, { AF::Damage } }.setRange(1, 63),                                       // +# to Minimum Damage
-    AttributeDesc{ AttributeId::dmg_max, { AF::Damage } }.setRange(1, 127),                                      // +# to Maximum Damage
-    AttributeDesc{ AttributeId::dmg_percent, { AF::Damage } }.setRange(1, 511),                                  // +#% Enhanced Damage
+    AttributeDesc{ AttributeId::cold_min, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 255),              // +# to Minimum Cold Damage
+    AttributeDesc{ AttributeId::cold_max, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 511),              // +# to Maximum Cold Damage
+    AttributeDesc{ AttributeId::cold_len, { AF::Damage } }.setIdiom(IDI::Brawler),                               // # of Frames (25 Frames = 1 Second)
+    AttributeDesc{ AttributeId::fire_min, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 255),              // +# to Minimum Fire Damage
+    AttributeDesc{ AttributeId::fire_max, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 511),              // +# to Maximum Fire Damage
+    AttributeDesc{ AttributeId::ltng_min, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63),               // +# to Minimum Lightning Damage
+    AttributeDesc{ AttributeId::ltng_max, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 1023),             // +# to Maximum Lightning Damage
+    AttributeDesc{ AttributeId::pois_min, { AF::Damage } }.setIdiom(IDI::Brawler),                               // +# to Minimum Poison Damage
+    AttributeDesc{ AttributeId::pois_max, { AF::Damage } }.setIdiom(IDI::Brawler),                               // +# to Maximum Poison Damage
+    AttributeDesc{ AttributeId::pois_len, { AF::Damage } }.setIdiom(IDI::Brawler),                               // # of Frames (25 Frames = 1 Second)
+    AttributeDesc{ AttributeId::dmg_min, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63),                // +# to Minimum Damage
+    AttributeDesc{ AttributeId::dmg_max, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 127),               // +# to Maximum Damage
+    AttributeDesc{ AttributeId::dmg_percent, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 511),           // +#% Enhanced Damage
     AttributeDesc{ AttributeId::dmg_to_mana },                                                                   // #% Damage Taken Goes To Mana
     AttributeDesc{ AttributeId::res_fire, { AF::Resistance } }.setRange(-90, 205),                               // Fire Resist +#%
     AttributeDesc{ AttributeId::res_fire_max, { AF::Resistance } }.setRange(1, 31),                              // +#% to Maximum Fire Resist
@@ -82,145 +83,145 @@ const std::vector<AttributeDesc> s_attributes{
     AttributeDesc{ AttributeId::regen_stam },                                                                    // Heal Stamina Plus #%
     AttributeDesc{ AttributeId::regen_mana },                                                                    // Regenerate Mana #%
     AttributeDesc{ AttributeId::stam },                                                                          // +# Maximum Stamina
-    AttributeDesc{ AttributeId::manasteal, { AF::Leech } }.setRange(1, 127),                                     // #% Mana stolen per hit
-    AttributeDesc{ AttributeId::lifesteal, { AF::Leech } }.setRange(1, 127),                                     // #% Life stolen per hit
+    AttributeDesc{ AttributeId::manasteal, { AF::Leech } }.setIdiom(IDI::Brawler).setRange(1, 127),              // #% Mana stolen per hit
+    AttributeDesc{ AttributeId::lifesteal, { AF::Leech } }.setIdiom(IDI::Brawler).setRange(1, 127),              // #% Life stolen per hit
     AttributeDesc{ AttributeId::ama, { AF::Skills } }.setRange(1, 7).setClass(CH::ama),                          // +# to Amazon Skill Levels
     AttributeDesc{ AttributeId::pal, { AF::Skills } }.setRange(1, 7).setClass(CH::pal),                          // +# to Paladin Skill Levels
     AttributeDesc{ AttributeId::nec, { AF::Skills } }.setRange(1, 7).setClass(CH::nec),                          // +# to Necromancer Skill Levels
     AttributeDesc{ AttributeId::sor, { AF::Skills } }.setRange(1, 7).setClass(CH::sor),                          // +# to Sorceress Skill Levels
     AttributeDesc{ AttributeId::bar, { AF::Skills } }.setRange(1, 7).setClass(CH::bar),                          // +#  to Barbarian Skill Levels
-    AttributeDesc{ AttributeId::light, { AF::HasRange }, {}, -4, 11 },                                           // +# to Light Radius
+    AttributeDesc{ AttributeId::light }.setRange(-4, 11),                                                        // +# to Light Radius
     AttributeDesc{ AttributeId::ease, { AF::Negative }, { AttributeItemReq::Weapon, AttributeItemReq::Armor } }, // Requirements -#%
-    AttributeDesc{ AttributeId::move3, { AF::Speed } }.setRange(-20, 100).setRounding(5),                        // +#% Faster Run_perWalk
+    AttributeDesc{ AttributeId::move3, { AF::Speed } }.setRange(-20, 100).setRounding(5),                        // +#% Faster Run/Walk
     AttributeDesc{ AttributeId::balance3, { AF::Speed } }.setRange(-20, 100).setRounding(5),                     // +#% Faster Hit Recovery
     AttributeDesc{ AttributeId::block3, { AF::Speed } }.setRange(-20, 100).setRounding(5),                       // +#% Faster Block Rate
-    AttributeDesc{ AttributeId::cast3, { AF::Speed } }.setRange(-20, 100).setRounding(5),                        // +#% Faster Cast Rate
+    AttributeDesc{ AttributeId::cast3, { AF::Speed } }.setIdiom(IDI::Caster).setRange(-20, 100).setRounding(5),  // +#% Faster Cast Rate
     AttributeDesc{ AttributeId::res_pois_len, { AF::Resistance } }.setRange(-20, 235),                           // Poison Length Reduced by #%
-    AttributeDesc{ AttributeId::dmg, { AF::Damage } }.setRange(-20, 491),                                        // Damage +#
+    AttributeDesc{ AttributeId::dmg, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(-20, 491),                 // Damage +#
     AttributeDesc{ AttributeId::howl },                                                                          // Hit Causes Monster to Flee #%
     AttributeDesc{ AttributeId::stupidity },                                                                     // Hit Blinds Target +#
-    AttributeDesc{ AttributeId::ignore_ac, { AF::Attack } }.setRange(1, 1),                                      // Ignore Target's Defense
-    AttributeDesc{ AttributeId::reduce_ac, { AF::Attack } },                                                     // #% Target Defense
-    AttributeDesc{ AttributeId::noheal },                                                                        // Prevent Monster Heal
+    AttributeDesc{ AttributeId::ignore_ac, { AF::Attack } }.setIdiom(IDI::Brawler).setRange(1, 1),               // Ignore Target's Defense
+    AttributeDesc{ AttributeId::reduce_ac, { AF::Attack } }.setIdiom(IDI::Brawler),                              // #% Target Defense
+    AttributeDesc{ AttributeId::noheal }.setIdiom(IDI::Brawler),                                                 // Prevent Monster Heal
     AttributeDesc{ AttributeId::half_freeze },                                                                   // Half Freeze Duration
-    AttributeDesc{ AttributeId::att_percent, { AF::Attack } },                                                   // #% Bonus to Attack Rating
-    AttributeDesc{ AttributeId::dmg_ac, { AF::Attack, AF::Negative } },                                          // -# to Monster Defense Per Hit
-    AttributeDesc{ AttributeId::dmg_demon, { AF::Damage } }.setRange(-20, 491),                                  // +#% Damage to Demons
-    AttributeDesc{ AttributeId::dmg_undead, { AF::Damage } }.setRange(-20, 491),                                 // +#% Damage to Undead
-    AttributeDesc{ AttributeId::att_demon, { AF::Attack } },                                                     // +# to Attack Rating against Demons
-    AttributeDesc{ AttributeId::att_undead, { AF::Attack } },                                                    // +# to Attack Rating against Undead
-    AttributeDesc{ AttributeId::fireskill, { AF::Skills } }.setRange(1, 7),                                      // +# to Fire Skills
-    AttributeDesc{ AttributeId::poisskill, { AF::Skills } }.setRange(1, 7),
-    AttributeDesc{ AttributeId::coldskill, { AF::Skills } }.setRange(1, 7),
-    AttributeDesc{ AttributeId::magskill, { AF::Skills } }.setRange(1, 7),
-    AttributeDesc{ AttributeId::ltngskill, { AF::Skills } }.setRange(1, 7),
-    AttributeDesc{ AttributeId::allskills, { AF::Skills } }.setRange(1, 7),              // +# to All Skills
-    AttributeDesc{ AttributeId::light_thorns },                                          // Attacker Takes Lightning Damage of #
-    AttributeDesc{ AttributeId::freeze },                                                // Freezes Target +#
-    AttributeDesc{ AttributeId::openwounds, { AF::HasRange }, {}, 1, 127 },              // #% Chance of Open Wounds
-    AttributeDesc{ AttributeId::crush, { AF::OP } }.setRange(1, 127),                    // #% Chance of Crushing Blow
-    AttributeDesc{ AttributeId::kick, { AF::Damage } },                                  // +# Kick Damage
-    AttributeDesc{ AttributeId::mana_kill, { AF::HasRange }, {}, 1, 127 },               // +# to Mana after each Kill
-    AttributeDesc{ AttributeId::demon_heal },                                            // +# Life after each Demon Kill
-    AttributeDesc{ AttributeId::bloody },                                                // Visuals Only
-    AttributeDesc{ AttributeId::deadly, { AF::Damage } },                                // #% Deadly Strike
-    AttributeDesc{ AttributeId::slow, { AF::HasRange }, {}, 1, 127 },                    // Slows Target by #%
-    AttributeDesc{ AttributeId::nofreeze, { AF::OP } },                                  // Cannot Be Frozen
-    AttributeDesc{ AttributeId::stamdrain },                                             // #% Slower Stamina Drain
-    AttributeDesc{ AttributeId::reanimate },                                             // Reanimate As: [Returned]
-    AttributeDesc{ AttributeId::pierce, { AF::Missile, AF::Quantity } },                 // Piercing Attack
-    AttributeDesc{ AttributeId::magicarrow, { AF::Missile } },                           // Fires Magic Arrows
-    AttributeDesc{ AttributeId::explosivearrow, { AF::Missile } },                       // Fires Explosive Arrows or Bolts
-    AttributeDesc{ AttributeId::dru, { AF::Skills } }.setRange(1, 7).setClass(CH::dru),  // +# to Druid Skill Levels
-    AttributeDesc{ AttributeId::ass, { AF::Skills } }.setRange(1, 7).setClass(CH::ass),  // +# to Assassin Skill Levels
-    AttributeDesc{ AttributeId::skill, { AF::Skills, AF::SkillPar } }.setRange(1, 7),    // +# to [Skill] ([Class] only)
-    AttributeDesc{ AttributeId::skilltab, { AF::Skills, AF::SkillPar } }.setRange(1, 7), // +# to [Class Skill Tab] Skills
-    AttributeDesc{ AttributeId::aura },                                                  // Level # [Skill] Aura When Equipped
-    AttributeDesc{ AttributeId::att_skill },                                             // #% Chance to cast level # [Skill] on attack
-    AttributeDesc{ AttributeId::hit_skill },                                             // #% Chance to cast level # [Skill] on striking
-    AttributeDesc{ AttributeId::gethit_skill },                                          // #% Chance to cast level # [Skill] when struck
+    AttributeDesc{ AttributeId::att_percent, { AF::Attack } }.setIdiom(IDI::Brawler),                            // #% Bonus to Attack Rating
+    AttributeDesc{ AttributeId::dmg_ac, { AF::Attack, AF::Negative } }.setIdiom(IDI::Brawler),                   // -# to Monster Defense Per Hit
+    AttributeDesc{ AttributeId::dmg_demon, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(-20, 491),           // +#% Damage to Demons
+    AttributeDesc{ AttributeId::dmg_undead, { AF::Damage } }.setIdiom(IDI::Brawler).setRange(-20, 491),          // +#% Damage to Undead
+    AttributeDesc{ AttributeId::att_demon, { AF::Attack } }.setIdiom(IDI::Brawler),                              // +# to Attack Rating against Demons
+    AttributeDesc{ AttributeId::att_undead, { AF::Attack } }.setIdiom(IDI::Brawler),                             // +# to Attack Rating against Undead
+    AttributeDesc{ AttributeId::fireskill, { AF::Skills } }.setIdiom(IDI::Caster).setRange(1, 7),                // +# to Fire Skills
+    AttributeDesc{ AttributeId::poisskill, { AF::Skills } }.setIdiom(IDI::Caster).setRange(1, 7),
+    AttributeDesc{ AttributeId::coldskill, { AF::Skills } }.setIdiom(IDI::Caster).setRange(1, 7),
+    AttributeDesc{ AttributeId::magskill, { AF::Skills } }.setIdiom(IDI::Caster).setRange(1, 7),
+    AttributeDesc{ AttributeId::ltngskill, { AF::Skills } }.setIdiom(IDI::Caster).setRange(1, 7),
+    AttributeDesc{ AttributeId::allskills, { AF::Skills } }.setRange(1, 7),                     // +# to All Skills
+    AttributeDesc{ AttributeId::light_thorns },                                                 // Attacker Takes Lightning Damage of #
+    AttributeDesc{ AttributeId::freeze }.setIdiom(IDI::Brawler),                                // Freezes Target +#
+    AttributeDesc{ AttributeId::openwounds }.setIdiom(IDI::Brawler).setRange(1, 127),           // #% Chance of Open Wounds
+    AttributeDesc{ AttributeId::crush, { AF::OP } }.setIdiom(IDI::Brawler).setRange(1, 127),    // #% Chance of Crushing Blow
+    AttributeDesc{ AttributeId::kick, { AF::Damage } }.setIdiom(IDI::Brawler),                  // +# Kick Damage
+    AttributeDesc{ AttributeId::mana_kill }.setRange(1, 127),                                   // +# to Mana after each Kill
+    AttributeDesc{ AttributeId::demon_heal },                                                   // +# Life after each Demon Kill
+    AttributeDesc{ AttributeId::bloody },                                                       // Visuals Only
+    AttributeDesc{ AttributeId::deadly, { AF::Damage } }.setIdiom(IDI::Brawler),                // #% Deadly Strike
+    AttributeDesc{ AttributeId::slow }.setIdiom(IDI::Brawler).setRange(1, 127),                 // Slows Target by #%
+    AttributeDesc{ AttributeId::nofreeze, { AF::OP } },                                         // Cannot Be Frozen
+    AttributeDesc{ AttributeId::stamdrain },                                                    // #% Slower Stamina Drain
+    AttributeDesc{ AttributeId::reanimate },                                                    // Reanimate As: [Returned]
+    AttributeDesc{ AttributeId::pierce, { AF::Missile, AF::Quantity } }.setIdiom(IDI::Brawler), // Piercing Attack
+    AttributeDesc{ AttributeId::magicarrow, { AF::Missile } },                                  // Fires Magic Arrows
+    AttributeDesc{ AttributeId::explosivearrow, { AF::Missile } },                              // Fires Explosive Arrows or Bolts
+    AttributeDesc{ AttributeId::dru, { AF::Skills } }.setRange(1, 7).setClass(CH::dru),         // +# to Druid Skill Levels
+    AttributeDesc{ AttributeId::ass, { AF::Skills } }.setRange(1, 7).setClass(CH::ass),         // +# to Assassin Skill Levels
+    AttributeDesc{ AttributeId::skill, { AF::Skills, AF::SkillPar } }.setRange(1, 7),           // +# to [Skill] ([Class] only)
+    AttributeDesc{ AttributeId::skilltab, { AF::Skills, AF::SkillPar } }.setRange(1, 7),        // +# to [Class Skill Tab] Skills
+    AttributeDesc{ AttributeId::aura },                                                         // Level # [Skill] Aura When Equipped
+    AttributeDesc{ AttributeId::att_skill }.setIdiom(IDI::Brawler),                             // #% Chance to cast level # [Skill] on attack
+    AttributeDesc{ AttributeId::hit_skill }.setIdiom(IDI::Brawler),                             // #% Chance to cast level # [Skill] on striking
+    AttributeDesc{ AttributeId::gethit_skill },                                                 // #% Chance to cast level # [Skill] when struck
 
     AttributeDesc{ AttributeId::sock, { AF::Sockets } }.setRange(1, 6), // Socketed (#)
 
-    AttributeDesc{ AttributeId::dmg_fire, { AF::Damage } }, // Adds #-# Fire Damage
-    AttributeDesc{ AttributeId::dmg_ltng, { AF::Damage } }, // Adds #-# Lightning Damage
-    AttributeDesc{ AttributeId::dmg_mag, { AF::Damage } },  // Adds #-# Magic Damage
-    AttributeDesc{ AttributeId::dmg_cold, { AF::Damage } }, // Adds #-# Cold Damage
-    AttributeDesc{ AttributeId::dmg_pois, { AF::Damage } }, // Adds #-# Poison Damage Over # Seconds
-    AttributeDesc{ AttributeId::dmg_norm, { AF::Damage } }, // Adds #-# Damage
+    AttributeDesc{ AttributeId::dmg_fire, { AF::Damage } }.setIdiom(IDI::Brawler), // Adds #-# Fire Damage
+    AttributeDesc{ AttributeId::dmg_ltng, { AF::Damage } }.setIdiom(IDI::Brawler), // Adds #-# Lightning Damage
+    AttributeDesc{ AttributeId::dmg_mag, { AF::Damage } }.setIdiom(IDI::Brawler),  // Adds #-# Magic Damage
+    AttributeDesc{ AttributeId::dmg_cold, { AF::Damage } }.setIdiom(IDI::Brawler), // Adds #-# Cold Damage
+    AttributeDesc{ AttributeId::dmg_pois, { AF::Damage } }.setIdiom(IDI::Brawler), // Adds #-# Poison Damage Over # Seconds
+    AttributeDesc{ AttributeId::dmg_norm, { AF::Damage } }.setIdiom(IDI::Brawler), // Adds #-# Damage
 
-    AttributeDesc{ AttributeId::rep_dur, { AF::Durability, AF::SinglePar } },           // Repairs 1 durability in # seconds
-    AttributeDesc{ AttributeId::rep_quant, { AF::Quantity, AF::SinglePar } },           // Replenishes quantity
-    AttributeDesc{ AttributeId::stack, { AF::Quantity } },                              // Increased Stack Size
-    AttributeDesc{ AttributeId::pierce_fire }.setRange(1, 255),                         // -#% to Enemy Fire Resistance
-    AttributeDesc{ AttributeId::pierce_ltng }.setRange(1, 255),                         // -#% to Enemy Lightning Resistance
-    AttributeDesc{ AttributeId::pierce_cold }.setRange(1, 255),                         // -#% to Enemy Cold Resistance
-    AttributeDesc{ AttributeId::pierce_pois }.setRange(1, 255),                         // -#% to Enemy Poison Resistance
-    AttributeDesc{ AttributeId::indestruct, { AF::Durability } }.setRange(1, 1),        // Indestructible
-    AttributeDesc{ AttributeId::charged, { AF::SkillPar } },                            // Level # [Skill] (#/# Charges)  par: [SKill], min:-ChargesCount, max: -Level
-    AttributeDesc{ AttributeId::extra_fire }.setRange(-50, 461),                        // +#% to Fire Skill Damage
-    AttributeDesc{ AttributeId::extra_ltng }.setRange(-50, 461),                        // +#% to Lightning Skill Damage
-    AttributeDesc{ AttributeId::extra_cold }.setRange(-50, 461),                        // +#% to Cold Skill Damage
-    AttributeDesc{ AttributeId::extra_pois }.setRange(-50, 461),                        // +#% to Poison Skill Damage
-    AttributeDesc{ AttributeId::dmg_elem, { AF::Damage } },                             // Adds #-# Fire_perLightning_perCold Damage
-    AttributeDesc{ AttributeId::dmg_elem_min, { AF::Damage } },                         // +# to Minimum Fire_perLightning_perCold Damage
-    AttributeDesc{ AttributeId::dmg_elem_max, { AF::Damage } },                         // +# to Maximum Fire_perLightning_perCold Damage
-    AttributeDesc{ AttributeId::all_stats, { AF::Stats } }.setRange(-32, 95),           // +# to all Attributes
-    AttributeDesc{ AttributeId::addxp, { AF::OP } }.setRange(-50, 461),                 // +#% to Experience Gained
-    AttributeDesc{ AttributeId::heal_kill },                                            // +# Life after each Kill
-    AttributeDesc{ AttributeId::cheap }.setRange(1, 127),                               // Reduces all Vendor Prices #%
-    AttributeDesc{ AttributeId::rip },                                                  // Slain Monsters Rest in Peace
-    AttributeDesc{ AttributeId::att_mon_percent, { AF::Attack } },                      // #% to Attack Rating versus [Monster Type]
-    AttributeDesc{ AttributeId::dmg_mon_percent, { AF::Damage } },                      // #% to Damage versus [Monster Type]
-    AttributeDesc{ AttributeId::kill_skill },                                           // #% Chance to cast level # [Skill] when you Kill an Enemy
-    AttributeDesc{ AttributeId::death_skill },                                          // #% Chance to cast level # [Skill] when you Die
-    AttributeDesc{ AttributeId::levelup_skill },                                        // #% Chance to cast level # [Skill] when you Level_Up
-    AttributeDesc{ AttributeId::skill_rand, { AF::Skills } },                           // +# to [Skill] ([Class] only)
-    AttributeDesc{ AttributeId::fade, { AF::Keep } },                                   // Visuals Only
-    AttributeDesc{ AttributeId::levelreq },                                             // Required Level: #
-    AttributeDesc{ AttributeId::ethereal, { AF::Durability } },                         // Ethereal
-    AttributeDesc{ AttributeId::oskill, { AF::Skills, AF::SkillPar } }.setRange(1, 63), // +# to [Skill]   par: [SKill], min:MinLevel, max: MaxLevel
-    AttributeDesc{ AttributeId::state, { AF::Keep } },                                  // Applies a State on the unit
-    AttributeDesc{ AttributeId::randclassskill, { AF::Skills, AF::NoRange } },          // +# to [Class] Skill Levels
+    AttributeDesc{ AttributeId::rep_dur, { AF::Durability, AF::SinglePar } },             // Repairs 1 durability in # seconds
+    AttributeDesc{ AttributeId::rep_quant, { AF::Quantity, AF::SinglePar } },             // Replenishes quantity
+    AttributeDesc{ AttributeId::stack, { AF::Quantity } },                                // Increased Stack Size
+    AttributeDesc{ AttributeId::pierce_fire }.setRange(1, 255),                           // -#% to Enemy Fire Resistance
+    AttributeDesc{ AttributeId::pierce_ltng }.setRange(1, 255),                           // -#% to Enemy Lightning Resistance
+    AttributeDesc{ AttributeId::pierce_cold }.setRange(1, 255),                           // -#% to Enemy Cold Resistance
+    AttributeDesc{ AttributeId::pierce_pois }.setRange(1, 255),                           // -#% to Enemy Poison Resistance
+    AttributeDesc{ AttributeId::indestruct, { AF::Durability } }.setRange(1, 1),          // Indestructible
+    AttributeDesc{ AttributeId::charged, { AF::SkillPar } },                              // Level # [Skill] (#/# Charges)  par: [SKill], min:-ChargesCount, max: -Level
+    AttributeDesc{ AttributeId::extra_fire }.setRange(-50, 461),                          // +#% to Fire Skill Damage
+    AttributeDesc{ AttributeId::extra_ltng }.setRange(-50, 461),                          // +#% to Lightning Skill Damage
+    AttributeDesc{ AttributeId::extra_cold }.setRange(-50, 461),                          // +#% to Cold Skill Damage
+    AttributeDesc{ AttributeId::extra_pois }.setRange(-50, 461),                          // +#% to Poison Skill Damage
+    AttributeDesc{ AttributeId::dmg_elem, { AF::Damage } }.setIdiom(IDI::Brawler),        // Adds #-# Fire_perLightning_perCold Damage
+    AttributeDesc{ AttributeId::dmg_elem_min, { AF::Damage } }.setIdiom(IDI::Brawler),    // +# to Minimum Fire/Lightning/Cold Damage
+    AttributeDesc{ AttributeId::dmg_elem_max, { AF::Damage } }.setIdiom(IDI::Brawler),    // +# to Maximum Fire/Lightning/Cold Damage
+    AttributeDesc{ AttributeId::all_stats, { AF::Stats } }.setRange(-32, 95),             // +# to all Attributes
+    AttributeDesc{ AttributeId::addxp, { AF::OP } }.setRange(-50, 461),                   // +#% to Experience Gained
+    AttributeDesc{ AttributeId::heal_kill },                                              // +# Life after each Kill
+    AttributeDesc{ AttributeId::cheap }.setRange(1, 127),                                 // Reduces all Vendor Prices #%
+    AttributeDesc{ AttributeId::rip },                                                    // Slain Monsters Rest in Peace
+    AttributeDesc{ AttributeId::att_mon_percent, { AF::Attack } }.setIdiom(IDI::Brawler), // #% to Attack Rating versus [Monster Type]
+    AttributeDesc{ AttributeId::dmg_mon_percent, { AF::Damage } }.setIdiom(IDI::Brawler), // #% to Damage versus [Monster Type]
+    AttributeDesc{ AttributeId::kill_skill },                                             // #% Chance to cast level # [Skill] when you Kill an Enemy
+    AttributeDesc{ AttributeId::death_skill },                                            // #% Chance to cast level # [Skill] when you Die
+    AttributeDesc{ AttributeId::levelup_skill },                                          // #% Chance to cast level # [Skill] when you Level_Up
+    AttributeDesc{ AttributeId::skill_rand, { AF::Skills } },                             // +# to [Skill] ([Class] only)
+    AttributeDesc{ AttributeId::fade, { AF::Keep } },                                     // Visuals Only
+    AttributeDesc{ AttributeId::levelreq },                                               // Required Level: #
+    AttributeDesc{ AttributeId::ethereal, { AF::Durability } },                           // Ethereal
+    AttributeDesc{ AttributeId::oskill, { AF::Skills, AF::SkillPar } }.setRange(1, 63),   // +# to [Skill]   par: [SKill], min:MinLevel, max: MaxLevel
+    AttributeDesc{ AttributeId::state, { AF::Keep } },                                    // Applies a State on the unit
+    AttributeDesc{ AttributeId::randclassskill, { AF::Skills, AF::NoRange } },            // +# to [Class] Skill Levels
 
     /// perlevel
-    AttributeDesc{ AttributeId::ac_perlvl, { AF::PerLevel, AF::Defense } }.setRange(1, 63),               // +# Defense (Based on Character Level)
-    AttributeDesc{ AttributeId::ac_percent_perlvl, { AF::PerLevel, AF::Defense } }.setRange(1, 63),       // +#% Enhanced Defense (Based on Character Level)
-    AttributeDesc{ AttributeId::hp_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                 // +# to Life (Based on Character Level)
-    AttributeDesc{ AttributeId::mana_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),               // +# to Mana (Based on Character Level)
-    AttributeDesc{ AttributeId::dmg_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),               // +# to Maximum Damage (Based on Character Level)
-    AttributeDesc{ AttributeId::dmg_percent_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),       // +#% Enhanced Maximum Damage (Based on Character Level)
-    AttributeDesc{ AttributeId::str_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                // +# to Strength (Based on Character Level)
-    AttributeDesc{ AttributeId::dex_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                // +# to Dexterity (Based on Character Level)
-    AttributeDesc{ AttributeId::enr_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                // +# to Energy (Based on Character Level)
-    AttributeDesc{ AttributeId::vit_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                // +# to Vitality (Based on Character Level)
-    AttributeDesc{ AttributeId::att_perlvl, { AF::PerLevel, AF::Attack } }.setRange(1, 63),               // +# to Attack Rating (Based on Character Level)
-    AttributeDesc{ AttributeId::att_percent_perlvl, { AF::PerLevel, AF::Attack } }.setRange(1, 63),       // #% Bonus to Attack Rating (Based on Character Level)
-    AttributeDesc{ AttributeId::dmg_cold_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),          // +# to Maximum Cold Damage (Based on Character Level)
-    AttributeDesc{ AttributeId::dmg_fire_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),          // +# to Maximum Fire Damage (Based on Character Level)
-    AttributeDesc{ AttributeId::dmg_ltng_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),          // +# to Maximum Lightning Damage (Based on Character Level)
-    AttributeDesc{ AttributeId::dmg_pois_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),          // +# to Maximum Poison Damage (Based on Character Level)
-    AttributeDesc{ AttributeId::res_cold_perlvl, { AF::PerLevel, AF::Resistance } }.setRange(1, 63),      // Cold Resist +#% (Based on Character Level)
-    AttributeDesc{ AttributeId::res_fire_perlvl, { AF::PerLevel, AF::Resistance } }.setRange(1, 63),      // Fire Resist +#% (Based on Character Level)
-    AttributeDesc{ AttributeId::res_ltng_perlvl, { AF::PerLevel, AF::Resistance } }.setRange(1, 63),      // Lightning Resist +#% (Based on Character Level)
-    AttributeDesc{ AttributeId::res_pois_perlvl, { AF::PerLevel, AF::Resistance } }.setRange(1, 63),      // Poison Resist +#% (Based on Character Level)
-    AttributeDesc{ AttributeId::abs_cold_perlvl, { AF::PerLevel, AF::DamageReduction } }.setRange(1, 63), // Absorbs Cold Damage (Based on Character Level)
-    AttributeDesc{ AttributeId::abs_fire_perlvl, { AF::PerLevel, AF::DamageReduction } }.setRange(1, 63), // Absorbs Fire Damage (Based on Character Level)
-    AttributeDesc{ AttributeId::abs_ltng_perlvl, { AF::PerLevel, AF::DamageReduction } }.setRange(1, 63), // Absorbs Lightning Damage (Based on Character Level)
-    AttributeDesc{ AttributeId::abs_pois_perlvl, { AF::PerLevel, AF::DamageReduction } }.setRange(1, 63), // Absorbs Poison Damage (Based on Character Level)
-    AttributeDesc{ AttributeId::thorns_perlvl, { AF::PerLevel } }.setRange(1, 63),                        // Attacker Takes Damage of # (Based on Character Level)
-    AttributeDesc{ AttributeId::gold_percent_perlvl, { AF::PerLevel } }.setRange(1, 63),                  // #% Extra Gold from Monsters (Based on Character Level)
-    AttributeDesc{ AttributeId::mag_percent_perlvl, { AF::PerLevel } }.setRange(1, 63),                   // #% Better Chance of Getting Magic Items (Based on Character Level)
-    AttributeDesc{ AttributeId::regen_stam_perlvl, { AF::PerLevel } }.setRange(1, 63),                    // Heal Stamina Plus #% (Based on Character Level)
-    AttributeDesc{ AttributeId::stam_perlvl, { AF::PerLevel } }.setRange(1, 63),                          // +# Maximum Stamina (Based on Character Level)
-    AttributeDesc{ AttributeId::dmg_dem_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),           // +#% Damage to Demons (Based on Character Level)
-    AttributeDesc{ AttributeId::dmg_und_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),           // +#% Damage to Undead (Based on Character Level)
-    AttributeDesc{ AttributeId::att_dem_perlvl, { AF::PerLevel, AF::Attack } }.setRange(1, 63),           // +# to Attack Rating against Demons (Based on Character Level)
-    AttributeDesc{ AttributeId::att_und_perlvl, { AF::PerLevel, AF::Attack } }.setRange(1, 63),           // +# to Attack Rating against Undead (Based on Character Level)
-    AttributeDesc{ AttributeId::crush_perlvl, { AF::PerLevel, AF::OP } }.setRange(1, 63),                 // #% Chance of Crushing Blow (Based on Character Level)
-    AttributeDesc{ AttributeId::wounds_perlvl, { AF::PerLevel } }.setRange(1, 63),                        // #% Chance of Open Wounds (Based on Character Level)
-    AttributeDesc{ AttributeId::kick_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),              // +# Kick Damage (Based on Character Level)
-    AttributeDesc{ AttributeId::deadly_perlvl, { AF::PerLevel, AF::Damage } }.setRange(1, 63),            // #% Deadly Strike (Based on Character Level)
+    AttributeDesc{ AttributeId::ac_perlvl, { AF::PerLevel, AF::Defense } }.setRange(1, 63),                                // +# Defense (Based on Character Level)
+    AttributeDesc{ AttributeId::ac_percent_perlvl, { AF::PerLevel, AF::Defense } }.setRange(1, 63),                        // +#% Enhanced Defense (Based on Character Level)
+    AttributeDesc{ AttributeId::hp_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                                  // +# to Life (Based on Character Level)
+    AttributeDesc{ AttributeId::mana_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                                // +# to Mana (Based on Character Level)
+    AttributeDesc{ AttributeId::dmg_perlvl, { AF::PerLevel, AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63),         // +# to Maximum Damage (Based on Character Level)
+    AttributeDesc{ AttributeId::dmg_percent_perlvl, { AF::PerLevel, AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63), // +#% Enhanced Maximum Damage (Based on Character Level)
+    AttributeDesc{ AttributeId::str_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                                 // +# to Strength (Based on Character Level)
+    AttributeDesc{ AttributeId::dex_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                                 // +# to Dexterity (Based on Character Level)
+    AttributeDesc{ AttributeId::enr_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                                 // +# to Energy (Based on Character Level)
+    AttributeDesc{ AttributeId::vit_perlvl, { AF::PerLevel, AF::Stats } }.setRange(1, 63),                                 // +# to Vitality (Based on Character Level)
+    AttributeDesc{ AttributeId::att_perlvl, { AF::PerLevel, AF::Attack } }.setIdiom(IDI::Brawler).setRange(1, 63),         // +# to Attack Rating (Based on Character Level)
+    AttributeDesc{ AttributeId::att_percent_perlvl, { AF::PerLevel, AF::Attack } }.setIdiom(IDI::Brawler).setRange(1, 63), // #% Bonus to Attack Rating (Based on Character Level)
+    AttributeDesc{ AttributeId::dmg_cold_perlvl, { AF::PerLevel, AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63),    // +# to Maximum Cold Damage (Based on Character Level)
+    AttributeDesc{ AttributeId::dmg_fire_perlvl, { AF::PerLevel, AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63),    // +# to Maximum Fire Damage (Based on Character Level)
+    AttributeDesc{ AttributeId::dmg_ltng_perlvl, { AF::PerLevel, AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63),    // +# to Maximum Lightning Damage (Based on Character Level)
+    AttributeDesc{ AttributeId::dmg_pois_perlvl, { AF::PerLevel, AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63),    // +# to Maximum Poison Damage (Based on Character Level)
+    AttributeDesc{ AttributeId::res_cold_perlvl, { AF::PerLevel, AF::Resistance } }.setRange(1, 63),                       // Cold Resist +#% (Based on Character Level)
+    AttributeDesc{ AttributeId::res_fire_perlvl, { AF::PerLevel, AF::Resistance } }.setRange(1, 63),                       // Fire Resist +#% (Based on Character Level)
+    AttributeDesc{ AttributeId::res_ltng_perlvl, { AF::PerLevel, AF::Resistance } }.setRange(1, 63),                       // Lightning Resist +#% (Based on Character Level)
+    AttributeDesc{ AttributeId::res_pois_perlvl, { AF::PerLevel, AF::Resistance } }.setRange(1, 63),                       // Poison Resist +#% (Based on Character Level)
+    AttributeDesc{ AttributeId::abs_cold_perlvl, { AF::PerLevel, AF::DamageReduction } }.setRange(1, 63),                  // Absorbs Cold Damage (Based on Character Level)
+    AttributeDesc{ AttributeId::abs_fire_perlvl, { AF::PerLevel, AF::DamageReduction } }.setRange(1, 63),                  // Absorbs Fire Damage (Based on Character Level)
+    AttributeDesc{ AttributeId::abs_ltng_perlvl, { AF::PerLevel, AF::DamageReduction } }.setRange(1, 63),                  // Absorbs Lightning Damage (Based on Character Level)
+    AttributeDesc{ AttributeId::abs_pois_perlvl, { AF::PerLevel, AF::DamageReduction } }.setRange(1, 63),                  // Absorbs Poison Damage (Based on Character Level)
+    AttributeDesc{ AttributeId::thorns_perlvl, { AF::PerLevel } }.setRange(1, 63),                                         // Attacker Takes Damage of # (Based on Character Level)
+    AttributeDesc{ AttributeId::gold_percent_perlvl, { AF::PerLevel } }.setRange(1, 63),                                   // #% Extra Gold from Monsters (Based on Character Level)
+    AttributeDesc{ AttributeId::mag_percent_perlvl, { AF::PerLevel } }.setRange(1, 63),                                    // #% Better Chance of Getting Magic Items (Based on Character Level)
+    AttributeDesc{ AttributeId::regen_stam_perlvl, { AF::PerLevel } }.setRange(1, 63),                                     // Heal Stamina Plus #% (Based on Character Level)
+    AttributeDesc{ AttributeId::stam_perlvl, { AF::PerLevel } }.setRange(1, 63),                                           // +# Maximum Stamina (Based on Character Level)
+    AttributeDesc{ AttributeId::dmg_dem_perlvl, { AF::PerLevel, AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63),     // +#% Damage to Demons (Based on Character Level)
+    AttributeDesc{ AttributeId::dmg_und_perlvl, { AF::PerLevel, AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63),     // +#% Damage to Undead (Based on Character Level)
+    AttributeDesc{ AttributeId::att_dem_perlvl, { AF::PerLevel, AF::Attack } }.setIdiom(IDI::Brawler).setRange(1, 63),     // +# to Attack Rating against Demons (Based on Character Level)
+    AttributeDesc{ AttributeId::att_und_perlvl, { AF::PerLevel, AF::Attack } }.setIdiom(IDI::Brawler).setRange(1, 63),     // +# to Attack Rating against Undead (Based on Character Level)
+    AttributeDesc{ AttributeId::crush_perlvl, { AF::PerLevel, AF::OP } }.setIdiom(IDI::Brawler).setRange(1, 63),           // #% Chance of Crushing Blow (Based on Character Level)
+    AttributeDesc{ AttributeId::wounds_perlvl, { AF::PerLevel } }.setIdiom(IDI::Brawler).setRange(1, 63),                  // #% Chance of Open Wounds (Based on Character Level)
+    AttributeDesc{ AttributeId::kick_perlvl, { AF::PerLevel, AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63),        // +# Kick Damage (Based on Character Level)
+    AttributeDesc{ AttributeId::deadly_perlvl, { AF::PerLevel, AF::Damage } }.setIdiom(IDI::Brawler).setRange(1, 63),      // #% Deadly Strike (Based on Character Level)
 
     // PD2 maps
     AttributeDesc{ AttributeId::map_glob_monsterrarity, { AF::PD2Map } },

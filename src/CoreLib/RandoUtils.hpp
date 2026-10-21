@@ -10,6 +10,24 @@
 
 namespace D2ModGen {
 
+struct RandoParams {
+    int levelPlus           = 0;
+    int levelMinus          = 0;
+    int relativeCountMin    = 0;
+    int relativeCountMax    = 0;
+    int keepOriginalPercent = 0;
+    int typeFitPercent      = 0;
+
+    bool enableGeneration   = true;
+    bool uniqueCheckAcross  = false;
+    bool updateExisting     = false;
+    bool supportRandomRange = true; // gems can't have random variance
+
+    bool replaceSkills  = false; // skill => oskill
+    bool replaceCharges = false; // charge => oskill
+    bool removeKnock    = false;
+};
+
 inline void appendToSet(StringSet& s, const StringSet& another)
 {
     s.insert(another.cbegin(), another.cend());
@@ -26,21 +44,25 @@ struct MagicProp {
     std::optional<int> min;
     std::optional<int> max;
 
-    Character determineClass(bool checkOskill) const;
+    Character      determineClass(bool startEstimation) const;
+    AttributeIdiom determineIdiom() const;
 };
 
 struct MagicPropRawList {
     MagicPropList          parsedProps;
     std::vector<AffixProp> keptProps;
+    size_t                 affixLimit   = 0;
+    int                    needGenerate = 0;
 
-    void postProcess(bool replaceSkills, bool replaceCharges, bool skipKnock);
+    void preProcess(const RandoParams& randoParams);
     void makePerfect();
 
     void readFromRow(const AffixPropList& propList);
     void writeToRow(AffixPropList& propList) const;
 
-    int       getTotalSize() const;
-    Character determineClass(bool checkOskill) const;
+    int            getTotalSize() const;
+    Character      determineClass(bool checkOskill) const;
+    AttributeIdiom determineIdiom() const;
 
     void append(MagicPropList added);
 
@@ -94,20 +116,54 @@ struct MagicPropUniverse {
     std::map<size_t, CommonGen> levelGen;
 
     MagicPropUniverse(const MagicContext& magicContext);
+};
 
-    MagicPropList generate(RandomGenerator&        rng,
-                           UniqueAttributeChecker& existingCodes,
-                           Character               existingClass,
-                           const AttributeFlagSet& narrowingFlags,
-                           SlotType                specificTypeQuery,
-                           int                     specificItemUsage,
-                           int                     count,
-                           size_t                  levelBracket20) const;
+struct MagicPropItem {
+    // const during generation
+    int                           originalLevel = 0;
+    AttributeFlagSet              supportedAttributes;
+    ItemCodeList                  types;
+    std::vector<MagicPropRawList> affixlists;
+    SlotType                      slot           = SlotType::Undefined;
+    size_t                        levelBracket20 = 0;
 
-    void update(MagicPropRawList& propList,
-                RandomGenerator&  rng,
-                SlotType          specificTypeQuery,
-                size_t            levelBracket20) const;
+    // mutable during generation
+    UniqueAttributeChecker uniqueChecker;
+    Character              currentClass = Character::none;
+    AttributeIdiom         currentIdiom = AttributeIdiom::Any;
+
+    template<class Row>
+    void readFrom(const Row& row)
+    {
+        originalLevel       = row.getLevel();
+        supportedAttributes = row.getAttributes();
+        types               = row.getItemFilter();
+
+        for (const AffixPropList* affixList : row.affixLists()) {
+            MagicPropRawList rawList;
+            rawList.readFromRow(*affixList);
+            affixlists.push_back(std::move(rawList));
+        }
+    }
+
+    void generate(RandomGenerator&         rng,
+                  const MagicPropUniverse& props,
+                  const RandoParams&       randoParams);
+
+    MagicPropList generate(RandomGenerator&                    rng,
+                           const MagicPropUniverse::CommonGen& commonGen,
+                           const RandoParams&                  randoParams,
+                           int                                 count);
+
+    void update(MagicPropRawList& propList, RandomGenerator& rng, const MagicPropUniverse::CommonGen& commonGen);
+
+    template<class Row>
+    void writeTo(Row& row)
+    {
+        for (size_t i = 0; AffixPropList* affixList : row.affixLists()) {
+            affixlists[i++].writeToRow(*affixList);
+        }
+    }
 };
 
 }

@@ -18,16 +18,20 @@ namespace D2ModGen {
 
 class DataRow_itemtypes;
 class RowBaseEquipment;
-using EquipemntType = const RowBaseEquipment*;
+using EquipmentType = const RowBaseEquipment*;
 using ItemType      = const DataRow_itemtypes*;
 using ItemTypeSet   = std::set<ItemType>;
-struct ItemCodeFilter {
-    ItemTypeSet include;
-    ItemTypeSet exclude;
 
-    Character determineClass() const;
+struct ItemCodeList : public std::vector<ItemType> {
+    ItemCodeList() = default;
+    ItemCodeList(const ItemTypeSet& codes)
+        : std::vector<ItemType>(codes.cbegin(), codes.cend())
+    {}
 
-    SlotType determineSlot() const;
+    Character      determineClass() const;
+    SlotType       determineSlot() const;
+    AttributeIdiom determineIdiom() const;
+    std::string    toString() const;
 };
 
 template<class Row>
@@ -168,7 +172,7 @@ struct RowBaseAffixes : public RowBase {
 
     std::vector<std::string> itype; //7
     std::vector<std::string> etype; // 5
-    ItemCodeFilter           filter;
+    ItemCodeList             filter;
 
     std::string name;
 
@@ -187,7 +191,7 @@ struct RowBaseAffixes : public RowBase {
         return getLevel() > 0;
     }
 
-    ItemCodeFilter getItemFilter() const
+    ItemCodeList getItemFilter() const
     {
         return filter;
     }
@@ -231,9 +235,12 @@ struct RowBaseEquipment : public RowBase {
         return !itemTypeCode.empty() && getLevel() > 0;
     }
 
-    ItemCodeFilter getItemFilter() const
+    ItemCodeList getItemFilter() const
     {
-        return itemType ? ItemCodeFilter{ { itemType }, {} } : ItemCodeFilter{};
+        ItemCodeList result;
+        if (itemType)
+            result.push_back(itemType);
+        return result;
     }
 
     AttributeFlagSet getAttributes() const;
@@ -339,7 +346,7 @@ struct DataRow_gems : public RowBase {
     AffixPropList affixes_helm{ 3 };
     AffixPropList affixes_shield{ 3 };
 
-    EquipemntType eqipmentType = nullptr;
+    EquipmentType eqipmentType = nullptr;
     std::string   eqipmentCode;
 
     auto affixLists() const { return std::array{ &affixes_weapon, &affixes_helm, &affixes_shield }; }
@@ -360,7 +367,7 @@ struct DataRow_gems : public RowBase {
         return isValid() ? eqipmentType->getLevel() : 0;
     }
 
-    ItemCodeFilter getItemFilter() const
+    ItemCodeList getItemFilter() const
     {
         return eqipmentType->getItemFilter();
     }
@@ -397,7 +404,8 @@ struct DataRow_itemtypes : public RowBase {
     std::string equiv2;
     std::string bodyLoc1;
 
-    Character classSpecific = Character::none;
+    AttributeIdiom idiom         = AttributeIdiom::Any;
+    Character      classSpecific = Character::none;
 
     std::optional<bool>               throwable;
     std::optional<bool>               repair;
@@ -408,7 +416,8 @@ struct DataRow_itemtypes : public RowBase {
     ItemTypeSet      nested;
     ItemTypeSet      parents;
 
-    SlotType determineSlot() const;
+    SlotType       determineSlot() const;
+    AttributeIdiom determineIdiom() const { return idiom; }
 
     std::vector<std::string>           getColumns() const;
     std::map<std::string, std::string> getColumnAliases() const;
@@ -511,7 +520,7 @@ struct DataRow_runes : public RowBase {
     std::optional<bool>      complete;
     std::vector<std::string> itype;
     std::vector<std::string> etype;
-    ItemCodeFilter           filter;
+    ItemCodeList             filter;
 
     std::string name;
 
@@ -532,7 +541,7 @@ struct DataRow_runes : public RowBase {
         return isValid() ? lvl : 0;
     }
 
-    ItemCodeFilter getItemFilter() const
+    ItemCodeList getItemFilter() const
     {
         return filter;
     }
@@ -562,7 +571,7 @@ struct DataRow_setitems : public RowBase {
 
     std::string   index;
     std::string   setIndex;
-    EquipemntType eqipmentType = nullptr;
+    EquipmentType eqipmentType = nullptr;
     std::string   eqipmentCode;
 
     AffixPropList affixes_base{ 9 };
@@ -587,9 +596,9 @@ struct DataRow_setitems : public RowBase {
         return 0;
     }
 
-    ItemCodeFilter getItemFilter() const
+    ItemCodeList getItemFilter() const
     {
-        return eqipmentType ? eqipmentType->getItemFilter() : ItemCodeFilter{};
+        return eqipmentType ? eqipmentType->getItemFilter() : ItemCodeList{};
     }
     AttributeFlagSet getAttributes() const
     {
@@ -608,9 +617,9 @@ struct DataRow_setitems : public RowBase {
 struct DataRow_sets : public RowBase {
     int level = 0;
 
-    std::string    index;
-    std::string    name;
-    ItemCodeFilter filter;
+    std::string  index;
+    std::string  name;
+    ItemCodeList filter;
 
     AffixPropList affixes_full{ 8 };
     AffixPropList affixes_partial1{ 4 };
@@ -626,7 +635,7 @@ struct DataRow_sets : public RowBase {
 
     bool             isValid() const { return !name.empty(); }
     int              getLevel() const { return level; }
-    ItemCodeFilter   getItemFilter() const { return filter; }
+    ItemCodeList     getItemFilter() const { return filter; }
     AttributeFlagSet getAttributes() const
     {
         return AttributeFlagSet{};
@@ -695,7 +704,7 @@ struct DataRow_uniqueitems : public RowBase {
 
     AffixPropList affixes{ 12 };
 
-    EquipemntType eqipmentType = nullptr;
+    EquipmentType eqipmentType = nullptr;
     std::string   eqipmentCode;
     std::string   index;
 
@@ -722,9 +731,9 @@ struct DataRow_uniqueitems : public RowBase {
         return spawnable.value_or(false) && !eqipmentCode.empty() && getLevel() > 0;
     }
 
-    ItemCodeFilter getItemFilter() const
+    ItemCodeList getItemFilter() const
     {
-        return eqipmentType ? eqipmentType->getItemFilter() : ItemCodeFilter{};
+        return eqipmentType ? eqipmentType->getItemFilter() : ItemCodeList{};
     }
     AttributeFlagSet getAttributes() const
     {

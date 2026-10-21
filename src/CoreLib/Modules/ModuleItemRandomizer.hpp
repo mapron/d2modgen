@@ -8,6 +8,7 @@
 #include "PluginModule.hpp"
 
 namespace D2ModGen {
+struct MagicContext;
 
 class ModuleItemRandomizer : public PluginModule {
 public:
@@ -17,6 +18,23 @@ public:
     ModuleItemRandomizer();
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
+
+    using AllPropsVal = std::map<SlotType, std::map<int, AffixPropList>>;
+    using AllProps    = std::map<AttributeId, AllPropsVal>;
+
+    void grabAllProps(AllProps& allProps, DataContext& output, MagicContext& context) const;
+
+    void analyzeAllPropsForDump(
+        AttributeId                    code,
+        const AllPropsVal&             allPropsVal,
+        NonPropAttributeRecordList&    nonPropList,
+        PropAttributeRecordList&       propList,
+        ApproximationResultsSimpleMap& approxMapSimple) const;
+
+    void dumpAttributes(
+        const NonPropAttributeRecordList&    nonPropList,
+        const PropAttributeRecordList&       propList,
+        const ApproximationResultsSimpleMap& approxMapSimple) const;
 };
 
 }

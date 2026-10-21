@@ -78,15 +78,6 @@ bool DataContext::parseData(const IStorage::StoredData& data)
         row.itemType = getItemType(row.itemTypeCode);
     };
 
-    auto bindAff = [this, &getItemType](auto& row) {
-        if (!row.isValid())
-            return;
-        for (auto& itype : row.itype)
-            row.filter.include.insert(getItemType(itype));
-        for (auto& etype : row.etype)
-            row.filter.exclude.insert(getItemType(etype));
-    };
-
     for (auto& row : armor.rows)
         bindEquip(row);
     for (auto& row : weapons.rows)
@@ -94,16 +85,7 @@ bool DataContext::parseData(const IStorage::StoredData& data)
     for (auto& row : misc.rows)
         bindEquip(row);
 
-    for (auto& row : magicprefix.rows)
-        bindAff(row);
-    for (auto& row : magicsuffix.rows)
-        bindAff(row);
-    for (auto& row : automagic.rows)
-        bindAff(row);
-    for (auto& row : runes.rows)
-        bindAff(row);
-
-    auto findEquip = [this](const std::string& equipCode) -> EquipemntType {
+    auto findEquip = [this](const std::string& equipCode) -> EquipmentType {
         if (auto it = armor.index.find(equipCode); it != armor.index.cend())
             return it->second;
         if (auto it = weapons.index.find(equipCode); it != weapons.index.cend())
@@ -149,6 +131,9 @@ bool DataContext::parseData(const IStorage::StoredData& data)
         { "war", Character::war },
     };
 
+    const std::set<std::string> casterCodes{ "wand", "staf", "orb", "head" };
+    const std::set<std::string> brawlCodes{ "h2h", "bow", "xbow", "miss", "thro" };
+
     for (auto& row : itemtypes.rows) {
         const auto codeStr  = row.code;
         const auto itemType = row.itemType;
@@ -173,6 +158,12 @@ bool DataContext::parseData(const IStorage::StoredData& data)
             if (it != classes.cend())
                 row.classSpecific = it->second;
         }
+
+        if (casterCodes.contains(codeStr)) {
+            row.idiom = AttributeIdiom::Caster;
+        } else if (brawlCodes.contains(codeStr)) {
+            row.idiom = AttributeIdiom::Brawler;
+        }
     }
 
     auto expandNested = [this]() -> bool {
@@ -194,6 +185,32 @@ bool DataContext::parseData(const IStorage::StoredData& data)
         ;
     }
 
+    auto bindAff = [this, &getItemType](auto& row) {
+        if (!row.isValid())
+            return;
+        ItemTypeSet filter;
+        for (auto& itype : row.itype) {
+            ItemType t = getItemType(itype);
+            filter.insert(t);
+            filter.insert(t->nested.cbegin(), t->nested.cend());
+        }
+        for (auto& etype : row.etype) {
+            ItemType t = getItemType(etype);
+            filter.erase(t);
+            for (auto* n : t->nested)
+                filter.erase(n);
+        }
+        row.filter = ItemCodeList(filter);
+    };
+    for (auto& row : magicprefix.rows)
+        bindAff(row);
+    for (auto& row : magicsuffix.rows)
+        bindAff(row);
+    for (auto& row : automagic.rows)
+        bindAff(row);
+    for (auto& row : runes.rows)
+        bindAff(row);
+
     for (auto& row : runes.rows) {
         row.lvl = 0;
         for (const std::string& rune : row.runeCodes)
@@ -202,7 +219,7 @@ bool DataContext::parseData(const IStorage::StoredData& data)
     setstypes.equiv1 = "SET";
     for (auto& row : sets.rows) {
         if (row.isValid())
-            row.filter.include.insert(&setstypes);
+            row.filter.push_back(&setstypes);
     }
 
     for (const auto& [id, fileData] : data.jsonFiles) {
@@ -1222,24 +1239,44 @@ AttributeFlagSet RowBaseEquipment::getAttributes() const
     return itemType ? itemType->flags : AttributeFlagSet{};
 }
 
-Character ItemCodeFilter::determineClass() const
+Character ItemCodeList::determineClass() const
 {
-    for (ItemType type : include)
+    for (ItemType type : *this)
         if (type->classSpecific != Character::none)
             return type->classSpecific;
 
     return Character::none;
 }
 
-SlotType ItemCodeFilter::determineSlot() const
+SlotType ItemCodeList::determineSlot() const
 {
-    for (ItemType type : include) {
+    for (ItemType type : *this) {
         auto slot = type->determineSlot();
         if (slot != SlotType::Undefined)
             return slot;
     }
 
     return SlotType::Undefined;
+}
+
+AttributeIdiom ItemCodeList::determineIdiom() const
+{
+    for (ItemType type : *this) {
+        auto slot = type->determineIdiom();
+        if (slot != AttributeIdiom::Any)
+            return slot;
+    }
+
+    return AttributeIdiom::Any;
+}
+
+std::string ItemCodeList::toString() const
+{
+    std::string res = "";
+    for (ItemType type : *this) {
+        res += type->code + ",";
+    }
+    return res;
 }
 
 }

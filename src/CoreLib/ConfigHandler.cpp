@@ -196,6 +196,7 @@ void ConfigHandler::updateSeed(bool onGenerate)
 
 ConfigHandler::GenerateResult ConfigHandler::generate()
 {
+    auto startAll = Mernel::ChronoPoint(true);
     updateSeed(true);
 
     std::string                 err;
@@ -218,6 +219,8 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     if (!inData.valid) {
         return { "Failed to read data files from D2 folder." };
     }
+    Logger(Logger::Notice) << "Load files from game storage time: " << startAll.GetElapsedTime().ToProfilingTime();
+
     Logger() << "Parsing json and txt...";
     if (!output.parseData(inData)) {
         return { "Failed parse D2 data files." };
@@ -261,7 +264,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
                 return { std::string("module '" + module.m_key + "': " + std::string(ex.what())) };
             }
         }
-        Logger(Logger::Notice) << "generate finished in: " << start.GetElapsedTime().ToProfilingTime();
+        Logger(Logger::Notice) << "generate logic finished in: " << start.GetElapsedTime().ToProfilingTime();
     }
     Logger() << "prepare output data.";
 
@@ -284,7 +287,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         return { "Failed write output data to disk" };
     }
 
-    Logger() << "generation ends.";
+    Logger(Logger::Notice) << "Total time: " << startAll.GetElapsedTime().ToProfilingTime();
     return { "", true };
 }
 
