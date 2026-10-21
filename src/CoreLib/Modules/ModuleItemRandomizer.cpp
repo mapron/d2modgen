@@ -38,6 +38,7 @@ ModuleItemRandomizer::ModuleItemRandomizer()
           { "replaceSkills", Mernel::PropertyTreeScalar{ false } },
           { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
           { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+          { "setBonusMode", Mernel::PropertyTreeScalar{ 0 } },
       })
 {
     setPresets({
@@ -96,6 +97,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     const bool removeKnock    = input.getInt("removeKnock");
     const bool updateRange    = input.getInt("updateRange");
 
+    const int setBonusMode  = input.getInt("setBonusMode");
     const int repeatUniques = input.getInt("repeat_uniques");
     const int repeatSets    = input.m_env.isLegacy ? 0 : input.getInt("repeat_sets");
 
@@ -163,6 +165,16 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             setItemsKeys.push_back(row.index);
             allItemsKeys.push_back(row.index);
             row.disableChronicle = true;
+            // addfunc:
+            // 0 -> no green properties on item (apropxx will appear as a blue attribute on the list instead).
+            // 1 -> green properties (apropxx) depend on which other items from the set are equipped. (only Civerb's Ward)
+            // 2 -> green properties (apropxx) depend on how many other items from the set are equipped.
+            if (setBonusMode == 1) {
+                row.addfunc = 0;
+            }
+            if (setBonusMode == 2) {
+                row.addfunc = 2;
+            }
             validRows.push_back(row);
         }
 

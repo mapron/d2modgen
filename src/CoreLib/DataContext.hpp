@@ -557,6 +557,7 @@ struct DataRow_setitems : public RowBase {
 
     std::optional<int>  lvl;
     std::optional<int>  lvlreq;
+    std::optional<int>  addfunc;
     std::optional<bool> disableChronicle;
 
     std::string   index;

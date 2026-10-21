@@ -172,6 +172,7 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
             row.noDrop = adjustPick(row.noDrop.value_or(0), 100, percentDrop);
 
             if (highDropsCount) {
+                /// @todo: remove hardcode group ids.
                 if (treasureGroup == 15) { // Uniques, insead of 1 item + 2*2 potion, make 4 items + 1*2 potion
                     row.items[0].prob = 4;
                     row.items[1].prob = 1;
@@ -186,6 +187,9 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
                     row.items[0].prob = 6;
                     row.items[1].prob = 0;
                     row.picks         = -6;
+                }
+                if (treasureGroup == 11) { // Citems, remove gold
+                    row.items.erase(row.items.cbegin());
                 }
             }
 

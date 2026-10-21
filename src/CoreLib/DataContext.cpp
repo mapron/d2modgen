@@ -953,7 +953,7 @@ void DataRow_runes::serialize()
 
 std::vector<std::string> DataRow_setitems::getColumns() const
 {
-    std::vector<std::string> result{ "lvl", "lvl req", "index", "set", "item", "disablechronicle" };
+    std::vector<std::string> result{ "lvl", "lvl req", "index", "set", "item", "add func", "disablechronicle" };
     for (size_t i = 0; i < affixes_base.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("prop" + istr);
@@ -992,6 +992,7 @@ void DataRow_setitems::serialize()
     ser(index);
     ser(setIndex);
     ser(eqipmentCode);
+    ser(addfunc);
     ser(disableChronicle);
 
     for (auto* affixList : affixLists())

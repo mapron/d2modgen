@@ -161,4 +161,13 @@ WidgetCommonTab {
         value_context: root.value_context
         value_key: "updateRange"
     }
+
+    WidgetComboBox {
+        isCompact: true
+        caption: qsTr("Set items partial bonus")
+        tooltip: qsTr("How generated items will use partial set bonuses:<br>Keep - Existing item logic is preserved;<br>No partial - space for extra attributes will used for 'Blue' properties<br>Use partial - extra set attributes will require other pieces, 'Green' props.")
+        model: [qsTr("Keep"), qsTr("No partial"), qsTr("Use partial")]
+        value_context: root.value_context
+        value_key: "setBonusMode"
+    }
 }
