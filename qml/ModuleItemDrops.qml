@@ -58,8 +58,8 @@ WidgetCommonTab {
     }
 
     WidgetCheckbox {
-        caption: qsTr("Increase Champion/Unique item count")
-        tooltip: qsTr("This will make Unique bosses to drop 4 items instead of just 1, and Champions drop 2 items instead of one.<br>Note that potion drops are slightly reduced.")
+        caption: qsTr("Increase Champion/Unique/Superunique dropped item count")
+        tooltip: qsTr("Change item+potion ratio:<br>Champion: 2 items + 2 potions<br>Unique: 4 items + 2 potions<br>Superuniques: 6 items + 0 potions")
         value_context: root.value_context
         value_key: "high_elite_drops"
     }

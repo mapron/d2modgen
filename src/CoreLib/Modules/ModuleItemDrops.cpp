@@ -182,6 +182,11 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
                     row.items[1].prob = 1;
                     row.picks         = -3;
                 }
+                if (treasureGroup == 18 || treasureGroup == 19) { // SuperUniques, make 6 items
+                    row.items[0].prob = 6;
+                    row.items[1].prob = 0;
+                    row.picks         = -6;
+                }
             }
 
             const auto rowTC = getTC(className);
