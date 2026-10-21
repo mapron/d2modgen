@@ -1,3 +1,61 @@
+## 0.8.2
+Continue polishing and improving item rando:
+* Total rework for "consistency checker", should now completely exclude irrelevant mix of classes;
+* Added new tech for consistency checker aside from class - "idiom", now handing 3 of them - "any", "brawler" and "caster";
+* Added slider option to randomizer "percent of caster options", so if you want rando to generate caster-only items without ED and AR, put this to max;
+
+## 0.8.1
+A lot of improvements in randomizer under the hood:  
+* Optimized performance (randomizer generation now 20 times faster);
+* More smooth and consistent values for most attributes (except skill-specific, like skill on hit and so on). Less outliers with properties (hard to explain, better check it)
+* Updated property info to support recent ProjectD2 attributes;
+* High-end values for +damage on weapons scaled closer to ProjectD2 (if someone wanted +500 fire damage instead of +60, here it goes);
+* Added ability to update values that are kept by randomizer;
+* Crazy-ness was split into two sliders ("buff power" and "nerf power"). If both are set to zero, then level reference for generation always the same, so this is most balanced experience.
+* A lot of adjustments for "+skill tab" generation! It should now generate all possible tabs
+* class specifics +skill bonuses are more smooth and equal across classes.
+
+## 0.8.0
+
+Quite significant release with focus on refactoring and bugfixes + make ground for future randomizer improvements
+
+* Major bugfix: now randomizer follows single class for attributes (no longer +skills for 5 different classes on an item);
+* Fixed a lot of wrong "duplicate property" detections;
+* Fixed old annoying bug with wrong damage attribute range, that was causing random crash on identify for years;
+* Fixed issue with some tabs ignoring default values (like "Horadric" tab);
+* Added 'debug" folder with in and out .txt files from generation in AppData folder;
+* Added "browse folder" button for input/output;
+* Fixed wrong treasure classes for monster rando on some cases;
+* Adjusted "power scaling" so it only applies 50% penalty on powerscale for skills and DR;
+* Allow several "skilltab" properties on item;
+* Added a lot of debug traces to different parts of program.
+
+
+## 0.7.2
+Update ui and docs.
+
+## 0.7.1
+Bugfix release:
+* Return features for "Extra" tab (creating shortcut + copying settings)
+* Better UI for Main tab;
+* Fixed reading folder with txt files - skipping unknown table ids;
+* Fixed exporting "weapons.txt" file if table was not found in input data;
+* Fixed D2R mod not containing databuildversion.txt (no more warning on launch);
+
+## 0.7.0
+UI was reworked, port from Qt Widgets to QML. Redesign itself is not a goal, I want to rework randomizer, and need tools for that.   
+
+* Added "refresh seed" option. With it, each generation gives new seed!
+* modgen_console.exe is reworked, it takes no command line and just generates default config. You can set "refresh seed" and set launch of this executable to some global hotkey to instantly refresh data!
+* now it is possible to select folder (not CASC/mpq) as input! Someone requested that. Possibility to include in some other modding pipeline.
+
+## 0.6.9
+Updated CascLib
+
+## 0.6.8
+Updated CascLib to latest master + added CASC_FEATURE_ALLOW_DOWNLOAD
+
+
 ## 0.6.7
 Updated stormlib and Casclib, recent version of Casclib contains fix for Steam version of D2R. Thank you, Ladislav Zezula!
 
