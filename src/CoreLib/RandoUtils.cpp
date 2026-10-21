@@ -245,7 +245,10 @@ MagicPropList MagicPropUniverse::generate(RandomGenerator&        rng,
     return result;
 }
 
-void MagicPropUniverse::update(MagicPropRawList& propList, RandomGenerator& rng, SlotType specificTypeQuery, size_t levelBracket20) const
+void MagicPropUniverse::update(MagicPropRawList& propList,
+                               RandomGenerator&  rng,
+                               SlotType          specificTypeQuery,
+                               size_t            levelBracket20) const
 {
     const CommonGen& commonGen = levelGen.at(levelBracket20);
 
@@ -261,7 +264,15 @@ void MagicPropUniverse::update(MagicPropRawList& propList, RandomGenerator& rng,
             gen = commonGen.general.findAttributeGenerator(prop.id);
         if (!gen)
             continue;
-        prop = gen->generate(rng);
+
+        const MagicProp nextProp     = gen->generate(rng);
+        const Character currentClass = prop.determineClass(true);
+        const Character nextClass    = nextProp.determineClass(true);
+        if (currentClass != Character::none && nextClass != Character::none) {
+            if (nextClass != currentClass)
+                continue;
+        }
+        prop = nextProp;
     }
 }
 
