@@ -26,6 +26,8 @@ ModuleItemRandomizer::ModuleItemRandomizer()
           { "levelMinus", Mernel::PropertyTreeScalar{ 10 } },
           { "extraKnown", Mernel::PropertyTreeScalar{} },
           { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
+
+          { "casterTypePercent", Mernel::PropertyTreeScalar{ 25 } },
           { "itemFitPercent", Mernel::PropertyTreeScalar{ 70 } },
           { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 70 } },
           { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
@@ -230,6 +232,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     params.levelPlus           = input.getInt("levelPlus");
     params.levelMinus          = input.getInt("levelMinus");
     params.typeFitPercent      = input.getInt("itemFitPercent");
+    params.casterTypePercent   = input.getInt("casterTypePercent");
     params.keepOriginalPercent = input.getInt("keepOriginalPercent");
     params.relativeCountMin    = input.getInt("relativeCountMin");
     params.relativeCountMax    = input.getInt("relativeCountMax");
@@ -252,7 +255,20 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     auto paramsRunes = params;
     auto paramsUniq  = params;
 
-    auto fillProps = [&props, &rng]<typename Row>(DataTable<Row>& table, const RandoParams& params) {
+    auto skillResolver = [&output](const std::string& skillId) -> Character {
+        if (!skillId.empty()) {
+            int intId = std::atoi(skillId.c_str());
+            if (intId > 0) {
+                return output.skills.rows[intId].classSpecific;
+            }
+            auto it = output.skills.index.find(skillId);
+            if (it != output.skills.index.cend())
+                return it->second->classSpecific;
+        }
+        return Character::none;
+    };
+
+    auto fillProps = [&props, &rng, &skillResolver]<typename Row>(DataTable<Row>& table, const RandoParams& params) {
         if (!params.enableGeneration)
             return;
 
@@ -261,9 +277,11 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 continue;
 
             MagicPropItem item;
+            item.skillResolver = skillResolver;
             item.readFrom(row);
             item.generate(rng, props, params);
             item.writeTo(row);
+            //Logger() << item.toString();
         }
     };
     auto startFillProps = Mernel::ChronoPoint(true);

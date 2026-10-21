@@ -43,6 +43,16 @@ WidgetCommonTab {
     }
 
     WidgetRangeSlider {
+        caption: qsTr("Caster items percent")
+        tooltip: qsTr("How many generated items will be caster-specific.")
+        from: 0
+        to: 100
+        value_context: root.value_context
+        value_key: "casterTypePercent"
+        isCompact: false
+    }
+
+    WidgetRangeSlider {
         caption: qsTr("How many original properties to keep, percent")
         tooltip: qsTr("You can select how many properties of original item you want to keep.<br>If 0, then every item will be fully randomized.<br>If 50, then half of genereted properties will be original, and half randomized.<br>If 100, then every property will be property of original item. (you can reduce an amount of props)")
         from: 0

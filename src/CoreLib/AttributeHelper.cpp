@@ -19,6 +19,18 @@ using AF  = AttributeFlag;
 using CH  = Character;
 using IDI = AttributeIdiom;
 
+const std::map<std::string, Character> s_classes{
+
+    { "ama", Character::ama },
+    { "sor", Character::sor },
+    { "nec", Character::nec },
+    { "pal", Character::pal },
+    { "bar", Character::bar },
+    { "dru", Character::dru },
+    { "ass", Character::ass },
+    { "war", Character::war },
+};
+
 const std::vector<AttributeDesc> s_attributes{
 
     AttributeDesc{ AttributeId::ac, { AF::Defense } }.setRange(-10, 2037),                                       // +# Defense
@@ -844,6 +856,31 @@ std::string idToString(AttributeId code)
     if (code <= AttributeId::INVALID)
         return "INVALID";
     return std::string(s_attrCodes[static_cast<int>(code)]);
+}
+
+Character getClassId(const std::string& code)
+{
+    auto it = s_classes.find(code);
+    if (it != s_classes.cend())
+        return it->second;
+    return Character::none;
+}
+
+std::string classTypeName(Character type)
+{
+    for (auto& [key, val] : s_classes)
+        if (val == type)
+            return key;
+    return "none";
+}
+
+std::string idiomTypeName(AttributeIdiom type)
+{
+    if (type == AttributeIdiom::Brawler)
+        return "brawl";
+    if (type == AttributeIdiom::Caster)
+        return "cast";
+    return "any";
 }
 
 }

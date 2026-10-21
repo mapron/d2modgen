@@ -10,6 +10,8 @@
 
 namespace D2ModGen {
 
+using SkillResolver = std::function<Character(const std::string&)>;
+
 struct RandoParams {
     int levelPlus           = 0;
     int levelMinus          = 0;
@@ -17,6 +19,7 @@ struct RandoParams {
     int relativeCountMax    = 0;
     int keepOriginalPercent = 0;
     int typeFitPercent      = 0;
+    int casterTypePercent   = 0;
 
     bool enableGeneration   = true;
     bool uniqueCheckAcross  = false;
@@ -44,7 +47,7 @@ struct MagicProp {
     std::optional<int> min;
     std::optional<int> max;
 
-    Character      determineClass(bool startEstimation) const;
+    Character      determineClass(const SkillResolver& skillResolver, bool checkOskill) const;
     AttributeIdiom determineIdiom() const;
 };
 
@@ -61,7 +64,7 @@ struct MagicPropRawList {
     void writeToRow(AffixPropList& propList) const;
 
     int            getTotalSize() const;
-    Character      determineClass(bool checkOskill) const;
+    Character      determineClass(const SkillResolver& skillResolver, bool checkOskill) const;
     AttributeIdiom determineIdiom() const;
 
     void append(MagicPropList added);
@@ -120,12 +123,14 @@ struct MagicPropUniverse {
 
 struct MagicPropItem {
     // const during generation
+    std::string                   id;
     int                           originalLevel = 0;
     AttributeFlagSet              supportedAttributes;
     ItemCodeList                  types;
     std::vector<MagicPropRawList> affixlists;
     SlotType                      slot           = SlotType::Undefined;
     size_t                        levelBracket20 = 0;
+    SkillResolver                 skillResolver;
 
     // mutable during generation
     UniqueAttributeChecker uniqueChecker;
@@ -135,6 +140,7 @@ struct MagicPropItem {
     template<class Row>
     void readFrom(const Row& row)
     {
+        id                  = row.getId();
         originalLevel       = row.getLevel();
         supportedAttributes = row.getAttributes();
         types               = row.getItemFilter();
@@ -164,6 +170,8 @@ struct MagicPropItem {
             affixlists[i++].writeToRow(*affixList);
         }
     }
+
+    std::string toString() const;
 };
 
 }

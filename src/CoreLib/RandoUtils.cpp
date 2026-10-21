@@ -124,10 +124,10 @@ int MagicPropRawList::getTotalSize() const
     return result;
 }
 
-Character MagicPropRawList::determineClass(bool checkOskill) const
+Character MagicPropRawList::determineClass(const SkillResolver& skillResolver, bool checkOskill) const
 {
     for (const MagicProp& prop : parsedProps) {
-        Character determined = prop.determineClass(checkOskill);
+        Character determined = prop.determineClass(skillResolver, checkOskill);
         if (determined != Character::none)
             return determined;
     }
@@ -178,7 +178,7 @@ MagicPropUniverse::MagicPropUniverse(const MagicContext& magicContext)
         levelGen[i] = CommonGen(magicContext, i);
 }
 
-Character MagicProp::determineClass(bool startEstimation) const
+Character MagicProp::determineClass(const SkillResolver& skillResolver, bool checkOskill) const
 {
     Character cs = getAttributeDesc(id).classSpecific;
     if (cs != Character::none)
@@ -188,21 +188,8 @@ Character MagicProp::determineClass(bool startEstimation) const
         int tab = std::atoi(par.c_str());
         return static_cast<Character>(tab / 3);
     }
-    // on first estimation, ignore oskills.
-    if (!startEstimation && id == AttributeId::oskill || id == AttributeId::skill) {
-        int skillId = std::atoi(par.c_str());
-        if (skillId == 0)
-            return Character::none;
-        // [6..155] = [ama...bar] = [0...4]
-        if (skillId >= 6 && skillId <= 155)
-            return static_cast<Character>((skillId - 6) / 30);
-        // [221...280] = [dru,ass] = [5,6]
-        if (skillId >= 221 && skillId <= 280)
-            return static_cast<Character>(((skillId - 221) / 30) + 5);
-
-        // [373...402] = [war] = [7]
-        if (skillId >= 373 && skillId <= 402)
-            return Character::war;
+    if (checkOskill && id == AttributeId::oskill || id == AttributeId::skill) {
+        return skillResolver(par);
     }
     return Character::none;
 }
@@ -412,6 +399,18 @@ void MagicPropItem::generate(RandomGenerator& rng, const MagicPropUniverse& prop
         return { keepCount, generatedCount };
     };
 
+    const bool forceCaster = [&randoParams, &rng]() -> bool {
+        if (randoParams.casterTypePercent == 100)
+            return true;
+        if (randoParams.casterTypePercent == 0)
+            return false;
+
+        return rng(100) < randoParams.typeFitPercent;
+    }();
+
+    if (currentIdiom == AttributeIdiom::Any && forceCaster)
+        currentIdiom = AttributeIdiom::Caster;
+
     // preproces:: replace skills, potentially remove some attrs;
     for (MagicPropRawList& rawList : affixlists) {
         rawList.preProcess(randoParams);
@@ -442,7 +441,7 @@ void MagicPropItem::generate(RandomGenerator& rng, const MagicPropUniverse& prop
     // Feed existing data to consistency checker
     for (MagicPropRawList& rawList : affixlists) {
         if (currentClass == Character::none)
-            currentClass = rawList.determineClass(true);
+            currentClass = rawList.determineClass(skillResolver, true);
         if (currentIdiom == AttributeIdiom::Any)
             currentIdiom = rawList.determineIdiom();
         rawList.fill(uniqueChecker);
@@ -493,6 +492,7 @@ MagicPropList MagicPropItem::generate(RandomGenerator&                    rng,
         }
         return specificCount;
     }();
+
     MagicPropList result;
 
     auto tryAdd = [&result, &rng, this](const MagicPropUniverse::PropGeneratorContainer& container, bool isLastAttempt) -> bool {
@@ -501,7 +501,7 @@ MagicPropList MagicPropItem::generate(RandomGenerator&                    rng,
         const MagicProp prop = someGenerator->generate(rng);
         const auto&     desc = getAttributeDesc(prop.id);
 
-        Character nextClass = prop.determineClass(false);
+        Character nextClass = prop.determineClass(skillResolver, false);
         if (currentClass != Character::none && nextClass != Character::none) {
             if (nextClass != currentClass)
                 return false;
@@ -561,13 +561,21 @@ void MagicPropItem::update(MagicPropRawList& propList, RandomGenerator& rng, con
             continue;
 
         const MagicProp nextProp  = gen->generate(rng);
-        const Character nextClass = nextProp.determineClass(true);
+        const Character nextClass = nextProp.determineClass(skillResolver, false);
         if (currentClass != Character::none && nextClass != Character::none) {
             if (nextClass != currentClass)
                 continue;
         }
         prop = nextProp;
     }
+}
+
+std::string MagicPropItem::toString() const
+{
+    return "'" + id + "' lvl: " + std::to_string(originalLevel)
+           + " slot: " + slotTypeName(slot)
+           + " class: " + classTypeName(currentClass)
+           + " idiom: " + idiomTypeName(currentIdiom);
 }
 
 }

@@ -77,21 +77,21 @@ struct SkillDamageInfo {
 struct SkillInfo {
     std::string     uppercaseKey;
     std::string     lowercaseKey;
-    std::string     charClass; // ass|bar|...
+    Character       classSpecific; // ass|bar|...
     SkillLocation   loc;
     SkillDamageInfo dmg;
     StringVector    reqSkills;
 
     void readFromRowMain(const DataRow_skills& row)
     {
-        uppercaseKey = row.skill;
-        lowercaseKey = Mernel::strToLower(row.skill);
-        charClass    = row.charclass;
-        loc.reqlevel = row.lvlreq.value_or(0);
-        reqSkills    = row.reqskills;
-        dmg.ELen     = row.eLen.value_or(0);
-        dmg.HitShift = row.hitShift.value_or(0);
-        dmg.EType    = row.eType;
+        uppercaseKey  = row.skill;
+        lowercaseKey  = Mernel::strToLower(row.skill);
+        classSpecific = row.classSpecific;
+        loc.reqlevel  = row.lvlreq.value_or(0);
+        reqSkills     = row.reqskills;
+        dmg.ELen      = row.eLen.value_or(0);
+        dmg.HitShift  = row.hitShift.value_or(0);
+        dmg.EType     = row.eType;
     }
     void readFromRowDesc(const DataRow_skilldesc& row)
     {
@@ -122,14 +122,14 @@ struct SkillInfo {
 using SkillParsedData = std::map<std::string, SkillInfo>;
 
 struct SkillTree {
-    struct Character {
+    struct CharacterData {
         struct Skill {
             SkillLocation    loc;
             int              skillId;
             std::vector<int> reqSkillIds;
         };
         std::vector<Skill> skills;
-        std::string        charClass;
+        Character          classSpecific;
         StringVector       skillIds;
 
         int addSkillId(const std::string& skill)
@@ -144,16 +144,16 @@ struct SkillTree {
             return idx;
         }
     };
-    std::map<std::string, Character> chars;
+    std::map<Character, CharacterData> chars;
 
     void parse(const SkillParsedData& data)
     {
         for (const auto& p : data) {
             const SkillInfo& skillInfo = p.second;
-            Character&       c         = chars[skillInfo.charClass];
-            c.charClass                = skillInfo.charClass;
+            CharacterData&   c         = chars[skillInfo.classSpecific];
+            c.classSpecific            = skillInfo.classSpecific;
 
-            Character::Skill s;
+            CharacterData::Skill s;
             s.loc     = skillInfo.loc;
             s.skillId = c.addSkillId(skillInfo.uppercaseKey);
             for (const std::string& req : skillInfo.reqSkills)
@@ -165,8 +165,8 @@ struct SkillTree {
     void randomizeTabs(RandomGenerator& rng)
     {
         for (auto& p : chars) {
-            Character&   c      = p.second;
-            StringVector source = c.skillIds;
+            CharacterData& c      = p.second;
+            StringVector   source = c.skillIds;
             c.skillIds.clear();
             while (source.size() > 1) {
                 auto i = rng(static_cast<int>(source.size()));
@@ -211,8 +211,8 @@ struct SkillTree {
     void writeOutput(SkillParsedData& data) const
     {
         for (const auto& p : chars) {
-            const Character& c = p.second;
-            for (const Character::Skill& s : c.skills) {
+            const CharacterData& c = p.second;
+            for (const CharacterData::Skill& s : c.skills) {
                 auto       skillId   = c.skillIds[s.skillId];
                 SkillInfo& skillInfo = data[toLower(skillId)];
                 skillInfo.loc        = s.loc;
@@ -245,7 +245,7 @@ void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, 
     for (auto& row : output.skills.rows) {
         SkillInfo info;
         info.readFromRowMain(row);
-        if (info.charClass.empty())
+        if (info.classSpecific != Character::none)
             continue;
 
         skillParsedData[info.lowercaseKey] = std::move(info);

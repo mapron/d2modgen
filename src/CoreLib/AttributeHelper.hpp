@@ -400,12 +400,16 @@ enum class Character
     war,
 };
 
+std::string classTypeName(Character type);
+
 enum class AttributeIdiom
 {
     Any,
     Caster,
     Brawler,
 };
+
+std::string idiomTypeName(AttributeIdiom type);
 
 using AttributeFlagSet = std::set<AttributeFlag>;
 
@@ -456,6 +460,7 @@ struct AttributeDesc {
     }
 };
 
+Character   getClassId(const std::string& code);
 AttributeId getAttributeId(const std::string& code);
 std::string idToString(AttributeId code);
 

@@ -668,6 +668,7 @@ struct DataRow_skills : public RowBase {
 
     std::vector<std::string> reqskills;
     std::string              charclass;
+    Character                classSpecific = Character::none;
 
     std::vector<std::string> getColumns() const;
     void                     serialize();

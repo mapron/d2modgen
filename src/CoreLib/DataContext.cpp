@@ -63,6 +63,7 @@ bool DataContext::parseData(const IStorage::StoredData& data)
     armor.makeIndex(&RowBaseEquipment::code);
     weapons.makeIndex(&RowBaseEquipment::code);
     misc.makeIndex(&RowBaseEquipment::code);
+    skills.makeIndex(&DataRow_skills::skill);
 
     auto getItemType = [this](std::string code) {
         if (code.size() > 4)
@@ -119,20 +120,13 @@ bool DataContext::parseData(const IStorage::StoredData& data)
         row.eqipmentType = findEquip(row.eqipmentCode);
     }
 
-    const std::map<std::string, Character> classes{
-
-        { "ama", Character::ama },
-        { "sor", Character::sor },
-        { "nec", Character::nec },
-        { "pal", Character::pal },
-        { "bar", Character::bar },
-        { "dru", Character::dru },
-        { "ass", Character::ass },
-        { "war", Character::war },
-    };
-
     const std::set<std::string> casterCodes{ "wand", "staf", "orb", "head" };
     const std::set<std::string> brawlCodes{ "h2h", "bow", "xbow", "miss", "thro" };
+
+    for (auto& row : skills.rows) {
+        if (!row.charclass.empty())
+            row.classSpecific = getClassId(row.charclass);
+    }
 
     for (auto& row : itemtypes.rows) {
         const auto codeStr  = row.code;
@@ -153,11 +147,8 @@ bool DataContext::parseData(const IStorage::StoredData& data)
             parent2ptr->nested.insert(&row);
         }
 
-        if (!row.clas.empty()) {
-            auto it = classes.find(row.clas);
-            if (it != classes.cend())
-                row.classSpecific = it->second;
-        }
+        if (!row.clas.empty())
+            row.classSpecific = getClassId(row.clas);
 
         if (casterCodes.contains(codeStr)) {
             row.idiom = AttributeIdiom::Caster;
