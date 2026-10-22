@@ -56,8 +56,10 @@ struct MagicPropRawList {
     std::vector<AffixProp> keptProps;
     int                    affixLimit   = 0;
     int                    needGenerate = 0;
+    int                    removed      = 0;
 
     void preProcess(const SkillResolver& skillResolver, const RandoParams& randoParams);
+    void removeNonClass(const SkillResolver& skillResolver, Character target);
     void makePerfect();
 
     void readFromRow(const AffixPropList& propList);
@@ -105,7 +107,6 @@ struct MagicPropUniverse {
     struct PropGeneratorContainer {
         int                        frequency = 0;
         std::vector<PropGenerator> gens;
-        std::set<AttributeId>      allIds;
 
         PropGeneratorContainer() = default;
         explicit PropGeneratorContainer(const MagicContext& magicContext, const CodePowerMap& powerMap, SlotType slotType, size_t levelBracket20);

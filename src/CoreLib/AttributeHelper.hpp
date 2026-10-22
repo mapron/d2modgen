@@ -476,7 +476,8 @@ class UniqueAttributeChecker {
     StringSet m_data;
 
 public:
-    bool add(AttributeId code, const std::string& par);
+    void add(AttributeId code, const std::string& par);
+    bool contains(AttributeId code, const std::string& par) const;
 };
 
 }

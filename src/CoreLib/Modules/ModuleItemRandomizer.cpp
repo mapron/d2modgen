@@ -121,6 +121,8 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     context.generatedPropAttributes    = globalPropAttributes();
     context.generatedSlotScale         = globalSlotScale();
 
+    const bool extraTrace = !!getenv("MODGEN_RANDOMIZER_TRACE");
+
     ExtraLoc extraLoc;
 
     AllProps      allProps;
@@ -145,7 +147,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         };
         PropAttributeRecord skilltabs{
             .code        = AttributeId::skilltab,
-            .freqPercent = 75,
+            .freqPercent = 300, // @todo: this is workaround for current retry loot in generate()!
         };
         auto fillPropList2 = [&fillPropList, &skilltabs]<size_t size>(SlotType type, const std::array<int, size> valuesMin, const std::array<int, size> valuesMax) {
             std::vector<int> levels{ 21, 41, 61, 81 };
@@ -163,6 +165,11 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         fillPropList2(SlotType::Charm, std::array{ 1, 1, 1 }, std::array{ 1, 1, 2 });
 
         context.generatedPropAttributes.push_back(std::move(skilltabs));
+
+        for (auto& prop : context.generatedPropAttributes) {
+            if (prop.code == AttributeId::oskill)
+                prop.freqPercent = 200;
+        }
     }
     context.calculateConfigAttributes();
 
@@ -242,7 +249,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         return nullptr;
     };
 
-    auto fillProps = [&props, &rng, &skillResolver]<typename Row>(DataTable<Row>& table, const RandoParams& params) {
+    auto fillProps = [&props, &rng, &skillResolver, extraTrace]<typename Row>(DataTable<Row>& table, const RandoParams& params) {
         if (!params.enableGeneration)
             return;
 
@@ -258,7 +265,8 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
             item.generate(rng, props, params);
             item.writeTo(row);
-            //Logger() << item.toString();
+            if (extraTrace)
+                Logger() << item.toString();
         }
     };
     auto startFillProps = Mernel::ChronoPoint(true);
@@ -291,7 +299,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
 
-    {
+    if (extraTrace) {
         AllProps allProps;
         grabAllProps(allProps, output, context);
         for (const auto& [attr, data] : allProps)

@@ -39,8 +39,27 @@ void MagicPropRawList::preProcess(const SkillResolver& skillResolver, const Rand
                 prop.min = prop.max;
             }
         }
-        if (randoParams.removeKnock && (prop.id == AttributeId::knock || prop.id == AttributeId::howl))
+        if (randoParams.removeKnock && (prop.id == AttributeId::knock || prop.id == AttributeId::howl)) {
+            removed++;
             continue;
+        }
+
+        newProps.push_back(std::move(prop));
+    }
+    parsedProps = std::move(newProps);
+}
+
+void MagicPropRawList::removeNonClass(const SkillResolver& skillResolver, Character target)
+{
+    if (target == Character::none)
+        return;
+
+    MagicPropList newProps;
+    for (MagicProp prop : parsedProps) {
+        if (prop.determineClass(skillResolver, false) != target) {
+            removed++;
+            continue;
+        }
 
         newProps.push_back(std::move(prop));
     }
@@ -70,6 +89,7 @@ void MagicPropRawList::readFromRow(const AffixPropList& propList)
         if (mp.id == AttributeId::INVALID) {
             keptProps.push_back(col);
             affixLimit--;
+            removed++;
             continue;
         }
 
@@ -77,6 +97,7 @@ void MagicPropRawList::readFromRow(const AffixPropList& propList)
         if (desc.flags.contains(AttributeFlag::Keep)) {
             keptProps.push_back(col);
             affixLimit--;
+            removed++;
             continue;
         }
 
@@ -246,14 +267,12 @@ MagicPropUniverse::PropGeneratorContainer::PropGeneratorContainer(const MagicCon
             frequency += rec.frequency;
             gen.frequencyCumulative = frequency;
             gens.push_back(gen);
-            allIds.insert(rec.code);
         } else {
             if (auto it = powerMap.find(rec.code); it != powerMap.cend()) {
                 frequency += rec.frequency;
                 gen.frequencyCumulative = frequency;
                 gen.powerScalePercent   = it->second;
                 gens.push_back(gen);
-                allIds.insert(rec.code);
             }
         }
     }
@@ -277,7 +296,6 @@ MagicPropUniverse::PropGeneratorContainer::PropGeneratorContainer(const MagicCon
             frequency += filter.size() * rec.freqPercent / 100;
             gen.frequencyCumulative = frequency;
             gens.push_back(gen);
-            allIds.insert(rec.code);
         }
     }
 }
@@ -409,23 +427,26 @@ void MagicPropItem::generate(RandomGenerator& rng, const MagicPropUniverse& prop
     // preproces:: replace skills, potentially remove some attrs;
     for (MagicPropRawList& rawList : affixlists) {
         rawList.preProcess(skillResolver, randoParams);
+        rawList.removeNonClass(skillResolver, currentClass);
     }
 
     // determine how much keep and how much generate
-    int genCountPrev = 0;
+    int genCountRemainder = 0;
     for (MagicPropRawList& rawList : affixlists) {
-        const int originalCount = rawList.getTotalSize();
+        const int originalCount = rawList.getTotalSize() + rawList.removed;
         propSrc += originalCount;
         auto [keepCnt, genCount] = calcNewCount(originalCount);
+        keepCnt                  = std::min(keepCnt, rawList.getTotalSize());
 
         if (keepCnt + genCount == 0) {
             genCount = 1;
         }
-        const int maxGenCount = rawList.affixLimit - keepCnt;
-        genCount += genCountPrev;
-        if (genCount > maxGenCount) {
-            genCountPrev = genCount - maxGenCount;
-            genCount     = maxGenCount;
+        {
+            const int maxGenCount = rawList.affixLimit - keepCnt;
+            genCount += genCountRemainder;
+            genCountRemainder = genCount - maxGenCount;
+            genCount          = std::min(genCount, maxGenCount);
+            genCountRemainder = std::max(0, genCountRemainder);
         }
 
         propKept += keepCnt;
@@ -492,36 +513,45 @@ MagicPropList MagicPropItem::generate(RandomGenerator&                    rng,
     MagicPropList result;
 
     auto tryAdd = [&result, &rng, this](const MagicPropUniverse::PropGeneratorContainer& container, bool isLastAttempt) -> bool {
-        auto* someGenerator = container.getRandomAttributeGenerator(rng);
-
-        const MagicProp prop = someGenerator->generate(rng);
-        const auto&     desc = getAttributeDesc(prop.id);
-
-        Character nextClass = prop.determineClass(skillResolver, false);
-        if (currentClass != Character::none && nextClass != Character::none) {
-            if (nextClass != currentClass)
-                return false;
-        }
-        AttributeIdiom nextIdiom = prop.determineIdiom();
-        if (currentIdiom != AttributeIdiom::Any && nextIdiom != AttributeIdiom::Any) {
-            if (nextIdiom != currentIdiom)
-                return false;
-        }
+        auto*       someGenerator = container.getRandomAttributeGenerator(rng);
+        const auto& desc          = getAttributeDesc(someGenerator->id);
         for (auto flag : s_attFlags) {
-            if (desc.flags.contains(flag) && !supportedAttributes.contains(flag))
+            if (desc.flags.contains(flag) && !supportedAttributes.contains(flag)) {
                 return false;
+            }
+        }
+        AttributeIdiom nextIdiom = desc.idiom;
+        if (currentIdiom != AttributeIdiom::Any && nextIdiom != AttributeIdiom::Any) {
+            if (nextIdiom != currentIdiom) {
+                return false;
+            }
         }
 
-        if (!uniqueChecker.add(prop.id, prop.par))
-            return false;
+        for (size_t i = 0; i < 5; i++) {
+            const MagicProp prop      = someGenerator->generate(rng);
+            Character       nextClass = prop.determineClass(skillResolver, false);
+            if (currentClass != Character::none && nextClass != Character::none) {
+                if (nextClass != currentClass) {
+                    continue;
+                }
+            }
+            if (uniqueChecker.contains(prop.id, prop.par)) {
+                if (prop.par.empty())
+                    return false;
+                continue;
+            }
 
-        if (nextClass != Character::none)
-            currentClass = nextClass;
-        if (nextIdiom != AttributeIdiom::Any)
-            currentIdiom = nextIdiom;
+            uniqueChecker.add(prop.id, prop.par);
 
-        result.push_back(prop);
-        return true;
+            if (nextClass != Character::none)
+                currentClass = nextClass;
+            if (nextIdiom != AttributeIdiom::Any)
+                currentIdiom = nextIdiom;
+
+            result.push_back(prop);
+            return true;
+        }
+        return false;
     };
     auto tryAddWrap = [&tryAdd, this](const MagicPropUniverse::PropGeneratorContainer& container, const std::string& descr, int totalCount, int retries) -> int {
         int added = 0;
@@ -540,11 +570,11 @@ MagicPropList MagicPropItem::generate(RandomGenerator&                    rng,
 
     if (!noTypeSlot) {
         if (commonGen.bySlot.contains(slot)) {
-            propGenFit += tryAddWrap(commonGen.bySlot.at(slot), "typefit", typefitCount, 10);
+            propGenFit += tryAddWrap(commonGen.bySlot.at(slot), "typefit", typefitCount, 15);
         }
     }
 
-    propGenCommon += tryAddWrap(commonGen.general, "common", count - result.size(), 10);
+    propGenCommon += tryAddWrap(commonGen.general, "common", count - result.size(), 15);
 
     return result;
 }

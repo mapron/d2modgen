@@ -785,13 +785,14 @@ const AttributeDesc& getAttributeDesc(AttributeId code)
     return s_attributes[index];
 }
 
-bool UniqueAttributeChecker::add(AttributeId code, const std::string& par)
+void UniqueAttributeChecker::add(AttributeId code, const std::string& par)
 {
-    std::string key = uniqueKey(code, par);
-    if (m_data.contains(key))
-        return false;
-    m_data.insert(key);
-    return true;
+    m_data.insert(uniqueKey(code, par));
+}
+
+bool UniqueAttributeChecker::contains(AttributeId code, const std::string& par) const
+{
+    return m_data.contains(uniqueKey(code, par));
 }
 
 int powerMultiply(AttributeId code, int value, int powerMultPercent)
