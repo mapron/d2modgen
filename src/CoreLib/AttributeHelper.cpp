@@ -86,11 +86,11 @@ const std::vector<AttributeDesc> s_attributes{
     AttributeDesc{ AttributeId::abs_cold, { AF::DamageReduction } }.setRange(1, 127),                            // Cold Absorb #%
     AttributeDesc{ AttributeId::dur, { AF::Durability } },                                                       // Durability: # of #
     AttributeDesc{ AttributeId::dur_percent, { AF::Durability } },                                               // Increase Maximum Durability #%
-    AttributeDesc{ AttributeId::regen, { AF::HasRange }, {}, -30, 33 },                                          // Replenish Life +#
-    AttributeDesc{ AttributeId::thorns, { AF::HasRange }, {}, 1, 127 },                                          // Attacker Takes Damage of #
+    AttributeDesc{ AttributeId::regen }.setRange(-30, 33),                                                       // Replenish Life +#
+    AttributeDesc{ AttributeId::thorns }.setRange(1, 127),                                                       // Attacker Takes Damage of #
     AttributeDesc{ AttributeId::swing3, { AF::Speed } }.setRange(-20, 100).setRounding(5),                       // +#% Increased Attack Speed
-    AttributeDesc{ AttributeId::gold_percent, { AF::HasRange }, {}, -100, 411 },                                 // #% Extra Gold from Monsters
-    AttributeDesc{ AttributeId::mag_percent, { AF::HasRange }, {}, -100, 155 },                                  // #% Better Chance of Getting Magic Items
+    AttributeDesc{ AttributeId::gold_percent }.setRange(-100, 411),                                              // #% Extra Gold from Monsters
+    AttributeDesc{ AttributeId::mag_percent }.setRange(-100, 155),                                               // #% Better Chance of Getting Magic Items
     AttributeDesc{ AttributeId::knock, {}, { AttributeItemReq::Weapon } },                                       // Knockback
     AttributeDesc{ AttributeId::regen_stam },                                                                    // Heal Stamina Plus #%
     AttributeDesc{ AttributeId::regen_mana },                                                                    // Regenerate Mana #%

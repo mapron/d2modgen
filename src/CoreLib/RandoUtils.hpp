@@ -10,7 +10,7 @@
 
 namespace D2ModGen {
 
-using SkillResolver = std::function<Character(const std::string&)>;
+using SkillResolver = std::function<DataRow_skills_ptr(const std::string&)>;
 
 struct RandoParams {
     int levelPlus           = 0;
@@ -57,7 +57,7 @@ struct MagicPropRawList {
     int                    affixLimit   = 0;
     int                    needGenerate = 0;
 
-    void preProcess(const RandoParams& randoParams);
+    void preProcess(const SkillResolver& skillResolver, const RandoParams& randoParams);
     void makePerfect();
 
     void readFromRow(const AffixPropList& propList);

@@ -729,9 +729,12 @@ struct DataRow_skills : public RowBase {
     std::string              charclass;
     Character                classSpecific = Character::none;
 
+    bool canBeOskill = true;
+
     std::vector<std::string> getColumns() const;
     void                     serialize();
 };
+using DataRow_skills_ptr = const DataRow_skills*;
 struct DataRow_treasureclassex : public RowBase {
     struct Item {
         std::string        tc;

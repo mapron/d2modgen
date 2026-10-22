@@ -69,6 +69,9 @@ bool DataContext::parseData(const IStorage::StoredData& data)
     misc.makeIndex(&RowBaseEquipment::code);
     skills.makeIndex(&DataRow_skills::skill);
 
+    const size_t skill_Leap             = 132;
+    skills.rows[skill_Leap].canBeOskill = false;
+
     auto getItemType = [this](std::string code) {
         if (code.size() > 4)
             code.resize(4);
@@ -697,9 +700,6 @@ void DataRow_itemstatcost::serialize()
 
 SlotType DataRow_itemtypes::determineSlot() const
 {
-    if (code == "bowq") {
-        int a = 1;
-    }
     if (code == "shld" || code == "pala")
         return SlotType::MainArmor;
     if (code == "weap")

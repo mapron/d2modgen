@@ -22,29 +22,22 @@ static const std::vector<AttributeFlag> s_attFlags{
 
 }
 
-void MagicPropRawList::preProcess(const RandoParams& randoParams)
+void MagicPropRawList::preProcess(const SkillResolver& skillResolver, const RandoParams& randoParams)
 {
     MagicPropList newProps;
     for (MagicProp prop : parsedProps) {
         if (randoParams.replaceSkills && prop.id == AttributeId::skill) {
-            if (prop.par == "132") // Leap
-            {
-                newProps.push_back(std::move(prop));
-                continue;
-            }
-            prop.id = AttributeId::oskill;
+            if (auto* skill = skillResolver(prop.par); skill && skill->canBeOskill)
+                prop.id = AttributeId::oskill;
         }
         if (randoParams.replaceCharges && prop.id == AttributeId::charged) {
-            if (prop.par == "132") // Leap
-            {
-                newProps.push_back(std::move(prop));
-                continue;
+            if (auto* skill = skillResolver(prop.par); skill && skill->canBeOskill) {
+                prop.id = AttributeId::oskill;
+                if (prop.max < 0) {
+                    prop.max = -prop.max.value_or(0);
+                }
+                prop.min = prop.max;
             }
-            prop.id = AttributeId::oskill;
-            if (prop.max < 0) {
-                prop.max = -prop.max.value_or(0);
-            }
-            prop.min = prop.max;
         }
         if (randoParams.removeKnock && (prop.id == AttributeId::knock || prop.id == AttributeId::howl))
             continue;
@@ -181,7 +174,8 @@ Character MagicProp::determineClass(const SkillResolver& skillResolver, bool che
         return static_cast<Character>(tab / 3);
     }
     if (checkOskill && id == AttributeId::oskill || id == AttributeId::skill) {
-        return skillResolver(par);
+        if (auto* skill = skillResolver(par))
+            return skill->classSpecific;
     }
     return Character::none;
 }
@@ -401,7 +395,7 @@ void MagicPropItem::generate(RandomGenerator& rng, const MagicPropUniverse& prop
 
     // preproces:: replace skills, potentially remove some attrs;
     for (MagicPropRawList& rawList : affixlists) {
-        rawList.preProcess(randoParams);
+        rawList.preProcess(skillResolver, randoParams);
     }
 
     // determine how much keep and how much generate
@@ -453,6 +447,8 @@ void MagicPropItem::generate(RandomGenerator& rng, const MagicPropUniverse& prop
 
         if (!randoParams.supportRandomRange)
             rawList.makePerfect();
+
+        rawList.preProcess(skillResolver, randoParams);
     }
 }
 

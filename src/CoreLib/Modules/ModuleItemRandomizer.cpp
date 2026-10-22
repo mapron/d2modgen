@@ -123,7 +123,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     ExtraLoc extraLoc;
 
-    std::map<AttributeId, std::map<SlotType, std::map<int, AffixPropList>>> allProps;
+    AllProps allProps;
 
     grabAllProps(allProps, output, context);
     createNewItems(extraLoc, output, rng, input);
@@ -214,17 +214,20 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     auto paramsRunes = params;
     auto paramsUniq  = params;
 
-    auto skillResolver = [&output](const std::string& skillId) -> Character {
+    auto skillResolver = [&output](const std::string& skillId) -> DataRow_skills_ptr {
         if (!skillId.empty()) {
             int intId = std::atoi(skillId.c_str());
             if (intId > 0) {
-                return output.skills.rows[intId].classSpecific;
+                return &output.skills.rows[intId];
+            }
+            if (skillId == "0") {
+                return &output.skills.rows[0];
             }
             auto it = output.skills.index.find(skillId);
             if (it != output.skills.index.cend())
-                return it->second->classSpecific;
+                return it->second;
         }
-        return Character::none;
+        return nullptr;
     };
 
     auto fillProps = [&props, &rng, &skillResolver]<typename Row>(DataTable<Row>& table, const RandoParams& params) {
