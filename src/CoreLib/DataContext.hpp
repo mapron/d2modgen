@@ -204,16 +204,51 @@ struct RowBaseAffixes : public RowBase {
     void                     serialize();
 };
 
+enum class Tier
+{
+    None,
+    Normal,
+    Exceptional,
+    Elite,
+};
+
+enum class EquipmentCategory
+{
+    Misc,
+    Weapon,
+    Armor,
+};
+
 struct RowBaseEquipment : public RowBase {
+    EquipmentCategory   category = EquipmentCategory::Misc;
     std::optional<int>  lvl;
     std::optional<int>  lvlreq;
     std::optional<int>  reqstr;
     std::optional<int>  reqdex;
     std::optional<bool> showLevel;
 
+    std::string name;
     std::string code;
     std::string itemTypeCode;
     ItemType    itemType = nullptr;
+
+    std::string normcode;
+    std::string ubercode;
+    std::string ultracode;
+
+    Tier getTier() const
+    {
+        if (!getLevel() || ultracode.empty())
+            return Tier::None;
+        if (ultracode == code)
+            return Tier::Elite;
+        if (ubercode == code)
+            return Tier::Exceptional;
+        if (normcode == code)
+            return Tier::Normal;
+
+        return Tier::None;
+    }
 
     std::string getId() const
     {
@@ -467,7 +502,7 @@ struct DataRow_monlvl : public RowBase {
 struct DataRow_monstats : public RowBase {
     std::array<std::optional<int>, 3> resFi, resLi, resCo, resPo, resMa, resDm;
 
-    std::optional<bool> spawn, killable, npc, boss;
+    std::optional<bool> enabled, isspawn, killable, npc, boss;
 
     std::optional<int> level, minGrp, maxGrp;
 
@@ -489,17 +524,18 @@ struct DataRow_monstats : public RowBase {
         return result;
     }
 
-    std::vector<int>         skLevels;
-    std::vector<std::string> minionIds;
+    std::vector<int>           skLevels;
+    std::array<std::string, 3> minionIds;
 
-    bool isSpawn() const { return spawn.has_value() && spawn.value(); }
-    bool isKillable() const { return killable.has_value() && killable.value(); }
-    bool isNpc() const { return npc.has_value() && npc.value(); }
-    bool isBoss() const { return boss.has_value() && boss.value(); }
+    bool isEnabled() const { return enabled.value_or(false); }
+    bool isSpawn() const { return isspawn.value_or(false); }
+    bool isKillable() const { return killable.value_or(false); }
+    bool isNpc() const { return npc.value_or(false); }
+    bool isBoss() const { return boss.value_or(false); }
 
     bool isRegularMob() const
     {
-        return isSpawn() && isKillable() && !isNpc() && !isBoss() && level.has_value();
+        return isEnabled() && isSpawn() && isKillable() && !isNpc() && !isBoss() && level.has_value();
     }
 
     std::vector<std::string> getColumns() const;
@@ -564,9 +600,11 @@ struct DataRow_sets;
 struct DataRow_setitems : public RowBase {
     const DataRow_sets* parent_set = nullptr;
 
+    std::optional<int>  rarity;
     std::optional<int>  lvl;
     std::optional<int>  lvlreq;
     std::optional<int>  addfunc;
+    std::optional<bool> spawnable;
     std::optional<bool> disableChronicle;
 
     std::string   index;
@@ -577,6 +615,22 @@ struct DataRow_setitems : public RowBase {
     AffixPropList affixes_base{ 9 };
     AffixPropList affixes_partial1{ 5 };
     AffixPropList affixes_partial2{ 5 };
+
+    std::optional<int> cost_mul = 5;
+    std::optional<int> cost_add = 5000;
+
+    struct UX {
+        std::optional<int> id;
+        std::string        itemName;
+        std::string        chrtransform;
+        std::string        invtransform;
+        std::string        flippyfile;
+        std::string        invfile;
+        std::string        dropsound;
+        std::string        dropsfxframe;
+        std::string        usesound;
+        int                eol = 0;
+    } ux;
 
     std::string getId() const
     {
@@ -607,7 +661,7 @@ struct DataRow_setitems : public RowBase {
 
     bool isValid() const
     {
-        return !eqipmentCode.empty() && getLevel() > 0;
+        return spawnable.value_or(false) && !eqipmentCode.empty() && getLevel() > 0;
     }
 
     std::vector<std::string>           getColumns() const;
@@ -617,9 +671,11 @@ struct DataRow_setitems : public RowBase {
 struct DataRow_sets : public RowBase {
     int level = 0;
 
-    std::string  index;
-    std::string  name;
-    ItemCodeList filter;
+    std::optional<int> version = 100;
+    std::string        index;
+    std::string        name;
+    std::string        uiClass;
+    ItemCodeList       filter;
 
     AffixPropList affixes_full{ 8 };
     AffixPropList affixes_partial1{ 4 };
@@ -708,6 +764,23 @@ struct DataRow_uniqueitems : public RowBase {
     EquipmentType eqipmentType = nullptr;
     std::string   eqipmentCode;
     std::string   index;
+
+    std::optional<int> version  = 100;
+    std::optional<int> cost_mul = 5;
+    std::optional<int> cost_add = 5000;
+
+    struct UX {
+        std::optional<int> id;
+        std::string        itemName;
+        std::string        chrtransform;
+        std::string        invtransform;
+        std::string        flippyfile;
+        std::string        invfile;
+        std::string        dropsound;
+        std::string        dropsfxframe;
+        std::string        usesound;
+        int                eol = 0;
+    } ux;
 
     auto affixLists() const { return std::array{ &affixes }; }
     auto affixLists() { return std::array{ &affixes }; }

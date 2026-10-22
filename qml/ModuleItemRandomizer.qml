@@ -114,7 +114,7 @@ WidgetCommonTab {
         caption: qsTr("Number of versions of each unique")
         tooltip: qsTr("allow you to have different uniques with same name and level, but different properties,<br>you will have N different uniques with differnet stats;<br>so you have an opportunity to pick same item again to check it out.<br>This works only with Uniques, not Sets.")
         from: 1
-        to: 20
+        to: 5
         value_context: root.value_context
         value_key: "repeat_uniques"
         isCompact: false
@@ -124,7 +124,7 @@ WidgetCommonTab {
         caption: qsTr("Number of different incompatible Sets")
         tooltip: qsTr("Whis will create additional sets (Angelic 2, Angelic 3) with different properties.")
         from: 1
-        to: 20
+        to: 5
         value_context: root.value_context
         value_key: "repeat_sets"
         isCompact: false

@@ -447,13 +447,14 @@ void RowBaseAffixes::serialize()
 std::vector<std::string> DataRow_weapons::getColumns() const
 {
     // clang-format off
-    return { "level", "levelreq", "reqstr", "reqdex", "showlevel", "code", "type",
-            "mindam", "maxdam",  };
+    return { "name", "level", "levelreq", "reqstr", "reqdex", "showlevel", "code", "type",
+            "normcode", "ubercode", "ultracode",  "mindam", "maxdam",  };
     // clang-format on
 }
 
 void DataRow_weapons::serialize()
 {
+    ser(name);
     ser(lvl);
     ser(lvlreq);
     ser(reqstr);
@@ -462,20 +463,25 @@ void DataRow_weapons::serialize()
     ser(code);
     ser(itemTypeCode);
 
+    ser(normcode);
+    ser(ubercode);
+    ser(ultracode);
+
     ser(mindam);
     ser(maxdam);
+    category = EquipmentCategory::Weapon;
 }
 
 std::vector<std::string> DataRow_armor::getColumns() const
 {
     // clang-format off
-    return { "level", "levelreq", "reqstr", "reqdex", "showlevel", "code", "type",
-            "minac", "maxac",  };
+    return { "name", "level", "levelreq", "reqstr", "reqdex", "showlevel", "code", "type",
+             "normcode", "ubercode", "ultracode", "minac", "maxac",  };
     // clang-format on
 }
-
 void DataRow_armor::serialize()
 {
+    ser(name);
     ser(lvl);
     ser(lvlreq);
     ser(reqstr);
@@ -484,8 +490,13 @@ void DataRow_armor::serialize()
     ser(code);
     ser(itemTypeCode);
 
+    ser(normcode);
+    ser(ubercode);
+    ser(ultracode);
+
     ser(minac);
     ser(maxac);
+    category = EquipmentCategory::Armor;
 }
 
 std::vector<std::string> DataRow_charstats::getColumns() const
@@ -513,7 +524,7 @@ void DataRow_charstats::serialize()
     serArray(items, maxItems, [this](Item& item) {
         ser(item.count);
         ser(item.code);
-        ser(item.loc); }, [](Item& item) { return !item.code.empty(); });
+        ser(item.loc); }, [](Item& item) { return !item.code.empty() && item.code != "0"; });
 
     ser(skills, maxSkills);
 }
@@ -794,13 +805,14 @@ void DataRow_levels::serialize()
 std::vector<std::string> DataRow_misc::getColumns() const
 {
     // clang-format off
-    return { "code", "type", "levelreq", "level",
+    return { "name", "code", "type", "levelreq", "level",
              "maxstack" };
     // clang-format on
 }
 
 void DataRow_misc::serialize()
 {
+    ser(name);
     ser(code);
     ser(itemTypeCode);
     ser(lvlreq);
@@ -865,7 +877,7 @@ std::vector<std::string> DataRow_monstats::getColumns() const
     std::vector<std::string> rest{
         // clang-format off
         "spawn", "minion1", "minion2",
-        "isspawn", "killable", "npc", "boss",
+        "enabled", "isspawn", "killable", "npc", "boss",
         "level", "mingrp", "maxgrp",
         "id", "baseid", "*hcidx",
         // clang-format on
@@ -886,9 +898,10 @@ void DataRow_monstats::serialize()
 
     ser(tc);
     ser(skLevels, skCount);
-    ser(minionIds, minionCount);
+    ser(minionIds);
 
-    ser(spawn);
+    ser(enabled);
+    ser(isspawn);
     ser(killable);
     ser(npc);
     ser(boss);
@@ -961,7 +974,32 @@ void DataRow_runes::serialize()
 
 std::vector<std::string> DataRow_setitems::getColumns() const
 {
-    std::vector<std::string> result{ "lvl", "lvl req", "index", "set", "item", "add func", "disablechronicle" };
+    std::vector<std::string> result{
+        "rarity",
+        "lvl",
+        "lvl req",
+        "index",
+        "set",
+
+        "item",
+        "add func",
+        "spawnable",
+        "disablechronicle",
+
+        "cost mult",
+        "cost add",
+
+        "*id",
+        "*itemname",
+        "chrtransform",
+        "invtransform",
+        "flippyfile",
+        "invfile",
+        "dropsound",
+        "dropsfxframe",
+        "usesound",
+        "*eol",
+    };
     for (size_t i = 0; i < affixes_base.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("prop" + istr);
@@ -994,14 +1032,30 @@ std::map<std::string, std::string> DataRow_setitems::getColumnAliases() const
 
 void DataRow_setitems::serialize()
 {
+    ser(rarity);
     ser(lvl);
     ser(lvlreq);
-
     ser(index);
     ser(setIndex);
+
     ser(eqipmentCode);
     ser(addfunc);
+    ser(spawnable);
     ser(disableChronicle);
+
+    ser(cost_mul);
+    ser(cost_add);
+
+    ser(ux.id);
+    ser(ux.itemName);
+    ser(ux.chrtransform);
+    ser(ux.invtransform);
+    ser(ux.flippyfile);
+    ser(ux.invfile);
+    ser(ux.dropsound);
+    ser(ux.dropsfxframe);
+    ser(ux.usesound);
+    ser(ux.eol);
 
     for (auto* affixList : affixLists())
         ser(*affixList);
@@ -1009,7 +1063,7 @@ void DataRow_setitems::serialize()
 
 std::vector<std::string> DataRow_sets::getColumns() const
 {
-    std::vector<std::string> result{ "index", "name" };
+    std::vector<std::string> result{ "index", "name", "uiclass", "version" };
     for (size_t i = 0; i < affixes_full.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("fcode" + istr);
@@ -1039,6 +1093,8 @@ void DataRow_sets::serialize()
 {
     ser(index);
     ser(name);
+    ser(uiClass);
+    ser(version);
     for (auto* affixList : affixLists())
         ser(*affixList);
 }
@@ -1138,7 +1194,31 @@ int DataRow_treasureclassex::getDropSomethingProb() const
 
 std::vector<std::string> DataRow_uniqueitems::getColumns() const
 {
-    std::vector<std::string> result{ "rarity", "lvl", "lvl req", "carry1", "spawnable", "disablechronicle", "code", "index" };
+    std::vector<std::string> result{
+        "rarity",
+        "lvl",
+        "lvl req",
+        "carry1",
+        "spawnable",
+        "disablechronicle",
+        "code",
+        "index",
+
+        "version",
+        "cost mult",
+        "cost add",
+
+        "*id",
+        "*itemname",
+        "chrtransform",
+        "invtransform",
+        "flippyfile",
+        "invfile",
+        "dropsound",
+        "dropsfxframe",
+        "usesound",
+        "*eol",
+    };
     for (size_t i = 0; i < affixes.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("prop" + istr);
@@ -1164,6 +1244,22 @@ void DataRow_uniqueitems::serialize()
     ser(disableChronicle);
     ser(eqipmentCode);
     ser(index);
+
+    ser(version);
+    ser(cost_mul);
+    ser(cost_add);
+
+    ser(ux.id);
+    ser(ux.itemName);
+    ser(ux.chrtransform);
+    ser(ux.invtransform);
+    ser(ux.flippyfile);
+    ser(ux.invfile);
+    ser(ux.dropsound);
+    ser(ux.dropsfxframe);
+    ser(ux.usesound);
+    ser(ux.eol);
+
     ser(affixes);
 }
 

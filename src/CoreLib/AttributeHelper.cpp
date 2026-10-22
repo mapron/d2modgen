@@ -366,12 +366,12 @@ const std::vector<AttributeDesc> s_attributes{
     AttributeDesc{ AttributeId::str_and_vit },
 
     // D2R:
-    AttributeDesc{ AttributeId::pierce_immunity_cold },
-    AttributeDesc{ AttributeId::pierce_immunity_fire },
-    AttributeDesc{ AttributeId::pierce_immunity_light },
-    AttributeDesc{ AttributeId::pierce_immunity_poison },
-    AttributeDesc{ AttributeId::pierce_immunity_damage },
-    AttributeDesc{ AttributeId::pierce_immunity_magic },
+    AttributeDesc{ AttributeId::pierce_immunity_cold, { AF::Keep } },
+    AttributeDesc{ AttributeId::pierce_immunity_fire, { AF::Keep } },
+    AttributeDesc{ AttributeId::pierce_immunity_light, { AF::Keep } },
+    AttributeDesc{ AttributeId::pierce_immunity_poison, { AF::Keep } },
+    AttributeDesc{ AttributeId::pierce_immunity_damage, { AF::Keep } },
+    AttributeDesc{ AttributeId::pierce_immunity_magic, { AF::Keep } },
     AttributeDesc{ AttributeId::charge_noconsume, { AF::Keep } },
 
     // D2R RotW:

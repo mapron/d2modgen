@@ -135,13 +135,13 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
             const int next = static_cast<int>(probNew);
             value          = (std::min(next, maxFact));
         };
-        auto adjustPick = [](int value, int num, int denum) -> int {
-            if (!value)
-                return 0;
+        auto adjustPick = [](std::optional<int>& value, int num, int denum) {
+            if (!value.has_value() || value.value() == 0)
+                return;
             if (num == denum)
-                return value;
-            value = value * num / denum;
-            return std::max(1, value);
+                return;
+            value = value.value() * num / denum;
+            value = std::max(1, value.value());
         };
         output.treasureclassex.makeIndex(&DataRow_treasureclassex::name);
 
@@ -169,7 +169,7 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
                 factorAdjust(rareRatio, factorRare, 1024);
             }
 
-            row.noDrop = adjustPick(row.noDrop.value_or(0), 100, percentDrop);
+            adjustPick(row.noDrop, 100, percentDrop);
 
             if (highDropsCount) {
                 /// @todo: remove hardcode group ids.
@@ -208,14 +208,14 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
                     else if (subItemTC == TCType::Equip || subItemTC == TCType::Bow)
                         percent = percentEquip;
 
-                    item.prob = adjustPick(item.prob.value_or(0), percent, 100);
+                    adjustPick(item.prob, percent, 100);
                 }
             }
             if (rowTC == TCType::Equip || rowTC == TCType::Bow) {
                 for (auto& item : row.items) {
                     const auto subItemTC = getTC(item.tc);
                     if (subItemTC == TCType::Equip || subItemTC == TCType::Bow)
-                        item.prob = adjustPick(item.prob.value_or(0), 1, factorHighlevel);
+                        adjustPick(item.prob, 1, factorHighlevel);
                 }
             }
         }
@@ -223,6 +223,11 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
 
     if (input.getInt("equal_uniques")) {
         for (auto& row : output.uniqueitems.rows) {
+            auto& rarity = row.rarity;
+            if (rarity.has_value())
+                rarity = 1;
+        }
+        for (auto& row : output.setitems.rows) {
             auto& rarity = row.rarity;
             if (rarity.has_value())
                 rarity = 1;
