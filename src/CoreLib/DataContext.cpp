@@ -24,6 +24,10 @@
 
 namespace D2ModGen {
 
+namespace {
+const std::string s_empty("\0\0", 2);
+}
+
 DataContext::DataContext() = default;
 
 DataContext::~DataContext() = default;
@@ -222,6 +226,7 @@ bool DataContext::parseData(const IStorage::StoredData& data)
         }
         jsonFiles[id] = std::move(doc);
     }
+    blobs = data.blobs;
 
     return true;
 }
@@ -263,6 +268,7 @@ bool DataContext::serializeData(IStorage::StoredData& data) const
         data.jsonFiles[id] = std::move(buffer);
     }
 
+    data.blobs = blobs;
     return true;
 }
 
@@ -339,7 +345,7 @@ bool DataContext::parseTable(DataTable<Row>& table, TableId tableId, const IStor
     for (auto& rowCsv : csv.rows) {
         Row row;
         row._ser_unusedCells.resize(table.indicesUnused.size());
-        row._ser_usedCells.resize(table.indicesUsed.size());
+        row._ser_usedCells.resize(table.indicesUsed.size(), s_empty);
 
         for (size_t i = 0; i < row._ser_unusedCells.size(); ++i) {
             row._ser_unusedCells[i] = rowCsv.data[table.indicesUnused[i]].str;
@@ -1040,7 +1046,7 @@ void DataRow_setitems::serialize()
 
     ser(eqipmentCode);
     ser(addfunc);
-    ser(spawnable);
+    ser(spawnable, true);
     ser(disableChronicle);
 
     ser(cost_mul);
@@ -1267,7 +1273,7 @@ void RowBase::ser(int& data)
 {
     auto& str = _ser_usedCells[_ser_cellIndex++];
     if (_ser_read) {
-        if (str.empty()) {
+        if (str.empty() || str == s_empty) {
             data = 0;
         } else {
             data = std::atoi(str.c_str());
@@ -1281,7 +1287,7 @@ void RowBase::ser(std::optional<int>& data)
 {
     auto& str = _ser_usedCells[_ser_cellIndex++];
     if (_ser_read) {
-        if (str.empty()) {
+        if (str.empty() || str == s_empty) {
             data.reset();
         } else {
             data = std::atoi(str.c_str());
@@ -1298,8 +1304,27 @@ void RowBase::ser(std::optional<bool>& data)
 {
     auto& str = _ser_usedCells[_ser_cellIndex++];
     if (_ser_read) {
+        if (str.empty() || str == s_empty) {
+            data.reset();
+        } else {
+            data = std::atoi(str.c_str());
+        }
+    } else {
+        if (data.has_value())
+            str = std::to_string((int) data.value());
+        else
+            str = {};
+    }
+}
+
+void RowBase::ser(std::optional<bool>& data, bool valueIfNoColumn)
+{
+    auto& str = _ser_usedCells[_ser_cellIndex++];
+    if (_ser_read) {
         if (str.empty()) {
             data.reset();
+        } else if (str == s_empty) {
+            data = valueIfNoColumn;
         } else {
             data = std::atoi(str.c_str());
         }
@@ -1315,7 +1340,7 @@ void RowBase::ser(std::string& data)
 {
     auto& str = _ser_usedCells[_ser_cellIndex++];
     if (_ser_read) {
-        data = str;
+        data = str == s_empty ? "" : str;
     } else {
         str = data;
     }

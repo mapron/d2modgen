@@ -5,23 +5,100 @@
  */
 #pragma once
 
-#include "TableId.hpp"
-#include "JsonId.hpp"
-
 #include <map>
+#include <string>
+#include <array>
 
 namespace D2ModGen {
+
+enum class TableId
+{
+    weapons,
+    armor,
+    automagic,
+    charstats,
+    cubemain,
+    difficultylevels,
+    experience,
+    gamble,
+    gems,
+    hireling,
+    itemstatcost,
+    itemtypes,
+    levels,
+    magicprefix,
+    magicsuffix,
+    misc,
+    monlvl,
+    monstats,
+    runes,
+    setitems,
+    sets,
+    skilldesc,
+    skills,
+    treasureclassex,
+    uniqueitems,
+
+    count__,
+};
+
+inline std::array<TableId, size_t(TableId::count__)> getTableIds()
+{
+    std::array<TableId, size_t(TableId::count__)> result;
+    for (size_t i = 0; i < result.size(); ++i)
+        result[i] = static_cast<TableId>(i);
+    return result;
+}
+
+std::string_view getTableIdString(TableId id);
+
+enum class JsonId
+{
+    ItemNames,
+    ItemNameAffixes,
+    Monsters,
+
+    count__,
+};
+
+inline auto getJsonIds()
+{
+    std::array<JsonId, size_t(JsonId::count__)> result;
+    for (size_t i = 0; i < result.size(); ++i)
+        result[i] = static_cast<JsonId>(i);
+    return result;
+}
+
+std::string_view getJsonRelPath(JsonId id);
+
+enum class BlobId
+{
+    PatchStringTbl,
+
+    count__,
+};
+
+inline auto getBlobIds()
+{
+    std::array<BlobId, size_t(BlobId::count__)> result;
+    for (size_t i = 0; i < result.size(); ++i)
+        result[i] = static_cast<BlobId>(i);
+    return result;
+}
+
+std::string_view getBlobRelPath(BlobId id);
 
 class IStorage {
 public:
     static std::string makeTableRelativePath(TableId id, bool baseSub);
 
-    static constexpr std::string_view s_dataVersionPath = "data\\global\\dataversionbuild.txt";
+    static std::string_view s_dataVersionPath;
 
     struct StoredData {
         bool                           valid = false;
         std::map<TableId, std::string> tables;
         std::map<JsonId, std::string>  jsonFiles;
+        std::map<BlobId, std::string>  blobs;
 
         int64_t dataVersion = 0;
 

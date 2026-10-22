@@ -6,9 +6,10 @@
 #include "ModuleItemRandomizer.hpp"
 #include "RandoUtils.hpp"
 #include "AttributeHelper.hpp"
-#include "MernelPlatform/FileIOUtils.hpp"
+#include "TblParser.hpp"
 
 #include "Logger.hpp"
+#include "MernelPlatform/FileIOUtils.hpp"
 #include "MernelPlatform/ChronoPoint.hpp"
 
 #include <cstdlib>
@@ -17,6 +18,22 @@ namespace D2ModGen {
 
 namespace {
 constexpr const int s_maxUnbalanceLevel = 100;
+
+const std::vector<std::string> s_locales{
+    "deDE",
+    "enUS",
+    "esES",
+    "esMX",
+    "frFR",
+    "itIT",
+    "jaJP",
+    "koKR",
+    "plPL",
+    "ptBR",
+    "ruRU",
+    "zhCN",
+    "zhTW",
+};
 
 std::string intToBase64(int value)
 {
@@ -31,6 +48,18 @@ std::string intToBase64(int value)
     }
 
     return result;
+}
+
+std::string makeKey(int value, char prefix)
+{
+    return prefix + intToBase64(value);
+}
+
+std::string makeValue(std::string old, int copy)
+{
+    old += ' ';
+    old += ('a' + copy);
+    return old;
 }
 
 }
@@ -107,7 +136,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     context.generatedPropAttributes    = globalPropAttributes();
     context.generatedSlotScale         = globalSlotScale();
 
-    std::map<std::string, std::vector<std::string>> makeCopies;
+    ExtraLoc extraLoc;
 
     const int setBonusMode     = input.getInt("setBonusMode");
     const int repeatUniquesMax = 5;
@@ -194,14 +223,9 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             if (row.eqipmentType->category != EquipmentCategory::Misc)
                 row.lvlreq = 2;
         };
-        auto afterCopyUniq = [&input, &makeCopies, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_uniqueitems& row, const DataRow_uniqueitems& old) {
-            if (input.m_env.isLegacy) {
-                row.index += ' ';
-            } else {
-                row.index = "u" + intToBase64(id);
-            }
-            row.index += ('a' + i);
-            makeCopies[old.index].push_back(row.index);
+        auto afterCopyUniq = [&input, &extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_uniqueitems& row, const DataRow_uniqueitems& old) {
+            row.index = makeKey(id, 'u');
+            extraLoc.push_back({ row.index, makeValue(old.index, i) });
 
             row.version         = 100;
             row.ux              = {};
@@ -228,18 +252,11 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
                 row.addfunc = 2;
             }
         };
-        auto afterCopySetitem = [&input, &makeCopies, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_setitems& row, const DataRow_setitems& old) {
-            if (input.m_env.isLegacy) {
-                row.index += ' ';
-            } else {
-                row.index = "s" + intToBase64(id);
-            }
-            row.index += ('a' + i);
+        auto afterCopySetitem = [&input, &extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_setitems& row, const DataRow_setitems& old) {
+            row.index = makeKey(id, 's');
+            extraLoc.push_back({ row.index, makeValue(old.index, i) });
 
-            row.setIndex += ' ';
-            row.setIndex += ('a' + i);
-
-            makeCopies[old.index].push_back(row.index);
+            row.setIndex = makeValue(old.setIndex, i);
 
             row.ux              = {};
             row.ux.id           = id;
@@ -251,13 +268,11 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
         auto beforeCopySet = [](DataRow_sets& row) {
         };
-        auto afterCopySet = [&makeCopies, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_sets& row, const DataRow_sets& old) {
-            row.index += ' ';
-            row.index += ('a' + i);
+        auto afterCopySet = [&extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_sets& row, const DataRow_sets& old) {
+            row.index = makeValue(old.index, i);
+            extraLoc.push_back({ row.index, row.index });
 
             row.name = row.index;
-
-            makeCopies[old.index].push_back(row.index);
         };
 
         processTableWithCopies(output.sets, repeatSets, beforeCopySet, afterCopySet);
@@ -372,6 +387,9 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             MagicPropItem item;
             item.skillResolver = skillResolver;
             item.readFrom(row);
+            if (item.slot == SlotType::Undefined)
+                continue;
+
             item.generate(rng, props, params);
             item.writeTo(row);
             //Logger() << item.toString();
@@ -389,44 +407,22 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     auto endFillProps = startFillProps.GetElapsedTime().ToProfilingTime();
 
-    if (repeatSets > 1 && output.jsonFiles.contains(JsonId::ItemNames)) {
-        size_t                                      totalKeySize = 0;
-        auto&                                       jsonDoc      = output.jsonFiles[JsonId::ItemNames];
-        std::map<std::string, Mernel::PropertyTree> itemNamesByKey;
-        for (const auto& itemDesc : jsonDoc.getList()) {
-            const std::string key = itemDesc["Key"].getScalar().toString();
-            itemNamesByKey[key]   = itemDesc;
-            totalKeySize += key.size() + 1;
+    if (extraLoc.size() > 0) {
+        size_t totalKeySize = 0;
+        size_t totalValSize = 0;
+        for (const Loc& loc : extraLoc) {
+            totalKeySize += loc.key.size() + 1;
+            totalValSize += loc.value.size() + 1;
         }
-        Logger(Logger::Notice) << "Before totalKeySize=" << totalKeySize;
-
-        int id = 1000000;
-        for (const auto& [key, copies] : makeCopies) {
-            const Mernel::PropertyTree itemDescOld = itemNamesByKey[key];
-            if (itemDescOld.isNull())
-                continue;
-
-            for (size_t i = 1; const auto& copy : copies) {
-                i++;
-                std::string suffix = " ";
-                suffix += ('a' + i);
-                totalKeySize += copy.size() + 1;
-                Mernel::PropertyTree itemDesc = itemDescOld;
-                //itemDesc["enUS"] = itemDescOld["enUS"];
-                itemDesc["Key"] = Mernel::PropertyTreeScalar(copy);
-                itemDesc["id"]  = Mernel::PropertyTreeScalar(id++);
-
-                for (auto& [locKey, locValue] : itemDesc.getMap()) {
-                    if (locKey == "Key" || locKey == "id")
-                        continue;
-                    const auto str = locValue.getScalar().toString();
-                    locValue       = Mernel::PropertyTreeScalar(str + suffix);
-                }
-                jsonDoc.append(itemDesc);
-            }
+        Logger(Logger::Notice) << "Adding new " << extraLoc.size() << " translations, totalKeySize=" << totalKeySize << ", totalValSize=" << totalValSize;
+        if (output.jsonFiles.contains(JsonId::ItemNames)) {
+            auto& jsonDoc = output.jsonFiles[JsonId::ItemNames];
+            updateD2Rtranslation(jsonDoc, extraLoc);
         }
-
-        Logger(Logger::Notice) << "After totalKeySize=" << totalKeySize << " (added " << (id - 1000000) << ")";
+        if (output.blobs.contains(BlobId::PatchStringTbl)) {
+            auto& blob = output.blobs[BlobId::PatchStringTbl];
+            updateLoDtranslation(blob, extraLoc);
+        }
     }
 
     Logger(Logger::Notice) << "  item randomizer fill done in: " << endFillProps;
@@ -446,7 +442,10 @@ void ModuleItemRandomizer::grabAllProps(AllProps& allProps, DataContext& output,
 
             ItemCodeList types = row.getItemFilter();
             auto         slot  = types.determineSlot();
-            assert(slot != SlotType::Undefined);
+            if (slot == SlotType::Undefined) {
+                Logger(Logger::Warning) << "Indefined slot type for item: " << row.getId();
+                continue;
+            }
 
             for (const AffixPropList* affixList : row.affixLists()) {
                 for (const auto& prop : *affixList) {
@@ -626,5 +625,51 @@ void ModuleItemRandomizer::dumpAttributes(const NonPropAttributeRecordList& nonP
     if (oldData != dump.str())
         Mernel::writeFileFromBufferNoexcept(dumpFileName, dump.str());
 }
+}
 
+void D2ModGen::ModuleItemRandomizer::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const ExtraLoc& extraLoc) const
+{
+    {
+        size_t totalKeySize = 0;
+        size_t totalValSize = 0;
+        for (const auto& itemDesc : jsonDoc.getList()) {
+            const std::string key = itemDesc["Key"].getScalar().toString();
+            const std::string val = itemDesc["enUS"].getScalar().toString();
+            totalKeySize += key.size() + 1;
+            totalValSize += val.size() + 1;
+        }
+        Logger(Logger::Notice) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
+    }
+
+    int id = 1000000;
+    for (const Loc& loc : extraLoc) {
+        Mernel::PropertyTree itemDesc;
+        itemDesc["Key"] = Mernel::PropertyTreeScalar(loc.key);
+        itemDesc["id"]  = Mernel::PropertyTreeScalar(id++);
+        for (auto& locale : s_locales)
+            itemDesc[locale] = Mernel::PropertyTreeScalar(loc.value);
+
+        jsonDoc.append(itemDesc);
+    }
+}
+
+void D2ModGen::ModuleItemRandomizer::updateLoDtranslation(std::string& patchstringTlb, const ExtraLoc& extraLoc) const
+{
+    TblStructure tbl;
+    tbl.readFromBuffer(patchstringTlb);
+
+    {
+        size_t totalKeySize = 0;
+        size_t totalValSize = 0;
+        for (const auto& itemDesc : tbl.m_rows) {
+            totalKeySize += itemDesc.Key.size() + 1;
+            totalValSize += itemDesc.Val.size() + 1;
+        }
+        Logger(Logger::Notice) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
+    }
+
+    for (const Loc& loc : extraLoc) {
+        tbl.m_rows.push_back({ .Key = loc.key, .Val = loc.value });
+    }
+    tbl.writeToBuffer(patchstringTlb);
 }

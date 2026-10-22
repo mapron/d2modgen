@@ -6,7 +6,7 @@
 #include "StormStorage.hpp"
 
 #include "MernelPlatform/ScopeExit.hpp"
-#include "TableId.hpp"
+
 #include "Logger.hpp"
 
 #ifdef _WIN32
@@ -88,6 +88,13 @@ IStorage::StoredData StormStorage::readData() const noexcept
             continue;
 
         result.tables[id] = std::move(buffer);
+    }
+    for (BlobId id : getBlobIds()) {
+        std::string buffer;
+        if (!readStormFile(buffer, std::string(getBlobRelPath(id))))
+            continue;
+
+        result.blobs[id] = std::move(buffer);
     }
     // hmm probably never will have json in mpq.
     result.valid = !result.tables.empty();

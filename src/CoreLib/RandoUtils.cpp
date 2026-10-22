@@ -366,10 +366,6 @@ void MagicPropItem::generate(RandomGenerator& rng, const MagicPropUniverse& prop
 
     const MagicPropUniverse::CommonGen& commonGen = props.levelGen.at(levelBracket20);
 
-    slot         = types.determineSlot();
-    currentClass = types.determineClass();
-    currentIdiom = types.determineIdiom();
-
     auto calcNewCount = [&rng,
                          &randoParams](const int originalCount) -> std::pair<int, int> {
         if (randoParams.relativeCountMin == 100 && randoParams.relativeCountMax == 100) {

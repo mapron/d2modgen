@@ -93,6 +93,13 @@ IStorage::StoredData FolderStorage::readData() const noexcept
 
             result.jsonFiles[id] = std::move(buffer);
         }
+        for (BlobId id : getBlobIds()) {
+            std::string buffer;
+            if (!readFile(buffer, std::string(getBlobRelPath(id))))
+                continue;
+
+            result.blobs[id] = std::move(buffer);
+        }
     }
 
     result.valid = !result.tables.empty();
@@ -175,6 +182,12 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
         }
         for (const auto& [id, memoryData] : data.jsonFiles) {
             const auto absPath = m_root / std::string(getJsonRelPath(id));
+            if (!writeData(memoryData, absPath)) {
+                return false;
+            }
+        }
+        for (const auto& [id, memoryData] : data.blobs) {
+            const auto absPath = m_root / std::string(getBlobRelPath(id));
             if (!writeData(memoryData, absPath)) {
                 return false;
             }

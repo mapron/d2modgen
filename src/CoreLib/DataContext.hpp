@@ -7,7 +7,7 @@
 
 #include "Storage/IStorage.hpp"
 #include "MernelPlatform/PropertyTree.hpp"
-#include "TableId.hpp"
+
 #include "AttributeHelper.hpp"
 #include "AttributeValues.hpp"
 
@@ -114,6 +114,7 @@ struct RowBase {
     void ser(int& data);
     void ser(std::optional<int>& data);
     void ser(std::optional<bool>& data);
+    void ser(std::optional<bool>& data, bool valueIfNoColumn);
     void ser(std::string& data);
 
     template<class Item, class F1, class F2>
@@ -849,6 +850,7 @@ struct DataContext {
     DataRow_itemtypes setstypes; // special marker for full sets so they have own fake item type.
 
     std::map<JsonId, Mernel::PropertyTree> jsonFiles;
+    std::map<BlobId, std::string>          blobs;
 
     int64_t dataVersion = 0;
 

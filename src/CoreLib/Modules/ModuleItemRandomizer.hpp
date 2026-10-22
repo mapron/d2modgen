@@ -15,6 +15,13 @@ public:
     static constexpr const std::string_view configKey{ "randomizer" };
     static constexpr const std::string_view moduleKey{ "appModuleItemRandomizer" };
 
+    struct Loc {
+        std::string key;
+        std::string value;
+    };
+
+    using ExtraLoc = std::vector<Loc>;
+
     ModuleItemRandomizer();
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
@@ -35,6 +42,9 @@ public:
         const NonPropAttributeRecordList&    nonPropList,
         const PropAttributeRecordList&       propList,
         const ApproximationResultsSimpleMap& approxMapSimple) const;
+
+    void updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const ExtraLoc& extraLoc) const;
+    void updateLoDtranslation(std::string& patchstringTlb, const ExtraLoc& extraLoc) const;
 };
 
 }

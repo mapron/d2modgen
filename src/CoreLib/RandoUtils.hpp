@@ -150,6 +150,10 @@ struct MagicPropItem {
             rawList.readFromRow(*affixList);
             affixlists.push_back(std::move(rawList));
         }
+
+        slot         = types.determineSlot();
+        currentClass = types.determineClass();
+        currentIdiom = types.determineIdiom();
     }
 
     void generate(RandomGenerator&         rng,

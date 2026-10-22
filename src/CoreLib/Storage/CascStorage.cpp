@@ -6,7 +6,7 @@
 #include "CascStorage.hpp"
 
 #include "MernelPlatform/ScopeExit.hpp"
-#include "TableId.hpp"
+
 #include "Logger.hpp"
 
 #ifdef _WIN32
