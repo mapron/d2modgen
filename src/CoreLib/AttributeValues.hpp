@@ -26,6 +26,7 @@ enum class SlotType
     Charm,
     Socketable,
     Set,
+    PD2Map,
 };
 
 std::string slotTypeName(SlotType slotType);

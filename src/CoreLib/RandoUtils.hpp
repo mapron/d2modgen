@@ -54,7 +54,7 @@ struct MagicProp {
 struct MagicPropRawList {
     MagicPropList          parsedProps;
     std::vector<AffixProp> keptProps;
-    size_t                 affixLimit   = 0;
+    int                    affixLimit   = 0;
     int                    needGenerate = 0;
 
     void preProcess(const RandoParams& randoParams);
@@ -136,6 +136,14 @@ struct MagicPropItem {
     UniqueAttributeChecker uniqueChecker;
     Character              currentClass = Character::none;
     AttributeIdiom         currentIdiom = AttributeIdiom::Any;
+
+    // statistics
+    int propSrc       = 0;
+    int propDest      = 0;
+    int propKept      = 0;
+    int propGenReq    = 0;
+    int propGenFit    = 0;
+    int propGenCommon = 0;
 
     template<class Row>
     void readFrom(const Row& row)

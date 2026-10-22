@@ -157,4 +157,12 @@ WidgetScrollable {
             Layout.fillWidth: true
         }
     }
+
+    WidgetComboBox {
+        caption: qsTr("Locale id for D2R:")
+        tooltip: ""
+        model: ["enUS", "deDE", "esES", "esMX", "frFR", "itIT", "jaJP", "koKR", "plPL", "ptBR", "ruRU", "zhCN", "zhTW"]
+        value_context: root.value_context
+        value_key: "d2rLocaleId"
+    }
 }

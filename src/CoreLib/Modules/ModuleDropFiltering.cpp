@@ -10,26 +10,6 @@
 
 namespace D2ModGen {
 
-namespace {
-
-const std::vector<std::string> s_locales{
-    "deDE",
-    "enUS",
-    "esES",
-    "esMX",
-    "frFR",
-    "itIT",
-    "jaJP",
-    "koKR",
-    "plPL",
-    "ptBR",
-    "ruRU",
-    "zhCN",
-    "zhTW",
-};
-
-}
-
 ModuleDropFiltering::ModuleDropFiltering()
     : PluginModule(Mernel::PropertyTreeMap{
           { "compact_pots", Mernel::PropertyTreeScalar{ false } },
@@ -66,7 +46,7 @@ ModuleDropFiltering::ModuleDropFiltering()
 
 void ModuleDropFiltering::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    auto replaceJson = [&output](const std::map<std::string, std::string>& replacements, const JsonId& name) {
+    auto replaceJson = [&output, &input](const std::map<std::string, std::string>& replacements, const JsonId& name) {
         if (replacements.empty() || !output.jsonFiles.contains(name))
             return;
         auto& jsonDoc   = output.jsonFiles[name];
@@ -74,9 +54,8 @@ void ModuleDropFiltering::generate(DataContext& output, RandomGenerator& rng, co
         for (Mernel::PropertyTree& lang : jsonArray) {
             const std::string key = lang["Key"].getScalar().toString();
             if (replacements.contains(key)) {
-                auto val = replacements.at(key);
-                for (const std::string& loc : s_locales)
-                    lang[loc] = Mernel::PropertyTreeScalar{ val };
+                auto val                      = replacements.at(key);
+                lang[input.m_env.d2rLocaleId] = Mernel::PropertyTreeScalar{ val };
             }
         }
     };

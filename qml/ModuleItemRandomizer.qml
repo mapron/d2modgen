@@ -16,7 +16,7 @@ WidgetCommonTab {
     WidgetRangeSlider {
         caption: qsTr("Buff level range")
         tooltip: qsTr("Crazyness level - determine level difference to be used when selecting new properties for item/rune/etc.<br>For example, with value '10', new item can be 10 levels higher in terms of used properties.<br>That does not affect item level or its requirements.")
-        from: 5
+        from: 0
         to: 100
         value_context: root.value_context
         value_key: "levelPlus"
@@ -25,7 +25,7 @@ WidgetCommonTab {
     WidgetRangeSlider {
         caption: qsTr("Nerf level range")
         tooltip: qsTr("This is just as previous option, but forces item to be sometimes worse than original.")
-        from: 5
+        from: 0
         to: 100
         value_context: root.value_context
         value_key: "levelMinus"

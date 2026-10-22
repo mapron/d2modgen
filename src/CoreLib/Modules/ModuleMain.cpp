@@ -16,6 +16,7 @@ ModuleMain::ModuleMain()
           { "inputMode", Mernel::PropertyTreeScalar{ 0 } },
           { "outputMode", Mernel::PropertyTreeScalar{ 0 } },
           { "modname", Mernel::PropertyTreeScalar{ "rando" } },
+          { "d2rLocaleId", Mernel::PropertyTreeScalar{ 0 } },
           { "seed", Mernel::PropertyTreeScalar{ 0 } },
           { "refreshSeed", Mernel::PropertyTreeScalar{ true } },
       })

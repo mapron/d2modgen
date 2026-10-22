@@ -76,12 +76,14 @@ void MagicPropRawList::readFromRow(const AffixPropList& propList)
             continue;
         if (mp.id == AttributeId::INVALID) {
             keptProps.push_back(col);
+            affixLimit--;
             continue;
         }
 
         const auto& desc = getAttributeDesc(mp.id);
         if (desc.flags.contains(AttributeFlag::Keep)) {
             keptProps.push_back(col);
+            affixLimit--;
             continue;
         }
 
@@ -93,35 +95,24 @@ void MagicPropRawList::writeToRow(AffixPropList& propList) const
 {
     propList.clear();
 
-    auto isFull = [propList](size_t more) {
-        return (propList.size() + more > propList.getLimit());
-    };
-
-    auto consume = [&propList](const MagicProp& prop) {
+    for (const auto& prop : keptProps) {
+        propList.push_back(prop);
+    }
+    for (const MagicProp& prop : parsedProps) {
+        if (propList.size() + 1 > propList.getLimit())
+            break;
         propList.push_back(AffixProp{
             .code = idToString(prop.id),
             .par  = prop.par,
             .min  = prop.min,
             .max  = prop.max,
         });
-    };
-    for (const auto& prop : keptProps) {
-        if (isFull(1))
-            break;
-        propList.push_back(prop);
-    }
-    for (const MagicProp& prop : parsedProps) {
-        if (isFull(1))
-            break;
-        consume(prop);
     }
 }
 
 int MagicPropRawList::getTotalSize() const
 {
-    int result = static_cast<int>(parsedProps.size());
-    result += keptProps.size();
-    return result;
+    return static_cast<int>(parsedProps.size());
 }
 
 Character MagicPropRawList::determineClass(const SkillResolver& skillResolver, bool checkOskill) const
@@ -156,14 +147,15 @@ void MagicPropRawList::append(MagicPropList added)
 
 void MagicPropRawList::truncateRandom(RandomGenerator& rng, const int newSize)
 {
-    MagicPropList newProps;
-    const int     kept = keptProps.size();
-    for (int i = 0; i < newSize - kept; ++i) {
+    if (!newSize) {
+        parsedProps.clear();
+        return;
+    }
+
+    while (parsedProps.size() > newSize) {
         auto r = rng(static_cast<int>(parsedProps.size()));
-        newProps.push_back(parsedProps[r]);
         parsedProps.erase(parsedProps.begin() + r);
     }
-    parsedProps = std::move(newProps);
 }
 
 void MagicPropRawList::fill(UniqueAttributeChecker& checker) const
@@ -415,7 +407,8 @@ void MagicPropItem::generate(RandomGenerator& rng, const MagicPropUniverse& prop
     // determine how much keep and how much generate
     int genCountPrev = 0;
     for (MagicPropRawList& rawList : affixlists) {
-        const int originalCount  = rawList.getTotalSize();
+        const int originalCount = rawList.getTotalSize();
+        propSrc += originalCount;
         auto [keepCnt, genCount] = calcNewCount(originalCount);
 
         if (keepCnt + genCount == 0) {
@@ -428,10 +421,9 @@ void MagicPropItem::generate(RandomGenerator& rng, const MagicPropUniverse& prop
             genCount     = maxGenCount;
         }
 
-        if (keepCnt < originalCount)
-            rawList.truncateRandom(rng, keepCnt);
-
+        propKept += keepCnt;
         rawList.needGenerate = genCount;
+        rawList.truncateRandom(rng, keepCnt);
     }
 
     // Feed existing data to consistency checker
@@ -456,10 +448,8 @@ void MagicPropItem::generate(RandomGenerator& rng, const MagicPropUniverse& prop
         MagicPropList newProps = generate(rng, commonGen, randoParams, rawList.needGenerate);
 
         rawList.append(std::move(newProps));
-        if (rawList.getTotalSize() > rawList.affixLimit) {
-            assert(!"That should not happen");
-            rawList.truncateRandom(rng, rawList.affixLimit);
-        }
+
+        propDest += rawList.getTotalSize();
 
         if (!randoParams.supportRandomRange)
             rawList.makePerfect();
@@ -473,6 +463,7 @@ MagicPropList MagicPropItem::generate(RandomGenerator&                    rng,
 {
     if (count <= 0)
         return {};
+    propGenReq += count;
 
     const bool noTypeSlot = slot == SlotType::Undefined;
 
@@ -523,20 +514,28 @@ MagicPropList MagicPropItem::generate(RandomGenerator&                    rng,
         result.push_back(prop);
         return true;
     };
-    auto tryAddWrap = [&tryAdd](const MagicPropUniverse::PropGeneratorContainer& container, int totalCount, int retries) {
+    auto tryAddWrap = [&tryAdd, this](const MagicPropUniverse::PropGeneratorContainer& container, const std::string& descr, int totalCount, int retries) -> int {
+        int added = 0;
         for (int i = 0; i < totalCount; ++i) {
             for (int r = 0; r <= retries; ++r)
-                if (tryAdd(container, r == retries))
+                if (tryAdd(container, r == retries)) {
+                    added++;
                     break;
+                }
         }
+        if (added != totalCount)
+            Logger(Logger::Warning) << "For item '" << id << "' requested " << descr << "=" << totalCount << ", actual=" << added;
+
+        return added;
     };
 
     if (!noTypeSlot) {
-        if (commonGen.bySlot.contains(slot))
-            tryAddWrap(commonGen.bySlot.at(slot), typefitCount, 5);
+        if (commonGen.bySlot.contains(slot)) {
+            propGenFit += tryAddWrap(commonGen.bySlot.at(slot), "typefit", typefitCount, 10);
+        }
     }
 
-    tryAddWrap(commonGen.general, count - result.size(), 5);
+    propGenCommon += tryAddWrap(commonGen.general, "common", count - result.size(), 10);
 
     return result;
 }
@@ -568,10 +567,16 @@ void MagicPropItem::update(MagicPropRawList& propList, RandomGenerator& rng, con
 
 std::string MagicPropItem::toString() const
 {
-    return "'" + id + "' lvl: " + std::to_string(originalLevel)
-           + " slot: " + slotTypeName(slot)
-           + " class: " + classTypeName(currentClass)
-           + " idiom: " + idiomTypeName(currentIdiom);
+    return "'" + id + "': lvl=" + std::to_string(originalLevel)
+           + ", slot=" + slotTypeName(slot)
+           + ", class=" + classTypeName(currentClass)
+           + ", idiom=" + idiomTypeName(currentIdiom)
+           + ", src=" + std::to_string(propSrc)
+           + ", req=" + std::to_string(propGenReq)
+           + ", dest=" + std::to_string(propDest)
+           + " (og=" + std::to_string(propKept)
+           + ", fit=" + std::to_string(propGenFit)
+           + ", com=" + std::to_string(propGenCommon) + ")";
 }
 
 }

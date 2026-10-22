@@ -301,6 +301,10 @@ GenerationEnvironment ConfigHandler::getEnv(std::string& err) const
     auto inputMode    = GenerationEnvironment::InputMode(c.value("inputMode", Mernel::PropertyTreeScalar(0)).toInt());
     auto outputMode   = GenerationEnvironment::OutputMode(c.value("outputMode", Mernel::PropertyTreeScalar(0)).toInt());
 
+    std::vector<std::string> localeIds{ "enUS", "deDE", "esES", "esMX", "frFR", "itIT", "jaJP", "koKR", "plPL", "ptBR", "ruRU", "zhCN", "zhTW" };
+    int                      localeIdIndex = c.value("d2rLocaleId", Mernel::PropertyTreeScalar(0)).toInt();
+
+    env.d2rLocaleId = localeIds.at(localeIdIndex);
     env.modName     = c.value("modname", Mernel::PropertyTreeScalar("rando")).toString();
     env.inputPath   = string2path(c.value("inputPath", Mernel::PropertyTreeScalar("")).toString());
     env.outputPath  = string2path(c.value("outputPath", Mernel::PropertyTreeScalar("")).toString());

@@ -102,6 +102,7 @@ bool DataContext::parseData(const IStorage::StoredData& data)
     };
 
     for (auto& row : setitems.rows) {
+        row.originalName = row.index;
         if (!row.isValid())
             continue;
 
@@ -111,6 +112,7 @@ bool DataContext::parseData(const IStorage::StoredData& data)
         const_cast<DataRow_sets*>(row.parent_set)->level = row.getLevel();
     }
     for (auto& row : uniqueitems.rows) {
+        row.originalName = row.index;
         if (!row.isValid())
             continue;
 
@@ -375,14 +377,20 @@ bool DataContext::serializeTable(const DataTable<Row>& table, TableId tableId, I
     std::string& buffer = data.tables[tableId];
 
     Mernel::CSVTable csv;
-    csv.columns    = full ? table.columnsOriginal : table.columnsUsed;
-    csv.endsWithNL = true;
+    csv.columns       = full ? table.columnsOriginal : table.columnsUsed;
+    csv.endsWithNL    = true;
+    bool prependedKey = false;
 
     for (auto row : table.rows) {
         row._ser_usedCells.resize(table.indicesUsed.size());
         row._ser_read      = false;
         row._ser_cellIndex = 0;
+        row._ser_key.reset();
         row.serialize();
+        if (row._ser_key.has_value() && !prependedKey && !full) {
+            prependedKey = true;
+            csv.columns.insert(csv.columns.begin(), "*pkey");
+        }
         Mernel::CSVTableRow rowCsv;
         rowCsv.data.resize(csv.columns.size());
 
@@ -404,6 +412,8 @@ bool DataContext::serializeTable(const DataTable<Row>& table, TableId tableId, I
             for (size_t i = 0; auto& [_, value] : values)
                 rowCsv.data[i++].str = value;
         }
+        if (row._ser_key.has_value() && !full)
+            rowCsv.data.insert(rowCsv.data.begin(), row._ser_key.value());
         csv.rows.push_back(std::move(rowCsv));
     }
 
@@ -687,12 +697,17 @@ void DataRow_itemstatcost::serialize()
 
 SlotType DataRow_itemtypes::determineSlot() const
 {
+    if (code == "bowq") {
+        int a = 1;
+    }
     if (code == "shld" || code == "pala")
         return SlotType::MainArmor;
     if (code == "weap")
         return SlotType::Weapon;
     if (code == "armo")
         return SlotType::OtherArmor;
+    if (code == "pvpm" || code == "map" || code == "t4m" || code == "t5m")
+        return SlotType::PD2Map;
     if (bodyLoc1 == "head" || bodyLoc1 == "tors")
         return SlotType::MainArmor;
     if (bodyLoc1 == "feet" || bodyLoc1 == "glov" || bodyLoc1 == "belt")
@@ -1065,6 +1080,8 @@ void DataRow_setitems::serialize()
 
     for (auto* affixList : affixLists())
         ser(*affixList);
+
+    _ser_key = originalName;
 }
 
 std::vector<std::string> DataRow_sets::getColumns() const
@@ -1267,6 +1284,7 @@ void DataRow_uniqueitems::serialize()
     ser(ux.eol);
 
     ser(affixes);
+    _ser_key = originalName;
 }
 
 void RowBase::ser(int& data)

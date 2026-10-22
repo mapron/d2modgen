@@ -31,6 +31,8 @@ public:
 
     void grabAllProps(AllProps& allProps, DataContext& output, MagicContext& context) const;
 
+    void createNewItems(ExtraLoc& extraLoc, DataContext& output, RandomGenerator& rng, const InputContext& input) const;
+
     void analyzeAllPropsForDump(
         AttributeId                    code,
         const AllPropsVal&             allPropsVal,
@@ -43,7 +45,7 @@ public:
         const PropAttributeRecordList&       propList,
         const ApproximationResultsSimpleMap& approxMapSimple) const;
 
-    void updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const ExtraLoc& extraLoc) const;
+    void updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const ExtraLoc& extraLoc, const std::string& localeId) const;
     void updateLoDtranslation(std::string& patchstringTlb, const ExtraLoc& extraLoc) const;
 };
 

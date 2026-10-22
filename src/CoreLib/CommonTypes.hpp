@@ -84,6 +84,7 @@ struct GenerationEnvironment {
         Dry,
     };
 
+    std::string      d2rLocaleId;
     std::string      modName;
     Mernel::std_path inputPath;
     Mernel::std_path outputPath;

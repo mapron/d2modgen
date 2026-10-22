@@ -4,6 +4,7 @@
  * See LICENSE file for details.
  */
 #include "ModuleItemRandomizer.hpp"
+#include "MernelPlatform/StringUtils.hpp"
 #include "RandoUtils.hpp"
 #include "AttributeHelper.hpp"
 #include "TblParser.hpp"
@@ -18,22 +19,6 @@ namespace D2ModGen {
 
 namespace {
 constexpr const int s_maxUnbalanceLevel = 100;
-
-const std::vector<std::string> s_locales{
-    "deDE",
-    "enUS",
-    "esES",
-    "esMX",
-    "frFR",
-    "itIT",
-    "jaJP",
-    "koKR",
-    "plPL",
-    "ptBR",
-    "ruRU",
-    "zhCN",
-    "zhTW",
-};
 
 std::string intToBase64(int value)
 {
@@ -138,145 +123,10 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     ExtraLoc extraLoc;
 
-    const int setBonusMode     = input.getInt("setBonusMode");
-    const int repeatUniquesMax = 5;
-    const int repeatSetsMax    = 5;
-    const int repeatUniques    = std::clamp(input.getInt("repeat_uniques"), 1, repeatUniquesMax);
-    const int repeatSets       = std::clamp(input.getInt("repeat_sets"), 1, repeatSetsMax);
-
     std::map<AttributeId, std::map<SlotType, std::map<int, AffixPropList>>> allProps;
 
-    const std::vector<std::string> colors{ "whit", "lgry", "dgry", "blac", "lblu", "dblu", "cblu", "lred", "dred", "cred", "lgrn", "dgrn", "cgrn", "lyel", "dyel", "lgld", "dgld", "lpur", "dpur", "oran", "bwht" };
-
-    auto getRandomColor = [&rng, &colors]() -> std::string {
-        const int index = rng(50);
-        if (index < colors.size()) {
-            return colors[index];
-        }
-        return "";
-    };
-    std::vector<EquipmentType> validArmor;
-    std::vector<EquipmentType> validWeapon;
-    for (auto& row : output.armor.rows) {
-        if (row.getTier() != Tier::None)
-            validArmor.push_back(&row);
-    }
-    for (auto& row : output.weapons.rows) {
-        if (row.getTier() != Tier::None)
-            validWeapon.push_back(&row);
-    }
-
     grabAllProps(allProps, output, context);
-    {
-        auto getNewLevelAndCode = [&rng, &output, validArmor, validWeapon](std::optional<int>& lvl,
-                                                                           EquipmentType&      eqipmentType,
-                                                                           std::string&        eqipmentCode,
-                                                                           std::string&        eqipmentName) {
-            int base_ilvl = -1;
-            if (eqipmentType->category == EquipmentCategory::Armor) {
-                eqipmentType = validArmor[rng(validArmor.size())];
-                base_ilvl    = eqipmentType->lvl.value();
-            } else if (eqipmentType->category == EquipmentCategory::Weapon) {
-                eqipmentType = validWeapon[rng(validWeapon.size())];
-                base_ilvl    = eqipmentType->lvl.value();
-            }
-            const int oldLvl = lvl.value_or(1);
-
-            const int oldLvl1 = base_ilvl == -1 ? oldLvl : (oldLvl + base_ilvl) / 2;
-            const int minLvl  = std::max(2, oldLvl1 - 10);
-            const int maxLvl  = base_ilvl == -1 ? 87 : std::min(87, oldLvl1 + 20);
-            const int newLvl  = minLvl + rng(maxLvl - minLvl);
-            lvl               = newLvl;
-
-            eqipmentName = eqipmentType->name;
-            eqipmentCode = eqipmentType->code;
-        };
-
-        auto processTableWithCopies = []<typename Row>(DataTable<Row>& table, int copies, auto&& beforeCopy, auto&& afterCopy) {
-            std::vector<Row*> validRows;
-            validRows.reserve(table.rows.size());
-            for (int id = 0; auto& row : table.rows) {
-                if (row.isValid()) {
-                    beforeCopy(row);
-                    validRows.push_back(&row);
-                }
-                id++;
-            }
-            std::vector<Row> copyRows;
-            copyRows.reserve(table.rows.size() + validRows.size() * (copies - 1));
-            copyRows.insert(copyRows.end(), table.rows.cbegin(), table.rows.cend());
-
-            for (Row* row_ : validRows) {
-                for (int i = 2; i <= copies; ++i) {
-                    Row row = *row_;
-                    row._ser_unusedCells.clear();
-
-                    afterCopy(int(copyRows.size()), i, row, *row_);
-                    copyRows.push_back(std::move(row));
-                }
-            }
-            std::swap(copyRows, table.rows);
-        };
-
-        auto beforeCopyUniq = [](DataRow_uniqueitems& row) {
-            row.disableChronicle = true;
-            if (row.eqipmentType->category != EquipmentCategory::Misc)
-                row.lvlreq = 2;
-        };
-        auto afterCopyUniq = [&input, &extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_uniqueitems& row, const DataRow_uniqueitems& old) {
-            row.index = makeKey(id, 'u');
-            extraLoc.push_back({ row.index, makeValue(old.index, i) });
-
-            row.version         = 100;
-            row.ux              = {};
-            row.ux.id           = id;
-            row.ux.chrtransform = row.ux.invtransform = getRandomColor();
-            getNewLevelAndCode(row.lvl, row.eqipmentType, row.eqipmentCode, row.ux.itemName);
-        };
-
-        processTableWithCopies(output.uniqueitems, repeatUniques, beforeCopyUniq, afterCopyUniq);
-
-        auto beforeCopySetitem = [&setBonusMode](DataRow_setitems& row) {
-            row.disableChronicle = true;
-            if (row.eqipmentType->category != EquipmentCategory::Misc)
-                row.lvlreq = 2;
-
-            // addfunc:
-            // 0 -> no green properties on item (apropxx will appear as a blue attribute on the list instead).
-            // 1 -> green properties (apropxx) depend on which other items from the set are equipped. (only Civerb's Ward)
-            // 2 -> green properties (apropxx) depend on how many other items from the set are equipped.
-            if (setBonusMode == 1) {
-                row.addfunc = 0;
-            }
-            if (setBonusMode == 2) {
-                row.addfunc = 2;
-            }
-        };
-        auto afterCopySetitem = [&input, &extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_setitems& row, const DataRow_setitems& old) {
-            row.index = makeKey(id, 's');
-            extraLoc.push_back({ row.index, makeValue(old.index, i) });
-
-            row.setIndex = makeValue(old.setIndex, i);
-
-            row.ux              = {};
-            row.ux.id           = id;
-            row.ux.chrtransform = row.ux.invtransform = getRandomColor();
-            getNewLevelAndCode(row.lvl, row.eqipmentType, row.eqipmentCode, row.ux.itemName);
-        };
-
-        processTableWithCopies(output.setitems, repeatSets, beforeCopySetitem, afterCopySetitem);
-
-        auto beforeCopySet = [](DataRow_sets& row) {
-        };
-        auto afterCopySet = [&extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_sets& row, const DataRow_sets& old) {
-            row.index = makeValue(old.index, i);
-            extraLoc.push_back({ row.index, row.index });
-
-            row.name = row.index;
-        };
-
-        processTableWithCopies(output.sets, repeatSets, beforeCopySet, afterCopySet);
-    }
+    createNewItems(extraLoc, output, rng, input);
 
     context.eraseNonGame();
     {
@@ -318,6 +168,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         for (const auto& [code, codeProps] : allProps) {
             if (context.configAttributes.contains(code))
                 continue;
+            Logger() << "analyzing property values for attr='" << idToString(code) << "'";
             analyzeAllPropsForDump(code, codeProps, nonPropList, propList, approxMapSimple);
         }
 
@@ -387,7 +238,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             MagicPropItem item;
             item.skillResolver = skillResolver;
             item.readFrom(row);
-            if (item.slot == SlotType::Undefined)
+            if (item.slot == SlotType::Undefined || item.slot == SlotType::PD2Map)
                 continue;
 
             item.generate(rng, props, params);
@@ -417,7 +268,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         Logger(Logger::Notice) << "Adding new " << extraLoc.size() << " translations, totalKeySize=" << totalKeySize << ", totalValSize=" << totalValSize;
         if (output.jsonFiles.contains(JsonId::ItemNames)) {
             auto& jsonDoc = output.jsonFiles[JsonId::ItemNames];
-            updateD2Rtranslation(jsonDoc, extraLoc);
+            updateD2Rtranslation(jsonDoc, extraLoc, input.m_env.d2rLocaleId);
         }
         if (output.blobs.contains(BlobId::PatchStringTbl)) {
             auto& blob = output.blobs[BlobId::PatchStringTbl];
@@ -433,32 +284,39 @@ void ModuleItemRandomizer::grabAllProps(AllProps& allProps, DataContext& output,
     std::set<std::string> skippedAttributes;
     std::set<std::string> unknownAttributes;
 
-    auto grabProps = [&skippedAttributes, &unknownAttributes, &context, &allProps]<typename Row>(const DataTable<Row>& table) {
+    auto grabPropsRow = [&context, &allProps, &skippedAttributes, &unknownAttributes](const AffixPropList* affixList, SlotType slot, int level) {
+        assert(level >= -1 && level < 260);
+        for (const auto& prop : *affixList) {
+            auto id = getAttributeId(prop.code);
+            if (id == AttributeId::INVALID) {
+                unknownAttributes.insert(prop.code);
+            } else if (id == AttributeId::SKIP) {
+                skippedAttributes.insert(prop.code);
+            } else {
+                context.existingGameAttributes.insert(id);
+                allProps[id][slot][level].push_back(prop);
+            }
+        }
+    };
+
+    auto grabProps = [&grabPropsRow]<typename Row>(const DataTable<Row>& table) {
         for (auto& row : table.rows) {
             if (!row.isValid())
                 continue;
             const int level = row.getLevel();
-            assert(level >= -1 && level < 260);
 
             ItemCodeList types = row.getItemFilter();
             auto         slot  = types.determineSlot();
+            if (slot == SlotType::PD2Map) {
+                continue;
+            }
             if (slot == SlotType::Undefined) {
                 Logger(Logger::Warning) << "Indefined slot type for item: " << row.getId();
                 continue;
             }
 
             for (const AffixPropList* affixList : row.affixLists()) {
-                for (const auto& prop : *affixList) {
-                    auto id = getAttributeId(prop.code);
-                    if (id == AttributeId::INVALID) {
-                        unknownAttributes.insert(prop.code);
-                    } else if (id == AttributeId::SKIP) {
-                        skippedAttributes.insert(prop.code);
-                    } else {
-                        context.existingGameAttributes.insert(id);
-                        allProps[id][slot][level].push_back(prop);
-                    }
-                }
+                grabPropsRow(affixList, slot, level);
             }
         }
     };
@@ -470,7 +328,38 @@ void ModuleItemRandomizer::grabAllProps(AllProps& allProps, DataContext& output,
     grabProps(output.magicprefix);
     grabProps(output.magicsuffix);
     grabProps(output.sets);
-    // todo: grab cubemain!
+
+    const std::vector<std::pair<std::string, SlotType>> hints{
+        { "shield", SlotType::MainArmor },
+        { "quiver", SlotType::Weapon },
+        { "body", SlotType::MainArmor },
+        { "amulet", SlotType::Amulet },
+        { "ring", SlotType::Ring },
+        { "weapon", SlotType::Weapon },
+        { "boots", SlotType::OtherArmor },
+        { "helm", SlotType::MainArmor },
+        { "belt", SlotType::OtherArmor },
+        { "gloves", SlotType::OtherArmor },
+    };
+
+    for (auto& row : output.cubemain.rows) {
+        if (!row.isCrafted())
+            continue;
+        auto desc = Mernel::strToLower(row.description);
+        if (desc.starts_with("cheat "))
+            continue;
+        const int craftedLevel = 50;
+        SlotType  slot         = SlotType::OtherArmor;
+
+        for (const auto& hint : hints)
+            if (desc.ends_with(hint.first)) {
+                slot = hint.second;
+            }
+
+        for (const AffixPropList* affixList : row.affixLists()) {
+            grabPropsRow(affixList, slot, craftedLevel);
+        }
+    }
 
     {
         std::ostringstream skipped, unknown;
@@ -482,6 +371,158 @@ void ModuleItemRandomizer::grabAllProps(AllProps& allProps, DataContext& output,
             Logger(Logger::Warning) << "Unknown attributes: " << unknown.str();
         if (!skippedAttributes.empty())
             Logger() << "Ignored attributes: " << skipped.str();
+    }
+}
+
+void ModuleItemRandomizer::createNewItems(ExtraLoc& extraLoc, DataContext& output, RandomGenerator& rng, const InputContext& input) const
+{
+    const int setBonusMode     = input.getInt("setBonusMode");
+    const int repeatUniquesMax = 5;
+    const int repeatSetsMax    = 5;
+    const int repeatUniques    = std::clamp(input.getInt("repeat_uniques"), 1, repeatUniquesMax);
+    const int repeatSets       = std::clamp(input.getInt("repeat_sets"), 1, repeatSetsMax);
+
+    const std::vector<std::string> colors{ "whit", "lgry", "dgry", "blac", "lblu", "dblu", "cblu", "lred", "dred", "cred", "lgrn", "dgrn", "cgrn", "lyel", "dyel", "lgld", "dgld", "lpur", "dpur", "oran", "bwht" };
+
+    auto getRandomColor = [&rng, &colors]() -> std::string {
+        const int index = rng(50);
+        if (index < colors.size()) {
+            return colors[index];
+        }
+        return "";
+    };
+    std::vector<EquipmentType> validArmor;
+    std::vector<EquipmentType> validWeapon;
+    for (auto& row : output.armor.rows) {
+        if (row.getTier() != Tier::None)
+            validArmor.push_back(&row);
+    }
+    for (auto& row : output.weapons.rows) {
+        if (row.getTier() != Tier::None)
+            validWeapon.push_back(&row);
+    }
+
+    {
+        auto getNewLevelAndCode = [&rng, &output, validArmor, validWeapon](std::optional<int>& lvl,
+                                                                           EquipmentType&      eqipmentType,
+                                                                           std::string&        eqipmentCode,
+                                                                           std::string&        eqipmentName) {
+            int base_ilvl = -1;
+            if (eqipmentType->category == EquipmentCategory::Armor) {
+                eqipmentType = validArmor[rng(validArmor.size())];
+                base_ilvl    = eqipmentType->lvl.value();
+            } else if (eqipmentType->category == EquipmentCategory::Weapon) {
+                eqipmentType = validWeapon[rng(validWeapon.size())];
+                base_ilvl    = eqipmentType->lvl.value();
+            }
+            const int oldLvl = lvl.value_or(1);
+
+            const int oldLvl1 = base_ilvl == -1 ? oldLvl : (oldLvl + base_ilvl) / 2;
+            const int minLvl  = std::max(2, oldLvl1 - 10);
+            const int maxLvl  = base_ilvl == -1 ? 87 : std::min(87, oldLvl1 + 20);
+            const int newLvl  = minLvl + rng(maxLvl - minLvl);
+            lvl               = newLvl;
+
+            eqipmentName = eqipmentType->name;
+            eqipmentCode = eqipmentType->code;
+        };
+
+        auto processTableWithCopies = []<typename Row>(DataTable<Row>& table, int copies, auto&& beforeCopy, auto&& afterCopy) {
+            std::vector<Row*> validRows;
+            validRows.reserve(table.rows.size());
+            for (int id = 0; auto& row : table.rows) {
+                if (row.isValid()) {
+                    if (beforeCopy(row))
+                        validRows.push_back(&row);
+                }
+                id++;
+            }
+            std::vector<Row> copyRows;
+            copyRows.reserve(table.rows.size() + validRows.size() * (copies - 1));
+            copyRows.insert(copyRows.end(), table.rows.cbegin(), table.rows.cend());
+
+            for (Row* row_ : validRows) {
+                for (int i = 1; i < copies; ++i) {
+                    Row row = *row_;
+                    row._ser_unusedCells.clear();
+
+                    afterCopy(int(copyRows.size()), i, row, *row_);
+                    copyRows.push_back(std::move(row));
+                }
+            }
+            std::swap(copyRows, table.rows);
+        };
+
+        auto beforeCopyUniq = [](DataRow_uniqueitems& row) -> bool {
+            row.disableChronicle = true;
+            if (row.eqipmentType->category != EquipmentCategory::Misc)
+                row.lvlreq = 2;
+            else {
+                auto slot = row.getItemFilter().determineSlot();
+                if (slot == SlotType::Amulet || slot == SlotType::Charm || slot == SlotType::Ring || slot == SlotType::Weapon)
+                    return true;
+                Logger() << "uniq copy skip: " << row.getId();
+                return false;
+            }
+            return true;
+        };
+        auto afterCopyUniq = [&input, &extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_uniqueitems& row, const DataRow_uniqueitems& old) {
+            row.index        = makeKey(id, 'u');
+            row.originalName = makeValue(old.index, i);
+            extraLoc.push_back({ row.index, row.originalName });
+
+            row.version         = 100;
+            row.ux              = {};
+            row.ux.id           = id;
+            row.ux.chrtransform = row.ux.invtransform = getRandomColor();
+            getNewLevelAndCode(row.lvl, row.eqipmentType, row.eqipmentCode, row.ux.itemName);
+        };
+
+        processTableWithCopies(output.uniqueitems, repeatUniques, beforeCopyUniq, afterCopyUniq);
+
+        auto beforeCopySetitem = [&setBonusMode](DataRow_setitems& row) {
+            row.disableChronicle = true;
+            if (row.eqipmentType->category != EquipmentCategory::Misc)
+                row.lvlreq = 2;
+
+            // addfunc:
+            // 0 -> no green properties on item (apropxx will appear as a blue attribute on the list instead).
+            // 1 -> green properties (apropxx) depend on which other items from the set are equipped. (only Civerb's Ward)
+            // 2 -> green properties (apropxx) depend on how many other items from the set are equipped.
+            if (setBonusMode == 1) {
+                row.addfunc = 0;
+            }
+            if (setBonusMode == 2) {
+                row.addfunc = 2;
+            }
+            return true;
+        };
+        auto afterCopySetitem = [&input, &extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_setitems& row, const DataRow_setitems& old) {
+            row.index        = makeKey(id, 's');
+            row.originalName = makeValue(old.index, i);
+            extraLoc.push_back({ row.index, row.originalName });
+
+            row.setIndex = makeValue(old.setIndex, i);
+
+            row.ux              = {};
+            row.ux.id           = id;
+            row.ux.chrtransform = row.ux.invtransform = getRandomColor();
+            getNewLevelAndCode(row.lvl, row.eqipmentType, row.eqipmentCode, row.ux.itemName);
+        };
+
+        processTableWithCopies(output.setitems, repeatSets, beforeCopySetitem, afterCopySetitem);
+
+        auto beforeCopySet = [](DataRow_sets& row) {
+            return true;
+        };
+        auto afterCopySet = [&extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_sets& row, const DataRow_sets& old) {
+            row.index = makeValue(old.index, i);
+            extraLoc.push_back({ row.index, row.index });
+
+            row.name = row.index;
+        };
+
+        processTableWithCopies(output.sets, repeatSets, beforeCopySet, afterCopySet);
     }
 }
 
@@ -627,14 +668,14 @@ void ModuleItemRandomizer::dumpAttributes(const NonPropAttributeRecordList& nonP
 }
 }
 
-void D2ModGen::ModuleItemRandomizer::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const ExtraLoc& extraLoc) const
+void D2ModGen::ModuleItemRandomizer::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const ExtraLoc& extraLoc, const std::string& localeId) const
 {
     {
         size_t totalKeySize = 0;
         size_t totalValSize = 0;
         for (const auto& itemDesc : jsonDoc.getList()) {
             const std::string key = itemDesc["Key"].getScalar().toString();
-            const std::string val = itemDesc["enUS"].getScalar().toString();
+            const std::string val = itemDesc[localeId].getScalar().toString();
             totalKeySize += key.size() + 1;
             totalValSize += val.size() + 1;
         }
@@ -644,10 +685,9 @@ void D2ModGen::ModuleItemRandomizer::updateD2Rtranslation(Mernel::PropertyTree& 
     int id = 1000000;
     for (const Loc& loc : extraLoc) {
         Mernel::PropertyTree itemDesc;
-        itemDesc["Key"] = Mernel::PropertyTreeScalar(loc.key);
-        itemDesc["id"]  = Mernel::PropertyTreeScalar(id++);
-        for (auto& locale : s_locales)
-            itemDesc[locale] = Mernel::PropertyTreeScalar(loc.value);
+        itemDesc["Key"]    = Mernel::PropertyTreeScalar(loc.key);
+        itemDesc["id"]     = Mernel::PropertyTreeScalar(id++);
+        itemDesc[localeId] = Mernel::PropertyTreeScalar(loc.value);
 
         jsonDoc.append(itemDesc);
     }

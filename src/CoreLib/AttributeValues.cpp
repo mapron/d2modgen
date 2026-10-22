@@ -138,6 +138,8 @@ std::string slotTypeName(SlotType slotType)
             return "Socketable";
         case SlotType::Set:
             return "Set";
+        case SlotType::PD2Map:
+            return "PD2Map";
     }
     return "?";
 }

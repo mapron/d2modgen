@@ -104,10 +104,11 @@ public:
 };
 
 struct RowBase {
-    bool                     _ser_read      = false;
-    size_t                   _ser_cellIndex = 0;
-    std::vector<std::string> _ser_unusedCells;
-    std::vector<std::string> _ser_usedCells;
+    bool                       _ser_read = false;
+    std::optional<std::string> _ser_key;
+    size_t                     _ser_cellIndex = 0;
+    std::vector<std::string>   _ser_unusedCells;
+    std::vector<std::string>   _ser_usedCells;
 
     std::map<std::string, std::string> getColumnAliases() const { return {}; }
 
@@ -268,7 +269,7 @@ struct RowBaseEquipment : public RowBase {
 
     bool isValid() const
     {
-        return !itemTypeCode.empty() && getLevel() > 0;
+        return !itemTypeCode.empty() && (getLevel() > 0 || category == EquipmentCategory::Misc);
     }
 
     ItemCodeList getItemFilter() const
@@ -608,6 +609,7 @@ struct DataRow_setitems : public RowBase {
     std::optional<bool> spawnable;
     std::optional<bool> disableChronicle;
 
+    std::string   originalName;
     std::string   index;
     std::string   setIndex;
     EquipmentType eqipmentType = nullptr;
@@ -635,7 +637,7 @@ struct DataRow_setitems : public RowBase {
 
     std::string getId() const
     {
-        return index;
+        return originalName;
     }
 
     auto affixLists() const { return std::array{ &affixes_base, &affixes_partial1, &affixes_partial2 }; }
@@ -765,6 +767,7 @@ struct DataRow_uniqueitems : public RowBase {
     EquipmentType eqipmentType = nullptr;
     std::string   eqipmentCode;
     std::string   index;
+    std::string   originalName;
 
     std::optional<int> version  = 100;
     std::optional<int> cost_mul = 5;
@@ -788,7 +791,7 @@ struct DataRow_uniqueitems : public RowBase {
 
     std::string getId() const
     {
-        return index;
+        return originalName;
     }
 
     int getLevel() const
