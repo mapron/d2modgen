@@ -285,32 +285,32 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
                 .m_name    = "Cheat SC: key + stamina = all skills + all stats",
                 .m_i1      = "key",
                 .m_i2      = "vps",
-                .m_affixes = { { "allskills", 7 }, { "all-stats", 20 }, { "ac", 1 }, { "att", 1 }, { "dmg-max", 1 } },
+                .m_affixes = { { "allskills", 7 }, { "all-stats", 20 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: key + antidote = damage reduction",
                 .m_i1      = "key",
                 .m_i2      = "yps",
-                .m_affixes = { { "red-dmg", 15 }, { "red-mag", 15 }, { "red-dmg%", 10 }, { "ac", 1 }, { "att", 1 } },
+                .m_affixes = { { "red-dmg", 15 }, { "red-mag", 15 }, { "red-dmg%", 10 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: key + thawing = absorb",
                 .m_i1      = "key",
                 .m_i2      = "wms",
-                .m_affixes = { { "abs-fire%", 10 }, { "abs-ltng%", 10 }, { "abs-mag%", 10 }, { "abs-cold%", 10 }, { "ac", 1 } },
+                .m_affixes = { { "abs-fire%", 10 }, { "abs-ltng%", 10 }, { "abs-mag%", 10 }, { "abs-cold%", 10 } },
             },
 
             CraftResult{
                 .m_name    = "Cheat SC: key + any hp = HP and vitality",
                 .m_i1      = "key",
                 .m_i2      = "hpot",
-                .m_affixes = { { "hp", 300 }, { "hp%", 10 }, { "vit", 20 }, { "ac", 1 }, { "att", 1 } },
+                .m_affixes = { { "hp", 300 }, { "hp%", 10 }, { "vit", 20 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: key + any mana = Mana and energy",
                 .m_i1      = "key",
                 .m_i2      = "mpot",
-                .m_affixes = { { "mana", 150 }, { "mana%", 20 }, { "enr", 20 }, { "ac", 1 }, { "att", 1 } },
+                .m_affixes = { { "mana", 150 }, { "mana%", 20 }, { "enr", 20 } },
             },
 
             //----------------
@@ -318,7 +318,7 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
                 .m_name    = "Cheat SC: TP + stamina = faster frames",
                 .m_i1      = "tsc",
                 .m_i2      = "vps",
-                .m_affixes = { { "move2", 30 }, { "cast2", 80 }, { "balance2", 80 }, { "block2", 50 }, { "ac", 1 } },
+                .m_affixes = { { "move2", 30 }, { "cast2", 80 }, { "balance2", 80 }, { "block2", 50 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: TP + antidote = max res + poison len",
@@ -330,19 +330,19 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
                 .m_name    = "Cheat SC: TP + thawing = all res",
                 .m_i1      = "tsc",
                 .m_i2      = "wms",
-                .m_affixes = { { "res-all", 50 }, { "ac", 1 }, { "att", 1 }, { "dmg-min", 1 }, { "dmg-max", 1 } },
+                .m_affixes = { { "res-all", 50 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: TP + any hp = hp regen",
                 .m_i1      = "tsc",
                 .m_i2      = "hpot",
-                .m_affixes = { { "lifesteal", 10 }, { "regen", 30 }, { "heal-kill", 20 }, { "regen-stam", 50 }, { "ac", 1 } },
+                .m_affixes = { { "lifesteal", 10 }, { "regen", 30 }, { "heal-kill", 20 }, { "regen-stam", 50 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: TP + any mana = mana regen",
                 .m_i1      = "tsc",
                 .m_i2      = "mpot",
-                .m_affixes = { { "manasteal", 5 }, { "regen-mana", 50 }, { "mana-kill", 5 }, { "dmg-to-mana", 20 }, { "ac", 1 } },
+                .m_affixes = { { "manasteal", 5 }, { "regen-mana", 50 }, { "mana-kill", 5 }, { "dmg-to-mana", 20 } },
             },
 
             //----------------
@@ -350,19 +350,19 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
                 .m_name    = "Cheat SC: ID + stamina = pierce res",
                 .m_i1      = "isc",
                 .m_i2      = "vps",
-                .m_affixes = { { "pierce-pois", 20 }, { "pierce-fire", 20 }, { "pierce-ltng", 20 }, { "pierce-cold", 20 }, { "ac", 1 } },
+                .m_affixes = { { "pierce-pois", 20 }, { "pierce-fire", 20 }, { "pierce-ltng", 20 }, { "pierce-cold", 20 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: ID + antidote = +elemental dmg",
                 .m_i1      = "isc",
                 .m_i2      = "yps",
-                .m_affixes = { { "extra-ltng", 50 }, { "extra-cold", 50 }, { "extra-pois", 50 }, { "extra-fire", 50 }, { "ac", 1 } },
+                .m_affixes = { { "extra-ltng", 50 }, { "extra-cold", 50 }, { "extra-pois", 50 }, { "extra-fire", 50 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: ID + thawing = OW/CB/DS",
                 .m_i1      = "isc",
                 .m_i2      = "wms",
-                .m_affixes = { { "crush", 20 }, { "openwounds", 20 }, { "deadly", 20 }, { "noheal", 1 }, { "ac", 1 } },
+                .m_affixes = { { "crush", 20 }, { "openwounds", 20 }, { "deadly", 20 } },
             },
             CraftResult{
                 .m_name    = "Cheat SC: ID + any hp = IAS and Enh Dmg",
@@ -374,13 +374,13 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Input
                 .m_name    = "Cheat SC: ID + any mana = attack rating and defence",
                 .m_i1      = "isc",
                 .m_i2      = "mpot",
-                .m_affixes = { { "att%", 20 }, { "att", 200 }, { "ac", 100 }, { "dmg-min", 1 }, { "dmg-max", 1 } },
+                .m_affixes = { { "att%", 20 }, { "att", 200 }, { "ac", 100 } },
             },
         };
         for (const CraftResult& c : crs) {
             DataRow_cubemain data{
                 .inputs      = std::vector<std::string>{ "cm1", c.m_i1, c.m_i2 },
-                .output      = "\"usetype,crf\"",
+                .output      = "\"usetype,tmp\"",
                 .description = c.m_name,
                 .enabled     = true,
                 .version     = 100,

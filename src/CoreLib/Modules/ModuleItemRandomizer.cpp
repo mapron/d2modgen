@@ -345,9 +345,7 @@ void ModuleItemRandomizer::grabAllProps(AllProps& allProps, DataContext& output,
     for (auto& row : output.cubemain.rows) {
         if (!row.isCrafted())
             continue;
-        auto desc = Mernel::strToLower(row.description);
-        if (desc.starts_with("cheat "))
-            continue;
+        auto      desc         = Mernel::strToLower(row.description);
         const int craftedLevel = 50;
         SlotType  slot         = SlotType::OtherArmor;
 
