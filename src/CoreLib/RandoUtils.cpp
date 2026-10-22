@@ -337,6 +337,19 @@ void MagicContext::eraseNonGame()
     });
 }
 
+void MagicContext::report()
+{
+    std::ostringstream skipped, unknown;
+    for (auto& str : skippedAttributes)
+        skipped << str << ", ";
+    for (auto& str : unknownAttributes)
+        unknown << str << ", ";
+    if (!unknownAttributes.empty())
+        Logger(Logger::Warning) << "Unknown attributes: " << unknown.str();
+    if (!skippedAttributes.empty())
+        Logger() << "Ignored attributes: " << skipped.str();
+}
+
 void MagicPropItem::generate(RandomGenerator& rng, const MagicPropUniverse& props, const RandoParams& randoParams)
 {
     const int targetLevel = [this, &rng, &randoParams]() {

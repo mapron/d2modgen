@@ -26,10 +26,26 @@ public:
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 
-    using AllPropsVal = std::map<SlotType, std::map<int, AffixPropList>>;
-    using AllProps    = std::map<AttributeId, AllPropsVal>;
+    struct AllPropsVal {
+        std::map<SlotType, std::map<int, AffixPropList>> propsBySlot;
+        int                                              total = 0;
+    };
+    using AllProps = std::map<AttributeId, AllPropsVal>;
 
-    void grabAllProps(AllProps& allProps, DataContext& output, MagicContext& context) const;
+    struct Statistics {
+        int frequency = 0;
+        int preGen    = 0;
+        int postGen   = 0;
+    };
+    using AllStatistics = std::map<AttributeId, Statistics>;
+
+    struct TabStatistics {
+        int preGen  = 0;
+        int postGen = 0;
+    };
+    using AllTabStatistics = std::map<AttributeId, TabStatistics>;
+
+    void grabAllProps(AllProps& allProps, const DataContext& output, MagicContext& context) const;
 
     void createNewItems(ExtraLoc& extraLoc, DataContext& output, RandomGenerator& rng, const InputContext& input) const;
 

@@ -123,9 +123,16 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     ExtraLoc extraLoc;
 
-    AllProps allProps;
+    AllProps      allProps;
+    AllStatistics allStat;
 
     grabAllProps(allProps, output, context);
+    context.report();
+    {
+        for (const auto& [attr, data] : allProps)
+            allStat[attr].preGen = data.total;
+    }
+
     createNewItems(extraLoc, output, rng, input);
 
     context.eraseNonGame();
@@ -177,6 +184,11 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         context.generatedNonPropAttributes.insert(context.generatedNonPropAttributes.cend(), nonPropList.cbegin(), nonPropList.cend());
         context.generatedPropAttributes.insert(context.generatedPropAttributes.cend(), propList.cbegin(), propList.cend());
         context.calculateConfigAttributes();
+
+        for (const auto& data : context.generatedNonPropAttributes)
+            allStat[data.code].frequency = data.frequency;
+        for (const auto& data : context.generatedPropAttributes)
+            allStat[data.code].frequency = data.getFrequency();
     }
 
     MagicPropUniverse props(context);
@@ -279,25 +291,35 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
 
+    {
+        AllProps allProps;
+        grabAllProps(allProps, output, context);
+        for (const auto& [attr, data] : allProps)
+            allStat[attr].postGen = data.total;
+
+        Logger() << "Generation stats (attr  frequency  pre-gen  post-gen):";
+        for (const auto& [attr, data] : allStat) {
+            Logger() << "    " << idToString(attr) << "\t" << data.frequency << "\t" << data.preGen << "\t" << data.postGen;
+        }
+    }
+
     Logger(Logger::Notice) << "  item randomizer fill done in: " << endFillProps;
 }
 
-void ModuleItemRandomizer::grabAllProps(AllProps& allProps, DataContext& output, MagicContext& context) const
+void ModuleItemRandomizer::grabAllProps(AllProps& allProps, const DataContext& output, MagicContext& context) const
 {
-    std::set<std::string> skippedAttributes;
-    std::set<std::string> unknownAttributes;
-
-    auto grabPropsRow = [&context, &allProps, &skippedAttributes, &unknownAttributes](const AffixPropList* affixList, SlotType slot, int level) {
+    auto grabPropsRow = [&context, &allProps](const AffixPropList* affixList, SlotType slot, int level) {
         assert(level >= -1 && level < 260);
         for (const auto& prop : *affixList) {
             auto id = getAttributeId(prop.code);
             if (id == AttributeId::INVALID) {
-                unknownAttributes.insert(prop.code);
+                context.unknownAttributes.insert(prop.code);
             } else if (id == AttributeId::SKIP) {
-                skippedAttributes.insert(prop.code);
+                context.skippedAttributes.insert(prop.code);
             } else {
                 context.existingGameAttributes.insert(id);
-                allProps[id][slot][level].push_back(prop);
+                allProps[id].propsBySlot[slot][level].push_back(prop);
+                allProps[id].total++;
             }
         }
     };
@@ -360,18 +382,6 @@ void ModuleItemRandomizer::grabAllProps(AllProps& allProps, DataContext& output,
         for (const AffixPropList* affixList : row.affixLists()) {
             grabPropsRow(affixList, slot, craftedLevel);
         }
-    }
-
-    {
-        std::ostringstream skipped, unknown;
-        for (auto& str : skippedAttributes)
-            skipped << str << ", ";
-        for (auto& str : unknownAttributes)
-            unknown << str << ", ";
-        if (!unknownAttributes.empty())
-            Logger(Logger::Warning) << "Unknown attributes: " << unknown.str();
-        if (!skippedAttributes.empty())
-            Logger() << "Ignored attributes: " << skipped.str();
     }
 }
 
@@ -551,7 +561,7 @@ void ModuleItemRandomizer::analyzeAllPropsForDump(
     AffixPropLeveledMap     regularMap;
 
     bool parEmptyAll = true;
-    for (const auto& [slot, slotProps] : allPropsVal) {
+    for (const auto& [slot, slotProps] : allPropsVal.propsBySlot) {
         LevelValueList slotValues;
 
         bool parEmpty = true;

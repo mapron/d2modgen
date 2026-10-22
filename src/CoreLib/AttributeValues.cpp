@@ -220,6 +220,16 @@ std::string PropAttributeRecord::toString() const
     return result;
 }
 
+size_t PropAttributeRecord::getFrequency() const
+{
+    size_t result = 0;
+    for (const auto& [slotType, data] : slotValues) {
+        result += data.size();
+    }
+    result = result * freqPercent / 100;
+    return result;
+}
+
 std::string printMap(const ApproximationResultsSimpleMap& data)
 {
     std::string result = "{\n";

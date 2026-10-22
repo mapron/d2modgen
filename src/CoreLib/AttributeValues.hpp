@@ -96,6 +96,8 @@ struct PropAttributeRecord {
     int                 freqPercent = 100;
 
     std::string toString() const;
+
+    size_t getFrequency() const;
 };
 using PropAttributeRecordList = std::vector<PropAttributeRecord>;
 

@@ -82,8 +82,12 @@ struct MagicContext {
     std::set<AttributeId> existingGameAttributes;
     std::set<AttributeId> configAttributes;
 
+    std::set<std::string> skippedAttributes;
+    std::set<std::string> unknownAttributes;
+
     void calculateConfigAttributes();
     void eraseNonGame();
+    void report();
 };
 
 struct MagicPropUniverse {
