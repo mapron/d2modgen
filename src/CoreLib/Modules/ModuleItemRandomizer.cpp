@@ -360,6 +360,7 @@ void ModuleItemRandomizer::grabAllProps(AllProps& allProps, const DataContext& o
     grabProps(output.gems);
     grabProps(output.magicprefix);
     grabProps(output.magicsuffix);
+    grabProps(output.automagic);
     grabProps(output.sets);
 
     const std::vector<std::pair<std::string, SlotType>> hints{

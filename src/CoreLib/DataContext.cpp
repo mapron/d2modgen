@@ -5,8 +5,9 @@
  */
 #include "DataContext.hpp"
 #include "Logger.hpp"
-#include "MernelPlatform/FileFormatCSV.hpp"
+
 #include "MernelPlatform/FileFormatJson.hpp"
+#include "MernelPlatform/FileFormatCSV.hpp"
 #include "MernelPlatform/StringUtils.hpp"
 
 #include <algorithm>
@@ -23,10 +24,6 @@
     serializeTable(id, TableId::id, data, false)
 
 namespace D2ModGen {
-
-namespace {
-const std::string s_empty("\0\0", 2);
-}
 
 DataContext::DataContext() = default;
 
@@ -62,6 +59,103 @@ bool DataContext::parseData(const IStorage::StoredData& data)
     parseTab(treasureclassex);
     parseTab(uniqueitems);
 
+    Logger() << "Tables have parsed successfully, now doing postprocess to establish links";
+    if (!postProcess()) {
+        Logger(Logger::Err) << "Postprocess failure";
+        return false;
+    }
+
+    Logger() << "Postprocess done";
+
+    for (const auto& [id, fileData] : data.jsonFiles) {
+        Mernel::PropertyTree doc;
+        Logger() << "parse json: " << std::string(getJsonRelPath(id));
+        if (!readJsonFromBufferNoexcept(fileData, doc)) {
+            Logger(Logger::Warning) << "failed to parse json: " << getJsonRelPath(id);
+            return false;
+        }
+        jsonFiles[id] = std::move(doc);
+    }
+    blobs = data.blobs;
+
+    return true;
+}
+
+bool DataContext::serializeData(IStorage::StoredData& data) const
+{
+    data.valid       = true;
+    data.dataVersion = dataVersion;
+
+    serializeTab(weapons);
+    serializeTab(armor);
+    serializeTab(automagic);
+    serializeTab(charstats);
+    serializeTab(cubemain);
+    serializeTab(difficultylevels);
+    serializeTab(experience);
+    serializeTab(gamble);
+    serializeTab(gems);
+    serializeTab(hireling);
+    serializeTab(itemstatcost);
+    serializeTab(itemtypes);
+    serializeTab(levels);
+    serializeTab(magicprefix);
+    serializeTab(magicsuffix);
+    serializeTab(misc);
+    serializeTab(monlvl);
+    serializeTab(monstats);
+    serializeTab(runes);
+    serializeTab(setitems);
+    serializeTab(sets);
+    serializeTab(skilldesc);
+    serializeTab(skills);
+    serializeTab(treasureclassex);
+    serializeTab(uniqueitems);
+
+    for (const auto& [id, json] : jsonFiles) {
+        std::string buffer;
+        writeJsonToBufferNoexcept(buffer, json);
+        data.jsonFiles[id] = std::move(buffer);
+    }
+
+    data.blobs = blobs;
+    return true;
+}
+
+void DataContext::writeDebug(IStorage::StoredData& data) const
+{
+    data.valid       = true;
+    data.dataVersion = dataVersion;
+
+    debugTab(weapons);
+    debugTab(armor);
+    debugTab(automagic);
+    debugTab(charstats);
+    debugTab(cubemain);
+    debugTab(difficultylevels);
+    debugTab(experience);
+    debugTab(gamble);
+    debugTab(gems);
+    debugTab(hireling);
+    debugTab(itemstatcost);
+    debugTab(itemtypes);
+    debugTab(levels);
+    debugTab(magicprefix);
+    debugTab(magicsuffix);
+    debugTab(misc);
+    debugTab(monlvl);
+    debugTab(monstats);
+    debugTab(runes);
+    debugTab(setitems);
+    debugTab(sets);
+    debugTab(skilldesc);
+    debugTab(skills);
+    debugTab(treasureclassex);
+    debugTab(uniqueitems);
+}
+
+bool DataContext::postProcess()
+{
     itemtypes.makeIndex(&DataRow_itemtypes::code);
     sets.makeIndex(&DataRow_sets::index);
     armor.makeIndex(&RowBaseEquipment::code);
@@ -109,10 +203,10 @@ bool DataContext::parseData(const IStorage::StoredData& data)
         if (!row.isValid())
             continue;
 
-        row.parent_set   = sets.index.at(row.setIndex);
+        auto* parent_set = sets.index.at(row.setIndex);
         row.eqipmentType = findEquip(row.eqipmentCode);
 
-        const_cast<DataRow_sets*>(row.parent_set)->level = row.getLevel();
+        const_cast<DataRow_sets*>(parent_set)->level = row.getLevel();
     }
     for (auto& row : uniqueitems.rows) {
         row.originalName = row.index;
@@ -222,91 +316,7 @@ bool DataContext::parseData(const IStorage::StoredData& data)
             row.filter.push_back(&setstypes);
     }
 
-    for (const auto& [id, fileData] : data.jsonFiles) {
-        Mernel::PropertyTree doc;
-        Logger() << "parse json: " << std::string(getJsonRelPath(id));
-        if (!readJsonFromBufferNoexcept(fileData, doc)) {
-            Logger(Logger::Warning) << "failed to parse json: " << getJsonRelPath(id);
-            return false;
-        }
-        jsonFiles[id] = std::move(doc);
-    }
-    blobs = data.blobs;
-
     return true;
-}
-
-bool DataContext::serializeData(IStorage::StoredData& data) const
-{
-    data.valid       = true;
-    data.dataVersion = dataVersion;
-
-    serializeTab(weapons);
-    serializeTab(armor);
-    serializeTab(automagic);
-    serializeTab(charstats);
-    serializeTab(cubemain);
-    serializeTab(difficultylevels);
-    serializeTab(experience);
-    serializeTab(gamble);
-    serializeTab(gems);
-    serializeTab(hireling);
-    serializeTab(itemstatcost);
-    serializeTab(itemtypes);
-    serializeTab(levels);
-    serializeTab(magicprefix);
-    serializeTab(magicsuffix);
-    serializeTab(misc);
-    serializeTab(monlvl);
-    serializeTab(monstats);
-    serializeTab(runes);
-    serializeTab(setitems);
-    serializeTab(sets);
-    serializeTab(skilldesc);
-    serializeTab(skills);
-    serializeTab(treasureclassex);
-    serializeTab(uniqueitems);
-
-    for (const auto& [id, json] : jsonFiles) {
-        std::string buffer;
-        writeJsonToBufferNoexcept(buffer, json);
-        data.jsonFiles[id] = std::move(buffer);
-    }
-
-    data.blobs = blobs;
-    return true;
-}
-
-void DataContext::writeDebug(IStorage::StoredData& data) const
-{
-    data.valid       = true;
-    data.dataVersion = dataVersion;
-
-    debugTab(weapons);
-    debugTab(armor);
-    debugTab(automagic);
-    debugTab(charstats);
-    debugTab(cubemain);
-    debugTab(difficultylevels);
-    debugTab(experience);
-    debugTab(gamble);
-    debugTab(gems);
-    debugTab(hireling);
-    debugTab(itemstatcost);
-    debugTab(itemtypes);
-    debugTab(levels);
-    debugTab(magicprefix);
-    debugTab(magicsuffix);
-    debugTab(misc);
-    debugTab(monlvl);
-    debugTab(monstats);
-    debugTab(runes);
-    debugTab(setitems);
-    debugTab(sets);
-    debugTab(skilldesc);
-    debugTab(skills);
-    debugTab(treasureclassex);
-    debugTab(uniqueitems);
 }
 
 template<class Row>
@@ -315,58 +325,17 @@ bool DataContext::parseTable(DataTable<Row>& table, TableId tableId, const IStor
     if (!data.tables.contains(tableId))
         return true;
     const std::string& buffer = data.tables.at(tableId);
-
-    Mernel::CSVTable csv;
-    if (!Mernel::readCSVFromBuffer(buffer, csv)) {
+    if (!table.parseTable(buffer)) {
         Logger(Logger::Warning) << "failed to parse csv:" << getTableIdString(tableId);
         return false;
     }
-    table.columnsOriginal                                = csv.columns;
-    table.valid                                          = true;
-    const std::vector<std::string>           usedColumns = Row{}.getColumns();
-    const std::map<std::string, std::string> aliases     = Row{}.getColumnAliases();
-    table.indicesUsed.resize(usedColumns.size(), size_t(-1));
-
-    for (size_t i = 0; i < table.columnsOriginal.size(); i++) {
-        std::string col = Mernel::strToLower(table.columnsOriginal[i]);
-        if (auto it = aliases.find(col); it != aliases.cend())
-            col = it->second;
-
-        auto it = std::find(usedColumns.cbegin(), usedColumns.cend(), col);
-        if (it == usedColumns.cend()) {
-            table.indicesUnused.push_back(i);
-        } else {
-            auto usedIndex               = std::distance(usedColumns.cbegin(), it);
-            table.indicesUsed[usedIndex] = i;
-            table.columnsUsed.push_back(col);
-        }
-    }
     for (size_t i = 0; i < table.indicesUsed.size(); i++) {
         if (table.indicesUsed[i] == size_t(-1)) {
-            Logger(Logger::Warning) << "Missing column '" << usedColumns[i] << "' in table '" << getTableIdString(tableId) << "', generation may be incomplete.";
+            Logger(Logger::Warning) << "Missing column '" << table.requestedColumns[i] << "' in table '" << getTableIdString(tableId) << "', generation may be incomplete.";
         }
     }
 
-    for (auto& rowCsv : csv.rows) {
-        Row row;
-        row._ser_unusedCells.resize(table.indicesUnused.size());
-        row._ser_usedCells.resize(table.indicesUsed.size(), s_empty);
-
-        for (size_t i = 0; i < row._ser_unusedCells.size(); ++i) {
-            row._ser_unusedCells[i] = rowCsv.data[table.indicesUnused[i]].str;
-        }
-        for (size_t i = 0; i < row._ser_usedCells.size(); ++i) {
-            if (table.indicesUsed[i] != size_t(-1))
-                row._ser_usedCells[i] = rowCsv.data[table.indicesUsed[i]].str;
-        }
-        row._ser_read      = true;
-        row._ser_cellIndex = 0;
-        row.serialize();
-        row._ser_usedCells.clear();
-        table.rows.push_back(std::move(row));
-    }
-
-    Logger() << "parse '" << getTableIdString(tableId) << "' buffer[" << buffer.size() << "] => csv[" << csv.columns.size() << "x" << csv.rows.size() << "]";
+    Logger() << "parse '" << getTableIdString(tableId) << "' buffer[" << buffer.size() << "] => csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "]";
 
     return true;
 }
@@ -378,14 +347,74 @@ bool DataContext::serializeTable(const DataTable<Row>& table, TableId tableId, I
         return true;
 
     std::string& buffer = data.tables[tableId];
+    if (!table.serializeTable(buffer, full))
+        return false;
 
+    if (full)
+        Logger() << "serialize '" << getTableIdString(tableId) << "' csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "] => buffer[" << buffer.size() << "] ";
+
+    return true;
+}
+
+template<class Row>
+bool DataTable<Row>::parseTable(const std::string& buffer)
+{
     Mernel::CSVTable csv;
-    csv.columns       = full ? table.columnsOriginal : table.columnsUsed;
+    if (!Mernel::readCSVFromBuffer(buffer, csv)) {
+        return false;
+    }
+    columnsOriginal                                  = csv.columns;
+    valid                                            = true;
+    requestedColumns                                 = Row{}.getColumns();
+    const std::map<std::string, std::string> aliases = Row{}.getColumnAliases();
+    indicesUsed.resize(requestedColumns.size(), size_t(-1));
+
+    for (size_t i = 0; i < columnsOriginal.size(); i++) {
+        std::string col = Mernel::strToLower(columnsOriginal[i]);
+        if (auto it = aliases.find(col); it != aliases.cend())
+            col = it->second;
+
+        auto it = std::find(requestedColumns.cbegin(), requestedColumns.cend(), col);
+        if (it == requestedColumns.cend()) {
+            indicesUnused.push_back(i);
+        } else {
+            auto usedIndex         = std::distance(requestedColumns.cbegin(), it);
+            indicesUsed[usedIndex] = i;
+            columnsUsed.push_back(col);
+        }
+    }
+
+    for (auto& rowCsv : csv.rows) {
+        Row row;
+        row._ser_unusedCells.resize(indicesUnused.size());
+        row._ser_usedCells.resize(indicesUsed.size(), RowBase::s_empty);
+
+        for (size_t i = 0; i < row._ser_unusedCells.size(); ++i) {
+            row._ser_unusedCells[i] = rowCsv.data[indicesUnused[i]].str;
+        }
+        for (size_t i = 0; i < row._ser_usedCells.size(); ++i) {
+            if (indicesUsed[i] != size_t(-1))
+                row._ser_usedCells[i] = rowCsv.data[indicesUsed[i]].str;
+        }
+        row._ser_read      = true;
+        row._ser_cellIndex = 0;
+        row.serialize();
+        row._ser_usedCells.clear();
+        rows.push_back(std::move(row));
+    }
+    return true;
+}
+
+template<class Row>
+bool DataTable<Row>::serializeTable(std::string& buffer, bool full) const
+{
+    Mernel::CSVTable csv;
+    csv.columns       = full ? columnsOriginal : columnsUsed;
     csv.endsWithNL    = true;
     bool prependedKey = false;
 
-    for (auto row : table.rows) {
-        row._ser_usedCells.resize(table.indicesUsed.size());
+    for (auto row : rows) {
+        row._ser_usedCells.resize(indicesUsed.size());
         row._ser_read      = false;
         row._ser_cellIndex = 0;
         row._ser_key.reset();
@@ -399,17 +428,17 @@ bool DataContext::serializeTable(const DataTable<Row>& table, TableId tableId, I
 
         if (full) {
             for (size_t i = 0; i < row._ser_unusedCells.size(); ++i) {
-                rowCsv.data[table.indicesUnused[i]].str = row._ser_unusedCells[i];
+                rowCsv.data[indicesUnused[i]].str = row._ser_unusedCells[i];
             }
             for (size_t i = 0; i < row._ser_usedCells.size(); ++i) {
-                if (table.indicesUsed[i] != size_t(-1))
-                    rowCsv.data[table.indicesUsed[i]].str = row._ser_usedCells[i];
+                if (indicesUsed[i] != size_t(-1))
+                    rowCsv.data[indicesUsed[i]].str = row._ser_usedCells[i];
             }
         } else {
             std::map<size_t, std::string> values;
             for (size_t i = 0; i < row._ser_usedCells.size(); ++i) {
-                if (table.indicesUsed[i] != size_t(-1))
-                    values[table.indicesUsed[i]] = row._ser_usedCells[i];
+                if (indicesUsed[i] != size_t(-1))
+                    values[indicesUsed[i]] = row._ser_usedCells[i];
             }
 
             for (size_t i = 0; auto& [_, value] : values)
@@ -420,993 +449,7 @@ bool DataContext::serializeTable(const DataTable<Row>& table, TableId tableId, I
         csv.rows.push_back(std::move(rowCsv));
     }
 
-    if (!Mernel::writeCSVToBuffer(buffer, csv))
-        return false;
-
-    if (full)
-        Logger() << "serialize '" << getTableIdString(tableId) << "' csv[" << csv.columns.size() << "x" << csv.rows.size() << "] => buffer[" << buffer.size() << "] ";
-
-    return true;
-}
-
-std::vector<std::string> RowBaseAffixes::getColumns() const
-{
-    std::vector<std::string> result{ "name", "level", "maxlevel", "levelreq", "spawnable" };
-    for (size_t i = 0; i < affixes.getLimit(); ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("mod" + istr + "code");
-        result.push_back("mod" + istr + "param");
-        result.push_back("mod" + istr + "min");
-        result.push_back("mod" + istr + "max");
-    }
-    for (size_t i = 0; i < 7; ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("itype" + istr);
-    }
-    for (size_t i = 0; i < 5; ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("etype" + istr);
-    }
-
-    return result;
-}
-
-void RowBaseAffixes::serialize()
-{
-    ser(name);
-    ser(lvl);
-    ser(maxlevel);
-    ser(lvlreq);
-    ser(spawnable);
-    ser(affixes);
-    ser(itype, 7);
-    ser(etype, 5);
-}
-
-std::vector<std::string> DataRow_weapons::getColumns() const
-{
-    // clang-format off
-    return { "name", "level", "levelreq", "reqstr", "reqdex", "showlevel", "code", "type",
-            "normcode", "ubercode", "ultracode",  "mindam", "maxdam",  };
-    // clang-format on
-}
-
-void DataRow_weapons::serialize()
-{
-    ser(name);
-    ser(lvl);
-    ser(lvlreq);
-    ser(reqstr);
-    ser(reqdex);
-    ser(showLevel);
-    ser(code);
-    ser(itemTypeCode);
-
-    ser(normcode);
-    ser(ubercode);
-    ser(ultracode);
-
-    ser(mindam);
-    ser(maxdam);
-    category = EquipmentCategory::Weapon;
-}
-
-std::vector<std::string> DataRow_armor::getColumns() const
-{
-    // clang-format off
-    return { "name", "level", "levelreq", "reqstr", "reqdex", "showlevel", "code", "type",
-             "normcode", "ubercode", "ultracode", "minac", "maxac",  };
-    // clang-format on
-}
-void DataRow_armor::serialize()
-{
-    ser(name);
-    ser(lvl);
-    ser(lvlreq);
-    ser(reqstr);
-    ser(reqdex);
-    ser(showLevel);
-    ser(code);
-    ser(itemTypeCode);
-
-    ser(normcode);
-    ser(ubercode);
-    ser(ultracode);
-
-    ser(minac);
-    ser(maxac);
-    category = EquipmentCategory::Armor;
-}
-
-std::vector<std::string> DataRow_charstats::getColumns() const
-{
-    std::vector<std::string> result{ "class", "statperlevel", "skillsperlevel" };
-    for (size_t i = 0; i < maxItems; ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("item" + istr + "count");
-        result.push_back("item" + istr);
-        result.push_back("item" + istr + "loc");
-    }
-    for (size_t i = 0; i < maxSkills; ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("skill " + istr);
-    }
-
-    return result;
-}
-
-void DataRow_charstats::serialize()
-{
-    ser(clas);
-    ser(statPerLevel);
-    ser(skillsPerLevel);
-    serArray(items, maxItems, [this](Item& item) {
-        ser(item.count);
-        ser(item.code);
-        ser(item.loc); }, [](Item& item) { return !item.code.empty() && item.code != "0"; });
-
-    ser(skills, maxSkills);
-}
-
-std::vector<std::string> DataRow_cubemain::getColumns() const
-{
-    std::vector<std::string> result{
-        "description",
-        "enabled",
-        "version",
-        "op",
-        "*eol",
-        "numinputs",
-        "output",
-        "ilvl",
-        "plvl",
-        "lvl",
-    };
-    using namespace std::literals;
-    for (const auto& a : { ""s, "b "s, "c "s }) {
-        for (size_t i = 0; i < affixes_a.getLimit(); ++i) {
-            auto istr = std::to_string(i + 1);
-            result.push_back(a + "mod " + istr);
-            result.push_back(a + "mod " + istr + " param");
-            result.push_back(a + "mod " + istr + " min");
-            result.push_back(a + "mod " + istr + " max");
-            result.push_back(a + "mod " + istr + " chance");
-        }
-    }
-
-    for (size_t i = 0; i < maxInputs; ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("input " + istr);
-    }
-
-    return result;
-}
-
-void DataRow_cubemain::serialize()
-{
-    ser(description);
-    ser(enabled);
-    ser(version);
-    ser(op);
-    ser(eol);
-    ser(numinputs);
-    ser(output);
-    ser(ilvl);
-    ser(plvl);
-    ser(lvl);
-
-    for (AffixPropList* list : affixLists()) {
-        ser(*list, true);
-    }
-    ser(inputs, maxInputs);
-}
-
-std::vector<std::string> DataRow_difficultylevels::getColumns() const
-{
-    return {
-        "name",
-        "resistpenalty",
-        "gamblerare",
-        "gambleset",
-        "gambleunique",
-        "gambleuber",
-        "gambleultra",
-    };
-}
-
-void DataRow_difficultylevels::serialize()
-{
-    ser(name);
-    ser(resistPenalty);
-
-    ser(gambleRare);
-    ser(gambleSet);
-    ser(gambleUnique);
-    ser(gambleUber);
-    ser(gambleUltra);
-}
-
-std::vector<std::string> DataRow_experience::getColumns() const
-{
-    return { "expratio" };
-}
-
-void DataRow_experience::serialize()
-{
-    ser(expRatio);
-}
-
-std::vector<std::string> DataRow_gamble::getColumns() const
-{
-    return { "name", "code" };
-}
-
-void DataRow_gamble::serialize()
-{
-    ser(name);
-    ser(code);
-}
-
-std::vector<std::string> DataRow_gems::getColumns() const
-{
-    std::vector<std::string> result{ "code" };
-
-    using namespace std::literals;
-    for (const auto& a : { "weapon"s, "helm"s, "shield"s }) {
-        for (size_t i = 0; i < affixes_weapon.getLimit(); ++i) {
-            auto istr = std::to_string(i + 1);
-            result.push_back(a + "mod" + istr + "code");
-            result.push_back(a + "mod" + istr + "param");
-            result.push_back(a + "mod" + istr + "min");
-            result.push_back(a + "mod" + istr + "max");
-        }
-    }
-
-    return result;
-}
-
-void DataRow_gems::serialize()
-{
-    ser(eqipmentCode);
-    for (AffixPropList* list : affixLists()) {
-        ser(*list);
-    }
-}
-
-std::vector<std::string> DataRow_hireling::getColumns() const
-{
-    return { "hp", "hp/lvl", "dmg-min", "dmg-max", "dmg/lvl" };
-}
-
-void DataRow_hireling::serialize()
-{
-    ser(hp);
-    ser(hp_lvl);
-    ser(dmg_min);
-    ser(dmg_max);
-    ser(dmg_lvl);
-}
-
-std::vector<std::string> DataRow_itemstatcost::getColumns() const
-{
-    return { "multiply", "add" };
-}
-
-void DataRow_itemstatcost::serialize()
-{
-    ser(multiply);
-    ser(add);
-}
-
-SlotType DataRow_itemtypes::determineSlot() const
-{
-    if (code == "shld" || code == "pala")
-        return SlotType::MainArmor;
-    if (code == "weap")
-        return SlotType::Weapon;
-    if (code == "armo")
-        return SlotType::OtherArmor;
-    if (code == "pvpm" || code == "map" || code == "t4m" || code == "t5m")
-        return SlotType::PD2Map;
-    if (bodyLoc1 == "head" || bodyLoc1 == "tors")
-        return SlotType::MainArmor;
-    if (bodyLoc1 == "feet" || bodyLoc1 == "glov" || bodyLoc1 == "belt")
-        return SlotType::OtherArmor;
-    if (bodyLoc1 == "rrin")
-        return SlotType::Ring;
-    if (bodyLoc1 == "neck")
-        return SlotType::Amulet;
-    if (bodyLoc1 == "rarm")
-        return SlotType::Weapon;
-
-    if (equiv1 == "char")
-        return SlotType::Charm;
-    if (equiv1 == "gem" || equiv1 == "sock")
-        return SlotType::Socketable;
-    if (equiv1 == "SET")
-        return SlotType::Set;
-
-    for (auto* parent : parents) {
-        SlotType parentType = parent->determineSlot();
-        if (parentType != SlotType::Undefined)
-            return parentType;
-    }
-
-    return SlotType::Undefined;
-}
-
-std::vector<std::string> DataRow_itemtypes::getColumns() const
-{
-    return { "code", "class", "itemtype", "equiv1", "equiv2", "bodyloc1", "throwable", "repair", "shoots", "maxsockets1", "maxsockets2", "maxsockets3" };
-}
-
-std::map<std::string, std::string> DataRow_itemtypes::getColumnAliases() const
-{
-    return {
-        { "maxsock1", "maxsockets1" },
-        { "maxsock25", "maxsockets2" },
-        { "maxsock40", "maxsockets3" },
-    };
-}
-
-void DataRow_itemtypes::serialize()
-{
-    ser(code);
-    ser(clas);
-    ser(itemType);
-    ser(equiv1);
-    ser(equiv2);
-    ser(bodyLoc1);
-
-    ser(throwable);
-    ser(repair);
-    ser(shoots);
-    ser(sockets);
-
-    if (_ser_read) {
-        flags.clear();
-        if (throwable.value_or(false))
-            flags.insert(AttributeFlag::Quantity);
-        else if (repair.value_or(false))
-            flags.insert(AttributeFlag::Durability);
-
-        if (sockets[0].value_or(0))
-            flags.insert(AttributeFlag::Sockets);
-        if (!shoots.empty())
-            flags.insert(AttributeFlag::Missile);
-        if (itemType.starts_with("Map"))
-            flags.insert(AttributeFlag::PD2Map);
-    }
-}
-
-std::vector<std::string> DataRow_levels::getColumns() const
-{
-    std::vector<std::string> result{
-        // clang-format off
-        "name", "nummon",
-        "monumin"  , "monumin(n)"  , "monumin(h)",
-        "monumax"  , "monumax(n)"  , "monumax(h)",
-        "monden"   , "monden(n)"   , "monden(h)" ,
-        "monlvlex" , "monlvlex(n)" , "monlvlex(h)",
-        // clang-format on
-    };
-    using namespace std::literals;
-    for (const auto& colTpl : { "mon"s, "nmon"s, "umon"s }) {
-        for (size_t i = 0; i < maxTypes; ++i) {
-            auto istr = std::to_string(i + 1);
-            result.push_back(colTpl + istr);
-        }
-    }
-    return result;
-}
-
-std::map<std::string, std::string> DataRow_levels::getColumnAliases() const
-{
-    return {
-        { "monlvl1ex", "monlvlex" },
-        { "monlvl2ex", "monlvlex(n)" },
-        { "monlvl3ex", "monlvlex(h)" },
-    };
-}
-
-void DataRow_levels::serialize()
-{
-    ser(name);
-    ser(numMon);
-    ser(monUMin);
-    ser(monUMax);
-    ser(monDen);
-    ser(monLvlEx);
-
-    ser(mon, maxTypes);
-    ser(nmon, maxTypes);
-    ser(umon, maxTypes);
-}
-
-std::vector<std::string> DataRow_misc::getColumns() const
-{
-    // clang-format off
-    return { "name", "code", "type", "levelreq", "level",
-             "maxstack" };
-    // clang-format on
-}
-
-void DataRow_misc::serialize()
-{
-    ser(name);
-    ser(code);
-    ser(itemTypeCode);
-    ser(lvlreq);
-    ser(lvl);
-
-    ser(maxstack);
-}
-
-std::vector<std::string> DataRow_monlvl::getColumns() const
-{
-    return {
-        // clang-format off
-         "th", "th(n)", "th(h)", "l-th", "l-th(n)", "l-th(h)",
-         "ac", "ac(n)", "ac(h)", "l-ac", "l-ac(n)", "l-ac(h)",
-         "hp", "hp(n)", "hp(h)", "l-hp", "l-hp(n)", "l-hp(h)",
-         "dm", "dm(n)", "dm(h)", "l-dm", "l-dm(n)", "l-dm(h)",
-         "xp", "xp(n)", "xp(h)", "l-xp", "l-xp(n)", "l-xp(h)",
-        // clang-format on
-        "level",
-    };
-}
-
-void DataRow_monlvl::serialize()
-{
-    ser(TH);
-    ser(AC);
-    ser(HP);
-    ser(DM);
-    ser(XP);
-
-    ser(level);
-}
-
-std::vector<std::string> DataRow_monstats::getColumns() const
-{
-    using namespace std::literals;
-    std::vector<std::string>         result;
-    const std::array<std::string, 3> diffs{ ""s, "(n)"s, "(h)"s };
-
-    for (const std::string& code : { "resfi"s, "resli"s, "resco"s, "respo"s, "resma"s, "resdm"s }) {
-        for (const auto& diffSuffix : diffs) {
-            result.push_back(code + diffSuffix);
-        }
-    }
-
-    for (const std::string& code : {
-             // clang-format off
-             "treasureclass"s, "treasureclasschamp"s , "treasureclassunique"s , "treasureclassquest"s,
-            // "treasureclassdesecrated"s, "treasureclassdesecratedchamp"s , "treasureclassdesecratedunique"s , "treasureclassherald"s,
-             // clang-format on
-         }) {
-        for (const auto& diffSuffix : diffs) {
-            result.push_back(code + diffSuffix);
-        }
-    }
-
-    for (size_t i = 0; i < skCount; ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("sk" + istr + "lvl");
-    }
-
-    std::vector<std::string> rest{
-        // clang-format off
-        "spawn", "minion1", "minion2",
-        "enabled", "isspawn", "killable", "npc", "boss",
-        "level", "mingrp", "maxgrp",
-        "id", "baseid", "*hcidx",
-        // clang-format on
-    };
-    result.insert(result.end(), rest.cbegin(), rest.cend());
-
-    return result;
-}
-
-void DataRow_monstats::serialize()
-{
-    ser(resFi);
-    ser(resLi);
-    ser(resCo);
-    ser(resPo);
-    ser(resMa);
-    ser(resDm);
-
-    ser(tc);
-    ser(skLevels, skCount);
-    ser(minionIds);
-
-    ser(enabled);
-    ser(isspawn);
-    ser(killable);
-    ser(npc);
-    ser(boss);
-
-    ser(level);
-    ser(minGrp);
-    ser(maxGrp);
-
-    ser(id);
-    ser(baseId);
-    ser(hcIdx);
-}
-
-std::map<std::string, std::string> DataRow_monstats::getColumnAliases() const
-{
-    using namespace std::literals;
-    std::map<std::string, std::string> result;
-    const std::array<std::string, 3>   diffs{ ""s, "(n)"s, "(h)"s };
-    std::vector<std::string>           tcs{ "treasureclass"s, "treasureclasschamp"s, "treasureclassunique"s, "treasureclassquest"s };
-    for (size_t i = 0; i < 4; ++i) {
-        for (auto& diff : diffs) {
-            std::string src  = "treasureclass"s + std::to_string(i + 1) + diff;
-            std::string dest = tcs[i] + diff;
-            result[src]      = dest;
-        }
-    }
-    result["hcidx"] = "*hcidx";
-    return result;
-}
-
-std::vector<std::string> DataRow_runes::getColumns() const
-{
-    std::vector<std::string> result{ "complete", "*rune name" };
-    for (size_t i = 0; i < affixes.getLimit(); ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("t1code" + istr);
-        result.push_back("t1param" + istr);
-        result.push_back("t1min" + istr);
-        result.push_back("t1max" + istr);
-    }
-    for (size_t i = 0; i < maxRunes; ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("rune" + istr);
-    }
-    for (size_t i = 0; i < maxItype; ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("itype" + istr);
-    }
-    for (size_t i = 0; i < maxEtype; ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("etype" + istr);
-    }
-    return result;
-}
-
-std::map<std::string, std::string> DataRow_runes::getColumnAliases() const
-{
-    return { { "rune name", "*rune name" } };
-}
-
-void DataRow_runes::serialize()
-{
-    ser(complete);
-    ser(name);
-    ser(affixes);
-    ser(runeCodes, maxRunes);
-    ser(itype, maxItype);
-    ser(etype, maxEtype);
-}
-
-std::vector<std::string> DataRow_setitems::getColumns() const
-{
-    std::vector<std::string> result{
-        "rarity",
-        "lvl",
-        "lvl req",
-        "index",
-        "set",
-
-        "item",
-        "add func",
-        "spawnable",
-        "disablechronicle",
-
-        "cost mult",
-        "cost add",
-
-        "*id",
-        "*itemname",
-        "chrtransform",
-        "invtransform",
-        "flippyfile",
-        "invfile",
-        "dropsound",
-        "dropsfxframe",
-        "usesound",
-        "*eol",
-    };
-    for (size_t i = 0; i < affixes_base.getLimit(); ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("prop" + istr);
-        result.push_back("par" + istr);
-        result.push_back("min" + istr);
-        result.push_back("max" + istr);
-    }
-    for (size_t i = 0; i < affixes_partial1.getLimit(); ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("aprop" + istr + "a");
-        result.push_back("apar" + istr + "a");
-        result.push_back("amin" + istr + "a");
-        result.push_back("amax" + istr + "a");
-    }
-    for (size_t i = 0; i < affixes_partial2.getLimit(); ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("aprop" + istr + "b");
-        result.push_back("apar" + istr + "b");
-        result.push_back("amin" + istr + "b");
-        result.push_back("amax" + istr + "b");
-    }
-
-    return result;
-}
-
-std::map<std::string, std::string> DataRow_setitems::getColumnAliases() const
-{
-    return { { "level", "lvl" } };
-}
-
-void DataRow_setitems::serialize()
-{
-    ser(rarity);
-    ser(lvl);
-    ser(lvlreq);
-    ser(index);
-    ser(setIndex);
-
-    ser(eqipmentCode);
-    ser(addfunc);
-    ser(spawnable, true);
-    ser(disableChronicle);
-
-    ser(cost_mul);
-    ser(cost_add);
-
-    ser(ux.id);
-    ser(ux.itemName);
-    ser(ux.chrtransform);
-    ser(ux.invtransform);
-    ser(ux.flippyfile);
-    ser(ux.invfile);
-    ser(ux.dropsound);
-    ser(ux.dropsfxframe);
-    ser(ux.usesound);
-    ser(ux.eol);
-
-    for (auto* affixList : affixLists())
-        ser(*affixList);
-
-    _ser_key = originalName;
-}
-
-std::vector<std::string> DataRow_sets::getColumns() const
-{
-    std::vector<std::string> result{ "index", "name", "uiclass", "version" };
-    for (size_t i = 0; i < affixes_full.getLimit(); ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("fcode" + istr);
-        result.push_back("fparam" + istr);
-        result.push_back("fmin" + istr);
-        result.push_back("fmax" + istr);
-    }
-    for (size_t i = 0; i < affixes_partial1.getLimit(); ++i) {
-        auto istr = std::to_string(i + 2);
-        result.push_back("pcode" + istr + "a");
-        result.push_back("pparam" + istr + "a");
-        result.push_back("pmin" + istr + "a");
-        result.push_back("pmax" + istr + "a");
-    }
-    for (size_t i = 0; i < affixes_partial2.getLimit(); ++i) {
-        auto istr = std::to_string(i + 2);
-        result.push_back("pcode" + istr + "b");
-        result.push_back("pparam" + istr + "b");
-        result.push_back("pmin" + istr + "b");
-        result.push_back("pmax" + istr + "b");
-    }
-
-    return result;
-}
-
-void DataRow_sets::serialize()
-{
-    ser(index);
-    ser(name);
-    ser(uiClass);
-    ser(version);
-    for (auto* affixList : affixLists())
-        ser(*affixList);
-}
-
-std::vector<std::string> DataRow_skilldesc::getColumns() const
-{
-    return {
-        "skilldesc",
-        "skillpage",
-        "skillrow",
-        "skillcolumn",
-        "listrow",
-    };
-}
-
-void DataRow_skilldesc::serialize()
-{
-    ser(skilldesc);
-    ser(skillPage);
-    ser(skillRow);
-    ser(skillColumn);
-    ser(listRow);
-}
-
-std::vector<std::string> DataRow_skills::getColumns() const
-{
-    // clang-format off
-    return { "skill", "maxlvl", "reqlevel", "intown", "cost mult", "cost add" ,
-             "elen", "hitshift", "etype", "charclass",
-             "reqskill1", "reqskill2", "reqskill3"};
-    // clang-format on
-}
-
-void DataRow_skills::serialize()
-{
-    ser(skill);
-    ser(maxlvl);
-    ser(lvlreq);
-    ser(inTown);
-    ser(costMult);
-    ser(costAdd);
-
-    ser(eLen);
-    ser(hitShift);
-    ser(eType);
-    ser(charclass);
-
-    ser(reqskills, 3);
-}
-
-std::vector<std::string> DataRow_treasureclassex::getColumns() const
-{
-    std::vector<std::string> result{
-        "treasure class",
-        "unique",
-        "set",
-        "rare",
-        "magic",
-        "nodrop",
-        "group",
-        "picks",
-        "level",
-    };
-    for (size_t i = 0; i < maxItems; ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("prob" + istr);
-        result.push_back("item" + istr);
-    }
-
-    return result;
-}
-
-void DataRow_treasureclassex::serialize()
-{
-    ser(name);
-    ser(k_unique);
-    ser(k_set);
-    ser(k_rare);
-    ser(k_magic);
-    ser(noDrop);
-    ser(group);
-    ser(picks);
-    ser(level);
-
-    serArray(items, maxItems, [this](Item& item) {
-        ser(item.prob);
-        ser(item.tc); }, [](Item& item) { return !item.tc.empty(); });
-}
-
-int DataRow_treasureclassex::getDropSomethingProb() const
-{
-    int totalOther = 0;
-    for (const auto& item : items)
-        totalOther += item.prob.value_or(0);
-    return totalOther;
-}
-
-std::vector<std::string> DataRow_uniqueitems::getColumns() const
-{
-    std::vector<std::string> result{
-        "rarity",
-        "lvl",
-        "lvl req",
-        "carry1",
-        "spawnable",
-        "disablechronicle",
-        "code",
-        "index",
-
-        "version",
-        "cost mult",
-        "cost add",
-
-        "*id",
-        "*itemname",
-        "chrtransform",
-        "invtransform",
-        "flippyfile",
-        "invfile",
-        "dropsound",
-        "dropsfxframe",
-        "usesound",
-        "*eol",
-    };
-    for (size_t i = 0; i < affixes.getLimit(); ++i) {
-        auto istr = std::to_string(i + 1);
-        result.push_back("prop" + istr);
-        result.push_back("par" + istr);
-        result.push_back("min" + istr);
-        result.push_back("max" + istr);
-    }
-    return result;
-}
-
-std::map<std::string, std::string> DataRow_uniqueitems::getColumnAliases() const
-{
-    return { { "enabled", "spawnable" } };
-}
-
-void DataRow_uniqueitems::serialize()
-{
-    ser(rarity);
-    ser(lvl);
-    ser(lvlreq);
-    ser(carry1);
-    ser(spawnable);
-    ser(disableChronicle);
-    ser(eqipmentCode);
-    ser(index);
-
-    ser(version);
-    ser(cost_mul);
-    ser(cost_add);
-
-    ser(ux.id);
-    ser(ux.itemName);
-    ser(ux.chrtransform);
-    ser(ux.invtransform);
-    ser(ux.flippyfile);
-    ser(ux.invfile);
-    ser(ux.dropsound);
-    ser(ux.dropsfxframe);
-    ser(ux.usesound);
-    ser(ux.eol);
-
-    ser(affixes);
-    _ser_key = originalName;
-}
-
-void RowBase::ser(int& data)
-{
-    auto& str = _ser_usedCells[_ser_cellIndex++];
-    if (_ser_read) {
-        if (str.empty() || str == s_empty) {
-            data = 0;
-        } else {
-            data = std::atoi(str.c_str());
-        }
-    } else {
-        str = std::to_string(data);
-    }
-}
-
-void RowBase::ser(std::optional<int>& data)
-{
-    auto& str = _ser_usedCells[_ser_cellIndex++];
-    if (_ser_read) {
-        if (str.empty() || str == s_empty) {
-            data.reset();
-        } else {
-            data = std::atoi(str.c_str());
-        }
-    } else {
-        if (data.has_value())
-            str = std::to_string(data.value());
-        else
-            str = {};
-    }
-}
-
-void RowBase::ser(std::optional<bool>& data)
-{
-    auto& str = _ser_usedCells[_ser_cellIndex++];
-    if (_ser_read) {
-        if (str.empty() || str == s_empty) {
-            data.reset();
-        } else {
-            data = std::atoi(str.c_str());
-        }
-    } else {
-        if (data.has_value())
-            str = std::to_string((int) data.value());
-        else
-            str = {};
-    }
-}
-
-void RowBase::ser(std::optional<bool>& data, bool valueIfNoColumn)
-{
-    auto& str = _ser_usedCells[_ser_cellIndex++];
-    if (_ser_read) {
-        if (str.empty()) {
-            data.reset();
-        } else if (str == s_empty) {
-            data = valueIfNoColumn;
-        } else {
-            data = std::atoi(str.c_str());
-        }
-    } else {
-        if (data.has_value())
-            str = std::to_string((int) data.value());
-        else
-            str = {};
-    }
-}
-
-void RowBase::ser(std::string& data)
-{
-    auto& str = _ser_usedCells[_ser_cellIndex++];
-    if (_ser_read) {
-        data = str == s_empty ? "" : str;
-    } else {
-        str = data;
-    }
-}
-
-AttributeFlagSet RowBaseEquipment::getAttributes() const
-{
-    return itemType ? itemType->flags : AttributeFlagSet{};
-}
-
-Character ItemCodeList::determineClass() const
-{
-    for (ItemType type : *this)
-        if (type->classSpecific != Character::none)
-            return type->classSpecific;
-
-    return Character::none;
-}
-
-SlotType ItemCodeList::determineSlot() const
-{
-    for (ItemType type : *this) {
-        auto slot = type->determineSlot();
-        if (slot != SlotType::Undefined)
-            return slot;
-    }
-
-    return SlotType::Undefined;
-}
-
-AttributeIdiom ItemCodeList::determineIdiom() const
-{
-    for (ItemType type : *this) {
-        auto slot = type->determineIdiom();
-        if (slot != AttributeIdiom::Any)
-            return slot;
-    }
-
-    return AttributeIdiom::Any;
-}
-
-std::string ItemCodeList::toString() const
-{
-    std::string res = "";
-    for (ItemType type : *this) {
-        res += type->code + ",";
-    }
-    return res;
+    return Mernel::writeCSVToBuffer(buffer, csv);
 }
 
 }
