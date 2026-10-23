@@ -174,19 +174,18 @@ std::map<std::string, std::string> RowBaseUniqueSet::getColumnAliases() const
     return { { "enabled", "spawnable" }, { "level", "lvl" } };
 }
 
-std::vector<std::string> DataRow_uniqueitems::getColumns() const
+std::vector<std::string> RowBaseUniqueSet::getColumns() const
 {
     std::vector<std::string> result{
+        "index",
+        "code",
+
         "rarity",
         "lvl",
         "lvl req",
-        "carry1",
         "spawnable",
         "disablechronicle",
-        "code",
-        "index",
 
-        "version",
         "cost mult",
         "cost add",
 
@@ -195,12 +194,54 @@ std::vector<std::string> DataRow_uniqueitems::getColumns() const
         "chrtransform",
         "invtransform",
         "flippyfile",
+
         "invfile",
         "dropsound",
         "dropsfxframe",
         "usesound",
         "*eol",
     };
+    return result;
+}
+
+void RowBaseUniqueSet::serialize()
+{
+    ser(index);
+    ser(eqipmentCode);
+
+    ser(rarity);
+    ser(lvl);
+    ser(lvlreq);
+    ser(spawnable, true);
+    ser(disableChronicle);
+
+    ser(cost_mul);
+    ser(cost_add);
+
+    ser(ux.id);
+    ser(ux.itemName);
+    ser(ux.chrtransform);
+    ser(ux.invtransform);
+    ser(ux.flippyfile);
+
+    ser(ux.invfile);
+    ser(ux.dropsound);
+    ser(ux.dropsfxframe);
+    ser(ux.usesound);
+    ser(ux.eol);
+
+    if (_ser_read) {
+        displayName = index;
+    }
+    _ser_key = displayName;
+}
+
+std::vector<std::string> DataRow_uniqueitems::getColumns() const
+{
+    std::vector<std::string> result = RowBaseUniqueSet::getColumns();
+    result.push_back("carry1");
+    result.push_back("version");
+
     for (size_t i = 0; i < affixes.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("prop" + istr);
@@ -213,62 +254,20 @@ std::vector<std::string> DataRow_uniqueitems::getColumns() const
 
 void DataRow_uniqueitems::serialize()
 {
-    ser(rarity);
-    ser(lvl);
-    ser(lvlreq);
+    RowBaseUniqueSet::serialize();
+
     ser(carry1);
-    ser(spawnable);
-    ser(disableChronicle);
-    ser(eqipmentCode);
-    ser(index);
-
     ser(version);
-    ser(cost_mul);
-    ser(cost_add);
-
-    ser(ux.id);
-    ser(ux.itemName);
-    ser(ux.chrtransform);
-    ser(ux.invtransform);
-    ser(ux.flippyfile);
-    ser(ux.invfile);
-    ser(ux.dropsound);
-    ser(ux.dropsfxframe);
-    ser(ux.usesound);
-    ser(ux.eol);
 
     ser(affixes);
-    _ser_key = originalName;
 }
 
 std::vector<std::string> DataRow_setitems::getColumns() const
 {
-    std::vector<std::string> result{
-        "rarity",
-        "lvl",
-        "lvl req",
-        "index",
-        "set",
+    std::vector<std::string> result = RowBaseUniqueSet::getColumns();
+    result.push_back("add func");
+    result.push_back("set");
 
-        "item",
-        "add func",
-        "spawnable",
-        "disablechronicle",
-
-        "cost mult",
-        "cost add",
-
-        "*id",
-        "*itemname",
-        "chrtransform",
-        "invtransform",
-        "flippyfile",
-        "invfile",
-        "dropsound",
-        "dropsfxframe",
-        "usesound",
-        "*eol",
-    };
     for (size_t i = 0; i < affixes_base.getLimit(); ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("prop" + istr);
@@ -295,35 +294,12 @@ std::vector<std::string> DataRow_setitems::getColumns() const
 }
 void DataRow_setitems::serialize()
 {
-    ser(rarity);
-    ser(lvl);
-    ser(lvlreq);
-    ser(index);
-    ser(setIndex);
-
-    ser(eqipmentCode);
+    RowBaseUniqueSet::serialize();
     ser(addfunc);
-    ser(spawnable, true);
-    ser(disableChronicle);
-
-    ser(cost_mul);
-    ser(cost_add);
-
-    ser(ux.id);
-    ser(ux.itemName);
-    ser(ux.chrtransform);
-    ser(ux.invtransform);
-    ser(ux.flippyfile);
-    ser(ux.invfile);
-    ser(ux.dropsound);
-    ser(ux.dropsfxframe);
-    ser(ux.usesound);
-    ser(ux.eol);
+    ser(setIndex);
 
     for (auto* affixList : affixLists())
         ser(*affixList);
-
-    _ser_key = originalName;
 }
 
 // =========================================================

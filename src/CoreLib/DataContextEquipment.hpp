@@ -9,8 +9,6 @@
 
 namespace D2ModGen {
 
-// =========================================================
-
 struct DataRow_itemtypes : public RowBase {
     std::string clas;
     std::string code;
@@ -72,7 +70,75 @@ struct DataRow_magicsuffix : public RowBaseAffixes {
 };
 // =========================================================
 
+struct RowBaseUniqueSet : public RowBase {
+    std::string   index;
+    std::string   eqipmentCode;
+    EquipmentType eqipmentType = nullptr;
+
+    std::optional<int>  rarity;
+    std::optional<int>  lvl; // or "lvl"
+    std::optional<int>  lvlreq;
+    std::optional<bool> spawnable; // or "enabled"
+    std::optional<bool> disableChronicle;
+
+    std::optional<int> cost_mul = 5;
+    std::optional<int> cost_add = 5000;
+
+    struct UX {
+        std::optional<int> id;
+        std::string        itemName;
+        std::string        chrtransform;
+        std::string        invtransform;
+        std::string        flippyfile;
+
+        std::string invfile;
+        std::string dropsound;
+        std::string dropsfxframe;
+        std::string usesound;
+        int         eol = 0;
+    } ux;
+
+    std::string displayName; // mostly for debug purposes like logs/dumps
+
+    std::string getId() const
+    {
+        return displayName;
+    }
+
+    int getLevel() const
+    {
+        if (lvl.has_value())
+            return lvl.value();
+
+        if (lvlreq.has_value())
+            return lvlreq.value();
+        return 0;
+    }
+
+    bool isValid() const
+    {
+        return spawnable.value_or(false) && !eqipmentCode.empty() && getLevel() > 0;
+    }
+
+    ItemCodeList getItemFilter() const
+    {
+        return eqipmentType ? eqipmentType->getItemFilter() : ItemCodeList{};
+    }
+    AttributeFlagSet getAttributes() const
+    {
+        return eqipmentType ? eqipmentType->getAttributes() : AttributeFlagSet{};
+    }
+
+    std::map<std::string, std::string> getColumnAliases() const;
+
+    std::vector<std::string> getColumns() const;
+    void                     serialize();
+};
+
 struct DataRow_uniqueitems : public RowBaseUniqueSet {
+    std::optional<int> carry1;
+    std::optional<int> version = 100;
+
     AffixPropList affixes{ 12 };
 
     auto affixLists() const { return std::array{ &affixes }; }
@@ -249,7 +315,5 @@ struct DataRow_cubemain : public RowBase {
 private:
     static const size_t maxInputs = 7;
 };
-
-// =========================================================
 
 }

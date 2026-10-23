@@ -487,9 +487,9 @@ void ModuleItemRandomizer::createNewItems(ExtraLoc& extraLoc, DataContext& outpu
             return true;
         };
         auto afterCopyUniq = [&input, &extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_uniqueitems& row, const DataRow_uniqueitems& old) {
-            row.index        = makeKey(id, 'u');
-            row.originalName = makeValue(old.index, i);
-            extraLoc.push_back({ row.index, row.originalName });
+            row.index       = makeKey(id, 'u');
+            row.displayName = makeValue(old.index, i);
+            extraLoc.push_back({ row.index, row.displayName });
 
             row.version         = 100;
             row.ux              = {};
@@ -518,9 +518,9 @@ void ModuleItemRandomizer::createNewItems(ExtraLoc& extraLoc, DataContext& outpu
             return true;
         };
         auto afterCopySetitem = [&input, &extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_setitems& row, const DataRow_setitems& old) {
-            row.index        = makeKey(id, 's');
-            row.originalName = makeValue(old.index, i);
-            extraLoc.push_back({ row.index, row.originalName });
+            row.index       = makeKey(id, 's');
+            row.displayName = makeValue(old.index, i);
+            extraLoc.push_back({ row.index, row.displayName });
 
             row.setIndex = makeValue(old.setIndex, i);
 

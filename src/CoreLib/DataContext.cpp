@@ -199,7 +199,6 @@ bool DataContext::postProcess()
     };
 
     for (auto& row : setitems.rows) {
-        row.originalName = row.index;
         if (!row.isValid())
             continue;
 
@@ -209,7 +208,6 @@ bool DataContext::postProcess()
         const_cast<DataRow_sets*>(parent_set)->level = row.getLevel();
     }
     for (auto& row : uniqueitems.rows) {
-        row.originalName = row.index;
         if (!row.isValid())
             continue;
 
