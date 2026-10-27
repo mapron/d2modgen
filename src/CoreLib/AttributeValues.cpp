@@ -4,246 +4,450 @@
  * See LICENSE file for details.
  */
 #include "AttributeValues.hpp"
-#include "MernelPlatform/StringUtils.hpp"
+#include "Logger.hpp"
 
 #include <cassert>
 #include <cmath>
+#include <algorithm>
 
 namespace D2ModGen {
 
 namespace {
-void replaceAll(std::string& str, const std::string& from, const std::string& to)
+class MedianFinder {
+private:
+    std::vector<int> m_dataLow;
+    std::vector<int> m_dataHigh;
+    std::vector<int> m_dataPar;
+
+public:
+    void add(const NonParValue& val)
+    {
+        m_dataLow.push_back(val.min);
+        m_dataHigh.push_back(val.max);
+        m_dataPar.push_back(val.par);
+    }
+    void calc(NonParValueSummary& stat)
+    {
+        if (m_dataLow.empty())
+            return;
+        {
+            const auto mid = m_dataLow.begin() + m_dataLow.size() / 2;
+            std::ranges::nth_element(m_dataLow, mid);
+            stat.low.median = *mid;
+        }
+        {
+            const auto mid = m_dataHigh.begin() + m_dataHigh.size() / 2;
+            std::ranges::nth_element(m_dataHigh, mid);
+            stat.high.median = *mid;
+        }
+        {
+            const auto mid = m_dataPar.begin() + m_dataPar.size() / 2;
+            std::ranges::nth_element(m_dataPar, mid);
+            stat.par.median = *mid;
+        }
+    }
+};
+
+}
+
+std::string optionalToString(const std::optional<int>& opt)
 {
-    size_t start_pos = 0;
-    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
-        str.replace(start_pos, from.length(), to);
-        start_pos += to.length();
+    return opt.has_value() ? std::to_string(opt.value()) : "{}";
+}
+
+void NonParValueSummary::Stat::setMinMaxForCalculation()
+{
+    min = std::numeric_limits<int>::max();
+    max = std::numeric_limits<int>::min();
+}
+
+void NonParValueSummary::Stat::cleanMinMax()
+{
+    if (min == std::numeric_limits<int>::max())
+        min = 0;
+    if (max == std::numeric_limits<int>::min())
+        min = 0;
+}
+
+void NonParValueSummary::Stat::makeMonotonic(const Stat& prev)
+{
+    auto fields = { &NonParValueSummary::Stat::min, &NonParValueSummary::Stat::median, &NonParValueSummary::Stat::max };
+    for (auto&& m : fields) {
+        if (prev.*m && !(this->*m))
+            this->*m = prev.*m;
+
+        if (prev.*m > this->*m)
+            this->*m = prev.*m;
     }
 }
 
-std::string printEnum(AttributeId code)
+void NonParValueSummary::setMinMaxForCalculation()
 {
-    auto str = idToString(code);
-    replaceAll(str, "/", "_per");
-    replaceAll(str, "%", "_percent");
-    replaceAll(str, "-", "_");
-    return "AttributeId::" + str;
-}
+    low.setMinMaxForCalculation();
+    high.setMinMaxForCalculation();
+    par.setMinMaxForCalculation();
 }
 
-std::string ApproximationResults::toString() const
+void NonParValueSummary::cleanMinMax()
 {
-    if (!frequency)
+    low.cleanMinMax();
+    high.cleanMinMax();
+    par.cleanMinMax();
+}
+
+void NonParValueSummary::makeMonotonic(const NonParValueSummary& prev)
+{
+    low.makeMonotonic(prev.low);
+    high.makeMonotonic(prev.high);
+    par.makeMonotonic(prev.par);
+}
+
+std::string NonParValueSummary::Stat::toString() const
+{
+    return "{ " + std::to_string(min) + ", " + std::to_string(median) + ", " + std::to_string(max) + " }";
+}
+
+std::string NonParValueSummary::toString() const
+{
+    if (!freq)
         return "{}";
-    std::string result = "{ " + std::to_string(frequency) + ", { { " + results[0].toString();
-    for (size_t i = 1; i < s_segments; ++i)
-        result += ", " + results[i].toString();
-    result += " } } }";
+
+    std::string result = "{ .freq = " + std::to_string(freq);
+    if (!low.isEmpty())
+        result += ", .low = " + low.toString();
+    if (!high.isEmpty())
+        result += ", .high = " + high.toString();
+    if (!par.isEmpty())
+        result += ", .par = " + par.toString();
+
+    return result + " }";
+}
+
+std::string NonParValueSummary::toStringTabbed() const
+{
+    return std::to_string(low.min) + "\t" + std::to_string(low.median) + "\t" + std::to_string(low.max) + "\t"      //
+           + std::to_string(high.min) + "\t" + std::to_string(high.median) + "\t" + std::to_string(high.max) + "\t" //
+           + std::to_string(par.min) + "\t" + std::to_string(par.median) + "\t" + std::to_string(par.max);
+}
+
+void NonParValueSummary::make(const NonParValueList& list)
+{
+    auto& total = *this;
+    total       = {};
+    if (list.empty())
+        return;
+
+    total.setMinMaxForCalculation();
+
+    MedianFinder averages;
+    for (const NonParValue& value : list) {
+        total.add(value);
+        averages.add(value);
+    }
+    averages.calc(total);
+    total.cleanMinMax();
+}
+
+std::string NonParValueByLevel::toString() const
+{
+    if (!total.freq)
+        return "{}";
+    std::string result = "NonParValueByLevel{\n";
+    result += "            .total = " + total.toString() + ",\n";
+    result += "            .levels{ {\n";
+    for (size_t i = 0; i < s_segments; ++i) {
+        result += "                " + levels[i].toString() + ",\n";
+    }
+    result += "            } },\n";
+    result += "        }";
     return result;
 }
 
-void ApproximationResults::makeMonotonic(bool positive)
+void NonParValueByLevel::makeMonotonic()
 {
     for (size_t i = 1; i < s_segments; ++i) {
-        const ApproximationResult& prev = results[i - 1];
-        ApproximationResult&       curr = results[i];
-        if (prev.avg && !curr.avg)
-            curr.avg = prev.avg;
-
-        if (positive && prev.avg > curr.avg)
-            curr.avg = prev.avg;
-        if (!positive && prev.avg < curr.avg)
-            curr.avg = prev.avg;
-
-        const int prevMax = prev.avg + prev.plus;
-        const int prevMin = prev.avg + prev.minus;
-        const int currMax = curr.avg + curr.plus;
-        const int currMin = curr.avg + curr.minus;
-        const int incMin  = currMin - prevMin;
-        const int incMax  = currMax - prevMax;
-
-        if (positive && incMin < 0 || !positive && incMin > 0) {
-            // currMin - prevMin < 0
-            // currMin - prevMin => 0
-            // curr.avg + curr.minus - prevMin => 0
-            // curr.minus => prevMin - curr.avg
-            curr.minus = prevMin - curr.avg;
-        }
-        if (positive && incMax < 0 || !positive && incMax > 0) {
-            curr.plus = prevMax - curr.avg;
+        const NonParValueSummary& prev = levels[i - 1];
+        NonParValueSummary&       curr = levels[i];
+        if (!prev.freq)
+            continue;
+        curr.makeMonotonic(prev);
+        if (!curr.freq) {
+            curr.freq = 1;
+            total.freq++;
         }
     }
 }
-void ApproximationResults::linearApprox(const LevelValueList& values)
+void NonParValueByLevel::makeApprox(const NonParValueList& list, NonParValueByLevel* prev)
 {
-    const std::array<std::pair<int, int>, s_segments> limits{ { { -20, 20 }, { 0, 40 }, { 20, 60 }, { 40, 80 }, { 60, 300 } } };
-    std::array<int, s_segments>                       sizes{ {} };
+    total = {};
 
-    const size_t n = values.size();
-    frequency      = n;
-    for (const LevelValue& value : values) {
-        assert(value.level >= -1 && value.level < 260);
-        size_t hit = 0;
-        for (size_t s = 0; s < ApproximationResults::s_segments; ++s) {
-            if (limits[s].first <= value.level && value.level < limits[s].second) {
-                auto& r = results[s];
-                if (!sizes[s]) {
-                    r.minus = value.min;
-                    r.plus  = value.max;
-                }
-                hit++;
-                sizes[s]++;
-                r.avg += value.min;
-                r.avg += value.max;
-                r.minus = std::min(r.minus, value.min);
-                r.plus  = std::max(r.plus, value.max);
+    for (auto& summary : levels) {
+        summary = {};
+    }
+    if (list.empty())
+        return;
+
+    total.setMinMaxForCalculation();
+
+    for (auto& summary : levels)
+        summary.setMinMaxForCalculation();
+
+    MedianFinder                         averages;
+    std::array<MedianFinder, s_segments> levelAverages;
+
+    for (const NonParValue& value : list) {
+        size_t levelBracket20 = std::clamp(value.level, 0, 99) / 20;
+
+        if (prev) {
+            auto& r = prev->levels[levelBracket20];
+            if (std::abs(value.max) <= std::abs(r.high.max)) {
+                r.add(value);
+                prev->total.add(value);
+                continue;
             }
         }
-        assert(hit);
+        total.add(value);
+        averages.add(value);
+
+        auto& byLevel = levels[levelBracket20];
+        byLevel.add(value);
+        levelAverages[levelBracket20].add(value);
     }
-    size_t hit = 0;
-    for (size_t s = 0; s < s_segments; ++s) {
-        auto& r = results[s];
-        if (!sizes[s])
-            continue;
-        hit++;
-        r.avg /= sizes[s] * 2;
-        r.minus = r.minus - r.avg;
-        r.plus  = r.plus - r.avg;
-        r.avg   = smartRound(r.avg, smartRoundDetect(r.avg));
-        r.minus = smartRound(r.minus, smartRoundDetect(r.minus));
-        r.plus  = smartRound(r.plus, smartRoundDetect(r.plus));
+    averages.calc(total);
+    total.cleanMinMax();
+    for (size_t i = 0; i < s_segments; ++i) {
+        levelAverages[i].calc(levels[i]);
+        levels[i].cleanMinMax();
     }
-    assert(hit);
 }
 
-std::string slotTypeName(SlotType slotType)
+void NonParValueByLevel::add(const NonParValueByLevel& other)
 {
-    switch (slotType) {
-        case SlotType::Undefined:
-            return "?";
-        case SlotType::MainArmor:
-            return "MainArmor";
-        case SlotType::OtherArmor:
-            return "OtherArmor";
-        case SlotType::Ring:
-            return "Ring";
-        case SlotType::Amulet:
-            return "Amulet";
-        case SlotType::Weapon:
-            return "Weapon";
-        case SlotType::Charm:
-            return "Charm";
-        case SlotType::Socketable:
-            return "Socketable";
-        case SlotType::Set:
-            return "Set";
-        case SlotType::PD2Map:
-            return "PD2Map";
-    }
-    return "?";
+    total.add(other.total);
+    for (size_t i = 0; i < s_segments; ++i)
+        levels[i].add(other.levels[i]);
 }
 
-std::string ApproximationResult::toString() const
+void NonParValueByLevel::rescaleFreq(int percent, int denum)
 {
-    if (!avg && !minus && !plus)
-        return "{}";
-    if (!minus && !plus) {
-        return "{ " + std::to_string(avg) + " }";
-    }
-    return "{ " + std::to_string(avg) + " , +" + std::to_string(plus) + ", " + std::to_string(minus) + " }";
+    auto scaler = [percent, denum](int& val) {
+        if (!val)
+            return;
+        val = std::max(1, ((val * percent) / 100) / denum);
+    };
+    scaler(total.freq);
+    for (size_t i = 0; i < s_segments; ++i)
+        scaler(levels[i].freq);
 }
 
-int buildResultsSimple(const ApproximationResults& slotApprox, const ApproximationResults& globalApprox)
-{
-    int result = 0;
-    int cnt    = 0;
-    for (size_t i = 0; i < ApproximationResults::s_segments; ++i) {
-        auto&     s   = slotApprox.results[i];
-        const int avg = s.avg;
-        if (!avg)
-            continue;
-
-        auto& g = globalApprox.results[i];
-        cnt++;
-        result += std::abs(g.avg) < 10 ? 100 : avg * 100 / g.avg;
-    }
-    result /= cnt;
-    if (result >= 90 && result <= 110)
-        result = 100;
-    return result;
-}
-
-std::string NonPropAttributeRecord::toString() const
-{
-    std::string result = "    NonPropAttributeRecord{\n";
-    result += "        .code       = " + printEnum(code) + ",\n";
-    result += "        .frequency  = " + std::to_string(frequency) + ",\n";
-    if (goodValues.frequency) {
-        result += "        .goodValues = " + goodValues.toString() + ",\n";
-    }
-    if (badValues.frequency) {
-        result += "        .badValues  = " + badValues.toString() + ",\n";
-    }
-    result += "    },\n";
-    return result;
-}
-
-std::string LevelValue::toString() const
-{
-    return "{ " + std::to_string(level) + ", " + std::to_string(min) + ", " + std::to_string(max) + " }";
-}
-
-std::string AffixPropLeveled::toString() const
-{
-    if (!hasRange())
-        return "{ " + std::to_string(level) + ", \"" + par + "\" }";
-    return "{ " + std::to_string(level) + ", \"" + par + "\", " + std::to_string(min.value_or(0)) + ", " + std::to_string(max.value_or(0)) + " }";
-}
-
-std::string PropAttributeRecord::toString() const
-{
-    std::string result = "    PropAttributeRecord{\n";
-    result += "        .code       = " + printEnum(code) + ",\n";
-    result += "        .slotValues = {\n";
-    for (const auto& [slotType, data] : slotValues) {
-        result += "            { SlotType::" + slotTypeName(slotType) + ",\n";
-        result += "                {\n";
-        for (const auto& dataRec : data) {
-            result += "                    " + dataRec.toString() + ",\n";
-        }
-        result += "                },\n";
-        result += "            },\n";
-    }
-    result += "        },\n";
-    result += "    },\n";
-    return result;
-}
-
-size_t PropAttributeRecord::getFrequency() const
+size_t NonParValueByLevel::estimateSize() const
 {
     size_t result = 0;
-    for (const auto& [slotType, data] : slotValues) {
-        result += data.size();
+    for (size_t i = 0; i < s_segments; ++i) {
+        if (levels[i].freq)
+            result++;
     }
-    result = result * freqPercent / 100;
     return result;
 }
 
-std::string printMap(const ApproximationResultsSimpleMap& data)
+void NonParRecord::addScale(SlotType slot, const NonParValueSummary& slotApprox, const NonParValueSummary& globalApprox)
 {
-    std::string result = "{\n";
-    for (const auto& [slotType, data2] : data) {
-        result += "            { SlotType::" + slotTypeName(slotType) + ",\n";
-        result += "                {\n";
-        for (const auto& [code, power] : data2) {
-            result += "                    { " + printEnum(code) + ", " + std::to_string(power) + " },\n";
-        }
-        result += "                },\n";
-        result += "            },\n";
+    if (!slotApprox.freq || !globalApprox.freq)
+        return;
+
+    const int global = std::abs(globalApprox.high.max);
+    const int local  = std::abs(slotApprox.high.max);
+    const int prev   = slotTypesScale.get(slot).value_or(0);
+
+    int result = global < 10 ? 100 : local * 100 / global;
+    result     = std::max(prev, result);
+
+    slotTypesScale.insert(slot, result);
+    slotTypes.insert(slot);
+}
+
+void NonParRecord::cleanupScale()
+{
+    auto old       = slotTypesScale;
+    slotTypesScale = {};
+    for (const auto& [slot, percent] : old.asVector()) {
+        int result = std::clamp(percent, 20, 100);
+        if (result != 100)
+            slotTypesScale.insert(slot, result);
     }
-    result += "}";
+}
+
+size_t NonParRecord::estimateSize() const
+{
+    size_t result = 0;
+    result += badd.estimateSize();
+    result += comm.estimateSize();
+    result += rare.estimateSize();
+    result += epic.estimateSize();
+    return result * slotTypes.estimateSize();
+}
+
+void NonParRecord::doHomogen(const std::vector<const NonParRecord*>& sources)
+{
+    for (const NonParRecord* source : sources) {
+        for (auto slot : source->slotTypes.asVector()) {
+            this->slotTypes.insert(slot);
+            int powerOld = slotTypesScale.get(slot).value_or(100);
+            int powerNew = source->slotTypesScale.get(slot).value_or(100);
+            powerNew     = std::max(powerNew, powerOld);
+            slotTypesScale.insert(slot, powerNew);
+        }
+        comm.add(source->comm);
+        rare.add(source->rare);
+        epic.add(source->epic);
+    }
+
+    for (auto slot : this->slotTypes.asVector()) {
+        int power = slotTypesScale.get(slot).value_or(100);
+        if (power == 100)
+            slotTypesScale.erase(slot);
+    }
+}
+
+void NonParRecord::rescaleFreq(int percent, int denum)
+{
+    comm.rescaleFreq(percent, denum);
+    rare.rescaleFreq(percent, denum);
+    epic.rescaleFreq(percent, denum);
+}
+
+std::string NonParRecord::toString() const
+{
+    std::string result = "    NonParRecord{\n";
+    result += "        .code           = " + enumToString(code, true) + ",\n";
+    result += "        .freqFactor     = " + std::to_string(freqFactor) + ",\n";
+    result += "        .slotTypes      = { ";
+    for (size_t i = 0; const auto& slotType : slotTypes.asVector()) {
+        if (i++)
+            result += ", ";
+        result += enumToString(slotType, true);
+    }
+    result += " },\n";
+    result += "        .slotTypesScale = {";
+    const bool slotTypesScaleEmpty = slotTypesScale.empty();
+    if (!slotTypesScaleEmpty)
+        result += " ";
+    for (size_t i = 0; const auto& [slotType, scale] : slotTypesScale.asVector()) {
+        if (i++)
+            result += ", ";
+        result += "{ " + enumToString(slotType, true) + ", " + std::to_string(scale) + " }";
+    }
+    if (!slotTypesScaleEmpty)
+        result += " ";
+    result += "},\n";
+
+    std::string pad = "          ";
+    if (badd.total.freq) {
+        result += "        .badd " + pad + "= " + badd.toString() + ",\n";
+        pad.clear();
+    }
+    if (comm.total.freq) {
+        result += "        .comm " + pad + "= " + comm.toString() + ",\n";
+        pad.clear();
+    }
+    if (rare.total.freq) {
+        result += "        .rare " + pad + "= " + rare.toString() + ",\n";
+        pad.clear();
+    }
+    if (epic.total.freq) {
+        result += "        .epic " + pad + "= " + epic.toString() + ",\n";
+        pad.clear();
+    }
+
+    result += "    },\n";
     return result;
+}
+
+std::string PropWithRange::toString() const
+{
+    if (!hasRange())
+        return "{ " + optionalToString(par) + " }";
+    return "{ " + optionalToString(par) + ", " + std::to_string(min.value_or(0)) + ", " + std::to_string(max.value_or(0)) + " }";
+}
+
+std::string PropListByLevel::toString() const
+{
+    if (!freq)
+        return "{}";
+    std::string result = "PropListByLevel{\n";
+    result += "            .freq = " + std::to_string(freq) + ",\n";
+    result += "            .levels{ {\n";
+    for (size_t i = 0; i < s_segments; ++i) {
+        if (levels[i].empty()) {
+            result += "                {},\n";
+        } else {
+            result += "                {\n";
+            for (auto& rec : levels[i])
+                result += "                    " + rec.toString() + ",\n";
+            result += "                },\n";
+        }
+    }
+    result += "            } },\n";
+    result += "        }";
+    return result;
+}
+
+size_t PropListByLevel::estimateSize() const
+{
+    size_t result = 0;
+    for (size_t i = 0; i < s_segments; ++i) {
+        result += levels[i].size();
+    }
+    return result;
+}
+
+std::string ParRecord::toString() const
+{
+    std::string result = "    ParRecord{\n";
+    result += "        .code       = " + enumToString(code, true) + ",\n";
+    result += "        .freqFactor = " + std::to_string(freqFactor) + ",\n";
+
+    result += "        .slotTypes  = { ";
+    for (size_t i = 0; const auto& slotType : slotTypes.asVector()) {
+        if (i++)
+            result += ", ";
+        result += enumToString(slotType, true);
+    }
+    result += " },\n";
+    std::string pad = "      ";
+    if (badd.freq) {
+        result += "        .badd " + pad + "= " + badd.toString() + ",\n";
+        pad.clear();
+    }
+    if (comm.freq) {
+        result += "        .comm " + pad + "= " + comm.toString() + ",\n";
+        pad.clear();
+    }
+    if (rare.freq) {
+        result += "        .rare " + pad + "= " + rare.toString() + ",\n";
+        pad.clear();
+    }
+    if (epic.freq) {
+        result += "        .epic " + pad + "= " + epic.toString() + ",\n";
+        pad.clear();
+    }
+    result += "    },\n";
+    return result;
+}
+
+size_t ParRecord::estimateSize() const
+{
+    size_t result = 0;
+    result += badd.estimateSize();
+    result += comm.estimateSize();
+    result += rare.estimateSize();
+    result += epic.estimateSize();
+    return result * slotTypes.estimateSize();
+}
+
+void ParRecord::rescaleFreq(int percent, int denum)
+{
+    freqFactor = ((freqFactor * percent) / 100) / denum;
 }
 
 int smartRound(int value, int rounding)
@@ -261,6 +465,121 @@ int smartRoundDetect(int value)
     if (a < 100)
         return 5;
     return 10;
+}
+
+void AllAttributeData::refreshIds()
+{
+    ids.clear();
+    for (auto& rec : par)
+        ids.insert(rec.code);
+    for (auto& rec : nonPar)
+        ids.insert(rec.code);
+}
+
+void AllAttributeData::insert(const AllAttributeData& other)
+{
+    par.reserve(par.size() + other.par.size());
+    nonPar.reserve(nonPar.size() + other.nonPar.size());
+    for (auto& rec : other.par) {
+        if (ids.contains(rec.code))
+            continue;
+        ids.insert(rec.code);
+        par.push_back(rec);
+    }
+    for (auto& rec : other.nonPar) {
+        if (ids.contains(rec.code))
+            continue;
+        ids.insert(rec.code);
+        nonPar.push_back(rec);
+    }
+}
+
+void AllAttributeData::erase(AttributeId id)
+{
+    ids.erase(id);
+    std::erase_if(par, [id](const auto& rec) { return rec.code == id; });
+    std::erase_if(nonPar, [id](const auto& rec) { return rec.code == id; });
+}
+
+void AllAttributeData::add(ParRecord rec)
+{
+    ids.insert(rec.code);
+    par.push_back(std::move(rec));
+}
+
+void AllAttributeData::add(NonParRecord rec)
+{
+    ids.insert(rec.code);
+    nonPar.push_back(std::move(rec));
+}
+
+ParRecord* AllAttributeData::findExistingPar(AttributeId id)
+{
+    if (!ids.contains(id))
+        return nullptr;
+    for (auto& rec : par) {
+        if (id != rec.code)
+            continue;
+
+        return &rec;
+    }
+    return nullptr;
+}
+
+NonParRecord* AllAttributeData::findExistingNonPar(AttributeId id)
+{
+    if (!ids.contains(id))
+        return nullptr;
+    for (auto& rec : nonPar) {
+        if (id != rec.code)
+            continue;
+
+        return &rec;
+    }
+    return nullptr;
+}
+
+void StatisticsTable::addSnapshot(const AllAttributeData& allData, int ver)
+{
+    versions.insert(ver);
+    for (auto& [id, rec] : allData.statistics) {
+        const NonParValueSummary& row  = rec;
+        const int                 freq = rec.freq;
+
+        rows[id][ver].freq = freq;
+        rows[id][ver].data = rec.toStringTabbed();
+    }
+}
+
+void StatisticsTable::traceStatistics() const
+{
+    Logger() << "---------------- " << "Post-generation summary" << " ----------------";
+
+    Logger() << "Attribute\tVer(0=pre-1=post)\tFreq\tFreq-diff%\tLow-min\tLow-med\tLow-max\tHigh-min\tHigh-med\tHigh-max\tPar-min\tPar-med\tPar-max";
+
+    for (const auto& [code, row_] : rows) {
+        int prevFreq = -1;
+        for (int ver : versions) {
+            if (row_.contains(ver)) {
+                auto&       row = row_.at(ver);
+                std::string diffstr;
+                if (prevFreq != -1) {
+                    int min    = std::min(prevFreq, row.freq);
+                    int max    = std::max(prevFreq, row.freq);
+                    int diff   = max - min;
+                    int change = (diff * 100 / min);
+                    if (change > 20)
+                        diffstr = std::to_string(change);
+                }
+                prevFreq = row.freq;
+                Logger() << enumToString(code) << "\t" << ver << "\t" << std::to_string(row.freq) << "\t" << diffstr << "\t" << row.data;
+            } else {
+                Logger() << enumToString(code) << "\t" << ver << "\t" << -1;
+            }
+        }
+    }
+
+    Logger() << "---------------- " << "END" << " ----------------";
 }
 
 }

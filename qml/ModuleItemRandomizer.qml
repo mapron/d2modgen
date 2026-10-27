@@ -9,7 +9,7 @@ WidgetCommonTab {
     tooltip: qsTr("What item randomizer does in short - it reads all possible item properties from Uniques, Sets, etc,<br>And then reassign properties back, but in random order (also it does not mean every original will be used)<br>For details, check descriptions of every option.")
 
     WidgetPreset {
-        model: [qsTr("Select preset..."), qsTr("I want to be overpowered machine!"), qsTr("Want to have some fun without flying to space"), qsTr("Want to have fresh experience but balanced if possible"),]
+        model: [qsTr("Select preset..."), qsTr("I want to be overpowered machine!"), qsTr("I want crazy 9000+"), qsTr("Want to have fresh experience but balanced if possible"),]
         value_context: root.value_context
     }
 
@@ -175,9 +175,69 @@ WidgetCommonTab {
     WidgetComboBox {
         isCompact: true
         caption: qsTr("Set items partial bonus")
-        tooltip: qsTr("How generated items will use partial set bonuses:<br>Keep - Existing item logic is preserved;<br>No partial - space for extra attributes will used for 'Blue' properties<br>Use partial - extra set attributes will require other pieces, 'Green' props.")
-        model: [qsTr("Keep"), qsTr("No partial"), qsTr("Use partial")]
+        tooltip: qsTr("How generated items will use partial set bonuses:<br>Keep original - Existing item logic is preserved;<br>No partial - space for extra attributes will used for 'Blue' properties<br>Use partial - extra set attributes will require other pieces, 'Green' props.")
+        model: [qsTr("Keep original"), qsTr("No partial"), qsTr("Use partial")]
         value_context: root.value_context
         value_key: "setBonusMode"
+    }
+
+    Rectangle {
+        Layout.fillWidth: true
+        Layout.preferredHeight: 1
+        color: palette.accent
+    }
+    Label {
+        text: qsTr("Adjust amount of different attribute rolls:")
+    }
+
+    WidgetExponentialSlider {
+        caption: qsTr("Resistances:")
+        tooltip: ""
+        denom: 20
+        mult: 10
+        value_context: root.value_context
+        value_key: "frequencyResistances"
+        isCompact: true
+        stretchCaption: true
+    }
+    WidgetExponentialSlider {
+        caption: qsTr("Auras:")
+        tooltip: ""
+        denom: 20
+        mult: 10
+        value_context: root.value_context
+        value_key: "frequencyAuras"
+        isCompact: true
+        stretchCaption: true
+    }
+    WidgetExponentialSlider {
+        caption: qsTr("On hit/attack/struck procs:")
+        tooltip: ""
+        denom: 20
+        mult: 10
+        value_context: root.value_context
+        value_key: "frequencyProcs"
+        isCompact: true
+        stretchCaption: true
+    }
+    WidgetExponentialSlider {
+        caption: qsTr("+skills:")
+        tooltip: ""
+        denom: 20
+        mult: 10
+        value_context: root.value_context
+        value_key: "frequencySkills"
+        isCompact: true
+        stretchCaption: true
+    }
+    WidgetExponentialSlider {
+        caption: qsTr("Stats (life/mana/attributes:")
+        tooltip: ""
+        denom: 20
+        mult: 10
+        value_context: root.value_context
+        value_key: "frequencyCharAttributes"
+        isCompact: true
+        stretchCaption: true
     }
 }

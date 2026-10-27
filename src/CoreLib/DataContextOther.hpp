@@ -6,10 +6,13 @@
 #pragma once
 
 #include "DataContextBase.hpp"
+#include "Storage/IStorage.hpp"
 
 namespace D2ModGen {
 
 struct DataRow_charstats : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::charstats };
+
     std::string clas;
 
     struct Item {
@@ -32,6 +35,8 @@ private:
     static const size_t maxSkills = 10;
 };
 struct DataRow_difficultylevels : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::difficultylevels };
+
     std::string        name;
     std::optional<int> resistPenalty;
     std::optional<int> gambleRare;
@@ -44,12 +49,16 @@ struct DataRow_difficultylevels : public RowBase {
     void                     serialize();
 };
 struct DataRow_experience : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::experience };
+
     std::optional<int> expRatio;
 
     std::vector<std::string> getColumns() const;
     void                     serialize();
 };
 struct DataRow_gamble : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::gamble };
+
     std::string name;
     std::string code;
 
@@ -57,6 +66,8 @@ struct DataRow_gamble : public RowBase {
     void                     serialize();
 };
 struct DataRow_hireling : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::hireling };
+
     std::optional<int> hp;
     std::optional<int> hp_lvl;
     std::optional<int> dmg_min;
@@ -67,6 +78,8 @@ struct DataRow_hireling : public RowBase {
     void                     serialize();
 };
 struct DataRow_itemstatcost : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::itemstatcost };
+
     std::optional<int> multiply;
     std::optional<int> add;
 
@@ -74,6 +87,8 @@ struct DataRow_itemstatcost : public RowBase {
     void                     serialize();
 };
 struct DataRow_levels : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::levels };
+
     std::array<std::optional<int>, 3> monUMin, monUMax, monDen;
     std::array<std::optional<int>, 3> monLvlEx;
     std::optional<int>                numMon;
@@ -95,6 +110,8 @@ private:
 };
 
 struct DataRow_monlvl : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::monlvl };
+
     std::array<int, 6> TH; // to hit, attack rating
     std::array<int, 6> AC; // armor class, defence
     std::array<int, 6> HP;
@@ -106,6 +123,8 @@ struct DataRow_monlvl : public RowBase {
     void                     serialize();
 };
 struct DataRow_monstats : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::monstats };
+
     std::array<std::optional<int>, 3> resFi, resLi, resCo, resPo, resMa, resDm;
 
     std::optional<bool> enabled, isspawn, killable, npc, boss;
@@ -156,6 +175,8 @@ private:
 };
 
 struct DataRow_skilldesc : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::skilldesc };
+
     std::string        skilldesc;
     std::optional<int> skillPage;
     std::optional<int> skillRow;
@@ -166,6 +187,8 @@ struct DataRow_skilldesc : public RowBase {
     void                     serialize();
 };
 struct DataRow_skills : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::skills };
+
     std::string         skill;
     std::optional<int>  maxlvl;
     std::optional<int>  lvlreq;
@@ -179,7 +202,7 @@ struct DataRow_skills : public RowBase {
 
     std::vector<std::string> reqskills;
     std::string              charclass;
-    Character                classSpecific = Character::none;
+    Character                classSpecific = Character::None;
 
     bool canBeOskill = true;
 
@@ -188,6 +211,8 @@ struct DataRow_skills : public RowBase {
 };
 using DataRow_skills_ptr = const DataRow_skills*;
 struct DataRow_treasureclassex : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::treasureclassex };
+
     struct Item {
         std::string        tc;
         std::optional<int> prob;

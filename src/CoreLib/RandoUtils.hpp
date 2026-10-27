@@ -7,178 +7,99 @@
 
 #include "AttributeHelper.hpp"
 #include "DataContext.hpp"
+#include "FlatSet.hpp"
+
+#include "PropRandomizer.hpp"
 
 namespace D2ModGen {
 
-using SkillResolver = std::function<DataRow_skills_ptr(const std::string&)>;
+struct PropFilter {
+    DynamicBitSet availableIdPar;
+    DynamicBitSet attributeUnrestricted;
 
-struct RandoParams {
-    int levelPlus           = 0;
-    int levelMinus          = 0;
-    int relativeCountMin    = 0;
-    int relativeCountMax    = 0;
-    int keepOriginalPercent = 0;
-    int typeFitPercent      = 0;
-    int casterTypePercent   = 0;
+    BasicProperties props;
 
-    bool enableGeneration   = true;
-    bool uniqueCheckAcross  = false;
-    bool updateExisting     = false;
-    bool supportRandomRange = true; // gems can't have random variance
+    bool canBeEpic = false;
+    bool canBeRare = false;
 
-    bool replaceSkills  = false; // skill => oskill
-    bool replaceCharges = false; // charge => oskill
-    bool removeKnock    = false;
-};
+    bool generatedEpic = false;
+    bool generatedNeg  = false;
 
-inline void appendToSet(StringSet& s, const StringSet& another)
-{
-    s.insert(another.cbegin(), another.cend());
-}
-inline void appendToSet(ItemTypeSet& s, const ItemTypeSet& another)
-{
-    s.insert(another.cbegin(), another.cend());
-}
-struct MagicProp;
-using MagicPropList = std::vector<MagicProp>;
-struct MagicProp {
-    AttributeId        id;
-    std::string        par;
-    std::optional<int> min;
-    std::optional<int> max;
-
-    Character      determineClass(const SkillResolver& skillResolver, bool checkOskill) const;
-    AttributeIdiom determineIdiom() const;
-};
-
-struct MagicPropRawList {
-    MagicPropList          parsedProps;
-    std::vector<AffixProp> keptProps;
-    int                    affixLimit   = 0;
-    int                    needGenerate = 0;
-    int                    removed      = 0;
-
-    void preProcess(const SkillResolver& skillResolver, const RandoParams& randoParams);
-    void removeNonClass(const SkillResolver& skillResolver, Character target);
-    void makePerfect();
-
-    void readFromRow(const AffixPropList& propList);
-    void writeToRow(AffixPropList& propList) const;
-
-    int            getTotalSize() const;
-    Character      determineClass(const SkillResolver& skillResolver, bool checkOskill) const;
-    AttributeIdiom determineIdiom() const;
-
-    void append(MagicPropList added);
-
-    void truncateRandom(RandomGenerator& rng, const int newSize);
-
-    void fill(UniqueAttributeChecker& checker) const;
-};
-
-struct MagicContext {
-    NonPropAttributeRecordList    generatedNonPropAttributes;
-    PropAttributeRecordList       generatedPropAttributes;
-    ApproximationResultsSimpleMap generatedSlotScale;
-
-    std::set<AttributeId> existingGameAttributes;
-    std::set<AttributeId> configAttributes;
-
-    std::set<std::string> skippedAttributes;
-    std::set<std::string> unknownAttributes;
-
-    void calculateConfigAttributes();
-    void eraseNonGame();
-    void report();
-};
-
-struct MagicPropUniverse {
-    struct PropGenerator {
-        int frequencyCumulative = 0;
-        int powerScalePercent   = 100;
-
-        AttributeId id = AttributeId::INVALID;
-
-        std::optional<ApproximationResult> ar;
-        std::vector<AffixPropLeveled>      fixedLevelAffixes;
-
-        MagicProp generate(RandomGenerator& rng) const;
-    };
-    struct PropGeneratorContainer {
-        int                        frequency = 0;
-        std::vector<PropGenerator> gens;
-
-        PropGeneratorContainer() = default;
-        explicit PropGeneratorContainer(const MagicContext& magicContext, const CodePowerMap& powerMap, SlotType slotType, size_t levelBracket20);
-        const PropGenerator* getRandomAttributeGenerator(RandomGenerator& rng) const;
-        const PropGenerator* findAttributeGenerator(AttributeId id) const;
-    };
-
-    struct CommonGen {
-        PropGeneratorContainer                     general;
-        std::map<SlotType, PropGeneratorContainer> bySlot;
-
-        CommonGen() = default;
-        explicit CommonGen(const MagicContext& magicContext, size_t levelBracket20);
-    };
-    std::map<size_t, CommonGen> levelGen;
-
-    MagicPropUniverse(const MagicContext& magicContext);
+    void indexAnd(DynamicBitSet& result, const PropRandomizer* propRandomizer, bool addIdFilter) const;
 };
 
 struct MagicPropItem {
+    RandomGenerator*      rng;
+    const PropRandomizer* propRandomizer = nullptr;
+    const RandoParams*    randoParams    = nullptr;
+
     // const during generation
     std::string                   id;
     int                           originalLevel = 0;
-    AttributeFlagSet              supportedAttributes;
-    ItemCodeList                  types;
     std::vector<MagicPropRawList> affixlists;
-    SlotType                      slot           = SlotType::Undefined;
-    size_t                        levelBracket20 = 0;
-    SkillResolver                 skillResolver;
+
+    AttributeFlagSet supportedAttributes;
 
     // mutable during generation
-    UniqueAttributeChecker uniqueChecker;
-    Character              currentClass = Character::none;
-    AttributeIdiom         currentIdiom = AttributeIdiom::Any;
+    PropFilter filter;
 
     // statistics
-    int propSrc       = 0;
-    int propDest      = 0;
-    int propKept      = 0;
-    int propGenReq    = 0;
-    int propGenFit    = 0;
-    int propGenCommon = 0;
+    struct Statistics {
+        int src       = 0;
+        int dest      = 0;
+        int kept      = 0;
+        int genReq    = 0;
+        int genFit    = 0;
+        int genCommon = 0;
+
+        int rollRare = 0;
+        int rollEpic = 0;
+        int rollBadd = 0;
+
+        std::string toString() const;
+    } stats;
 
     template<class Row>
-    void readFrom(const Row& row)
+    void readParams(const Row& row)
     {
         id                  = row.getId();
         originalLevel       = row.getLevel();
         supportedAttributes = row.getAttributes();
-        types               = row.getItemFilter();
 
-        for (const AffixPropList* affixList : row.affixLists()) {
-            MagicPropRawList rawList;
-            rawList.readFromRow(*affixList);
-            affixlists.push_back(std::move(rawList));
-        }
-
-        slot         = types.determineSlot();
-        currentClass = types.determineClass();
-        currentIdiom = types.determineIdiom();
+        auto types         = row.getItemFilter();
+        filter.props.slot  = types.determineSlot();
+        filter.props.clas  = types.determineClass();
+        filter.props.idiom = types.determineIdiom();
     }
 
-    void generate(RandomGenerator&         rng,
-                  const MagicPropUniverse& props,
-                  const RandoParams&       randoParams);
+    template<class Row>
+    void readAffixes(const Row&               row,
+                     const SkillCodeResolver& codeResolver,
+                     const SkillGetter&       skillGetter,
+                     std::set<std::string>*   unknownList,
+                     std::set<std::string>*   skippedList)
+    {
+        auto rowAffixLists    = row.affixLists();
+        auto rowRollTypesGrab = row.rollTypesGrab();
+        auto rowRollTypesGen  = row.rollTypesGen();
 
-    MagicPropList generate(RandomGenerator&                    rng,
-                           const MagicPropUniverse::CommonGen& commonGen,
-                           const RandoParams&                  randoParams,
-                           int                                 count);
+        affixlists.clear();
+        for (size_t i = 0, cnt = rowAffixLists.size(); i < cnt; ++i) {
+            const AffixPropList* affixList = rowAffixLists[i];
+            MagicPropRawList     rawList;
+            rawList.rollTypeHighestGrab = rowRollTypesGrab[i];
+            rawList.rollTypeHighestGen  = rowRollTypesGen[i];
+            rawList.readFromRow(*affixList, codeResolver, skillGetter, filter.props, unknownList, skippedList);
+            affixlists.push_back(std::move(rawList));
+        }
+    }
 
-    void update(MagicPropRawList& propList, RandomGenerator& rng, const MagicPropUniverse::CommonGen& commonGen);
+    void generate();
+
+    MagicPropList generate(int count);
+
+    void update(MagicPropRawList& propList, bool noGenerate);
+    void added(const MagicProp& prop);
 
     template<class Row>
     void writeTo(Row& row)
@@ -188,7 +109,7 @@ struct MagicPropItem {
         }
     }
 
-    std::string toString() const;
+    std::string toString(bool withProperties) const;
 };
 
 }

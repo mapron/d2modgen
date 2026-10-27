@@ -10,17 +10,14 @@
 
 namespace D2ModGen {
 
-const NonPropAttributeRecordList& globalNonPropAttributes()
+AllAttributeData getPrecompiledData()
 {
-    return g_generatedNonPropAttributes;
-}
-const PropAttributeRecordList& globalPropAttributes()
-{
-    return g_generatedPropAttributes;
-}
-const ApproximationResultsSimpleMap& globalSlotScale()
-{
-    return g_generatedSlotScale;
+    AllAttributeData result;
+    result.nonPar = NonParRecordList(std::cbegin(g_generatedNonParRecordList), std::cend(g_generatedNonParRecordList));
+    result.par    = ParRecordList(std::cbegin(g_generatedParRecordList), std::cend(g_generatedParRecordList));
+    result.refreshIds();
+    result.erase(AttributeId::INVALID);
+    return result;
 }
 
 }

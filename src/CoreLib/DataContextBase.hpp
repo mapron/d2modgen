@@ -7,6 +7,7 @@
 
 #include "AttributeHelper.hpp"
 #include "AttributeValues.hpp"
+#include "MernelPlatform/StringUtils.hpp"
 
 #include <unordered_map>
 #include <optional>
@@ -43,6 +44,7 @@ struct DataTable {
     std::vector<size_t> indicesUnused;
 
     std::unordered_map<std::string, const Row*> index;
+    std::unordered_map<std::string, int>        indexN;
 
     bool valid = false;
 
@@ -62,9 +64,13 @@ struct DataTable {
     }
     void makeIndex(std::string Row::* m)
     {
+        indexN.clear();
         index.clear();
-        for (auto& row : rows)
-            index[row.*m] = &row;
+        for (int i = 0; auto& row : rows) {
+            auto key    = Mernel::strToLower(row.*m);
+            index[key]  = &row;
+            indexN[key] = i++;
+        }
     }
 
     bool parseTable(const std::string& buffer);
@@ -79,15 +85,6 @@ struct AffixProp {
     std::optional<int> max;
     std::optional<int> chance;
 
-    bool moveParToMinMax()
-    {
-        int val = parAsInt();
-        if (!val)
-            return false;
-        min = max = val;
-        par.clear();
-        return true;
-    }
     bool hasPar() const { return !(par.empty() || par == "0" || par == " "); }
     int  parAsInt() const { return hasPar() ? std::atoi(par.c_str()) : 0; }
     bool hasRange() const { return min.has_value() && max.has_value(); }
@@ -189,6 +186,8 @@ struct RowBaseAffixes : public RowBase {
 
     auto affixLists() const { return std::array{ &affixes }; }
     auto affixLists() { return std::array{ &affixes }; }
+    auto rollTypesGrab() const { return std::array{ RollType::Common }; }
+    auto rollTypesGen() const { return std::array{ RollType::Rare }; }
 
     int getLevel() const { return spawnable.value_or(false) ? lvl.value_or(0) : 0; }
 

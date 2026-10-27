@@ -6,10 +6,13 @@
 #pragma once
 
 #include "DataContextBase.hpp"
+#include "Storage/IStorage.hpp"
 
 namespace D2ModGen {
 
 struct DataRow_itemtypes : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::itemtypes };
+
     std::string clas;
     std::string code;
     std::string itemType;
@@ -17,8 +20,8 @@ struct DataRow_itemtypes : public RowBase {
     std::string equiv2;
     std::string bodyLoc1;
 
-    AttributeIdiom idiom         = AttributeIdiom::Any;
-    Character      classSpecific = Character::none;
+    AttributeIdiom idiom         = AttributeIdiom::None;
+    Character      classSpecific = Character::None;
 
     std::optional<bool>               throwable;
     std::optional<bool>               repair;
@@ -40,6 +43,8 @@ struct DataRow_itemtypes : public RowBase {
 // =========================================================
 
 struct DataRow_weapons : public RowBaseEquipment {
+    static constexpr const TableId s_tableId{ TableId::weapons };
+
     std::optional<int> mindam;
     std::optional<int> maxdam;
 
@@ -47,6 +52,8 @@ struct DataRow_weapons : public RowBaseEquipment {
     void                     serialize();
 };
 struct DataRow_armor : public RowBaseEquipment {
+    static constexpr const TableId s_tableId{ TableId::armor };
+
     std::optional<int> minac;
     std::optional<int> maxac;
 
@@ -54,6 +61,8 @@ struct DataRow_armor : public RowBaseEquipment {
     void                     serialize();
 };
 struct DataRow_misc : public RowBaseEquipment {
+    static constexpr const TableId s_tableId{ TableId::misc };
+
     std::optional<int> maxstack;
 
     std::vector<std::string> getColumns() const;
@@ -63,10 +72,13 @@ struct DataRow_misc : public RowBaseEquipment {
 // =========================================================
 
 struct DataRow_automagic : public RowBaseAffixes {
+    static constexpr const TableId s_tableId{ TableId::automagic };
 };
 struct DataRow_magicprefix : public RowBaseAffixes {
+    static constexpr const TableId s_tableId{ TableId::magicprefix };
 };
 struct DataRow_magicsuffix : public RowBaseAffixes {
+    static constexpr const TableId s_tableId{ TableId::magicsuffix };
 };
 // =========================================================
 
@@ -136,6 +148,8 @@ struct RowBaseUniqueSet : public RowBase {
 };
 
 struct DataRow_uniqueitems : public RowBaseUniqueSet {
+    static constexpr const TableId s_tableId{ TableId::uniqueitems };
+
     std::optional<int> carry1;
     std::optional<int> version = 100;
 
@@ -143,6 +157,8 @@ struct DataRow_uniqueitems : public RowBaseUniqueSet {
 
     auto affixLists() const { return std::array{ &affixes }; }
     auto affixLists() { return std::array{ &affixes }; }
+    auto rollTypesGrab() const { return std::array{ RollType::Rare }; }
+    auto rollTypesGen() const { return std::array{ RollType::Epic }; }
 
     std::vector<std::string> getColumns() const;
     void                     serialize();
@@ -150,6 +166,8 @@ struct DataRow_uniqueitems : public RowBaseUniqueSet {
 
 struct DataRow_sets;
 struct DataRow_setitems : public RowBaseUniqueSet {
+    static constexpr const TableId s_tableId{ TableId::setitems };
+
     std::optional<int> addfunc;
     std::string        setIndex;
 
@@ -159,6 +177,8 @@ struct DataRow_setitems : public RowBaseUniqueSet {
 
     auto affixLists() const { return std::array{ &affixes_base, &affixes_partial1, &affixes_partial2 }; }
     auto affixLists() { return std::array{ &affixes_base, &affixes_partial1, &affixes_partial2 }; }
+    auto rollTypesGrab() const { return std::array{ RollType::Rare, RollType::Rare, RollType::Rare }; }
+    auto rollTypesGen() const { return std::array{ RollType::Epic, RollType::Epic, RollType::Epic }; }
 
     std::vector<std::string> getColumns() const;
     void                     serialize();
@@ -167,6 +187,8 @@ struct DataRow_setitems : public RowBaseUniqueSet {
 // =========================================================
 
 struct DataRow_sets : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::sets };
+
     int level = 0;
 
     std::optional<int> version = 100;
@@ -186,6 +208,8 @@ struct DataRow_sets : public RowBase {
 
     auto affixLists() const { return std::array{ &affixes_full, &affixes_partial1, &affixes_partial2 }; }
     auto affixLists() { return std::array{ &affixes_full, &affixes_partial1, &affixes_partial2 }; }
+    auto rollTypesGrab() const { return std::array{ RollType::Epic, RollType::Rare, RollType::Rare }; }
+    auto rollTypesGen() const { return rollTypesGrab(); }
 
     bool             isValid() const { return !name.empty(); }
     int              getLevel() const { return level; }
@@ -199,13 +223,14 @@ struct DataRow_sets : public RowBase {
     void                     serialize();
 };
 struct DataRow_runes : public RowBase {
-    int                      lvl = 1; // calculated.
-    std::vector<std::string> runeCodes;
-    AffixPropList            affixes{ 7 };
-    std::optional<bool>      complete;
-    std::vector<std::string> itype;
-    std::vector<std::string> etype;
-    ItemCodeList             filter;
+    static constexpr const TableId s_tableId{ TableId::runes };
+    int                            lvl = 1; // calculated.
+    std::vector<std::string>       runeCodes;
+    AffixPropList                  affixes{ 7 };
+    std::optional<bool>            complete;
+    std::vector<std::string>       itype;
+    std::vector<std::string>       etype;
+    ItemCodeList                   filter;
 
     std::string name;
 
@@ -216,6 +241,8 @@ struct DataRow_runes : public RowBase {
 
     auto affixLists() const { return std::array{ &affixes }; }
     auto affixLists() { return std::array{ &affixes }; }
+    auto rollTypesGrab() const { return std::array{ RollType::Epic }; }
+    auto rollTypesGen() const { return rollTypesGrab(); }
 
     std::vector<std::string>           getColumns() const;
     std::map<std::string, std::string> getColumnAliases() const;
@@ -247,6 +274,8 @@ private:
 };
 
 struct DataRow_gems : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::gems };
+
     AffixPropList affixes_weapon{ 3 };
     AffixPropList affixes_helm{ 3 };
     AffixPropList affixes_shield{ 3 };
@@ -256,6 +285,8 @@ struct DataRow_gems : public RowBase {
 
     auto affixLists() const { return std::array{ &affixes_weapon, &affixes_helm, &affixes_shield }; }
     auto affixLists() { return std::array{ &affixes_weapon, &affixes_helm, &affixes_shield }; }
+    auto rollTypesGrab() const { return std::array{ RollType::Common, RollType::Common, RollType::Common }; }
+    auto rollTypesGen() const { return std::array{ RollType::Rare, RollType::Rare, RollType::Rare }; }
 
     std::string getId() const
     {
@@ -286,6 +317,8 @@ struct DataRow_gems : public RowBase {
 };
 
 struct DataRow_cubemain : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::cubemain };
+
     AffixPropList            affixes_a{ 5 };
     AffixPropList            affixes_b{ 5 };
     AffixPropList            affixes_c{ 5 };
@@ -303,8 +336,12 @@ struct DataRow_cubemain : public RowBase {
     std::optional<int> plvl;
     std::optional<int> lvl;
 
+    SlotType slotType = SlotType::None;
+
     auto affixLists() const { return std::array{ &affixes_a, &affixes_b, &affixes_c }; }
     auto affixLists() { return std::array{ &affixes_a, &affixes_b, &affixes_c }; }
+    auto rollTypesGrab() const { return std::array{ RollType::Common, RollType::Common, RollType::Common }; }
+    auto rollTypesGen() const { return std::array{ RollType::Epic, RollType::Epic, RollType::Epic }; }
 
     bool isCrafted() const { return output == "\"usetype,crf\""; }
     bool hasLvls() const { return ilvl.has_value() || plvl.has_value() || lvl.has_value(); }

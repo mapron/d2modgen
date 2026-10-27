@@ -46,7 +46,7 @@ Val mapValue(const std::map<std::string, Val>& m, const std::string& key, const 
     return it->second;
 }
 
-using RandomGenerator = std::function<int(int)>;
+using RandomGenerator = std::function<int(int)>; // generate [0, max)
 
 enum class StorageType
 {

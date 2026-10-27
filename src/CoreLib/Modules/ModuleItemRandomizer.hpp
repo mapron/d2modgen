@@ -7,8 +7,9 @@
 
 #include "PluginModule.hpp"
 
+#include "RandoUtils.hpp"
+
 namespace D2ModGen {
-struct MagicContext;
 
 class ModuleItemRandomizer : public PluginModule {
 public:
@@ -26,43 +27,61 @@ public:
 
     void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
 
+    struct SlotPropsVal {
+        std::map<int, MagicPropList> propsByLevel;
+    };
+
+    struct RollPropsVal {
+        std::map<SlotType, SlotPropsVal> propsBySlot;
+    };
+
     struct AllPropsVal {
-        std::map<SlotType, std::map<int, AffixPropList>> propsBySlot;
-        int                                              total = 0;
+        std::map<RollType, RollPropsVal> propsByRoll;
     };
-    using AllProps = std::map<AttributeId, AllPropsVal>;
-
-    struct Statistics {
-        int frequency = 0;
-        int preGen    = 0;
-        int postGen   = 0;
+    struct AllProps {
+        std::map<AttributeId, AllPropsVal> propsById;
     };
-    using AllStatistics = std::map<AttributeId, Statistics>;
 
-    struct TabStatistics {
-        int preGen  = 0;
-        int postGen = 0;
+    AllProps grabAllProps(const DataContext&     output,
+                          bool                   onlySetUniques = true,
+                          std::set<std::string>* unknownList    = nullptr,
+                          std::set<std::string>* skippedList    = nullptr) const;
+
+    void createNewItems(DataContext&        output,
+                        RandomGenerator&    rng,
+                        const InputContext& input,
+                        int                 repeatUniques,
+                        int                 repeatSets) const;
+
+    AllAttributeData analyzeAll(const AllProps& allProps) const;
+
+    void analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecord& record, NonParValueSummary& stat) const;
+    void analyzePar(const AllPropsVal& allPropsVal, ParRecord& record, NonParValueSummary& stat) const;
+
+    void dumpAttributes(const Mernel::std_path& dumpFile, const AllAttributeData& attributeData, const std::set<AttributeId>& skip) const;
+
+    void updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId) const;
+    void updateLoDtranslation(std::string& patchstringTlb) const;
+
+private:
+    struct MagicContext {
+        MagicContext(AllAttributeData gameData_);
+
+        const AllAttributeData precompiled;
+        const AllAttributeData gameData;
+        AllAttributeData       actual;
+
+        AllAttributeData precompiledSkipped;
+        AllAttributeData gameDataSkipped;
+
+        void addExtra(const InputContext& input);
+        void homogenizeNonPar(int scalePercent, const std::vector<AttributeId>& attrs);
+        void scaleSettings(const InputContext& input, const std::string& key, const std::vector<AttributeId>& attrs);
     };
-    using AllTabStatistics = std::map<AttributeId, TabStatistics>;
 
-    void grabAllProps(AllProps& allProps, const DataContext& output, MagicContext& context) const;
-
-    void createNewItems(ExtraLoc& extraLoc, DataContext& output, RandomGenerator& rng, const InputContext& input) const;
-
-    void analyzeAllPropsForDump(
-        AttributeId                    code,
-        const AllPropsVal&             allPropsVal,
-        NonPropAttributeRecordList&    nonPropList,
-        PropAttributeRecordList&       propList,
-        ApproximationResultsSimpleMap& approxMapSimple) const;
-
-    void dumpAttributes(
-        const NonPropAttributeRecordList&    nonPropList,
-        const PropAttributeRecordList&       propList,
-        const ApproximationResultsSimpleMap& approxMapSimple) const;
-
-    void updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const ExtraLoc& extraLoc, const std::string& localeId) const;
-    void updateLoDtranslation(std::string& patchstringTlb, const ExtraLoc& extraLoc) const;
+    mutable SkillCodeResolver m_codeResolver;
+    mutable SkillGetter       m_skillGetter;
+    mutable ExtraLoc          m_extraLoc;
 };
 
 }

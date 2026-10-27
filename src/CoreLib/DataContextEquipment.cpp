@@ -40,11 +40,11 @@ SlotType DataRow_itemtypes::determineSlot() const
 
     for (auto* parent : parents) {
         SlotType parentType = parent->determineSlot();
-        if (parentType != SlotType::Undefined)
+        if (parentType != SlotType::None)
             return parentType;
     }
 
-    return SlotType::Undefined;
+    return SlotType::None;
 }
 
 std::vector<std::string> DataRow_itemtypes::getColumns() const
@@ -76,16 +76,16 @@ void DataRow_itemtypes::serialize()
     ser(sockets);
 
     if (_ser_read) {
-        flags.clear();
+        flags = {};
         if (throwable.value_or(false))
-            flags.insert(AttributeFlag::Quantity);
+            flags.insert(AttributeFlag::Throwable), flags.insert(AttributeFlag::ThrowableOrBow);
         else if (repair.value_or(false))
             flags.insert(AttributeFlag::Durability);
 
         if (sockets[0].value_or(0))
             flags.insert(AttributeFlag::Sockets);
         if (!shoots.empty())
-            flags.insert(AttributeFlag::Missile);
+            flags.insert(AttributeFlag::Bow), flags.insert(AttributeFlag::ThrowableOrBow);
         if (itemType.starts_with("Map"))
             flags.insert(AttributeFlag::PD2Map);
     }
@@ -171,7 +171,7 @@ void DataRow_misc::serialize()
 
 std::map<std::string, std::string> RowBaseUniqueSet::getColumnAliases() const
 {
-    return { { "enabled", "spawnable" }, { "level", "lvl" } };
+    return { { "enabled", "spawnable" }, { "level", "lvl" }, { "item", "code" } };
 }
 
 std::vector<std::string> RowBaseUniqueSet::getColumns() const

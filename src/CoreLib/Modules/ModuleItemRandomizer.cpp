@@ -52,156 +52,159 @@ std::string makeValue(std::string old, int copy)
 ModuleItemRandomizer::ModuleItemRandomizer()
     : PluginModule(Mernel::PropertyTreeMap{
           { "affixRandom", Mernel::PropertyTreeScalar{ true } },
-          { "levelPlus", Mernel::PropertyTreeScalar{ 20 } },
-          { "levelMinus", Mernel::PropertyTreeScalar{ 10 } },
-          { "extraKnown", Mernel::PropertyTreeScalar{} },
+          { "levelPlus", Mernel::PropertyTreeScalar{ 10 } },
+          { "levelMinus", Mernel::PropertyTreeScalar{ 20 } },
           { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
 
           { "casterTypePercent", Mernel::PropertyTreeScalar{ 25 } },
-          { "itemFitPercent", Mernel::PropertyTreeScalar{ 70 } },
-          { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 70 } },
-          { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
+          { "itemFitPercent", Mernel::PropertyTreeScalar{ 100 } },
+          { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 50 } },
+          { "relativeCountMax", Mernel::PropertyTreeScalar{ 200 } },
           { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+          { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 200 } },
+          { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+
+          { "frequencyResistances", Mernel::PropertyTreeScalar{ 100 } },
+          { "frequencyAuras", Mernel::PropertyTreeScalar{ 100 } },
+          { "frequencyProcs", Mernel::PropertyTreeScalar{ 100 } },
+          { "frequencySkills", Mernel::PropertyTreeScalar{ 100 } },
+          { "frequencyCharAttributes", Mernel::PropertyTreeScalar{ 100 } },
+
           { "removeKnock", Mernel::PropertyTreeScalar{ true } },
           { "updateExisting", Mernel::PropertyTreeScalar{ true } },
           { "repeat_sets", Mernel::PropertyTreeScalar{ 5 } },
           { "repeat_uniques", Mernel::PropertyTreeScalar{ 5 } },
-          { "replaceCharges", Mernel::PropertyTreeScalar{ false } },
+          { "replaceCharges", Mernel::PropertyTreeScalar{ true } },
           { "replaceSkills", Mernel::PropertyTreeScalar{ false } },
-          { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
-          { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
-          { "setBonusMode", Mernel::PropertyTreeScalar{ 0 } },
+          { "setBonusMode", Mernel::PropertyTreeScalar{ 1 } },
       })
 {
     setPresets({
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{
             { "levelPlus", Mernel::PropertyTreeScalar{ 100 } },
             { "levelMinus", Mernel::PropertyTreeScalar{ 0 } },
-            { "itemFitPercent", Mernel::PropertyTreeScalar{ 0 } },
+            { "itemFitPercent", Mernel::PropertyTreeScalar{ 50 } },
             { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 0 } },
             { "relativeCountMin", Mernel::PropertyTreeScalar{ 1000 } },
             { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
             { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 1000 } },
             { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
+            { "casterTypePercent", Mernel::PropertyTreeScalar{ 50 } },
             { "affixRandom", Mernel::PropertyTreeScalar{ true } },
-            { "gemsRandom", Mernel::PropertyTreeScalar{ true } },
+            { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
             { "replaceSkills", Mernel::PropertyTreeScalar{ true } },
             { "replaceCharges", Mernel::PropertyTreeScalar{ true } },
         } },
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{
             { "levelPlus", Mernel::PropertyTreeScalar{ 30 } },
             { "levelMinus", Mernel::PropertyTreeScalar{ 15 } },
-            { "itemFitPercent", Mernel::PropertyTreeScalar{ 50 } },
-            { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 20 } },
-            { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+            { "itemFitPercent", Mernel::PropertyTreeScalar{ 0 } },
+            { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 0 } },
+            { "relativeCountMin", Mernel::PropertyTreeScalar{ 20 } },
             { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
-            { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
+            { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 20 } },
             { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
+            { "casterTypePercent", Mernel::PropertyTreeScalar{ 50 } },
             { "affixRandom", Mernel::PropertyTreeScalar{ true } },
+            { "gemsRandom", Mernel::PropertyTreeScalar{ true } },
             { "replaceSkills", Mernel::PropertyTreeScalar{ true } },
             { "replaceCharges", Mernel::PropertyTreeScalar{ true } },
         } },
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "levelPlus", Mernel::PropertyTreeScalar{ 10 } },
-            { "levelMinus", Mernel::PropertyTreeScalar{ 10 } },
-            { "itemFitPercent", Mernel::PropertyTreeScalar{ 70 } },
-            { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 50 } },
-            { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
-            { "relativeCountMax", Mernel::PropertyTreeScalar{ 120 } },
-            { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
-            { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 150 } },
+            { "levelPlus", Mernel::PropertyTreeScalar{ 20 } },
+            { "itemFitPercent", Mernel::PropertyTreeScalar{ 80 } },
+            { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 0 } },
+            { "casterTypePercent", Mernel::PropertyTreeScalar{ 10 } },
+            { "replaceCharges", Mernel::PropertyTreeScalar{ false } },
+            { "affixRandom", Mernel::PropertyTreeScalar{ false } },
+            { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
         } },
     });
 }
 
 void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
 {
-    MagicContext context;
-    context.generatedNonPropAttributes = globalNonPropAttributes();
-    context.generatedPropAttributes    = globalPropAttributes();
-    context.generatedSlotScale         = globalSlotScale();
+    m_codeResolver = [&output](const std::string& skillId) -> int {
+        if (!skillId.empty()) {
+            int intId = std::atoi(skillId.c_str());
+            if (intId > 0) {
+                return intId;
+            }
+            if (skillId == "0") {
+                return 0;
+            }
+            auto it = output.skills.indexN.find(Mernel::strToLower(skillId));
+            if (it != output.skills.indexN.cend())
+                return it->second;
+        }
+        return -1;
+    };
+    m_skillGetter = [&output](int index) -> DataRow_skills_ptr {
+        if (index < 0)
+            return nullptr;
+        return &output.skills.rows[index];
+    };
+    m_extraLoc = {};
 
-    const bool extraTrace = !!getenv("MODGEN_RANDOMIZER_TRACE");
+    std::set<std::string> skippedAttributes;
+    std::set<std::string> unknownAttributes;
 
-    ExtraLoc extraLoc;
+    const bool extraTrace  = !!getenv("MODGEN_RANDOMIZER_TRACE");
+    const bool extraTrace2 = !!getenv("MODGEN_RANDOMIZER_TRACE_PROPS");
 
-    AllProps      allProps;
-    AllStatistics allStat;
-
-    grabAllProps(allProps, output, context);
-    context.report();
+    Logger() << "Grab properties from game data...";
+    const AllProps gameProps = grabAllProps(output, false, &unknownAttributes, &skippedAttributes);
     {
-        for (const auto& [attr, data] : allProps)
-            allStat[attr].preGen = data.total;
+        std::ostringstream skipped, unknown;
+        for (auto& str : skippedAttributes)
+            skipped << str << ", ";
+        for (auto& str : unknownAttributes)
+            unknown << str << ", ";
+        if (!unknownAttributes.empty())
+            Logger(Logger::Warning) << "Unknown attributes: " << unknown.str();
+        if (!skippedAttributes.empty())
+            Logger() << "Ignored attributes: " << skipped.str();
     }
 
-    createNewItems(extraLoc, output, rng, input);
+    Logger() << "Analyze game properties, build statistic profile...";
+    AllAttributeData gameAttributes = analyzeAll(gameProps);
 
-    context.eraseNonGame();
+    Logger() << "Init pre-compiled attributes...";
+    MagicContext magicContext(std::move(gameAttributes));
+    Logger() << "precompiled=" << magicContext.precompiled.ids.size()
+             << ", gameData=" << magicContext.gameData.ids.size()
+             << ", actual=" << magicContext.actual.ids.size();
+
+    Logger() << "Add some extra fine-tuned properties...";
+
+    magicContext.addExtra(input);
+
+    StatisticsTable statisticsTable;
+
+    const int repeatUniquesMax = 5;
+    const int repeatSetsMax    = 5;
+    const int repeatUniques    = std::clamp(input.getInt("repeat_uniques"), 1, repeatUniquesMax);
+    const int repeatSets       = std::clamp(input.getInt("repeat_sets"), 1, repeatSetsMax);
+
     {
-        // Fill skilltab values
-        auto fillPropList = [&input](AffixPropLeveledList& props, int level, int min, int max) {
-            for (int i = 0, cnt = input.m_env.isRotW ? 24 : 21; i < cnt; ++i) {
-                props.push_back(AffixPropLeveled{ .level = level, .par = std::to_string(i), .min = min, .max = max });
-            }
-        };
-        PropAttributeRecord skilltabs{
-            .code        = AttributeId::skilltab,
-            .freqPercent = 300, // @todo: this is workaround for current retry loot in generate()!
-        };
-        auto fillPropList2 = [&fillPropList, &skilltabs]<size_t size>(SlotType type, const std::array<int, size> valuesMin, const std::array<int, size> valuesMax) {
-            std::vector<int> levels{ 21, 41, 61, 81 };
-            while (levels.size() > size)
-                levels.erase(levels.begin());
-            for (size_t i = 0; i < size; ++i) {
-                fillPropList(skilltabs.slotValues[type], levels[i], valuesMin[i], valuesMax[i]);
-            }
-        };
-        fillPropList2(SlotType::MainArmor, std::array{ 1, 1, 2, 3 }, std::array{ 1, 1, 3, 5 });
-        fillPropList2(SlotType::OtherArmor, std::array{ 1, 1, 2, 3 }, std::array{ 1, 2, 3, 3 });
-        fillPropList2(SlotType::Amulet, std::array{ 1, 2, 3, 3 }, std::array{ 1, 2, 3, 4 });
-        fillPropList2(SlotType::Ring, std::array{ 1, 2 }, std::array{ 2, 3 });
-        fillPropList2(SlotType::Weapon, std::array{ 2, 2, 3, 5 }, std::array{ 2, 3, 4, 7 });
-        fillPropList2(SlotType::Charm, std::array{ 1, 1, 1 }, std::array{ 1, 1, 2 });
-
-        context.generatedPropAttributes.push_back(std::move(skilltabs));
-
-        for (auto& prop : context.generatedPropAttributes) {
-            if (prop.code == AttributeId::oskill)
-                prop.freqPercent = 200;
+        auto*      dumpFileName = getenv("MODGEN_ATTRIBUTE_DUMP_FILE");
+        const bool dumpAll      = !!getenv("MODGEN_ATTRIBUTE_DUMP_ALL");
+        if (dumpFileName) {
+            const Mernel::std_path dumpFile = Mernel::string2path(dumpFileName);
+            dumpAttributes(dumpFile, magicContext.actual, dumpAll ? std::set<AttributeId>{} : magicContext.precompiled.ids);
         }
     }
-    context.calculateConfigAttributes();
 
-    {
-        NonPropAttributeRecordList nonPropList;
-        PropAttributeRecordList    propList;
+    createNewItems(output, rng, input, repeatUniques, repeatSets);
 
-        ApproximationResultsSimpleMap approxMapSimple;
-
-        for (const auto& [code, codeProps] : allProps) {
-            if (context.configAttributes.contains(code))
-                continue;
-            Logger() << "analyzing property values for attr='" << idToString(code) << "'";
-            analyzeAllPropsForDump(code, codeProps, nonPropList, propList, approxMapSimple);
-        }
-
-        dumpAttributes(nonPropList, propList, approxMapSimple);
-
-        context.generatedNonPropAttributes.insert(context.generatedNonPropAttributes.cend(), nonPropList.cbegin(), nonPropList.cend());
-        context.generatedPropAttributes.insert(context.generatedPropAttributes.cend(), propList.cbegin(), propList.cend());
-        context.calculateConfigAttributes();
-
-        for (const auto& data : context.generatedNonPropAttributes)
-            allStat[data.code].frequency = data.frequency;
-        for (const auto& data : context.generatedPropAttributes)
-            allStat[data.code].frequency = data.getFrequency();
+    if (extraTrace) {
+        const AllAttributeData attrib = analyzeAll(grabAllProps(output));
+        statisticsTable.addSnapshot(attrib, 0);
     }
 
-    MagicPropUniverse props(context);
+    PropRandomizer props(magicContext.actual, m_skillGetter);
 
     RandoParams params;
-
     params.replaceSkills  = input.getInt("replaceSkills");
     params.replaceCharges = input.getInt("replaceCharges");
     params.removeKnock    = input.getInt("removeKnock");
@@ -220,8 +223,9 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     paramsSetitems.relativeCountMax  = input.getInt("setRelativeCountMax");
     paramsSetitems.uniqueCheckAcross = true;
 
-    auto paramsSets              = params;
-    paramsSets.uniqueCheckAcross = true;
+    auto paramsSets               = params;
+    paramsSets.supportRandomRange = false;
+    paramsSets.uniqueCheckAcross  = true;
 
     auto paramsGems               = params;
     paramsGems.supportRandomRange = false;
@@ -233,106 +237,109 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     auto paramsRunes = params;
     auto paramsUniq  = params;
 
-    auto skillResolver = [&output](const std::string& skillId) -> DataRow_skills_ptr {
-        if (!skillId.empty()) {
-            int intId = std::atoi(skillId.c_str());
-            if (intId > 0) {
-                return &output.skills.rows[intId];
-            }
-            if (skillId == "0") {
-                return &output.skills.rows[0];
-            }
-            auto it = output.skills.index.find(skillId);
-            if (it != output.skills.index.cend())
-                return it->second;
-        }
-        return nullptr;
-    };
-
-    auto fillProps = [&props, &rng, &skillResolver, extraTrace]<typename Row>(DataTable<Row>& table, const RandoParams& params) {
+    auto fillProps = [&props, &rng, this, extraTrace, extraTrace2]<typename Row>(DataTable<Row>& table, const RandoParams& params, RollType roll) {
         if (!params.enableGeneration)
             return;
+        int rowsAffected   = 0;
+        int totalKept      = 0;
+        int totalGenerated = 0;
 
         for (auto& row : table.rows) {
             if (!row.isValid())
                 continue;
 
             MagicPropItem item;
-            item.skillResolver = skillResolver;
-            item.readFrom(row);
-            if (item.slot == SlotType::Undefined || item.slot == SlotType::PD2Map)
+            item.rng            = &rng;
+            item.propRandomizer = &props;
+            item.randoParams    = &params;
+            item.readParams(row);
+            item.readAffixes(row, m_codeResolver, m_skillGetter, nullptr, nullptr);
+
+            if (extraTrace)
+                Logger() << "read: " << item.toString(extraTrace2);
+
+            if (item.filter.props.slot == SlotType::None || item.filter.props.slot == SlotType::PD2Map)
                 continue;
 
-            item.generate(rng, props, params);
+            item.generate();
             item.writeTo(row);
+
+            rowsAffected++;
+            totalKept += item.stats.kept;
+            totalGenerated += item.stats.genReq;
             if (extraTrace)
-                Logger() << item.toString();
+                Logger() << "write: " << item.toString(extraTrace2);
         }
+        Logger(Logger::Notice) << "table '" << getTableIdString(Row::s_tableId) << "' rando-affected rows: " << rowsAffected << ", total kept affixes: " << totalKept << ", total generated: " << totalGenerated;
     };
     auto startFillProps = Mernel::ChronoPoint(true);
 
-    fillProps(output.uniqueitems, paramsUniq);
-    fillProps(output.runes, paramsRunes);
-    fillProps(output.setitems, paramsSetitems);
-    fillProps(output.gems, paramsGems);
-    fillProps(output.magicprefix, paramsAffix);
-    fillProps(output.magicsuffix, paramsAffix);
-    fillProps(output.sets, paramsSets);
+    fillProps(output.uniqueitems, paramsUniq, RollType::Rare);
+    fillProps(output.setitems, paramsSetitems, RollType::Rare);
+    fillProps(output.sets, paramsSets, RollType::Rare);
+    fillProps(output.runes, paramsRunes, RollType::Rare);
+
+    fillProps(output.gems, paramsGems, RollType::Common);
+    fillProps(output.magicprefix, paramsAffix, RollType::Common);
+    fillProps(output.magicsuffix, paramsAffix, RollType::Common);
 
     auto endFillProps = startFillProps.GetElapsedTime().ToProfilingTime();
 
-    if (extraLoc.size() > 0) {
+    if (m_extraLoc.size() > 0) {
         size_t totalKeySize = 0;
         size_t totalValSize = 0;
-        for (const Loc& loc : extraLoc) {
+        for (const Loc& loc : m_extraLoc) {
             totalKeySize += loc.key.size() + 1;
             totalValSize += loc.value.size() + 1;
         }
-        Logger(Logger::Notice) << "Adding new " << extraLoc.size() << " translations, totalKeySize=" << totalKeySize << ", totalValSize=" << totalValSize;
+        Logger(Logger::Notice) << "Adding new " << m_extraLoc.size() << " translations, totalKeySize=" << totalKeySize << ", totalValSize=" << totalValSize;
         if (output.jsonFiles.contains(JsonId::ItemNames)) {
             auto& jsonDoc = output.jsonFiles[JsonId::ItemNames];
-            updateD2Rtranslation(jsonDoc, extraLoc, input.m_env.d2rLocaleId);
+            updateD2Rtranslation(jsonDoc, input.m_env.d2rLocaleId);
         }
         if (output.blobs.contains(BlobId::PatchStringTbl)) {
             auto& blob = output.blobs[BlobId::PatchStringTbl];
-            updateLoDtranslation(blob, extraLoc);
+            updateLoDtranslation(blob);
         }
     }
 
     if (extraTrace) {
-        AllProps allProps;
-        grabAllProps(allProps, output, context);
-        for (const auto& [attr, data] : allProps)
-            allStat[attr].postGen = data.total;
-
-        Logger() << "Generation stats (attr  frequency  pre-gen  post-gen):";
-        for (const auto& [attr, data] : allStat) {
-            Logger() << "    " << idToString(attr) << "\t" << data.frequency << "\t" << data.preGen << "\t" << data.postGen;
-        }
+        const AllAttributeData attrib = analyzeAll(grabAllProps(output));
+        statisticsTable.addSnapshot(attrib, 1);
+        statisticsTable.traceStatistics();
     }
 
     Logger(Logger::Notice) << "  item randomizer fill done in: " << endFillProps;
 }
 
-void ModuleItemRandomizer::grabAllProps(AllProps& allProps, const DataContext& output, MagicContext& context) const
+ModuleItemRandomizer::AllProps ModuleItemRandomizer::grabAllProps(const DataContext&     output,
+                                                                  bool                   onlySetUniques,
+                                                                  std::set<std::string>* unknownList,
+                                                                  std::set<std::string>* skippedList) const
 {
-    auto grabPropsRow = [&context, &allProps](const AffixPropList* affixList, SlotType slot, int level) {
-        assert(level >= -1 && level < 260);
-        for (const auto& prop : *affixList) {
-            auto id = getAttributeId(prop.code);
-            if (id == AttributeId::INVALID) {
-                context.unknownAttributes.insert(prop.code);
-            } else if (id == AttributeId::SKIP) {
-                context.skippedAttributes.insert(prop.code);
-            } else {
-                context.existingGameAttributes.insert(id);
-                allProps[id].propsBySlot[slot][level].push_back(prop);
-                allProps[id].total++;
+    AllProps allProps;
+
+    auto grabPropsRow = [this, &allProps, unknownList, skippedList]<typename Row>(const Row& row, SlotType slot, int level) -> int {
+        MagicPropItem item;
+        item.readParams(row);
+        item.readAffixes(row, m_codeResolver, m_skillGetter, unknownList, skippedList);
+        int inserted = 0;
+        for (auto& affixlist : item.affixlists) {
+            for (auto& prop : affixlist.parsedProps) {
+                auto& byId = allProps.propsById[prop.id];
+
+                auto&          byRoll  = byId.propsByRoll[affixlist.rollTypeHighestGrab];
+                auto&          bySlot  = byRoll.propsBySlot[slot];
+                MagicPropList& byLevel = bySlot.propsByLevel[level];
+                byLevel.push_back(prop);
+                inserted++;
             }
         }
+        return inserted;
     };
 
-    auto grabProps = [&grabPropsRow]<typename Row>(const DataTable<Row>& table) {
+    auto grabProps = [this, &grabPropsRow]<typename Row>(const DataTable<Row>& table) -> int {
+        int result = 0;
         for (auto& row : table.rows) {
             if (!row.isValid())
                 continue;
@@ -343,64 +350,62 @@ void ModuleItemRandomizer::grabAllProps(AllProps& allProps, const DataContext& o
             if (slot == SlotType::PD2Map) {
                 continue;
             }
-            if (slot == SlotType::Undefined) {
-                Logger(Logger::Warning) << "Indefined slot type for item: " << row.getId();
+            if (slot == SlotType::None) {
+                Logger(Logger::Warning) << "Undefined slot type for item: " << row.getId();
                 continue;
             }
 
-            for (const AffixPropList* affixList : row.affixLists()) {
-                grabPropsRow(affixList, slot, level);
-            }
+            result += grabPropsRow(row, slot, level);
         }
+        return result;
     };
-
     grabProps(output.uniqueitems);
-    grabProps(output.runes);
     grabProps(output.setitems);
+    if (onlySetUniques)
+        return allProps;
+
+    grabProps(output.sets);
+    grabProps(output.runes);
     grabProps(output.gems);
     grabProps(output.magicprefix);
     grabProps(output.magicsuffix);
     grabProps(output.automagic);
-    grabProps(output.sets);
-
-    const std::vector<std::pair<std::string, SlotType>> hints{
-        { "shield", SlotType::MainArmor },
-        { "quiver", SlotType::Weapon },
-        { "body", SlotType::MainArmor },
-        { "amulet", SlotType::Amulet },
-        { "ring", SlotType::Ring },
-        { "weapon", SlotType::Weapon },
-        { "boots", SlotType::OtherArmor },
-        { "helm", SlotType::MainArmor },
-        { "belt", SlotType::OtherArmor },
-        { "gloves", SlotType::OtherArmor },
-    };
 
     for (auto& row : output.cubemain.rows) {
         if (!row.isCrafted())
             continue;
         auto      desc         = Mernel::strToLower(row.description);
-        const int craftedLevel = 50;
-        SlotType  slot         = SlotType::OtherArmor;
+        const int craftedLevel = 25;
 
-        for (const auto& hint : hints)
-            if (desc.ends_with(hint.first)) {
-                slot = hint.second;
+        MagicPropItem item;
+        item.id                          = row.description;
+        item.originalLevel               = craftedLevel;
+        item.filter.props.slot           = row.slotType;
+        item.filter.props.levelBracket20 = 1;
+        item.readAffixes(row, m_codeResolver, m_skillGetter, unknownList, skippedList);
+
+        for (auto& affixlist : item.affixlists) {
+            for (auto& prop : affixlist.parsedProps) {
+                auto& byId = allProps.propsById[prop.id];
+
+                auto&          byRoll  = byId.propsByRoll[affixlist.rollTypeHighestGrab];
+                auto&          bySlot  = byRoll.propsBySlot[row.slotType];
+                MagicPropList& byLevel = bySlot.propsByLevel[craftedLevel];
+                byLevel.push_back(prop);
             }
-
-        for (const AffixPropList* affixList : row.affixLists()) {
-            grabPropsRow(affixList, slot, craftedLevel);
         }
     }
+    return allProps;
 }
 
-void ModuleItemRandomizer::createNewItems(ExtraLoc& extraLoc, DataContext& output, RandomGenerator& rng, const InputContext& input) const
+void ModuleItemRandomizer::createNewItems(DataContext& output, RandomGenerator& rng, const InputContext& input, int repeatUniques, int repeatSets) const
 {
-    const int setBonusMode     = input.getInt("setBonusMode");
-    const int repeatUniquesMax = 5;
-    const int repeatSetsMax    = 5;
-    const int repeatUniques    = std::clamp(input.getInt("repeat_uniques"), 1, repeatUniquesMax);
-    const int repeatSets       = std::clamp(input.getInt("repeat_sets"), 1, repeatSetsMax);
+    const int setBonusMode = input.getInt("setBonusMode");
+
+    if (repeatUniques == 1 && repeatSets == 1)
+        return;
+
+    Logger() << "Create additional records for setitems/uniqueitems...";
 
     const std::vector<std::string> colors{ "whit", "lgry", "dgry", "blac", "lblu", "dblu", "cblu", "lred", "dred", "cred", "lgrn", "dgrn", "cgrn", "lyel", "dyel", "lgld", "dgld", "lpur", "dpur", "oran", "bwht" };
 
@@ -486,10 +491,10 @@ void ModuleItemRandomizer::createNewItems(ExtraLoc& extraLoc, DataContext& outpu
             }
             return true;
         };
-        auto afterCopyUniq = [&input, &extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_uniqueitems& row, const DataRow_uniqueitems& old) {
+        auto afterCopyUniq = [&input, this, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_uniqueitems& row, const DataRow_uniqueitems& old) {
             row.index       = makeKey(id, 'u');
             row.displayName = makeValue(old.index, i);
-            extraLoc.push_back({ row.index, row.displayName });
+            m_extraLoc.push_back({ row.index, row.displayName });
 
             row.version         = 100;
             row.ux              = {};
@@ -517,10 +522,10 @@ void ModuleItemRandomizer::createNewItems(ExtraLoc& extraLoc, DataContext& outpu
             }
             return true;
         };
-        auto afterCopySetitem = [&input, &extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_setitems& row, const DataRow_setitems& old) {
+        auto afterCopySetitem = [&input, this, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_setitems& row, const DataRow_setitems& old) {
             row.index       = makeKey(id, 's');
             row.displayName = makeValue(old.index, i);
-            extraLoc.push_back({ row.index, row.displayName });
+            m_extraLoc.push_back({ row.index, row.displayName });
 
             row.setIndex = makeValue(old.setIndex, i);
 
@@ -535,9 +540,9 @@ void ModuleItemRandomizer::createNewItems(ExtraLoc& extraLoc, DataContext& outpu
         auto beforeCopySet = [](DataRow_sets& row) {
             return true;
         };
-        auto afterCopySet = [&extraLoc, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_sets& row, const DataRow_sets& old) {
+        auto afterCopySet = [this, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_sets& row, const DataRow_sets& old) {
             row.index = makeValue(old.index, i);
-            extraLoc.push_back({ row.index, row.index });
+            m_extraLoc.push_back({ row.index, row.index });
 
             row.name = row.index;
         };
@@ -546,149 +551,165 @@ void ModuleItemRandomizer::createNewItems(ExtraLoc& extraLoc, DataContext& outpu
     }
 }
 
-void ModuleItemRandomizer::analyzeAllPropsForDump(
-    AttributeId                    code,
-    const AllPropsVal&             allPropsVal,
-    NonPropAttributeRecordList&    nonPropList,
-    PropAttributeRecordList&       propList,
-    ApproximationResultsSimpleMap& approxMapSimple) const
+AllAttributeData ModuleItemRandomizer::analyzeAll(const AllProps& allProps) const
 {
-    const auto& desc = getAttributeDesc(code);
+    AllAttributeData  result;
+    NonParRecordList& nonPropList = result.nonPar;
+    ParRecordList&    propList    = result.par;
 
-    const bool ignore = desc.flags.contains(AttributeFlag::Keep) || desc.flags.contains(AttributeFlag::PD2Map);
-    if (ignore)
-        return;
+    for (const auto& [code, codeProps] : allProps.propsById) {
+        const auto& desc = getAttributeDesc(code);
 
-    const bool isPositive      = !desc.flags.contains(AttributeFlag::Negative);
-    const bool hasMinMaxLimits = desc.flags.contains(AttributeFlag::HasRange);
-    const bool hasNoRange      = desc.flags.contains(AttributeFlag::NoRange);
-    const bool hasSkillPar     = desc.flags.contains(AttributeFlag::SkillPar);
+        const bool ignore = desc.flags.contains(AttributeFlag::Keep) || desc.flags.contains(AttributeFlag::PD2Map);
+        if (ignore)
+            continue;
 
-    ApproximationResultsMap approxMap;
-    LevelValueList          allValues;
-    LevelValueList          allExceptions;
-    AffixPropLeveledMap     regularMap;
+        const bool hasPar      = desc.parMode != ParMode::None;
+        const bool hasAnyRange = desc.rangeMode != RangeMode::None;
+        if (!hasPar && !hasAnyRange)
+            continue;
 
-    bool parEmptyAll = true;
-    for (const auto& [slot, slotProps] : allPropsVal.propsBySlot) {
-        LevelValueList slotValues;
+        const bool isTrivialPar = desc.parMode == ParMode::PureValue || desc.parMode == ParMode::None;
 
-        bool parEmpty = true;
-        auto add      = [&allValues, hasMinMaxLimits, hasNoRange, hasSkillPar, &allExceptions, &slotValues, &regularMap, slot, isPositive, &parEmpty, &parEmptyAll](AffixProp prop, int level) {
-            if (hasMinMaxLimits && !hasSkillPar) {
-                if (!prop.hasRange() && !prop.moveParToMinMax())
-                    return;
-                prop.par.clear();
-            }
-
-            assert(level >= -1 && level < 260);
-            if (!hasNoRange && !prop.hasPar() && prop.hasRange()) {
-                const auto min = prop.min.value();
-                const auto max = prop.max.value();
-
-                if (isPositive) {
-                    if (min <= 0 || max <= 0) {
-                        allExceptions.push_back({ level, min, max });
-                        return;
-                    }
-                } else {
-                    if (min >= 0 || max >= 0) {
-                        allExceptions.push_back({ level, min, max });
-                        return;
-                    }
-                }
-                allValues.push_back({ level, min, max });
-                slotValues.push_back({ level, min, max });
-
-            } else {
-                parEmpty    = false;
-                parEmptyAll = false;
-            }
-            regularMap[slot].push_back(AffixPropLeveled{
-                .level = level,
-                .par   = prop.par,
-                .min   = prop.min,
-                .max   = prop.max,
-            });
-        };
-        for (const auto& [level, props] : slotProps) {
-            for (const auto& prop : props) {
-                add(prop, level);
-            }
-        }
-        if (parEmpty && slotValues.size()) {
-            approxMap[slot].linearApprox(slotValues);
+        if (isTrivialPar) {
+            NonParRecord nonParRecord;
+            nonParRecord.code = code;
+            analyzeNonPar(codeProps, nonParRecord, result.statistics[code]);
+            nonPropList.push_back(std::move(nonParRecord));
+        } else {
+            ParRecord parRecord;
+            parRecord.code = code;
+            analyzePar(codeProps, parRecord, result.statistics[code]);
+            propList.push_back(std::move(parRecord));
         }
     }
-    if (parEmptyAll) {
-        ApproximationResults approxGlobal;
-        ApproximationResults approxGlobalBad;
-        if (allValues.size()) {
-            approxGlobal.linearApprox(allValues);
-            approxGlobal.makeMonotonic(isPositive);
-        }
-        if (allExceptions.size()) {
-            approxGlobalBad.linearApprox(allExceptions);
-        }
-        for (const auto& [slot, approxSlot] : approxMap) {
-            if (approxSlot.frequency && approxGlobal.frequency)
-                approxMapSimple[slot][code] = buildResultsSimple(approxSlot, approxGlobal);
-        };
-        nonPropList.push_back(NonPropAttributeRecord{
-            .code       = code,
-            .frequency  = allValues.size() + allExceptions.size(),
-            .goodValues = std::move(approxGlobal),
-            .badValues  = std::move(approxGlobalBad),
-        });
-
-    } else {
-        propList.push_back(PropAttributeRecord{
-            .code       = code,
-            .slotValues = std::move(regularMap),
-        });
-    }
+    result.refreshIds();
+    return result;
 }
 
-void ModuleItemRandomizer::dumpAttributes(const NonPropAttributeRecordList& nonPropList, const PropAttributeRecordList& propList, const ApproximationResultsSimpleMap& approxMapSimple) const
+void ModuleItemRandomizer::analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecord& record, NonParValueSummary& stat) const
 {
-    auto* dumpFileName = getenv("MODGEN_ATTRIBUTE_DUMP");
-    if (!dumpFileName)
-        return;
+    NonParValueList     allBadds;
+    NonParValueByLevel* prev1 = nullptr;
+    NonParValueList     all;
 
-    const Mernel::std_path dumpFile = Mernel::string2path(dumpFileName);
-    std::string            oldData;
-    Mernel::readFileIntoBufferNoexcept(dumpFileName, oldData);
+    for (const auto& [roll, rollProps] : allPropsVal.propsByRoll) {
+        assert(roll != RollType::Negative);
+        NonParValueByLevel& nonParByLevel = record.get(roll);
+        NonParValueByLevel* prev          = prev1;
+        prev1                             = &nonParByLevel;
+
+        std::map<SlotType, NonParValueByLevel> approxMapForSlot;
+        NonParValueList                        valuesGood;
+        for (const auto& [slot, slotProps] : rollProps.propsBySlot) {
+            record.slotTypes.insert(slot);
+
+            NonParValueList valuesSlot;
+            for (const auto& [level, levelProps] : slotProps.propsByLevel) {
+                assert(level >= -1 && level < 260);
+                for (auto prop : levelProps) {
+                    const auto min = prop.min.value_or(0);
+                    const auto max = prop.max.value_or(0);
+                    const auto par = prop.par.value_or(0);
+
+                    if (min < 0 || max < 0) {
+                        allBadds.push_back({ level, min, max, par });
+                    } else {
+                        valuesSlot.push_back({ level, min, max, par });
+                        valuesGood.push_back({ level, min, max, par });
+                    }
+
+                    all.push_back({ level, min, max, par });
+                }
+            }
+
+            approxMapForSlot[slot].makeApprox(valuesSlot);
+        }
+        if (valuesGood.size()) {
+            nonParByLevel.makeApprox(valuesGood, prev);
+            nonParByLevel.makeMonotonic();
+
+            for (const auto& [slot, approxSlot] : approxMapForSlot) {
+                record.addScale(slot, approxSlot.total, nonParByLevel.total);
+            };
+        }
+    }
+    record.badd.makeApprox(allBadds);
+    stat.make(all);
+
+    record.cleanupScale();
+}
+
+void ModuleItemRandomizer::analyzePar(const AllPropsVal& allPropsVal, ParRecord& record, NonParValueSummary& stat) const
+{
+    NonParValueList all;
+    for (const auto& [roll, rollProps] : allPropsVal.propsByRoll) {
+        assert(roll != RollType::Negative);
+
+        for (const auto& [slot, slotProps] : rollProps.propsBySlot) {
+            record.slotTypes.insert(slot);
+
+            PropListByLevel& propValues = record.get(roll);
+            for (const auto& [level, levelProps] : slotProps.propsByLevel) {
+                const size_t bracket20 = std::clamp(level, 0, 99) / 20;
+
+                for (auto prop : levelProps) {
+                    all.push_back({ level, prop.min.value_or(0), prop.max.value_or(0), prop.par.value_or(0) });
+                    propValues.freq++;
+                    propValues.levels[bracket20].push_back({ prop.par, prop.min, prop.max });
+                }
+            }
+        }
+    }
+    stat.make(all);
+}
+
+void ModuleItemRandomizer::dumpAttributes(const Mernel::std_path& dumpFile, const AllAttributeData& attributeData, const std::set<AttributeId>& skip) const
+{
+    std::string oldData;
+    Mernel::readFileIntoBufferNoexcept(dumpFile, oldData);
 
     std::ostringstream dump;
+    bool               isEmpty = true;
 
     dump << "#pragma once\n"
          << "// this is generated, do not edit\n\n"
          << "#include \"AttributeValues.hpp\"\n\n"
          << "namespace D2ModGen {\n\n"
-         << "// clang-format off\n"
-         << "static inline const NonPropAttributeRecordList g_generatedNonPropAttributes1{\n";
+         << "static inline const NonParRecord g_generatedNonParRecordList1[]{\n";
     ;
-    for (const auto& prop : nonPropList)
+    for (const auto& prop : attributeData.nonPar) {
+        if (skip.contains(prop.code))
+            continue;
+        isEmpty = false;
         dump << prop.toString();
+    }
+    if (isEmpty) {
+        dump << "    {},\n";
+    }
     dump << "\n};\n\n";
 
-    dump << "static inline const ApproximationResultsSimpleMap g_generatedSlotScale1" << printMap(approxMapSimple);
-    dump << ";\n\n";
+    isEmpty = true;
+    dump << "static inline const ParRecord g_generatedParRecordList1[]{\n";
 
-    dump << "static inline const PropAttributeRecordList g_generatedPropAttributes1{\n";
-
-    for (const auto& prop : propList)
+    for (const auto& prop : attributeData.par) {
+        if (skip.contains(prop.code))
+            continue;
+        isEmpty = false;
         dump << prop.toString();
+    }
+    if (isEmpty) {
+        dump << "    {},\n";
+    }
     dump << "\n};\n";
 
-    dump << "// clang-format on\n}\n";
+    dump << "\n}\n";
 
     if (oldData != dump.str())
-        Mernel::writeFileFromBufferNoexcept(dumpFileName, dump.str());
-}
+        Mernel::writeFileFromBufferNoexcept(dumpFile, dump.str());
 }
 
-void D2ModGen::ModuleItemRandomizer::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const ExtraLoc& extraLoc, const std::string& localeId) const
+void ModuleItemRandomizer::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId) const
 {
     {
         size_t totalKeySize = 0;
@@ -703,7 +724,7 @@ void D2ModGen::ModuleItemRandomizer::updateD2Rtranslation(Mernel::PropertyTree& 
     }
 
     int id = 1000000;
-    for (const Loc& loc : extraLoc) {
+    for (const Loc& loc : m_extraLoc) {
         Mernel::PropertyTree itemDesc;
         itemDesc["Key"]    = Mernel::PropertyTreeScalar(loc.key);
         itemDesc["id"]     = Mernel::PropertyTreeScalar(id++);
@@ -713,7 +734,7 @@ void D2ModGen::ModuleItemRandomizer::updateD2Rtranslation(Mernel::PropertyTree& 
     }
 }
 
-void D2ModGen::ModuleItemRandomizer::updateLoDtranslation(std::string& patchstringTlb, const ExtraLoc& extraLoc) const
+void ModuleItemRandomizer::updateLoDtranslation(std::string& patchstringTlb) const
 {
     TblStructure tbl;
     tbl.readFromBuffer(patchstringTlb);
@@ -728,8 +749,201 @@ void D2ModGen::ModuleItemRandomizer::updateLoDtranslation(std::string& patchstri
         Logger(Logger::Notice) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
     }
 
-    for (const Loc& loc : extraLoc) {
+    for (const Loc& loc : m_extraLoc) {
         tbl.m_rows.push_back({ .Key = loc.key, .Val = loc.value });
     }
     tbl.writeToBuffer(patchstringTlb);
+}
+
+void ModuleItemRandomizer::MagicContext::addExtra(const InputContext& input)
+{
+    using A = AttributeId;
+    actual.erase(A::skilltab);
+
+    Character lastCharacter = input.m_env.isRotW ? Character::War : Character::Ass;
+    const int classCount    = static_cast<int>(lastCharacter) + 1;
+
+    // Fill skilltab values
+    auto fillPropList = [classCount](PropWithRangeList& props, int min, int max) -> int {
+        if (!min || !max)
+            return 0;
+        const int maxSkillTabs = classCount * 3;
+        for (int skilltabId = 0; skilltabId < maxSkillTabs; ++skilltabId) {
+            props.push_back(PropWithRange{ .par = skilltabId, .min = min, .max = max });
+        }
+        return maxSkillTabs;
+    };
+
+    auto fillPropList2 = [&fillPropList, this]<size_t size = NonParValueByLevel::s_segments>(RollType roll, const std::array<int, size> valuesMin, const std::array<int, size> valuesMax, SlotType type) {
+        ParRecord skilltabs{
+            .code       = A::skilltab,
+            .freqFactor = FREQ_PER_ONE_PROP * DEFAULT_FREQ * 3 / 4,
+        };
+
+        skilltabs.slotTypes.insert(type);
+        auto& pool = skilltabs.get(roll);
+        pool.freq++;
+        for (size_t i = 0; i < size; ++i) {
+            pool.freq += fillPropList(pool.levels[i], valuesMin[i], valuesMax[i]);
+        }
+        actual.add(std::move(skilltabs));
+    };
+    for (SlotType slot : { SlotType::MainArmor, SlotType::OtherArmor, SlotType::Amulet, SlotType::Weapon, SlotType::Charm })
+        fillPropList2(RollType::Common, std::array{ 1, 1, 1, 1, 1 }, std::array{ 1, 1, 1, 1, 1 }, slot);
+
+    fillPropList2(RollType::Rare, std::array{ 0, 0, 0, 2, 3 }, std::array{ 0, 0, 0, 3, 4 }, SlotType::MainArmor);
+    fillPropList2(RollType::Rare, std::array{ 0, 0, 1, 2, 3 }, std::array{ 0, 0, 2, 3, 3 }, SlotType::OtherArmor);
+    fillPropList2(RollType::Rare, std::array{ 0, 0, 2, 3, 3 }, std::array{ 0, 0, 2, 3, 3 }, SlotType::Amulet);
+    fillPropList2(RollType::Rare, std::array{ 0, 0, 0, 1, 2 }, std::array{ 0, 0, 0, 2, 3 }, SlotType::Ring);
+    fillPropList2(RollType::Rare, std::array{ 0, 1, 2, 3, 3 }, std::array{ 0, 2, 3, 3, 4 }, SlotType::Weapon);
+    fillPropList2(RollType::Rare, std::array{ 0, 0, 0, 0, 1 }, std::array{ 0, 0, 0, 0, 2 }, SlotType::Charm);
+
+    fillPropList2(RollType::Epic, std::array{ 1, 2, 3, 4, 5 }, std::array{ 2, 3, 5, 6, 7 }, SlotType::MainArmor);
+    fillPropList2(RollType::Epic, std::array{ 1, 2, 3, 4, 4 }, std::array{ 2, 3, 5, 6, 5 }, SlotType::Amulet);
+    fillPropList2(RollType::Epic, std::array{ 1, 2, 3, 4, 5 }, std::array{ 2, 3, 5, 6, 7 }, SlotType::Weapon);
+
+    if (auto* rec = actual.findExistingNonPar(A::skill_rand); rec) {
+        rec->freqFactor *= 20;
+    }
+    if (auto* rec = actual.findExistingNonPar(A::explosivearrow); rec) {
+        rec->freqFactor *= 5;
+    }
+    if (auto* rec = actual.findExistingNonPar(A::pierce); rec) {
+        rec->freqFactor *= 5;
+    }
+    if (auto* rec = actual.findExistingNonPar(A::rep_quant); rec) {
+        rec->freqFactor *= 10;
+    }
+
+    //---
+    if (auto* rec = actual.findExistingPar(A::charged); rec) {
+        rec->freqFactor /= 3;
+    }
+    if (auto* rec = actual.findExistingPar(A::skill); rec) {
+        rec->freqFactor *= 3;
+    }
+    if (auto* rec = actual.findExistingPar(A::aura); rec) {
+        rec->freqFactor *= 5;
+    }
+
+    homogenizeNonPar(200, { A::ama, A::pal, A::nec, A::sor, A::bar, A::dru, A::ass, A::war });
+    homogenizeNonPar(50, { A::res_fire, A::res_ltng, A::res_cold, A::res_mag, A::res_pois });
+    homogenizeNonPar(300, { A::res_fire_max, A::res_ltng_max, A::res_cold_max, A::res_pois_max });
+    homogenizeNonPar(300, { A::abs_fire_percent, A::abs_ltng_percent, A::abs_mag_percent, A::abs_cold_percent });
+    homogenizeNonPar(300, { A::abs_fire, A::abs_ltng, A::abs_mag, A::abs_cold });
+    homogenizeNonPar(200, { A::fireskill, A::poisskill, A::coldskill, A::magskill, A::ltngskill });
+    homogenizeNonPar(200, { A::pierce_fire, A::pierce_ltng, A::pierce_cold, A::pierce_pois, A::pierce_mag });
+    homogenizeNonPar(200, { A::extra_fire, A::extra_ltng, A::extra_cold, A::extra_pois, A::extra_mag });
+
+    homogenizeNonPar(300, { A::dmg_cold_perlvl, A::dmg_fire_perlvl, A::dmg_ltng_perlvl, A::dmg_pois_perlvl });
+    homogenizeNonPar(300, { A::res_cold_perlvl, A::res_fire_perlvl, A::res_ltng_perlvl, A::res_pois_perlvl });
+    homogenizeNonPar(300, { A::abs_cold_perlvl, A::abs_fire_perlvl, A::abs_ltng_perlvl, A::abs_pois_perlvl });
+
+    if (auto* rec = actual.findExistingPar(A::res_mag); rec) {
+        rec->freqFactor /= 3;
+    }
+
+    scaleSettings(input, "frequencyResistances", { A::res_fire, A::res_ltng, A::res_cold, A::res_mag, A::res_pois, A::res_all });
+    scaleSettings(input, "frequencyAuras", { A::aura });
+    scaleSettings(input, "frequencyProcs", {
+                                               A::att_skill,
+                                               A::hit_skill,
+                                               A::gethit_skill,
+                                               A::kill_skill,
+                                               A::death_skill,
+                                               A::levelup_skill,
+                                               A::block_skill,
+                                               A::cast_skill,
+                                           });
+    scaleSettings(input, "frequencySkills", { A::skill, A::skilltab, A::allskills, A::ama, A::pal, A::nec, A::sor, A::bar, A::dru, A::ass, A::war });
+    scaleSettings(input, "frequencyCharAttributes", {
+                                                        A::str,
+                                                        A::dex,
+                                                        A::vit,
+                                                        A::enr,
+                                                        A::mana,
+                                                        A::mana_percent,
+                                                        A::hp,
+                                                        A::hp_percent,
+                                                        A::hp_perlvl,
+                                                        A::mana_perlvl,
+                                                        A::str_perlvl,
+                                                        A::dex_perlvl,
+                                                        A::enr_perlvl,
+                                                        A::vit_perlvl,
+                                                        A::att_perlvl,
+
+                                                    });
+}
+
+void ModuleItemRandomizer::MagicContext::homogenizeNonPar(int scalePercent, const std::vector<AttributeId>& attrs)
+{
+    std::vector<const NonParRecord*> sources;
+    std::vector<NonParRecord*>       edit;
+    for (auto id : attrs) {
+        if (auto* rec = actual.findExistingNonPar(id)) {
+            sources.push_back(rec);
+
+            edit.push_back(rec);
+        }
+    }
+    if (sources.empty())
+        return;
+
+    NonParRecord homogen;
+    homogen.doHomogen(sources);
+    homogen.rescaleFreq(scalePercent, sources.size());
+
+    std::map<NonParRecord*, NonParRecord> old2new;
+    for (NonParRecord* rec : edit) {
+        rec->comm           = homogen.comm;
+        rec->rare           = homogen.rare;
+        rec->epic           = homogen.epic;
+        rec->slotTypes      = homogen.slotTypes;
+        rec->slotTypesScale = homogen.slotTypesScale;
+    }
+}
+
+void ModuleItemRandomizer::MagicContext::scaleSettings(const InputContext& input, const std::string& key, const std::vector<AttributeId>& attrs)
+{
+    int scalePercent = input.getInt(key);
+    for (auto id : attrs) {
+        if (auto* rec = actual.findExistingNonPar(id)) {
+            rec->rescaleFreq(scalePercent, 1);
+        } else if (auto* rec = actual.findExistingPar(id)) {
+            rec->rescaleFreq(scalePercent, 1);
+        }
+    }
+}
+
+ModuleItemRandomizer::MagicContext::MagicContext(AllAttributeData gameData_)
+    : precompiled(getPrecompiledData())
+    , gameData(std::move(gameData_))
+{
+    actual         = precompiled;
+    auto notInGame = [this](const auto& rec) {
+        return !gameData.ids.contains(rec.code);
+    };
+    std::copy_if(precompiled.par.cbegin(), precompiled.par.cend(), std::back_inserter(precompiledSkipped.par), notInGame);
+    std::copy_if(precompiled.nonPar.cbegin(), precompiled.nonPar.cend(), std::back_inserter(precompiledSkipped.nonPar), notInGame);
+
+    std::erase_if(actual.par, notInGame);
+    std::erase_if(actual.nonPar, notInGame);
+
+    for (auto& rec : gameData.par) {
+        if (actual.ids.contains(rec.code)) {
+            gameDataSkipped.add(rec);
+            continue;
+        }
+        actual.add(rec);
+    }
+    for (auto& rec : gameData.nonPar) {
+        if (actual.ids.contains(rec.code)) {
+            gameDataSkipped.add(rec);
+            continue;
+        }
+        actual.add(rec);
+    }
+}
+
 }

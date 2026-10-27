@@ -5,6 +5,7 @@
  */
 #include "ModuleItemDrops.hpp"
 #include "AttributeHelper.hpp"
+#include "MernelPlatform/StringUtils.hpp"
 
 namespace D2ModGen {
 
@@ -67,17 +68,17 @@ const std::map<std::string, std::string> s_bossTC{
 
 ModuleItemDrops::ModuleItemDrops()
     : PluginModule(Mernel::PropertyTreeMap{
-          { "chance_highlevel", Mernel::PropertyTreeScalar{ 1 } },
-          { "chance_rare", Mernel::PropertyTreeScalar{ 1 } },
-          { "chance_set", Mernel::PropertyTreeScalar{ 1 } },
-          { "chance_uni", Mernel::PropertyTreeScalar{ 1 } },
-          { "equal_uniques", Mernel::PropertyTreeScalar{ false } },
-          { "boss_quest_drops", Mernel::PropertyTreeScalar{ false } },
+          { "chance_highlevel", Mernel::PropertyTreeScalar{ 2 } },
+          { "chance_rare", Mernel::PropertyTreeScalar{ 3 } },
+          { "chance_set", Mernel::PropertyTreeScalar{ 5 } },
+          { "chance_uni", Mernel::PropertyTreeScalar{ 7 } },
+          { "equal_uniques", Mernel::PropertyTreeScalar{ true } },
+          { "boss_quest_drops", Mernel::PropertyTreeScalar{ true } },
           { "equip_percent", Mernel::PropertyTreeScalar{ 100 } },
           { "gold_percent", Mernel::PropertyTreeScalar{ 100 } },
           { "good_percent", Mernel::PropertyTreeScalar{ 100 } },
-          { "high_elite_drops", Mernel::PropertyTreeScalar{ false } },
-          { "junk_percent", Mernel::PropertyTreeScalar{ 100 } },
+          { "high_elite_drops", Mernel::PropertyTreeScalar{ true } },
+          { "junk_percent", Mernel::PropertyTreeScalar{ 10 } },
           { "drop_percent", Mernel::PropertyTreeScalar{ 100 } },
       })
 {
@@ -86,18 +87,13 @@ ModuleItemDrops::ModuleItemDrops()
             { "chance_uni", Mernel::PropertyTreeScalar{ 50 } },
             { "chance_set", Mernel::PropertyTreeScalar{ 30 } },
             { "chance_highlevel", Mernel::PropertyTreeScalar{ 15 } },
-            { "high_elite_drops", Mernel::PropertyTreeScalar{ true } },
-            { "boss_quest_drops", Mernel::PropertyTreeScalar{ true } },
-            { "equal_uniques", Mernel::PropertyTreeScalar{ true } },
         } },
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{
             { "chance_uni", Mernel::PropertyTreeScalar{ 15 } },
             { "chance_set", Mernel::PropertyTreeScalar{ 10 } },
-            { "high_elite_drops", Mernel::PropertyTreeScalar{ true } },
-            { "boss_quest_drops", Mernel::PropertyTreeScalar{ true } },
         } },
         Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "chance_uni", Mernel::PropertyTreeScalar{ 5 } },
+            { "chance_uni", Mernel::PropertyTreeScalar{ 7 } },
             { "chance_set", Mernel::PropertyTreeScalar{ 5 } },
             { "drop_percent", Mernel::PropertyTreeScalar{ 200 } },
         } },
@@ -148,7 +144,9 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
         for (auto& row : output.treasureclassex.rows) {
             const auto                     treasureGroup = row.group.value_or(0);
             std::string&                   className     = row.name;
-            const DataRow_treasureclassex* questRow      = alwaysQuest && s_bossTC.contains(className) ? output.treasureclassex.index.at(s_bossTC.at(className)) : nullptr;
+            const DataRow_treasureclassex* questRow      = nullptr;
+            if (alwaysQuest && s_bossTC.contains(className))
+                questRow = output.treasureclassex.index.at(Mernel::strToLower(s_bossTC.at(className)));
             if (questRow) {
                 row.k_unique = questRow->k_unique;
                 row.k_set    = questRow->k_set;

@@ -13,15 +13,15 @@
 #include <algorithm>
 
 #define parseTab(id) \
-    if (!parseTable(id, TableId::id, data)) \
+    if (!parseTable(id, data)) \
     return false
 
 #define serializeTab(id) \
-    if (!serializeTable(id, TableId::id, data, true)) \
+    if (!serializeTable(id, data, true)) \
     return false
 
 #define debugTab(id) \
-    serializeTable(id, TableId::id, data, false)
+    serializeTable(id, data, false)
 
 namespace D2ModGen {
 
@@ -202,7 +202,7 @@ bool DataContext::postProcess()
         if (!row.isValid())
             continue;
 
-        auto* parent_set = sets.index.at(row.setIndex);
+        auto* parent_set = sets.index.at(Mernel::strToLower(row.setIndex));
         row.eqipmentType = findEquip(row.eqipmentCode);
 
         const_cast<DataRow_sets*>(parent_set)->level = row.getLevel();
@@ -314,12 +314,35 @@ bool DataContext::postProcess()
             row.filter.push_back(&setstypes);
     }
 
+    const std::vector<std::pair<std::string, SlotType>> hints{
+        { "shield", SlotType::MainArmor },
+        { "quiver", SlotType::Weapon },
+        { "body", SlotType::MainArmor },
+        { "amulet", SlotType::Amulet },
+        { "ring", SlotType::Ring },
+        { "weapon", SlotType::Weapon },
+        { "helm", SlotType::MainArmor },
+    };
+
+    for (auto& row : cubemain.rows) {
+        if (!row.isCrafted())
+            continue;
+        auto desc    = Mernel::strToLower(row.description);
+        row.slotType = SlotType::OtherArmor;
+
+        for (const auto& hint : hints)
+            if (desc.ends_with(hint.first)) {
+                row.slotType = hint.second;
+            }
+    }
+
     return true;
 }
 
 template<class Row>
-bool DataContext::parseTable(DataTable<Row>& table, TableId tableId, const IStorage::StoredData& data)
+bool DataContext::parseTable(DataTable<Row>& table, const IStorage::StoredData& data)
 {
+    const TableId tableId = Row::s_tableId;
     if (!data.tables.contains(tableId))
         return true;
     const std::string& buffer = data.tables.at(tableId);
@@ -339,12 +362,13 @@ bool DataContext::parseTable(DataTable<Row>& table, TableId tableId, const IStor
 }
 
 template<class Row>
-bool DataContext::serializeTable(const DataTable<Row>& table, TableId tableId, IStorage::StoredData& data, bool full) const
+bool DataContext::serializeTable(const DataTable<Row>& table, IStorage::StoredData& data, bool full) const
 {
     if (!table.valid)
         return true;
 
-    std::string& buffer = data.tables[tableId];
+    const TableId tableId = Row::s_tableId;
+    std::string&  buffer  = data.tables[tableId];
     if (!table.serializeTable(buffer, full))
         return false;
 

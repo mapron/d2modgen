@@ -65,10 +65,10 @@ private:
     bool postProcess();
 
     template<class Row>
-    bool parseTable(DataTable<Row>& table, TableId tableId, const IStorage::StoredData& data);
+    bool parseTable(DataTable<Row>& table, const IStorage::StoredData& data);
 
     template<class Row>
-    bool serializeTable(const DataTable<Row>& table, TableId tableId, IStorage::StoredData& data, bool full) const;
+    bool serializeTable(const DataTable<Row>& table, IStorage::StoredData& data, bool full) const;
 };
 
 }

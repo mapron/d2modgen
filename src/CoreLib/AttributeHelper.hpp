@@ -7,6 +7,8 @@
 
 #include "CommonTypes.hpp"
 
+#include <array>
+
 namespace D2ModGen {
 
 enum class AttributeFlag
@@ -22,18 +24,41 @@ enum class AttributeFlag
     Skills,
     PerLevel,
     Durability,
-    Quantity,
-    Missile,
+    Throwable,
+    Bow,
+    ThrowableOrBow,
     Sockets,
     Leech,
     OP,
     PD2Map,
-    HasRange,
-    NoRange,
-    SkillPar,
     Negative,
-    SinglePar,
     Keep,
+    ZeroIsValid,
+
+    last__ = ZeroIsValid,
+};
+
+enum class ParMode
+{
+    None,
+
+    PureValue,
+    Skill,
+    SkillTab,
+    Monster,
+
+    last__ = Monster,
+};
+
+enum class RangeMode
+{
+    None,
+
+    Range,       // min,max
+    DoubleParam, // arg1,arg2
+    Flag,        // always 1
+
+    last__ = Flag,
 };
 
 enum class AttributeId
@@ -70,6 +95,7 @@ enum class AttributeId
     dmg_min,
     dmg_max,
     dmg_percent,
+
     dmg_to_mana,
     res_fire,
     res_fire_max,
@@ -104,6 +130,7 @@ enum class AttributeId
     stam,
     manasteal,
     lifesteal,
+
     ama,
     pal,
     nec,
@@ -138,6 +165,7 @@ enum class AttributeId
     light_thorns,
     freeze,
     openwounds,
+
     crush,
     kick,
     mana_kill,
@@ -175,6 +203,7 @@ enum class AttributeId
     pierce_pois,
     indestruct,
     charged,
+
     extra_fire,
     extra_ltng,
     extra_cold,
@@ -347,6 +376,7 @@ enum class AttributeId
     crush_efficiency,
     curse_effectiveness,
     deadly_strike_multiplier,
+
     deep_wounds,
     dmg_percent_pereth,
     eaglehorn_raven,
@@ -385,62 +415,224 @@ enum class AttributeId
     skilltab_war,
     magdam_rand,
     roguesbow_affix1,
+
+    count__,
 };
 
 enum class Character
 {
-    none = -1,
-    ama,
-    sor,
-    nec,
-    pal,
-    bar,
-    dru,
-    ass,
-    war,
-};
+    None = -1,
 
-std::string classTypeName(Character type);
+    Ama = 0,
+    Sor,
+    Nec,
+    Pal,
+    Bar,
+    Dru,
+    Ass,
+    War,
+};
 
 enum class AttributeIdiom
 {
-    Any,
+    None,
+
     Caster,
     Brawler,
 };
 
-std::string idiomTypeName(AttributeIdiom type);
-
-using AttributeFlagSet = std::set<AttributeFlag>;
-
-enum class AttributeItemReq
+enum class Element
 {
-    Weapon,
-    Armor,
-    Shield,
-    Chest,
-    Helm,
-    Throwing,
-    Bows,
+    None,
+    // multiple,
+
+    Ltng,
+    Fire,
+    Cold,
+    Mag,
+    Pois,
+    Phys,
 };
 
-using AttributeItemReqSet = std::set<AttributeItemReq>;
+enum class SlotType
+{
+    None,
+
+    MainArmor, // Torso/Helm/Shield
+    OtherArmor,
+    Ring,
+    Amulet,
+    Weapon,
+    Charm,
+    Socketable,
+    Set,
+    PD2Map,
+
+    last__ = PD2Map,
+};
+
+enum class RollType
+{
+    None,
+
+    Negative,
+    Common,
+    Rare,
+    Epic,
+
+    last__ = Epic,
+};
+
+inline auto getRollTypes()
+{
+    return std::array{ RollType::Negative, RollType::Common, RollType::Rare, RollType::Epic };
+}
+inline auto getSlotTypes()
+{
+    return std::array{ SlotType::MainArmor, SlotType::OtherArmor, SlotType::Ring, SlotType::Amulet, SlotType::Weapon, SlotType::Charm, SlotType::Socketable, SlotType::Set, SlotType::PD2Map };
+}
+inline auto getIdiomTypes()
+{
+    return std::array{ AttributeIdiom::Caster, AttributeIdiom::Brawler };
+}
+inline auto getClassTypes()
+{
+    return std::array{ Character::Ama, Character::Sor, Character::Nec, Character::Pal, Character::Bar, Character::Dru, Character::Ass, Character::War };
+}
+inline auto getElementTypes()
+{
+    return std::array{ Element::Ltng, Element::Fire, Element::Cold, Element::Mag, Element::Pois, Element::Phys };
+}
+
+template<class T, class Value, T maxValue = T::last__>
+class TinyMap {
+    std::array<bool, static_cast<size_t>(maxValue) + 1>  m_hasData{ {} };
+    std::array<Value, static_cast<size_t>(maxValue) + 1> m_data{ {} };
+
+public:
+    using value_type = std::pair<const T, Value>;
+
+    TinyMap() = default;
+    constexpr TinyMap(std::initializer_list<value_type> list) noexcept
+    {
+        for (auto& value : list)
+            insert(value.first, value.second);
+    }
+
+    void insert(T key, Value val) noexcept
+    {
+        m_hasData[static_cast<size_t>(key)] = true;
+        m_data[static_cast<size_t>(key)]    = val;
+    }
+    void erase(T key) noexcept
+    {
+        m_hasData[static_cast<size_t>(key)] = false;
+    }
+    bool contains(T key) const noexcept
+    {
+        return m_hasData[static_cast<size_t>(key)];
+    }
+    std::optional<Value> get(T key) const noexcept
+    {
+        if (!contains(key))
+            return {};
+        return m_data[static_cast<size_t>(key)];
+    }
+    std::vector<value_type> asVector() const noexcept
+    {
+        std::vector<value_type> result;
+        result.reserve(m_data.size());
+        for (size_t i = 0; i < m_data.size(); ++i) {
+            if (m_hasData[i])
+                result.push_back(value_type{ static_cast<T>(i), m_data[i] });
+        }
+        return result;
+    }
+    bool empty() const noexcept
+    {
+        for (size_t i = 0; i < m_data.size(); ++i) {
+            if (m_hasData[i])
+                return false;
+        }
+        return true;
+    }
+};
+
+template<class T, T maxValue = T::last__>
+class TinySet {
+    std::array<bool, static_cast<size_t>(maxValue) + 1> m_data{ {} };
+
+public:
+    TinySet() = default;
+    constexpr TinySet(std::initializer_list<T> list) noexcept
+    {
+        for (auto& value : list)
+            insert(value);
+    }
+    void insert(T key) noexcept
+    {
+        m_data[static_cast<size_t>(key)] = true;
+    }
+    void erase(T key) noexcept
+    {
+        m_data[static_cast<size_t>(key)] = false;
+    }
+    bool contains(T key) const noexcept
+    {
+        return m_data[static_cast<size_t>(key)];
+    }
+    std::vector<T> asVector() const noexcept
+    {
+        std::vector<T> result;
+        result.reserve(m_data.size());
+        for (size_t i = 0; i < m_data.size(); ++i) {
+            if (m_data[i])
+                result.push_back(static_cast<T>(i));
+        }
+        return result;
+    }
+    size_t estimateSize() const noexcept
+    {
+        size_t result = 0;
+        for (size_t i = 0; i < m_data.size(); ++i) {
+            if (m_data[i])
+                result++;
+        }
+        return result;
+    }
+};
+
+using AttributeFlagSet = TinySet<AttributeFlag>;
+using SlotSet          = TinySet<SlotType>;
+using SlotIntMap       = TinyMap<SlotType, int>;
 
 struct AttributeDesc {
-    AttributeId         code = AttributeId::INVALID;
-    AttributeFlagSet    flags;
-    AttributeItemReqSet items;
-    int                 minValue{ 0 };
-    int                 maxValue{ 0 };
-    int                 rounding{ 1 };
-    Character           classSpecific = Character::none;
-    AttributeIdiom      idiom         = AttributeIdiom::Any;
+    AttributeId code      = AttributeId::INVALID;
+    ParMode     parMode   = ParMode::None;
+    RangeMode   rangeMode = RangeMode::None;
+
+    AttributeFlagSet flags;
+    SlotSet          requiredSlots;
+
+    std::optional<int> minValue;
+    std::optional<int> maxValue;
+
+    std::optional<int> defaultParameter;
+
+    int            rounding{ 1 };
+    Character      classSpecific = Character::None;
+    AttributeIdiom idiom         = AttributeIdiom::None;
+    Element        element       = Element::None;
+
+    bool hasLimits() const
+    {
+        return minValue.has_value() && minValue.has_value();
+    }
 
     AttributeDesc setRange(int min, int max) &&
     {
         minValue = min;
         maxValue = max;
-        flags.insert(AttributeFlag::HasRange);
         return *this;
     }
     AttributeDesc setClass(Character cl) &&
@@ -458,26 +650,45 @@ struct AttributeDesc {
         idiom = i;
         return *this;
     }
+    AttributeDesc setElement(Element e) &&
+    {
+        element = e;
+        return *this;
+    }
+    AttributeDesc setRequiredSlots(SlotSet slots) &&
+    {
+        requiredSlots = std::move(slots);
+        return *this;
+    }
+    AttributeDesc setRequiredSlots(SlotType slot) &&
+    {
+        requiredSlots.insert(slot);
+        return *this;
+    }
+    AttributeDesc setDefaultParam(int value) &&
+    {
+        defaultParameter = value;
+        return *this;
+    }
 };
 
 Character   getClassId(const std::string& code);
 AttributeId getAttributeId(const std::string& code);
-std::string idToString(AttributeId code);
 
 bool hasFlag(AttributeId code, AttributeFlag flag);
 bool isMinMaxRange(AttributeId code);
-bool isPositiveRange(AttributeId code);
 
 const AttributeDesc& getAttributeDesc(AttributeId code);
 
 int powerMultiply(AttributeId code, int value, int powerMultPercent);
 
-class UniqueAttributeChecker {
-    StringSet m_data;
-
-public:
-    void add(AttributeId code, const std::string& par);
-    bool contains(AttributeId code, const std::string& par) const;
-};
+std::string enumToString(Character type, bool asEnum = false);
+std::string enumToString(AttributeIdiom type, bool asEnum = false);
+std::string enumToString(Element type, bool asEnum = false);
+std::string enumToString(AttributeId id, bool asEnum = false);
+std::string enumToString(SlotType slotType, bool asEnum = false);
+std::string enumToString(RollType rollType, bool asEnum = false);
+std::string enumToString(RangeMode mode, bool asEnum = false);
+std::string enumToString(ParMode mode, bool asEnum = false);
 
 }

@@ -96,32 +96,32 @@ AttributeFlagSet RowBaseEquipment::getAttributes() const
 Character ItemCodeList::determineClass() const
 {
     for (ItemType type : *this)
-        if (type->classSpecific != Character::none)
+        if (type->classSpecific != Character::None)
             return type->classSpecific;
 
-    return Character::none;
+    return Character::None;
 }
 
 SlotType ItemCodeList::determineSlot() const
 {
     for (ItemType type : *this) {
         auto slot = type->determineSlot();
-        if (slot != SlotType::Undefined)
+        if (slot != SlotType::None)
             return slot;
     }
 
-    return SlotType::Undefined;
+    return SlotType::None;
 }
 
 AttributeIdiom ItemCodeList::determineIdiom() const
 {
     for (ItemType type : *this) {
         auto slot = type->determineIdiom();
-        if (slot != AttributeIdiom::Any)
+        if (slot != AttributeIdiom::None)
             return slot;
     }
 
-    return AttributeIdiom::Any;
+    return AttributeIdiom::None;
 }
 
 std::string ItemCodeList::toString() const

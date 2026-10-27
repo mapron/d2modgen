@@ -11,53 +11,53 @@ namespace D2ModGen {
 namespace {
 
 const StringSet s_skillsOkToRandomizeDamage{
-    "Fire Bolt",
-    "Charged Bolt",
-    "Ice Bolt",
-    "Inferno",
-    "Static Field",
-    "Frost Nova",
-    "Ice Blast",
-    "Blaze",
-    "Nova",
-    "Lightning",
-    "Fire Wall",
-    "Chain Lightning",
-    "Thunder Storm",
-    "Blizzard",
-    "Hydra",
-    "Frozen Orb",
+    "fire bolt",
+    "charged bolt",
+    "ice bolt",
+    "inferno",
+    "static field",
+    "frost nova",
+    "ice blast",
+    "blaze",
+    "nova",
+    "lightning",
+    "fire wall",
+    "chain lightning",
+    "thunder storm",
+    "blizzard",
+    "hydra",
+    "frozen orb",
 
-    "Fire Arrow",
-    "Cold Arrow",
-    "Ice Arrow",
+    "fire arrow",
+    "cold arrow",
+    "ice arrow",
 
-    "Firestorm",
-    "Hurricane",
-    "Molten Boulder",
-    "Arctic Blast",
-    "Eruption",
+    "firestorm",
+    "hurricane",
+    "molten boulder",
+    "arctic blast",
+    "eruption",
 
-    "Blessed Hammer",
-    "Fist of the Heavens",
+    "blessed hammer",
+    "fist of the heavens",
 
-    "Teeth",
-    "Bone Spear",
-    "Bone Spirit",
-    "Poison Dagger",
-    "Poison Nova",
-    "Poison Explosion",
+    "teeth",
+    "bone spear",
+    "bone spirit",
+    "poison dagger",
+    "poison nova",
+    "poison explosion",
 
-    "Fire Trauma",
-    "Shock Field",
-    "Fists of Fire",
-    "Charged Bolt Sentry",
-    "Wake of Fire Sentry",
-    "Claws of Thunder",
-    "Lightning Sentry",
-    "Inferno Sentry",
-    "Blades of Ice",
-    "Death Sentry",
+    "fire trauma",
+    "shock field",
+    "fists of fire",
+    "charged bolt sentry",
+    "wake of fire sentry",
+    "claws of thunder",
+    "lightning sentry",
+    "inferno sentry",
+    "blades of ice",
+    "death sentry",
 };
 
 struct SkillLocation {
@@ -183,7 +183,7 @@ struct SkillTree {
 
         for (auto& p : data) {
             SkillInfo& skillInfo = p.second;
-            if (!s_skillsOkToRandomizeDamage.contains(skillInfo.uppercaseKey))
+            if (!s_skillsOkToRandomizeDamage.contains(skillInfo.lowercaseKey))
                 continue;
             const bool wasPoison = skillInfo.dmg.EType == "pois";
             {
@@ -245,7 +245,7 @@ void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, 
     for (auto& row : output.skills.rows) {
         SkillInfo info;
         info.readFromRowMain(row);
-        if (info.classSpecific != Character::none)
+        if (info.classSpecific != Character::None)
             continue;
 
         skillParsedData[info.lowercaseKey] = std::move(info);
