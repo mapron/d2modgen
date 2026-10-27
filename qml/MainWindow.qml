@@ -5,7 +5,7 @@ import QtQuick.Controls.Fusion
 ApplicationWindow {
     id: window
     visible: true
-    title: qsTr("D2 mod generator by mapron - 0.8.4")
+    title: qsTr("D2 mod generator by mapron")
 
     menuBar: MainMenuBar {}
 
@@ -23,6 +23,8 @@ ApplicationWindow {
         button: "#e1e1e1"
         buttonText: "#000000"
         highlight: "#308cc6"
+
+        link: "#308cc6"
 
         // Colors applied only when an item/window is disabled
         disabled {
@@ -44,6 +46,8 @@ ApplicationWindow {
         button: "#33383D"
         buttonText: "#ffffff"
         highlight: "#2a82da"
+
+        link: "#4a92ea"
 
         // Colors applied only when an item/window is disabled
         disabled {
@@ -115,6 +119,20 @@ ApplicationWindow {
             Layout.preferredHeight: 40 // Fixed height for the bottom bar
             spacing: 15
 
+            Button {
+                text: qsTr("Check app updates")
+
+                onClicked: versionChecker.checkForUpdates()
+            }
+
+            Label {
+                text: versionChecker.versionText
+                verticalAlignment: Text.AlignVCenter
+                color: window.palette.windowText
+
+                onLinkActivated: link => Qt.openUrlExternally(link)
+            }
+
             Item {
                 Layout.fillWidth: true
             }
@@ -134,7 +152,6 @@ ApplicationWindow {
             }
 
             Button {
-                id: generateButton
                 text: qsTr("Generate")
                 font.pointSize: 13
 

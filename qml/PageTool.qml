@@ -112,7 +112,7 @@ WidgetScrollable {
         TextField {
             id: command_line
             readOnly: true
-            text: (versionMajor.dynamicValue == 0 ? "-direct" : "-mod " + modname_edit.text) + " -txt "
+            text: (versionMajor.dynamicValue == 0 ? "-direct -3dfx" : "-mod " + modname_edit.text) + " -txt "
             Layout.fillWidth: true
         }
     }

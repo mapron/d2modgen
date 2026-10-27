@@ -201,7 +201,7 @@ WidgetCommonTab {
         stretchCaption: true
     }
     WidgetExponentialSlider {
-        caption: qsTr("Auras:")
+        caption: qsTr("Aura when equip:")
         tooltip: ""
         denom: 20
         mult: 10
@@ -231,7 +231,7 @@ WidgetCommonTab {
         stretchCaption: true
     }
     WidgetExponentialSlider {
-        caption: qsTr("Stats (life/mana/attributes:")
+        caption: qsTr("Stats - life/mana/attributes:")
         tooltip: ""
         denom: 20
         mult: 10

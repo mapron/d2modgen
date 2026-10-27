@@ -8,13 +8,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/install CACHE STRING "" FORCE)
 
+
 set(Qt6Quick3D_FOUND TRUE CACHE BOOL "" FORCE)
 set(Qt6ShaderTools_FOUND TRUE CACHE BOOL "" FORCE)
 set(Qt6TaskTree_FOUND TRUE CACHE BOOL "" FORCE)
 
 cmake_minimum_required(VERSION 3.31...4.0)
 
-project(modgen)
+project(modgen VERSION 0.8.5)
 
 set(MERNEL_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/mernel)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake ${MERNEL_ROOT}/cmake)
@@ -92,7 +93,8 @@ AddTarget( TYPE app_qt NAME modgen_ui
     SOURCE_DIR ${sourceRoot}/QtApp
     INCLUDES   ${sourceRoot}/QtApp
     LINK_LIBRARIES ModgenCore MernelPlatform
-    QT_MODULES Widgets Qml Quick 
+    QT_MODULES Widgets Qml Quick Network
+    COMPILE_DEFINITIONS APP_VERSION="${PROJECT_VERSION}"
     )
 
 file(GLOB qmlFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/qml/*.qml)
