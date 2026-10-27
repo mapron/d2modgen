@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
+import "Modules"
 
 ApplicationWindow {
     id: window

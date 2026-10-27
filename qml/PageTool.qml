@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
 import QtQuick.Dialogs
+import "./Widgets"
 
 WidgetScrollable {
     id: root

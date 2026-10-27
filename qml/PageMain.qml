@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls.Fusion
 import QtQuick.Dialogs
 import CustomValidators 1.0
+import "./Widgets"
 
 WidgetScrollable {
     id: root

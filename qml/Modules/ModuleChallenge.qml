@@ -1,6 +1,7 @@
 import QtQuick.Controls.Fusion
 import QtQuick.Layouts
 import QtQuick
+import "../Widgets"
 
 WidgetCommonTab {
     id: root
