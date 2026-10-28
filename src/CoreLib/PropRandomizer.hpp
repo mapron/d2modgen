@@ -7,27 +7,28 @@
 
 #include "AttributeHelper.hpp"
 #include "DataContext.hpp"
-#include "FlatSet.hpp"
+#include "DynamicBitSet.hpp"
 #include "MagicProp.hpp"
 
 namespace D2ModGen {
 
 struct PropRandomizer {
     struct PropGenerator {
-        int frequency = 0;
+        uint64_t frequency = 0;
 
         int                               power = 100;
         std::optional<NonParValueSummary> nonPar;
 
         MagicProp prop;
 
-        MagicProp generate(RandomGenerator& rng) const;
+        MagicProp makeRoll(RandomGenerator& rng) const;
 
         std::string toString() const;
     };
     using PropGeneratorPtr = const PropGenerator*;
 
-    std::vector<PropGenerator> gens;
+    std::vector<PropGenerator>    gens;
+    DynamicBitSet::FrequencyArray frequencies;
 
     struct {
         std::map<std::pair<AttributeId, int>, DynamicBitSet> byIdParam;

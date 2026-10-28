@@ -19,7 +19,6 @@ public:
     using PtrMap = std::map<std::string, Ptr>;
 
     struct InputContext {
-        Mernel::PropertyTree  m_settings;
         Mernel::PropertyTree  m_mergedSettings;
         GenerationEnvironment m_env;
 

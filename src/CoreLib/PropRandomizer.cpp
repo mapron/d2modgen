@@ -67,7 +67,7 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
                     PropGenerator gen;
                     gen.power     = power;
                     gen.prop      = prop;
-                    gen.frequency = summary.freq * rec.freqFactor;
+                    gen.frequency = uint64_t(summary.freq) * rec.freqFactor;
                     gen.nonPar    = summary;
                     gens.push_back(std::move(gen));
                 }
@@ -121,6 +121,13 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
         }
     }
     const auto size = gens.size();
+    frequencies.resize((size + DynamicBitSet::BitsPerBlock) / DynamicBitSet::BitsPerBlock);
+    for (size_t i = 0; i < size; ++i) {
+        auto freq                                                                     = gens[i].frequency;
+        frequencies[i / DynamicBitSet::BitsPerBlock][i % DynamicBitSet::BitsPerBlock] = freq;
+
+        assert(freq > 0);
+    }
     assert(size == totalEstimate);
     for (int i = 0, cnt = NonParValueByLevel::s_segments; i < cnt; ++i)
         index.levelBracket20[i].assign(size);
@@ -262,47 +269,18 @@ std::string PropRandomizer::PropGenerator::toString() const
 
 PropRandomizer::PropGeneratorPtr PropRandomizer::getRandomAttributeGenerator(const DynamicBitSet& filter, RandomGenerator& rng) const
 {
-    int         totalFrequency = 0;
-    std::string codes          = "";
-    filter.visitSetBits([&totalFrequency, &codes, this](size_t i) -> bool {
-        assert(gens[i].frequency > 0);
-        auto f = gens[i].frequency;
-        if (0)
-            f = 1;
-        totalFrequency += f;
-        if (0)
-            codes += gens[i].toString() + ", ";
-        return false; // no break;
-    });
-
+    const uint64_t totalFrequency = filter.getTotal(frequencies);
     if (totalFrequency == 0) [[unlikely]] {
         return nullptr;
     }
     if (totalFrequency == 1) [[unlikely]] {
         return &gens[0];
     }
-    // a=2 b=3
-    // totalFrequency = 5
-    // targetValue = 0..4   0..1 => a  2..4 => b
-    // partial sums: 0, 2, 5
+    assert(totalFrequency < uint64_t(std::numeric_limits<int>::max()));
+    const uint64_t targetValue = rng(int(totalFrequency));
 
-    int targetValue = rng(totalFrequency);
-
-    PropGeneratorPtr selectedGenerator = &gens[0];
-    int              currentSum        = 0;
-
-    filter.visitSetBits([&selectedGenerator, &targetValue, &currentSum, this](size_t i) -> bool {
-        currentSum += gens[i].frequency;
-        if (currentSum > targetValue) {
-            selectedGenerator = &gens[i];
-            return true;
-        }
-        return false;
-    });
-
-    if (0)
-        Logger() << "rando rng(" << totalFrequency << ")->" << targetValue << ", result=" << selectedGenerator->toString() << " (all: " + codes + ")";
-    return selectedGenerator;
+    const size_t i = filter.findLowerBound(frequencies, targetValue);
+    return &gens[i];
 }
 
 }

@@ -247,10 +247,10 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             Logger() << "start module:" << module.m_key;
             IModule::InputContext input;
             input.m_env            = env;
-            input.m_settings       = module.m_currentConfig;
+            auto m_settings        = module.m_currentConfig;
             input.m_mergedSettings = Mernel::PropertyTree{ module.m_module->defaultValues() };
-            if (!input.m_settings.isNull())
-                Mernel::PropertyTree::mergePatch(input.m_mergedSettings, input.m_settings);
+            if (!m_settings.isNull())
+                Mernel::PropertyTree::mergePatch(input.m_mergedSettings, m_settings);
 
             std::function<int(int)> r = [&engine](int bound) {
                 if (bound <= 1)

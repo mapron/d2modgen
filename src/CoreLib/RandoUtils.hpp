@@ -7,7 +7,6 @@
 
 #include "AttributeHelper.hpp"
 #include "DataContext.hpp"
-#include "FlatSet.hpp"
 
 #include "PropRandomizer.hpp"
 
@@ -28,6 +27,52 @@ struct PropFilter {
     void indexAnd(DynamicBitSet& result, const PropRandomizer* propRandomizer, bool addIdFilter) const;
 };
 
+struct ItemStatistics {
+    using S          = ItemStatistics;
+    size_t countRows = 0;
+
+    size_t src  = 0; // source prop count
+    size_t dest = 0; // dest prop count
+    size_t kept = 0; // how many original kept
+
+    size_t genReq      = 0; // count of requested generated properties
+    size_t genFit      = 0;
+    size_t genCommon   = 0;
+    size_t countSearch = 0; // how many times we access index search (approx == kept + genReq)
+
+    size_t rollRare = 0;
+    size_t rollEpic = 0;
+    size_t rollBadd = 0;
+
+    int64_t process      = 0; // MagicPropItem::process
+    int64_t indexSearch  = 0; // time on DynamicBitSet operations.
+    int64_t getGenerator = 0; // time on getGenerator() calls.
+    int64_t makeRoll     = 0; // time on gen->makeRoll() calls.
+
+    static auto intMembers() { return std::array{ &S::countRows, &S::src, &S::dest, &S::kept, &S::genReq, &S::genFit, &S::genCommon, &S::countSearch, &S::rollRare, &S::rollEpic, &S::rollBadd }; }
+    static auto timeMembers() { return std::array{ &S::process, &S::indexSearch, &S::getGenerator, &S::makeRoll }; }
+
+    ItemStatistics& operator+=(const ItemStatistics& other)
+    {
+        for (auto&& m : intMembers()) {
+            this->*m += other.*m;
+        }
+        for (auto&& m : timeMembers()) {
+            this->*m += other.*m;
+        }
+        return *this;
+    }
+
+    enum class Mode
+    {
+        Item,
+        Table,
+        All,
+    };
+
+    std::string toString(Mode mode) const;
+};
+
 struct MagicPropItem {
     RandomGenerator*      rng;
     const PropRandomizer* propRandomizer = nullptr;
@@ -43,21 +88,7 @@ struct MagicPropItem {
     // mutable during generation
     PropFilter filter;
 
-    // statistics
-    struct Statistics {
-        int src       = 0;
-        int dest      = 0;
-        int kept      = 0;
-        int genReq    = 0;
-        int genFit    = 0;
-        int genCommon = 0;
-
-        int rollRare = 0;
-        int rollEpic = 0;
-        int rollBadd = 0;
-
-        std::string toString() const;
-    } stats;
+    ItemStatistics stats;
 
     template<class Row>
     void readParams(const Row& row)
@@ -94,9 +125,9 @@ struct MagicPropItem {
         }
     }
 
-    void generate();
+    void process();
 
-    MagicPropList generate(int count);
+    MagicPropList processList(int count);
 
     void update(MagicPropRawList& propList, bool noGenerate);
     void added(const MagicProp& prop);

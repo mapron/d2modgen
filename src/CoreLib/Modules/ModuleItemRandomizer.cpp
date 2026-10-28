@@ -11,7 +11,6 @@
 
 #include "Logger.hpp"
 #include "MernelPlatform/FileIOUtils.hpp"
-#include "MernelPlatform/ChronoPoint.hpp"
 
 #include <cstdlib>
 
@@ -237,12 +236,12 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     auto paramsRunes = params;
     auto paramsUniq  = params;
 
-    auto fillProps = [&props, &rng, this, extraTrace, extraTrace2]<typename Row>(DataTable<Row>& table, const RandoParams& params, RollType roll) {
+    ItemStatistics allStat;
+
+    auto fillProps = [&props, &rng, &allStat, this, extraTrace, extraTrace2]<typename Row>(DataTable<Row>& table, const RandoParams& params, RollType roll) {
         if (!params.enableGeneration)
             return;
-        int rowsAffected   = 0;
-        int totalKept      = 0;
-        int totalGenerated = 0;
+        ItemStatistics tableStat;
 
         for (auto& row : table.rows) {
             if (!row.isValid())
@@ -261,18 +260,18 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             if (item.filter.props.slot == SlotType::None || item.filter.props.slot == SlotType::PD2Map)
                 continue;
 
-            item.generate();
+            item.process();
             item.writeTo(row);
 
-            rowsAffected++;
-            totalKept += item.stats.kept;
-            totalGenerated += item.stats.genReq;
+            tableStat += item.stats;
+
             if (extraTrace)
                 Logger() << "write: " << item.toString(extraTrace2);
         }
-        Logger(Logger::Notice) << "table '" << getTableIdString(Row::s_tableId) << "' rando-affected rows: " << rowsAffected << ", total kept affixes: " << totalKept << ", total generated: " << totalGenerated;
+        allStat += tableStat;
+
+        Logger() << "table '" << getTableIdString(Row::s_tableId) << "' " << tableStat.toString(ItemStatistics::Mode::Table);
     };
-    auto startFillProps = Mernel::ChronoPoint(true);
 
     fillProps(output.uniqueitems, paramsUniq, RollType::Rare);
     fillProps(output.setitems, paramsSetitems, RollType::Rare);
@@ -283,7 +282,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     fillProps(output.magicprefix, paramsAffix, RollType::Common);
     fillProps(output.magicsuffix, paramsAffix, RollType::Common);
 
-    auto endFillProps = startFillProps.GetElapsedTime().ToProfilingTime();
+    Logger(Logger::Notice) << allStat.toString(ItemStatistics::Mode::All);
 
     if (m_extraLoc.size() > 0) {
         size_t totalKeySize = 0;
@@ -308,8 +307,6 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         statisticsTable.addSnapshot(attrib, 1);
         statisticsTable.traceStatistics();
     }
-
-    Logger(Logger::Notice) << "  item randomizer fill done in: " << endFillProps;
 }
 
 ModuleItemRandomizer::AllProps ModuleItemRandomizer::grabAllProps(const DataContext&     output,

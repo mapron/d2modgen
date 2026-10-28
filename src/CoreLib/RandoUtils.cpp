@@ -9,6 +9,8 @@
 
 #include "Logger.hpp"
 
+#include "MernelPlatform/ChronoPoint.hpp"
+
 namespace D2ModGen {
 
 namespace {
@@ -43,8 +45,11 @@ int genRng(RandomGenerator& rng, const NonParValueSummary::Stat& stat)
 
 }
 
-void MagicPropItem::generate()
+void MagicPropItem::process()
 {
+    stats.countRows++;
+    Mernel::ChronoPoint start(true);
+
     const int targetLevel = [this]() {
         if ((*rng)(2)) {
             return randoParams->levelPlus ? originalLevel + (*rng)(randoParams->levelPlus) : originalLevel;
@@ -64,8 +69,6 @@ void MagicPropItem::generate()
 
         return (*rng)(100) < randoParams->typeFitPercent;
     }();
-
-    stats = {};
 
     assert(filter.props.clas <= Character::War);
 
@@ -123,9 +126,7 @@ void MagicPropItem::generate()
         if (randoParams->updateExisting)
             update(rawList, rawList.needGenerate <= 0);
 
-        MagicPropList newProps = generate(rawList.needGenerate);
-
-        rawList.append(std::move(newProps));
+        rawList.append(processList(rawList.needGenerate));
 
         stats.dest += rawList.getTotalSize();
 
@@ -134,9 +135,11 @@ void MagicPropItem::generate()
 
         rawList.replaceToOskill(*randoParams);
     }
+
+    stats.process += start.GetElapsedTime().GetUS();
 }
 
-MagicPropList MagicPropItem::generate(int count)
+MagicPropList MagicPropItem::processList(int count)
 {
     if (count <= 0)
         return {};
@@ -148,27 +151,43 @@ MagicPropList MagicPropItem::generate(int count)
 
     auto tryAdd = [&result, this](bool useSlot) -> bool {
         // build index based struct with filter values
+
+        Mernel::ChronoPoint timer(true);
+
         DynamicBitSet index = propRandomizer->createIndexAll();
         filter.indexAnd(index, propRandomizer, true);
-
         propRandomizer->indexAnd(index, filter.props, useSlot);
 
+        stats.countSearch++;
+        stats.indexSearch += timer.GetElapsedTime().GetUS();
+
+        timer                                = Mernel::ChronoPoint(true);
         PropRandomizer::PropGeneratorPtr gen = propRandomizer->getRandomAttributeGenerator(index, *rng);
+        stats.getGenerator += timer.GetElapsedTime().GetUS();
 
         if (!gen)
             return false; // no more suitable property left; resistance is futile
 
-        MagicProp prop = gen->generate(*rng);
+        timer          = Mernel::ChronoPoint(true);
+        MagicProp prop = gen->makeRoll(*rng);
+        stats.makeRoll += timer.GetElapsedTime().GetUS();
         added(prop);
 
         // update filters and indexes after generating data
         prop.properties.propagateDataToParent(filter.props);
+
+        timer = Mernel::ChronoPoint(true);
         propRandomizer->indexAndNot(filter.availableIdPar, prop);
+        stats.indexSearch += timer.GetElapsedTime().GetUS();
+        if (useSlot)
+            stats.genFit++;
+        else
+            stats.genCommon++;
 
         result.push_back(prop);
         return true;
     };
-    auto addList = [&tryAdd, this](bool useSlot, const std::string& descr, int totalCount) -> int {
+    auto addList = [&tryAdd, this](bool useSlot, const std::string& descr, int totalCount) {
         int added = 0;
         for (; added < totalCount && tryAdd(useSlot); ++added) {
             ;
@@ -181,9 +200,9 @@ MagicPropList MagicPropItem::generate(int count)
 
     if (hasTypeSlot) {
         const int typefitCount = scaleValue(count, randoParams->typeFitPercent);
-        stats.genFit += addList(true, "typefit", typefitCount);
+        addList(true, "typefit", typefitCount);
     }
-    stats.genCommon += addList(false, "common", count - result.size());
+    addList(false, "common", count - result.size());
 
     return result;
 }
@@ -191,17 +210,26 @@ MagicPropList MagicPropItem::generate(int count)
 void MagicPropItem::update(MagicPropRawList& propList, bool noGenerate)
 {
     for (auto& prop : propList.parsedProps) {
+        Mernel::ChronoPoint timer(true);
+
+        stats.countSearch++;
         auto index = propRandomizer->createIndexAll();
         filter.indexAnd(index, propRandomizer, false);
         propRandomizer->indexAnd(index, prop);
         propRandomizer->indexAnd(index, filter.props, true);
+        stats.indexSearch += timer.GetElapsedTime().GetUS();
+        timer = Mernel::ChronoPoint(true);
 
         PropRandomizer::PropGeneratorPtr gen = propRandomizer->getRandomAttributeGenerator(index, *rng);
+
+        stats.getGenerator += timer.GetElapsedTime().GetUS();
         if (!gen) {
             continue;
         }
+        timer = Mernel::ChronoPoint(true);
+        prop  = gen->makeRoll(*rng);
+        stats.makeRoll += timer.GetElapsedTime().GetUS();
 
-        prop = gen->generate(*rng);
         if (noGenerate)
             added(prop);
     }
@@ -226,7 +254,7 @@ std::string MagicPropItem::toString(bool withProperties) const
 {
     std::string result = "'" + id + "': lvl=" + std::to_string(originalLevel)
                          + ", props=" + filter.props.toString()
-                         + ", stats" + stats.toString();
+                         + ", stats" + stats.toString(ItemStatistics::Mode::Item);
     if (withProperties) {
         for (auto& affixlist : affixlists) {
             for (auto& prop : affixlist.parsedProps) {
@@ -237,28 +265,43 @@ std::string MagicPropItem::toString(bool withProperties) const
     return result;
 }
 
-std::string MagicPropItem::Statistics::toString() const
+std::string ItemStatistics::toString(Mode mode) const
 {
     std::string result;
 
-    result += "{ " + std::to_string(src)
-              + " -> " + std::to_string(dest)
-              + " : kept=" + std::to_string(kept)
-              + " + gen=" + std::to_string(genReq)
-              + " (fit=" + std::to_string(genFit)
-              + ", com=" + std::to_string(genCommon)
-              + ") roll[";
+    if (mode == Mode::Item) {
+        result += "{ " + std::to_string(src)
+                  + " -> " + std::to_string(dest)
+                  + " : kept=" + std::to_string(kept)
+                  + " + gen=" + std::to_string(genReq)
+                  + " (fit=" + std::to_string(genFit)
+                  + ", com=" + std::to_string(genCommon)
+                  + ") roll[";
 
-    if (rollRare)
-        result += "rare=" + std::to_string(rollRare) + ", ";
-    if (rollEpic)
-        result += "epic=" + std::to_string(rollEpic) + ", ";
-    if (rollBadd)
-        result += "badd=" + std::to_string(rollBadd) + ", ";
-    if (result.ends_with(", "))
-        result.resize(result.size() - 2);
+        if (rollRare)
+            result += "rare=" + std::to_string(rollRare) + ", ";
+        if (rollEpic)
+            result += "epic=" + std::to_string(rollEpic) + ", ";
+        if (rollBadd)
+            result += "badd=" + std::to_string(rollBadd) + ", ";
+        if (result.ends_with(", "))
+            result.resize(result.size() - 2);
 
-    result += "] }";
+        result += "] }";
+    } else if (mode == Mode::Table) {
+        result += "rows=" + std::to_string(countRows);
+        result += ", kept affixes=" + std::to_string(kept);
+        result += ", generated=" + std::to_string(genReq);
+        result += ", process time (us.): " + std::to_string(process);
+    } else if (mode == Mode::All) {
+        result += "fill properties finished; total tows=" + std::to_string(countRows);
+        result += ", total properties=" + std::to_string(countSearch);
+        result += ", full process time (us.) =" + std::to_string(process);
+        result += " (search=" + std::to_string(indexSearch);
+        result += ", getGenerator=" + std::to_string(getGenerator);
+        result += ", makeRoll=" + std::to_string(makeRoll);
+        result += ")";
+    }
     return result;
 }
 
@@ -282,7 +325,7 @@ void PropFilter::indexAnd(DynamicBitSet& result, const PropRandomizer* propRando
         result &= availableIdPar;
 }
 
-MagicProp PropRandomizer::PropGenerator::generate(RandomGenerator& rng) const
+MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator& rng) const
 {
     MagicProp result = prop;
     if (nonPar.has_value()) {
