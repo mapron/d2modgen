@@ -1,0 +1,16 @@
+structs:
+    Fruit:
+        structs:
+            Leaf:
+                members:
+                    mode: { type: str }
+        members:
+            leaf:
+                type: Leaf
+            weight: { type: int, def: 42, min: 1, max: 100 }
+            flag: { type: bool, def: true }
+            name: { type: str }
+members:
+    one: { type: Fruit }
+    two: { type: Fruit }
+    bar: { type: int, def: 77, min: 1, max: 111 }

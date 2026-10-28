@@ -159,5 +159,61 @@ ApplicationWindow {
                 onClicked: appui.generate()
             }
         }
+
+        RowLayout {
+
+            Button {
+                text: qsTr("Set 66")
+
+                onClicked: config.two.weight = 66
+            }
+            Button {
+                text: qsTr("Set 55")
+
+                onClicked: config.two.weight = 55
+            }
+            Label {
+
+                text: "two.weight=" + config.two.weight
+            }
+            Label {
+
+                text: "two.weight_max=" + config.two.weight_max
+            }
+        }
+        RowLayout {
+
+            Button {
+                text: qsTr("Set Foo")
+
+                onClicked: config.one.leaf.mode = "Foo"
+            }
+            Button {
+                text: qsTr("Set Bar")
+
+                onClicked: config.one.leaf.mode = "Bar"
+            }
+            Label {
+
+                text: "one.leaf.mode=" + config.one.leaf.mode
+            }
+        }
+        RowLayout {
+
+            Button {
+                text: qsTr("Set true")
+
+                onClicked: config.one.flag = true
+            }
+            Button {
+                text: qsTr("Set false")
+
+                onClicked: config.one.flag = false
+            }
+            Label {
+
+                text: "one.flag=" + config.one.flag.toString()
+            }
+        }
     }
 }

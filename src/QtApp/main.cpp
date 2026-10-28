@@ -13,6 +13,8 @@
 #include "FileIOUtils.hpp"
 #include "VersionChecker.hpp"
 
+#include "ConfigQt.hpp"
+
 #include <QApplication>
 #include <QFile>
 #include <QStandardPaths>
@@ -20,6 +22,7 @@
 #include <QTranslator>
 #include <QTextStream>
 #include <QResource>
+#include <QTimer>
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -119,13 +122,38 @@ int main(int argc, char* argv[])
 
     qmlRegisterType<D2ModGen::BasicPathValidator>("CustomValidators", 1, 0, "BasicPathValidator");
 
+    Config configRoot;
+    configRoot.resetToDefaults();
+    assert(configRoot.m_one.m_flag == true);
+    assert(configRoot.m_two.m_weight == 42);
+    Mernel::PropertyTree configTree;
+    configTree["one"]["flag"]   = Mernel::PropertyTreeScalar(false);
+    configTree["two"]["weight"] = Mernel::PropertyTreeScalar(110);
+    configRoot.readFromProperty(configTree);
+
+    assert(configRoot.m_one.m_flag == false);
+    assert(configRoot.m_two.m_weight == 100);
+
+    Config_Qt rootQt(configRoot);
+
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("versionChecker", &versionChecker);
     engine.rootContext()->setContextProperty("appui", &appui);
+    engine.rootContext()->setContextProperty("config", &rootQt);
     for (auto& [key, value] : appui.getTabs())
         engine.rootContext()->setContextProperty(key, value);
 
     engine.load(QUrl(QStringLiteral("qrc:/qml/MainWindow.qml")));
+
+    QTimer::singleShot(5000, [&configRoot] {
+        configRoot.m_one.m_leaf.m_mode = "5k";
+        configRoot.m_two.m_weight      = 11;
+        configRoot.notifyChangeInner();
+    });
+
+    configRoot.setCallbackForInnerChanges([] {
+        qWarning() << "Config changed!";
+    });
 
     auto res = app.exec();
     Logger() << "closing app";

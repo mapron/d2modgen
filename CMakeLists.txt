@@ -47,11 +47,36 @@ include(ext/mernel/mernel.cmake)
 # source
 set(sourceRoot ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+AddTarget(TYPE static NAME Config
+    SOURCE_DIR ${sourceRoot}/Config
+	INCLUDES   ${sourceRoot}/Config
+    [ Qt6_FOUND ? QT_MODULES Core ]
+    LINK_LIBRARIES MernelPlatform
+    EXPORT_INCLUDES
+    COMPILE_DEFINITIONS [ Qt6_FOUND ? USE_QT ]
+)
+target_sources(Config PRIVATE 
+    ${sourceRoot}/Config/schema.yaml
+    ${sourceRoot}/Config/update.py
+)
+
+if (Python3_EXECUTABLE)
+    add_custom_target(Config_codegen
+        COMMAND "${Python3_EXECUTABLE}" "${sourceRoot}/Config/update.py"
+        DEPENDS "${sourceRoot}/Config/schema.yaml"
+        BYPRODUCTS 
+            "${sourceRoot}/Config/Config.hpp"
+            "${sourceRoot}/Config/ConfigQt.hpp"
+        WORKING_DIRECTORY "${sourceRoot}/Config"
+        COMMENT "Generating config structures froms schema.yaml"
+        VERBATIM)
+endif()
+
 AddTarget(TYPE shared NAME ModgenCore
     SOURCE_DIR ${sourceRoot}/CoreLib
 	INCLUDES   ${sourceRoot}/CoreLib
     EXPORT_INCLUDES
-    LINK_LIBRARIES [ WIN32 ? casclib stormlib ] rapidjson MernelPlatform
+    LINK_LIBRARIES [ WIN32 ? casclib stormlib ] rapidjson MernelPlatform Config
     )
 
 function(InstallTextFiles folder)
@@ -92,7 +117,7 @@ qt_standard_project_setup()
 AddTarget( TYPE app_qt NAME modgen_ui
     SOURCE_DIR ${sourceRoot}/QtApp
     INCLUDES   ${sourceRoot}/QtApp
-    LINK_LIBRARIES ModgenCore MernelPlatform
+    LINK_LIBRARIES ModgenCore MernelPlatform Config
     QT_MODULES Widgets Qml Quick Network
     COMPILE_DEFINITIONS APP_VERSION="${PROJECT_VERSION}"
     )
