@@ -136,7 +136,7 @@ If you want to have new seed on every run, use "Create new seed on every Generat
 Prerequisites:
 1. **Qt 6.12**
 2. **CMake 4.0** 
-3. **C++20 compiler**. Tested: MSVC 2026  
+3. **C++23 compiler**. Tested: MSVC 2026  
 
 If requirements are met, then go "cmake/build/build install". For windows platform, "build install" creates install in binary directory with all runtime dependencies.
 
