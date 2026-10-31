@@ -7,31 +7,21 @@
 
 namespace D2ModGen {
 
-ModuleQol::ModuleQol()
-    : PluginModule(Mernel::PropertyTreeMap{
-          { "keySize", Mernel::PropertyTreeScalar{ false } },
-          { "disableExpPenalty", Mernel::PropertyTreeScalar{ false } },
-          { "quiverSize", Mernel::PropertyTreeScalar{ false } },
-          { "reduceCost", Mernel::PropertyTreeScalar{ 100 } },
-          { "showItemLevel", Mernel::PropertyTreeScalar{ false } },
-          { "tomeSize", Mernel::PropertyTreeScalar{ false } },
-          { "uniqueCharmLimit", Mernel::PropertyTreeScalar{ false } },
-          { "weakenTownSkills", Mernel::PropertyTreeScalar{ false } },
-          { "weakenTownSkillsExt", Mernel::PropertyTreeScalar{ false } },
-      })
-{}
-
-void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
+void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    const bool tomeSize            = input.getInt("tomeSize");
-    const bool keySize             = input.getInt("keySize");
-    const bool quiverSize          = input.getInt("quiverSize");
-    const bool uniqueCharmLimit    = input.getInt("uniqueCharmLimit");
-    const bool weakenTownSkills    = input.getInt("weakenTownSkills");
-    const bool weakenTownSkillsExt = input.getInt("weakenTownSkillsExt");
-    const bool showItemLevel       = input.getInt("showItemLevel");
-    const bool disableExpPenalty   = input.getInt("disableExpPenalty");
-    const int  reduceCost          = input.getInt("reduceCost");
+    if (!config.m_enabledModules.m_moduleQol)
+        return;
+    const auto& module = config.m_moduleQol;
+
+    const bool tomeSize            = module.m_tomeSize;
+    const bool keySize             = module.m_keySize;
+    const bool quiverSize          = module.m_quiverSize;
+    const bool uniqueCharmLimit    = module.m_uniqueCharmLimit;
+    const bool weakenTownSkills    = module.m_weakenTownSkills;
+    const bool weakenTownSkillsExt = module.m_weakenTownSkillsExt;
+    const bool showItemLevel       = module.m_showItemLevel;
+    const bool disableExpPenalty   = module.m_disableExpPenalty;
+    const int  reduceCost          = module.m_reduceCost;
     if (tomeSize || keySize || quiverSize) {
         for (auto& row : output.misc.rows) {
             auto& code = row.code;

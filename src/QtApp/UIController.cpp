@@ -98,15 +98,13 @@ UIController::UIController(ConfigHandler& configHandler)
 {
     m_delayTimer = new DelayedTimer(1000, [this] { pushUndoCurrent(); }, this);
 
-    for (auto& module : configHandler.m_modules) {
-        auto* uimod                                    = new TabController(module, m_delayTimer, this);
-        m_tabs[QString::fromStdString(module.m_uiKey)] = uimod;
-
-        m_tabsList.push_back(uimod);
-    }
-    m_tabsList[0]->enableChangeOnSet();
-
     m_configHandler.loadConfig(m_configHandler.m_defaultPath);
+
+    m_configHandler.m_config.setCallbackForInnerChanges([this] {
+        //qWarning() << "Config changed!";
+
+        m_delayTimer->start();
+    });
 
     pushUndoCurrent();
 }
@@ -218,25 +216,21 @@ void UIController::browseToAppSettings()
 
 void UIController::newSeed()
 {
-    m_configHandler.m_modules[0].m_currentConfig["seed"] = Mernel::PropertyTreeScalar{};
+    m_configHandler.m_config.m_moduleMain.m_seed = 0;
     m_configHandler.updateSeed(false);
-    m_tabsList[0]->sendDataChange(); // to refresh seed
 }
 
 void UIController::detectPath()
 {
-    auto& cfg         = m_configHandler.m_modules[0].m_currentConfig;
-    bool  resurrected = cfg.value("versionMajor", Mernel::PropertyTreeScalar{ 1 }).toInt() == 1;
-    cfg["inputPath"]  = Mernel::PropertyTreeScalar{ getInstallLocationFromRegistry(resurrected).toStdString() };
-    m_tabsList[0]->sendDataChange(); // to refresh paths
+    auto& cfg         = m_configHandler.m_config.m_moduleMain;
+    bool  resurrected = cfg.m_versionMajor == 1;
+    cfg.m_inputPath   = getInstallLocationFromRegistry(resurrected).toStdString();
+    m_configHandler.m_config.m_moduleMain.notifyChangeInner();
 }
 
 void UIController::sendDataChange()
 {
-    for (auto* w : m_tabsList) {
-        w->sendDataChange();
-        w->sendEnabledChange();
-    }
+    m_configHandler.m_config.notifyChangeInner();
 }
 
 void UIController::updateUndoAction()
@@ -255,8 +249,6 @@ void UIController::generateFinish()
     std::string err;
     emit        statusUpdate(tr("Mod '%1' is updated.")
                                  .arg(QString::fromStdString(m_configHandler.getEnv(err).modName)));
-
-    m_tabsList[0]->sendDataChange(); // to refresh seed
 }
 
 void UIController::setLaunch(QString arg)
@@ -346,95 +338,6 @@ void UIController::copySaves()
 QString UIController::getSaveFolder()
 {
     return getSaveRoot() + "mods/";
-}
-
-TabController::TabController(ConfigHandler::ModuleData& module, DelayedTimer* delayTimer, QObject* parent)
-    : QObject(parent)
-    , m_module(module)
-    , m_delayTimer(delayTimer)
-{
-    connect(this, &TabController::dataChangedInternal, this, &TabController::dataChanged, Qt::QueuedConnection);
-}
-
-TabController::~TabController() = default;
-
-QVariant TabController::get(const QString& key) const
-{
-    auto&      cfg    = m_module;
-    const auto keyStd = key.toStdString();
-
-    auto it = m_module.m_currentConfig.getMap().find(keyStd);
-    if (it == m_module.m_currentConfig.getMap().cend())
-        return propertyToQVariant(cfg.m_module->defaultValues().at(keyStd));
-
-    return propertyToQVariant(it->second);
-}
-
-int TabController::getInt(const QString& key) const
-{
-    return get(key).toInt();
-}
-
-QString TabController::getStr(const QString& key) const
-{
-    return get(key).toString();
-}
-
-void TabController::set(const QString& key, const QVariant& val)
-{
-    auto& old     = m_module.m_currentConfig.getMap()[key.toStdString()];
-    auto  newVal  = qvariantToProperty(val);
-    bool  changed = old != newVal;
-    if (!changed)
-        return;
-    old = std::move(newVal);
-
-    m_delayTimer->start();
-
-    if (m_changeOnSet)
-        sendDataChange();
-}
-
-bool TabController::getEnabled() const
-{
-    return m_module.m_enabled;
-}
-
-void TabController::setEnabled(bool val)
-{
-    if (m_module.m_enabled == val)
-        return;
-
-    m_module.m_enabled = val;
-    m_delayTimer->start();
-    emit enabledChanged();
-}
-
-void TabController::activatePreset(int index)
-{
-    if (index < 1)
-        return;
-    m_module.m_currentConfig = m_module.m_module->presets().at(index - 1);
-
-    m_delayTimer->start();
-    sendDataChange();
-}
-
-void TabController::resetToDefault()
-{
-    m_module.m_currentConfig = {};
-    m_module.m_currentConfig.convertToMap();
-    sendDataChange();
-}
-
-void TabController::sendDataChange()
-{
-    emit dataChangedInternal();
-}
-
-void TabController::sendEnabledChange()
-{
-    emit enabledChanged();
 }
 
 }

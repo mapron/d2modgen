@@ -7,32 +7,26 @@
 
 namespace D2ModGen {
 
-ModuleChallenge::ModuleChallenge()
-    : PluginModule(Mernel::PropertyTreeMap{
-          { "hell_minus_res", Mernel::PropertyTreeScalar{ 100 } },
-          { "levelIncreaseHell", Mernel::PropertyTreeScalar{ 0 } },
-          { "levelIncreaseNightmare", Mernel::PropertyTreeScalar{ 0 } },
-          { "levelIncreaseUltra", Mernel::PropertyTreeScalar{ false } },
-          { "nightmare_minus_res", Mernel::PropertyTreeScalar{ 40 } },
-          { "nodrop_hpsa", Mernel::PropertyTreeScalar{ false } },
-          { "nodrop_mpsa", Mernel::PropertyTreeScalar{ false } },
-          { "nodrop_rvs", Mernel::PropertyTreeScalar{ false } },
-          { "normal_minus_res", Mernel::PropertyTreeScalar{ 0 } },
-      })
-    , m_items{
-        { { "hp1", "hp2", "hp3", "hp4", "hp5" }, "hpsa" },
-        { { "mp1", "mp2", "mp3", "mp4", "mp5" }, "mpsa" },
-        { { "rvs", "rvl" }, "rvs" },
-    }
+void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-}
+    if (!config.m_enabledModules.m_moduleChallenge)
+        return;
 
-void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
-{
+    const auto& module = config.m_moduleChallenge;
+    struct Item {
+        StringSet internalIds;
+        bool      disableDrop;
+    };
+    const std::vector<Item> m_items{
+        { { "hp1", "hp2", "hp3", "hp4", "hp5" }, module.m_nodrop_hpsa },
+        { { "mp1", "mp2", "mp3", "mp4", "mp5" }, module.m_nodrop_mpsa },
+        { { "rvs", "rvl" }, module.m_nodrop_rvs },
+    };
+
     {
         StringSet disabledIds;
         for (auto& item : m_items) {
-            const bool disable = input.getInt("nodrop_" + item.settingKey);
+            const bool disable = item.disableDrop;
             if (disable)
                 for (const auto& id : item.internalIds)
                     disabledIds.insert(id);
@@ -50,24 +44,23 @@ void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const 
         }
     }
     {
-        auto checkPenalty = [&input, &output](const std::string& key, const std::string& name) {
-            const int penalty = input.getInt(key);
+        auto checkPenalty = [&output](int penalty, const std::string& name) {
             for (auto& row : output.difficultylevels.rows) {
                 if (row.name == name) {
                     row.resistPenalty = -penalty;
                 }
             }
         };
-        checkPenalty("normal_minus_res", "Normal");
-        checkPenalty("nightmare_minus_res", "Nightmare");
-        checkPenalty("hell_minus_res", "Hell");
+        checkPenalty(module.m_normal_minus_res, "Normal");
+        checkPenalty(module.m_nightmare_minus_res, "Nightmare");
+        checkPenalty(module.m_hell_minus_res, "Hell");
     }
 
-    const int levelIncreaseNightmare = input.getInt("levelIncreaseNightmare");
-    const int levelIncreaseHell      = input.getInt("levelIncreaseHell");
+    const int levelIncreaseNightmare = module.m_levelIncreaseNightmare;
+    const int levelIncreaseHell      = module.m_levelIncreaseHell;
 
     if (levelIncreaseNightmare || levelIncreaseHell) {
-        const int levelIncreaseUltra = input.getInt("levelIncreaseUltra") ? 105 : 85;
+        const int levelIncreaseUltra = module.m_levelIncreaseUltra ? 105 : 85;
 
         auto adjustLevel = [levelIncreaseUltra](std::optional<int>& value, const int levelIncrease) {
             if (!value.has_value() || value.value() > 85)

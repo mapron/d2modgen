@@ -5,24 +5,12 @@
  */
 #pragma once
 
-#include "PluginModule.hpp"
+#include "IModule.hpp"
 
 namespace D2ModGen {
 
-class ModuleDropFiltering : public PluginModule {
-    struct Item {
-        StringSet   internalIds;
-        std::string settingKey;
-    };
-    const std::vector<Item> m_items;
-
-public:
-    static constexpr const std::string_view configKey{ "drop_filter" };
-    static constexpr const std::string_view moduleKey{ "appModuleDropFiltering" };
-
-    ModuleDropFiltering();
-
-    void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
+struct ModuleDropFiltering : public IModule {
+    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
 };
 
 }

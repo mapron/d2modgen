@@ -5,17 +5,13 @@
  */
 #pragma once
 
-#include "PluginModule.hpp"
+#include "IModule.hpp"
 
 #include "RandoUtils.hpp"
 
 namespace D2ModGen {
 
-class ModuleItemRandomizer : public PluginModule {
-public:
-    static constexpr const std::string_view configKey{ "randomizer" };
-    static constexpr const std::string_view moduleKey{ "appModuleItemRandomizer" };
-
+struct ModuleItemRandomizer : public IModule {
     struct Loc {
         std::string key;
         std::string value;
@@ -23,9 +19,7 @@ public:
 
     using ExtraLoc = std::vector<Loc>;
 
-    ModuleItemRandomizer();
-
-    void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
+    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
 
     struct SlotPropsVal {
         std::map<int, MagicPropList> propsByLevel;
@@ -45,23 +39,24 @@ public:
     AllProps grabAllProps(const DataContext&     output,
                           bool                   onlySetUniques = true,
                           std::set<std::string>* unknownList    = nullptr,
-                          std::set<std::string>* skippedList    = nullptr) const;
+                          std::set<std::string>* skippedList    = nullptr);
 
-    void createNewItems(DataContext&        output,
-                        RandomGenerator&    rng,
-                        const InputContext& input,
-                        int                 repeatUniques,
-                        int                 repeatSets) const;
+    void createNewItems(DataContext&                 output,
+                        RandomGenerator&             rng,
+                        const Config&                config,
+                        const GenerationEnvironment& env,
+                        int                          repeatUniques,
+                        int                          repeatSets);
 
-    AllAttributeData analyzeAll(const AllProps& allProps) const;
+    AllAttributeData analyzeAll(const AllProps& allProps);
 
-    void analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecord& record, NonParValueSummary& stat) const;
-    void analyzePar(const AllPropsVal& allPropsVal, ParRecord& record, NonParValueSummary& stat) const;
+    void analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecord& record, NonParValueSummary& stat);
+    void analyzePar(const AllPropsVal& allPropsVal, ParRecord& record, NonParValueSummary& stat);
 
-    void dumpAttributes(const Mernel::std_path& dumpFile, const AllAttributeData& attributeData, const std::set<AttributeId>& skip) const;
+    void dumpAttributes(const Mernel::std_path& dumpFile, const AllAttributeData& attributeData, const std::set<AttributeId>& skip);
 
-    void updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId) const;
-    void updateLoDtranslation(std::string& patchstringTlb) const;
+    void updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId);
+    void updateLoDtranslation(std::string& patchstringTlb);
 
 private:
     struct MagicContext {
@@ -74,14 +69,14 @@ private:
         AllAttributeData precompiledSkipped;
         AllAttributeData gameDataSkipped;
 
-        void addExtra(const InputContext& input);
-        void homogenizeNonPar(int scalePercent, const std::vector<AttributeId>& attrs);
-        void scaleSettings(const InputContext& input, const std::string& key, const std::vector<AttributeId>& attrs);
+        void addExtra(const Config& config, const GenerationEnvironment& env);
+        void homogenizeNonPar(int64_t scalePercent, const std::vector<AttributeId>& attrs);
+        void scaleSettings(int64_t scalePercent, const std::vector<AttributeId>& attrs);
     };
 
-    mutable SkillCodeResolver m_codeResolver;
-    mutable SkillGetter       m_skillGetter;
-    mutable ExtraLoc          m_extraLoc;
+    SkillCodeResolver m_codeResolver;
+    SkillGetter       m_skillGetter;
+    ExtraLoc          m_extraLoc;
 };
 
 }

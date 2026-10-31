@@ -6,41 +6,15 @@
 #pragma once
 
 #include "CommonTypes.hpp"
-#include "MernelPlatform/PropertyTree.hpp"
-
-#include <memory>
+#include "DataContext.hpp"
+#include "Config.hpp"
 
 namespace D2ModGen {
 
-struct DataContext;
-class IModule {
-public:
-    using Ptr    = std::shared_ptr<const IModule>;
-    using PtrMap = std::map<std::string, Ptr>;
+struct IModule {
+    virtual void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) = 0;
 
-    struct InputContext {
-        Mernel::PropertyTree  m_mergedSettings;
-        GenerationEnvironment m_env;
-
-        const Mernel::PropertyTreeScalar& getScalar(const std::string& key) const noexcept(false)
-        {
-            auto it = m_mergedSettings.getMap().find(key);
-            if (it == m_mergedSettings.getMap().cend())
-                throw std::runtime_error("no key'" + key + "'");
-            return it->second.getScalar();
-        }
-
-        int getInt(const std::string& key) const noexcept(false)
-        {
-            return getScalar(key).toInt();
-        }
-    };
-
-public:
-    virtual const Mernel::PropertyTreeMap&  defaultValues() const = 0;
-    virtual const Mernel::PropertyTreeList& presets() const       = 0;
-
-    virtual void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const = 0;
+    virtual ~IModule() = default;
 };
 
 }

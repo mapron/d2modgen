@@ -5,7 +5,8 @@ import "../Widgets"
 
 WidgetCommonTab {
     id: root
-    value_context: appModuleRuneDrops
+    value_context: config.moduleRuneDrops
+    enabled_key: "moduleRuneDrops"
     caption: qsTr("Increase Rune drops")
     tooltip: qsTr("All help and explanation on this page assume you are familiar with Treasure Class (TC) and NoDrop terminology.<br>Basically all options here modifying TC pick weights - so one preferred option become less rare.")
 

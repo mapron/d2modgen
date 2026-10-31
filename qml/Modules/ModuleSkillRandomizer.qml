@@ -5,7 +5,8 @@ import "../Widgets"
 
 WidgetCommonTab {
     id: root
-    value_context: appModuleSkillRandomizer
+    value_context: config.moduleSkillRandomizer
+    enabled_key: "moduleSkillRandomizer"
     caption: qsTr("Skill Randomizer")
     tooltip: qsTr("This allow to bring 'some' randomization into character skills.")
 

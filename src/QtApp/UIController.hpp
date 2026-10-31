@@ -30,51 +30,12 @@ private:
     std::function<void()> m_onShot;
 };
 
-class TabController : public QObject {
-    Q_OBJECT
-    Q_PROPERTY(bool enabled READ getEnabled WRITE setEnabled NOTIFY enabledChanged)
-
-public:
-    TabController(ConfigHandler::ModuleData& module, DelayedTimer* delayTimer, QObject* parent);
-    ~TabController();
-
-    Q_INVOKABLE QVariant get(const QString& key) const;
-
-    Q_INVOKABLE int     getInt(const QString& key) const;
-    Q_INVOKABLE QString getStr(const QString& key) const;
-
-    Q_INVOKABLE void set(const QString& key, const QVariant& val);
-
-    Q_INVOKABLE bool getEnabled() const;
-    Q_INVOKABLE void setEnabled(bool val);
-
-    Q_INVOKABLE void activatePreset(int index);
-    Q_INVOKABLE void resetToDefault();
-
-    void sendDataChange();
-    void sendEnabledChange();
-
-    void enableChangeOnSet() { m_changeOnSet = true; }
-
-signals:
-    void dataChangedInternal();
-    void dataChanged();
-    void enabledChanged();
-
-private:
-    ConfigHandler::ModuleData& m_module;
-    DelayedTimer* const        m_delayTimer;
-    bool                       m_changeOnSet = false;
-};
-
 class UIController : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString saveFolder READ getSaveFolder NOTIFY saveFolderChanged FINAL)
 public:
     UIController(ConfigHandler& configHandler);
     ~UIController();
-
-    std::map<QString, QObject*> getTabs() const { return m_tabs; }
 
     Q_INVOKABLE void generate();
 
@@ -119,8 +80,6 @@ private:
     DelayedTimer*               m_delayTimer;
     QList<Mernel::PropertyTree> m_undo;
     ConfigHandler&              m_configHandler;
-    std::map<QString, QObject*> m_tabs;
-    std::vector<TabController*> m_tabsList;
 };
 
 class BasicPathValidator : public QValidator {

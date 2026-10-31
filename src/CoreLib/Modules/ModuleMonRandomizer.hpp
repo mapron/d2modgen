@@ -4,26 +4,20 @@
  * See LICENSE file for details.
  */
 #pragma once
-#include "PluginModule.hpp"
+#include "IModule.hpp"
 
 namespace D2ModGen {
 
-class ModuleMonRandomizer : public PluginModule {
-public:
-    static constexpr const std::string_view configKey{ "monRandomizer" };
-    static constexpr const std::string_view moduleKey{ "appModuleMonRandomizer" };
-
-    ModuleMonRandomizer();
-
-    void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
+struct ModuleMonRandomizer : public IModule {
+    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
 
 private:
     struct TCTable;
     struct MonTypeTable;
 
 private:
-    void generateSpawns(DataContext& output, RandomGenerator& rng, const InputContext& input, MonTypeTable& typeTable, TCTable& tcTable) const;
-    bool generateCopies(DataContext& output, RandomGenerator& rng, const InputContext& input, MonTypeTable& typeTable, TCTable& tcTable) const;
+    void generateSpawns(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env, MonTypeTable& typeTable, TCTable& tcTable) const;
+    bool generateCopies(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env, MonTypeTable& typeTable, TCTable& tcTable) const;
 };
 
 }

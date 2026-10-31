@@ -12,75 +12,114 @@
 
 namespace D2ModGen {
 
-struct PropertyList {
+struct CommonStruct {
 protected:
+    template<typename Scalar>
+    struct PropertyPreset {
+        int    m_index = 0;
+        Scalar m_value;
+    };
     struct PropertyCommon {
         std::string_view m_name;
+        std::string      getName() const { return std::string(m_name); }
+    };
+    template<typename Scalar, typename Derived>
+    struct PropertyScalar : public PropertyCommon {
+        Scalar* m_pointer = nullptr;
+        Scalar  m_default{};
+
+        using Preset = PropertyPreset<int64_t>;
+        std::vector<Preset> m_presets;
+
+        Derived& addPreset(int index, Scalar value)
+        {
+            Preset preset;
+            preset.m_index = index;
+            preset.m_value = value;
+            m_presets.push_back(std::move(preset));
+            return static_cast<Derived&>(*this);
+        }
     };
 
-    struct PropertyInt : public PropertyCommon {
-        int64_t* m_pointer = nullptr;
-        int64_t  m_default = 0;
-        int64_t  m_min     = 0;
-        int64_t  m_max     = 0;
+    struct PropertyInt : public PropertyScalar<int64_t, PropertyInt> {
+        int64_t m_min       = 0;
+        int64_t m_max       = 0;
+        bool    m_isPercent = false;
+
+        PropertyInt& setRange(int64_t min, int64_t max)
+        {
+            m_min = min;
+            m_max = max;
+            return *this;
+        }
+        PropertyInt& setPercent()
+        {
+            m_isPercent = true;
+            return *this;
+        }
     };
-    struct PropertyBool : public PropertyCommon {
-        bool* m_pointer = nullptr;
-        bool  m_default = false;
+    struct PropertyBool : public PropertyScalar<bool, PropertyBool> {
     };
-    struct PropertyString : public PropertyCommon {
-        std::string* m_pointer = nullptr;
+    struct PropertyString : public PropertyScalar<std::string, PropertyString> {
     };
 
-    std::vector<PropertyInt>    m_int;
-    std::vector<PropertyString> m_string;
-    std::vector<PropertyBool>   m_bool;
+    template<typename Property, typename Scalar>
+    struct PropertyContainer {
+        Property& add(std::string_view name, Scalar& val, Scalar d)
+        {
+            Property prop;
+            prop.m_name    = name;
+            prop.m_pointer = &val;
+            prop.m_default = d;
+            m_list.push_back(std::move(prop));
+            return m_list.back();
+        }
+        void resetToDefaults()
+        {
+            for (auto& prop : m_list)
+                *prop.m_pointer = prop.m_default;
+        }
+        void readFromProperty(const Mernel::PropertyTree& propertyTree)
+        {
+            for (auto& prop : m_list)
+                propertyTree.value(prop.getName(), Mernel::PropertyTreeScalar(prop.m_default)).convertTo(*prop.m_pointer);
+        }
 
-    void add(std::string_view name, int64_t& val, int64_t d, int64_t min, int64_t max)
+        void writeToProperty(Mernel::PropertyTree& propertyTree) const
+        {
+            for (auto& prop : m_list) {
+                if (*prop.m_pointer == prop.m_default)
+                    continue;
+
+                propertyTree[prop.getName()] = Mernel::PropertyTreeScalar(*prop.m_pointer);
+            }
+        }
+
+        std::vector<Property> m_list;
+    };
+
+    PropertyContainer<PropertyInt, int64_t>        m_int;
+    PropertyContainer<PropertyString, std::string> m_string;
+    PropertyContainer<PropertyBool, bool>          m_bool;
+
+    PropertyInt& add(std::string_view name, int64_t& val, int64_t d)
     {
-        PropertyInt prop;
-        prop.m_name    = name;
-        prop.m_pointer = &val;
-        prop.m_default = d;
-        prop.m_min     = min;
-        prop.m_max     = max;
-        m_int.push_back(std::move(prop));
+        return m_int.add(name, val, d);
     }
-    void add(std::string_view name, bool& val, bool d)
+    PropertyBool& add(std::string_view name, bool& val, bool d)
     {
-        PropertyBool prop;
-        prop.m_name    = name;
-        prop.m_pointer = &val;
-        prop.m_default = d;
-        m_bool.push_back(std::move(prop));
+        return m_bool.add(name, val, d);
     }
-    void add(std::string_view name, std::string& val)
+    PropertyString& add(std::string_view name, std::string& val, std::string d)
     {
-        PropertyString prop;
-        prop.m_name    = name;
-        prop.m_pointer = &val;
-        m_string.push_back(std::move(prop));
+        return m_string.add(name, val, d);
     }
 
-    void resetToDefaults()
-    {
-        for (auto& prop : m_int)
-            *prop.m_pointer = prop.m_default;
-        for (auto& prop : m_bool)
-            *prop.m_pointer = prop.m_default;
-        for (auto& prop : m_string)
-            *prop.m_pointer = {};
-    }
-    void validateAndClamp()
-    {
-        for (auto& prop : m_int)
-            *prop.m_pointer = std::clamp(*prop.m_pointer, prop.m_min, prop.m_max);
-    }
-};
+    struct Child : public PropertyCommon {
+        CommonStruct* m_record;
+    };
 
-struct CommonStruct : protected PropertyList {
-protected:
-    std::vector<std::pair<std::string_view, CommonStruct*>> m_children;
+    std::vector<Child> m_children;
 
     CommonStruct* m_parent = nullptr;
 
@@ -90,19 +129,22 @@ protected:
     // this is to send notification from BL to UX, e.g. "we reloaded configuration, please update controls"
     std::function<void()> m_sendChangeToInner = [] {};
 
-    using PropertyList::add;
-    void add(std::string_view name, CommonStruct& s)
+    Child& add(std::string_view name, CommonStruct& s)
     {
         s.m_parent = this;
-        m_children.push_back({ name, &s });
+        Child child;
+        child.m_name   = name;
+        child.m_record = &s;
+        m_children.push_back(std::move(child));
+        return m_children.back();
     }
 
 public:
     // this called in BL to send notification to UX
     void notifyChangeInner()
     {
-        for (auto& [name, child] : m_children) {
-            child->notifyChangeInner();
+        for (auto& child : m_children) {
+            child.m_record->notifyChangeInner();
         }
         m_sendChangeToInner();
     }
@@ -129,68 +171,58 @@ public:
 
     void resetToDefaults()
     {
-        PropertyList::resetToDefaults();
-        for (auto& [name, child] : m_children) {
-            child->resetToDefaults();
+        m_int.resetToDefaults();
+        m_bool.resetToDefaults();
+        m_string.resetToDefaults();
+        for (auto& child : m_children) {
+            child.m_record->resetToDefaults();
         }
     }
     void validateAndClamp()
     {
-        PropertyList::validateAndClamp();
-        for (auto& [name, child] : m_children) {
-            child->validateAndClamp();
+        for (auto& prop : m_int.m_list)
+            *prop.m_pointer = std::clamp(*prop.m_pointer, prop.m_min, prop.m_max);
+        for (auto& child : m_children) {
+            child.m_record->validateAndClamp();
+        }
+    }
+
+    void readFromPropertyImpl(const Mernel::PropertyTree& propertyTree)
+    {
+        m_int.readFromProperty(propertyTree);
+        m_bool.readFromProperty(propertyTree);
+        m_string.readFromProperty(propertyTree);
+
+        for (auto& child : m_children) {
+            const std::string key = child.getName();
+            if (!propertyTree.contains(key)) {
+                continue;
+            }
+            child.m_record->readFromPropertyImpl(propertyTree[key]);
         }
     }
 
     void readFromProperty(const Mernel::PropertyTree& propertyTree)
     {
         resetToDefaults();
-        for (auto& prop : m_int)
-            *prop.m_pointer = propertyTree.value(std::string(prop.m_name), Mernel::PropertyTreeScalar(prop.m_default)).toInt();
-        for (auto& prop : m_bool)
-            *prop.m_pointer = propertyTree.value(std::string(prop.m_name), Mernel::PropertyTreeScalar(prop.m_default)).toBool();
-        for (auto& prop : m_string)
-            *prop.m_pointer = propertyTree.value(std::string(prop.m_name), Mernel::PropertyTreeScalar("")).toString();
-
+        readFromPropertyImpl(propertyTree);
         validateAndClamp();
-        for (auto& [name, child] : m_children) {
-            std::string key(name);
-            if (!propertyTree.contains(key)) {
-                continue;
-            }
-            child->readFromProperty(propertyTree[key]);
-        }
     }
 
-    void writeToProperty(Mernel::PropertyTree& propertyTree)
+    void writeToProperty(Mernel::PropertyTree& propertyTree) const
     {
         propertyTree = {};
-        for (auto& prop : m_int) {
-            if (*prop.m_pointer == prop.m_default)
-                continue;
+        m_int.writeToProperty(propertyTree);
+        m_bool.writeToProperty(propertyTree);
+        m_string.writeToProperty(propertyTree);
 
-            propertyTree[std::string(prop.m_name)] = Mernel::PropertyTreeScalar(*prop.m_pointer);
-        }
-        for (auto& prop : m_bool) {
-            if (*prop.m_pointer == prop.m_default)
-                continue;
-
-            propertyTree[std::string(prop.m_name)] = Mernel::PropertyTreeScalar(*prop.m_pointer);
-        }
-        for (auto& prop : m_string) {
-            if (*prop.m_pointer == std::string{})
-                continue;
-
-            propertyTree[std::string(prop.m_name)] = Mernel::PropertyTreeScalar(*prop.m_pointer);
-        }
-        for (auto& [name, child] : m_children) {
+        for (auto& child : m_children) {
             Mernel::PropertyTree childData;
-            child->writeToProperty(childData);
+            child.m_record->writeToProperty(childData);
             if (childData.isNull())
                 continue;
 
-            propertyTree[std::string(name)] = std::move(childData);
-            std::string key(name);
+            propertyTree[child.getName()] = std::move(childData);
         }
     }
 };

@@ -5,18 +5,12 @@
  */
 #pragma once
 
-#include "PluginModule.hpp"
+#include "IModule.hpp"
 
 namespace D2ModGen {
 
-class ModuleCube : public PluginModule {
-public:
-    static constexpr const std::string_view configKey{ "cube" };
-    static constexpr const std::string_view moduleKey{ "appModuleCube" };
-
-    ModuleCube();
-
-    void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
+struct ModuleCube : public IModule {
+    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
 };
 
 }

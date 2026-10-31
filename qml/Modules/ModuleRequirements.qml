@@ -5,7 +5,8 @@ import "../Widgets"
 
 WidgetCommonTab {
     id: root
-    value_context: appModuleRequirements
+    value_context: config.moduleRequirements
+    enabled_key: "moduleRequirements"
     caption: qsTr("Requirements")
     tooltip: qsTr("Options for lowering/raising requirements for equimpemnt. ")
 

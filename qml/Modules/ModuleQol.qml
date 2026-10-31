@@ -5,7 +5,8 @@ import "../Widgets"
 
 WidgetCommonTab {
     id: root
-    value_context: appModuleQol
+    value_context: config.moduleQol
+    enabled_key: "moduleQol"
     caption: qsTr("Quality of life")
     tooltip: qsTr("Tiny quality things to make you life easier: <br>1. Insreasing stacks for tomes/quivers/keys;<br>2. Remove Unique charm limit (useful with randomizer);<br>3. Allow usage of some skills in the town;<br>4. Reduce item costs. ")
 

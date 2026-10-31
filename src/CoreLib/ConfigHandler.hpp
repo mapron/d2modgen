@@ -5,11 +5,13 @@
  */
 #pragma once
 
-#include "IModule.hpp"
 #include "MernelPlatform/PropertyTree.hpp"
 #include "MernelPlatform/FsUtils.hpp"
 
+#include "CommonTypes.hpp"
+
 #include "ModgenCoreExport.hpp"
+#include "Config.hpp"
 
 namespace D2ModGen {
 class StorageCache;
@@ -41,14 +43,7 @@ public:
 
     Mernel::PropertyTree m_appConfig;
 
-    struct ModuleData {
-        IModule::Ptr         m_module;
-        std::string          m_uiKey;
-        std::string          m_key;
-        Mernel::PropertyTree m_currentConfig;
-        bool                 m_enabled = true;
-    };
-    std::vector<ModuleData> m_modules;
+    Config m_config;
 
     const std::unique_ptr<StorageCache> m_mainStorageCache;
 

@@ -226,19 +226,15 @@ struct SkillTree {
 
 }
 
-ModuleSkillRandomizer::ModuleSkillRandomizer()
-    : PluginModule(Mernel::PropertyTreeMap{
-          { "ensureDifferent", Mernel::PropertyTreeScalar{ true } },
-          { "skillDamage", Mernel::PropertyTreeScalar{ true } },
-          { "skillTree", Mernel::PropertyTreeScalar{ true } },
-      })
-{}
-
-void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
+void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    const bool skillTreeRandomize   = input.getInt("skillTree");
-    const bool skillDamageRandomize = input.getInt("skillDamage");
-    const bool ensureDifferent      = input.getInt("ensureDifferent");
+    if (!config.m_enabledModules.m_moduleSkillRandomizer)
+        return;
+    const auto& module = config.m_moduleSkillRandomizer;
+
+    const bool skillTreeRandomize   = module.m_skillTree;
+    const bool skillDamageRandomize = module.m_skillDamage;
+    const bool ensureDifferent      = module.m_ensureDifferent;
 
     SkillParsedData skillParsedData;
     SkillTree       charTree;

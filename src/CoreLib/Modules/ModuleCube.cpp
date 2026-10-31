@@ -53,31 +53,22 @@ const std::map<std::string, std::string> s_craftedGemReplace{
 
 }
 
-ModuleCube::ModuleCube()
-    : PluginModule(Mernel::PropertyTreeMap{
-          { "cheatCharms", Mernel::PropertyTreeScalar{ false } },
-          { "craftHighIlvl", Mernel::PropertyTreeScalar{ false } },
-          { "craftNoRunes", Mernel::PropertyTreeScalar{ false } },
-          { "craftNoStrict", Mernel::PropertyTreeScalar{ false } },
-          { "noGemUpgrade", Mernel::PropertyTreeScalar{ false } },
-          { "quickPortals", Mernel::PropertyTreeScalar{ true } },
-          { "quickQuests", Mernel::PropertyTreeScalar{ true } },
-          { "socketing", Mernel::PropertyTreeScalar{ false } },
-          { "upgrading", Mernel::PropertyTreeScalar{ false } },
-      })
-{}
-
-void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
+void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    const bool noGemUpgrade  = input.getInt("noGemUpgrade");
-    const bool quickPortals  = input.getInt("quickPortals");
-    const bool quickQuests   = input.getInt("quickQuests");
-    const bool newSocketing  = input.getInt("socketing");
-    const bool upgrading     = input.getInt("upgrading");
-    const bool craftNoStrict = input.getInt("craftNoStrict");
-    const bool craftNoRunes  = input.getInt("craftNoRunes");
-    const bool craftHighIlvl = input.getInt("craftHighIlvl");
-    const bool cheatCharms   = input.getInt("cheatCharms");
+    if (!config.m_enabledModules.m_moduleCube)
+        return;
+
+    const auto& module = config.m_moduleCube;
+
+    const bool noGemUpgrade  = module.m_noGemUpgrade;
+    const bool quickPortals  = module.m_quickPortals;
+    const bool quickQuests   = module.m_quickQuests;
+    const bool newSocketing  = module.m_socketing;
+    const bool upgrading     = module.m_upgrading;
+    const bool craftNoStrict = module.m_craftNoStrict;
+    const bool craftNoRunes  = module.m_craftNoRunes;
+    const bool craftHighIlvl = module.m_craftHighIlvl;
+    const bool cheatCharms   = module.m_cheatCharms;
 
     for (auto& row : output.cubemain.rows) {
         auto& description = row.description;

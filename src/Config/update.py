@@ -7,57 +7,96 @@ pip install pyyaml
 import yaml
 
 
-def visit_struct(struct_ident, schema, fqn_prefix, tab, lines_cpp, lines_qt):
+def visit_struct(struct_ident, schema, fqn_prefix, tab, preset_names, lines_cpp, lines_qt):
     next_tab   = tab + "    "
     next_tab_2 = next_tab + "    "
 
     # FQN setup
     fqn = fqn_prefix + struct_ident
-    # Turn 'Config::Fruit::Leaf' into 'Config_Fruit_Leaf_Qt'
     qt_class_name = fqn.replace("::", "_") + "_Qt" 
-
 
     lines_cpp.append(f'{tab}struct {struct_ident} : public CommonStruct {{')
     
-    mapping_bool = {'True': 'true', 'False': 'false'}
+    mapping_bool = {'True': 'true', 'False': 'false', True: 'true', False: 'false'}
     type_replacements = {
         'int': 'int64_t',
+        'percent': 'int64_t',
         'bool': 'bool',
         'str': 'std::string',
     }
+    type_defaults = {
+        'int': '0',
+        'percent': '0',
+        'bool': 'false',
+        'str': '',
+    }
+    def get_default_from_record(record):
+        type_name = record.get('type', '')
+        default_value = type_defaults.get(type_name, '')
+        default_value = str(record.get('def', default_value))
+        default_value = mapping_bool.get(default_value, default_value)
+        if type_name == 'str':
+            default_value = '"' + default_value + '"'
+        return default_value
+
+    def get_type_from_record(record):
+        type_name = record.get('type', '?missingtype?')
+        type_name = type_replacements.get(type_name, type_name)
+        return type_name
     
+    def is_scalar(record):
+        type_name = record.get('type', '?missingtype?')
+        return type_name in type_replacements
+
+    def is_percent(record):
+        type_name = record.get('type', '?missingtype?')
+        return type_name == 'percent'
+
     if 'structs' in schema:
         for key, value in schema['structs'].items():
-            visit_struct(key, value, fqn + "::", next_tab, lines_cpp, lines_qt)
+            visit_struct(key, value, fqn + "::", next_tab, preset_names, lines_cpp, lines_qt)
     
-    for key, value in schema['members'].items():
+    constructor_lines = []
+    
+    for key, record in schema['members'].items():
         member_name = 'm_' + key
-        type_name = value.get('type', '?missingtype?')
-        type_name = type_replacements.get(type_name, type_name)
-        default_value = str(value.get('def', ''))
-        default_value = mapping_bool.get(default_value, default_value)
+        default_value = get_default_from_record(record)
+        type_name = get_type_from_record(record)
+
+        range = ''
+        if 'min' in record and 'max' in record:
+            min_value = record.get('min', '0')
+            max_value = record.get('max', '0')
+            range = f'.setRange({min_value}, {max_value})'
+
+        if is_percent(record):
+            range = f'.setPercent()'
+
+        if 'presets' in record:
+            for preset_name, preset_value in record['presets'].items():
+                preset_name = '"' + preset_name + '"';
+                idx = len(preset_names)
+                if preset_name in preset_names:
+                    idx = preset_names.index(preset_name)
+                else:
+                    preset_names.append(preset_name)
+                range = range + '.addPreset(' + str(idx) + ', ' + str(mapping_bool.get(preset_value, preset_value)) + ')'
+
+        if is_scalar(record):
+            constructor_lines.append(f'{next_tab_2}add("{key}", {member_name}, {default_value}){range};')
+        else:
+            constructor_lines.append(f'{next_tab_2}add("{key}", {member_name});')
+
+
         if default_value:
-            default_value = ' ' + default_value + ' ';
+            default_value = ' ' + default_value + ' '
         lines_cpp.append(f'{next_tab}{type_name} {member_name}{{{default_value}}};')
         lines_cpp.append('')
     
     lines_cpp.append(f'{next_tab}{struct_ident}()')
     lines_cpp.append(f'{next_tab}{{')
-    
-    for key, value in schema['members'].items():
-        member_name = 'm_' + key
-        type_name = value.get('type', '')
-        if type_name == 'bool':
-            default_value = str(value.get('def', 'false'))
-            default_value = mapping_bool.get(default_value, default_value)
-            lines_cpp.append(f'{next_tab_2}add("{key}", {member_name}, {default_value});')
-        elif type_name == 'int':
-            default_value = value.get('def', '0')
-            min_value = value.get('min', '0')
-            max_value = value.get('max', '0')
-            lines_cpp.append(f'{next_tab_2}add("{key}", {member_name}, {default_value}, {min_value}, {max_value});')
-        else:
-            lines_cpp.append(f'{next_tab_2}add("{key}", {member_name});')
+    lines_cpp.extend(constructor_lines);
+
 
     lines_cpp.append(f'{next_tab}}}')
     lines_cpp.append(f'{tab}}};')
@@ -91,14 +130,19 @@ def visit_struct(struct_ident, schema, fqn_prefix, tab, lines_cpp, lines_qt):
             qt_methods.append(f'{qt_type} get_{key}() const {{ return get(m_data.{member_name}); }}')
             qt_methods.append(f'void set_{key}({qt_arg_type} val) {{ return set(m_data.{member_name}, val); }}')
             
-            if t == 'int':
-                qt_properties.append(f'Q_PROPERTY(int {key}_min READ get_{key}_min CONSTANT)')
-                qt_properties.append(f'Q_PROPERTY(int {key}_max READ get_{key}_max CONSTANT)')
+            if t == 'int' or t == 'percent':
+                qt_properties.append(f'Q_PROPERTY(qlonglong {key}_min READ get_{key}_min CONSTANT)')
+                qt_properties.append(f'Q_PROPERTY(qlonglong {key}_max READ get_{key}_max CONSTANT)')
+                qt_properties.append(f'Q_PROPERTY(bool {key}_isPercent READ get_{key}_isPercent CONSTANT)')
                 
                 min_val = value.get('min', '0')
                 max_val = value.get('max', '0')
+                is_percent = 'false'
+                if t == 'percent':
+                    is_percent = 'true';
                 qt_methods.append(f'qlonglong get_{key}_min() const {{ return {min_val}; }}')
                 qt_methods.append(f'qlonglong get_{key}_max() const {{ return {max_val}; }}')
+                qt_methods.append(f'bool get_{key}_isPercent() const {{ return {is_percent}; }}')
         else:
             child_qt_type = f'{fqn.replace("::", "_")}_{t}_Qt'
             
@@ -153,8 +197,13 @@ def main():
         lines_qt.append('#include "Config.hpp"')
         lines_qt.append('#include "StructBaseQt.hpp"\n')
         lines_qt.append('namespace D2ModGen {\n')
+        
+        preset_names = []
 
-        visit_struct('Config', schema, '', '', lines_cpp, lines_qt)
+        visit_struct('Config', schema, '', '', preset_names, lines_cpp, lines_qt)
+        
+        lines_cpp.append('');
+        lines_cpp.append('static inline std::vector<std::string> s_presetNames{ ' + ', '.join(preset_names) + " };")
 
         lines_cpp.append('}')
         lines_qt.append('}')

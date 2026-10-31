@@ -7,38 +7,15 @@
 
 #include "AttributeHelper.hpp"
 
-#include "Logger.hpp"
-
 namespace D2ModGen {
 
-ModulePerfectRoll::ModulePerfectRoll()
-    : PluginModule(
-          Mernel::PropertyTreeMap{
-              { "affix_power_l1", Mernel::PropertyTreeScalar{ 100 } },
-              { "affix_power_l50", Mernel::PropertyTreeScalar{ 100 } },
-              { "affixes", Mernel::PropertyTreeScalar{ true } },
-              { "armor", Mernel::PropertyTreeScalar{ true } },
-              { "craft", Mernel::PropertyTreeScalar{ true } },
-              { "crafted", Mernel::PropertyTreeScalar{ true } },
-              { "crafted_power", Mernel::PropertyTreeScalar{ 100 } },
-              { "gem_power", Mernel::PropertyTreeScalar{ 100 } },
-              { "runeWords", Mernel::PropertyTreeScalar{ true } },
-              { "rw_power", Mernel::PropertyTreeScalar{ 100 } },
-              { "setItems", Mernel::PropertyTreeScalar{ true } },
-              { "set_power_l1", Mernel::PropertyTreeScalar{ 100 } },
-              { "set_power_l50", Mernel::PropertyTreeScalar{ 100 } },
-              { "uniques", Mernel::PropertyTreeScalar{ true } },
-              { "uniques_power_l1", Mernel::PropertyTreeScalar{ 100 } },
-              { "uniques_power_l50", Mernel::PropertyTreeScalar{ 100 } },
-          })
-{}
-
-void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
+void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    auto makeScaler2 = [&input](const std::string& power1, const std::string& power50) {
-        int scale1  = input.getInt(power1);
-        int scale50 = input.getInt(power50);
+    if (!config.m_enabledModules.m_modulePerfectRoll)
+        return;
+    const auto& module = config.m_modulePerfectRoll;
 
+    auto makeScaler2 = [](int scale1, int scale50) {
         return [scale1, scale50](int level) {
             if (scale1 == 100 && scale50 == 100)
                 return 100;
@@ -49,8 +26,7 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
             return powerMult;
         };
     };
-    auto makeScaler1 = [&input](const std::string& power) {
-        int scale = input.getInt(power);
+    auto makeScaler1 = [](int scale) {
         return [scale](int level) {
             return scale;
         };
@@ -84,18 +60,18 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
         }
     };
 
-    empowerTable(output.uniqueitems, makeScaler2("uniques_power_l1", "uniques_power_l50"), input.getInt("uniques"));
-    empowerTable(output.runes, makeScaler1("rw_power"), input.getInt("runeWords"));
-    empowerTable(output.setitems, makeScaler2("set_power_l1", "set_power_l50"), input.getInt("setItems"));
+    empowerTable(output.uniqueitems, makeScaler2(module.m_uniques_power_l1, module.m_uniques_power_l50), module.m_uniques);
+    empowerTable(output.runes, makeScaler1(module.m_rw_power), module.m_runeWords);
+    empowerTable(output.setitems, makeScaler2(module.m_set_power_l1, module.m_set_power_l50), module.m_setItems);
 
-    empowerTable(output.magicprefix, makeScaler2("affix_power_l1", "affix_power_l50"), input.getInt("affixes"));
-    empowerTable(output.magicsuffix, makeScaler2("affix_power_l1", "affix_power_l50"), input.getInt("affixes"));
-    empowerTable(output.automagic, makeScaler2("affix_power_l1", "affix_power_l50"), input.getInt("affixes"));
+    empowerTable(output.magicprefix, makeScaler2(module.m_affix_power_l1, module.m_affix_power_l50), module.m_affixes);
+    empowerTable(output.magicsuffix, makeScaler2(module.m_affix_power_l1, module.m_affix_power_l50), module.m_affixes);
+    empowerTable(output.automagic, makeScaler2(module.m_affix_power_l1, module.m_affix_power_l50), module.m_affixes);
 
-    empowerTable(output.runes, makeScaler1("crafted_power"), input.getInt("crafted"));
-    empowerTable(output.gems, makeScaler1("gem_power"), false);
+    empowerTable(output.runes, makeScaler1(module.m_crafted_power), module.m_crafted);
+    empowerTable(output.gems, makeScaler1(module.m_gem_power), false);
 
-    if (input.getInt("craft")) {
+    if (module.m_craft) {
         for (auto& row : output.cubemain.rows) {
             const bool isCrafted = row.isCrafted();
             if (!isCrafted)
@@ -106,7 +82,7 @@ void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, cons
         }
     }
 
-    if (input.getInt("armor")) {
+    if (module.m_armor) {
         for (auto& row : output.armor.rows) {
             if (row.maxac.has_value())
                 row.minac = row.maxac;

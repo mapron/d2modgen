@@ -9,38 +9,24 @@
 
 namespace D2ModGen {
 
-ModuleMonStats::ModuleMonStats()
-    : PluginModule(Mernel::PropertyTreeMap{
-          { "max_resist", Mernel::PropertyTreeScalar{ 250 } },
-          { "mon_ar", Mernel::PropertyTreeScalar{ 100 } },
-          { "mon_dam", Mernel::PropertyTreeScalar{ 100 } },
-          { "mon_def", Mernel::PropertyTreeScalar{ 100 } },
-          { "mon_hp", Mernel::PropertyTreeScalar{ 100 } },
-          { "mon_xp", Mernel::PropertyTreeScalar{ 100 } },
-          { "rel_resist", Mernel::PropertyTreeScalar{ 100 } },
-          { "resist_apply_elem", Mernel::PropertyTreeScalar{ true } },
-          { "resist_apply_magic", Mernel::PropertyTreeScalar{ false } },
-          { "resist_apply_physical", Mernel::PropertyTreeScalar{ false } },
-          { "resist_apply_poison", Mernel::PropertyTreeScalar{ true } },
-      })
-{}
-
-void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
+void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
+    if (!config.m_enabledModules.m_moduleMonStats)
+        return;
+    const auto& module = config.m_moduleMonStats;
     {
-        auto proceedMonParam = [&input](const std::string& key, int& val) {
-            const int percent = input.getInt(key);
-            val               = val * percent / 100;
+        auto proceedMonParam = [](int64_t percent, int& val) {
+            val = val * percent / 100;
         };
         for (auto& row : output.monlvl.rows) {
             if (row.level <= 1)
                 continue;
             for (size_t i = 0; i < 6; ++i) {
-                proceedMonParam("mon_ar", row.TH[i]);
-                proceedMonParam("mon_def", row.AC[i]);
-                proceedMonParam("mon_hp", row.HP[i]);
-                proceedMonParam("mon_dam", row.DM[i]);
-                proceedMonParam("mon_xp", row.XP[i]);
+                proceedMonParam(module.m_mon_ar, row.TH[i]);
+                proceedMonParam(module.m_mon_def, row.AC[i]);
+                proceedMonParam(module.m_mon_hp, row.HP[i]);
+                proceedMonParam(module.m_mon_dam, row.DM[i]);
+                proceedMonParam(module.m_mon_xp, row.XP[i]);
             }
         }
     }
@@ -48,23 +34,23 @@ void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const I
     {
         std::vector<decltype(&DataRow_monstats::resCo)> resCols;
 
-        if (input.getInt("resist_apply_elem")) {
+        if (module.m_resist_apply_elem) {
             resCols.push_back(&DataRow_monstats::resCo);
             resCols.push_back(&DataRow_monstats::resLi);
             resCols.push_back(&DataRow_monstats::resFi);
         }
 
-        if (input.getInt("resist_apply_poison"))
+        if (module.m_resist_apply_poison)
             resCols.push_back(&DataRow_monstats::resPo);
 
-        if (input.getInt("resist_apply_magic"))
+        if (module.m_resist_apply_magic)
             resCols.push_back(&DataRow_monstats::resMa);
 
-        if (input.getInt("resist_apply_physical"))
+        if (module.m_resist_apply_physical)
             resCols.push_back(&DataRow_monstats::resDm);
 
-        const int maxResistCap = input.getInt("max_resist");
-        const int relResist    = input.getInt("rel_resist");
+        const int maxResistCap = module.m_max_resist;
+        const int relResist    = module.m_rel_resist;
 
         for (auto& row : output.monstats.rows) {
             if (!row.isRegularMob())

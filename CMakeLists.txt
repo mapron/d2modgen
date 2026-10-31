@@ -13,6 +13,8 @@ set(Qt6Quick3D_FOUND TRUE CACHE BOOL "" FORCE)
 set(Qt6ShaderTools_FOUND TRUE CACHE BOOL "" FORCE)
 set(Qt6TaskTree_FOUND TRUE CACHE BOOL "" FORCE)
 
+option(ENABLE_SCHEMA_GEN "Turn on code-generation for Config.hpp" FALSE)
+
 cmake_minimum_required(VERSION 3.31...4.0)
 
 project(modgen VERSION 0.8.5)
@@ -60,7 +62,7 @@ target_sources(Config PRIVATE
     ${sourceRoot}/Config/update.py
 )
 
-if (Python3_EXECUTABLE)
+if (Python3_EXECUTABLE AND ENABLE_SCHEMA_GEN)
     add_custom_target(Config_codegen
         COMMAND "${Python3_EXECUTABLE}" "${sourceRoot}/Config/update.py"
         DEPENDS "${sourceRoot}/Config/schema.yaml"
@@ -101,7 +103,7 @@ InstallTextFiles(presets)
 # ConsoleApp
 AddTarget( TYPE app_console NAME modgen_console
     SOURCE_DIR ${sourceRoot}/ConsoleApp
-    LINK_LIBRARIES ModgenCore MernelPlatform
+    LINK_LIBRARIES ModgenCore MernelPlatform Config
     )
 
 if (NOT Qt6_FOUND)

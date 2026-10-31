@@ -8,13 +8,13 @@ CheckBox {
     property alias value_context: item.value_context
     property alias value_key: item.value_key
 
-    DynamicItemInt {
+    DynamicItemBool {
         id: item
     }
-    checked: item.dynamicValue === 1
+    checked: item.dynamicValue
 
     indicator.implicitWidth: 18
     indicator.implicitHeight: 18
 
-    onClicked: item.dynamicValue = checked ? 1 : 0
+    onClicked: item.dynamicValue = checked
 }

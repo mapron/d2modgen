@@ -10,45 +10,19 @@
 
 namespace D2ModGen {
 
-ModuleRuneDrops::ModuleRuneDrops()
-    : PluginModule(Mernel::PropertyTreeMap{
-          { "countess_rune_higher", Mernel::PropertyTreeScalar{ false } },
-          { "countess_rune_more", Mernel::PropertyTreeScalar{ false } },
-          { "highrune_switch", Mernel::PropertyTreeScalar{ false } },
-          { "rune_factor", Mernel::PropertyTreeScalar{ 1 } },
-          { "wraith_runes", Mernel::PropertyTreeScalar{ false } },
-          { "zod_factor", Mernel::PropertyTreeScalar{ 1 } },
-      })
+void ModuleRuneDrops::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    setPresets({
-        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "zod_factor", Mernel::PropertyTreeScalar{ 200 } },
-            { "rune_factor", Mernel::PropertyTreeScalar{ 10 } },
-            { "countess_rune_higher", Mernel::PropertyTreeScalar{ true } },
-            { "countess_rune_more", Mernel::PropertyTreeScalar{ true } },
-            { "wraith_runes", Mernel::PropertyTreeScalar{ true } },
-        } },
-        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "zod_factor", Mernel::PropertyTreeScalar{ 10 } },
-            { "rune_factor", Mernel::PropertyTreeScalar{ 3 } },
-        } },
-        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "zod_factor", Mernel::PropertyTreeScalar{ 3 } },
-            { "countess_rune_higher", Mernel::PropertyTreeScalar{ true } },
-            { "countess_rune_more", Mernel::PropertyTreeScalar{ true } },
-            { "wraith_runes", Mernel::PropertyTreeScalar{ true } },
-        } },
-    });
-}
+    if (!config.m_enabledModules.m_moduleRequirements)
+        return;
 
-void ModuleRuneDrops::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
-{
-    const int  factorRune      = input.getInt("rune_factor");
-    const int  factorZod       = input.getInt("zod_factor");
-    const bool countessMore    = input.getInt("countess_rune_more");
-    const int  countessUpg     = input.getInt("countess_rune_higher") ? 5 : 0;
-    const bool wraithMore      = input.getInt("wraith_runes");
-    const bool switchHighRunes = input.getInt("highrune_switch");
+    const auto& module = config.m_moduleRuneDrops;
+
+    const int  factorRune      = module.m_rune_factor;
+    const int  factorZod       = module.m_zod_factor;
+    const bool countessMore    = module.m_countess_rune_more;
+    const int  countessUpg     = module.m_countess_rune_higher ? 5 : 0;
+    const bool wraithMore      = module.m_wraith_runes;
+    const bool switchHighRunes = module.m_highrune_switch;
 
     std::map<std::string, std::string> highRuneReplacement{
         { "r33", "r31" },

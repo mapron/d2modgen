@@ -4,7 +4,6 @@
  * See LICENSE file for details.
  */
 #include "ModuleItemDrops.hpp"
-#include "AttributeHelper.hpp"
 #include "MernelPlatform/StringUtils.hpp"
 
 namespace D2ModGen {
@@ -66,42 +65,12 @@ const std::map<std::string, std::string> s_bossTC{
 
 }
 
-ModuleItemDrops::ModuleItemDrops()
-    : PluginModule(Mernel::PropertyTreeMap{
-          { "chance_highlevel", Mernel::PropertyTreeScalar{ 2 } },
-          { "chance_rare", Mernel::PropertyTreeScalar{ 3 } },
-          { "chance_set", Mernel::PropertyTreeScalar{ 5 } },
-          { "chance_uni", Mernel::PropertyTreeScalar{ 7 } },
-          { "equal_uniques", Mernel::PropertyTreeScalar{ true } },
-          { "boss_quest_drops", Mernel::PropertyTreeScalar{ true } },
-          { "equip_percent", Mernel::PropertyTreeScalar{ 100 } },
-          { "gold_percent", Mernel::PropertyTreeScalar{ 100 } },
-          { "good_percent", Mernel::PropertyTreeScalar{ 100 } },
-          { "high_elite_drops", Mernel::PropertyTreeScalar{ true } },
-          { "junk_percent", Mernel::PropertyTreeScalar{ 10 } },
-          { "drop_percent", Mernel::PropertyTreeScalar{ 100 } },
-      })
+void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    setPresets({
-        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "chance_uni", Mernel::PropertyTreeScalar{ 50 } },
-            { "chance_set", Mernel::PropertyTreeScalar{ 30 } },
-            { "chance_highlevel", Mernel::PropertyTreeScalar{ 15 } },
-        } },
-        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "chance_uni", Mernel::PropertyTreeScalar{ 15 } },
-            { "chance_set", Mernel::PropertyTreeScalar{ 10 } },
-        } },
-        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "chance_uni", Mernel::PropertyTreeScalar{ 7 } },
-            { "chance_set", Mernel::PropertyTreeScalar{ 5 } },
-            { "drop_percent", Mernel::PropertyTreeScalar{ 200 } },
-        } },
-    });
-}
+    if (!config.m_enabledModules.m_moduleItemDrops)
+        return;
+    const auto& module = config.m_moduleItemDrops;
 
-void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
-{
     static const std::set<int> s_modifyGroups{ 6, 7, 8, 9, 10, 16, 17 }; // groups with empty item ratio weights.
     static const StringSet     s_modifyNames{
         "Cow",
@@ -109,17 +78,17 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
         "Cow (H)",
     };
     {
-        const int  factorUnique    = input.getInt("chance_uni");
-        const int  factorSet       = input.getInt("chance_set");
-        const int  factorRare      = input.getInt("chance_rare");
-        const int  factorHighlevel = input.getInt("chance_highlevel");
-        const int  percentDrop     = input.getInt("drop_percent");
-        const int  percentGoodTC   = input.getInt("good_percent");
-        const int  percentGold     = input.getInt("gold_percent");
-        const int  percentEquip    = input.getInt("equip_percent");
-        const int  percentJunk     = input.getInt("junk_percent");
-        const bool highDropsCount  = input.getInt("high_elite_drops");
-        const bool alwaysQuest     = input.getInt("boss_quest_drops");
+        const int  factorUnique    = module.m_chance_uni;
+        const int  factorSet       = module.m_chance_set;
+        const int  factorRare      = module.m_chance_rare;
+        const int  factorHighlevel = module.m_chance_highlevel;
+        const int  percentDrop     = module.m_drop_percent;
+        const int  percentGoodTC   = module.m_good_percent;
+        const int  percentGold     = module.m_gold_percent;
+        const int  percentEquip    = module.m_equip_percent;
+        const int  percentJunk     = module.m_junk_percent;
+        const bool highDropsCount  = module.m_high_elite_drops;
+        const bool alwaysQuest     = module.m_boss_quest_drops;
 
         auto factorAdjust = [](std::optional<int>& value, double factor, int maxFact) {
             maxFact                     = std::max(maxFact, value.value_or(0));
@@ -219,7 +188,7 @@ void ModuleItemDrops::generate(DataContext& output, RandomGenerator& rng, const 
         }
     }
 
-    if (input.getInt("equal_uniques")) {
+    if (module.m_equal_uniques) {
         for (auto& row : output.uniqueitems.rows) {
             auto& rarity = row.rarity;
             if (rarity.has_value())

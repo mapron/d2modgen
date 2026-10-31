@@ -5,18 +5,12 @@
  */
 #pragma once
 
-#include "PluginModule.hpp"
+#include "IModule.hpp"
 
 namespace D2ModGen {
 
-class ModuleMonStats : public PluginModule {
-public:
-    static constexpr const std::string_view configKey{ "monster_stats" };
-    static constexpr const std::string_view moduleKey{ "appModuleMonStats" };
-
-    ModuleMonStats();
-
-    void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
+struct ModuleMonStats : public IModule {
+    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
 };
 
 }

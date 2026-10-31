@@ -19,7 +19,6 @@
 #include "Modules/ModuleGambling.hpp"
 #include "Modules/ModuleItemDrops.hpp"
 #include "Modules/ModuleItemRandomizer.hpp"
-#include "Modules/ModuleMain.hpp"
 #include "Modules/ModuleMonDensity.hpp"
 #include "Modules/ModuleMonRandomizer.hpp"
 #include "Modules/ModuleMonStats.hpp"
@@ -51,39 +50,60 @@ namespace D2ModGen {
 
 namespace {
 
+struct ModuleRecord {
+    std::string              m_id;
+    std::unique_ptr<IModule> m_gen;
+};
+
 template<class T>
-ConfigHandler::ModuleData create()
+ModuleRecord create(const std::string& id)
 {
-    return ConfigHandler::ModuleData{ std::make_shared<T>(), std::string(T::moduleKey), std::string(T::configKey) };
+    return ModuleRecord{ id, std::make_unique<T>() };
 }
+
+struct ModuleAll : public IModule {
+    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override
+    {
+        std::vector<ModuleRecord> modules;
+        // light modules
+        modules.push_back(create<ModuleChallenge>("Challenge"));
+        modules.push_back(create<ModuleCharacter>("Character"));
+        modules.push_back(create<ModuleGambling>("Gambling"));
+        modules.push_back(create<ModuleItemDrops>("ItemDrops"));
+        modules.push_back(create<ModuleMonDensity>("MonDensity"));
+        modules.push_back(create<ModuleMonStats>("MonStats"));
+        modules.push_back(create<ModulePerfectRoll>("PerfectRoll"));
+        modules.push_back(create<ModuleQol>("Qol"));
+        modules.push_back(create<ModuleRequirements>("Requirements"));
+        modules.push_back(create<ModuleRuneDrops>("RuneDrops"));
+
+        // modules that can add more rows, thus in the end
+        modules.push_back(create<ModuleCube>("Cube"));
+        modules.push_back(create<ModuleDropFiltering>("DropFiltering"));
+        modules.push_back(create<ModuleMonRandomizer>("MonRandomizer"));
+        modules.push_back(create<ModuleItemRandomizer>("ItemRandomizer"));
+        modules.push_back(create<ModuleSkillRandomizer>("SkillRandomizer"));
+
+        for (auto& module : modules) {
+            Logger() << "start module: " << module.m_id;
+            try {
+                module.m_gen->generate(output, rng, config, env);
+            }
+            catch (const std::exception& ex) {
+                m_err = std::string("module '" + module.m_id + "': " + std::string(ex.what()));
+
+                return;
+            }
+        }
+    }
+
+    std::string m_err;
+};
 
 }
 
 ConfigHandler::ConfigHandler()
-    : m_modules({
-          create<ModuleMain>(),
-
-          // light modules
-          create<ModuleChallenge>(),
-          create<ModuleCharacter>(),
-          create<ModuleGambling>(),
-          create<ModuleItemDrops>(),
-          create<ModuleMonDensity>(),
-          create<ModuleMonStats>(),
-          create<ModulePerfectRoll>(),
-          create<ModuleQol>(),
-          create<ModuleRequirements>(),
-          create<ModuleRuneDrops>(),
-
-          // modules that can add more rows, thus in the end
-          create<ModuleCube>(),
-          create<ModuleDropFiltering>(),
-          create<ModuleMonRandomizer>(),
-          create<ModuleItemRandomizer>(),
-          create<ModuleSkillRandomizer>(),
-
-      })
-    , m_mainStorageCache(std::make_unique<StorageCache>())
+    : m_mainStorageCache(std::make_unique<StorageCache>())
     , m_appData(Mernel::AppLocations("D2R mod generator").getAppdataDir())
     , m_defaultPath(m_appData / "config.json")
 {
@@ -143,18 +163,11 @@ bool ConfigHandler::saveConfig(const Mernel::std_path& filename) const
 
 bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data, bool resetMain)
 {
-    for (auto& p : m_modules) {
-        if (!resetMain && p.m_key == ModuleMain::configKey)
-            continue;
-
-        p.m_enabled       = data.value(p.m_key + "_enabled", Mernel::PropertyTreeScalar(false)).toBool();
-        p.m_currentConfig = {};
-        if (data.contains(p.m_key))
-            p.m_currentConfig = data[p.m_key];
-
-        p.m_currentConfig.convertToMap();
-    }
+    auto prevMain = m_config.m_moduleMain;
+    m_config.readFromProperty(data);
     updateSeed(false);
+    if (!resetMain)
+        m_config.m_moduleMain = prevMain;
 
     return true;
 }
@@ -162,35 +175,17 @@ bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data, bool resetMain)
 bool ConfigHandler::saveConfig(Mernel::PropertyTree& data) const
 {
     data.convertToMap();
-    for (auto& p : m_modules) {
-        Mernel::PropertyTree cfg = p.m_currentConfig;
-        cfg.convertToMap();
-
-        auto defValues = Mernel::PropertyTree{ p.m_module->defaultValues() };
-        std::erase_if(cfg.getMap(), [&defValues](const auto& pair) {
-            return !defValues.contains(pair.first);
-        });
-        Mernel::PropertyTree::removeEqualValues(cfg, defValues);
-
-        if (p.m_enabled)
-            data[p.m_key + "_enabled"] = Mernel::PropertyTreeScalar{ true };
-
-        if (!cfg.isNull() && !cfg.getMap().empty())
-            data[p.m_key] = std::move(cfg);
-    }
+    m_config.writeToProperty(data);
     return true;
 }
 
 void ConfigHandler::updateSeed(bool onGenerate)
 {
-    auto&    main = m_modules[0].m_currentConfig;
-    uint32_t seed = static_cast<uint32_t>(main.value("seed", Mernel::PropertyTreeScalar(0)).toInt());
-
-    bool refreshSeed = main.value("refreshSeed", Mernel::PropertyTreeScalar(false)).toBool();
-    if (seed == 0 || refreshSeed && onGenerate) {
+    auto& main = m_config.m_moduleMain;
+    if (main.m_seed == 0 || main.m_refreshSeed && onGenerate) {
         std::random_device rd;
-        seed         = rd();
-        main["seed"] = Mernel::PropertyTreeScalar(seed);
+        main.m_seed = rd();
+        m_config.m_moduleMain.notifyChangeInner();
     }
 }
 
@@ -240,30 +235,17 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         using Distribution32 = std::uniform_int_distribution<int32_t>;
         std::mt19937_64 engine;
         engine.seed(env.seed); // really we need A LOT of bits to safely seed mt engine. But for our purpose 32 bits more than enough.
-        for (ModuleData& module : m_modules) {
-            if (!module.m_enabled)
-                continue;
+        std::function<int(int)> rngWrapper = [&engine](int bound) {
+            if (bound <= 1)
+                return 0;
+            return Distribution32(0, bound - 1)(engine);
+        };
 
-            Logger() << "start module:" << module.m_key;
-            IModule::InputContext input;
-            input.m_env            = env;
-            auto m_settings        = module.m_currentConfig;
-            input.m_mergedSettings = Mernel::PropertyTree{ module.m_module->defaultValues() };
-            if (!m_settings.isNull())
-                Mernel::PropertyTree::mergePatch(input.m_mergedSettings, m_settings);
+        ModuleAll all;
+        all.generate(output, rngWrapper, m_config, env);
+        if (!all.m_err.empty())
+            return { all.m_err };
 
-            std::function<int(int)> r = [&engine](int bound) {
-                if (bound <= 1)
-                    return 0;
-                return Distribution32(0, bound - 1)(engine);
-            };
-            try {
-                module.m_module->generate(output, r, input);
-            }
-            catch (const std::exception& ex) {
-                return { std::string("module '" + module.m_key + "': " + std::string(ex.what())) };
-            }
-        }
         Logger(Logger::Notice) << "generate logic finished in: " << start.GetElapsedTime().ToProfilingTime();
     }
     Logger() << "prepare output data.";
@@ -293,23 +275,23 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
 
 GenerationEnvironment ConfigHandler::getEnv(std::string& err) const
 {
-    const auto&           c = m_modules[0].m_currentConfig;
+    auto&                 main = m_config.m_moduleMain;
     GenerationEnvironment env;
 
-    auto versionMajor = GenerationEnvironment::VersionMajor(c.value("versionMajor", Mernel::PropertyTreeScalar(1)).toInt());
-    auto versionD2R   = GenerationEnvironment::VersionD2R(c.value("versionD2R", Mernel::PropertyTreeScalar(1)).toInt());
-    auto inputMode    = GenerationEnvironment::InputMode(c.value("inputMode", Mernel::PropertyTreeScalar(0)).toInt());
-    auto outputMode   = GenerationEnvironment::OutputMode(c.value("outputMode", Mernel::PropertyTreeScalar(0)).toInt());
+    auto versionMajor = GenerationEnvironment::VersionMajor(main.m_versionMajor);
+    auto versionD2R   = GenerationEnvironment::VersionD2R(main.m_versionD2R);
+    auto inputMode    = GenerationEnvironment::InputMode(main.m_inputMode);
+    auto outputMode   = GenerationEnvironment::OutputMode(main.m_outputMode);
 
     std::vector<std::string> localeIds{ "enUS", "deDE", "esES", "esMX", "frFR", "itIT", "jaJP", "koKR", "plPL", "ptBR", "ruRU", "zhCN", "zhTW" };
-    int                      localeIdIndex = c.value("d2rLocaleId", Mernel::PropertyTreeScalar(0)).toInt();
+    int                      localeIdIndex = main.m_d2rLocaleId;
 
     env.d2rLocaleId = localeIds.at(localeIdIndex);
-    env.modName     = c.value("modname", Mernel::PropertyTreeScalar("rando")).toString();
-    env.inputPath   = string2path(c.value("inputPath", Mernel::PropertyTreeScalar("")).toString());
-    env.outputPath  = string2path(c.value("outputPath", Mernel::PropertyTreeScalar("")).toString());
-    env.refreshSeed = c.value("refreshSeed", Mernel::PropertyTreeScalar(false)).toBool();
-    env.seed        = static_cast<uint32_t>(c.value("seed", Mernel::PropertyTreeScalar(0)).toInt());
+    env.modName     = main.m_modname;
+    env.inputPath   = main.m_inputPath;
+    env.outputPath  = main.m_outputPath;
+    env.refreshSeed = main.m_refreshSeed;
+    env.seed        = static_cast<uint32_t>(main.m_seed);
     if (env.outputPath.empty()) {
         if (inputMode != GenerationEnvironment::InputMode::Game) {
             err = "Cannot detect output path.";

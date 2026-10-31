@@ -28,21 +28,21 @@ ColumnLayout {
             name: qsTr("Item Randomizer"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleItemRandomizer,
+            value_key: "moduleItemRandomizer",
             tabIndex: 8
         },
         {
             name: qsTr("Monster Randomizer"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleMonRandomizer,
+            value_key: "moduleMonRandomizer",
             tabIndex: 10
         },
         {
             name: qsTr("Skill Randomizer"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleSkillRandomizer,
+            value_key: "moduleSkillRandomizer",
             tabIndex: 16
         },
         {
@@ -55,21 +55,21 @@ ColumnLayout {
             name: qsTr("Monster stats"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleMonStats,
+            value_key: "moduleMonStats",
             tabIndex: 11
         },
         {
             name: qsTr("Monster density"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleMonDensity,
+            value_key: "moduleMonDensity",
             tabIndex: 9
         },
         {
             name: qsTr("Challenge"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleChallenge,
+            value_key: "moduleChallenge",
             tabIndex: 2
         },
         {
@@ -82,49 +82,49 @@ ColumnLayout {
             name: qsTr("Horadric Cube"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleCube,
+            value_key: "moduleCube",
             tabIndex: 4
         },
         {
             name: qsTr("Gambling"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleGambling,
+            value_key: "moduleGambling",
             tabIndex: 6
         },
         {
             name: qsTr("Character"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleCharacter,
+            value_key: "moduleCharacter",
             tabIndex: 3
         },
         {
             name: qsTr("Increase Item Drops"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleItemDrops,
+            value_key: "moduleItemDrops",
             tabIndex: 7
         },
         {
             name: qsTr("Increase Rune Drops"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleRuneDrops,
+            value_key: "moduleRuneDrops",
             tabIndex: 15
         },
         {
             name: qsTr("Perfect Rolls"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModulePerfectRoll,
+            value_key: "modulePerfectRoll",
             tabIndex: 12
         },
         {
             name: qsTr("Requirements"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleRequirements,
+            value_key: "moduleRequirements",
             tabIndex: 14
         },
         {
@@ -137,14 +137,14 @@ ColumnLayout {
             name: qsTr("Quality of life"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleQol,
+            value_key: "moduleQol",
             tabIndex: 13
         },
         {
             name: qsTr("Drops filtering"),
             isHeader: false,
             hasCheckbox: true,
-            value_context: appModuleDropFiltering,
+            value_key: "moduleDropFiltering",
             tabIndex: 5
         },
     ]
@@ -199,8 +199,8 @@ ColumnLayout {
                     indicator.implicitWidth: 18
                     indicator.implicitHeight: 18
 
-                    checked: modelData.hasCheckbox ? modelData.value_context.enabled : false
-                    onClicked: modelData.value_context.enabled = checked
+                    checked: modelData.hasCheckbox ? config.enabledModules[modelData.value_key] : false
+                    onClicked: config.enabledModules[modelData.value_key] = checked
                 }
 
                 Button {

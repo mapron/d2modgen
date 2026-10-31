@@ -5,7 +5,8 @@ import "../Widgets"
 
 WidgetCommonTab {
     id: root
-    value_context: appModuleMonStats
+    value_context: config.moduleMonStats
+    enabled_key: "moduleMonStats"
     caption: qsTr("Monster stats")
     tooltip: qsTr("Sliders allow you to change monster stats on all difficulties.<br>You can either lower or raise stats up 10x or 10x times.<br>That is orthogonal to /playersX setting - it will multiply stats independent.")
 

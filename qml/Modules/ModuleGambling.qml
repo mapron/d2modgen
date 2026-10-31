@@ -5,7 +5,8 @@ import "../Widgets"
 
 WidgetCommonTab {
     id: root
-    value_context: appModuleGambling
+    value_context: config.moduleGambling
+    enabled_key: "moduleGambling"
     caption: qsTr("Gambling")
     tooltip: qsTr("First option enables Charms in Gambling window, but only for D2 Legacy.<br>Next sliders allow you increase basic chance of getting Unique/Rare/Set/High-quality item.")
 

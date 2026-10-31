@@ -48,81 +48,13 @@ std::string makeValue(std::string old, int copy)
 
 }
 
-ModuleItemRandomizer::ModuleItemRandomizer()
-    : PluginModule(Mernel::PropertyTreeMap{
-          { "affixRandom", Mernel::PropertyTreeScalar{ true } },
-          { "levelPlus", Mernel::PropertyTreeScalar{ 10 } },
-          { "levelMinus", Mernel::PropertyTreeScalar{ 20 } },
-          { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
-
-          { "casterTypePercent", Mernel::PropertyTreeScalar{ 25 } },
-          { "itemFitPercent", Mernel::PropertyTreeScalar{ 100 } },
-          { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 50 } },
-          { "relativeCountMax", Mernel::PropertyTreeScalar{ 200 } },
-          { "relativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
-          { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 200 } },
-          { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 100 } },
-
-          { "frequencyResistances", Mernel::PropertyTreeScalar{ 100 } },
-          { "frequencyAuras", Mernel::PropertyTreeScalar{ 100 } },
-          { "frequencyProcs", Mernel::PropertyTreeScalar{ 100 } },
-          { "frequencySkills", Mernel::PropertyTreeScalar{ 100 } },
-          { "frequencyCharAttributes", Mernel::PropertyTreeScalar{ 100 } },
-
-          { "removeKnock", Mernel::PropertyTreeScalar{ true } },
-          { "updateExisting", Mernel::PropertyTreeScalar{ true } },
-          { "repeat_sets", Mernel::PropertyTreeScalar{ 5 } },
-          { "repeat_uniques", Mernel::PropertyTreeScalar{ 5 } },
-          { "replaceCharges", Mernel::PropertyTreeScalar{ true } },
-          { "replaceSkills", Mernel::PropertyTreeScalar{ false } },
-          { "setBonusMode", Mernel::PropertyTreeScalar{ 1 } },
-      })
+void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    setPresets({
-        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "levelPlus", Mernel::PropertyTreeScalar{ 100 } },
-            { "levelMinus", Mernel::PropertyTreeScalar{ 0 } },
-            { "itemFitPercent", Mernel::PropertyTreeScalar{ 50 } },
-            { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 0 } },
-            { "relativeCountMin", Mernel::PropertyTreeScalar{ 1000 } },
-            { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
-            { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 1000 } },
-            { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
-            { "casterTypePercent", Mernel::PropertyTreeScalar{ 50 } },
-            { "affixRandom", Mernel::PropertyTreeScalar{ true } },
-            { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
-            { "replaceSkills", Mernel::PropertyTreeScalar{ true } },
-            { "replaceCharges", Mernel::PropertyTreeScalar{ true } },
-        } },
-        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "levelPlus", Mernel::PropertyTreeScalar{ 30 } },
-            { "levelMinus", Mernel::PropertyTreeScalar{ 15 } },
-            { "itemFitPercent", Mernel::PropertyTreeScalar{ 0 } },
-            { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 0 } },
-            { "relativeCountMin", Mernel::PropertyTreeScalar{ 20 } },
-            { "relativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
-            { "setRelativeCountMin", Mernel::PropertyTreeScalar{ 20 } },
-            { "setRelativeCountMax", Mernel::PropertyTreeScalar{ 1000 } },
-            { "casterTypePercent", Mernel::PropertyTreeScalar{ 50 } },
-            { "affixRandom", Mernel::PropertyTreeScalar{ true } },
-            { "gemsRandom", Mernel::PropertyTreeScalar{ true } },
-            { "replaceSkills", Mernel::PropertyTreeScalar{ true } },
-            { "replaceCharges", Mernel::PropertyTreeScalar{ true } },
-        } },
-        Mernel::PropertyTree{ Mernel::PropertyTreeMap{
-            { "levelPlus", Mernel::PropertyTreeScalar{ 20 } },
-            { "itemFitPercent", Mernel::PropertyTreeScalar{ 80 } },
-            { "keepOriginalPercent", Mernel::PropertyTreeScalar{ 0 } },
-            { "casterTypePercent", Mernel::PropertyTreeScalar{ 10 } },
-            { "replaceCharges", Mernel::PropertyTreeScalar{ false } },
-            { "affixRandom", Mernel::PropertyTreeScalar{ false } },
-            { "gemsRandom", Mernel::PropertyTreeScalar{ false } },
-        } },
-    });
-}
+    if (!config.m_enabledModules.m_moduleItemRandomizer)
+        return;
 
-void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
-{
+    const auto& module = config.m_moduleItemRandomizer;
+
     m_codeResolver = [&output](const std::string& skillId) -> int {
         if (!skillId.empty()) {
             int intId = std::atoi(skillId.c_str());
@@ -176,14 +108,14 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     Logger() << "Add some extra fine-tuned properties...";
 
-    magicContext.addExtra(input);
+    magicContext.addExtra(config, env);
 
     StatisticsTable statisticsTable;
 
-    const int repeatUniquesMax = 5;
-    const int repeatSetsMax    = 5;
-    const int repeatUniques    = std::clamp(input.getInt("repeat_uniques"), 1, repeatUniquesMax);
-    const int repeatSets       = std::clamp(input.getInt("repeat_sets"), 1, repeatSetsMax);
+    const int64_t repeatUniquesMax = 5;
+    const int64_t repeatSetsMax    = 5;
+    const int64_t repeatUniques    = std::clamp(module.m_repeat_uniques, 1LL, repeatUniquesMax);
+    const int64_t repeatSets       = std::clamp(module.m_repeat_sets, 1LL, repeatSetsMax);
 
     {
         auto*      dumpFileName = getenv("MODGEN_ATTRIBUTE_DUMP_FILE");
@@ -194,7 +126,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
 
-    createNewItems(output, rng, input, repeatUniques, repeatSets);
+    createNewItems(output, rng, config, env, repeatUniques, repeatSets);
 
     if (extraTrace) {
         const AllAttributeData attrib = analyzeAll(grabAllProps(output));
@@ -204,22 +136,22 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     PropRandomizer props(magicContext.actual, m_skillGetter);
 
     RandoParams params;
-    params.replaceSkills  = input.getInt("replaceSkills");
-    params.replaceCharges = input.getInt("replaceCharges");
-    params.removeKnock    = input.getInt("removeKnock");
-    params.updateExisting = input.getInt("updateExisting");
+    params.replaceSkills  = module.m_replaceSkills;
+    params.replaceCharges = module.m_replaceCharges;
+    params.removeKnock    = module.m_removeKnock;
+    params.updateExisting = module.m_updateExisting;
 
-    params.levelPlus           = input.getInt("levelPlus");
-    params.levelMinus          = input.getInt("levelMinus");
-    params.typeFitPercent      = input.getInt("itemFitPercent");
-    params.casterTypePercent   = input.getInt("casterTypePercent");
-    params.keepOriginalPercent = input.getInt("keepOriginalPercent");
-    params.relativeCountMin    = input.getInt("relativeCountMin");
-    params.relativeCountMax    = input.getInt("relativeCountMax");
+    params.levelPlus           = module.m_levelPlus;
+    params.levelMinus          = module.m_levelMinus;
+    params.typeFitPercent      = module.m_itemFitPercent;
+    params.casterTypePercent   = module.m_casterTypePercent;
+    params.keepOriginalPercent = module.m_keepOriginalPercent;
+    params.relativeCountMin    = module.m_relativeCountMin;
+    params.relativeCountMax    = module.m_relativeCountMax;
 
     auto paramsSetitems              = params;
-    paramsSetitems.relativeCountMin  = input.getInt("setRelativeCountMin");
-    paramsSetitems.relativeCountMax  = input.getInt("setRelativeCountMax");
+    paramsSetitems.relativeCountMin  = module.m_setRelativeCountMin;
+    paramsSetitems.relativeCountMax  = module.m_setRelativeCountMax;
     paramsSetitems.uniqueCheckAcross = true;
 
     auto paramsSets               = params;
@@ -228,10 +160,10 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     auto paramsGems               = params;
     paramsGems.supportRandomRange = false;
-    paramsGems.enableGeneration   = input.getInt("gemsRandom");
+    paramsGems.enableGeneration   = module.m_gemsRandom;
 
     auto paramsAffix             = params;
-    paramsAffix.enableGeneration = input.getInt("affixRandom");
+    paramsAffix.enableGeneration = module.m_affixRandom;
 
     auto paramsRunes = params;
     auto paramsUniq  = params;
@@ -294,7 +226,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         Logger(Logger::Notice) << "Adding new " << m_extraLoc.size() << " translations, totalKeySize=" << totalKeySize << ", totalValSize=" << totalValSize;
         if (output.jsonFiles.contains(JsonId::ItemNames)) {
             auto& jsonDoc = output.jsonFiles[JsonId::ItemNames];
-            updateD2Rtranslation(jsonDoc, input.m_env.d2rLocaleId);
+            updateD2Rtranslation(jsonDoc, env.d2rLocaleId);
         }
         if (output.blobs.contains(BlobId::PatchStringTbl)) {
             auto& blob = output.blobs[BlobId::PatchStringTbl];
@@ -312,7 +244,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 ModuleItemRandomizer::AllProps ModuleItemRandomizer::grabAllProps(const DataContext&     output,
                                                                   bool                   onlySetUniques,
                                                                   std::set<std::string>* unknownList,
-                                                                  std::set<std::string>* skippedList) const
+                                                                  std::set<std::string>* skippedList)
 {
     AllProps allProps;
 
@@ -395,9 +327,9 @@ ModuleItemRandomizer::AllProps ModuleItemRandomizer::grabAllProps(const DataCont
     return allProps;
 }
 
-void ModuleItemRandomizer::createNewItems(DataContext& output, RandomGenerator& rng, const InputContext& input, int repeatUniques, int repeatSets) const
+void ModuleItemRandomizer::createNewItems(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env, int repeatUniques, int repeatSets)
 {
-    const int setBonusMode = input.getInt("setBonusMode");
+    const int setBonusMode = config.m_moduleItemRandomizer.m_setBonusMode;
 
     if (repeatUniques == 1 && repeatSets == 1)
         return;
@@ -488,7 +420,7 @@ void ModuleItemRandomizer::createNewItems(DataContext& output, RandomGenerator& 
             }
             return true;
         };
-        auto afterCopyUniq = [&input, this, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_uniqueitems& row, const DataRow_uniqueitems& old) {
+        auto afterCopyUniq = [this, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_uniqueitems& row, const DataRow_uniqueitems& old) {
             row.index       = makeKey(id, 'u');
             row.displayName = makeValue(old.index, i);
             m_extraLoc.push_back({ row.index, row.displayName });
@@ -519,7 +451,7 @@ void ModuleItemRandomizer::createNewItems(DataContext& output, RandomGenerator& 
             }
             return true;
         };
-        auto afterCopySetitem = [&input, this, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_setitems& row, const DataRow_setitems& old) {
+        auto afterCopySetitem = [this, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_setitems& row, const DataRow_setitems& old) {
             row.index       = makeKey(id, 's');
             row.displayName = makeValue(old.index, i);
             m_extraLoc.push_back({ row.index, row.displayName });
@@ -548,7 +480,7 @@ void ModuleItemRandomizer::createNewItems(DataContext& output, RandomGenerator& 
     }
 }
 
-AllAttributeData ModuleItemRandomizer::analyzeAll(const AllProps& allProps) const
+AllAttributeData ModuleItemRandomizer::analyzeAll(const AllProps& allProps)
 {
     AllAttributeData  result;
     NonParRecordList& nonPropList = result.nonPar;
@@ -584,7 +516,7 @@ AllAttributeData ModuleItemRandomizer::analyzeAll(const AllProps& allProps) cons
     return result;
 }
 
-void ModuleItemRandomizer::analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecord& record, NonParValueSummary& stat) const
+void ModuleItemRandomizer::analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecord& record, NonParValueSummary& stat)
 {
     NonParValueList     allBadds;
     NonParValueByLevel* prev1 = nullptr;
@@ -637,7 +569,7 @@ void ModuleItemRandomizer::analyzeNonPar(const AllPropsVal& allPropsVal, NonParR
     record.cleanupScale();
 }
 
-void ModuleItemRandomizer::analyzePar(const AllPropsVal& allPropsVal, ParRecord& record, NonParValueSummary& stat) const
+void ModuleItemRandomizer::analyzePar(const AllPropsVal& allPropsVal, ParRecord& record, NonParValueSummary& stat)
 {
     NonParValueList all;
     for (const auto& [roll, rollProps] : allPropsVal.propsByRoll) {
@@ -661,7 +593,7 @@ void ModuleItemRandomizer::analyzePar(const AllPropsVal& allPropsVal, ParRecord&
     stat.make(all);
 }
 
-void ModuleItemRandomizer::dumpAttributes(const Mernel::std_path& dumpFile, const AllAttributeData& attributeData, const std::set<AttributeId>& skip) const
+void ModuleItemRandomizer::dumpAttributes(const Mernel::std_path& dumpFile, const AllAttributeData& attributeData, const std::set<AttributeId>& skip)
 {
     std::string oldData;
     Mernel::readFileIntoBufferNoexcept(dumpFile, oldData);
@@ -706,7 +638,7 @@ void ModuleItemRandomizer::dumpAttributes(const Mernel::std_path& dumpFile, cons
         Mernel::writeFileFromBufferNoexcept(dumpFile, dump.str());
 }
 
-void ModuleItemRandomizer::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId) const
+void ModuleItemRandomizer::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId)
 {
     {
         size_t totalKeySize = 0;
@@ -731,7 +663,7 @@ void ModuleItemRandomizer::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, c
     }
 }
 
-void ModuleItemRandomizer::updateLoDtranslation(std::string& patchstringTlb) const
+void ModuleItemRandomizer::updateLoDtranslation(std::string& patchstringTlb)
 {
     TblStructure tbl;
     tbl.readFromBuffer(patchstringTlb);
@@ -752,12 +684,14 @@ void ModuleItemRandomizer::updateLoDtranslation(std::string& patchstringTlb) con
     tbl.writeToBuffer(patchstringTlb);
 }
 
-void ModuleItemRandomizer::MagicContext::addExtra(const InputContext& input)
+void ModuleItemRandomizer::MagicContext::addExtra(const Config& config, const GenerationEnvironment& env)
 {
     using A = AttributeId;
     actual.erase(A::skilltab);
 
-    Character lastCharacter = input.m_env.isRotW ? Character::War : Character::Ass;
+    const auto& module = config.m_moduleItemRandomizer;
+
+    Character lastCharacter = env.isRotW ? Character::War : Character::Ass;
     const int classCount    = static_cast<int>(lastCharacter) + 1;
 
     // Fill skilltab values
@@ -840,9 +774,9 @@ void ModuleItemRandomizer::MagicContext::addExtra(const InputContext& input)
         rec->freqFactor /= 3;
     }
 
-    scaleSettings(input, "frequencyResistances", { A::res_fire, A::res_ltng, A::res_cold, A::res_mag, A::res_pois, A::res_all });
-    scaleSettings(input, "frequencyAuras", { A::aura });
-    scaleSettings(input, "frequencyProcs", {
+    scaleSettings(module.m_frequencyResistances, { A::res_fire, A::res_ltng, A::res_cold, A::res_mag, A::res_pois, A::res_all });
+    scaleSettings(module.m_frequencyAuras, { A::aura });
+    scaleSettings(module.m_frequencyProcs, {
                                                A::att_skill,
                                                A::hit_skill,
                                                A::gethit_skill,
@@ -852,8 +786,8 @@ void ModuleItemRandomizer::MagicContext::addExtra(const InputContext& input)
                                                A::block_skill,
                                                A::cast_skill,
                                            });
-    scaleSettings(input, "frequencySkills", { A::skill, A::skilltab, A::allskills, A::ama, A::pal, A::nec, A::sor, A::bar, A::dru, A::ass, A::war });
-    scaleSettings(input, "frequencyCharAttributes", {
+    scaleSettings(module.m_frequencySkills, { A::skill, A::skilltab, A::allskills, A::ama, A::pal, A::nec, A::sor, A::bar, A::dru, A::ass, A::war });
+    scaleSettings(module.m_frequencyCharAttributes, {
                                                         A::str,
                                                         A::dex,
                                                         A::vit,
@@ -873,7 +807,7 @@ void ModuleItemRandomizer::MagicContext::addExtra(const InputContext& input)
                                                     });
 }
 
-void ModuleItemRandomizer::MagicContext::homogenizeNonPar(int scalePercent, const std::vector<AttributeId>& attrs)
+void ModuleItemRandomizer::MagicContext::homogenizeNonPar(int64_t scalePercent, const std::vector<AttributeId>& attrs)
 {
     std::vector<const NonParRecord*> sources;
     std::vector<NonParRecord*>       edit;
@@ -901,9 +835,8 @@ void ModuleItemRandomizer::MagicContext::homogenizeNonPar(int scalePercent, cons
     }
 }
 
-void ModuleItemRandomizer::MagicContext::scaleSettings(const InputContext& input, const std::string& key, const std::vector<AttributeId>& attrs)
+void ModuleItemRandomizer::MagicContext::scaleSettings(int64_t scalePercent, const std::vector<AttributeId>& attrs)
 {
-    int scalePercent = input.getInt(key);
     for (auto id : attrs) {
         if (auto* rec = actual.findExistingNonPar(id)) {
             rec->rescaleFreq(scalePercent, 1);

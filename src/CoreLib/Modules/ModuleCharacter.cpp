@@ -7,46 +7,37 @@
 
 namespace D2ModGen {
 
-ModuleCharacter::ModuleCharacter()
-    : PluginModule(Mernel::PropertyTreeMap{
-          { "addCube", Mernel::PropertyTreeScalar{ false } },
-          { "addTeleport", Mernel::PropertyTreeScalar{ false } },
-          { "idTome", Mernel::PropertyTreeScalar{ false } },
-          { "manaPots", Mernel::PropertyTreeScalar{ false } },
-          { "mercDam", Mernel::PropertyTreeScalar{ 100 } },
-          { "mercHP", Mernel::PropertyTreeScalar{ 100 } },
-          { "skillPerLevel", Mernel::PropertyTreeScalar{ 1 } },
-          { "skillPointLimit", Mernel::PropertyTreeScalar{ 20 } },
-          { "statPerLevel", Mernel::PropertyTreeScalar{ 5 } },
-      })
-{}
-
-void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
+void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    const int statPerLevel    = input.getInt("statPerLevel");
-    const int skillPerLevel   = input.getInt("skillPerLevel");
-    const int skillPointLimit = input.getInt("skillPointLimit");
-    const int mercHPpercent   = input.getInt("mercHP");
-    const int mercDampercent  = input.getInt("mercDam");
+    if (!config.m_enabledModules.m_moduleCharacter)
+        return;
+
+    const auto& module = config.m_moduleCharacter;
+
+    const int statPerLevel    = module.m_statPerLevel;
+    const int skillPerLevel   = module.m_skillPerLevel;
+    const int skillPointLimit = module.m_skillPointLimit;
+    const int mercHPpercent   = module.m_mercHP;
+    const int mercDampercent  = module.m_mercDam;
 
     for (auto& row : output.charstats.rows) {
         if (row.clas == "Expansion")
             continue;
 
-        if (input.getInt("addCube"))
+        if (module.m_addCube)
             row.items.push_back(DataRow_charstats::Item{ "box", 1 });
-        if (input.getInt("idTome"))
+        if (module.m_idTome)
             for (auto& item : row.items) {
                 if (item.code == "isc")
                     item.code = "ibk";
             }
-        if (input.getInt("manaPots"))
+        if (module.m_manaPots)
             for (auto& item : row.items) {
                 if (item.code == "hp1")
                     item.code = "mp1";
             }
 
-        if (input.getInt("addTeleport"))
+        if (module.m_addTeleport)
             row.skills.push_back("Teleport");
 
         row.statPerLevel   = statPerLevel;

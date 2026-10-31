@@ -4,18 +4,12 @@
  * See LICENSE file for details.
  */
 #pragma once
-#include "PluginModule.hpp"
+#include "IModule.hpp"
 
 namespace D2ModGen {
 
-class ModuleQol : public PluginModule {
-public:
-    static constexpr const std::string_view configKey{ "qol" };
-    static constexpr const std::string_view moduleKey{ "appModuleQol" };
-
-    ModuleQol();
-
-    void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
+struct ModuleQol : public IModule {
+    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
 };
 
 }

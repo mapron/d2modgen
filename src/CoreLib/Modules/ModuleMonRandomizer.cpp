@@ -216,26 +216,19 @@ struct MonResist {
     }
 };
 
-ModuleMonRandomizer::ModuleMonRandomizer()
-    : PluginModule(Mernel::PropertyTreeMap{
-          { "hellResistances", Mernel::PropertyTreeScalar{ false } },
-          { "maxTypes", Mernel::PropertyTreeScalar{ 25 } },
-          { "randomizeResistances", Mernel::PropertyTreeScalar{ false } },
-          { "randomizeSpawns", Mernel::PropertyTreeScalar{ true } },
-          { "spawnedCount", Mernel::PropertyTreeScalar{ 5 } },
-      })
-{}
-
-void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
+void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
+    if (!config.m_enabledModules.m_moduleMonRandomizer)
+        return;
+    const auto&  module = config.m_moduleMonRandomizer;
     MonTypeTable typeTable;
     TCTable      tcTable;
 
-    const bool randomizeSpawns      = input.getInt("randomizeSpawns");
-    const bool randomizeResistances = input.getInt("randomizeResistances");
-    const bool hellResistances      = input.getInt("hellResistances");
+    const bool randomizeSpawns      = module.m_randomizeSpawns;
+    const bool randomizeResistances = module.m_randomizeResistances;
+    const bool hellResistances      = module.m_hellResistances;
     if (randomizeSpawns)
-        generateSpawns(output, rng, input, typeTable, tcTable);
+        generateSpawns(output, rng, config, env, typeTable, tcTable);
 
     if (randomizeResistances || hellResistances) {
         for (auto& row : output.monstats.rows) {
@@ -268,7 +261,7 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
     }
 }
 
-void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& rng, const InputContext& input, MonTypeTable& typeTable, TCTable& tcTable) const
+void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env, MonTypeTable& typeTable, TCTable& tcTable) const
 {
     {
         for (int index = -1; auto& row : output.monstats.rows) {
@@ -285,8 +278,9 @@ void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& r
     {
         StringSet baseIds, ubaseIds, nonUniqueBaseIds;
 
-        const int spawnedCount = input.getInt("spawnedCount");
-        const int maxTypes     = input.getInt("maxTypes");
+        const auto& module       = config.m_moduleMonRandomizer;
+        const int   spawnedCount = module.m_spawnedCount;
+        const int   maxTypes     = module.m_maxTypes;
         for (auto& row : output.levels.rows) {
             if (row.name == "Act 5 - Mountain Top")
                 continue;
@@ -343,11 +337,11 @@ void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& r
             row.numMon = spawnedCount;
         }
     }
-    for (size_t i = 0; i < 5 && generateCopies(output, rng, input, typeTable, tcTable); ++i) {
+    for (size_t i = 0; i < 5 && generateCopies(output, rng, config, env, typeTable, tcTable); ++i) {
     }
 }
 
-bool ModuleMonRandomizer::generateCopies(DataContext& output, RandomGenerator& rng, const InputContext& input, MonTypeTable& typeTable, TCTable& tcTable) const
+bool ModuleMonRandomizer::generateCopies(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env, MonTypeTable& typeTable, TCTable& tcTable) const
 {
     auto copies = typeTable.newCopies;
     typeTable.newCopies.clear();

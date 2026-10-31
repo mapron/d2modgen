@@ -5,7 +5,8 @@ import "../Widgets"
 
 WidgetCommonTab {
     id: root
-    value_context: appModulePerfectRoll
+    value_context: config.modulePerfectRoll
+    enabled_key: "modulePerfectRoll"
     caption: qsTr("Perfect rolls")
     tooltip: qsTr("Remove random effect when rolling between min and max value for something.")
 

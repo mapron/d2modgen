@@ -7,33 +7,23 @@
 
 namespace D2ModGen {
 
-ModuleRequirements::ModuleRequirements()
-    : PluginModule(Mernel::PropertyTreeMap{
-          { "affixItemLevel", Mernel::PropertyTreeScalar{ 100 } },
-          { "affixReqLevel", Mernel::PropertyTreeScalar{ 100 } },
-          { "equipItemLevel", Mernel::PropertyTreeScalar{ 100 } },
-          { "equipReqLevel", Mernel::PropertyTreeScalar{ 100 } },
-          { "reqDex", Mernel::PropertyTreeScalar{ 100 } },
-          { "reqStr", Mernel::PropertyTreeScalar{ 100 } },
-          { "skillsReqLevel", Mernel::PropertyTreeScalar{ 100 } },
-          { "uniquesItemLevel", Mernel::PropertyTreeScalar{ 100 } },
-          { "uniquesReqLevel", Mernel::PropertyTreeScalar{ 100 } },
-      })
-{}
-
-void ModuleRequirements::generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const
+void ModuleRequirements::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    const int reqStr = input.getInt("reqStr");
-    const int reqDex = input.getInt("reqDex");
+    if (!config.m_enabledModules.m_moduleRequirements)
+        return;
+    const auto& module = config.m_moduleRequirements;
 
-    const int equipReqLevel   = input.getInt("equipReqLevel");
-    const int uniquesReqLevel = input.getInt("uniquesReqLevel");
-    const int affixReqLevel   = input.getInt("affixReqLevel");
-    const int skillsReqLevel  = input.getInt("skillsReqLevel");
+    const int reqStr = module.m_reqStr;
+    const int reqDex = module.m_reqDex;
 
-    const int equipItemLevel   = input.getInt("equipItemLevel");
-    const int uniquesItemLevel = input.getInt("uniquesItemLevel");
-    const int affixItemLevel   = input.getInt("affixItemLevel");
+    const int equipReqLevel   = module.m_equipReqLevel;
+    const int uniquesReqLevel = module.m_uniquesReqLevel;
+    const int affixReqLevel   = module.m_affixReqLevel;
+    const int skillsReqLevel  = module.m_skillsReqLevel;
+
+    const int equipItemLevel   = module.m_equipItemLevel;
+    const int uniquesItemLevel = module.m_uniquesItemLevel;
+    const int affixItemLevel   = module.m_affixItemLevel;
 
     auto makeLevelModifier = [](int percent) {
         return [percent](std::optional<int>& data) {

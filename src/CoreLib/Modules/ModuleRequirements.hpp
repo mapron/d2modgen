@@ -4,18 +4,12 @@
  * See LICENSE file for details.
  */
 #pragma once
-#include "PluginModule.hpp"
+#include "IModule.hpp"
 
 namespace D2ModGen {
 
-class ModuleRequirements : public PluginModule {
-public:
-    static constexpr const std::string_view configKey{ "requirements" };
-    static constexpr const std::string_view moduleKey{ "appModuleRequirements" };
-
-    ModuleRequirements();
-
-    void generate(DataContext& output, RandomGenerator& rng, const InputContext& input) const override;
+struct ModuleRequirements : public IModule {
+    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
 };
 
 }

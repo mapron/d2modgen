@@ -3,7 +3,8 @@ import QtQuick.Layouts
 import QtQuick.Controls.Fusion
 
 WidgetScrollable {
-    property var value_context: null
+    property QtObject value_context: null
+    property string enabled_key: ""
     property string caption: ""
     property string tooltip: ""
 
@@ -32,19 +33,20 @@ WidgetScrollable {
             indicator.implicitWidth: 18
             indicator.implicitHeight: 18
 
-            checked: value_context.enabled
+            checked: config.enabledModules[enabled_key]
             text: qsTr("Enable this tab")
 
-            onClicked: value_context.enabled = checked
+            onClicked: config.enabledModules[enabled_key] = checked
         }
+        /*
         Button {
             text: qsTr("Reset to default")
             onClicked: value_context.resetToDefault()
-        }
+        }*/
     }
 
     ColumnLayout {
         id: contentContainer
-        enabled: value_context.enabled
+        enabled: config.enabledModules[enabled_key]
     }
 }

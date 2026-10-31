@@ -655,9 +655,9 @@ struct AttributeDesc {
         element = e;
         return *this;
     }
-    AttributeDesc setRequiredSlots(SlotSet slots) &&
+    AttributeDesc setRequiredSlots(SlotSet slots_) &&
     {
-        requiredSlots = std::move(slots);
+        requiredSlots = std::move(slots_);
         return *this;
     }
     AttributeDesc setRequiredSlots(SlotType slot) &&

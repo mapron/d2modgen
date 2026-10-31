@@ -7,7 +7,7 @@ import "./Widgets"
 
 WidgetScrollable {
     id: root
-    property var value_context: appModuleMain
+    property var value_context: config.moduleMain
 
     RowLayout {
         spacing: 6
@@ -19,7 +19,7 @@ WidgetScrollable {
 
         Button {
             text: qsTr("Reset to default")
-            onClicked: value_context.resetToDefault()
+            onClicked: config.moduleMain.resetToDefault()
         }
         Item {
             Layout.fillWidth: true
@@ -93,27 +93,16 @@ WidgetScrollable {
             text: qsTr("Target D2 Game version:")
         }
 
-        DynamicItemInt {
-            id: versionMajor
-            value_context: root.value_context
-            value_key: "versionMajor"
-        }
-        DynamicItemInt {
-            id: versionD2R
-            value_context: root.value_context
-            value_key: "versionD2R"
-        }
-
         ButtonGroup {
             id: radioGroupMajor
             onClicked: button => {
-                versionMajor.dynamicValue = button.buttonIndex;
+                config.moduleMain.versionMajor = button.buttonIndex;
             }
         }
         ButtonGroup {
             id: radioGroupD2R
             onClicked: button => {
-                versionD2R.dynamicValue = button.buttonIndex;
+                config.moduleMain.versionD2R = button.buttonIndex;
             }
         }
 
@@ -124,12 +113,12 @@ WidgetScrollable {
                 text: modelData
                 ButtonGroup.group: radioGroupMajor
                 property int buttonIndex: index
-                checked: index === versionMajor.dynamicValue
+                checked: index === config.moduleMain.versionMajor
             }
         }
 
         Rectangle {
-            visible: versionMajor.dynamicValue == 1
+            visible: config.moduleMain.versionMajor === 1
             Layout.fillHeight: true
             Layout.preferredWidth: 1
             color: palette.accent
@@ -138,10 +127,10 @@ WidgetScrollable {
             model: [qsTr("D2R - LoD"), qsTr("D2R - RotW")]
             RadioButton {
                 text: modelData
-                visible: versionMajor.dynamicValue == 1
+                visible: config.moduleMain.versionMajor === 1
                 ButtonGroup.group: radioGroupD2R
                 property int buttonIndex: index
-                checked: index === versionD2R.dynamicValue
+                checked: index === config.moduleMain.versionD2R
             }
         }
 

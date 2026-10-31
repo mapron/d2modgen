@@ -1,16 +1,224 @@
 structs:
-    Fruit:
-        structs:
-            Leaf:
-                members:
-                    mode: { type: str }
+    EnabledModules:
         members:
-            leaf:
-                type: Leaf
-            weight: { type: int, def: 42, min: 1, max: 100 }
-            flag: { type: bool, def: true }
-            name: { type: str }
+            moduleChallenge: { type: bool, def: false, presets: { crazy: true } }
+            moduleCharacter: { type: bool, def: false }
+            moduleCube: { type: bool, def: false }
+            moduleDropFiltering: { type: bool, def: false }
+            moduleGambling: { type: bool, def: false }
+            moduleItemDrops: { type: bool, def: false }
+            moduleItemRandomizer: { type: bool, def: false }
+            moduleMonDensity: { type: bool, def: false }
+            moduleMonRandomizer: { type: bool, def: false }
+            moduleMonStats: { type: bool, def: false }
+            modulePerfectRoll: { type: bool, def: false }
+            moduleQol: { type: bool, def: false }
+            moduleRequirements: { type: bool, def: false }
+            moduleRuneDrops: { type: bool, def: false }
+            moduleSkillRandomizer: { type: bool, def: false }
+    ModuleMain:
+        members:
+            d2rLocaleId: { type: int, def: 0, min: 0, max: 9000 }
+            inputMode: { type: int, def: 0, min: 0, max: 9000 }
+            inputPath: { type: str }
+            modname: { type: str, def: "rando"}
+            outputMode: { type: int, def: 0, min: 0, max: 9000 }
+            outputPath: { type: str }
+            refreshSeed: { type: bool, def: true }
+            seed: { type: int, def: 0, min: 0, max: 4294967295 }
+            versionD2R: { type: int, def: 1, min: 0, max: 9000 }
+            versionMajor: { type: int, def: 1, min: 0, max: 9000 }
+    ModuleChallenge:
+        members:
+            hell_minus_res: { type: int, def: 100, min: 0, max: 9000 }
+            levelIncreaseHell: { type: int, def: 0, min: 0, max: 9000 }
+            levelIncreaseNightmare: { type: int, def: 0, min: 0, max: 9000 }
+            levelIncreaseUltra: { type: bool, def: false }
+            nightmare_minus_res: { type: int, def: 40, min: 0, max: 9000 }
+            nodrop_hpsa: { type: bool, def: false }
+            nodrop_mpsa: { type: bool, def: false }
+            nodrop_rvs: { type: bool, def: false }
+            normal_minus_res: { type: int, def: 0, min: 0, max: 9000 }
+    ModuleCharacter:
+        members:
+            addCube: { type: bool, def: false }
+            addTeleport: { type: bool, def: false }
+            idTome: { type: bool, def: false }
+            manaPots: { type: bool, def: false }
+            mercDam: { type: int, def: 100, min: 0, max: 9000 }
+            mercHP: { type: int, def: 100, min: 0, max: 9000 }
+            skillPerLevel: { type: int, def: 1, min: 0, max: 9000 }
+            skillPointLimit: { type: int, def: 20, min: 0, max: 9000 }
+            statPerLevel: { type: int, def: 5, min: 0, max: 9000 }
+    ModuleCube:
+        members:
+            cheatCharms: { type: bool, def: false }
+            craftHighIlvl: { type: bool, def: false }
+            craftNoRunes: { type: bool, def: false }
+            craftNoStrict: { type: bool, def: false }
+            noGemUpgrade: { type: bool, def: false }
+            quickPortals: { type: bool, def: true }
+            quickQuests: { type: bool, def: true }
+            socketing: { type: bool, def: false }
+            upgrading: { type: bool, def: false }
+    ModuleDropFiltering:
+        members:
+            compact_pots: { type: bool, def: false }
+            compact_scrolls: { type: bool, def: false }
+            hide_ammo: { type: bool, def: false }
+            hide_hps: { type: bool, def: false }
+            hide_hpsa: { type: bool, def: false }
+            hide_isc: { type: bool, def: false }
+            hide_junks: { type: bool, def: false }
+            hide_lowq: { type: bool, def: false }
+            hide_mps: { type: bool, def: false }
+            hide_mpsa: { type: bool, def: false }
+            hide_rvl: { type: bool, def: false }
+            hide_rvs: { type: bool, def: false }
+            hide_stam: { type: bool, def: false }
+            hide_tsc: { type: bool, def: false }
+    ModuleGambling:
+        members:
+            charmGamble: { type: bool, def: false }
+            ratioElite: { type: int, def: 1, min: 0, max: 9000 }
+            ratioExc: { type: int, def: 1, min: 0, max: 9000 }
+            ratioRare: { type: int, def: 1, min: 0, max: 9000 }
+            ratioSet: { type: int, def: 1, min: 0, max: 9000 }
+            ratioUnique: { type: int, def: 1, min: 0, max: 9000 }
+    ModuleItemDrops:
+        members:
+            boss_quest_drops: { type: bool, def: true }
+            chance_highlevel: { type: int, def: 2, min: 0, max: 9000 }
+            chance_rare: { type: int, def: 3, min: 0, max: 9000 }
+            chance_set: { type: int, def: 5, min: 0, max: 9000 }
+            chance_uni: { type: int, def: 7, min: 0, max: 9000 }
+            drop_percent: { type: int, def: 100, min: 0, max: 9000 }
+            equal_uniques: { type: bool, def: true }
+            equip_percent: { type: int, def: 100, min: 0, max: 9000 }
+            gold_percent: { type: int, def: 100, min: 0, max: 9000 }
+            good_percent: { type: int, def: 100, min: 0, max: 9000 }
+            high_elite_drops: { type: bool, def: true }
+            junk_percent: { type: int, def: 10, min: 0, max: 9000 }
+    ModuleItemRandomizer:
+        members:
+            affixRandom: { type: bool, def: true }
+            casterTypePercent: { type: int, def: 25, min: 0, max: 9000 }
+            frequencyAuras: { type: int, def: 100, min: 0, max: 9000 }
+            frequencyCharAttributes: { type: int, def: 100, min: 0, max: 9000 }
+            frequencyProcs: { type: int, def: 100, min: 0, max: 9000 }
+            frequencyResistances: { type: int, def: 100, min: 0, max: 9000 }
+            frequencySkills: { type: int, def: 100, min: 0, max: 9000 }
+            gemsRandom: { type: bool, def: false }
+            itemFitPercent: { type: int, def: 100, min: 0, max: 9000 }
+            keepOriginalPercent: { type: int, def: 50, min: 0, max: 9000 }
+            levelMinus: { type: int, def: 20, min: 0, max: 9000 }
+            levelPlus: { type: int, def: 10, min: 0, max: 9000 }
+            relativeCountMax: { type: int, def: 200, min: 0, max: 9000 }
+            relativeCountMin: { type: int, def: 100, min: 0, max: 9000 }
+            removeKnock: { type: bool, def: true }
+            repeat_sets: { type: int, def: 5, min: 0, max: 9000 }
+            repeat_uniques: { type: int, def: 5, min: 0, max: 9000 }
+            replaceCharges: { type: bool, def: true }
+            replaceSkills: { type: bool, def: false }
+            setBonusMode: { type: int, def: 1, min: 0, max: 9000 }
+            setRelativeCountMax: { type: int, def: 200, min: 0, max: 9000 }
+            setRelativeCountMin: { type: int, def: 100, min: 0, max: 9000 }
+            updateExisting: { type: bool, def: true }
+    ModuleMonDensity:
+        members:
+            density: { type: int, def: 1, min: 0, max: 9000 }
+            hellPacks: { type: bool, def: false }
+            mon_groups: { type: int, def: 0, min: 0, max: 9000 }
+            packs: { type: int, def: 1, min: 0, max: 9000 }
+    ModuleMonRandomizer:
+        members:
+            hellResistances: { type: bool, def: false }
+            maxTypes: { type: int, def: 25, min: 0, max: 9000 }
+            randomizeResistances: { type: bool, def: false }
+            randomizeSpawns: { type: bool, def: true }
+            spawnedCount: { type: int, def: 5, min: 0, max: 9000 }
+    ModuleMonStats:
+        members:
+            max_resist: { type: int, def: 250, min: 0, max: 9000 }
+            mon_ar: { type: int, def: 100, min: 0, max: 9000 }
+            mon_dam: { type: int, def: 100, min: 0, max: 9000 }
+            mon_def: { type: int, def: 100, min: 0, max: 9000 }
+            mon_hp: { type: int, def: 100, min: 0, max: 9000 }
+            mon_xp: { type: int, def: 100, min: 0, max: 9000 }
+            rel_resist: { type: int, def: 100, min: 0, max: 9000 }
+            resist_apply_elem: { type: bool, def: true }
+            resist_apply_magic: { type: bool, def: false }
+            resist_apply_physical: { type: bool, def: false }
+            resist_apply_poison: { type: bool, def: true }
+    ModulePerfectRoll:
+        members:
+            affix_power_l1: { type: int, def: 100, min: 0, max: 9000 }
+            affix_power_l50: { type: int, def: 100, min: 0, max: 9000 }
+            affixes: { type: bool, def: true }
+            armor: { type: bool, def: true }
+            craft: { type: bool, def: true }
+            crafted: { type: bool, def: true }
+            crafted_power: { type: int, def: 100, min: 0, max: 9000 }
+            gem_power: { type: int, def: 100, min: 0, max: 9000 }
+            runeWords: { type: bool, def: true }
+            rw_power: { type: int, def: 100, min: 0, max: 9000 }
+            setItems: { type: bool, def: true }
+            set_power_l1: { type: int, def: 100, min: 0, max: 9000 }
+            set_power_l50: { type: int, def: 100, min: 0, max: 9000 }
+            uniques: { type: bool, def: true }
+            uniques_power_l1: { type: int, def: 100, min: 0, max: 9000 }
+            uniques_power_l50: { type: int, def: 100, min: 0, max: 9000 }
+    ModuleQol:
+        members:
+            disableExpPenalty: { type: bool, def: false }
+            keySize: { type: bool, def: false }
+            quiverSize: { type: bool, def: false }
+            reduceCost: { type: int, def: 100, min: 0, max: 9000 }
+            showItemLevel: { type: bool, def: false }
+            tomeSize: { type: bool, def: false }
+            uniqueCharmLimit: { type: bool, def: false }
+            weakenTownSkills: { type: bool, def: false }
+            weakenTownSkillsExt: { type: bool, def: false }
+    ModuleRequirements:
+        members:
+            affixItemLevel: { type: int, def: 100, min: 0, max: 9000 }
+            affixReqLevel: { type: int, def: 100, min: 0, max: 9000 }
+            equipItemLevel: { type: int, def: 100, min: 0, max: 9000 }
+            equipReqLevel: { type: int, def: 100, min: 0, max: 9000 }
+            reqDex: { type: int, def: 100, min: 0, max: 9000 }
+            reqStr: { type: int, def: 100, min: 0, max: 9000 }
+            skillsReqLevel: { type: int, def: 100, min: 0, max: 9000 }
+            uniquesItemLevel: { type: int, def: 100, min: 0, max: 9000 }
+            uniquesReqLevel: { type: int, def: 100, min: 0, max: 9000 }
+    ModuleRuneDrops:
+        members:
+            countess_rune_higher: { type: bool, def: false }
+            countess_rune_more: { type: bool, def: false }
+            highrune_switch: { type: bool, def: false }
+            rune_factor: { type: int, def: 1, min: 0, max: 9000 }
+            wraith_runes: { type: bool, def: false }
+            zod_factor: { type: int, def: 1, min: 0, max: 9000 }
+    ModuleSkillRandomizer:
+        members:
+            ensureDifferent: { type: bool, def: true }
+            skillDamage: { type: bool, def: true }
+            skillTree: { type: bool, def: true }
 members:
-    one: { type: Fruit }
-    two: { type: Fruit }
-    bar: { type: int, def: 77, min: 1, max: 111 }
+    enabledModules: { type: EnabledModules }
+    moduleMain: { type: ModuleMain }
+    moduleChallenge: { type: ModuleChallenge }
+    moduleCharacter: { type: ModuleCharacter }
+    moduleCube: { type: ModuleCube }
+    moduleDropFiltering: { type: ModuleDropFiltering }
+    moduleGambling: { type: ModuleGambling }
+    moduleItemDrops: { type: ModuleItemDrops }
+    moduleItemRandomizer: { type: ModuleItemRandomizer }
+    moduleMonDensity: { type: ModuleMonDensity }
+    moduleMonRandomizer: { type: ModuleMonRandomizer }
+    moduleMonStats: { type: ModuleMonStats }
+    modulePerfectRoll: { type: ModulePerfectRoll }
+    moduleQol: { type: ModuleQol }
+    moduleRequirements: { type: ModuleRequirements }
+    moduleRuneDrops: { type: ModuleRuneDrops }
+    moduleSkillRandomizer: { type: ModuleSkillRandomizer }
+
