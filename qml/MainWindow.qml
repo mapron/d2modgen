@@ -96,21 +96,28 @@ ApplicationWindow {
 
                     PageMain {}
                     PageTool {}
-                    ModuleChallenge {}
-                    ModuleCharacter {}
-                    ModuleCube {}
-                    ModuleDropFiltering {}
-                    ModuleGambling {}
-                    ModuleItemDrops {}
+                    Item {}
                     ModuleItemRandomizer {}
-                    ModuleMonDensity {}
                     ModuleMonRandomizer {}
-                    ModuleMonStats {}
-                    ModulePerfectRoll {}
-                    ModuleQol {}
-                    ModuleRequirements {}
-                    ModuleRuneDrops {}
                     ModuleSkillRandomizer {}
+
+                    Item {}
+                    ModuleMonStats {}
+                    ModuleMonDensity {}
+                    ModuleChallenge {}
+
+                    Item {}
+                    ModuleCube {}
+                    ModuleGambling {}
+                    ModuleCharacter {}
+                    ModuleItemDrops {}
+                    ModuleRuneDrops {}
+                    ModulePerfectRoll {}
+                    ModuleRequirements {}
+
+                    Item {}
+                    ModuleQol {}
+                    ModuleDropFiltering {}
                 }
             }
         }

@@ -17,7 +17,7 @@
 #include "Modules/ModuleCube.hpp"
 #include "Modules/ModuleDropFiltering.hpp"
 #include "Modules/ModuleGambling.hpp"
-#include "Modules/ModuleItemDrops.hpp"
+#include "Modules/ModuleTreasureClasses.hpp"
 #include "Modules/ModuleItemRandomizer.hpp"
 #include "Modules/ModuleMonDensity.hpp"
 #include "Modules/ModuleMonRandomizer.hpp"
@@ -25,7 +25,6 @@
 #include "Modules/ModulePerfectRoll.hpp"
 #include "Modules/ModuleQol.hpp"
 #include "Modules/ModuleRequirements.hpp"
-#include "Modules/ModuleRuneDrops.hpp"
 #include "Modules/ModuleSkillRandomizer.hpp"
 
 #include "Storage/StorageCache.hpp"
@@ -69,13 +68,12 @@ struct ModuleAll : public IModule {
         modules.push_back(create<ModuleChallenge>("Challenge"));
         modules.push_back(create<ModuleCharacter>("Character"));
         modules.push_back(create<ModuleGambling>("Gambling"));
-        modules.push_back(create<ModuleItemDrops>("ItemDrops"));
+        modules.push_back(create<ModuleTreasureClasses>("TreasureClasses"));
         modules.push_back(create<ModuleMonDensity>("MonDensity"));
         modules.push_back(create<ModuleMonStats>("MonStats"));
         modules.push_back(create<ModulePerfectRoll>("PerfectRoll"));
         modules.push_back(create<ModuleQol>("Qol"));
         modules.push_back(create<ModuleRequirements>("Requirements"));
-        modules.push_back(create<ModuleRuneDrops>("RuneDrops"));
 
         // modules that can add more rows, thus in the end
         modules.push_back(create<ModuleCube>("Cube"));

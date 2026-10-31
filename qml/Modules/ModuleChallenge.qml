@@ -6,7 +6,7 @@ import "../Widgets"
 WidgetCommonTab {
     id: root
     value_context: config.moduleChallenge
-    enabled_key: config.enabledModules.moduleChallenge
+    enabled_key: config.moduleChallenge.enabled
     caption: qsTr("Challenge")
     tooltip: qsTr("First, you can disable potion drops entirely (that's not the same as drop filter).<br>Second, you can change resistance penalty for each difficulty from default 0/40/100.<br>And the last, you can adjust level area on all maps; <br>note that max value of 85 is still used (so set to 20 to basically make all Hell areas lvl 85).")
 
@@ -28,35 +28,35 @@ WidgetCommonTab {
         value_key: root.value_context.nodrop_rvs
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Normal difficulty resistance penalty, -all%")
         tooltip: ""
         value_key: root.value_context.normal_minus_res
         isCompact: false
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Nightmare difficulty resistance penalty, -all%")
         tooltip: ""
         value_key: root.value_context.nightmare_minus_res
         isCompact: false
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Hell difficulty resistance penalty, -all%")
         tooltip: ""
         value_key: root.value_context.hell_minus_res
         isCompact: false
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Increase Nightmare area levels, +levels")
         tooltip: ""
         value_key: root.value_context.levelIncreaseNightmare
         isCompact: false
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Increase Hell area levels, +levels")
         tooltip: ""
         value_key: root.value_context.levelIncreaseHell

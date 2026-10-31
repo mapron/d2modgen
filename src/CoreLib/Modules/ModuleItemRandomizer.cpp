@@ -50,7 +50,7 @@ std::string makeValue(std::string old, int copy)
 
 void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_enabledModules.m_moduleItemRandomizer)
+    if (!config.m_moduleItemRandomizer.m_enabled)
         return;
 
     const auto& module = config.m_moduleItemRandomizer;

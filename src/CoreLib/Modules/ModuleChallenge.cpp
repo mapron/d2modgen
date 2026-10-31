@@ -9,7 +9,7 @@ namespace D2ModGen {
 
 void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_enabledModules.m_moduleChallenge)
+    if (!config.m_moduleChallenge.m_enabled)
         return;
 
     const auto& module = config.m_moduleChallenge;

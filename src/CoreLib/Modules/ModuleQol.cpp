@@ -9,11 +9,9 @@ namespace D2ModGen {
 
 void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_enabledModules.m_moduleQol)
-        return;
     const auto& module = config.m_moduleQol;
 
-    const bool tomeSize            = module.m_tomeSize;
+    const int  tomeSize            = module.m_tomeSize;
     const bool keySize             = module.m_keySize;
     const bool quiverSize          = module.m_quiverSize;
     const bool uniqueCharmLimit    = module.m_uniqueCharmLimit;
@@ -22,11 +20,11 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const Config
     const bool showItemLevel       = module.m_showItemLevel;
     const bool disableExpPenalty   = module.m_disableExpPenalty;
     const int  reduceCost          = module.m_reduceCost;
-    if (tomeSize || keySize || quiverSize) {
+    if (keySize || quiverSize) {
         for (auto& row : output.misc.rows) {
             auto& code = row.code;
-            if (tomeSize && (row.code == "ibk" || row.code == "tbk"))
-                row.maxstack = 60;
+            if (row.code == "ibk" || row.code == "tbk")
+                row.maxstack = std::max(tomeSize, row.maxstack.value_or(0));
             if (keySize && code == "key")
                 row.maxstack = 50;
             if (quiverSize && (code == "aqv" || code == "cqv"))

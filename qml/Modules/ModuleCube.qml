@@ -6,7 +6,7 @@ import "../Widgets"
 WidgetCommonTab {
     id: root
     value_context: config.moduleCube
-    enabled_key: config.enabledModules.moduleCube
+    enabled_key: null
     caption: qsTr("Horadric Cube")
     tooltip: qsTr("Create some recipes to cheese/cut corners around the game. <br>Input and results are self-explanatory.")
 

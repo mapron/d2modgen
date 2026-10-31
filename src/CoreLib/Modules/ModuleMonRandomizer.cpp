@@ -218,7 +218,7 @@ struct MonResist {
 
 void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_enabledModules.m_moduleMonRandomizer)
+    if (!config.m_moduleMonRandomizer.m_enabled)
         return;
     const auto&  module = config.m_moduleMonRandomizer;
     MonTypeTable typeTable;

@@ -9,8 +9,6 @@ namespace D2ModGen {
 
 void ModuleRequirements::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_enabledModules.m_moduleRequirements)
-        return;
     const auto& module = config.m_moduleRequirements;
 
     const int reqStr = module.m_reqStr;

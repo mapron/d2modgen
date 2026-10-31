@@ -12,9 +12,9 @@ namespace D2ModGen {
 
 void ModuleDropFiltering::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_enabledModules.m_moduleDropFiltering)
-        return;
     const auto& module = config.m_moduleDropFiltering;
+    if (!module.m_enabled)
+        return;
 
     struct Item {
         StringSet internalIds;

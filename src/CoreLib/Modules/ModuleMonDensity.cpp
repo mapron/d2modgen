@@ -11,8 +11,6 @@ namespace D2ModGen {
 
 void ModuleMonDensity::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_enabledModules.m_moduleMonDensity)
-        return;
     const auto& module = config.m_moduleMonDensity;
     {
         const int groupIncrease = module.m_mon_groups;

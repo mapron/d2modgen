@@ -47,7 +47,8 @@ class PropertyInt_Qt : public QObject {
     Q_PROPERTY(qlonglong value READ getValue WRITE setValue NOTIFY dataChanged)
     Q_PROPERTY(qlonglong min READ getMin CONSTANT)
     Q_PROPERTY(qlonglong max READ getMax CONSTANT)
-    Q_PROPERTY(bool isPercent READ getIsPercent CONSTANT)
+    Q_PROPERTY(bool isPercent READ isPercent CONSTANT)
+    Q_PROPERTY(bool hasLogScale READ hasLogScale CONSTANT)
 
 public:
     PropertyInt_Qt(CommonStruct::PropertyInt& data)
@@ -71,7 +72,8 @@ public:
 
     qlonglong getMin() const { return m_data.m_min; }
     qlonglong getMax() const { return m_data.m_max; }
-    bool      getIsPercent() const { return m_data.m_isPercent; }
+    bool      isPercent() const { return m_data.m_isPercent; }
+    bool      hasLogScale() const { return m_data.m_hasLogScale; }
 
 signals:
     void dataChanged();

@@ -11,8 +11,6 @@ namespace D2ModGen {
 
 void ModulePerfectRoll::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_enabledModules.m_modulePerfectRoll)
-        return;
     const auto& module = config.m_modulePerfectRoll;
 
     auto makeScaler2 = [](int scale1, int scale50) {

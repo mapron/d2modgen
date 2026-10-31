@@ -1,224 +1,235 @@
 structs:
-    EnabledModules:
+    TreasureClasses:
+        structs:
+            Runes:
+                members:
+                    enabled: { type: bool, zero: false, recc: false }
+                    countessSpecialRuneLevel: { type: int, zero: 0, recc: 3, min: 0, max: 15, presets: { crazy: 5 } }
+                    countessSpecialRuneMore: { type: bool, zero: false }
+                    wraithOnlyRunes: { type: bool, zero: false }
+
+                    runeInGoodTC: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
+                    zodFactor: { type: int, zero: 1, min: 1, max: 1000 }
+            Items:
+                members:
+                    enabled: { type: bool, zero: false, recc: false }
+                    forceQuestDrops: { type: bool, zero: false, recc: true }
+                    chanceForHighLevel: { type: int, zero: 100, recc: 200, min: 50, max: 2000, percent: true, logScale: true }
+
+                    noneliteFactorIncrease: { type: int, zero: 100, recc: 500, min: 20, max: 5000, percent: true, logScale: true }
+
+                    rareFactorIncrease:   { type: int, zero: 100, recc: 300, min: 20, max: 2000, percent: true, logScale: true }
+                    setFactorIncrease:    { type: int, zero: 100, recc: 500, min: 20, max: 5000, percent: true, logScale: true }
+                    uniqueFactorIncrease: { type: int, zero: 100, recc: 700, min: 20, max: 5000, percent: true, logScale: true }
+                    
+                    inverseNodropPercent:  { type: int, zero: 100, min: 25, max: 9100, percent: true, logScale: true }
+                    equipPercent: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
+                    goldPercent:  { type: int, zero: 100, min: 5 , max: 1000, percent: true, logScale: true }
+                    goodPercent:  { type: int, zero: 100, min: 25, max: 1000, percent: true, logScale: true }
+                    junkPercent:  { type: int, zero: 10 , min: 5 , max: 500 , percent: true, logScale: true }
+
+                    championItemCount: { type: int, zero: 1, min: 0, max: 6 }
+                    uniqueItemCount: { type: int, zero: 1, min: 0, max: 6 }
+                    superItemCount: { type: int, zero: 2, min: 0, max: 6 }
+                    removeChampGold: { type: bool, zero: false, recc: true }
+                    removeElitePotions: { type: bool, zero: false, recc: true }
+
+                    sameRarityForSetUniqueItems: { type: bool, zero: true } # todo: move
+
+
         members:
-            moduleChallenge: { type: bool, def: false, presets: { crazy: true } }
-            moduleCharacter: { type: bool, def: false }
-            moduleCube: { type: bool, def: false }
-            moduleDropFiltering: { type: bool, def: false }
-            moduleGambling: { type: bool, def: false }
-            moduleItemDrops: { type: bool, def: false }
-            moduleItemRandomizer: { type: bool, def: false }
-            moduleMonDensity: { type: bool, def: false }
-            moduleMonRandomizer: { type: bool, def: false }
-            moduleMonStats: { type: bool, def: false }
-            modulePerfectRoll: { type: bool, def: false }
-            moduleQol: { type: bool, def: false }
-            moduleRequirements: { type: bool, def: false }
-            moduleRuneDrops: { type: bool, def: false }
-            moduleSkillRandomizer: { type: bool, def: false }
+            runes: { type: struct, name: Runes }
+            items: { type: struct, name: Items }
+
     ModuleMain:
         members:
-            d2rLocaleId: { type: int, def: 0, min: 0, max: 14 }
-            inputMode: { type: int, def: 0, min: 0, max: 2 }
+            d2rLocaleId: { type: int, zero: 0, min: 0, max: 14 }
+            inputMode: { type: int, zero: 0, min: 0, max: 2 }
             inputPath: { type: str }
-            modname: { type: str, def: "rando"}
-            outputMode: { type: int, def: 0, min: 0, max: 3 }
+            modname: { type: str, zero: "rando"}
+            outputMode: { type: int, zero: 0, min: 0, max: 3 }
             outputPath: { type: str }
-            refreshSeed: { type: bool, def: true }
-            seed: { type: int, def: 0, min: 0, max: 4294967295 }
-            versionD2R: { type: int, def: 1, min: 0, max: 1 }
-            versionMajor: { type: int, def: 1, min: 0, max: 1 }
+            refreshSeed: { type: bool, zero: true }
+            seed: { type: int, zero: 0, min: 0, max: 4294967295 }
+            versionD2R: { type: int, zero: 1, min: 0, max: 1 }
+            versionMajor: { type: int, zero: 1, min: 0, max: 1 }
     ModuleChallenge:
         members:
-            levelIncreaseHell: { type: int, def: 0, min: 0, max: 30 }
-            levelIncreaseNightmare: { type: int, def: 0, min: 0, max: 20 }
-            levelIncreaseUltra: { type: bool, def: false }
-            normal_minus_res: { type: int, def: 0, min: 0, max: 250 }
-            nightmare_minus_res: { type: int, def: 40, min: 0, max: 250 }
-            hell_minus_res: { type: int, def: 100, min: 0, max: 250 }
-            nodrop_hpsa: { type: bool, def: false }
-            nodrop_mpsa: { type: bool, def: false }
-            nodrop_rvs: { type: bool, def: false }
+            enabled: { type: bool, zero: false, recc: false }
+            levelIncreaseHell: { type: int, zero: 0, min: 0, max: 30 }
+            levelIncreaseNightmare: { type: int, zero: 0, min: 0, max: 20 }
+            levelIncreaseUltra: { type: bool, zero: false }
+            normal_minus_res: { type: int, zero: 0, min: 0, max: 250 }
+            nightmare_minus_res: { type: int, zero: 40, min: 0, max: 250 }
+            hell_minus_res: { type: int, zero: 100, min: 0, max: 250 }
+            nodrop_hpsa: { type: bool, zero: false }
+            nodrop_mpsa: { type: bool, zero: false }
+            nodrop_rvs: { type: bool, zero: false }
     ModuleCharacter:
         members:
-            addCube: { type: bool, def: false }
-            addTeleport: { type: bool, def: false }
-            idTome: { type: bool, def: false }
-            manaPots: { type: bool, def: false }
-            mercDam: { type: int, def: 100, min: 20, max: 1000, percent: true }
-            mercHP: { type: int, def: 100, min: 20, max: 1000, percent: true }
-            skillPerLevel: { type: int, def: 1, min: 1, max: 20 }
-            skillPointLimit: { type: int, def: 20, min: 1, max: 60 }
-            statPerLevel: { type: int, def: 5, min: 1, max: 25 }
+            enabled: { type: bool, zero: false, recc: false }
+            addCube: { type: bool, zero: false }
+            addTeleport: { type: bool, zero: false }
+            idTome: { type: bool, zero: false }
+            manaPots: { type: bool, zero: false }
+            mercDam: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
+            mercHP: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
+            skillPerLevel: { type: int, zero: 1, min: 1, max: 20 }
+            skillPointLimit: { type: int, zero: 20, min: 1, max: 60 }
+            statPerLevel: { type: int, zero: 5, min: 1, max: 25 }
     ModuleCube:
         members:
-            cheatCharms: { type: bool, def: false }
-            craftHighIlvl: { type: bool, def: false }
-            craftNoRunes: { type: bool, def: false }
-            craftNoStrict: { type: bool, def: false }
-            noGemUpgrade: { type: bool, def: false }
-            quickPortals: { type: bool, def: true }
-            quickQuests: { type: bool, def: true }
-            socketing: { type: bool, def: false }
-            upgrading: { type: bool, def: false }
+            cheatCharms: { type: bool, zero: false }
+            craftHighIlvl: { type: bool, zero: false }
+            craftNoRunes: { type: bool, zero: false }
+            craftNoStrict: { type: bool, zero: false }
+            noGemUpgrade: { type: bool, zero: false }
+            quickPortals: { type: bool, zero: true }
+            quickQuests: { type: bool, zero: true }
+            socketing: { type: bool, zero: false }
+            upgrading: { type: bool, zero: false }
     ModuleDropFiltering:
         members:
-            compact_pots: { type: bool, def: false }
-            compact_scrolls: { type: bool, def: false }
-            hide_ammo: { type: bool, def: false }
-            hide_hps: { type: bool, def: false }
-            hide_hpsa: { type: bool, def: false }
-            hide_isc: { type: bool, def: false }
-            hide_junks: { type: bool, def: false }
-            hide_lowq: { type: bool, def: false }
-            hide_mps: { type: bool, def: false }
-            hide_mpsa: { type: bool, def: false }
-            hide_rvl: { type: bool, def: false }
-            hide_rvs: { type: bool, def: false }
-            hide_stam: { type: bool, def: false }
-            hide_tsc: { type: bool, def: false }
+            enabled: { type: bool, zero: false, recc: false }
+            compact_pots: { type: bool, zero: false }
+            compact_scrolls: { type: bool, zero: false }
+            hide_ammo: { type: bool, zero: false }
+            hide_hps: { type: bool, zero: false }
+            hide_hpsa: { type: bool, zero: false }
+            hide_isc: { type: bool, zero: false }
+            hide_junks: { type: bool, zero: false }
+            hide_lowq: { type: bool, zero: false }
+            hide_mps: { type: bool, zero: false }
+            hide_mpsa: { type: bool, zero: false }
+            hide_rvl: { type: bool, zero: false }
+            hide_rvs: { type: bool, zero: false }
+            hide_stam: { type: bool, zero: false }
+            hide_tsc: { type: bool, zero: false }
     ModuleGambling:
         members:
-            charmGamble: { type: bool, def: false }
-            ratioElite: { type: int, def: 1, min: 1, max: 10 }
-            ratioExc: { type: int, def: 1, min: 1, max: 4 }
-            ratioRare: { type: int, def: 1, min: 1, max: 4 }
-            ratioSet: { type: int, def: 1, min: 1, max: 250 }
-            ratioUnique: { type: int, def: 1, min: 1, max: 500 }
-    ModuleItemDrops:
-        members:
-            boss_quest_drops: { type: bool, def: true }
-            chance_highlevel: { type: int, def: 2, min: 1, max: 15 }
-            chance_rare: { type: int, def: 3, min: 1, max: 15 }
-            chance_set: { type: int, def: 5, min: 1, max: 30 }
-            chance_uni: { type: int, def: 7, min: 1, max: 50 }
-            drop_percent: { type: int, def: 100, min: 25, max: 9100, percent: true }
-            equal_uniques: { type: bool, def: true }
-            equip_percent: { type: int, def: 100, min: 20, max: 1000, percent: true }
-            gold_percent: { type: int, def: 100, min: 5, max: 1000 }
-            good_percent: { type: int, def: 100, min: 25, max: 1000, percent: true }
-            high_elite_drops: { type: bool, def: true }
-            junk_percent: { type: int, def: 10, min: 5, max: 500, percent: true }
+            charmGamble: { type: bool, zero: false }
+            ratioElite: { type: int, zero: 1, min: 1, max: 10 }
+            ratioExc: { type: int, zero: 1, min: 1, max: 4 }
+            ratioRare: { type: int, zero: 1, min: 1, max: 4 }
+            ratioSet: { type: int, zero: 1, min: 1, max: 250 }
+            ratioUnique: { type: int, zero: 1, min: 1, max: 500 }
+
+
     ModuleItemRandomizer:
         members:
-            affixRandom: { type: bool, def: true }
-            casterTypePercent: { type: int, def: 25, min: 0, max: 100 }
-            frequencyAuras: { type: int, def: 100, min: 5, max: 1000, percent: true }
-            frequencyCharAttributes: { type: int, def: 100, min: 5, max: 1000, percent: true }
-            frequencyProcs: { type: int, def: 100, min: 5, max: 1000, percent: true }
-            frequencyResistances: { type: int, def: 100, min: 5, max: 1000, percent: true }
-            frequencySkills: { type: int, def: 100, min: 5, max: 1000, percent: true }
-            gemsRandom: { type: bool, def: false }
-            itemFitPercent: { type: int, def: 100, min: 0, max: 100 }
-            keepOriginalPercent: { type: int, def: 50, min: 0, max: 100 }
-            levelMinus: { type: int, def: 20, min: 0, max: 100 }
-            levelPlus: { type: int, def: 10, min: 0, max: 100 }
-            relativeCountMax: { type: int, def: 200, min: 20, max: 1000, percent: true }
-            relativeCountMin: { type: int, def: 100, min: 20, max: 1000, percent: true }
-            removeKnock: { type: bool, def: true }
-            repeat_sets: { type: int, def: 5, min: 1, max: 5 }
-            repeat_uniques: { type: int, def: 5, min: 1, max: 5 }
-            replaceCharges: { type: bool, def: true }
-            replaceSkills: { type: bool, def: false }
-            setBonusMode: { type: int, def: 1, min: 0, max: 2 }
-            setRelativeCountMax: { type: int, def: 200, min: 20, max: 1000, percent: true }
-            setRelativeCountMin: { type: int, def: 100, min: 20, max: 1000, percent: true }
-            updateExisting: { type: bool, def: true }
+            enabled: { type: bool, zero: false, recc: true }
+            affixRandom: { type: bool, zero: true }
+            casterTypePercent:       { type: int, zero: 25, min: 0, max: 100, percent: true }
+            frequencyAuras:          { type: int, zero: 100, min: 5, max: 1000, percent: true, logScale: true }
+            frequencyCharAttributes: { type: int, zero: 100, min: 5, max: 1000, percent: true, logScale: true }
+            frequencyProcs:          { type: int, zero: 100, min: 5, max: 1000, percent: true, logScale: true }
+            frequencyResistances:    { type: int, zero: 100, min: 5, max: 1000, percent: true, logScale: true }
+            frequencySkills:         { type: int, zero: 100, min: 5, max: 1000, percent: true, logScale: true }
+            gemsRandom: { type: bool, zero: false }
+            itemFitPercent:      { type: int, zero: 100, min: 0, max: 100, percent: true }
+            keepOriginalPercent: { type: int, zero: 50, min: 0, max: 100, percent: true }
+            levelMinus: { type: int, zero: 20, min: 0, max: 100 }
+            levelPlus: { type: int, zero: 10, min: 0, max: 100 }
+            relativeCountMax: { type: int, zero: 200, min: 20, max: 1000, percent: true, logScale: true }
+            relativeCountMin: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
+            removeKnock: { type: bool, zero: true }
+            repeat_sets: { type: int, zero: 5, min: 1, max: 5 }
+            repeat_uniques: { type: int, zero: 5, min: 1, max: 5 }
+            replaceCharges: { type: bool, zero: true }
+            replaceSkills: { type: bool, zero: false }
+            setBonusMode: { type: int, zero: 1, min: 0, max: 2 }
+            setRelativeCountMax: { type: int, zero: 200, min: 20, max: 1000, percent: true, logScale: true }
+            setRelativeCountMin: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
+            updateExisting: { type: bool, zero: true }
     ModuleMonDensity:
         members:
-            density: { type: int, def: 1, min: 1, max: 20 }
-            hellPacks: { type: bool, def: false }
-            mon_groups: { type: int, def: 0, min: 0, max: 20 }
-            packs: { type: int, def: 1, min: 1, max: 20 }
+            density: { type: int, zero: 1, min: 1, max: 20 }
+            hellPacks: { type: bool, zero: false }
+            mon_groups: { type: int, zero: 0, min: 0, max: 20 }
+            packs: { type: int, zero: 1, min: 1, max: 20 }
     ModuleMonRandomizer:
         members:
-            hellResistances: { type: bool, def: false }
-            maxTypes: { type: int, def: 25, min: 3, max: 25 }
-            randomizeResistances: { type: bool, def: false }
-            randomizeSpawns: { type: bool, def: true }
-            spawnedCount: { type: int, def: 5, min: 2, max: 10 }
+            enabled: { type: bool, zero: false, recc: false }
+            hellResistances: { type: bool, zero: false }
+            maxTypes: { type: int, zero: 25, min: 3, max: 25 }
+            randomizeResistances: { type: bool, zero: false }
+            randomizeSpawns: { type: bool, zero: true }
+            spawnedCount: { type: int, zero: 5, min: 2, max: 10 }
     ModuleMonStats:
         members:
-            mon_ar: { type: int, def: 100, min: 10, max: 1000, percent: true }
-            mon_dam: { type: int, def: 100, min: 10, max: 1000, percent: true }
-            mon_def: { type: int, def: 100, min: 10, max: 1000, percent: true }
-            mon_hp: { type: int, def: 100, min: 10, max: 1000, percent: true }
-            mon_xp: { type: int, def: 100, min: 10, max: 1000, percent: true }
-            max_resist: { type: int, def: 250, min: 90, max: 250 }
-            rel_resist: { type: int, def: 100, min: 10, max: 1000, percent: true }
-            resist_apply_elem: { type: bool, def: true }
-            resist_apply_magic: { type: bool, def: false }
-            resist_apply_physical: { type: bool, def: false }
-            resist_apply_poison: { type: bool, def: true }
+            mon_ar:  { type: int, zero: 100, min: 10, max: 1000, percent: true, logScale: true }
+            mon_dam: { type: int, zero: 100, min: 10, max: 1000, percent: true, logScale: true }
+            mon_def: { type: int, zero: 100, min: 10, max: 1000, percent: true, logScale: true }
+            mon_hp:  { type: int, zero: 100, min: 10, max: 1000, percent: true, logScale: true }
+            mon_xp:  { type: int, zero: 100, min: 10, max: 1000, percent: true, logScale: true }
+            max_resist: { type: int, zero: 250, min: 90, max: 250 }
+            rel_resist: { type: int, zero: 100, min: 10, max: 1000, percent: true, logScale: true }
+            resist_apply_elem: { type: bool, zero: true }
+            resist_apply_magic: { type: bool, zero: false }
+            resist_apply_physical: { type: bool, zero: false }
+            resist_apply_poison: { type: bool, zero: true }
     ModulePerfectRoll:
         members:
-            affix_power_l1: { type: int, def: 100, min: 50, max: 500, percent: true }
-            affix_power_l50: { type: int, def: 100, min: 50, max: 500, percent: true }
-            affixes: { type: bool, def: true }
-            armor: { type: bool, def: true }
-            craft: { type: bool, def: true }
-            crafted: { type: bool, def: true }
-            crafted_power: { type: int, def: 100, min: 50, max: 500, percent: true }
-            gem_power: { type: int, def: 100, min: 50, max: 500, percent: true }
-            runeWords: { type: bool, def: true }
-            rw_power: { type: int, def: 100, min: 50, max: 500, percent: true }
-            setItems: { type: bool, def: true }
-            set_power_l1: { type: int, def: 100, min: 50, max: 500 }
-            set_power_l50: { type: int, def: 100, min: 50, max: 500 }
-            uniques: { type: bool, def: true }
-            uniques_power_l1: { type: int, def: 100, min: 50, max: 500, percent: true }
-            uniques_power_l50: { type: int, def: 100, min: 50, max: 500, percent: true }
+            affix_power_l1:  { type: int, zero: 100, min: 50, max: 500, percent: true, logScale: true }
+            affix_power_l50: { type: int, zero: 100, min: 50, max: 500, percent: true, logScale: true }
+            affixes: { type: bool, zero: true }
+            armor: { type: bool, zero: true }
+            craft: { type: bool, zero: true }
+            crafted: { type: bool, zero: true }
+            runeWords: { type: bool, zero: true }
+            setItems: { type: bool, zero: true }
+            crafted_power: { type: int, zero: 100, min: 50, max: 500, percent: true, logScale: true }
+            gem_power:     { type: int, zero: 100, min: 50, max: 500, percent: true, logScale: true }
+            rw_power:      { type: int, zero: 100, min: 50, max: 500, percent: true, logScale: true }
+            set_power_l1:  { type: int, zero: 100, min: 50, max: 500, percent: true, logScale: true  }
+            set_power_l50: { type: int, zero: 100, min: 50, max: 500, percent: true, logScale: true  }
+            uniques: { type: bool, zero: true }
+            uniques_power_l1:  { type: int, zero: 100, min: 50, max: 500, percent: true, logScale: true }
+            uniques_power_l50: { type: int, zero: 100, min: 50, max: 500, percent: true, logScale: true }
     ModuleQol:
         members:
-            disableExpPenalty: { type: bool, def: false }
-            keySize: { type: bool, def: false }
-            quiverSize: { type: bool, def: false }
-            reduceCost: { type: int, def: 100, min: 5, max: 100 }
-            showItemLevel: { type: bool, def: false }
-            tomeSize: { type: bool, def: false }
-            uniqueCharmLimit: { type: bool, def: false }
-            weakenTownSkills: { type: bool, def: false }
-            weakenTownSkillsExt: { type: bool, def: false }
+            disableExpPenalty: { type: bool, zero: false, recc: true }
+            keySize: { type: bool, zero: false, recc: true }
+            quiverSize: { type: bool, zero: false }
+            reduceCost: { type: int, zero: 100, min: 5, max: 100, percent: true }
+            showItemLevel: { type: bool, zero: false, recc: false }
+            tomeSize:         { type: int, zero: 20, recc: false, min: 10, max: 100, percent: true }
+            uniqueCharmLimit: { type: bool, zero: false, recc: false }
+            weakenTownSkills: { type: bool, zero: false, recc: true }
+            weakenTownSkillsExt: { type: bool, zero: false, recc: false }
     ModuleRequirements:
         members:
-            affixItemLevel: { type: int, def: 100, min: 5, max: 150 }
-            affixReqLevel: { type: int, def: 100, min: 5, max: 150 }
-            equipItemLevel: { type: int, def: 100, min: 5, max: 150 }
-            equipReqLevel: { type: int, def: 100, min: 5, max: 150 }
-            reqDex: { type: int, def: 100, min: 5, max: 150 }
-            reqStr: { type: int, def: 100, min: 5, max: 150 }
-            skillsReqLevel: { type: int, def: 100, min: 5, max: 150 }
-            uniquesItemLevel: { type: int, def: 100, min: 5, max: 150 }
-            uniquesReqLevel: { type: int, def: 100, min: 5, max: 150 }
-    ModuleRuneDrops:
-        members:
-            countess_rune_higher: { type: bool, def: false }
-            countess_rune_more: { type: bool, def: false }
-            highrune_switch: { type: bool, def: false }
-            rune_factor: { type: int, def: 1, min: 1, max: 10 }
-            wraith_runes: { type: bool, def: false }
-            zod_factor: { type: int, def: 1, min: 1, max: 1000 }
+            affixItemLevel:   { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
+            affixReqLevel:    { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
+            equipItemLevel:   { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
+            equipReqLevel:    { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
+            reqDex:           { type: int, zero: 100, recc: 80 , min: 5, max: 150, percent: true }
+            reqStr:           { type: int, zero: 100, recc: 80 , min: 5, max: 150, percent: true }
+            skillsReqLevel:   { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
+            uniquesItemLevel: { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
+            uniquesReqLevel:  { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
+
     ModuleSkillRandomizer:
         members:
-            ensureDifferent: { type: bool, def: true }
-            skillDamage: { type: bool, def: true }
-            skillTree: { type: bool, def: true }
+            enabled: { type: bool, zero: false, recc: false }
+            ensureDifferent: { type: bool, zero: true }
+            skillDamage: { type: bool, zero: true }
+            skillTree: { type: bool, zero: true }
 members:
-    enabledModules: { type: EnabledModules }
-    moduleMain: { type: ModuleMain }
-    moduleChallenge: { type: ModuleChallenge }
-    moduleCharacter: { type: ModuleCharacter }
-    moduleCube: { type: ModuleCube }
-    moduleDropFiltering: { type: ModuleDropFiltering }
-    moduleGambling: { type: ModuleGambling }
-    moduleItemDrops: { type: ModuleItemDrops }
-    moduleItemRandomizer: { type: ModuleItemRandomizer }
-    moduleMonDensity: { type: ModuleMonDensity }
-    moduleMonRandomizer: { type: ModuleMonRandomizer }
-    moduleMonStats: { type: ModuleMonStats }
-    modulePerfectRoll: { type: ModulePerfectRoll }
-    moduleQol: { type: ModuleQol }
-    moduleRequirements: { type: ModuleRequirements }
-    moduleRuneDrops: { type: ModuleRuneDrops }
-    moduleSkillRandomizer: { type: ModuleSkillRandomizer }
+    treasureClasses: { type: struct, name: TreasureClasses }
+
+    moduleMain: { type: struct, name: ModuleMain }
+    moduleChallenge: { type: struct, name: ModuleChallenge }
+    moduleCharacter: { type: struct, name: ModuleCharacter }
+    moduleCube: { type: struct, name: ModuleCube }
+    moduleDropFiltering: { type: struct, name: ModuleDropFiltering }
+    moduleGambling: { type: struct, name: ModuleGambling }
+    moduleItemRandomizer: { type: struct, name: ModuleItemRandomizer }
+    moduleMonDensity: { type: struct, name: ModuleMonDensity }
+    moduleMonRandomizer: { type: struct, name: ModuleMonRandomizer }
+    moduleMonStats: { type: struct, name: ModuleMonStats }
+    modulePerfectRoll: { type: struct, name: ModulePerfectRoll }
+    moduleQol: { type: struct, name: ModuleQol }
+    moduleRequirements: { type: struct, name: ModuleRequirements }
+    moduleSkillRandomizer: { type: struct, name: ModuleSkillRandomizer }
 

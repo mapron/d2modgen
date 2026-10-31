@@ -6,7 +6,7 @@ import "../Widgets"
 WidgetCommonTab {
     id: root
     value_context: config.moduleMonRandomizer
-    enabled_key: config.enabledModules.moduleMonRandomizer
+    enabled_key: config.moduleMonRandomizer.enabled
     caption: qsTr("Monster Randomizer")
     tooltip: qsTr("When this feature enabled, now any area in the game can spawn any basic monsters (Super Uniques, Act bosses etc not affected).<br>For normal difficulty, each monster will have a 'level-adjusted' copy which corresponds<br>to area's level (so you will have adequate monster stats in Act 1 for guest from Act 5).<br>For Nightmare/Hell, adjustment is done by area level.<br>Monster will have adjusted their minion spawns and skill levels, too.")
 
@@ -16,14 +16,14 @@ WidgetCommonTab {
         value_key: root.value_context.randomizeSpawns
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Spawned different types in one area")
         tooltip: qsTr("This option choose how many different types will spawn at once (default is 3, which is D2 original behavior).<br>Note that some map tiles have predefined spawns (shaman camps etc) that can not be randomized.")
         value_key: root.value_context.spawnedCount
         isCompact: false
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Maximum possible monster types in one area (population variety)")
         tooltip: qsTr("This option defines how many possibilites for monster types are exist in one zone;<br>Make this value lower if you want less variety between game restarts.<br>Note: D2 legacy support only 12 max, so value will be lowered implicitly.")
         value_key: root.value_context.maxTypes

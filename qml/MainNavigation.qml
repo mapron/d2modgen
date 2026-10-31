@@ -8,144 +8,95 @@ ColumnLayout {
     property var navigationModel: [
         {
             name: qsTr("Main"),
-            isHeader: false,
-            hasCheckbox: false,
             tabIndex: 0
         },
         {
             name: qsTr("Extra"),
-            isHeader: false,
-            hasCheckbox: false,
             tabIndex: 1
         },
         {
             name: qsTr("Randomizers"),
-            isHeader: true,
-            hasCheckbox: false,
             tabIndex: -1
         },
         {
             name: qsTr("Item Randomizer"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleItemRandomizer,
-            tabIndex: 8
+            value_key: config.moduleItemRandomizer.enabled,
+            tabIndex: 3
         },
         {
             name: qsTr("Monster Randomizer"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleMonRandomizer,
-            tabIndex: 10
+            value_key: config.moduleMonRandomizer.enabled,
+            tabIndex: 4
         },
         {
             name: qsTr("Skill Randomizer"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleSkillRandomizer,
-            tabIndex: 16
+            value_key: config.moduleSkillRandomizer.enabled,
+            tabIndex: 5
         },
         {
             name: qsTr("Make harder"),
-            isHeader: true,
-            hasCheckbox: false,
             tabIndex: -1
         },
         {
             name: qsTr("Monster stats"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleMonStats,
-            tabIndex: 11
+            tabIndex: 7
         },
         {
             name: qsTr("Monster density"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleMonDensity,
-            tabIndex: 9
+            tabIndex: 8
         },
         {
             name: qsTr("Challenge"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleChallenge,
-            tabIndex: 2
+            value_key: config.moduleChallenge.enabled,
+            tabIndex: 9
         },
         {
             name: qsTr("Make easier"),
-            isHeader: true,
-            hasCheckbox: false,
             tabIndex: -1
         },
         {
             name: qsTr("Horadric Cube"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleCube,
-            tabIndex: 4
+            tabIndex: 11
         },
         {
             name: qsTr("Gambling"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleGambling,
-            tabIndex: 6
+            tabIndex: 12
         },
         {
             name: qsTr("Character"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleCharacter,
-            tabIndex: 3
+            value_key: config.moduleCharacter.enabled,
+            tabIndex: 13
         },
         {
             name: qsTr("Increase Item Drops"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleItemDrops,
-            tabIndex: 7
+            value_key: config.treasureClasses.items.enabled,
+            tabIndex: 14
         },
         {
             name: qsTr("Increase Rune Drops"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleRuneDrops,
+            value_key: config.treasureClasses.runes.enabled,
             tabIndex: 15
         },
         {
             name: qsTr("Perfect Rolls"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.modulePerfectRoll,
-            tabIndex: 12
+            tabIndex: 16
         },
         {
             name: qsTr("Requirements"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleRequirements,
-            tabIndex: 14
+            tabIndex: 17
         },
         {
             name: qsTr("Misc"),
-            isHeader: true,
-            hasCheckbox: false,
             tabIndex: -1
         },
         {
             name: qsTr("Quality of life"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleQol,
-            tabIndex: 13
+            tabIndex: 19
         },
         {
             name: qsTr("Drops filtering"),
-            isHeader: false,
-            hasCheckbox: true,
-            value_key: config.enabledModules.moduleDropFiltering,
-            tabIndex: 5
+            value_key: config.moduleDropFiltering.enabled,
+            tabIndex: 20
         },
     ]
     // Block horizontal growth, keeping this sidebar strictly predictable
@@ -171,12 +122,11 @@ ColumnLayout {
 
         delegate: Item {
             width: tabSelection.width
-            height: modelData.isHeader ? 22 : 28
+            height: modelData.tabIndex === -1 ? 22 : 28
 
-            // --- 1. GROUP HEADER BANNER ---
             Label {
                 text: modelData.name
-                visible: modelData.isHeader
+                visible: modelData.tabIndex === -1
                 anchors.left: parent.left
                 anchors.leftMargin: 45
                 anchors.verticalCenter: parent.verticalCenter
@@ -184,22 +134,21 @@ ColumnLayout {
                 color: window.palette.text
             }
 
-            // --- 2. THE SIMPLE SINGLE-CLICK BUTTON FRAME ---
             RowLayout {
                 anchors.fill: parent
                 anchors.leftMargin: 0
                 anchors.rightMargin: 0
                 spacing: 6
 
-                visible: !modelData.isHeader
+                visible: modelData.tabIndex >= 0
 
                 CheckBox {
                     id: tabCheckbox
-                    visible: modelData.hasCheckbox
+                    visible: !!modelData.value_key
                     indicator.implicitWidth: 18
                     indicator.implicitHeight: 18
 
-                    checked: modelData.hasCheckbox ? modelData.value_key.value : false
+                    checked: modelData.value_key ? modelData.value_key.value : false
                     onClicked: modelData.value_key.value = checked
                 }
 

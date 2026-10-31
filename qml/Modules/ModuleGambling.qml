@@ -6,7 +6,7 @@ import "../Widgets"
 WidgetCommonTab {
     id: root
     value_context: config.moduleGambling
-    enabled_key: config.enabledModules.moduleGambling
+    enabled_key: null
     caption: qsTr("Gambling")
     tooltip: qsTr("First option enables Charms in Gambling window, but only for D2 Legacy.<br>Next sliders allow you increase basic chance of getting Unique/Rare/Set/High-quality item.")
 
@@ -16,35 +16,35 @@ WidgetCommonTab {
         value_key: root.value_context.charmGamble
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Increase Unique chance, times<br>Note: you still can get a lot of failed uniques for no known reason.")
         tooltip: ""
         value_key: root.value_context.ratioUnique
         isCompact: false
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Increase Set chance, times")
         tooltip: ""
         value_key: root.value_context.ratioSet
         isCompact: false
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Increase Rare chance, times")
         tooltip: ""
         value_key: root.value_context.ratioRare
         isCompact: false
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Increase Exceptional upgrade chance, times")
         tooltip: ""
         value_key: root.value_context.ratioExc
         isCompact: false
     }
 
-    WidgetRangeSlider {
+    WidgetSlider {
         caption: qsTr("Increase Elite upgrade chance, times<br>Note: seems like Exc. check is done beforehead, so if it&apos;s high enough, elite won&apos;t generate.")
         tooltip: ""
         value_key: root.value_context.ratioElite

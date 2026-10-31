@@ -11,8 +11,6 @@ namespace D2ModGen {
 
 void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_enabledModules.m_moduleMonStats)
-        return;
     const auto& module = config.m_moduleMonStats;
     {
         auto proceedMonParam = [](int64_t percent, int& val) {

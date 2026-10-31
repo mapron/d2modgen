@@ -34,7 +34,8 @@ WidgetScrollable {
             indicator.implicitWidth: 18
             indicator.implicitHeight: 18
 
-            checked: enabled_key.value
+            visible: !!enabled_key
+            checked: enabled_key ? enabled_key.value : false
             text: qsTr("Enable this tab")
 
             onClicked: enabled_key.value = checked
@@ -48,6 +49,6 @@ WidgetScrollable {
 
     ColumnLayout {
         id: contentContainer
-        enabled: enabled_key.value
+        enabled: enabled_key ? enabled_key.value : true
     }
 }

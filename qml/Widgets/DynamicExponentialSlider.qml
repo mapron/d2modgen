@@ -8,13 +8,13 @@ RowLayout {
     Layout.fillWidth: true
 
     // --- PUBLIC API ---
-    property string suffix: ""
-    property int denom: 5
-    property int mult: 10
-    property int visualWidth: 50
-    property bool isLinear: false
-
     property QtObject value_key: null
+
+    // private
+    property int visualWidth: 50
+    property string suffix: value_key.isPercent ? "%" : ""
+    property bool isLinear: !value_key.hasLogScale
+
     property int from: value_key.min
     property int to: value_key.max
 

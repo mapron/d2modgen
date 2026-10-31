@@ -12,8 +12,6 @@ ColumnLayout {
     property bool hideCaption: false // used only for isCompact==true
     property bool stretchCaption: false // used only for isCompact==true
 
-    property string suffix: "" // Useful for adding "%" or units
-
     spacing: 4
     Layout.fillWidth: true
 

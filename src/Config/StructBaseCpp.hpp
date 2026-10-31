@@ -13,11 +13,6 @@
 namespace D2ModGen {
 
 struct CommonStruct {
-    template<typename Scalar>
-    struct PropertyPreset {
-        int    m_index = 0;
-        Scalar m_value;
-    };
     struct PropertyCommon {
         std::string_view m_name;
         std::string      getName() const { return std::string(m_name); }
@@ -25,22 +20,37 @@ struct CommonStruct {
     template<typename Scalar, typename Derived>
     struct PropertyScalar : public PropertyCommon {
         Scalar* m_pointer = nullptr;
-        Scalar  m_default{};
+        Scalar  m_zero{};
+        Scalar  m_recc{};
 
-        using Preset = PropertyPreset<int64_t>;
+        struct Preset {
+            int    m_globalIndex = 0;
+            Scalar m_value;
+        };
         std::vector<Preset> m_presets;
 
-        Derived& addPreset(int index, Scalar value)
+        Derived& addPreset(int globalIndex, Scalar value)
         {
             Preset preset;
-            preset.m_index = index;
-            preset.m_value = value;
+            preset.m_globalIndex = globalIndex;
+            preset.m_value       = value;
             m_presets.push_back(std::move(preset));
             return static_cast<Derived&>(*this);
         }
         Derived& setParent(CommonStruct* parent)
         {
             m_parent = parent;
+            return static_cast<Derived&>(*this);
+        }
+        Derived& setZero(Scalar value)
+        {
+            m_zero = value;
+            m_recc = value;
+            return static_cast<Derived&>(*this);
+        }
+        Derived& setRecc(Scalar value)
+        {
+            m_recc = value;
             return static_cast<Derived&>(*this);
         }
 
@@ -68,12 +78,19 @@ struct CommonStruct {
         {
             *m_pointer = val;
         }
+        void activatePreset(int globalIndex)
+        {
+            for (auto& preset : m_presets)
+                if (preset.m_globalIndex == globalIndex)
+                    set(preset.m_value);
+        }
     };
 
     struct PropertyInt : public PropertyScalar<int64_t, PropertyInt> {
-        int64_t m_min       = 0;
-        int64_t m_max       = 0;
-        bool    m_isPercent = false;
+        int64_t m_min         = 0;
+        int64_t m_max         = 0;
+        bool    m_isPercent   = false;
+        bool    m_hasLogScale = false;
 
         PropertyInt& setRange(int64_t min, int64_t max)
         {
@@ -86,6 +103,11 @@ struct CommonStruct {
             m_isPercent = true;
             return *this;
         }
+        PropertyInt& setLogScale()
+        {
+            m_hasLogScale = true;
+            return *this;
+        }
     };
     struct PropertyBool : public PropertyScalar<bool, PropertyBool> {
     };
@@ -95,30 +117,39 @@ struct CommonStruct {
 protected:
     template<typename Property, typename Scalar>
     struct PropertyContainer {
-        Property& add(std::string_view name, Scalar& val, Scalar d)
+        Property& add(std::string_view name, Scalar& val)
         {
             Property prop;
             prop.m_name    = name;
             prop.m_pointer = &val;
-            prop.m_default = d;
             m_list.push_back(std::move(prop));
             return m_list.back();
         }
-        void resetToDefaults()
+        void resetToZero()
         {
             for (auto& prop : m_list)
-                *prop.m_pointer = prop.m_default;
+                *prop.m_pointer = prop.m_zero;
+        }
+        void resetToReccomended()
+        {
+            for (auto& prop : m_list)
+                *prop.m_pointer = prop.m_recc;
+        }
+        void activatePreset(int globalIndex)
+        {
+            for (auto& prop : m_list)
+                prop.activatePreset(globalIndex);
         }
         void readFromProperty(const Mernel::PropertyTree& propertyTree)
         {
             for (auto& prop : m_list)
-                propertyTree.value(prop.getName(), Mernel::PropertyTreeScalar(prop.m_default)).convertTo(*prop.m_pointer);
+                propertyTree.value(prop.getName(), Mernel::PropertyTreeScalar(prop.m_zero)).convertTo(*prop.m_pointer);
         }
 
         void writeToProperty(Mernel::PropertyTree& propertyTree) const
         {
             for (auto& prop : m_list) {
-                if (*prop.m_pointer == prop.m_default)
+                if (*prop.m_pointer == prop.m_zero)
                     continue;
 
                 propertyTree[prop.getName()] = Mernel::PropertyTreeScalar(*prop.m_pointer);
@@ -130,6 +161,12 @@ protected:
                 prop.notifyChangeInner();
         }
 
+        void assign(PropertyContainer& other)
+        {
+            for (size_t i = 0; i < m_list.size() && i < other.m_list.size(); ++i)
+                *(m_list[i].m_pointer) = *(other.m_list[i].m_pointer);
+        }
+
         std::vector<Property> m_list;
     };
 
@@ -137,17 +174,17 @@ protected:
     PropertyContainer<PropertyString, std::string> m_string;
     PropertyContainer<PropertyBool, bool>          m_bool;
 
-    PropertyInt& add(std::string_view name, int64_t& val, int64_t d)
+    PropertyInt& addScalar(std::string_view name, int64_t& val)
     {
-        return m_int.add(name, val, d);
+        return m_int.add(name, val).setParent(this);
     }
-    PropertyBool& add(std::string_view name, bool& val, bool d)
+    PropertyBool& addScalar(std::string_view name, bool& val)
     {
-        return m_bool.add(name, val, d);
+        return m_bool.add(name, val).setParent(this);
     }
-    PropertyString& add(std::string_view name, std::string& val, std::string d)
+    PropertyString& addScalar(std::string_view name, std::string& val)
     {
-        return m_string.add(name, val, d);
+        return m_string.add(name, val).setParent(this);
     }
 
     struct Child : public PropertyCommon {
@@ -161,7 +198,7 @@ protected:
     // this is to send notification from UX to BL, e.g. "user changed slider, please make undo frame"
     std::function<void()> m_sendChangeToOuter = [] {};
 
-    Child& add(std::string_view name, CommonStruct& s)
+    Child& addStruct(std::string_view name, CommonStruct& s)
     {
         s.m_parent = this;
         Child child;
@@ -199,32 +236,56 @@ public:
         m_sendChangeToOuter = std::move(callback);
     }
 
-    void resetToDefaults()
+    void notifyInnerAndOuter(bool notifyTwoWay)
     {
-        m_int.resetToDefaults();
-        m_bool.resetToDefaults();
-        m_string.resetToDefaults();
-        for (auto& child : m_children) {
-            child.m_record->resetToDefaults();
-        }
-    }
+        if (!notifyTwoWay)
+            return;
 
-    void clear()
-    {
-        resetToDefaults();
         notifyChangeInner();
         notifyChangeOuter();
     }
 
-    void syncValues()
+    void resetToZero(bool notifyTwoWay = false)
     {
-        //TODO: copy values from buddy pointer. somehow.
+        m_int.resetToZero();
+        m_bool.resetToZero();
+        m_string.resetToZero();
+        for (auto& child : m_children)
+            child.m_record->resetToZero(false);
+
+        notifyInnerAndOuter(notifyTwoWay);
+    }
+    void resetToReccomended(bool notifyTwoWay = false)
+    {
+        m_int.resetToReccomended();
+        m_bool.resetToReccomended();
+        m_string.resetToReccomended();
+        for (auto& child : m_children)
+            child.m_record->resetToReccomended();
+
+        notifyInnerAndOuter(notifyTwoWay);
     }
 
-    void activatePreset(int)
+    void assign(CommonStruct& another, bool notifyTwoWay = false)
     {
-        //TODO:
-        assert(0);
+        m_int.assign(another.m_int);
+        m_bool.assign(another.m_bool);
+        m_string.assign(another.m_string);
+        for (size_t i = 0, cnt = std::min(m_children.size(), another.m_children.size()); i < cnt; ++i)
+            m_children[i].m_record->assign(*(another.m_children[i].m_record));
+
+        notifyInnerAndOuter(notifyTwoWay);
+    }
+
+    void activatePreset(int globalIndex, bool notifyTwoWay = false)
+    {
+        m_int.activatePreset(globalIndex);
+        m_bool.activatePreset(globalIndex);
+        m_string.activatePreset(globalIndex);
+        for (auto& child : m_children)
+            child.m_record->activatePreset(globalIndex);
+
+        notifyInnerAndOuter(notifyTwoWay);
     }
 
     void validateAndClamp()
@@ -253,7 +314,7 @@ public:
 
     void readFromProperty(const Mernel::PropertyTree& propertyTree)
     {
-        clear();
+        resetToZero();
         readFromPropertyImpl(propertyTree);
         validateAndClamp();
     }
