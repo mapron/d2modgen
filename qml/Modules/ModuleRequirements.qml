@@ -6,7 +6,7 @@ import "../Widgets"
 WidgetCommonTab {
     id: root
     value_context: config.moduleRequirements
-    enabled_key: "moduleRequirements"
+    enabled_key: config.enabledModules.moduleRequirements
     caption: qsTr("Requirements")
     tooltip: qsTr("Options for lowering/raising requirements for equimpemnt. ")
 
@@ -15,8 +15,7 @@ WidgetCommonTab {
         tooltip: qsTr("If you set value above 100%, Strength requirements <br> become higher compared to the original.")
         from: 5
         to: 150
-        value_context: root.value_context
-        value_key: "reqStr"
+        value_key: root.value_context.reqStr
         isCompact: false
         suffix: "%"
     }
@@ -26,8 +25,7 @@ WidgetCommonTab {
         tooltip: ""
         from: 5
         to: 150
-        value_context: root.value_context
-        value_key: "reqDex"
+        value_key: root.value_context.reqDex
         isCompact: false
         suffix: "%"
     }
@@ -37,8 +35,7 @@ WidgetCommonTab {
         tooltip: qsTr("That controls 'Level required:' you see on the items.")
         from: 5
         to: 150
-        value_context: root.value_context
-        value_key: "equipReqLevel"
+        value_key: root.value_context.equipReqLevel
         isCompact: false
         suffix: "%"
     }
@@ -48,8 +45,7 @@ WidgetCommonTab {
         tooltip: ""
         from: 5
         to: 150
-        value_context: root.value_context
-        value_key: "uniquesReqLevel"
+        value_key: root.value_context.uniquesReqLevel
         isCompact: false
         suffix: "%"
     }
@@ -59,8 +55,7 @@ WidgetCommonTab {
         tooltip: ""
         from: 5
         to: 150
-        value_context: root.value_context
-        value_key: "affixReqLevel"
+        value_key: root.value_context.affixReqLevel
         isCompact: false
         suffix: "%"
     }
@@ -70,8 +65,7 @@ WidgetCommonTab {
         tooltip: qsTr("For example, if you select 50%, you can get level 30 skill on level 15 instead.")
         from: 5
         to: 150
-        value_context: root.value_context
-        value_key: "skillsReqLevel"
+        value_key: root.value_context.skillsReqLevel
         isCompact: false
         suffix: "%"
     }
@@ -81,8 +75,7 @@ WidgetCommonTab {
         tooltip: qsTr("That controls how valueable item is from drop calculation process.<br> Lower value means you get item dropped much earlier in the game.")
         from: 5
         to: 150
-        value_context: root.value_context
-        value_key: "equipItemLevel"
+        value_key: root.value_context.equipItemLevel
         isCompact: false
         suffix: "%"
     }
@@ -92,8 +85,7 @@ WidgetCommonTab {
         tooltip: ""
         from: 5
         to: 150
-        value_context: root.value_context
-        value_key: "uniquesItemLevel"
+        value_key: root.value_context.uniquesItemLevel
         isCompact: false
         suffix: "%"
     }
@@ -103,8 +95,7 @@ WidgetCommonTab {
         tooltip: ""
         from: 5
         to: 150
-        value_context: root.value_context
-        value_key: "affixItemLevel"
+        value_key: root.value_context.affixItemLevel
         isCompact: false
         suffix: "%"
     }

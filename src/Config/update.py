@@ -20,13 +20,11 @@ def visit_struct(struct_ident, schema, fqn_prefix, tab, preset_names, lines_cpp,
     mapping_bool = {'True': 'true', 'False': 'false', True: 'true', False: 'false'}
     type_replacements = {
         'int': 'int64_t',
-        'percent': 'int64_t',
         'bool': 'bool',
         'str': 'std::string',
     }
     type_defaults = {
         'int': '0',
-        'percent': '0',
         'bool': 'false',
         'str': '',
     }
@@ -48,10 +46,6 @@ def visit_struct(struct_ident, schema, fqn_prefix, tab, preset_names, lines_cpp,
         type_name = record.get('type', '?missingtype?')
         return type_name in type_replacements
 
-    def is_percent(record):
-        type_name = record.get('type', '?missingtype?')
-        return type_name == 'percent'
-
     if 'structs' in schema:
         for key, value in schema['structs'].items():
             visit_struct(key, value, fqn + "::", next_tab, preset_names, lines_cpp, lines_qt)
@@ -63,14 +57,14 @@ def visit_struct(struct_ident, schema, fqn_prefix, tab, preset_names, lines_cpp,
         default_value = get_default_from_record(record)
         type_name = get_type_from_record(record)
 
-        range = ''
+        setters = '.setParent(this)'
         if 'min' in record and 'max' in record:
             min_value = record.get('min', '0')
             max_value = record.get('max', '0')
-            range = f'.setRange({min_value}, {max_value})'
+            setters = setters + f'.setRange({min_value}, {max_value})'
 
-        if is_percent(record):
-            range = f'.setPercent()'
+        if 'percent' in record:
+            setters = setters +  f'.setPercent()'
 
         if 'presets' in record:
             for preset_name, preset_value in record['presets'].items():
@@ -80,10 +74,10 @@ def visit_struct(struct_ident, schema, fqn_prefix, tab, preset_names, lines_cpp,
                     idx = preset_names.index(preset_name)
                 else:
                     preset_names.append(preset_name)
-                range = range + '.addPreset(' + str(idx) + ', ' + str(mapping_bool.get(preset_value, preset_value)) + ')'
+                setters = setters +  '.addPreset(' + str(idx) + ', ' + str(mapping_bool.get(preset_value, preset_value)) + ')'
 
         if is_scalar(record):
-            constructor_lines.append(f'{next_tab_2}add("{key}", {member_name}, {default_value}){range};')
+            constructor_lines.append(f'{next_tab_2}add("{key}", {member_name}, {default_value}){setters};')
         else:
             constructor_lines.append(f'{next_tab_2}add("{key}", {member_name});')
 
@@ -103,9 +97,19 @@ def visit_struct(struct_ident, schema, fqn_prefix, tab, preset_names, lines_cpp,
 
 
     qt_type_map = {
-        'int': 'qlonglong',
-        'bool': 'bool',
-        'str': 'QString',
+        'int' : 'PropertyInt_Qt',
+        'bool': 'PropertyBool_Qt',
+        'str' : 'PropertyString_Qt',
+    }
+    property_getter = {
+        'int' : 'getPropertyInt',
+        'bool': 'getPropertyBool',
+        'str' : 'getPropertyString',
+    }
+    counters = {
+        'int' : 0,
+        'bool': 0,
+        'str' : 0,
     }
 
     qt_properties = []
@@ -120,47 +124,33 @@ def visit_struct(struct_ident, schema, fqn_prefix, tab, preset_names, lines_cpp,
         is_primitive = t in qt_type_map
         
         if is_primitive:
-            qt_type = qt_type_map[t]
-            qt_arg_type = qt_type
-            if qt_type == 'QString':
-                qt_arg_type = 'const QString&'
+            child_qt_type = qt_type_map[t]
+            prop_index = counters[t]
+            counters[t] = prop_index + 1
+            prop_getter = property_getter.get(t)
 
-            qt_properties.append(f'Q_PROPERTY({qt_type} {key} READ get_{key} WRITE set_{key} NOTIFY dataChanged)')
-
-            qt_methods.append(f'{qt_type} get_{key}() const {{ return get(m_data.{member_name}); }}')
-            qt_methods.append(f'void set_{key}({qt_arg_type} val) {{ return set(m_data.{member_name}, val); }}')
-            
-            if t == 'int' or t == 'percent':
-                qt_properties.append(f'Q_PROPERTY(qlonglong {key}_min READ get_{key}_min CONSTANT)')
-                qt_properties.append(f'Q_PROPERTY(qlonglong {key}_max READ get_{key}_max CONSTANT)')
-                qt_properties.append(f'Q_PROPERTY(bool {key}_isPercent READ get_{key}_isPercent CONSTANT)')
-                
-                min_val = value.get('min', '0')
-                max_val = value.get('max', '0')
-                is_percent = 'false'
-                if t == 'percent':
-                    is_percent = 'true';
-                qt_methods.append(f'qlonglong get_{key}_min() const {{ return {min_val}; }}')
-                qt_methods.append(f'qlonglong get_{key}_max() const {{ return {max_val}; }}')
-                qt_methods.append(f'bool get_{key}_isPercent() const {{ return {is_percent}; }}')
+            qt_properties.append(f'Q_PROPERTY({child_qt_type}* {key} READ get_{key} CONSTANT)')
+            init_lists.append(f', {member_name}(data.{prop_getter}({prop_index}))')
         else:
             child_qt_type = f'{fqn.replace("::", "_")}_{t}_Qt'
-            
             qt_properties.append(f'Q_PROPERTY({child_qt_type}* {key} READ get_{key} CONSTANT)')
-            
             init_lists.append(f', {member_name}(data.{member_name})')
-            qt_methods.append(f'{child_qt_type}* get_{key}() {{ return &{member_name}; }}')
-            private_members.append(f'{child_qt_type} {member_name};')
 
-    lines_qt.append(f'class {qt_class_name} : public BaseStruct_Qt {{')
+        qt_methods.append(f'{child_qt_type}* get_{key}() {{ return &{member_name}; }}')
+        private_members.append(f'{child_qt_type} {member_name};')
+
+    qt_methods.append(f'Q_INVOKABLE void clear() {{ m_data.clear(); }}')
+    qt_methods.append(f'Q_INVOKABLE void syncValues() {{ m_data.syncValues(); }}')
+    qt_methods.append(f'Q_INVOKABLE void activatePreset(int index) {{ m_data.activatePreset(index); }}')
+
+    lines_qt.append(f'class {qt_class_name} : public QObject {{')
     lines_qt.append('    Q_OBJECT')
     for prop in qt_properties:
         lines_qt.append(f'    {prop}')
     
     lines_qt.append('\npublic:')
     lines_qt.append(f'    explicit {qt_class_name}({fqn}& data)')
-    lines_qt.append('        : BaseStruct_Qt(data)')
-    lines_qt.append('        , m_data(data)')
+    lines_qt.append('        : m_data(data)')
     for init in init_lists:
         lines_qt.append(f'        {init}')
     lines_qt.append('    {')

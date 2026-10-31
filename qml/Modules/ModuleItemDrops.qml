@@ -6,22 +6,19 @@ import "../Widgets"
 WidgetCommonTab {
     id: root
     value_context: config.moduleItemDrops
-    enabled_key: "moduleItemDrops"
+    enabled_key: config.enabledModules.moduleItemDrops
     caption: qsTr("Increase Item drops")
     tooltip: qsTr("All help and explanation on this page assume you are familiar with Treasure Class (TC) and NoDrop terminology.<br>Basically all options here modifying TC pick weights - so one preferred option become less rare.<br>First 3 sliders are for increasing chance for Uniques/Sets/Rares. <br>Note that increase is accurate when your chances are low, but with high MF it can have diminishing return.")
 
     WidgetPreset {
         model: [qsTr("Select preset..."), qsTr("I want to find Tyrael's today!"), qsTr("Just tired of finding my first Shako"), qsTr("A little bit more of good stuff, not crazy"),]
-        value_context: root.value_context
+        value_key: config.moduleItemDrops
     }
 
     WidgetRangeSlider {
         caption: qsTr("Increase Unique Chance")
         tooltip: ""
-        from: 1
-        to: 50
-        value_context: root.value_context
-        value_key: "chance_uni"
+        value_key: root.value_context.chance_uni
         isCompact: true
         stretchCaption: true
     }
@@ -29,10 +26,7 @@ WidgetCommonTab {
     WidgetRangeSlider {
         caption: qsTr("Increase Set Chance")
         tooltip: ""
-        from: 1
-        to: 30
-        value_context: root.value_context
-        value_key: "chance_set"
+        value_key: root.value_context.chance_set
         isCompact: true
         stretchCaption: true
     }
@@ -40,10 +34,7 @@ WidgetCommonTab {
     WidgetRangeSlider {
         caption: qsTr("Increase Rare Chance")
         tooltip: ""
-        from: 1
-        to: 15
-        value_context: root.value_context
-        value_key: "chance_rare"
+        value_key: root.value_context.chance_rare
         isCompact: true
         stretchCaption: true
     }
@@ -51,10 +42,7 @@ WidgetCommonTab {
     WidgetRangeSlider {
         caption: qsTr("Increase Chance of High-level equipment")
         tooltip: qsTr("This will reduce the reduce the chance that equipment of lower level will drop as a fallback.<br>For example, for level 85 TC there is a 98% chance that it will drop from 84 level TC, and so on.")
-        from: 1
-        to: 15
-        value_context: root.value_context
-        value_key: "chance_highlevel"
+        value_key: root.value_context.chance_highlevel
         isCompact: true
         stretchCaption: true
     }
@@ -62,15 +50,13 @@ WidgetCommonTab {
     WidgetCheckbox {
         caption: qsTr("Increase Champion/Unique/Superunique dropped item count")
         tooltip: qsTr("Change item+potion ratio:<br>Champion: 2 items + 2 potions<br>Unique: 4 items + 2 potions<br>Superuniques: 6 items + 0 potions")
-        value_context: root.value_context
-        value_key: "high_elite_drops"
+        value_key: root.value_context.high_elite_drops
     }
 
     WidgetCheckbox {
         caption: qsTr("Always quest drops from bosses")
         tooltip: ""
-        value_context: root.value_context
-        value_key: "boss_quest_drops"
+        value_key: root.value_context.boss_quest_drops
     }
 
     Label {
@@ -80,10 +66,7 @@ WidgetCommonTab {
     WidgetExponentialSlider {
         caption: qsTr("Increse drop count (via NoDrop)")
         tooltip: qsTr("This provides ability to gradually reduce NoDrop picks<br>(it basically similar to increasing players count in the game)<br>This only affect base monster drops")
-        denom: 2
-        mult: 90
-        value_context: root.value_context
-        value_key: "drop_percent"
+        value_key: root.value_context.drop_percent
         isCompact: true
         stretchCaption: true
     }
@@ -91,10 +74,7 @@ WidgetCommonTab {
     WidgetExponentialSlider {
         caption: qsTr("Good TC (Runes/Gems/Jewellery)")
         tooltip: qsTr("That will make Gems/Runes/Rings/Amulets/Charms drop far more often<br>compared to equipment (armor/weapons).")
-        denom: 2
-        mult: 10
-        value_context: root.value_context
-        value_key: "good_percent"
+        value_key: root.value_context.good_percent
         isCompact: true
         stretchCaption: true
     }
@@ -102,10 +82,7 @@ WidgetCommonTab {
     WidgetExponentialSlider {
         caption: qsTr("Equipment (armor/weapons)")
         tooltip: qsTr("Relative chance of equipment dropping compared to other items (or NoDrop).")
-        denom: 5
-        mult: 10
-        value_context: root.value_context
-        value_key: "equip_percent"
+        value_key: root.value_context.equip_percent
         isCompact: true
         stretchCaption: true
     }
@@ -113,10 +90,7 @@ WidgetCommonTab {
     WidgetExponentialSlider {
         caption: qsTr("Gold (higher=MORE gold)")
         tooltip: qsTr("Relative chance of gold compared to other items.")
-        denom: 20
-        mult: 10
-        value_context: root.value_context
-        value_key: "gold_percent"
+        value_key: root.value_context.gold_percent
         isCompact: true
         stretchCaption: true
     }
@@ -124,10 +98,7 @@ WidgetCommonTab {
     WidgetExponentialSlider {
         caption: qsTr("Junk (keys/bolts/etc) (higher=MORE junk)")
         tooltip: qsTr("Relative chance of junk items compared to other items.")
-        denom: 20
-        mult: 10
-        value_context: root.value_context
-        value_key: "junk_percent"
+        value_key: root.value_context.junk_percent
         isCompact: true
         stretchCaption: true
     }
@@ -135,7 +106,6 @@ WidgetCommonTab {
     WidgetCheckbox {
         caption: qsTr("Make all Uniques have equal rarity on same base")
         tooltip: qsTr("Now Uniques with equal item base will have equal chance to drop.<br>For example Tyrael's and Templar's will have equal chance. (and all rings too)")
-        value_context: root.value_context
-        value_key: "equal_uniques"
+        value_key: root.value_context.equal_uniques
     }
 }

@@ -11,13 +11,12 @@ RowLayout {
     property string suffix: ""
     property int denom: 5
     property int mult: 10
-    property int from: s_spinboxAverage / denom
-    property int to: s_spinboxAverage * mult
     property int visualWidth: 50
     property bool isLinear: false
 
-    property alias value_context: item.value_context
-    property alias value_key: item.value_key
+    property QtObject value_key: null
+    property int from: value_key.min
+    property int to: value_key.max
 
     // --- NON-LINEAR MATH CONVERSION LOGIC ---
     readonly property real s_sliderAverage: 1.0
@@ -77,20 +76,16 @@ RowLayout {
         }
     }
 
-    DynamicItemInt {
-        id: item
-    }
-
     Slider {
         id: internalSlider
         Layout.fillWidth: true
         from: isLinear ? root.from : 0.0
         to: isLinear ? root.to : 2.0
-        value: valueToSlider(item.dynamicValue)
+        value: valueToSlider(value_key.value)
         handle.implicitWidth: 16
         handle.implicitHeight: 16
 
-        onMoved: item.dynamicValue = sliderToValue(value)
+        onMoved: value_key.value = sliderToValue(value)
         live: true
     }
 
@@ -106,7 +101,7 @@ RowLayout {
             border.width: textInput.acceptableInput ? 1 : 2
         }
 
-        text: item.dynamicValue.toString()
+        text: value_key.value.toString()
 
         validator: IntValidator {
             bottom: root.from
@@ -115,7 +110,7 @@ RowLayout {
         selectByMouse: true
 
         // Allow input box typing to update the slider position
-        onEditingFinished: item.dynamicValue = parseInt(text)
+        onEditingFinished: value_key.value = parseInt(text)
 
         rightPadding: root.suffix !== "" ? percentSign.width + 12 : 8
 

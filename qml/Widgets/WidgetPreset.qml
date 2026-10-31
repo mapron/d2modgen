@@ -5,7 +5,7 @@ import QtQuick.Controls.Fusion
 RowLayout {
 
     property alias model: internalCombo.model
-    property var value_context: null
+    property QtObject value_key: null
     spacing: 6
 
     Item {
@@ -29,7 +29,7 @@ RowLayout {
         leftPadding: 4
 
         onActivated: index => {
-            value_context.activatePreset(index);
+            value_key.activatePreset(index);
         }
     }
 }

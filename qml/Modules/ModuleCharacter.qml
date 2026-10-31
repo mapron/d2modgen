@@ -6,85 +6,66 @@ import "../Widgets"
 WidgetCommonTab {
     id: root
     value_context: config.moduleCharacter
-    enabled_key: "moduleCharacter"
+    enabled_key: config.enabledModules.moduleCharacter
     caption: qsTr("Character")
     tooltip: qsTr("First three options allow you to change starting items for characters: <br>add Cube, replace id scroll with Tome (useful for No-town runs), and replace health with mana potions. <br>Next two sliders allow you to change how many skill and stat poits you get on levelup. <br>Last slider allow you to lower Strength and Dexterity requirements on all items. ")
 
     WidgetCheckbox {
         caption: qsTr("Add Horadric Cube as starting item")
         tooltip: ""
-        value_context: root.value_context
-        value_key: "addCube"
+        value_key: root.value_context.addCube
     }
 
     WidgetCheckbox {
         caption: qsTr("Replace ID scroll with ID tome")
         tooltip: ""
-        value_context: root.value_context
-        value_key: "idTome"
+        value_key: root.value_context.idTome
     }
 
     WidgetCheckbox {
         caption: qsTr("Replace starting Health pots with Mana")
         tooltip: ""
-        value_context: root.value_context
-        value_key: "manaPots"
+        value_key: root.value_context.manaPots
     }
 
     WidgetCheckbox {
         caption: qsTr("Add Teleport as starting skill for all classes")
         tooltip: ""
-        value_context: root.value_context
-        value_key: "addTeleport"
+        value_key: root.value_context.addTeleport
     }
 
     WidgetRangeSlider {
         caption: qsTr("Stat points gain per level")
         tooltip: ""
-        from: 1
-        to: 25
-        value_context: root.value_context
-        value_key: "statPerLevel"
+        value_key: root.value_context.statPerLevel
         isCompact: false
     }
 
     WidgetRangeSlider {
         caption: qsTr("Skill points gain per level (D2R only!)")
         tooltip: ""
-        from: 1
-        to: 20
-        value_context: root.value_context
-        value_key: "skillPerLevel"
+        value_key: root.value_context.skillPerLevel
         isCompact: false
     }
 
     WidgetRangeSlider {
         caption: qsTr("Maximum hard points for skill (D2R only!)")
         tooltip: ""
-        from: 1
-        to: 60
-        value_context: root.value_context
-        value_key: "skillPointLimit"
+        value_key: root.value_context.skillPointLimit
         isCompact: false
     }
 
     WidgetExponentialSlider {
         caption: qsTr("Change mercenaries Health, multiply by")
         tooltip: ""
-        denom: 5
-        mult: 10
-        value_context: root.value_context
-        value_key: "mercHP"
+        value_key: root.value_context.mercHP
         isCompact: false
     }
 
     WidgetExponentialSlider {
         caption: qsTr("Change mercenaries Damage, multiply by")
         tooltip: ""
-        denom: 5
-        mult: 10
-        value_context: root.value_context
-        value_key: "mercDam"
+        value_key: root.value_context.mercDam
         isCompact: false
     }
 }

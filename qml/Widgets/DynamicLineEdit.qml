@@ -5,25 +5,20 @@ import QtQuick.Controls.Fusion
 TextField {
     id: textInput
 
-    property alias value_context: item.value_context
-    property alias value_key: item.value_key
+    property QtObject value_key: null
 
     function setTextValue(txt) {
         text = txt;
-        item.dynamicValue = txt;
-    }
-
-    DynamicItemStr {
-        id: item
+        value_key.value = txt;
     }
 
     color: textInput.palette.text
 
-    text: item.dynamicValue
+    text: value_key.value
 
     selectByMouse: true
 
-    onEditingFinished: item.dynamicValue = text
+    onEditingFinished: value_key.value = text
 
     background: Rectangle {
         color: textInput.palette.base

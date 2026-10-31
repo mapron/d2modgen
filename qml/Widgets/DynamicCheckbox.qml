@@ -5,16 +5,12 @@ import QtQuick.Controls.Fusion
 CheckBox {
     id: checkBox
 
-    property alias value_context: item.value_context
-    property alias value_key: item.value_key
+    property QtObject value_key: null
 
-    DynamicItemBool {
-        id: item
-    }
-    checked: item.dynamicValue
+    checked: value_key.value
 
     indicator.implicitWidth: 18
     indicator.implicitHeight: 18
 
-    onClicked: item.dynamicValue = checked
+    onClicked: value_key.value = checked
 }

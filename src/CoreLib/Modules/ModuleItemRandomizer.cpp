@@ -114,8 +114,8 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     const int64_t repeatUniquesMax = 5;
     const int64_t repeatSetsMax    = 5;
-    const int64_t repeatUniques    = std::clamp(module.m_repeat_uniques, 1LL, repeatUniquesMax);
-    const int64_t repeatSets       = std::clamp(module.m_repeat_sets, 1LL, repeatSetsMax);
+    const int64_t repeatUniques    = std::clamp(module.m_repeat_uniques, int64_t(1), repeatUniquesMax);
+    const int64_t repeatSets       = std::clamp(module.m_repeat_sets, int64_t(1), repeatSetsMax);
 
     {
         auto*      dumpFileName = getenv("MODGEN_ATTRIBUTE_DUMP_FILE");

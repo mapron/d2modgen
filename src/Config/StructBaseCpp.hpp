@@ -13,7 +13,6 @@
 namespace D2ModGen {
 
 struct CommonStruct {
-protected:
     template<typename Scalar>
     struct PropertyPreset {
         int    m_index = 0;
@@ -39,6 +38,36 @@ protected:
             m_presets.push_back(std::move(preset));
             return static_cast<Derived&>(*this);
         }
+        Derived& setParent(CommonStruct* parent)
+        {
+            m_parent = parent;
+            return static_cast<Derived&>(*this);
+        }
+
+        CommonStruct* m_parent = nullptr;
+        // this is to send notification from BL to UX, e.g. "we reloaded configuration, please update controls"
+        std::function<void()> m_sendChangeToInner = [] {};
+
+        void notifyChangeInner()
+        {
+            m_sendChangeToInner();
+        }
+        void notifyChangeOuter()
+        {
+            if (m_parent)
+                return m_parent->notifyChangeOuter();
+        }
+        // this is set in UX to subscribe for changes from BL
+        void setCallbackForOuterChanges(std::function<void()>&& callback)
+        {
+            m_sendChangeToInner = std::move(callback);
+        }
+
+        Scalar get() const { return *m_pointer; }
+        void   set(const Scalar& val)
+        {
+            *m_pointer = val;
+        }
     };
 
     struct PropertyInt : public PropertyScalar<int64_t, PropertyInt> {
@@ -63,6 +92,7 @@ protected:
     struct PropertyString : public PropertyScalar<std::string, PropertyString> {
     };
 
+protected:
     template<typename Property, typename Scalar>
     struct PropertyContainer {
         Property& add(std::string_view name, Scalar& val, Scalar d)
@@ -93,6 +123,11 @@ protected:
 
                 propertyTree[prop.getName()] = Mernel::PropertyTreeScalar(*prop.m_pointer);
             }
+        }
+        void notifyChangeInner()
+        {
+            for (auto& prop : m_list)
+                prop.notifyChangeInner();
         }
 
         std::vector<Property> m_list;
@@ -126,9 +161,6 @@ protected:
     // this is to send notification from UX to BL, e.g. "user changed slider, please make undo frame"
     std::function<void()> m_sendChangeToOuter = [] {};
 
-    // this is to send notification from BL to UX, e.g. "we reloaded configuration, please update controls"
-    std::function<void()> m_sendChangeToInner = [] {};
-
     Child& add(std::string_view name, CommonStruct& s)
     {
         s.m_parent = this;
@@ -146,7 +178,10 @@ public:
         for (auto& child : m_children) {
             child.m_record->notifyChangeInner();
         }
-        m_sendChangeToInner();
+
+        m_int.notifyChangeInner();
+        m_bool.notifyChangeInner();
+        m_string.notifyChangeInner();
     }
 
     // this called in UX to send notification to BL
@@ -158,11 +193,6 @@ public:
         m_sendChangeToOuter();
     }
 
-    // this is set in UX to subscribe for changes from BL
-    void setCallbackForOuterChanges(std::function<void()>&& callback)
-    {
-        m_sendChangeToInner = std::move(callback);
-    }
     // this is set in BL to subscribe for changes from UX
     void setCallbackForInnerChanges(std::function<void()>&& callback)
     {
@@ -178,6 +208,25 @@ public:
             child.m_record->resetToDefaults();
         }
     }
+
+    void clear()
+    {
+        resetToDefaults();
+        notifyChangeInner();
+        notifyChangeOuter();
+    }
+
+    void syncValues()
+    {
+        //TODO: copy values from buddy pointer. somehow.
+    }
+
+    void activatePreset(int)
+    {
+        //TODO:
+        assert(0);
+    }
+
     void validateAndClamp()
     {
         for (auto& prop : m_int.m_list)
@@ -204,7 +253,7 @@ public:
 
     void readFromProperty(const Mernel::PropertyTree& propertyTree)
     {
-        resetToDefaults();
+        clear();
         readFromPropertyImpl(propertyTree);
         validateAndClamp();
     }
@@ -224,6 +273,19 @@ public:
 
             propertyTree[child.getName()] = std::move(childData);
         }
+    }
+
+    PropertyInt& getPropertyInt(size_t index)
+    {
+        return m_int.m_list[index];
+    }
+    PropertyBool& getPropertyBool(size_t index)
+    {
+        return m_bool.m_list[index];
+    }
+    PropertyString& getPropertyString(size_t index)
+    {
+        return m_string.m_list[index];
     }
 };
 

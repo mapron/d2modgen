@@ -28,21 +28,21 @@ ColumnLayout {
             name: qsTr("Item Randomizer"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleItemRandomizer",
+            value_key: config.enabledModules.moduleItemRandomizer,
             tabIndex: 8
         },
         {
             name: qsTr("Monster Randomizer"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleMonRandomizer",
+            value_key: config.enabledModules.moduleMonRandomizer,
             tabIndex: 10
         },
         {
             name: qsTr("Skill Randomizer"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleSkillRandomizer",
+            value_key: config.enabledModules.moduleSkillRandomizer,
             tabIndex: 16
         },
         {
@@ -55,21 +55,21 @@ ColumnLayout {
             name: qsTr("Monster stats"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleMonStats",
+            value_key: config.enabledModules.moduleMonStats,
             tabIndex: 11
         },
         {
             name: qsTr("Monster density"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleMonDensity",
+            value_key: config.enabledModules.moduleMonDensity,
             tabIndex: 9
         },
         {
             name: qsTr("Challenge"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleChallenge",
+            value_key: config.enabledModules.moduleChallenge,
             tabIndex: 2
         },
         {
@@ -82,49 +82,49 @@ ColumnLayout {
             name: qsTr("Horadric Cube"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleCube",
+            value_key: config.enabledModules.moduleCube,
             tabIndex: 4
         },
         {
             name: qsTr("Gambling"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleGambling",
+            value_key: config.enabledModules.moduleGambling,
             tabIndex: 6
         },
         {
             name: qsTr("Character"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleCharacter",
+            value_key: config.enabledModules.moduleCharacter,
             tabIndex: 3
         },
         {
             name: qsTr("Increase Item Drops"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleItemDrops",
+            value_key: config.enabledModules.moduleItemDrops,
             tabIndex: 7
         },
         {
             name: qsTr("Increase Rune Drops"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleRuneDrops",
+            value_key: config.enabledModules.moduleRuneDrops,
             tabIndex: 15
         },
         {
             name: qsTr("Perfect Rolls"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "modulePerfectRoll",
+            value_key: config.enabledModules.modulePerfectRoll,
             tabIndex: 12
         },
         {
             name: qsTr("Requirements"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleRequirements",
+            value_key: config.enabledModules.moduleRequirements,
             tabIndex: 14
         },
         {
@@ -137,14 +137,14 @@ ColumnLayout {
             name: qsTr("Quality of life"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleQol",
+            value_key: config.enabledModules.moduleQol,
             tabIndex: 13
         },
         {
             name: qsTr("Drops filtering"),
             isHeader: false,
             hasCheckbox: true,
-            value_key: "moduleDropFiltering",
+            value_key: config.enabledModules.moduleDropFiltering,
             tabIndex: 5
         },
     ]
@@ -199,8 +199,8 @@ ColumnLayout {
                     indicator.implicitWidth: 18
                     indicator.implicitHeight: 18
 
-                    checked: modelData.hasCheckbox ? config.enabledModules[modelData.value_key] : false
-                    onClicked: config.enabledModules[modelData.value_key] = checked
+                    checked: modelData.hasCheckbox ? modelData.value_key.value : false
+                    onClicked: modelData.value_key.value = checked
                 }
 
                 Button {

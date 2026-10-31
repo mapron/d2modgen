@@ -7,6 +7,7 @@ import "./Widgets"
 WidgetScrollable {
     id: root
     property var value_context: config.moduleMain
+    property bool isD2R: config.moduleMain.versionMajor.value === 1
 
     RowLayout {
         id: pageHeaderRow
@@ -32,20 +33,19 @@ WidgetScrollable {
         caption: qsTr("Mod id:")
         tooltip: qsTr("That will affect game's saves folder subdirectory and mod subfolder for D2R")
         isCompact: true
-        visible: config.moduleMain.versionMajor === 1
+        visible: root.isD2R
 
         control: DynamicLineEdit {
             id: modname_edit
             Layout.minimumWidth: 100
-            value_context: root.value_context
-            value_key: "modname"
+            value_key: root.value_context.modname
         }
     }
 
     ColumnLayout {
         Layout.fillWidth: true
         spacing: 4
-        visible: config.moduleMain.versionMajor === 1
+        visible: root.isD2R
 
         Label {
             text: qsTr("D2R folder for mod save and settings:")
@@ -61,7 +61,7 @@ WidgetScrollable {
     RowLayout {
         Layout.fillWidth: true
         spacing: 4
-        visible: config.moduleMain.versionMajor === 1
+        visible: root.isD2R
 
         Button {
             text: qsTr("Copy Settings.json")
@@ -83,7 +83,7 @@ WidgetScrollable {
     }
 
     Rectangle {
-        visible: config.moduleMain.versionMajor === 1
+        visible: root.isD2R
         Layout.fillWidth: true
         Layout.preferredHeight: 1
         color: palette.accent
@@ -102,7 +102,7 @@ WidgetScrollable {
         TextField {
             id: command_line
             readOnly: true
-            text: (config.moduleMain.versionMajor === 0 ? "-direct -3dfx" : "-mod " + modname_edit.text) + " -txt "
+            text: (root.isD2R ? "-mod " + modname_edit.text : "-direct -3dfx") + " -txt "
             Layout.fillWidth: true
         }
     }
@@ -126,7 +126,7 @@ WidgetScrollable {
     RowLayout {
         spacing: 10
         Layout.fillWidth: true
-        visible: config.moduleMain.versionMajor === 1
+        visible: root.isD2R
 
         Label {
             text: qsTr("Option 2:")
@@ -152,7 +152,6 @@ WidgetScrollable {
         caption: qsTr("Locale id for D2R:")
         tooltip: ""
         model: ["enUS", "deDE", "esES", "esMX", "frFR", "itIT", "jaJP", "koKR", "plPL", "ptBR", "ruRU", "zhCN", "zhTW"]
-        value_context: root.value_context
-        value_key: "d2rLocaleId"
+        value_key: root.value_context.d2rLocaleId
     }
 }

@@ -6,7 +6,7 @@ import "../Widgets"
 WidgetCommonTab {
     id: root
     value_context: config.moduleDropFiltering
-    enabled_key: "moduleDropFiltering"
+    enabled_key: config.enabledModules.moduleDropFiltering
     caption: qsTr("Drops filtering")
     tooltip: qsTr("This tab consists of two sections:<br>1. Make some items have compact names, like &quot;!MP5&quot; for Super Mana Potion. <br>2. Hide item labels on the ground (you still be able to pick them). ")
 
@@ -17,15 +17,13 @@ WidgetCommonTab {
     WidgetCheckbox {
         caption: qsTr("Compact potion names")
         tooltip: ""
-        value_context: root.value_context
-        value_key: "compact_pots"
+        value_key: root.value_context.compact_pots
     }
 
     WidgetCheckbox {
         caption: qsTr("Compact TP/ID scrolls")
         tooltip: ""
-        value_context: root.value_context
-        value_key: "compact_scrolls"
+        value_key: root.value_context.compact_scrolls
     }
 
     Label {
@@ -38,85 +36,73 @@ WidgetCommonTab {
             WidgetCheckbox {
                 caption: qsTr("ID scroll")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_isc"
+                        value_key: root.value_context.hide_isc
             }
 
             WidgetCheckbox {
                 caption: qsTr("TP scroll")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_tsc"
+                        value_key: root.value_context.hide_tsc
             }
 
             WidgetCheckbox {
                 caption: qsTr("Health pots 1-3")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_hps"
+                        value_key: root.value_context.hide_hps
             }
 
             WidgetCheckbox {
                 caption: qsTr("All Health pots")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_hpsa"
+                        value_key: root.value_context.hide_hpsa
             }
 
             WidgetCheckbox {
                 caption: qsTr("Mana pots 1-3")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_mps"
+                        value_key: root.value_context.hide_mps
             }
 
             WidgetCheckbox {
                 caption: qsTr("All Mana pots")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_mpsa"
+                        value_key: root.value_context.hide_mpsa
             }
         }
         ColumnLayout {
             WidgetCheckbox {
                 caption: qsTr("Rejuv pots")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_rvs"
+                        value_key: root.value_context.hide_rvs
             }
 
             WidgetCheckbox {
                 caption: qsTr("Full Rejuv pots")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_rvl"
+                        value_key: root.value_context.hide_rvl
             }
             WidgetCheckbox {
                 caption: qsTr("Bolts/Arrows")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_ammo"
+                        value_key: root.value_context.hide_ammo
             }
 
             WidgetCheckbox {
                 caption: qsTr("Stamina/Antidote/Thawing")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_stam"
+                        value_key: root.value_context.hide_stam
             }
 
             WidgetCheckbox {
                 caption: qsTr("Keys,Fire/Poison pots")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_junks"
+                        value_key: root.value_context.hide_junks
             }
 
             WidgetCheckbox {
                 caption: qsTr("Hide low quality/damaged/cracked items")
                 tooltip: ""
-                value_context: root.value_context
-                value_key: "hide_lowq"
+                        value_key: root.value_context.hide_lowq
             }
         }
     }

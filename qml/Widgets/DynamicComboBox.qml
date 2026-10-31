@@ -7,17 +7,13 @@ ComboBox {
     Layout.fillWidth: false
     implicitContentWidthPolicy: ComboBox.WidestTextWhenCompleted
 
-    property alias value_context: item.value_context
-    property alias value_key: item.value_key
+    property QtObject value_key: null
 
-    DynamicItemInt {
-        id: item
-    }
-    currentIndex: item.dynamicValue
+    currentIndex: value_key.value
 
     topPadding: 2
     bottomPadding: 2
     leftPadding: 4
 
-    onActivated: item.dynamicValue = currentIndex
+    onActivated: value_key.value = currentIndex
 }
