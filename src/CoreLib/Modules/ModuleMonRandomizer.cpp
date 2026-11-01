@@ -283,6 +283,8 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
     auto densityAdjust = [&module, &rng](std::optional<int>& value) {
         if (module.m_densityMin == 100 && module.m_densityMax == 100)
             return;
+        if (!value.has_value())
+            return;
 
         const int prev  = value.value();
         const int scale = genBetweenRng(rng, module.m_densityMin, module.m_densityMax);
