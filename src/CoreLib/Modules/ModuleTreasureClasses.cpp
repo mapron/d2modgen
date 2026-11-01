@@ -395,7 +395,7 @@ void ModuleTreasureClasses::generateRunes(DataContext& output, const Config::Tre
                 double    factor = runesReplaceMult[oldTC];
                 if (oldTC < 0 || !factor)
                     continue;
-                applyScale(item.prob, factor, 1, 5);
+                applyScale(item.prob, factor * 1000, 1000, 5);
                 break;
             }
         }

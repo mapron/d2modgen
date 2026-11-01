@@ -105,7 +105,7 @@ void MagicPropRawList::removeNonClass(Character target)
         return;
 
     removed += std::erase_if(parsedProps, [target](const MagicProp& prop) {
-        return prop.properties.checkClass(target);
+        return !prop.properties.checkClass(target);
     });
 }
 

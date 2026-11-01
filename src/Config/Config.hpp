@@ -129,7 +129,7 @@ struct Config : public CommonStruct {
                 addScalar("uniqueItemCount", m_uniqueItemCount).setRange(0, 6).setZero(1).setRecc(3);
                 addScalar("superItemCount", m_superItemCount).setRange(0, 6).setZero(2).setRecc(4);
                 addScalar("removeChampGold", m_removeChampGold).setZero(false).setRecc(true);
-                addScalar("removeElitePotions", m_removeElitePotions).setZero(false).setRecc(true);
+                addScalar("removeElitePotions", m_removeElitePotions).setZero(false).setRecc(false).addPreset(3, true);
             }
         };
         Runes m_runes{};

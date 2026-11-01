@@ -47,7 +47,7 @@ structs:
                     uniqueItemCount: { type: int, zero: 1, recc: 3, min: 0, max: 6 }
                     superItemCount: { type: int, zero: 2, recc: 4, min: 0, max: 6 }
                     removeChampGold: { type: bool, zero: false, recc: true }
-                    removeElitePotions: { type: bool, zero: false, recc: true }
+                    removeElitePotions: { type: bool, zero: false, recc: false,  presets: {pain: true} }
         members:
             runes: { type: struct, name: Runes }
             items: { type: struct, name: Items }

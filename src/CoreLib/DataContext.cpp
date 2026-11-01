@@ -448,7 +448,12 @@ bool DataTable<Row>::serializeTable(std::string& buffer, bool full) const
 template<class Row>
 void DataContext::diffTable(const DataTable<Row>& tableOlder, const DataTable<Row>& tableNewer, DataTable<Row>& result) const
 {
-    for (size_t i = 0, cnt = std::min(tableOlder.rows.size(), tableNewer.rows.size()); i < cnt; ++i) {
+    for (size_t i = 0, cnt = tableNewer.rows.size(); i < cnt; ++i) {
+        if (i >= tableOlder.rows.size()) {
+            result.rows.push_back(tableNewer.rows[i]);
+            continue;
+        }
+
         auto olderRow = tableOlder.rows[i];
         auto newerRow = tableNewer.rows[i];
         olderRow._ser_usedCells.resize(tableOlder.indicesUsed.size());

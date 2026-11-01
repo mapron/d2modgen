@@ -202,8 +202,9 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
             item.readParams(row);
             item.readAffixes(row, m_codeResolver, m_skillGetter, nullptr, nullptr);
 
-            if (extraTrace)
+            if (extraTrace && item.id == "Ripsaw b") {
                 Logger() << "read: " << item.toString(extraTrace2);
+            }
 
             if (item.filter.props.slot == SlotType::None || item.filter.props.slot == SlotType::PD2Map)
                 continue;
