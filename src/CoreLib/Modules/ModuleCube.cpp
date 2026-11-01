@@ -92,14 +92,13 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Confi
         }
     }
     if (quickPortals) {
-        const DataRow_cubemain base{
-            .inputs      = std::vector<std::string>{ "tbk", "" },
-            .description = "Quick Portal",
-            .enabled     = true,
-            .version     = 100,
-            .op          = 28,
+        DataRow_cubemain base;
+        base.inputs      = std::vector<std::string>{ "tbk", "" };
+        base.description = "Quick Portal";
+        base.enabled     = true;
+        base.version     = 100;
+        base.op          = 28;
 
-        };
         DataRow_cubemain cows = base;
         cows.numinputs        = 2;
         cows.inputs[1]        = "isc";
@@ -126,15 +125,14 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Confi
         output.cubemain.rows.push_back(uber3);
     }
     if (quickQuests) {
-        const DataRow_cubemain base{
-            .inputs      = std::vector<std::string>{ "key", "" },
-            .description = "Quick Quest",
-            .enabled     = true,
-            .version     = 0,
-            .op          = 28,
-            .numinputs   = 2,
+        DataRow_cubemain base;
 
-        };
+        base.inputs      = std::vector<std::string>{ "key", "" };
+        base.description = "Quick Quest";
+        base.enabled     = true;
+        base.version     = 0;
+        base.op          = 28;
+        base.numinputs   = 2;
 
         DataRow_cubemain staff = base;
         staff.inputs[1]        = "isc";
@@ -148,13 +146,12 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Confi
         output.cubemain.rows.push_back(khalim);
     }
     if (newSocketing) {
-        const DataRow_cubemain base{
-            .inputs      = std::vector<std::string>{ "\"any,nor,nos\"", "", "" },
-            .description = "Quick Sockets",
-            .enabled     = true,
-            .version     = 100,
+        DataRow_cubemain base;
 
-        };
+        base.inputs      = std::vector<std::string>{ "\"any,nor,nos\"", "", "" };
+        base.description = "Quick Sockets";
+        base.enabled     = true;
+        base.version     = 100;
 
         DataRow_cubemain socket3 = base;
         socket3.numinputs        = 3;
@@ -211,15 +208,14 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Confi
     }
 
     if (upgrading) {
-        DataRow_cubemain base{
-            .inputs      = std::vector<std::string>{ "", "yps" },
-            .description = "Quick Upgrading",
-            .enabled     = true,
-            .version     = 100,
-            .numinputs   = 2,
-            .ilvl        = 100,
+        DataRow_cubemain base;
 
-        };
+        base.inputs      = std::vector<std::string>{ "", "yps" };
+        base.description = "Quick Upgrading";
+        base.enabled     = true;
+        base.version     = 100;
+        base.numinputs   = 2;
+        base.ilvl        = 100;
 
         if (craftHighIlvl) {
             base.ilvl.reset();
@@ -366,15 +362,14 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Confi
             },
         };
         for (const CraftResult& c : crs) {
-            DataRow_cubemain data{
-                .inputs      = std::vector<std::string>{ "cm1", c.m_i1, c.m_i2 },
-                .output      = "\"usetype,tmp\"",
-                .description = c.m_name,
-                .enabled     = true,
-                .version     = 100,
-                .numinputs   = 3,
-                .lvl         = 1,
-            };
+            DataRow_cubemain data;
+            data.inputs      = std::vector<std::string>{ "cm1", c.m_i1, c.m_i2 };
+            data.output      = "\"usetype,tmp\"";
+            data.description = c.m_name;
+            data.enabled     = true;
+            data.version     = 100;
+            data.numinputs   = 3;
+            data.lvl         = 1;
 
             for (auto&& af : c.m_affixes) {
                 data.affixes_a.push_back(AffixProp{ .code = af.m_name, .par = "", .min = af.m_value, .max = af.m_value, .chance = 100 });

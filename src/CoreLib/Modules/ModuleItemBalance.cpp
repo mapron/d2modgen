@@ -144,15 +144,7 @@ void ModuleItemBalance::generate(DataContext& output, RandomGenerator& rng, cons
     empowerTable(output.automagic, makeScaler2(affixesSettings), affixesSettings);
 
     empowerTable(output.gems, makeScaler1(gemSettings), gemSettings);
-
-    for (auto& row : output.cubemain.rows) {
-        const bool isCrafted = row.isCrafted();
-        if (!isCrafted)
-            continue;
-
-        for (AffixPropList* affixList : row.affixLists())
-            empowerRow(*affixList, module.m_crafted.m_powerScaleLevel50, module.m_crafted);
-    }
+    empowerTable(output.cubemain, makeScaler1(craftedSettings), craftedSettings);
 
     if (module.m_equipment.m_rollMode) {
         for (auto& row : output.armor.rows) {

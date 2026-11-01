@@ -91,7 +91,7 @@ void MagicPropItem::process()
         const int keepCnt       = scaleValue(originalCount, randoParams->common.m_randoKeepOriginalPercent, 0);
 
         const int genCountUnbound = scaleValue(originalCount, genCountRel, 0) + genCountRemainder;
-        const int genCount        = std::clamp(genCountUnbound, 0, rawList.affixLimit - keepCnt);
+        const int genCount        = std::clamp(genCountUnbound, 0, std::max(0, rawList.affixLimit - keepCnt));
 
         genCountRemainder = randoParams->uniqueCheckAcross ? genCountUnbound - genCount : 0;
 

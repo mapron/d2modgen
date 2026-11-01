@@ -759,6 +759,7 @@ class Config_ModuleItemRandomizer_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyInt_Qt* repeatUniques READ get_repeatUniques CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* affixRandom READ get_affixRandom CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* gemsRandom READ get_gemsRandom CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* craftedRandom READ get_craftedRandom CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* removeKnock READ get_removeKnock CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* replaceCharges READ get_replaceCharges CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* replaceSkills READ get_replaceSkills CONSTANT)
@@ -783,10 +784,11 @@ public:
         , m_repeatUniques(data.getPropertyInt(5))
         , m_affixRandom(data.getPropertyBool(1))
         , m_gemsRandom(data.getPropertyBool(2))
-        , m_removeKnock(data.getPropertyBool(3))
-        , m_replaceCharges(data.getPropertyBool(4))
-        , m_replaceSkills(data.getPropertyBool(5))
-        , m_updateExisting(data.getPropertyBool(6))
+        , m_craftedRandom(data.getPropertyBool(3))
+        , m_removeKnock(data.getPropertyBool(4))
+        , m_replaceCharges(data.getPropertyBool(5))
+        , m_replaceSkills(data.getPropertyBool(6))
+        , m_updateExisting(data.getPropertyBool(7))
         , m_setBonusMode(data.getPropertyInt(6))
         , m_frequencyAuras(data.getPropertyInt(7))
         , m_frequencyCharAttributes(data.getPropertyInt(8))
@@ -813,6 +815,8 @@ public:
     PropertyBool_Qt* get_affixRandom() { return &m_affixRandom; }
 
     PropertyBool_Qt* get_gemsRandom() { return &m_gemsRandom; }
+
+    PropertyBool_Qt* get_craftedRandom() { return &m_craftedRandom; }
 
     PropertyBool_Qt* get_removeKnock() { return &m_removeKnock; }
 
@@ -856,6 +860,8 @@ private:
     PropertyBool_Qt m_affixRandom;
 
     PropertyBool_Qt m_gemsRandom;
+
+    PropertyBool_Qt m_craftedRandom;
 
     PropertyBool_Qt m_removeKnock;
 

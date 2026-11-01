@@ -368,6 +368,8 @@ struct Config : public CommonStruct {
 
         bool m_gemsRandom{ false };
 
+        bool m_craftedRandom{ false };
+
         bool m_removeKnock{ false };
 
         bool m_replaceCharges{ false };
@@ -399,6 +401,7 @@ struct Config : public CommonStruct {
             addScalar("repeatUniques", m_repeatUniques).setRange(1, 5).setZero(1).setRecc(5);
             addScalar("affixRandom", m_affixRandom).setZero(false).setRecc(true);
             addScalar("gemsRandom", m_gemsRandom).setZero(false);
+            addScalar("craftedRandom", m_craftedRandom).setZero(false);
             addScalar("removeKnock", m_removeKnock).setZero(false).setRecc(true);
             addScalar("replaceCharges", m_replaceCharges).setZero(false).setRecc(true);
             addScalar("replaceSkills", m_replaceSkills).setZero(false);

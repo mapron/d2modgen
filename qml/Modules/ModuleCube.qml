@@ -42,7 +42,7 @@ WidgetCommonTab {
 
     WidgetCheckbox {
         caption: qsTr("Add cheat Small Charm recipies")
-        tooltip: qsTr("Any small charm + one of (TP scroll x1, Id scroll x1 , key x1) + one of (h pot, mana pot, stamina, antidote, thawing) = crafted char (see below all recipes)<br>Just two charms of each kind suppose to provide reasonable endgame stat.<br>Item level is 1, so try several times to craft charm with 0 requirements.") + //
+        tooltip: qsTr("Any small charm + one of (TP scroll x1, Id scroll x1 , key x1) + one of (h pot, mana pot, stamina, antidote, thawing) = crafted charm (see below all recipes)<br>Just two charms of each kind suppose to provide reasonable endgame stat.") + //
         "<br>SC + key + stamina = all skills + all stats" + //
         "<br>SC + key + antidote = damage reduction" + //
         "<br>SC + key + thawing = absorb" + //

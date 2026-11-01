@@ -137,12 +137,13 @@ bool DataContext::postProcess()
     const size_t skill_Leap             = 132;
     skills.rows[skill_Leap].canBeOskill = false;
 
-    auto getItemType = [this](std::string code) {
+    auto getItemType = [this](std::string code) -> ItemType {
         if (code.size() > 4)
             code.resize(4);
         if (code == "amu")
             code = "amul";
-        return itemtypes.index.at(code);
+        auto it = itemtypes.index.find(code);
+        return it == itemtypes.index.cend() ? nullptr : it->second;
     };
 
     auto bindEquip = [this, &getItemType](RowBaseEquipment& row) {
@@ -285,26 +286,21 @@ bool DataContext::postProcess()
             row.filter.push_back(&setstypes);
     }
 
-    const std::vector<std::pair<std::string, SlotType>> hints{
-        { "shield", SlotType::MainArmor },
-        { "quiver", SlotType::Weapon },
-        { "body", SlotType::MainArmor },
-        { "amulet", SlotType::Amulet },
-        { "ring", SlotType::Ring },
-        { "weapon", SlotType::Weapon },
-        { "helm", SlotType::MainArmor },
-    };
-
     for (auto& row : cubemain.rows) {
-        if (!row.isCrafted())
+        if (!row.isCrafted() || !row.inputs.size())
             continue;
-        auto desc    = Mernel::strToLower(row.description);
-        row.slotType = SlotType::OtherArmor;
 
-        for (const auto& hint : hints)
-            if (desc.ends_with(hint.first)) {
-                row.slotType = hint.second;
-            }
+        auto input1 = row.inputs[0];
+        if (input1.starts_with('"'))
+            input1 = input1.substr(1);
+        auto pos = input1.find(',');
+        if (pos != std::string::npos)
+            input1 = input1.substr(0, pos);
+        input1 = Mernel::strToLower(input1);
+
+        row.itemType = getItemType(input1);
+        if (!row.itemType)
+            row.eqipmentType = findEquip(input1);
     }
 
     return true;

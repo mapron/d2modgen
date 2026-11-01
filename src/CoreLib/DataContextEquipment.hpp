@@ -82,7 +82,9 @@ struct DataRow_magicsuffix : public RowBaseAffixes {
 };
 // =========================================================
 
-struct RowBaseUniqueSet : public RowBase {
+struct RowBaseUniqueSet
+    : public RowBase
+    , public IAffixContainer {
     std::string   index;
     std::string   eqipmentCode;
     EquipmentType eqipmentType = nullptr;
@@ -112,12 +114,12 @@ struct RowBaseUniqueSet : public RowBase {
 
     std::string displayName; // mostly for debug purposes like logs/dumps
 
-    std::string getId() const
+    std::string getId() const override
     {
         return displayName;
     }
 
-    int getLevel() const
+    int getLevel() const override
     {
         if (lvl.has_value())
             return lvl.value();
@@ -127,16 +129,16 @@ struct RowBaseUniqueSet : public RowBase {
         return 0;
     }
 
-    bool isValid() const
+    bool isValid() const override
     {
         return spawnable.value_or(false) && !eqipmentCode.empty() && getLevel() > 0;
     }
 
-    ItemCodeList getItemFilter() const
+    ItemCodeList getItemFilter() const override
     {
         return eqipmentType ? eqipmentType->getItemFilter() : ItemCodeList{};
     }
-    AttributeFlagSet getAttributes() const
+    AttributeFlagSet getAttributes() const override
     {
         return eqipmentType ? eqipmentType->getAttributes() : AttributeFlagSet{};
     }
@@ -155,10 +157,10 @@ struct DataRow_uniqueitems : public RowBaseUniqueSet {
 
     AffixPropList affixes{ 12 };
 
-    auto affixLists() const { return std::array{ &affixes }; }
-    auto affixLists() { return std::array{ &affixes }; }
-    auto rollTypesGrab() const { return std::array{ RollType::Rare }; }
-    auto rollTypesGen() const { return std::array{ RollType::Epic }; }
+    AffixListListConst   affixLists() const { return { &affixes }; }
+    AffixListListMutable affixLists() { return { &affixes }; }
+    RollTypes            rollTypesGrab() const { return { RollType::Rare }; }
+    RollTypes            rollTypesGen() const { return { RollType::Epic }; }
 
     std::vector<std::string> getColumns() const;
     void                     serialize();
@@ -175,10 +177,10 @@ struct DataRow_setitems : public RowBaseUniqueSet {
     AffixPropList affixes_partial1{ 5 };
     AffixPropList affixes_partial2{ 5 };
 
-    auto affixLists() const { return std::array{ &affixes_base, &affixes_partial1, &affixes_partial2 }; }
-    auto affixLists() { return std::array{ &affixes_base, &affixes_partial1, &affixes_partial2 }; }
-    auto rollTypesGrab() const { return std::array{ RollType::Rare, RollType::Rare, RollType::Rare }; }
-    auto rollTypesGen() const { return std::array{ RollType::Epic, RollType::Epic, RollType::Epic }; }
+    AffixListListConst   affixLists() const { return { &affixes_base, &affixes_partial1, &affixes_partial2 }; }
+    AffixListListMutable affixLists() { return { &affixes_base, &affixes_partial1, &affixes_partial2 }; }
+    RollTypes            rollTypesGrab() const { return { RollType::Rare, RollType::Rare, RollType::Rare }; }
+    RollTypes            rollTypesGen() const { return { RollType::Epic, RollType::Epic, RollType::Epic }; }
 
     std::vector<std::string> getColumns() const;
     void                     serialize();
@@ -186,7 +188,8 @@ struct DataRow_setitems : public RowBaseUniqueSet {
 
 // =========================================================
 
-struct DataRow_sets : public RowBase {
+struct DataRow_sets : public RowBase
+    , public IAffixContainer {
     static constexpr const TableId s_tableId{ TableId::sets };
 
     int level = 0;
@@ -201,20 +204,20 @@ struct DataRow_sets : public RowBase {
     AffixPropList affixes_partial1{ 4 };
     AffixPropList affixes_partial2{ 4 };
 
-    std::string getId() const
+    std::string getId() const override
     {
         return index;
     }
 
-    auto affixLists() const { return std::array{ &affixes_full, &affixes_partial1, &affixes_partial2 }; }
-    auto affixLists() { return std::array{ &affixes_full, &affixes_partial1, &affixes_partial2 }; }
-    auto rollTypesGrab() const { return std::array{ RollType::Epic, RollType::Rare, RollType::Rare }; }
-    auto rollTypesGen() const { return rollTypesGrab(); }
+    AffixListListConst   affixLists() const override { return { &affixes_full, &affixes_partial1, &affixes_partial2 }; }
+    AffixListListMutable affixLists() override { return { &affixes_full, &affixes_partial1, &affixes_partial2 }; }
+    RollTypes            rollTypesGrab() const override { return { RollType::Epic, RollType::Rare, RollType::Rare }; }
+    RollTypes            rollTypesGen() const override { return rollTypesGrab(); }
 
-    bool             isValid() const { return !name.empty(); }
-    int              getLevel() const { return level; }
-    ItemCodeList     getItemFilter() const { return filter; }
-    AttributeFlagSet getAttributes() const
+    bool             isValid() const override { return !name.empty(); }
+    int              getLevel() const override { return level; }
+    ItemCodeList     getItemFilter() const override { return filter; }
+    AttributeFlagSet getAttributes() const override
     {
         return AttributeFlagSet{};
     }
@@ -222,7 +225,8 @@ struct DataRow_sets : public RowBase {
     std::vector<std::string> getColumns() const;
     void                     serialize();
 };
-struct DataRow_runes : public RowBase {
+struct DataRow_runes : public RowBase
+    , public IAffixContainer {
     static constexpr const TableId s_tableId{ TableId::runes };
     int                            lvl = 1; // calculated.
     std::vector<std::string>       runeCodes;
@@ -234,35 +238,35 @@ struct DataRow_runes : public RowBase {
 
     std::string name;
 
-    std::string getId() const
+    std::string getId() const override
     {
         return name;
     }
 
-    auto affixLists() const { return std::array{ &affixes }; }
-    auto affixLists() { return std::array{ &affixes }; }
-    auto rollTypesGrab() const { return std::array{ RollType::Epic }; }
-    auto rollTypesGen() const { return rollTypesGrab(); }
+    AffixListListConst   affixLists() const override { return { &affixes }; }
+    AffixListListMutable affixLists() override { return { &affixes }; }
+    RollTypes            rollTypesGrab() const override { return { RollType::Epic }; }
+    RollTypes            rollTypesGen() const override { return rollTypesGrab(); }
 
     std::vector<std::string>           getColumns() const;
     std::map<std::string, std::string> getColumnAliases() const;
     void                               serialize();
 
-    int getLevel() const
+    int getLevel() const override
     {
         return isValid() ? lvl : 0;
     }
 
-    ItemCodeList getItemFilter() const
+    ItemCodeList getItemFilter() const override
     {
         return filter;
     }
-    AttributeFlagSet getAttributes() const
+    AttributeFlagSet getAttributes() const override
     {
         return AttributeFlagSet{ AttributeFlag::Durability };
     }
 
-    bool isValid() const
+    bool isValid() const override
     {
         return complete.value_or(false);
     }
@@ -273,7 +277,8 @@ private:
     static const size_t maxEtype = 3;
 };
 
-struct DataRow_gems : public RowBase {
+struct DataRow_gems : public RowBase
+    , public IAffixContainer {
     static constexpr const TableId s_tableId{ TableId::gems };
 
     AffixPropList affixes_weapon{ 3 };
@@ -283,31 +288,31 @@ struct DataRow_gems : public RowBase {
     EquipmentType eqipmentType = nullptr;
     std::string   eqipmentCode;
 
-    auto affixLists() const { return std::array{ &affixes_weapon, &affixes_helm, &affixes_shield }; }
-    auto affixLists() { return std::array{ &affixes_weapon, &affixes_helm, &affixes_shield }; }
-    auto rollTypesGrab() const { return std::array{ RollType::Common, RollType::Common, RollType::Common }; }
-    auto rollTypesGen() const { return std::array{ RollType::Rare, RollType::Rare, RollType::Rare }; }
+    AffixListListConst   affixLists() const override { return { &affixes_weapon, &affixes_helm, &affixes_shield }; }
+    AffixListListMutable affixLists() override { return { &affixes_weapon, &affixes_helm, &affixes_shield }; }
+    RollTypes            rollTypesGrab() const override { return { RollType::Common, RollType::Common, RollType::Common }; }
+    RollTypes            rollTypesGen() const override { return { RollType::Rare, RollType::Rare, RollType::Rare }; }
 
-    std::string getId() const
+    std::string getId() const override
     {
         return eqipmentType->getId();
     }
 
-    bool isValid() const
+    bool isValid() const override
     {
         return !eqipmentCode.empty();
     }
 
-    int getLevel() const
+    int getLevel() const override
     {
         return isValid() ? eqipmentType->getLevel() : 0;
     }
 
-    ItemCodeList getItemFilter() const
+    ItemCodeList getItemFilter() const override
     {
         return eqipmentType->getItemFilter();
     }
-    AttributeFlagSet getAttributes() const
+    AttributeFlagSet getAttributes() const override
     {
         return eqipmentType->getAttributes();
     }
@@ -316,7 +321,8 @@ struct DataRow_gems : public RowBase {
     void                     serialize();
 };
 
-struct DataRow_cubemain : public RowBase {
+struct DataRow_cubemain : public RowBase
+    , public IAffixContainer {
     static constexpr const TableId s_tableId{ TableId::cubemain };
 
     AffixPropList            affixes_a{ 5 };
@@ -336,15 +342,45 @@ struct DataRow_cubemain : public RowBase {
     std::optional<int> plvl;
     std::optional<int> lvl;
 
-    SlotType slotType = SlotType::None;
+    EquipmentType eqipmentType = nullptr;
+    ItemType      itemType     = nullptr;
 
-    auto affixLists() const { return std::array{ &affixes_a, &affixes_b, &affixes_c }; }
-    auto affixLists() { return std::array{ &affixes_a, &affixes_b, &affixes_c }; }
-    auto rollTypesGrab() const { return std::array{ RollType::Common, RollType::Common, RollType::Common }; }
-    auto rollTypesGen() const { return std::array{ RollType::Epic, RollType::Epic, RollType::Epic }; }
+    std::string getId() const override
+    {
+        return description;
+    }
+
+    AffixListListConst   affixLists() const override { return { &affixes_a, &affixes_b, &affixes_c }; }
+    AffixListListMutable affixLists() override { return { &affixes_a, &affixes_b, &affixes_c }; }
+    RollTypes            rollTypesGrab() const override { return { RollType::Common, RollType::Common, RollType::Common }; }
+    RollTypes            rollTypesGen() const override { return { RollType::Epic, RollType::Epic, RollType::Epic }; }
 
     bool isCrafted() const { return output == "\"usetype,crf\""; }
     bool hasLvls() const { return ilvl.has_value() || plvl.has_value() || lvl.has_value(); }
+
+    bool isValid() const override { return itemType || eqipmentType; }
+
+    int getLevel() const override
+    {
+        return isValid() ? 30 : 0;
+    }
+
+    ItemCodeList getItemFilter() const override
+    {
+        if (eqipmentType)
+            return eqipmentType->getItemFilter();
+        ItemCodeList result;
+        if (itemType)
+            result.push_back(itemType);
+        return result;
+    }
+
+    AttributeFlagSet getAttributes() const override
+    {
+        if (eqipmentType)
+            return eqipmentType->getAttributes();
+        return itemType ? itemType->flags : AttributeFlagSet{};
+    }
 
     std::vector<std::string> getColumns() const;
     void                     serialize();

@@ -102,6 +102,30 @@ public:
     size_t getLimit() const { return m_limit; };
 };
 
+struct IItem {
+    virtual ~IItem() = default;
+
+    virtual std::string getId() const    = 0;
+    virtual int         getLevel() const = 0;
+
+    virtual bool isValid() const = 0;
+
+    virtual ItemCodeList     getItemFilter() const = 0;
+    virtual AttributeFlagSet getAttributes() const = 0;
+};
+
+struct IAffixContainer : public IItem {
+    using AffixListListConst   = std::vector<const AffixPropList*>;
+    using AffixListListMutable = std::vector<AffixPropList*>;
+    using RollTypes            = std::vector<RollType>;
+
+    virtual AffixListListConst   affixLists() const = 0;
+    virtual AffixListListMutable affixLists()       = 0;
+
+    virtual RollTypes rollTypesGrab() const = 0;
+    virtual RollTypes rollTypesGen() const  = 0;
+};
+
 struct RowBase {
     bool                       _ser_read = false;
     std::optional<std::string> _ser_key;
@@ -166,7 +190,9 @@ struct RowBase {
     }
 };
 
-struct RowBaseAffixes : public RowBase {
+struct RowBaseAffixes
+    : public RowBase
+    , public IAffixContainer {
     std::optional<int>  lvl;
     std::optional<int>  maxlevel;
     std::optional<int>  lvlreq;
@@ -179,28 +205,28 @@ struct RowBaseAffixes : public RowBase {
 
     std::string name;
 
-    std::string getId() const
+    std::string getId() const override
     {
         return name;
     }
 
-    auto affixLists() const { return std::array{ &affixes }; }
-    auto affixLists() { return std::array{ &affixes }; }
-    auto rollTypesGrab() const { return std::array{ RollType::Common }; }
-    auto rollTypesGen() const { return std::array{ RollType::Rare }; }
+    AffixListListConst   affixLists() const override { return { &affixes }; }
+    AffixListListMutable affixLists() override { return { &affixes }; }
+    RollTypes            rollTypesGrab() const override { return { RollType::Common }; }
+    RollTypes            rollTypesGen() const override { return { RollType::Rare }; }
 
-    int getLevel() const { return spawnable.value_or(false) ? lvl.value_or(0) : 0; }
+    int getLevel() const override { return spawnable.value_or(false) ? lvl.value_or(0) : 0; }
 
-    bool isValid() const
+    bool isValid() const override
     {
         return getLevel() > 0;
     }
 
-    ItemCodeList getItemFilter() const
+    ItemCodeList getItemFilter() const override
     {
         return filter;
     }
-    AttributeFlagSet getAttributes() const
+    AttributeFlagSet getAttributes() const override
     {
         return AttributeFlagSet{};
     }
@@ -224,7 +250,9 @@ enum class EquipmentCategory
     Armor,
 };
 
-struct RowBaseEquipment : public RowBase {
+struct RowBaseEquipment
+    : public RowBase
+    , public IItem {
     EquipmentCategory   category = EquipmentCategory::Misc;
     std::optional<int>  lvl;
     std::optional<int>  lvlreq;
@@ -255,12 +283,12 @@ struct RowBaseEquipment : public RowBase {
         return Tier::None;
     }
 
-    std::string getId() const
+    std::string getId() const override
     {
         return code;
     }
 
-    int getLevel() const
+    int getLevel() const override
     {
         if (lvl.has_value() && lvl.value() > 0)
             return lvl.value();
@@ -270,12 +298,12 @@ struct RowBaseEquipment : public RowBase {
         return 0;
     }
 
-    bool isValid() const
+    bool isValid() const override
     {
         return !itemTypeCode.empty() && (getLevel() > 0 || category == EquipmentCategory::Misc);
     }
 
-    ItemCodeList getItemFilter() const
+    ItemCodeList getItemFilter() const override
     {
         ItemCodeList result;
         if (itemType)
@@ -283,7 +311,7 @@ struct RowBaseEquipment : public RowBase {
         return result;
     }
 
-    AttributeFlagSet getAttributes() const;
+    AttributeFlagSet getAttributes() const override;
 };
 
 }

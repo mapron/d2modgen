@@ -63,40 +63,45 @@ WidgetCommonTab {
         stretchCaption: true
     }
 
-    WidgetCheckbox {
-        caption: qsTr("Randomize magix/rare affixes")
-        tooltip: qsTr("This will modify rare and magic suffixes - <br>so they can include properties of any other item in the game. <br>Note that their properties are read even without this option.")
-        value_key: root.value_context.affixRandom
-    }
+    RowLayout {
+        ColumnLayout {
+            WidgetCheckbox {
+                caption: qsTr("Randomize magix/rare affixes")
+                value_key: root.value_context.affixRandom
+            }
 
-    WidgetCheckbox {
-        caption: qsTr("Randomize gem and runes properties")
-        tooltip: qsTr("This will modify gem and rune properties - <br>so they can include properties of any other item in the game. <br>Note that their properties are read even without this option.")
-        value_key: root.value_context.gemsRandom
-    }
+            WidgetCheckbox {
+                caption: qsTr("Randomize gem and runes properties")
+                value_key: root.value_context.gemsRandom
+            }
+            WidgetCheckbox {
+                caption: qsTr("Randomize Cube crafted affixes")
+                value_key: root.value_context.craftedRandom
+            }
+            WidgetCheckbox {
+                caption: qsTr("Update existing properties")
+                tooltip: qsTr("Properties that are selected to remain will be updated with new value range.")
+                value_key: root.value_context.updateExisting
+            }
+        }
+        ColumnLayout {
+            WidgetCheckbox {
+                caption: qsTr("Replace skills with oskills")
+                tooltip: qsTr("Skill means: +SomeSkill (Class only)<br>Oskill means 'open' skill, +SomeSkill with no restriction.<br>Note that same class can only have up to +3 from oskill bonus.<br>For example, Trang set give sorceress only +3 to fireball.")
+                value_key: root.value_context.replaceSkills
+            }
+            WidgetCheckbox {
+                caption: qsTr("Replace charges with oskills")
+                tooltip: ""
+                value_key: root.value_context.replaceCharges
+            }
 
-    WidgetCheckbox {
-        caption: qsTr("Replace skills with oskills")
-        tooltip: qsTr("Skill means: +SomeSkill (Class only)<br>Oskill means 'open' skill, +SomeSkill with no restriction.<br>Note that same class can only have up to +3 from oskill bonus.<br>For example, Trang set give sorceress only +3 to fireball.")
-        value_key: root.value_context.replaceSkills
-    }
-
-    WidgetCheckbox {
-        caption: qsTr("Replace charges with oskills")
-        tooltip: ""
-        value_key: root.value_context.replaceCharges
-    }
-
-    WidgetCheckbox {
-        caption: qsTr("Remove Knockback/Monster flee")
-        tooltip: ""
-        value_key: root.value_context.removeKnock
-    }
-
-    WidgetCheckbox {
-        caption: qsTr("Update existing properties")
-        tooltip: qsTr("Properties that are selected to remain will be updated with new value range.")
-        value_key: root.value_context.updateExisting
+            WidgetCheckbox {
+                caption: qsTr("Remove Knockback/Monster flee")
+                tooltip: ""
+                value_key: root.value_context.removeKnock
+            }
+        }
     }
 
     WidgetComboBox {

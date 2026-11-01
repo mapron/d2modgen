@@ -49,7 +49,7 @@ structs:
                     itemLevel:   { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
                     reqLevel:    { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
 
-                    randoKeepOriginalPercent: { type: int, zero: 100, recc: 50, min: 0, max: 100, percent: true, presets: {crazy: 25} }
+                    randoKeepOriginalPercent: { type: int, zero: 100, recc: 50, min: 0, max: 100, percent: true, presets: {crazy: 25, pain: 0} }
                     
                     randoGenerateMin: { type: int, zero: 0, recc: 50 , min: 0, max: 1000, percent: true, logScale: true, presets: {crazy: 1000, strong: 60, weak: 40 } }
                     randoGenerateMax: { type: int, zero: 0, recc: 100, min: 0, max: 1000, percent: true, logScale: true, presets: {crazy: 1000, strong: 200, weak: 120} }
@@ -93,12 +93,12 @@ structs:
             levelIncreaseHell:      { type: int, zero: 0, recc: 10, min: 0, max: 30 }
             levelIncreaseNightmare: { type: int, zero: 0, recc: 5, min: 0, max: 20 }
             levelIncreaseOverBound: { type: bool, zero: false }
-            normalResPenalty:       { type: int, zero: 0, recc: 10, min: 0, max: 250 }
-            nightmareResPenalty:    { type: int, zero: 40, recc: 100, min: 0, max: 250 }
-            hellResPenalty:         { type: int, zero: 100,  recc: 200, min: 0, max: 250 }
+            normalResPenalty:       { type: int, zero: 0  ,  recc: 10 , min: 0, max: 250 , presets: {pain : 30  } }
+            nightmareResPenalty:    { type: int, zero: 40 ,  recc: 50 , min: 0, max: 250 , presets: {pain : 100 } }
+            hellResPenalty:         { type: int, zero: 100,  recc: 120, min: 0, max: 250 , presets: {pain : 250 } }
             disableDropsHealthPot:  { type: bool, zero: false }
             disableDropsManaPot:    { type: bool, zero: false }
-            disableDropsRejuvPot:   { type: bool, zero: false }
+            disableDropsRejuvPot:   { type: bool, zero: false, presets: { pain: true } }
     ModuleCharacter:
         members:
             addCube:     { type: bool, zero: false, recc: true }
@@ -107,18 +107,18 @@ structs:
             manaPots:    { type: bool, zero: false, recc: false }
 
             mercDam:     { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
-            mercHP:      { type: int, zero: 100, recc: 300, min: 20, max: 1000, percent: true, logScale: true }
+            mercHP:      { type: int, zero: 100, recc: 300, min: 20, max: 1000, percent: true, logScale: true, presets: { pain: 20 } }
 
             skillPointLimit:  { type: int, zero: 20, min: 1, max: 60 }
             skillsReqLevel:   { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
 
-            extraSkillPerLevel: { type: int, zero: 0, min: -1, max: 20 }
-            extraStatPerLevel:  { type: int, zero: 0, min: -5, max: 50 }
-            extraHpPerLevel:    { type: int, zero: 0, min: -3, max: 30 }
-            extraManaPerLevel:  { type: int, zero: 0, min: -3, max: 30 }
+            extraSkillPerLevel: { type: int, zero: 0, min: -1, max: 20, presets: { pain: true } }
+            extraStatPerLevel:  { type: int, zero: 0, min: -5, max: 50, presets: { pain: -2 } }
+            extraHpPerLevel:    { type: int, zero: 0, min: -3, max: 30, presets: { pain: -1 } }
+            extraManaPerLevel:  { type: int, zero: 0, min: -3, max: 30, presets: { pain: -1 } }
 
-            hpPotEfficacy:  { type: int, zero: 100 , min: 5 , max: 1000 , percent: true, logScale: true }
-            mpPotEfficacy:  { type: int, zero: 100 , min: 5 , max: 1000 , percent: true, logScale: true }
+            hpPotEfficacy:  { type: int, zero: 100 , min: 5 , max: 1000 , percent: true, logScale: true, presets: { pain: 50 } }
+            mpPotEfficacy:  { type: int, zero: 100 , min: 5 , max: 1000 , percent: true, logScale: true, presets: { pain: 50 } }
     ModuleCube:
         members:
             cheatCharms:   { type: bool, zero: false, recc: true }
@@ -150,23 +150,24 @@ structs:
             repeatSets:              { type: int, zero: 1,   recc: 5, min: 1, max: 5 }
             repeatUniques:           { type: int, zero: 1,   recc: 5, min: 1, max: 5 }
 
-            affixRandom:             { type: bool, zero: false, recc: true }
+            affixRandom:             { type: bool, zero: false, recc: true, presets: { pain: false } }
             gemsRandom:              { type: bool, zero: false }
+            craftedRandom:           { type: bool, zero: false }
             removeKnock:             { type: bool, zero: false, recc: true }
             replaceCharges:          { type: bool, zero: false, recc: true }
             replaceSkills:           { type: bool, zero: false }
             updateExisting:          { type: bool, zero: false, recc: true }
             setBonusMode:            { type: int, zero: 0, recc: 1, min: 0, max: 2 }
 
-            frequencyAuras:          { type: int, zero: 100, min: 5, max: 1000, percent: true, logScale: true }
-            frequencyCharAttributes: { type: int, zero: 100, min: 5, max: 1000, percent: true, logScale: true }
-            frequencyProcs:          { type: int, zero: 100, min: 5, max: 1000, percent: true, logScale: true }
-            frequencyResistances:    { type: int, zero: 100, min: 5, max: 1000, percent: true, logScale: true }
-            frequencySkills:         { type: int, zero: 100, min: 5, max: 1000, percent: true, logScale: true }
+            frequencyAuras:          { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
+            frequencyCharAttributes: { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: { pain: 50 }, logScale: true }
+            frequencyProcs:          { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
+            frequencyResistances:    { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: { pain: 50 }, logScale: true }
+            frequencySkills:         { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
     ModuleMonDensity:
         members:
             density:   { type: int, zero: 1, min: 1, max: 20 }
-            hellPacks: { type: bool, zero: false }
+            hellPacks: { type: bool, zero: false, recc: true }
             monGroups: { type: int, zero: 0, min: 0, max: 20 }
             packs:     { type: int, zero: 1, min: 1, max: 20 }
     ModuleMonRandomizer:

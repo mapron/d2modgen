@@ -135,15 +135,15 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     PropRandomizer props(magicContext.actual, m_skillGetter);
 
-    const auto& b                 = config.m_itemBalance;
-    const auto& uniqueSettings    = b.m_uniques.m_doOverride ? b.m_uniques : b.m_defaults;
-    const auto& setsSettings      = b.m_sets.m_doOverride ? b.m_sets : b.m_defaults;
-    const auto& setitemsSettings  = b.m_setitems.m_doOverride ? b.m_setitems : b.m_defaults;
-    const auto& affixesSettings   = b.m_affixes.m_doOverride ? b.m_affixes : b.m_defaults;
-    const auto& runewordSettings  = b.m_runewords.m_doOverride ? b.m_runewords : b.m_defaults;
-    const auto& gemSettings       = b.m_gems.m_doOverride ? b.m_gems : b.m_defaults;
-    const auto& craftedSettings   = b.m_crafted.m_doOverride ? b.m_crafted : b.m_defaults;
-    const auto& baseEquipSettings = b.m_equipment.m_doOverride ? b.m_equipment : b.m_defaults;
+    const auto& b                = config.m_itemBalance;
+    const auto& uniqueSettings   = b.m_uniques.m_doOverride ? b.m_uniques : b.m_defaults;
+    const auto& setsSettings     = b.m_sets.m_doOverride ? b.m_sets : b.m_defaults;
+    const auto& setitemsSettings = b.m_setitems.m_doOverride ? b.m_setitems : b.m_defaults;
+    const auto& affixesSettings  = b.m_affixes.m_doOverride ? b.m_affixes : b.m_defaults;
+    const auto& runewordSettings = b.m_runewords.m_doOverride ? b.m_runewords : b.m_defaults;
+    const auto& gemSettings      = b.m_gems.m_doOverride ? b.m_gems : b.m_defaults;
+    const auto& craftedSettings  = b.m_crafted.m_doOverride ? b.m_crafted : b.m_defaults;
+    //const auto& baseEquipSettings = b.m_equipment.m_doOverride ? b.m_equipment : b.m_defaults;
 
     RandoParams params;
     params.replaceSkills  = module.m_replaceSkills;
@@ -179,6 +179,10 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     auto paramsUniq   = params;
     paramsUniq.common = uniqueSettings;
+
+    auto paramsCrafted             = params;
+    paramsCrafted.common           = craftedSettings;
+    paramsCrafted.enableGeneration = module.m_craftedRandom;
 
     ItemStatistics allStat;
 
@@ -225,6 +229,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     fillProps(output.gems, paramsGems, RollType::Common);
     fillProps(output.magicprefix, paramsAffix, RollType::Common);
     fillProps(output.magicsuffix, paramsAffix, RollType::Common);
+    fillProps(output.cubemain, paramsCrafted, RollType::Common);
 
     Logger(Logger::Notice) << allStat.toString(ItemStatistics::Mode::All);
 
@@ -311,31 +316,8 @@ ModuleItemRandomizer::AllProps ModuleItemRandomizer::grabAllProps(const DataCont
     grabProps(output.magicprefix);
     grabProps(output.magicsuffix);
     grabProps(output.automagic);
+    grabProps(output.cubemain);
 
-    for (auto& row : output.cubemain.rows) {
-        if (!row.isCrafted())
-            continue;
-        auto      desc         = Mernel::strToLower(row.description);
-        const int craftedLevel = 25;
-
-        MagicPropItem item;
-        item.id                          = row.description;
-        item.originalLevel               = craftedLevel;
-        item.filter.props.slot           = row.slotType;
-        item.filter.props.levelBracket20 = 1;
-        item.readAffixes(row, m_codeResolver, m_skillGetter, unknownList, skippedList);
-
-        for (auto& affixlist : item.affixlists) {
-            for (auto& prop : affixlist.parsedProps) {
-                auto& byId = allProps.propsById[prop.id];
-
-                auto&          byRoll  = byId.propsByRoll[affixlist.rollTypeHighestGrab];
-                auto&          bySlot  = byRoll.propsBySlot[row.slotType];
-                MagicPropList& byLevel = bySlot.propsByLevel[craftedLevel];
-                byLevel.push_back(prop);
-            }
-        }
-    }
     return allProps;
 }
 

@@ -45,6 +45,8 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
         prop.id   = rec.code;
         prop.desc = &getAttributeDesc(prop.id);
         prop.updateProperties();
+        [[maybe_unused]] const auto oldSize     = gens.size();
+        [[maybe_unused]] const auto recEstimate = rec.estimateSize();
 
         for (SlotType slot : getSlotTypes()) {
             if (!rec.slotTypes.contains(slot))
@@ -73,7 +75,10 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
                 }
             }
         }
+
+        assert(gens.size() == oldSize + recEstimate);
     }
+    assert(gens.size() == estimatedSizeNonPar);
 
     for (const ParRecord& rec : attributeData.par) {
         MagicProp prop;
