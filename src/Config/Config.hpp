@@ -165,7 +165,7 @@ struct Config : public CommonStruct {
             CommonSettings()
             {
                 addScalar("doOverride", m_doOverride).setZero(false).setRecc(false);
-                addScalar("rollMode", m_rollMode).setRange(0, 3).setZero(0).setRecc(3);
+                addScalar("rollMode", m_rollMode).setRange(0, 3).setZero(0).setRecc(0).addPreset(0, 3).addPreset(1, 3);
                 addScalar("itemLevel", m_itemLevel).setRange(5, 150).setZero(100).setRecc(100).setPercent();
                 addScalar("reqLevel", m_reqLevel).setRange(5, 150).setZero(100).setRecc(100).setPercent();
                 addScalar("randoKeepOriginalPercent", m_randoKeepOriginalPercent).setRange(0, 100).setZero(100).setRecc(50).setPercent().addPreset(0, 25).addPreset(3, 0);

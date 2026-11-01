@@ -15,19 +15,19 @@ See screenshots below to have a look what d2modgen supports - and you can get co
 If you interested in history of changes, [changelog is here](Changelog.md)
 
 # Quick start
-![mainwindow](docs/mainwindow.png "Main Window")  
+![mainwindow](docs/main_main.png "Main Window")  
 Main Window  
 1. Download zip archive from [releases page](https://github.com/mapron/d2modgen/releases);
 2. Extract wherever you want and go inside extracted folder;
 3. Run modgen.exe in root folder; (see the screenshot);
 4. Check if "Input folder" is filled correctly; if not, edit it manually to point "Diablo II Resurrected/" folder;
-5. Select "File" => "Config from preset" => "Basic";
+5. Select "File" => "Config from preset" => "Author recommended settings";
 6. Press "Generate" button.
 
 Now randomizer mod is created, see next chapter how to set launch for D2R.
 
 # Set launch for mod in D2R
-![mainwindow](docs/extrawindow.png "Extra Tab")  
+![mainwindow](docs/main_extra.png "Extra Tab")  
 Go to "Extra" Tab
 1. Optional; press "Copy Settings.json" to initialize new mod with your default game settings (music volume, etc);
 2. Optional; press "Copy all save files" to copy character files to randomizer mod;
@@ -47,8 +47,8 @@ Note 3: if you want to return to unmodded, press "Reset launch to unmodded" (aga
 
 # Start new config from preset
 ![presets_menu](docs/presets_menu.png "Presets menu")  
-There are 4 premade configs to quickly start rando!  
-Go to [Presets readme](presets/readme.txt) to learn more about them.  
+There are 5 pre-made configs to quickly start rando!  
+For starters I recommend first in the list.
 
 # How it looks like
 ![density](docs/density.png "Density")  
@@ -68,69 +68,57 @@ A lot of features enabled here - more Boss drops, increased Uniques/drop count/R
 1. Game (D2 and D2R) stores a lot of properties/balance of game cotent in tables - imagine an Excel spreadsheet or database table inside the game. One way to modify this data - provide a set of txt files (which are CSV - tab-separted). Starting with D2R, that can be done in a very simple way - creating a mod subfolder, so custom mod no not override the main game. d2modgen utilizes this feature.
 2. Main game data located in "D2R folder", mod in "D2R folder/mod/modname/modname.mpq/"; save files stored in "User folder/Saved Games", mod save files (and games settings) stored in  "User folder/Saved Games/mods/modname". You can easily transfer your data between modded and non-modded versions (for example, shared storage).
 3. To run the game in modded version, you need to provide command-line option, like "-mod rando -txt" will run D2R with mod "rando" enabled.
-4. You can check "Export all .txt" checkbox, and have you own mod setup instead (mod folder is filled by D2R internal files).
 
 # Feature tabs
 For each tab, just click or hover over question button (?) to get help about features on each page.  
 Also, as you noticed, support for Dark and Light theme is available - choose what you prefer in Actions -> Theme.
 
+#### Main item balance settings  
+![items](docs/main_balance.png)  
+
 #### Randomize items  
-![Randomize items](docs/tab_random_items.png)  
+![Randomize items](docs/rando_item.png)  
 
 #### Randomize monsters  
-![Randomize monsters](docs/tab_random_monsters.png)  
+![Randomize monsters](docs/rando_monster.png)  
 
-#### Randomize some character skills  
-![Randomize skills](docs/tab_random_skills.png)  
+#### Randomize some skills  
+![Randomize monsters](docs/rando_skill.png)  
+
+#### Increase item drops 
+![Increase item drops](docs/increase_items.png)  
+
+#### Increase rune drops 
+![Increase rune drops](docs/increase_runes.png)  
 
 #### Change monster stats  
-![monster stats](docs/tab_harder_stats.png)  
-
-#### Increase monster and elites density
-![monster density](docs/tab_harder_density.png)  
+![monster stats](docs/harder_monstats.png)  
 
 #### Challenge difficulty  
-![Challenge](docs/tab_harder_challenge.png)  
+![Challenge](docs/harder_challenge.png)  
 
 #### Cube recipes to blaze through  
-![Horadric Cube](docs/tab_easy_cube.png)  
+![Horadric cube](docs/misc_cube.png)  
 
 #### Easier Gambling
-![Gambling](docs/tab_easy_gamble.png)  
+![Gambling](docs/misc_gamble.png)  
 
 #### Character
-![Character](docs/tab_easy_character.png)  
-
-#### Increase item drops
-![Drops](docs/tab_easy_drops.png)  
-
-#### Increase Rune drops
-![Drops](docs/tab_easy_drops_runes.png)  
-
-#### Make everything perfect
-![Perfect](docs/tab_easy_perfect.png)  
-
-#### Change requirements
-![requirements](docs/tab_easy_requirements.png)  
+![Character](docs/misc_character.png)  
 
 #### Quality of life
-![Qol](docs/tab_misc_qol.png)  
-
-#### Filter your drops
-![Drops filter](docs/tab_misc_filter.png)  
+![Quality of life](docs/misc_qol.png)  
 
 
 # Using commandline
-You also can run d2modgen in commandline mode (without UI). ```bin/modgen_console.exe```  
-will generate output using default application config (in LOCAPAPPDATA).  
+You also can run d2modgen in commandline mode (without UI). `bin/modgen_console.exe`   
+will generate output using default application config (in `%LOCALAPPDATA%`).  
 You can create script/batch file/global hotkey command that runs this executeable, and it will generate and update mod files.  
 If you want to have new seed on every run, use "Create new seed on every Generate call" checkbox.  
 
 # KnownIssues
 1. If there is many dead bodies on the screen, some portals won't open (e.g. near Summoner). Workaround - go far away to another location, wait while corpses disappeared and then trigger the portal.
-2. If charges spawned on a gem/rune, it will constantly update count on gem mouse hover. This glitch is fixes after gem is inserted in socket.
-3. Game trying to render limited item label on the screen - if there are too many items, you will see only closest ones. Use DropFiltering tab feature.
-4. You need to completely quit out of the game for Diablo 2 Resurrected, for mod changes to apply. In Diablo 2 legacy, however, you can just reload save again without quitting.
+2. You need to completely quit out of the game for Diablo2:Resurrected, for mod changes to apply. In Diablo2 legacy (LoD/PD2), however, you can just reload save again without quitting.
 
 # How to build from the source
 Prerequisites:
@@ -143,7 +131,7 @@ If requirements are met, then go "cmake/build/build install". For windows platfo
 # Contribute
 1. follow clang-format rules in `src/` directory;
 2. Generator logic is in `src/CoreLib/Modules/`;
-3. Corresponding ui configs are in `qml/Module-Something-.qml`
+3. Corresponding ui configs are in `qml/Modules/Module-Something-.qml`
 
 # Used thirdparty products
 - (MIT) CascLib (https://github.com/ladislav-zezula/CascLib) is used for Blizzard CASC data storage read;

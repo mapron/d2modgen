@@ -56,7 +56,7 @@ structs:
             CommonSettings:
                  members:
                     doOverride: { type: bool, zero: false, recc: false }
-                    rollMode: { type: int, zero: 0, recc: 3, min: 0, max: 3 } # keep|min|avg|max
+                    rollMode: { type: int, zero: 0, recc: 0, min: 0, max: 3, presets: {crazy: 3, strong: 3} } # keep|min|avg|max
                     itemLevel:   { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
                     reqLevel:    { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
 

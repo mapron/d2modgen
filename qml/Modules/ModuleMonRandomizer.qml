@@ -24,14 +24,14 @@ WidgetCommonTab {
     }
 
     WidgetSlider {
-        caption: qsTr("Add new monster spawn type in area, min")
+        caption: qsTr("Add new monster spawn type in area, Max")
         tooltip: qsTr("This option defines how many possibilites for monster types are exist in one zone;<br>Make this value lower if you want less variety between game restarts.<br>Note: D2 legacy support only 12 max, so value will be lowered implicitly.")
         value_key: root.value_context.spawnGenerateMin
         isCompact: true
     }
     WidgetSlider {
         caption: qsTr("Add new monster spawn type in area, Max")
-        value_key: root.value_context.spawnGenerateMin
+        value_key: root.value_context.spawnGenerateMax
         isCompact: true
     }
 
