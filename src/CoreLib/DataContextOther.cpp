@@ -10,7 +10,7 @@ namespace D2ModGen {
 
 std::vector<std::string> DataRow_charstats::getColumns() const
 {
-    std::vector<std::string> result{ "class", "statperlevel", "skillsperlevel" };
+    std::vector<std::string> result{ "class", "statperlevel", "skillsperlevel", "lifeperlevel", "manaperlevel", "healthpotionpercent", "manapotionpercent" };
     for (size_t i = 0; i < maxItems; ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("item" + istr + "count");
@@ -21,7 +21,6 @@ std::vector<std::string> DataRow_charstats::getColumns() const
         auto istr = std::to_string(i + 1);
         result.push_back("skill " + istr);
     }
-
     return result;
 }
 
@@ -30,6 +29,10 @@ void DataRow_charstats::serialize()
     ser(clas);
     ser(statPerLevel);
     ser(skillsPerLevel);
+    ser(hpPerLevel);
+    ser(manaPerLevel);
+    ser(hpPotEfficacy);
+    ser(manaPotEfficacy);
     serArray(items, maxItems, [this](Item& item) {
         ser(item.count);
         ser(item.code);

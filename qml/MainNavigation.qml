@@ -15,23 +15,41 @@ ColumnLayout {
             tabIndex: 1
         },
         {
+            name: qsTr("Item balance"),
+            tabIndex: 2
+        },
+        {
             name: qsTr("Randomizers"),
             tabIndex: -1
         },
         {
             name: qsTr("Item Randomizer"),
             value_key: config.moduleItemRandomizer.enabled,
-            tabIndex: 3
+            tabIndex: 4
         },
         {
             name: qsTr("Monster Randomizer"),
             value_key: config.moduleMonRandomizer.enabled,
-            tabIndex: 4
+            tabIndex: 5
         },
         {
             name: qsTr("Skill Randomizer"),
             value_key: config.moduleSkillRandomizer.enabled,
-            tabIndex: 5
+            tabIndex: 6
+        },
+        {
+            name: qsTr("Increase drops"),
+            tabIndex: -1
+        },
+        {
+            name: qsTr("Items"),
+            value_key: config.treasureClasses.items.enabled,
+            tabIndex: 8
+        },
+        {
+            name: qsTr("Runes"),
+            value_key: config.treasureClasses.runes.enabled,
+            tabIndex: 9
         },
         {
             name: qsTr("Make harder"),
@@ -39,64 +57,35 @@ ColumnLayout {
         },
         {
             name: qsTr("Monster stats"),
-            tabIndex: 7
-        },
-        {
-            name: qsTr("Monster density"),
-            tabIndex: 8
-        },
-        {
-            name: qsTr("Challenge"),
-            value_key: config.moduleChallenge.enabled,
-            tabIndex: 9
-        },
-        {
-            name: qsTr("Make easier"),
-            tabIndex: -1
-        },
-        {
-            name: qsTr("Horadric Cube"),
             tabIndex: 11
         },
         {
-            name: qsTr("Gambling"),
+            name: qsTr("Monster density"),
             tabIndex: 12
         },
         {
-            name: qsTr("Character"),
-            value_key: config.moduleCharacter.enabled,
+            name: qsTr("Challenge"),
             tabIndex: 13
-        },
-        {
-            name: qsTr("Increase Item Drops"),
-            value_key: config.treasureClasses.items.enabled,
-            tabIndex: 14
-        },
-        {
-            name: qsTr("Increase Rune Drops"),
-            value_key: config.treasureClasses.runes.enabled,
-            tabIndex: 15
-        },
-        {
-            name: qsTr("Perfect Rolls"),
-            tabIndex: 16
-        },
-        {
-            name: qsTr("Requirements"),
-            tabIndex: 17
         },
         {
             name: qsTr("Misc"),
             tabIndex: -1
         },
         {
-            name: qsTr("Quality of life"),
-            tabIndex: 19
+            name: qsTr("Horadric Cube"),
+            tabIndex: 15
         },
         {
-            name: qsTr("Drops filtering"),
-            value_key: config.moduleDropFiltering.enabled,
-            tabIndex: 20
+            name: qsTr("Gambling"),
+            tabIndex: 16
+        },
+        {
+            name: qsTr("Character"),
+            tabIndex: 17
+        },
+        {
+            name: qsTr("Quality of life"),
+            tabIndex: 18
         },
     ]
     // Block horizontal growth, keeping this sidebar strictly predictable
@@ -128,7 +117,7 @@ ColumnLayout {
                 text: modelData.name
                 visible: modelData.tabIndex === -1
                 anchors.left: parent.left
-                anchors.leftMargin: 45
+                anchors.leftMargin: 65
                 anchors.verticalCenter: parent.verticalCenter
                 font.bold: true
                 color: window.palette.text
@@ -142,14 +131,25 @@ ColumnLayout {
 
                 visible: modelData.tabIndex >= 0
 
-                CheckBox {
-                    id: tabCheckbox
-                    visible: !!modelData.value_key
-                    indicator.implicitWidth: 18
-                    indicator.implicitHeight: 18
+                Item {
+                    id: checkboxContainer
 
-                    checked: modelData.value_key ? modelData.value_key.value : false
-                    onClicked: modelData.value_key.value = checked
+                    Layout.preferredWidth: 24
+                    Layout.fillHeight: true
+
+                    CheckBox {
+                        id: tabCheckbox
+
+                        visible: !!modelData.value_key
+
+                        anchors.centerIn: parent
+
+                        indicator.implicitWidth: 18
+                        indicator.implicitHeight: 18
+
+                        checked: modelData.value_key ? modelData.value_key.value : false
+                        onClicked: modelData.value_key.value = checked
+                    }
                 }
 
                 Button {

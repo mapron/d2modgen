@@ -43,8 +43,7 @@ public:
     Q_INVOKABLE void loadConfig(QString filename);
     Q_INVOKABLE void clearConfig();
 
-    bool             loadConfig(const Mernel::PropertyTree& data);
-    Q_INVOKABLE void loadPresetConfig(const QString& filename);
+    bool loadConfig(const Mernel::PropertyTree& data);
 
     Q_INVOKABLE QString getApp(const QString& key, const QString& def) const;
     Q_INVOKABLE void    setApp(const QString& key, const QString& value);

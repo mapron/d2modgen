@@ -88,7 +88,7 @@ struct RowBaseUniqueSet : public RowBase {
     EquipmentType eqipmentType = nullptr;
 
     std::optional<int>  rarity;
-    std::optional<int>  lvl; // or "lvl"
+    std::optional<int>  lvl; // "level" or "lvl"
     std::optional<int>  lvlreq;
     std::optional<bool> spawnable; // or "enabled"
     std::optional<bool> disableChronicle;

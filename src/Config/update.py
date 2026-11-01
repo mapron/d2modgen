@@ -159,12 +159,9 @@ def visit_struct(struct_ident, schema, fqn_prefix, tab, preset_names, lines_cpp,
     lines_cpp.append(f'{next_tab}}}')
     lines_cpp.append(f'{tab}}};')
 
-    qt_methods.append(f'Q_INVOKABLE void resetToZero() {{ m_data.resetToZero(true); }}')
-    qt_methods.append(f'Q_INVOKABLE void resetToReccomended() {{ m_data.resetToReccomended(true); }}')
     qt_methods.append(f'Q_INVOKABLE void assign({qt_class_name}* another) {{ m_data.assign(another->m_data, true); }}')
-    qt_methods.append(f'Q_INVOKABLE void activatePreset(int index) {{ m_data.activatePreset(index, true); }}')
 
-    lines_qt.append(f'class {qt_class_name} : public QObject {{')
+    lines_qt.append(f'class {qt_class_name} : public CommonStruct_Qt {{')
     lines_qt.append('    Q_OBJECT')
     for prop in qt_properties:
         lines_qt.append(f'    {prop}')
@@ -172,7 +169,8 @@ def visit_struct(struct_ident, schema, fqn_prefix, tab, preset_names, lines_cpp,
     lines_qt.append('')
     lines_qt.append('public:')
     lines_qt.append(f'    explicit {qt_class_name}({fqn}& data)')
-    lines_qt.append('        : m_data(data)')
+    lines_qt.append('        : CommonStruct_Qt(data)')
+    lines_qt.append('        , m_data(data)')
     for init_record in qt_init_list:
         lines_qt.append(f'        , {init_record}')
     lines_qt.append('    {')
@@ -213,13 +211,18 @@ def main():
         lines_qt.append('namespace D2ModGen {\n')
         
         preset_names = []
+        lines_cpp_impl = []
+        lines_qt_impl = []
 
-        visit_struct('Config', schema, '', '', preset_names, lines_cpp, lines_qt)
-        
+        visit_struct('Config', schema, '', '', preset_names, lines_cpp_impl, lines_qt_impl)
+
+        lines_cpp.append('[[maybe_unused]] static inline bool s_presetNamesSetter_unused = CommonStruct::setPresetNames({ "' + '", "'.join(preset_names) + '" });')
         lines_cpp.append('');
-        lines_cpp.append('static inline std::vector<std::string> s_presetNames{ "' + '", "'.join(preset_names) + '" };')
 
+        lines_cpp.extend(lines_cpp_impl)
         lines_cpp.append('}')
+
+        lines_qt.extend(lines_qt_impl)
         lines_qt.append('}')
         output_cpp.write("\n".join(lines_cpp) + "\n")
         output_qt.write("\n".join(lines_qt) + "\n")

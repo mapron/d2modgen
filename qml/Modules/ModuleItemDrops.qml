@@ -12,6 +12,7 @@ WidgetCommonTab {
 
     WidgetPreset {
         model: [qsTr("Select preset..."), qsTr("I want to find Tyrael's today!"), qsTr("Just tired of finding my first Shako"), qsTr("A little bit more of good stuff, not crazy"),]
+        presetIds: ["", "crazy", "strong", "weak"]
         value_key: config.treasureClasses.items
     }
 

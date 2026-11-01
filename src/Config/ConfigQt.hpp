@@ -6,7 +6,7 @@
 
 namespace D2ModGen {
 
-class Config_TreasureClasses_Runes_Qt : public QObject {
+class Config_TreasureClasses_Runes_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* countessSpecialRuneLevel READ get_countessSpecialRuneLevel CONSTANT)
@@ -17,7 +17,8 @@ class Config_TreasureClasses_Runes_Qt : public QObject {
 
 public:
     explicit Config_TreasureClasses_Runes_Qt(Config::TreasureClasses::Runes& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_enabled(data.getPropertyBool(0))
         , m_countessSpecialRuneLevel(data.getPropertyInt(0))
         , m_countessSpecialRuneMore(data.getPropertyBool(1))
@@ -39,13 +40,7 @@ public:
 
     PropertyInt_Qt* get_zodFactor() { return &m_zodFactor; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
     Q_INVOKABLE void assign(Config_TreasureClasses_Runes_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::TreasureClasses::Runes& m_data;
@@ -63,7 +58,7 @@ private:
     PropertyInt_Qt m_zodFactor;
 };
 
-class Config_TreasureClasses_Items_Qt : public QObject {
+class Config_TreasureClasses_Items_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* forceQuestDrops READ get_forceQuestDrops CONSTANT)
@@ -86,7 +81,8 @@ class Config_TreasureClasses_Items_Qt : public QObject {
 
 public:
     explicit Config_TreasureClasses_Items_Qt(Config::TreasureClasses::Items& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_enabled(data.getPropertyBool(0))
         , m_forceQuestDrops(data.getPropertyBool(1))
         , m_chanceForHighLevel(data.getPropertyInt(0))
@@ -144,13 +140,7 @@ public:
 
     PropertyBool_Qt* get_sameRarityForSetUniqueItems() { return &m_sameRarityForSetUniqueItems; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
     Q_INVOKABLE void assign(Config_TreasureClasses_Items_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::TreasureClasses::Items& m_data;
@@ -192,14 +182,15 @@ private:
     PropertyBool_Qt m_sameRarityForSetUniqueItems;
 };
 
-class Config_TreasureClasses_Qt : public QObject {
+class Config_TreasureClasses_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(Config_TreasureClasses_Runes_Qt* runes READ get_runes CONSTANT)
     Q_PROPERTY(Config_TreasureClasses_Items_Qt* items READ get_items CONSTANT)
 
 public:
     explicit Config_TreasureClasses_Qt(Config::TreasureClasses& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_runes(data.m_runes)
         , m_items(data.m_items)
     {
@@ -209,13 +200,7 @@ public:
 
     Config_TreasureClasses_Items_Qt* get_items() { return &m_items; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
     Q_INVOKABLE void assign(Config_TreasureClasses_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::TreasureClasses& m_data;
@@ -225,7 +210,159 @@ private:
     Config_TreasureClasses_Items_Qt m_items;
 };
 
-class Config_ModuleMain_Qt : public QObject {
+class Config_ItemBalance_CommonSettings_Qt : public CommonStruct_Qt {
+    Q_OBJECT
+    Q_PROPERTY(PropertyBool_Qt* doOverride READ get_doOverride CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* rollMode READ get_rollMode CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* itemLevel READ get_itemLevel CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* reqLevel READ get_reqLevel CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* randoKeepOriginalPercent READ get_randoKeepOriginalPercent CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* randoGenerateMin READ get_randoGenerateMin CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* randoGenerateMax READ get_randoGenerateMax CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* powerScaleLevel1 READ get_powerScaleLevel1 CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* powerScaleLevel50 READ get_powerScaleLevel50 CONSTANT)
+
+public:
+    explicit Config_ItemBalance_CommonSettings_Qt(Config::ItemBalance::CommonSettings& data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
+        , m_doOverride(data.getPropertyBool(0))
+        , m_rollMode(data.getPropertyInt(0))
+        , m_itemLevel(data.getPropertyInt(1))
+        , m_reqLevel(data.getPropertyInt(2))
+        , m_randoKeepOriginalPercent(data.getPropertyInt(3))
+        , m_randoGenerateMin(data.getPropertyInt(4))
+        , m_randoGenerateMax(data.getPropertyInt(5))
+        , m_powerScaleLevel1(data.getPropertyInt(6))
+        , m_powerScaleLevel50(data.getPropertyInt(7))
+    {
+    }
+
+    PropertyBool_Qt* get_doOverride() { return &m_doOverride; }
+
+    PropertyInt_Qt* get_rollMode() { return &m_rollMode; }
+
+    PropertyInt_Qt* get_itemLevel() { return &m_itemLevel; }
+
+    PropertyInt_Qt* get_reqLevel() { return &m_reqLevel; }
+
+    PropertyInt_Qt* get_randoKeepOriginalPercent() { return &m_randoKeepOriginalPercent; }
+
+    PropertyInt_Qt* get_randoGenerateMin() { return &m_randoGenerateMin; }
+
+    PropertyInt_Qt* get_randoGenerateMax() { return &m_randoGenerateMax; }
+
+    PropertyInt_Qt* get_powerScaleLevel1() { return &m_powerScaleLevel1; }
+
+    PropertyInt_Qt* get_powerScaleLevel50() { return &m_powerScaleLevel50; }
+
+    Q_INVOKABLE void assign(Config_ItemBalance_CommonSettings_Qt* another) { m_data.assign(another->m_data, true); }
+
+private:
+    Config::ItemBalance::CommonSettings& m_data;
+
+    PropertyBool_Qt m_doOverride;
+
+    PropertyInt_Qt m_rollMode;
+
+    PropertyInt_Qt m_itemLevel;
+
+    PropertyInt_Qt m_reqLevel;
+
+    PropertyInt_Qt m_randoKeepOriginalPercent;
+
+    PropertyInt_Qt m_randoGenerateMin;
+
+    PropertyInt_Qt m_randoGenerateMax;
+
+    PropertyInt_Qt m_powerScaleLevel1;
+
+    PropertyInt_Qt m_powerScaleLevel50;
+};
+
+class Config_ItemBalance_Qt : public CommonStruct_Qt {
+    Q_OBJECT
+    Q_PROPERTY(Config_ItemBalance_CommonSettings_Qt* defaults READ get_defaults CONSTANT)
+    Q_PROPERTY(Config_ItemBalance_CommonSettings_Qt* uniques READ get_uniques CONSTANT)
+    Q_PROPERTY(Config_ItemBalance_CommonSettings_Qt* setitems READ get_setitems CONSTANT)
+    Q_PROPERTY(Config_ItemBalance_CommonSettings_Qt* sets READ get_sets CONSTANT)
+    Q_PROPERTY(Config_ItemBalance_CommonSettings_Qt* affixes READ get_affixes CONSTANT)
+    Q_PROPERTY(Config_ItemBalance_CommonSettings_Qt* crafted READ get_crafted CONSTANT)
+    Q_PROPERTY(Config_ItemBalance_CommonSettings_Qt* runewords READ get_runewords CONSTANT)
+    Q_PROPERTY(Config_ItemBalance_CommonSettings_Qt* gems READ get_gems CONSTANT)
+    Q_PROPERTY(Config_ItemBalance_CommonSettings_Qt* equipment READ get_equipment CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* reqDex READ get_reqDex CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* reqStr READ get_reqStr CONSTANT)
+
+public:
+    explicit Config_ItemBalance_Qt(Config::ItemBalance& data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
+        , m_defaults(data.m_defaults)
+        , m_uniques(data.m_uniques)
+        , m_setitems(data.m_setitems)
+        , m_sets(data.m_sets)
+        , m_affixes(data.m_affixes)
+        , m_crafted(data.m_crafted)
+        , m_runewords(data.m_runewords)
+        , m_gems(data.m_gems)
+        , m_equipment(data.m_equipment)
+        , m_reqDex(data.getPropertyInt(0))
+        , m_reqStr(data.getPropertyInt(1))
+    {
+    }
+
+    Config_ItemBalance_CommonSettings_Qt* get_defaults() { return &m_defaults; }
+
+    Config_ItemBalance_CommonSettings_Qt* get_uniques() { return &m_uniques; }
+
+    Config_ItemBalance_CommonSettings_Qt* get_setitems() { return &m_setitems; }
+
+    Config_ItemBalance_CommonSettings_Qt* get_sets() { return &m_sets; }
+
+    Config_ItemBalance_CommonSettings_Qt* get_affixes() { return &m_affixes; }
+
+    Config_ItemBalance_CommonSettings_Qt* get_crafted() { return &m_crafted; }
+
+    Config_ItemBalance_CommonSettings_Qt* get_runewords() { return &m_runewords; }
+
+    Config_ItemBalance_CommonSettings_Qt* get_gems() { return &m_gems; }
+
+    Config_ItemBalance_CommonSettings_Qt* get_equipment() { return &m_equipment; }
+
+    PropertyInt_Qt* get_reqDex() { return &m_reqDex; }
+
+    PropertyInt_Qt* get_reqStr() { return &m_reqStr; }
+
+    Q_INVOKABLE void assign(Config_ItemBalance_Qt* another) { m_data.assign(another->m_data, true); }
+
+private:
+    Config::ItemBalance& m_data;
+
+    Config_ItemBalance_CommonSettings_Qt m_defaults;
+
+    Config_ItemBalance_CommonSettings_Qt m_uniques;
+
+    Config_ItemBalance_CommonSettings_Qt m_setitems;
+
+    Config_ItemBalance_CommonSettings_Qt m_sets;
+
+    Config_ItemBalance_CommonSettings_Qt m_affixes;
+
+    Config_ItemBalance_CommonSettings_Qt m_crafted;
+
+    Config_ItemBalance_CommonSettings_Qt m_runewords;
+
+    Config_ItemBalance_CommonSettings_Qt m_gems;
+
+    Config_ItemBalance_CommonSettings_Qt m_equipment;
+
+    PropertyInt_Qt m_reqDex;
+
+    PropertyInt_Qt m_reqStr;
+};
+
+class Config_ModuleMain_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyInt_Qt* d2rLocaleId READ get_d2rLocaleId CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* inputMode READ get_inputMode CONSTANT)
@@ -237,10 +374,14 @@ class Config_ModuleMain_Qt : public QObject {
     Q_PROPERTY(PropertyInt_Qt* seed READ get_seed CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* versionD2R READ get_versionD2R CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* versionMajor READ get_versionMajor CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* dumpIn READ get_dumpIn CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* dumpOut READ get_dumpOut CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* dumpDiff READ get_dumpDiff CONSTANT)
 
 public:
     explicit Config_ModuleMain_Qt(Config::ModuleMain& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_d2rLocaleId(data.getPropertyInt(0))
         , m_inputMode(data.getPropertyInt(1))
         , m_inputPath(data.getPropertyString(0))
@@ -251,6 +392,9 @@ public:
         , m_seed(data.getPropertyInt(3))
         , m_versionD2R(data.getPropertyInt(4))
         , m_versionMajor(data.getPropertyInt(5))
+        , m_dumpIn(data.getPropertyBool(1))
+        , m_dumpOut(data.getPropertyBool(2))
+        , m_dumpDiff(data.getPropertyBool(3))
     {
     }
 
@@ -274,13 +418,13 @@ public:
 
     PropertyInt_Qt* get_versionMajor() { return &m_versionMajor; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
+    PropertyBool_Qt* get_dumpIn() { return &m_dumpIn; }
 
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
+    PropertyBool_Qt* get_dumpOut() { return &m_dumpOut; }
+
+    PropertyBool_Qt* get_dumpDiff() { return &m_dumpDiff; }
 
     Q_INVOKABLE void assign(Config_ModuleMain_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::ModuleMain& m_data;
@@ -304,119 +448,121 @@ private:
     PropertyInt_Qt m_versionD2R;
 
     PropertyInt_Qt m_versionMajor;
+
+    PropertyBool_Qt m_dumpIn;
+
+    PropertyBool_Qt m_dumpOut;
+
+    PropertyBool_Qt m_dumpDiff;
 };
 
-class Config_ModuleChallenge_Qt : public QObject {
+class Config_ModuleChallenge_Qt : public CommonStruct_Qt {
     Q_OBJECT
-    Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* levelIncreaseHell READ get_levelIncreaseHell CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* levelIncreaseNightmare READ get_levelIncreaseNightmare CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* levelIncreaseUltra READ get_levelIncreaseUltra CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* normal_minus_res READ get_normal_minus_res CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* nightmare_minus_res READ get_nightmare_minus_res CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* hell_minus_res READ get_hell_minus_res CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* nodrop_hpsa READ get_nodrop_hpsa CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* nodrop_mpsa READ get_nodrop_mpsa CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* nodrop_rvs READ get_nodrop_rvs CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* levelIncreaseOverBound READ get_levelIncreaseOverBound CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* normalResPenalty READ get_normalResPenalty CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* nightmareResPenalty READ get_nightmareResPenalty CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* hellResPenalty READ get_hellResPenalty CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* disableDropsHealthPot READ get_disableDropsHealthPot CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* disableDropsManaPot READ get_disableDropsManaPot CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* disableDropsRejuvPot READ get_disableDropsRejuvPot CONSTANT)
 
 public:
     explicit Config_ModuleChallenge_Qt(Config::ModuleChallenge& data)
-        : m_data(data)
-        , m_enabled(data.getPropertyBool(0))
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_levelIncreaseHell(data.getPropertyInt(0))
         , m_levelIncreaseNightmare(data.getPropertyInt(1))
-        , m_levelIncreaseUltra(data.getPropertyBool(1))
-        , m_normal_minus_res(data.getPropertyInt(2))
-        , m_nightmare_minus_res(data.getPropertyInt(3))
-        , m_hell_minus_res(data.getPropertyInt(4))
-        , m_nodrop_hpsa(data.getPropertyBool(2))
-        , m_nodrop_mpsa(data.getPropertyBool(3))
-        , m_nodrop_rvs(data.getPropertyBool(4))
+        , m_levelIncreaseOverBound(data.getPropertyBool(0))
+        , m_normalResPenalty(data.getPropertyInt(2))
+        , m_nightmareResPenalty(data.getPropertyInt(3))
+        , m_hellResPenalty(data.getPropertyInt(4))
+        , m_disableDropsHealthPot(data.getPropertyBool(1))
+        , m_disableDropsManaPot(data.getPropertyBool(2))
+        , m_disableDropsRejuvPot(data.getPropertyBool(3))
     {
     }
-
-    PropertyBool_Qt* get_enabled() { return &m_enabled; }
 
     PropertyInt_Qt* get_levelIncreaseHell() { return &m_levelIncreaseHell; }
 
     PropertyInt_Qt* get_levelIncreaseNightmare() { return &m_levelIncreaseNightmare; }
 
-    PropertyBool_Qt* get_levelIncreaseUltra() { return &m_levelIncreaseUltra; }
+    PropertyBool_Qt* get_levelIncreaseOverBound() { return &m_levelIncreaseOverBound; }
 
-    PropertyInt_Qt* get_normal_minus_res() { return &m_normal_minus_res; }
+    PropertyInt_Qt* get_normalResPenalty() { return &m_normalResPenalty; }
 
-    PropertyInt_Qt* get_nightmare_minus_res() { return &m_nightmare_minus_res; }
+    PropertyInt_Qt* get_nightmareResPenalty() { return &m_nightmareResPenalty; }
 
-    PropertyInt_Qt* get_hell_minus_res() { return &m_hell_minus_res; }
+    PropertyInt_Qt* get_hellResPenalty() { return &m_hellResPenalty; }
 
-    PropertyBool_Qt* get_nodrop_hpsa() { return &m_nodrop_hpsa; }
+    PropertyBool_Qt* get_disableDropsHealthPot() { return &m_disableDropsHealthPot; }
 
-    PropertyBool_Qt* get_nodrop_mpsa() { return &m_nodrop_mpsa; }
+    PropertyBool_Qt* get_disableDropsManaPot() { return &m_disableDropsManaPot; }
 
-    PropertyBool_Qt* get_nodrop_rvs() { return &m_nodrop_rvs; }
-
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
+    PropertyBool_Qt* get_disableDropsRejuvPot() { return &m_disableDropsRejuvPot; }
 
     Q_INVOKABLE void assign(Config_ModuleChallenge_Qt* another) { m_data.assign(another->m_data, true); }
 
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
-
 private:
     Config::ModuleChallenge& m_data;
-
-    PropertyBool_Qt m_enabled;
 
     PropertyInt_Qt m_levelIncreaseHell;
 
     PropertyInt_Qt m_levelIncreaseNightmare;
 
-    PropertyBool_Qt m_levelIncreaseUltra;
+    PropertyBool_Qt m_levelIncreaseOverBound;
 
-    PropertyInt_Qt m_normal_minus_res;
+    PropertyInt_Qt m_normalResPenalty;
 
-    PropertyInt_Qt m_nightmare_minus_res;
+    PropertyInt_Qt m_nightmareResPenalty;
 
-    PropertyInt_Qt m_hell_minus_res;
+    PropertyInt_Qt m_hellResPenalty;
 
-    PropertyBool_Qt m_nodrop_hpsa;
+    PropertyBool_Qt m_disableDropsHealthPot;
 
-    PropertyBool_Qt m_nodrop_mpsa;
+    PropertyBool_Qt m_disableDropsManaPot;
 
-    PropertyBool_Qt m_nodrop_rvs;
+    PropertyBool_Qt m_disableDropsRejuvPot;
 };
 
-class Config_ModuleCharacter_Qt : public QObject {
+class Config_ModuleCharacter_Qt : public CommonStruct_Qt {
     Q_OBJECT
-    Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* addCube READ get_addCube CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* addTeleport READ get_addTeleport CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* idTome READ get_idTome CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* manaPots READ get_manaPots CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* mercDam READ get_mercDam CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* mercHP READ get_mercHP CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* skillPerLevel READ get_skillPerLevel CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* skillPointLimit READ get_skillPointLimit CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* statPerLevel READ get_statPerLevel CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* skillsReqLevel READ get_skillsReqLevel CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* extraSkillPerLevel READ get_extraSkillPerLevel CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* extraStatPerLevel READ get_extraStatPerLevel CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* extraHpPerLevel READ get_extraHpPerLevel CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* extraManaPerLevel READ get_extraManaPerLevel CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* hpPotEfficacy READ get_hpPotEfficacy CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* mpPotEfficacy READ get_mpPotEfficacy CONSTANT)
 
 public:
     explicit Config_ModuleCharacter_Qt(Config::ModuleCharacter& data)
-        : m_data(data)
-        , m_enabled(data.getPropertyBool(0))
-        , m_addCube(data.getPropertyBool(1))
-        , m_addTeleport(data.getPropertyBool(2))
-        , m_idTome(data.getPropertyBool(3))
-        , m_manaPots(data.getPropertyBool(4))
+        : CommonStruct_Qt(data)
+        , m_data(data)
+        , m_addCube(data.getPropertyBool(0))
+        , m_addTeleport(data.getPropertyBool(1))
+        , m_idTome(data.getPropertyBool(2))
+        , m_manaPots(data.getPropertyBool(3))
         , m_mercDam(data.getPropertyInt(0))
         , m_mercHP(data.getPropertyInt(1))
-        , m_skillPerLevel(data.getPropertyInt(2))
-        , m_skillPointLimit(data.getPropertyInt(3))
-        , m_statPerLevel(data.getPropertyInt(4))
+        , m_skillPointLimit(data.getPropertyInt(2))
+        , m_skillsReqLevel(data.getPropertyInt(3))
+        , m_extraSkillPerLevel(data.getPropertyInt(4))
+        , m_extraStatPerLevel(data.getPropertyInt(5))
+        , m_extraHpPerLevel(data.getPropertyInt(6))
+        , m_extraManaPerLevel(data.getPropertyInt(7))
+        , m_hpPotEfficacy(data.getPropertyInt(8))
+        , m_mpPotEfficacy(data.getPropertyInt(9))
     {
     }
-
-    PropertyBool_Qt* get_enabled() { return &m_enabled; }
 
     PropertyBool_Qt* get_addCube() { return &m_addCube; }
 
@@ -430,24 +576,26 @@ public:
 
     PropertyInt_Qt* get_mercHP() { return &m_mercHP; }
 
-    PropertyInt_Qt* get_skillPerLevel() { return &m_skillPerLevel; }
-
     PropertyInt_Qt* get_skillPointLimit() { return &m_skillPointLimit; }
 
-    PropertyInt_Qt* get_statPerLevel() { return &m_statPerLevel; }
+    PropertyInt_Qt* get_skillsReqLevel() { return &m_skillsReqLevel; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
+    PropertyInt_Qt* get_extraSkillPerLevel() { return &m_extraSkillPerLevel; }
 
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
+    PropertyInt_Qt* get_extraStatPerLevel() { return &m_extraStatPerLevel; }
+
+    PropertyInt_Qt* get_extraHpPerLevel() { return &m_extraHpPerLevel; }
+
+    PropertyInt_Qt* get_extraManaPerLevel() { return &m_extraManaPerLevel; }
+
+    PropertyInt_Qt* get_hpPotEfficacy() { return &m_hpPotEfficacy; }
+
+    PropertyInt_Qt* get_mpPotEfficacy() { return &m_mpPotEfficacy; }
 
     Q_INVOKABLE void assign(Config_ModuleCharacter_Qt* another) { m_data.assign(another->m_data, true); }
 
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
-
 private:
     Config::ModuleCharacter& m_data;
-
-    PropertyBool_Qt m_enabled;
 
     PropertyBool_Qt m_addCube;
 
@@ -461,14 +609,24 @@ private:
 
     PropertyInt_Qt m_mercHP;
 
-    PropertyInt_Qt m_skillPerLevel;
-
     PropertyInt_Qt m_skillPointLimit;
 
-    PropertyInt_Qt m_statPerLevel;
+    PropertyInt_Qt m_skillsReqLevel;
+
+    PropertyInt_Qt m_extraSkillPerLevel;
+
+    PropertyInt_Qt m_extraStatPerLevel;
+
+    PropertyInt_Qt m_extraHpPerLevel;
+
+    PropertyInt_Qt m_extraManaPerLevel;
+
+    PropertyInt_Qt m_hpPotEfficacy;
+
+    PropertyInt_Qt m_mpPotEfficacy;
 };
 
-class Config_ModuleCube_Qt : public QObject {
+class Config_ModuleCube_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* cheatCharms READ get_cheatCharms CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* craftHighIlvl READ get_craftHighIlvl CONSTANT)
@@ -482,7 +640,8 @@ class Config_ModuleCube_Qt : public QObject {
 
 public:
     explicit Config_ModuleCube_Qt(Config::ModuleCube& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_cheatCharms(data.getPropertyBool(0))
         , m_craftHighIlvl(data.getPropertyBool(1))
         , m_craftNoRunes(data.getPropertyBool(2))
@@ -513,13 +672,7 @@ public:
 
     PropertyBool_Qt* get_upgrading() { return &m_upgrading; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
     Q_INVOKABLE void assign(Config_ModuleCube_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::ModuleCube& m_data;
@@ -543,118 +696,7 @@ private:
     PropertyBool_Qt m_upgrading;
 };
 
-class Config_ModuleDropFiltering_Qt : public QObject {
-    Q_OBJECT
-    Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* compact_pots READ get_compact_pots CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* compact_scrolls READ get_compact_scrolls CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_ammo READ get_hide_ammo CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_hps READ get_hide_hps CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_hpsa READ get_hide_hpsa CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_isc READ get_hide_isc CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_junks READ get_hide_junks CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_lowq READ get_hide_lowq CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_mps READ get_hide_mps CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_mpsa READ get_hide_mpsa CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_rvl READ get_hide_rvl CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_rvs READ get_hide_rvs CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_stam READ get_hide_stam CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hide_tsc READ get_hide_tsc CONSTANT)
-
-public:
-    explicit Config_ModuleDropFiltering_Qt(Config::ModuleDropFiltering& data)
-        : m_data(data)
-        , m_enabled(data.getPropertyBool(0))
-        , m_compact_pots(data.getPropertyBool(1))
-        , m_compact_scrolls(data.getPropertyBool(2))
-        , m_hide_ammo(data.getPropertyBool(3))
-        , m_hide_hps(data.getPropertyBool(4))
-        , m_hide_hpsa(data.getPropertyBool(5))
-        , m_hide_isc(data.getPropertyBool(6))
-        , m_hide_junks(data.getPropertyBool(7))
-        , m_hide_lowq(data.getPropertyBool(8))
-        , m_hide_mps(data.getPropertyBool(9))
-        , m_hide_mpsa(data.getPropertyBool(10))
-        , m_hide_rvl(data.getPropertyBool(11))
-        , m_hide_rvs(data.getPropertyBool(12))
-        , m_hide_stam(data.getPropertyBool(13))
-        , m_hide_tsc(data.getPropertyBool(14))
-    {
-    }
-
-    PropertyBool_Qt* get_enabled() { return &m_enabled; }
-
-    PropertyBool_Qt* get_compact_pots() { return &m_compact_pots; }
-
-    PropertyBool_Qt* get_compact_scrolls() { return &m_compact_scrolls; }
-
-    PropertyBool_Qt* get_hide_ammo() { return &m_hide_ammo; }
-
-    PropertyBool_Qt* get_hide_hps() { return &m_hide_hps; }
-
-    PropertyBool_Qt* get_hide_hpsa() { return &m_hide_hpsa; }
-
-    PropertyBool_Qt* get_hide_isc() { return &m_hide_isc; }
-
-    PropertyBool_Qt* get_hide_junks() { return &m_hide_junks; }
-
-    PropertyBool_Qt* get_hide_lowq() { return &m_hide_lowq; }
-
-    PropertyBool_Qt* get_hide_mps() { return &m_hide_mps; }
-
-    PropertyBool_Qt* get_hide_mpsa() { return &m_hide_mpsa; }
-
-    PropertyBool_Qt* get_hide_rvl() { return &m_hide_rvl; }
-
-    PropertyBool_Qt* get_hide_rvs() { return &m_hide_rvs; }
-
-    PropertyBool_Qt* get_hide_stam() { return &m_hide_stam; }
-
-    PropertyBool_Qt* get_hide_tsc() { return &m_hide_tsc; }
-
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
-    Q_INVOKABLE void assign(Config_ModuleDropFiltering_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
-
-private:
-    Config::ModuleDropFiltering& m_data;
-
-    PropertyBool_Qt m_enabled;
-
-    PropertyBool_Qt m_compact_pots;
-
-    PropertyBool_Qt m_compact_scrolls;
-
-    PropertyBool_Qt m_hide_ammo;
-
-    PropertyBool_Qt m_hide_hps;
-
-    PropertyBool_Qt m_hide_hpsa;
-
-    PropertyBool_Qt m_hide_isc;
-
-    PropertyBool_Qt m_hide_junks;
-
-    PropertyBool_Qt m_hide_lowq;
-
-    PropertyBool_Qt m_hide_mps;
-
-    PropertyBool_Qt m_hide_mpsa;
-
-    PropertyBool_Qt m_hide_rvl;
-
-    PropertyBool_Qt m_hide_rvs;
-
-    PropertyBool_Qt m_hide_stam;
-
-    PropertyBool_Qt m_hide_tsc;
-};
-
-class Config_ModuleGambling_Qt : public QObject {
+class Config_ModuleGambling_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* charmGamble READ get_charmGamble CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* ratioElite READ get_ratioElite CONSTANT)
@@ -665,7 +707,8 @@ class Config_ModuleGambling_Qt : public QObject {
 
 public:
     explicit Config_ModuleGambling_Qt(Config::ModuleGambling& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_charmGamble(data.getPropertyBool(0))
         , m_ratioElite(data.getPropertyInt(0))
         , m_ratioExc(data.getPropertyInt(1))
@@ -687,13 +730,7 @@ public:
 
     PropertyInt_Qt* get_ratioUnique() { return &m_ratioUnique; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
     Q_INVOKABLE void assign(Config_ModuleGambling_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::ModuleGambling& m_data;
@@ -711,68 +748,81 @@ private:
     PropertyInt_Qt m_ratioUnique;
 };
 
-class Config_ModuleItemRandomizer_Qt : public QObject {
+class Config_ModuleItemRandomizer_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* affixRandom READ get_affixRandom CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* casterTypePercent READ get_casterTypePercent CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* itemFitPercent READ get_itemFitPercent CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* levelMinus READ get_levelMinus CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* levelPlus READ get_levelPlus CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* repeatSets READ get_repeatSets CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* repeatUniques READ get_repeatUniques CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* affixRandom READ get_affixRandom CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* gemsRandom READ get_gemsRandom CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* removeKnock READ get_removeKnock CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* replaceCharges READ get_replaceCharges CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* replaceSkills READ get_replaceSkills CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* updateExisting READ get_updateExisting CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* setBonusMode READ get_setBonusMode CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* frequencyAuras READ get_frequencyAuras CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* frequencyCharAttributes READ get_frequencyCharAttributes CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* frequencyProcs READ get_frequencyProcs CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* frequencyResistances READ get_frequencyResistances CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* frequencySkills READ get_frequencySkills CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* gemsRandom READ get_gemsRandom CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* itemFitPercent READ get_itemFitPercent CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* keepOriginalPercent READ get_keepOriginalPercent CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* levelMinus READ get_levelMinus CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* levelPlus READ get_levelPlus CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* relativeCountMax READ get_relativeCountMax CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* relativeCountMin READ get_relativeCountMin CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* removeKnock READ get_removeKnock CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* repeat_sets READ get_repeat_sets CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* repeat_uniques READ get_repeat_uniques CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* replaceCharges READ get_replaceCharges CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* replaceSkills READ get_replaceSkills CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* setBonusMode READ get_setBonusMode CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* setRelativeCountMax READ get_setRelativeCountMax CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* setRelativeCountMin READ get_setRelativeCountMin CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* updateExisting READ get_updateExisting CONSTANT)
 
 public:
     explicit Config_ModuleItemRandomizer_Qt(Config::ModuleItemRandomizer& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_enabled(data.getPropertyBool(0))
-        , m_affixRandom(data.getPropertyBool(1))
         , m_casterTypePercent(data.getPropertyInt(0))
-        , m_frequencyAuras(data.getPropertyInt(1))
-        , m_frequencyCharAttributes(data.getPropertyInt(2))
-        , m_frequencyProcs(data.getPropertyInt(3))
-        , m_frequencyResistances(data.getPropertyInt(4))
-        , m_frequencySkills(data.getPropertyInt(5))
+        , m_itemFitPercent(data.getPropertyInt(1))
+        , m_levelMinus(data.getPropertyInt(2))
+        , m_levelPlus(data.getPropertyInt(3))
+        , m_repeatSets(data.getPropertyInt(4))
+        , m_repeatUniques(data.getPropertyInt(5))
+        , m_affixRandom(data.getPropertyBool(1))
         , m_gemsRandom(data.getPropertyBool(2))
-        , m_itemFitPercent(data.getPropertyInt(6))
-        , m_keepOriginalPercent(data.getPropertyInt(7))
-        , m_levelMinus(data.getPropertyInt(8))
-        , m_levelPlus(data.getPropertyInt(9))
-        , m_relativeCountMax(data.getPropertyInt(10))
-        , m_relativeCountMin(data.getPropertyInt(11))
         , m_removeKnock(data.getPropertyBool(3))
-        , m_repeat_sets(data.getPropertyInt(12))
-        , m_repeat_uniques(data.getPropertyInt(13))
         , m_replaceCharges(data.getPropertyBool(4))
         , m_replaceSkills(data.getPropertyBool(5))
-        , m_setBonusMode(data.getPropertyInt(14))
-        , m_setRelativeCountMax(data.getPropertyInt(15))
-        , m_setRelativeCountMin(data.getPropertyInt(16))
         , m_updateExisting(data.getPropertyBool(6))
+        , m_setBonusMode(data.getPropertyInt(6))
+        , m_frequencyAuras(data.getPropertyInt(7))
+        , m_frequencyCharAttributes(data.getPropertyInt(8))
+        , m_frequencyProcs(data.getPropertyInt(9))
+        , m_frequencyResistances(data.getPropertyInt(10))
+        , m_frequencySkills(data.getPropertyInt(11))
     {
     }
 
     PropertyBool_Qt* get_enabled() { return &m_enabled; }
 
+    PropertyInt_Qt* get_casterTypePercent() { return &m_casterTypePercent; }
+
+    PropertyInt_Qt* get_itemFitPercent() { return &m_itemFitPercent; }
+
+    PropertyInt_Qt* get_levelMinus() { return &m_levelMinus; }
+
+    PropertyInt_Qt* get_levelPlus() { return &m_levelPlus; }
+
+    PropertyInt_Qt* get_repeatSets() { return &m_repeatSets; }
+
+    PropertyInt_Qt* get_repeatUniques() { return &m_repeatUniques; }
+
     PropertyBool_Qt* get_affixRandom() { return &m_affixRandom; }
 
-    PropertyInt_Qt* get_casterTypePercent() { return &m_casterTypePercent; }
+    PropertyBool_Qt* get_gemsRandom() { return &m_gemsRandom; }
+
+    PropertyBool_Qt* get_removeKnock() { return &m_removeKnock; }
+
+    PropertyBool_Qt* get_replaceCharges() { return &m_replaceCharges; }
+
+    PropertyBool_Qt* get_replaceSkills() { return &m_replaceSkills; }
+
+    PropertyBool_Qt* get_updateExisting() { return &m_updateExisting; }
+
+    PropertyInt_Qt* get_setBonusMode() { return &m_setBonusMode; }
 
     PropertyInt_Qt* get_frequencyAuras() { return &m_frequencyAuras; }
 
@@ -784,54 +834,38 @@ public:
 
     PropertyInt_Qt* get_frequencySkills() { return &m_frequencySkills; }
 
-    PropertyBool_Qt* get_gemsRandom() { return &m_gemsRandom; }
-
-    PropertyInt_Qt* get_itemFitPercent() { return &m_itemFitPercent; }
-
-    PropertyInt_Qt* get_keepOriginalPercent() { return &m_keepOriginalPercent; }
-
-    PropertyInt_Qt* get_levelMinus() { return &m_levelMinus; }
-
-    PropertyInt_Qt* get_levelPlus() { return &m_levelPlus; }
-
-    PropertyInt_Qt* get_relativeCountMax() { return &m_relativeCountMax; }
-
-    PropertyInt_Qt* get_relativeCountMin() { return &m_relativeCountMin; }
-
-    PropertyBool_Qt* get_removeKnock() { return &m_removeKnock; }
-
-    PropertyInt_Qt* get_repeat_sets() { return &m_repeat_sets; }
-
-    PropertyInt_Qt* get_repeat_uniques() { return &m_repeat_uniques; }
-
-    PropertyBool_Qt* get_replaceCharges() { return &m_replaceCharges; }
-
-    PropertyBool_Qt* get_replaceSkills() { return &m_replaceSkills; }
-
-    PropertyInt_Qt* get_setBonusMode() { return &m_setBonusMode; }
-
-    PropertyInt_Qt* get_setRelativeCountMax() { return &m_setRelativeCountMax; }
-
-    PropertyInt_Qt* get_setRelativeCountMin() { return &m_setRelativeCountMin; }
-
-    PropertyBool_Qt* get_updateExisting() { return &m_updateExisting; }
-
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
     Q_INVOKABLE void assign(Config_ModuleItemRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::ModuleItemRandomizer& m_data;
 
     PropertyBool_Qt m_enabled;
 
+    PropertyInt_Qt m_casterTypePercent;
+
+    PropertyInt_Qt m_itemFitPercent;
+
+    PropertyInt_Qt m_levelMinus;
+
+    PropertyInt_Qt m_levelPlus;
+
+    PropertyInt_Qt m_repeatSets;
+
+    PropertyInt_Qt m_repeatUniques;
+
     PropertyBool_Qt m_affixRandom;
 
-    PropertyInt_Qt m_casterTypePercent;
+    PropertyBool_Qt m_gemsRandom;
+
+    PropertyBool_Qt m_removeKnock;
+
+    PropertyBool_Qt m_replaceCharges;
+
+    PropertyBool_Qt m_replaceSkills;
+
+    PropertyBool_Qt m_updateExisting;
+
+    PropertyInt_Qt m_setBonusMode;
 
     PropertyInt_Qt m_frequencyAuras;
 
@@ -842,53 +876,22 @@ private:
     PropertyInt_Qt m_frequencyResistances;
 
     PropertyInt_Qt m_frequencySkills;
-
-    PropertyBool_Qt m_gemsRandom;
-
-    PropertyInt_Qt m_itemFitPercent;
-
-    PropertyInt_Qt m_keepOriginalPercent;
-
-    PropertyInt_Qt m_levelMinus;
-
-    PropertyInt_Qt m_levelPlus;
-
-    PropertyInt_Qt m_relativeCountMax;
-
-    PropertyInt_Qt m_relativeCountMin;
-
-    PropertyBool_Qt m_removeKnock;
-
-    PropertyInt_Qt m_repeat_sets;
-
-    PropertyInt_Qt m_repeat_uniques;
-
-    PropertyBool_Qt m_replaceCharges;
-
-    PropertyBool_Qt m_replaceSkills;
-
-    PropertyInt_Qt m_setBonusMode;
-
-    PropertyInt_Qt m_setRelativeCountMax;
-
-    PropertyInt_Qt m_setRelativeCountMin;
-
-    PropertyBool_Qt m_updateExisting;
 };
 
-class Config_ModuleMonDensity_Qt : public QObject {
+class Config_ModuleMonDensity_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyInt_Qt* density READ get_density CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* hellPacks READ get_hellPacks CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* mon_groups READ get_mon_groups CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* monGroups READ get_monGroups CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* packs READ get_packs CONSTANT)
 
 public:
     explicit Config_ModuleMonDensity_Qt(Config::ModuleMonDensity& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_density(data.getPropertyInt(0))
         , m_hellPacks(data.getPropertyBool(0))
-        , m_mon_groups(data.getPropertyInt(1))
+        , m_monGroups(data.getPropertyInt(1))
         , m_packs(data.getPropertyInt(2))
     {
     }
@@ -897,17 +900,11 @@ public:
 
     PropertyBool_Qt* get_hellPacks() { return &m_hellPacks; }
 
-    PropertyInt_Qt* get_mon_groups() { return &m_mon_groups; }
+    PropertyInt_Qt* get_monGroups() { return &m_monGroups; }
 
     PropertyInt_Qt* get_packs() { return &m_packs; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
     Q_INVOKABLE void assign(Config_ModuleMonDensity_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::ModuleMonDensity& m_data;
@@ -916,12 +913,12 @@ private:
 
     PropertyBool_Qt m_hellPacks;
 
-    PropertyInt_Qt m_mon_groups;
+    PropertyInt_Qt m_monGroups;
 
     PropertyInt_Qt m_packs;
 };
 
-class Config_ModuleMonRandomizer_Qt : public QObject {
+class Config_ModuleMonRandomizer_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* hellResistances READ get_hellResistances CONSTANT)
@@ -932,7 +929,8 @@ class Config_ModuleMonRandomizer_Qt : public QObject {
 
 public:
     explicit Config_ModuleMonRandomizer_Qt(Config::ModuleMonRandomizer& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_enabled(data.getPropertyBool(0))
         , m_hellResistances(data.getPropertyBool(1))
         , m_maxTypes(data.getPropertyInt(0))
@@ -954,13 +952,7 @@ public:
 
     PropertyInt_Qt* get_spawnedCount() { return &m_spawnedCount; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
     Q_INVOKABLE void assign(Config_ModuleMonRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::ModuleMonRandomizer& m_data;
@@ -978,7 +970,7 @@ private:
     PropertyInt_Qt m_spawnedCount;
 };
 
-class Config_ModuleMonStats_Qt : public QObject {
+class Config_ModuleMonStats_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyInt_Qt* mon_ar READ get_mon_ar CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* mon_dam READ get_mon_dam CONSTANT)
@@ -994,7 +986,8 @@ class Config_ModuleMonStats_Qt : public QObject {
 
 public:
     explicit Config_ModuleMonStats_Qt(Config::ModuleMonStats& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_mon_ar(data.getPropertyInt(0))
         , m_mon_dam(data.getPropertyInt(1))
         , m_mon_def(data.getPropertyInt(2))
@@ -1031,13 +1024,7 @@ public:
 
     PropertyBool_Qt* get_resist_apply_poison() { return &m_resist_apply_poison; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
     Q_INVOKABLE void assign(Config_ModuleMonStats_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::ModuleMonStats& m_data;
@@ -1065,161 +1052,41 @@ private:
     PropertyBool_Qt m_resist_apply_poison;
 };
 
-class Config_ModulePerfectRoll_Qt : public QObject {
-    Q_OBJECT
-    Q_PROPERTY(PropertyInt_Qt* affix_power_l1 READ get_affix_power_l1 CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* affix_power_l50 READ get_affix_power_l50 CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* affixes READ get_affixes CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* armor READ get_armor CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* craft READ get_craft CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* crafted READ get_crafted CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* runeWords READ get_runeWords CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* setItems READ get_setItems CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* crafted_power READ get_crafted_power CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* gem_power READ get_gem_power CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* rw_power READ get_rw_power CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* set_power_l1 READ get_set_power_l1 CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* set_power_l50 READ get_set_power_l50 CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* uniques READ get_uniques CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* uniques_power_l1 READ get_uniques_power_l1 CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* uniques_power_l50 READ get_uniques_power_l50 CONSTANT)
-
-public:
-    explicit Config_ModulePerfectRoll_Qt(Config::ModulePerfectRoll& data)
-        : m_data(data)
-        , m_affix_power_l1(data.getPropertyInt(0))
-        , m_affix_power_l50(data.getPropertyInt(1))
-        , m_affixes(data.getPropertyBool(0))
-        , m_armor(data.getPropertyBool(1))
-        , m_craft(data.getPropertyBool(2))
-        , m_crafted(data.getPropertyBool(3))
-        , m_runeWords(data.getPropertyBool(4))
-        , m_setItems(data.getPropertyBool(5))
-        , m_crafted_power(data.getPropertyInt(2))
-        , m_gem_power(data.getPropertyInt(3))
-        , m_rw_power(data.getPropertyInt(4))
-        , m_set_power_l1(data.getPropertyInt(5))
-        , m_set_power_l50(data.getPropertyInt(6))
-        , m_uniques(data.getPropertyBool(6))
-        , m_uniques_power_l1(data.getPropertyInt(7))
-        , m_uniques_power_l50(data.getPropertyInt(8))
-    {
-    }
-
-    PropertyInt_Qt* get_affix_power_l1() { return &m_affix_power_l1; }
-
-    PropertyInt_Qt* get_affix_power_l50() { return &m_affix_power_l50; }
-
-    PropertyBool_Qt* get_affixes() { return &m_affixes; }
-
-    PropertyBool_Qt* get_armor() { return &m_armor; }
-
-    PropertyBool_Qt* get_craft() { return &m_craft; }
-
-    PropertyBool_Qt* get_crafted() { return &m_crafted; }
-
-    PropertyBool_Qt* get_runeWords() { return &m_runeWords; }
-
-    PropertyBool_Qt* get_setItems() { return &m_setItems; }
-
-    PropertyInt_Qt* get_crafted_power() { return &m_crafted_power; }
-
-    PropertyInt_Qt* get_gem_power() { return &m_gem_power; }
-
-    PropertyInt_Qt* get_rw_power() { return &m_rw_power; }
-
-    PropertyInt_Qt* get_set_power_l1() { return &m_set_power_l1; }
-
-    PropertyInt_Qt* get_set_power_l50() { return &m_set_power_l50; }
-
-    PropertyBool_Qt* get_uniques() { return &m_uniques; }
-
-    PropertyInt_Qt* get_uniques_power_l1() { return &m_uniques_power_l1; }
-
-    PropertyInt_Qt* get_uniques_power_l50() { return &m_uniques_power_l50; }
-
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
-    Q_INVOKABLE void assign(Config_ModulePerfectRoll_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
-
-private:
-    Config::ModulePerfectRoll& m_data;
-
-    PropertyInt_Qt m_affix_power_l1;
-
-    PropertyInt_Qt m_affix_power_l50;
-
-    PropertyBool_Qt m_affixes;
-
-    PropertyBool_Qt m_armor;
-
-    PropertyBool_Qt m_craft;
-
-    PropertyBool_Qt m_crafted;
-
-    PropertyBool_Qt m_runeWords;
-
-    PropertyBool_Qt m_setItems;
-
-    PropertyInt_Qt m_crafted_power;
-
-    PropertyInt_Qt m_gem_power;
-
-    PropertyInt_Qt m_rw_power;
-
-    PropertyInt_Qt m_set_power_l1;
-
-    PropertyInt_Qt m_set_power_l50;
-
-    PropertyBool_Qt m_uniques;
-
-    PropertyInt_Qt m_uniques_power_l1;
-
-    PropertyInt_Qt m_uniques_power_l50;
-};
-
-class Config_ModuleQol_Qt : public QObject {
+class Config_ModuleQol_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* disableExpPenalty READ get_disableExpPenalty CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* keySize READ get_keySize CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* quiverSize READ get_quiverSize CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* reduceCost READ get_reduceCost CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* showItemLevel READ get_showItemLevel CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* tomeSize READ get_tomeSize CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* uniqueCharmLimit READ get_uniqueCharmLimit CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* weakenTownSkills READ get_weakenTownSkills CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* weakenTownSkillsExt READ get_weakenTownSkillsExt CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* tomeSize READ get_tomeSize CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* quiverSize READ get_quiverSize CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* keySize READ get_keySize CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* reduceCost READ get_reduceCost CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* compactPots READ get_compactPots CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* compactScrolls READ get_compactScrolls CONSTANT)
 
 public:
     explicit Config_ModuleQol_Qt(Config::ModuleQol& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_disableExpPenalty(data.getPropertyBool(0))
-        , m_keySize(data.getPropertyBool(1))
-        , m_quiverSize(data.getPropertyBool(2))
-        , m_reduceCost(data.getPropertyInt(0))
-        , m_showItemLevel(data.getPropertyBool(3))
-        , m_tomeSize(data.getPropertyInt(1))
-        , m_uniqueCharmLimit(data.getPropertyBool(4))
-        , m_weakenTownSkills(data.getPropertyBool(5))
-        , m_weakenTownSkillsExt(data.getPropertyBool(6))
+        , m_showItemLevel(data.getPropertyBool(1))
+        , m_uniqueCharmLimit(data.getPropertyBool(2))
+        , m_weakenTownSkills(data.getPropertyBool(3))
+        , m_weakenTownSkillsExt(data.getPropertyBool(4))
+        , m_tomeSize(data.getPropertyInt(0))
+        , m_quiverSize(data.getPropertyInt(1))
+        , m_keySize(data.getPropertyInt(2))
+        , m_reduceCost(data.getPropertyInt(3))
+        , m_compactPots(data.getPropertyBool(5))
+        , m_compactScrolls(data.getPropertyBool(6))
     {
     }
 
     PropertyBool_Qt* get_disableExpPenalty() { return &m_disableExpPenalty; }
 
-    PropertyBool_Qt* get_keySize() { return &m_keySize; }
-
-    PropertyBool_Qt* get_quiverSize() { return &m_quiverSize; }
-
-    PropertyInt_Qt* get_reduceCost() { return &m_reduceCost; }
-
     PropertyBool_Qt* get_showItemLevel() { return &m_showItemLevel; }
-
-    PropertyInt_Qt* get_tomeSize() { return &m_tomeSize; }
 
     PropertyBool_Qt* get_uniqueCharmLimit() { return &m_uniqueCharmLimit; }
 
@@ -1227,112 +1094,47 @@ public:
 
     PropertyBool_Qt* get_weakenTownSkillsExt() { return &m_weakenTownSkillsExt; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
+    PropertyInt_Qt* get_tomeSize() { return &m_tomeSize; }
 
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
+    PropertyInt_Qt* get_quiverSize() { return &m_quiverSize; }
+
+    PropertyInt_Qt* get_keySize() { return &m_keySize; }
+
+    PropertyInt_Qt* get_reduceCost() { return &m_reduceCost; }
+
+    PropertyBool_Qt* get_compactPots() { return &m_compactPots; }
+
+    PropertyBool_Qt* get_compactScrolls() { return &m_compactScrolls; }
 
     Q_INVOKABLE void assign(Config_ModuleQol_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::ModuleQol& m_data;
 
     PropertyBool_Qt m_disableExpPenalty;
 
-    PropertyBool_Qt m_keySize;
-
-    PropertyBool_Qt m_quiverSize;
-
-    PropertyInt_Qt m_reduceCost;
-
     PropertyBool_Qt m_showItemLevel;
-
-    PropertyInt_Qt m_tomeSize;
 
     PropertyBool_Qt m_uniqueCharmLimit;
 
     PropertyBool_Qt m_weakenTownSkills;
 
     PropertyBool_Qt m_weakenTownSkillsExt;
+
+    PropertyInt_Qt m_tomeSize;
+
+    PropertyInt_Qt m_quiverSize;
+
+    PropertyInt_Qt m_keySize;
+
+    PropertyInt_Qt m_reduceCost;
+
+    PropertyBool_Qt m_compactPots;
+
+    PropertyBool_Qt m_compactScrolls;
 };
 
-class Config_ModuleRequirements_Qt : public QObject {
-    Q_OBJECT
-    Q_PROPERTY(PropertyInt_Qt* affixItemLevel READ get_affixItemLevel CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* affixReqLevel READ get_affixReqLevel CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* equipItemLevel READ get_equipItemLevel CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* equipReqLevel READ get_equipReqLevel CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* reqDex READ get_reqDex CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* reqStr READ get_reqStr CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* skillsReqLevel READ get_skillsReqLevel CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* uniquesItemLevel READ get_uniquesItemLevel CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* uniquesReqLevel READ get_uniquesReqLevel CONSTANT)
-
-public:
-    explicit Config_ModuleRequirements_Qt(Config::ModuleRequirements& data)
-        : m_data(data)
-        , m_affixItemLevel(data.getPropertyInt(0))
-        , m_affixReqLevel(data.getPropertyInt(1))
-        , m_equipItemLevel(data.getPropertyInt(2))
-        , m_equipReqLevel(data.getPropertyInt(3))
-        , m_reqDex(data.getPropertyInt(4))
-        , m_reqStr(data.getPropertyInt(5))
-        , m_skillsReqLevel(data.getPropertyInt(6))
-        , m_uniquesItemLevel(data.getPropertyInt(7))
-        , m_uniquesReqLevel(data.getPropertyInt(8))
-    {
-    }
-
-    PropertyInt_Qt* get_affixItemLevel() { return &m_affixItemLevel; }
-
-    PropertyInt_Qt* get_affixReqLevel() { return &m_affixReqLevel; }
-
-    PropertyInt_Qt* get_equipItemLevel() { return &m_equipItemLevel; }
-
-    PropertyInt_Qt* get_equipReqLevel() { return &m_equipReqLevel; }
-
-    PropertyInt_Qt* get_reqDex() { return &m_reqDex; }
-
-    PropertyInt_Qt* get_reqStr() { return &m_reqStr; }
-
-    PropertyInt_Qt* get_skillsReqLevel() { return &m_skillsReqLevel; }
-
-    PropertyInt_Qt* get_uniquesItemLevel() { return &m_uniquesItemLevel; }
-
-    PropertyInt_Qt* get_uniquesReqLevel() { return &m_uniquesReqLevel; }
-
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
-    Q_INVOKABLE void assign(Config_ModuleRequirements_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
-
-private:
-    Config::ModuleRequirements& m_data;
-
-    PropertyInt_Qt m_affixItemLevel;
-
-    PropertyInt_Qt m_affixReqLevel;
-
-    PropertyInt_Qt m_equipItemLevel;
-
-    PropertyInt_Qt m_equipReqLevel;
-
-    PropertyInt_Qt m_reqDex;
-
-    PropertyInt_Qt m_reqStr;
-
-    PropertyInt_Qt m_skillsReqLevel;
-
-    PropertyInt_Qt m_uniquesItemLevel;
-
-    PropertyInt_Qt m_uniquesReqLevel;
-};
-
-class Config_ModuleSkillRandomizer_Qt : public QObject {
+class Config_ModuleSkillRandomizer_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* ensureDifferent READ get_ensureDifferent CONSTANT)
@@ -1341,7 +1143,8 @@ class Config_ModuleSkillRandomizer_Qt : public QObject {
 
 public:
     explicit Config_ModuleSkillRandomizer_Qt(Config::ModuleSkillRandomizer& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_enabled(data.getPropertyBool(0))
         , m_ensureDifferent(data.getPropertyBool(1))
         , m_skillDamage(data.getPropertyBool(2))
@@ -1357,13 +1160,7 @@ public:
 
     PropertyBool_Qt* get_skillTree() { return &m_skillTree; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
     Q_INVOKABLE void assign(Config_ModuleSkillRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config::ModuleSkillRandomizer& m_data;
@@ -1377,46 +1174,45 @@ private:
     PropertyBool_Qt m_skillTree;
 };
 
-class Config_Qt : public QObject {
+class Config_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(Config_TreasureClasses_Qt* treasureClasses READ get_treasureClasses CONSTANT)
+    Q_PROPERTY(Config_ItemBalance_Qt* itemBalance READ get_itemBalance CONSTANT)
     Q_PROPERTY(Config_ModuleMain_Qt* moduleMain READ get_moduleMain CONSTANT)
     Q_PROPERTY(Config_ModuleChallenge_Qt* moduleChallenge READ get_moduleChallenge CONSTANT)
     Q_PROPERTY(Config_ModuleCharacter_Qt* moduleCharacter READ get_moduleCharacter CONSTANT)
     Q_PROPERTY(Config_ModuleCube_Qt* moduleCube READ get_moduleCube CONSTANT)
-    Q_PROPERTY(Config_ModuleDropFiltering_Qt* moduleDropFiltering READ get_moduleDropFiltering CONSTANT)
     Q_PROPERTY(Config_ModuleGambling_Qt* moduleGambling READ get_moduleGambling CONSTANT)
     Q_PROPERTY(Config_ModuleItemRandomizer_Qt* moduleItemRandomizer READ get_moduleItemRandomizer CONSTANT)
     Q_PROPERTY(Config_ModuleMonDensity_Qt* moduleMonDensity READ get_moduleMonDensity CONSTANT)
     Q_PROPERTY(Config_ModuleMonRandomizer_Qt* moduleMonRandomizer READ get_moduleMonRandomizer CONSTANT)
     Q_PROPERTY(Config_ModuleMonStats_Qt* moduleMonStats READ get_moduleMonStats CONSTANT)
-    Q_PROPERTY(Config_ModulePerfectRoll_Qt* modulePerfectRoll READ get_modulePerfectRoll CONSTANT)
     Q_PROPERTY(Config_ModuleQol_Qt* moduleQol READ get_moduleQol CONSTANT)
-    Q_PROPERTY(Config_ModuleRequirements_Qt* moduleRequirements READ get_moduleRequirements CONSTANT)
     Q_PROPERTY(Config_ModuleSkillRandomizer_Qt* moduleSkillRandomizer READ get_moduleSkillRandomizer CONSTANT)
 
 public:
     explicit Config_Qt(Config& data)
-        : m_data(data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
         , m_treasureClasses(data.m_treasureClasses)
+        , m_itemBalance(data.m_itemBalance)
         , m_moduleMain(data.m_moduleMain)
         , m_moduleChallenge(data.m_moduleChallenge)
         , m_moduleCharacter(data.m_moduleCharacter)
         , m_moduleCube(data.m_moduleCube)
-        , m_moduleDropFiltering(data.m_moduleDropFiltering)
         , m_moduleGambling(data.m_moduleGambling)
         , m_moduleItemRandomizer(data.m_moduleItemRandomizer)
         , m_moduleMonDensity(data.m_moduleMonDensity)
         , m_moduleMonRandomizer(data.m_moduleMonRandomizer)
         , m_moduleMonStats(data.m_moduleMonStats)
-        , m_modulePerfectRoll(data.m_modulePerfectRoll)
         , m_moduleQol(data.m_moduleQol)
-        , m_moduleRequirements(data.m_moduleRequirements)
         , m_moduleSkillRandomizer(data.m_moduleSkillRandomizer)
     {
     }
 
     Config_TreasureClasses_Qt* get_treasureClasses() { return &m_treasureClasses; }
+
+    Config_ItemBalance_Qt* get_itemBalance() { return &m_itemBalance; }
 
     Config_ModuleMain_Qt* get_moduleMain() { return &m_moduleMain; }
 
@@ -1425,8 +1221,6 @@ public:
     Config_ModuleCharacter_Qt* get_moduleCharacter() { return &m_moduleCharacter; }
 
     Config_ModuleCube_Qt* get_moduleCube() { return &m_moduleCube; }
-
-    Config_ModuleDropFiltering_Qt* get_moduleDropFiltering() { return &m_moduleDropFiltering; }
 
     Config_ModuleGambling_Qt* get_moduleGambling() { return &m_moduleGambling; }
 
@@ -1438,26 +1232,18 @@ public:
 
     Config_ModuleMonStats_Qt* get_moduleMonStats() { return &m_moduleMonStats; }
 
-    Config_ModulePerfectRoll_Qt* get_modulePerfectRoll() { return &m_modulePerfectRoll; }
-
     Config_ModuleQol_Qt* get_moduleQol() { return &m_moduleQol; }
-
-    Config_ModuleRequirements_Qt* get_moduleRequirements() { return &m_moduleRequirements; }
 
     Config_ModuleSkillRandomizer_Qt* get_moduleSkillRandomizer() { return &m_moduleSkillRandomizer; }
 
-    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
-
-    Q_INVOKABLE void resetToReccomended() { m_data.resetToReccomended(true); }
-
     Q_INVOKABLE void assign(Config_Qt* another) { m_data.assign(another->m_data, true); }
-
-    Q_INVOKABLE void activatePreset(int index) { m_data.activatePreset(index, true); }
 
 private:
     Config& m_data;
 
     Config_TreasureClasses_Qt m_treasureClasses;
+
+    Config_ItemBalance_Qt m_itemBalance;
 
     Config_ModuleMain_Qt m_moduleMain;
 
@@ -1466,8 +1252,6 @@ private:
     Config_ModuleCharacter_Qt m_moduleCharacter;
 
     Config_ModuleCube_Qt m_moduleCube;
-
-    Config_ModuleDropFiltering_Qt m_moduleDropFiltering;
 
     Config_ModuleGambling_Qt m_moduleGambling;
 
@@ -1479,11 +1263,7 @@ private:
 
     Config_ModuleMonStats_Qt m_moduleMonStats;
 
-    Config_ModulePerfectRoll_Qt m_modulePerfectRoll;
-
     Config_ModuleQol_Qt m_moduleQol;
-
-    Config_ModuleRequirements_Qt m_moduleRequirements;
 
     Config_ModuleSkillRandomizer_Qt m_moduleSkillRandomizer;
 };

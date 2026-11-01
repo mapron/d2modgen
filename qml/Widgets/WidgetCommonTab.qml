@@ -42,8 +42,12 @@ WidgetScrollable {
         }
 
         Button {
-            text: qsTr("Reset to default")
-            onClicked: value_context.clear()
+            text: qsTr("Clear values")
+            onClicked: value_context.resetToZero()
+        }
+        Button {
+            text: qsTr("Set recommended")
+            onClicked: value_context.resetToRecommended()
         }
     }
 

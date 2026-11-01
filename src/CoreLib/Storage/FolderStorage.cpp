@@ -157,6 +157,12 @@ bool FolderStorage::writeData(const StoredData& data) const noexcept
     auto writeData = [](const std::string& data, const std_path& absPath) {
         if (!createDirectoriesForFile(absPath))
             return false;
+
+        if (std_fs::exists(absPath))
+            std_fs::remove(absPath);
+        if (data.empty())
+            return true;
+
         auto res = Mernel::writeFileFromBufferNoexcept(absPath, data);
         if (res) {
             Logger() << "Write: " << path2string(absPath);

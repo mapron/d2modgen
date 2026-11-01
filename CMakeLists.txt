@@ -81,25 +81,6 @@ AddTarget(TYPE shared NAME ModgenCore
     LINK_LIBRARIES [ WIN32 ? casclib stormlib ] rapidjson MernelPlatform Config
     )
 
-function(InstallTextFiles folder)
-    set(presetsRootBin ${CMAKE_CURRENT_BINARY_DIR}/${folder})
-    file(GLOB_RECURSE presetFiles RELATIVE
-        ${CMAKE_CURRENT_SOURCE_DIR}/${folder}
-        ${CMAKE_CURRENT_SOURCE_DIR}/${folder}/*.json
-        ${CMAKE_CURRENT_SOURCE_DIR}/${folder}/*.txt)
-    foreach(filename ${presetFiles})
-        add_custom_command(OUTPUT ${presetsRootBin}/${filename}
-            COMMAND ${CMAKE_COMMAND} ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${folder}/${filename} ${presetsRootBin}/${filename}
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${folder}/${filename})
-        target_sources(ModgenCore PRIVATE ${presetsRootBin}/${filename})
-    endforeach()
-    
-    install(DIRECTORY ${presetsRootBin} DESTINATION bin)
-endfunction()
-
-InstallTextFiles(presets)
-
-
 # ConsoleApp
 AddTarget( TYPE app_console NAME modgen_console
     SOURCE_DIR ${sourceRoot}/ConsoleApp

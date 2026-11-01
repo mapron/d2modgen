@@ -27,7 +27,7 @@ WidgetCommonTab {
     WidgetSlider {
         caption: qsTr("Increase monster groups population, +count<br><b>Beware! This setting have the most impact on getting screen laggy!<b><br><b>Having value above +3 will work well only if previous options are not maxed!</b>")
         tooltip: ""
-        value_key: root.value_context.mon_groups
+        value_key: root.value_context.monGroups
         isCompact: false
     }
 

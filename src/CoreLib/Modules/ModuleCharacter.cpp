@@ -9,16 +9,24 @@ namespace D2ModGen {
 
 void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_moduleCharacter.m_enabled)
-        return;
-
     const auto& module = config.m_moduleCharacter;
 
-    const int statPerLevel    = module.m_statPerLevel;
-    const int skillPerLevel   = module.m_skillPerLevel;
     const int skillPointLimit = module.m_skillPointLimit;
     const int mercHPpercent   = module.m_mercHP;
     const int mercDampercent  = module.m_mercDam;
+
+    auto addValue = [](std::optional<int>& value, int extra) {
+        int val = value.value_or(0);
+        val += extra;
+        val   = std::max(0, val);
+        value = val;
+    };
+    auto scaleValue = [](std::optional<int>& value, int scale) {
+        int val = value.value_or(0);
+        val     = val * scale / 100;
+        val     = std::max(1, val);
+        value   = val;
+    };
 
     for (auto& row : output.charstats.rows) {
         if (row.clas == "Expansion")
@@ -40,8 +48,12 @@ void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const 
         if (module.m_addTeleport)
             row.skills.push_back("Teleport");
 
-        row.statPerLevel   = statPerLevel;
-        row.skillsPerLevel = skillPerLevel;
+        addValue(row.statPerLevel, module.m_extraStatPerLevel);
+        addValue(row.skillsPerLevel, module.m_extraSkillPerLevel);
+        addValue(row.hpPerLevel, module.m_extraHpPerLevel);
+        addValue(row.manaPerLevel, module.m_extraManaPerLevel);
+        scaleValue(row.hpPotEfficacy, module.m_hpPotEfficacy);
+        scaleValue(row.manaPotEfficacy, module.m_mpPotEfficacy);
     }
 
     if (mercHPpercent != 100 || mercDampercent != 100) {
@@ -60,6 +72,13 @@ void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const 
                 data = skillPointLimit;
             });
     }
+
+    const int skillsReqLevel = module.m_skillsReqLevel;
+    output.skills.applyTransform(&DataRow_skills::lvlreq, [skillsReqLevel](std::optional<int>& data) {
+        if (!data.has_value())
+            return;
+        data = data.value() * skillsReqLevel / 100;
+    });
 }
 
 }

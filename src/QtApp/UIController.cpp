@@ -161,12 +161,6 @@ bool UIController::loadConfig(const Mernel::PropertyTree& data)
     return result;
 }
 
-void UIController::loadPresetConfig(const QString& filename)
-{
-    if (m_configHandler.loadConfig(QString("presets/%1.json").arg(filename).toStdString(), false))
-        sendDataChange();
-}
-
 QString UIController::getApp(const QString& key, const QString& def) const
 {
     return QString::fromStdString(m_configHandler.m_appConfig.value(key.toStdString(), Mernel::PropertyTreeScalar(def.toStdString())).toString());

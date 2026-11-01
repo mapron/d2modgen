@@ -46,6 +46,42 @@ struct DataContext {
     DataTable<DataRow_skills>           skills;
     DataTable<DataRow_treasureclassex>  treasureclassex;
 
+    static auto allTables()
+    {
+        return std::tuple{
+            &DataContext::itemtypes,
+
+            &DataContext::weapons,
+            &DataContext::armor,
+            &DataContext::misc,
+
+            &DataContext::automagic,
+            &DataContext::magicprefix,
+            &DataContext::magicsuffix,
+
+            &DataContext::uniqueitems,
+            &DataContext::setitems,
+
+            &DataContext::sets,
+            &DataContext::runes,
+            &DataContext::gems,
+            &DataContext::cubemain,
+
+            &DataContext::charstats,
+            &DataContext::difficultylevels,
+            &DataContext::experience,
+            &DataContext::gamble,
+            &DataContext::hireling,
+            &DataContext::itemstatcost,
+            &DataContext::levels,
+            &DataContext::monlvl,
+            &DataContext::monstats,
+            &DataContext::skilldesc,
+            &DataContext::skills,
+            &DataContext::treasureclassex,
+        };
+    }
+
     DataRow_itemtypes setstypes; // special marker for full sets so they have own fake item type.
 
     std::map<JsonId, Mernel::PropertyTree> jsonFiles;
@@ -61,6 +97,8 @@ struct DataContext {
 
     void writeDebug(IStorage::StoredData& data) const;
 
+    DataContext calculateDiff(const DataContext& older) const;
+
 private:
     bool postProcess();
 
@@ -69,6 +107,9 @@ private:
 
     template<class Row>
     bool serializeTable(const DataTable<Row>& table, IStorage::StoredData& data, bool full) const;
+
+    template<class Row>
+    void diffTable(const DataTable<Row>& tableOlder, const DataTable<Row>& tableNewer, DataTable<Row>& result) const;
 };
 
 }

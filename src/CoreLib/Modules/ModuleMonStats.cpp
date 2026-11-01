@@ -29,7 +29,9 @@ void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const C
         }
     }
 
-    {
+    const int  maxResistCap   = module.m_max_resist;
+    const bool applyResistCap = maxResistCap < 250;
+    if (applyResistCap) {
         std::vector<decltype(&DataRow_monstats::resCo)> resCols;
 
         if (module.m_resist_apply_elem) {
@@ -47,8 +49,7 @@ void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const C
         if (module.m_resist_apply_physical)
             resCols.push_back(&DataRow_monstats::resDm);
 
-        const int maxResistCap = module.m_max_resist;
-        const int relResist    = module.m_rel_resist;
+        const int relResist = module.m_rel_resist;
 
         for (auto& row : output.monstats.rows) {
             if (!row.isRegularMob())

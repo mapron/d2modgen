@@ -13,7 +13,7 @@ void ModuleMonDensity::generate(DataContext& output, RandomGenerator& rng, const
 {
     const auto& module = config.m_moduleMonDensity;
     {
-        const int groupIncrease = module.m_mon_groups;
+        const int groupIncrease = module.m_monGroups;
         if (groupIncrease > 0) {
             for (auto& row : output.monstats.rows) {
                 if (!row.isRegularMob())

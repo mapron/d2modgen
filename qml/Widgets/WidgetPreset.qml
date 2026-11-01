@@ -3,9 +3,10 @@ import QtQuick.Layouts
 import QtQuick.Controls.Fusion
 
 RowLayout {
-
     property alias model: internalCombo.model
+    property alias presetIds: internalCombo.presetIds
     property QtObject value_key: null
+
     spacing: 6
 
     Item {
@@ -24,12 +25,15 @@ RowLayout {
         currentIndex: 0
         implicitContentWidthPolicy: ComboBox.WidestTextWhenCompleted
 
+        property var presetIds: []
+
         topPadding: 2
         bottomPadding: 2
         leftPadding: 4
 
         onActivated: index => {
-            value_key.activatePreset(index);
+            let selectedId = presetIds[index];
+            value_key.activatePreset(selectedId);
         }
     }
 }

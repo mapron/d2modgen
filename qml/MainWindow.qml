@@ -96,10 +96,16 @@ ApplicationWindow {
 
                     PageMain {}
                     PageTool {}
+                    ModuleItemBalance {}
+
                     Item {}
                     ModuleItemRandomizer {}
                     ModuleMonRandomizer {}
                     ModuleSkillRandomizer {}
+
+                    Item {}
+                    ModuleItemDrops {}
+                    ModuleRuneDrops {}
 
                     Item {}
                     ModuleMonStats {}
@@ -110,14 +116,7 @@ ApplicationWindow {
                     ModuleCube {}
                     ModuleGambling {}
                     ModuleCharacter {}
-                    ModuleItemDrops {}
-                    ModuleRuneDrops {}
-                    ModulePerfectRoll {}
-                    ModuleRequirements {}
-
-                    Item {}
                     ModuleQol {}
-                    ModuleDropFiltering {}
                 }
             }
         }

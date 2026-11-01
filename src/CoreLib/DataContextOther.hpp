@@ -26,6 +26,10 @@ struct DataRow_charstats : public RowBase {
 
     std::optional<int> statPerLevel;
     std::optional<int> skillsPerLevel;
+    std::optional<int> hpPerLevel;   // in 1/4
+    std::optional<int> manaPerLevel; // in 1/4
+    std::optional<int> hpPotEfficacy;
+    std::optional<int> manaPotEfficacy;
 
     std::vector<std::string> getColumns() const;
     void                     serialize();

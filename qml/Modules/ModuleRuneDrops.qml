@@ -12,6 +12,7 @@ WidgetCommonTab {
 
     WidgetPreset {
         model: [qsTr("Select preset..."), qsTr("Gimme pile of Ber runes!"), qsTr("I want to make Infinity at least once in my life"), qsTr("I want high runes to be rare, but want more rune drops overall"),]
+        presetIds: ["", "crazy", "strong", "weak"]
         value_key: config.treasureClasses.runes
     }
 

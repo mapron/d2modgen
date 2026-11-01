@@ -258,12 +258,12 @@ const AttributeDesc s_attributes[]{
 
     AttributeDesc{ AttributeId::sock, P::None, R::Range, { AF::Sockets } }.setRange(1, 6), // Socketed (#)
 
-    AttributeDesc{ AttributeId::dmg_fire, P::None, R::Range, { AF::Damage } }.setElement(E::Fire).setIdiom(IDI::Brawler),                                 // Adds #-# Fire Damage
-    AttributeDesc{ AttributeId::dmg_ltng, P::None, R::Range, { AF::Damage } }.setElement(E::Ltng).setIdiom(IDI::Brawler),                                 // Adds #-# Lightning Damage
-    AttributeDesc{ AttributeId::dmg_mag, P::None, R::Range, { AF::Damage } }.setElement(E::Mag).setIdiom(IDI::Brawler),                                   // Adds #-# Magic Damage
+    AttributeDesc{ AttributeId::dmg_fire, P::None, R::DoubleParam, { AF::Damage } }.setElement(E::Fire).setIdiom(IDI::Brawler),                           // Adds #-# Fire Damage
+    AttributeDesc{ AttributeId::dmg_ltng, P::None, R::DoubleParam, { AF::Damage } }.setElement(E::Ltng).setIdiom(IDI::Brawler),                           // Adds #-# Lightning Damage
+    AttributeDesc{ AttributeId::dmg_mag, P::None, R::DoubleParam, { AF::Damage } }.setElement(E::Mag).setIdiom(IDI::Brawler),                             // Adds #-# Magic Damage
     AttributeDesc{ AttributeId::dmg_cold, P::PureValue, R::DoubleParam, { AF::Damage } }.setElement(E::Cold).setIdiom(IDI::Brawler).setDefaultParam(100), // Adds #-# Cold Damage
     AttributeDesc{ AttributeId::dmg_pois, P::PureValue, R::DoubleParam, { AF::Damage } }.setElement(E::Pois).setIdiom(IDI::Brawler).setDefaultParam(100), // Adds #-# Poison Damage Over # Seconds
-    AttributeDesc{ AttributeId::dmg_norm, P::None, R::Range, { AF::Damage } }.setElement(E::Phys).setIdiom(IDI::Brawler),                                 // Adds #-# Damage
+    AttributeDesc{ AttributeId::dmg_norm, P::None, R::DoubleParam, { AF::Damage } }.setElement(E::Phys).setIdiom(IDI::Brawler),                           // Adds #-# Damage
 
     AttributeDesc{ AttributeId::rep_dur, P::PureValue, R::None, { AF::Durability } },                             // Repairs 1 durability in # seconds
     AttributeDesc{ AttributeId::rep_quant, P::PureValue, R::None, { AF::Throwable } },                            // Replenishes quantity

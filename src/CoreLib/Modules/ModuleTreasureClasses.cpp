@@ -40,19 +40,28 @@ enum class MobType
 
 enum
 {
+    BaseEquip = 1,
+    BaseMelee = 2,
+    BaseBow   = 3,
+    BaseMagic = 4,
+    BaseGood  = 5,
+
     NormalChest  = 6,
     NormalH2H    = 7,
     NormalCast   = 8,
     NormalMiss   = 9,
     NormalWraith = 10,
-    NormalQuill  = 16,
-    NormalSwarm  = 17,
 
     ChampionItem  = 11,
-    GroupChampion = 14,
+    ChampionPot   = 12,
+    GroupChampion = 13,
+    UniqueItem    = 14,
     GroupUnique   = 15,
-    GroupSuper    = 18,
-    GroupSuperEx  = 19,
+
+    NormalQuill = 16,
+    NormalSwarm = 17,
+
+    GroupSuper = 18,
 };
 
 static const StringSet s_normalMobNames{
@@ -120,12 +129,15 @@ MobType getMobType(int group, const std::string& className)
         return MobType::SuperUniqueSpecial;
 
     if (group == GroupUnique) {
+        assert(className.contains(" Unique "));
         return MobType::Unique;
     }
     if (group == GroupChampion) {
+        assert(className.contains(" Champ "));
         return MobType::Champion;
     }
-    if (group == GroupSuper || group == GroupSuperEx) {
+    if (group == GroupSuper) {
+        assert(className.contains(" Super "));
         return MobType::SuperUnique;
     }
     return MobType::Skip;

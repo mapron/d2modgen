@@ -8,7 +8,7 @@
 
 namespace D2ModGen {
 
-struct ModulePerfectRoll : public IModule {
+struct ModuleItemBalance : public IModule {
     void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
 };
 

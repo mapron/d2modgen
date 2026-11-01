@@ -15,16 +15,14 @@
 #include "Modules/ModuleChallenge.hpp"
 #include "Modules/ModuleCharacter.hpp"
 #include "Modules/ModuleCube.hpp"
-#include "Modules/ModuleDropFiltering.hpp"
 #include "Modules/ModuleGambling.hpp"
 #include "Modules/ModuleTreasureClasses.hpp"
 #include "Modules/ModuleItemRandomizer.hpp"
 #include "Modules/ModuleMonDensity.hpp"
 #include "Modules/ModuleMonRandomizer.hpp"
 #include "Modules/ModuleMonStats.hpp"
-#include "Modules/ModulePerfectRoll.hpp"
+#include "Modules/ModuleItemBalance.hpp"
 #include "Modules/ModuleQol.hpp"
-#include "Modules/ModuleRequirements.hpp"
 #include "Modules/ModuleSkillRandomizer.hpp"
 
 #include "Storage/StorageCache.hpp"
@@ -71,16 +69,16 @@ struct ModuleAll : public IModule {
         modules.push_back(create<ModuleTreasureClasses>("TreasureClasses"));
         modules.push_back(create<ModuleMonDensity>("MonDensity"));
         modules.push_back(create<ModuleMonStats>("MonStats"));
-        modules.push_back(create<ModulePerfectRoll>("PerfectRoll"));
         modules.push_back(create<ModuleQol>("Qol"));
-        modules.push_back(create<ModuleRequirements>("Requirements"));
 
         // modules that can add more rows, thus in the end
         modules.push_back(create<ModuleCube>("Cube"));
-        modules.push_back(create<ModuleDropFiltering>("DropFiltering"));
         modules.push_back(create<ModuleMonRandomizer>("MonRandomizer"));
         modules.push_back(create<ModuleItemRandomizer>("ItemRandomizer"));
         modules.push_back(create<ModuleSkillRandomizer>("SkillRandomizer"));
+
+        // item balance affect input for randomizer, that's why it is in the end.
+        modules.push_back(create<ModuleItemBalance>("ItemBalance"));
 
         for (auto& module : modules) {
             Logger() << "start module: " << module.m_id;
@@ -206,6 +204,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     }
 
     DataContext output;
+    DataContext initialOutput;
 
     Logger() << "Loading data from main storage...";
     const IStorage::StoredData inData = m_mainStorageCache->load({ env.inputMode, env.inputPath, env.needDataSubfolder });
@@ -218,7 +217,9 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     if (!output.parseData(inData)) {
         return { "Failed parse D2 data files." };
     }
-    {
+    if (m_config.m_moduleMain.m_dumpDiff)
+        initialOutput = output;
+    if (m_config.m_moduleMain.m_dumpIn) {
         IStorage::StoredData inDebug;
         output.writeDebug(inDebug);
         FolderStorage outDebugStorage(m_appData / "debug", StorageType::CsvFolder, env.modName, false, ".in");
@@ -248,10 +249,19 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     }
     Logger() << "prepare output data.";
 
-    {
+    if (m_config.m_moduleMain.m_dumpOut) {
         IStorage::StoredData outDebug;
         output.writeDebug(outDebug);
         FolderStorage outDebugStorage(m_appData / "debug", StorageType::CsvFolder, env.modName, false, ".out");
+        outDebugStorage.prepareForWrite();
+        outDebugStorage.writeData(outDebug);
+    }
+    if (m_config.m_moduleMain.m_dumpDiff) {
+        IStorage::StoredData outDebug;
+        DataContext          diffOutput = output.calculateDiff(initialOutput);
+
+        diffOutput.writeDebug(outDebug);
+        FolderStorage outDebugStorage(m_appData / "debug", StorageType::CsvFolder, env.modName, false, ".diff");
         outDebugStorage.prepareForWrite();
         outDebugStorage.writeData(outDebug);
     }

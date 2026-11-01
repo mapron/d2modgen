@@ -15,9 +15,8 @@ namespace D2ModGen {
 
 namespace {
 
-int scaleValue(int val, const std::optional<int>& powerScalePercent, int absLimit = 1)
+int scaleValue(int val, int power, int absLimit = 1)
 {
-    const int power = powerScalePercent.value_or(100);
     if (power == 100)
         return val;
 
@@ -59,7 +58,7 @@ void MagicPropItem::process()
     }();
     filter.props.levelBracket20 = std::clamp(targetLevel, 0, 99) / 20;
 
-    const int totalCountRel = genBetweenRng(*rng, randoParams->relativeCountMin, randoParams->relativeCountMax);
+    const int genCountRel = genBetweenRng(*rng, randoParams->common.m_randoGenerateMin, randoParams->common.m_randoGenerateMin);
 
     const bool forceCaster = [this]() -> bool {
         if (randoParams->casterTypePercent == 100)
@@ -88,12 +87,11 @@ void MagicPropItem::process()
     // determine how much keep and how much generate
     int genCountRemainder = 0;
     for (MagicPropRawList& rawList : affixlists) {
-        const int originalCount     = rawList.getTotalSize() + rawList.removed;
-        const int totalCountUnbound = scaleValue(originalCount, totalCountRel, 0);
+        const int originalCount = rawList.getTotalSize() + rawList.removed;
+        const int keepCnt       = scaleValue(originalCount, randoParams->common.m_randoKeepOriginalPercent, 0);
 
-        const int keepCnt         = scaleValue(originalCount, randoParams->keepOriginalPercent, 0);
-        const int genCountUnbound = totalCountUnbound - keepCnt + genCountRemainder - rawList.keptProps.size();
-        const int genCount        = std::clamp(genCountUnbound, 0, rawList.affixLimit);
+        const int genCountUnbound = scaleValue(originalCount, genCountRel, 0) + genCountRemainder;
+        const int genCount        = std::clamp(genCountUnbound, 0, rawList.affixLimit - keepCnt);
 
         genCountRemainder = randoParams->uniqueCheckAcross ? genCountUnbound - genCount : 0;
 

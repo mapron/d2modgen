@@ -5,6 +5,8 @@
  */
 #include "ModuleQol.hpp"
 
+#include "Colors.hpp"
+
 namespace D2ModGen {
 
 void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
@@ -12,23 +14,33 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const Config
     const auto& module = config.m_moduleQol;
 
     const int  tomeSize            = module.m_tomeSize;
-    const bool keySize             = module.m_keySize;
-    const bool quiverSize          = module.m_quiverSize;
+    const int  keySize             = module.m_keySize;
+    const int  quiverSize          = module.m_quiverSize;
     const bool uniqueCharmLimit    = module.m_uniqueCharmLimit;
     const bool weakenTownSkills    = module.m_weakenTownSkills;
     const bool weakenTownSkillsExt = module.m_weakenTownSkillsExt;
     const bool showItemLevel       = module.m_showItemLevel;
     const bool disableExpPenalty   = module.m_disableExpPenalty;
     const int  reduceCost          = module.m_reduceCost;
+
+    auto updateStack = [](std::optional<int>& value, int configValue) {
+        if (!value.has_value())
+            return;
+        int prev = value.value();
+        if (prev == 0)
+            return;
+        value = std::max(prev, configValue);
+    };
+
     if (keySize || quiverSize) {
         for (auto& row : output.misc.rows) {
             auto& code = row.code;
             if (row.code == "ibk" || row.code == "tbk")
-                row.maxstack = std::max(tomeSize, row.maxstack.value_or(0));
+                updateStack(row.maxstack, tomeSize);
             if (keySize && code == "key")
-                row.maxstack = 50;
+                updateStack(row.maxstack, keySize);
             if (quiverSize && (code == "aqv" || code == "cqv"))
-                row.maxstack = 511;
+                updateStack(row.maxstack, quiverSize);
         }
     }
     if (uniqueCharmLimit) {
@@ -72,6 +84,50 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const Config
         for (auto& row : output.experience.rows)
             row.expRatio = 1024;
     }
+
+    auto replaceJson = [&output, &env](const std::map<std::string, std::string>& replacements, const JsonId& name) {
+        if (replacements.empty() || !output.jsonFiles.contains(name))
+            return;
+        auto& jsonDoc   = output.jsonFiles[name];
+        auto& jsonArray = jsonDoc.getList();
+        for (Mernel::PropertyTree& lang : jsonArray) {
+            const std::string key = lang["Key"].getScalar().toString();
+            if (replacements.contains(key)) {
+                auto val              = replacements.at(key);
+                lang[env.d2rLocaleId] = Mernel::PropertyTreeScalar{ val };
+            }
+        }
+    };
+    std::map<std::string, std::string> replacementsItems;
+    std::map<std::string, std::string> replacementsAffix;
+    auto                               twoColor = [](const Color& color, const std::string& coloredText, const std::string& grayText) {
+        return getColorDesc(color).m_fullBinaryCode + coloredText + getColorDesc(Color::grey).m_fullBinaryCode + grayText;
+    };
+    if (module.m_compactPots) {
+        replacementsItems.merge(std::map<std::string, std::string>{
+            { "mp1", twoColor(Color::blue, "!", "MP1") },
+            { "mp2", twoColor(Color::blue, "!", "MP2") },
+            { "mp3", twoColor(Color::blue, "!", "MP3") },
+            { "mp4", twoColor(Color::blue, "!", "MP4") },
+            { "mp5", twoColor(Color::blue, "!", "MP5") },
+            { "hp1", twoColor(Color::red, "!", "HP1") },
+            { "hp2", twoColor(Color::red, "!", "HP2") },
+            { "hp3", twoColor(Color::red, "!", "HP3") },
+            { "hp4", twoColor(Color::red, "!", "HP4") },
+            { "hp5", twoColor(Color::red, "!", "HP5") },
+            { "rvs", twoColor(Color::purple, "Rej", "") },
+            { "rvl", twoColor(Color::purple, "Full", "") },
+        });
+    }
+    if (module.m_compactScrolls) {
+        replacementsItems.merge(std::map<std::string, std::string>{
+            { "tsc", twoColor(Color::blue, "•", "TP") },
+            { "isc", twoColor(Color::red, "•", "ID") },
+        });
+    }
+
+    replaceJson(replacementsItems, JsonId::ItemNames);
+    replaceJson(replacementsAffix, JsonId::ItemNameAffixes);
 }
 
 }

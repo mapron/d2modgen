@@ -114,8 +114,8 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     const int64_t repeatUniquesMax = 5;
     const int64_t repeatSetsMax    = 5;
-    const int64_t repeatUniques    = std::clamp(module.m_repeat_uniques, int64_t(1), repeatUniquesMax);
-    const int64_t repeatSets       = std::clamp(module.m_repeat_sets, int64_t(1), repeatSetsMax);
+    const int64_t repeatUniques    = std::clamp(module.m_repeatUniques, int64_t(1), repeatUniquesMax);
+    const int64_t repeatSets       = std::clamp(module.m_repeatSets, int64_t(1), repeatSetsMax);
 
     {
         auto*      dumpFileName = getenv("MODGEN_ATTRIBUTE_DUMP_FILE");
@@ -135,38 +135,50 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     PropRandomizer props(magicContext.actual, m_skillGetter);
 
+    const auto& b                 = config.m_itemBalance;
+    const auto& uniqueSettings    = b.m_uniques.m_doOverride ? b.m_uniques : b.m_defaults;
+    const auto& setsSettings      = b.m_sets.m_doOverride ? b.m_sets : b.m_defaults;
+    const auto& setitemsSettings  = b.m_setitems.m_doOverride ? b.m_setitems : b.m_defaults;
+    const auto& affixesSettings   = b.m_affixes.m_doOverride ? b.m_affixes : b.m_defaults;
+    const auto& runewordSettings  = b.m_runewords.m_doOverride ? b.m_runewords : b.m_defaults;
+    const auto& gemSettings       = b.m_gems.m_doOverride ? b.m_gems : b.m_defaults;
+    const auto& craftedSettings   = b.m_crafted.m_doOverride ? b.m_crafted : b.m_defaults;
+    const auto& baseEquipSettings = b.m_equipment.m_doOverride ? b.m_equipment : b.m_defaults;
+
     RandoParams params;
     params.replaceSkills  = module.m_replaceSkills;
     params.replaceCharges = module.m_replaceCharges;
     params.removeKnock    = module.m_removeKnock;
     params.updateExisting = module.m_updateExisting;
 
-    params.levelPlus           = module.m_levelPlus;
-    params.levelMinus          = module.m_levelMinus;
-    params.typeFitPercent      = module.m_itemFitPercent;
-    params.casterTypePercent   = module.m_casterTypePercent;
-    params.keepOriginalPercent = module.m_keepOriginalPercent;
-    params.relativeCountMin    = module.m_relativeCountMin;
-    params.relativeCountMax    = module.m_relativeCountMax;
+    params.levelPlus         = module.m_levelPlus;
+    params.levelMinus        = module.m_levelMinus;
+    params.typeFitPercent    = module.m_itemFitPercent;
+    params.casterTypePercent = module.m_casterTypePercent;
 
     auto paramsSetitems              = params;
-    paramsSetitems.relativeCountMin  = module.m_setRelativeCountMin;
-    paramsSetitems.relativeCountMax  = module.m_setRelativeCountMax;
+    paramsSetitems.common            = setitemsSettings;
     paramsSetitems.uniqueCheckAcross = true;
 
     auto paramsSets               = params;
+    paramsSets.common             = setsSettings;
     paramsSets.supportRandomRange = false;
     paramsSets.uniqueCheckAcross  = true;
 
     auto paramsGems               = params;
+    paramsGems.common             = gemSettings;
     paramsGems.supportRandomRange = false;
     paramsGems.enableGeneration   = module.m_gemsRandom;
 
     auto paramsAffix             = params;
+    paramsAffix.common           = affixesSettings;
     paramsAffix.enableGeneration = module.m_affixRandom;
 
-    auto paramsRunes = params;
-    auto paramsUniq  = params;
+    auto paramsRunes   = params;
+    paramsRunes.common = runewordSettings;
+
+    auto paramsUniq   = params;
+    paramsUniq.common = uniqueSettings;
 
     ItemStatistics allStat;
 

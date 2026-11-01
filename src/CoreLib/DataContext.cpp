@@ -12,17 +12,6 @@
 
 #include <algorithm>
 
-#define parseTab(id) \
-    if (!parseTable(id, data)) \
-    return false
-
-#define serializeTab(id) \
-    if (!serializeTable(id, data, true)) \
-    return false
-
-#define debugTab(id) \
-    serializeTable(id, data, false)
-
 namespace D2ModGen {
 
 DataContext::DataContext() = default;
@@ -33,31 +22,18 @@ bool DataContext::parseData(const IStorage::StoredData& data)
 {
     dataVersion = data.dataVersion;
 
-    parseTab(weapons);
-    parseTab(armor);
-    parseTab(automagic);
-    parseTab(charstats);
-    parseTab(cubemain);
-    parseTab(difficultylevels);
-    parseTab(experience);
-    parseTab(gamble);
-    parseTab(gems);
-    parseTab(hireling);
-    parseTab(itemstatcost);
-    parseTab(itemtypes);
-    parseTab(levels);
-    parseTab(magicprefix);
-    parseTab(magicsuffix);
-    parseTab(misc);
-    parseTab(monlvl);
-    parseTab(monstats);
-    parseTab(runes);
-    parseTab(setitems);
-    parseTab(sets);
-    parseTab(skilldesc);
-    parseTab(skills);
-    parseTab(treasureclassex);
-    parseTab(uniqueitems);
+    auto parseTab = [&data, this](auto m) -> bool {
+        auto& table = this->*m;
+        return parseTable(table, data);
+    };
+
+    const auto result = std::apply([&parseTab](const auto&... args) -> bool {
+        return (parseTab(std::forward<decltype(args)>(args)) && ...);
+    },
+                                   allTables());
+
+    if (!result)
+        return true;
 
     Logger() << "Tables have parsed successfully, now doing postprocess to establish links";
     if (!postProcess()) {
@@ -86,31 +62,18 @@ bool DataContext::serializeData(IStorage::StoredData& data) const
     data.valid       = true;
     data.dataVersion = dataVersion;
 
-    serializeTab(weapons);
-    serializeTab(armor);
-    serializeTab(automagic);
-    serializeTab(charstats);
-    serializeTab(cubemain);
-    serializeTab(difficultylevels);
-    serializeTab(experience);
-    serializeTab(gamble);
-    serializeTab(gems);
-    serializeTab(hireling);
-    serializeTab(itemstatcost);
-    serializeTab(itemtypes);
-    serializeTab(levels);
-    serializeTab(magicprefix);
-    serializeTab(magicsuffix);
-    serializeTab(misc);
-    serializeTab(monlvl);
-    serializeTab(monstats);
-    serializeTab(runes);
-    serializeTab(setitems);
-    serializeTab(sets);
-    serializeTab(skilldesc);
-    serializeTab(skills);
-    serializeTab(treasureclassex);
-    serializeTab(uniqueitems);
+    auto serializeTab = [&data, this](auto m) -> bool {
+        const auto& table = this->*m;
+        return serializeTable(table, data, true);
+    };
+
+    const auto result = std::apply([&serializeTab](const auto&... args) -> bool {
+        return (serializeTab(std::forward<decltype(args)>(args)) && ...);
+    },
+                                   allTables());
+
+    if (!result)
+        return true;
 
     for (const auto& [id, json] : jsonFiles) {
         std::string buffer;
@@ -127,31 +90,39 @@ void DataContext::writeDebug(IStorage::StoredData& data) const
     data.valid       = true;
     data.dataVersion = dataVersion;
 
-    debugTab(weapons);
-    debugTab(armor);
-    debugTab(automagic);
-    debugTab(charstats);
-    debugTab(cubemain);
-    debugTab(difficultylevels);
-    debugTab(experience);
-    debugTab(gamble);
-    debugTab(gems);
-    debugTab(hireling);
-    debugTab(itemstatcost);
-    debugTab(itemtypes);
-    debugTab(levels);
-    debugTab(magicprefix);
-    debugTab(magicsuffix);
-    debugTab(misc);
-    debugTab(monlvl);
-    debugTab(monstats);
-    debugTab(runes);
-    debugTab(setitems);
-    debugTab(sets);
-    debugTab(skilldesc);
-    debugTab(skills);
-    debugTab(treasureclassex);
-    debugTab(uniqueitems);
+    auto serializeTab = [&data, this](auto m) -> bool {
+        const auto& table = this->*m;
+        return serializeTable(table, data, false);
+    };
+
+    std::ignore = std::apply([&serializeTab](const auto&... args) -> bool {
+        return (serializeTab(std::forward<decltype(args)>(args)) && ...);
+    },
+                             allTables());
+}
+
+DataContext DataContext::calculateDiff(const DataContext& older) const
+{
+    DataContext result;
+    result.dataVersion = dataVersion;
+
+    auto diffTab = [&older, &result, this](auto m) -> bool {
+        const auto& tableOlder  = older.*m;
+        const auto& tableNewer  = this->*m;
+        auto&       tableResult = result.*m;
+        tableResult             = tableNewer;
+        tableResult.rows.clear();
+
+        diffTable(tableOlder, tableNewer, tableResult);
+        return true;
+    };
+
+    std::ignore = std::apply([&diffTab](const auto&... args) -> bool {
+        return (diffTab(std::forward<decltype(args)>(args)) && ...);
+    },
+                             allTables());
+
+    return result;
 }
 
 bool DataContext::postProcess()
@@ -470,8 +441,36 @@ bool DataTable<Row>::serializeTable(std::string& buffer, bool full) const
             rowCsv.data.insert(rowCsv.data.begin(), row._ser_key.value());
         csv.rows.push_back(std::move(rowCsv));
     }
+    if (csv.rows.empty()) {
+        buffer = {};
+        return true;
+    }
 
     return Mernel::writeCSVToBuffer(buffer, csv);
+}
+
+template<class Row>
+void DataContext::diffTable(const DataTable<Row>& tableOlder, const DataTable<Row>& tableNewer, DataTable<Row>& result) const
+{
+    for (size_t i = 0, cnt = std::min(tableOlder.rows.size(), tableNewer.rows.size()); i < cnt; ++i) {
+        auto olderRow = tableOlder.rows[i];
+        auto newerRow = tableNewer.rows[i];
+        olderRow._ser_usedCells.resize(tableOlder.indicesUsed.size());
+        olderRow._ser_read      = false;
+        olderRow._ser_cellIndex = 0;
+        olderRow._ser_key.reset();
+        olderRow.serialize();
+
+        newerRow._ser_usedCells.resize(tableOlder.indicesUsed.size());
+        newerRow._ser_read      = false;
+        newerRow._ser_cellIndex = 0;
+        newerRow._ser_key.reset();
+        newerRow.serialize();
+
+        if (olderRow._ser_usedCells == newerRow._ser_usedCells)
+            continue;
+        result.rows.push_back(newerRow);
+    }
 }
 
 }

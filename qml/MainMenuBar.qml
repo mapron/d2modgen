@@ -73,20 +73,16 @@ MenuBar {
             title: qsTr("Config from preset")
 
             Action {
-                text: qsTr("Basic")
-                onTriggered: appui.loadPresetConfig("basic")
+                text: qsTr("Crazy over-powered and probably broken")
+                onTriggered: config.activatePreset("crazy")
             }
             Action {
-                text: qsTr("Friendly chaos")
-                onTriggered: appui.loadPresetConfig("friendly_chaos")
+                text: qsTr("Stronger than author recommended")
+                onTriggered: config.activatePreset("strong")
             }
             Action {
-                text: qsTr("Magic rando")
-                onTriggered: appui.loadPresetConfig("magic_rando")
-            }
-            Action {
-                text: qsTr("Oh, no!")
-                onTriggered: appui.loadPresetConfig("oh_no")
+                text: qsTr("Balanced and moderate")
+                onTriggered: config.activatePreset("weak")
             }
         }
         Action {

@@ -130,7 +130,7 @@ protected:
             for (auto& prop : m_list)
                 *prop.m_pointer = prop.m_zero;
         }
-        void resetToReccomended()
+        void resetToRecommended()
         {
             for (auto& prop : m_list)
                 *prop.m_pointer = prop.m_recc;
@@ -255,13 +255,13 @@ public:
 
         notifyInnerAndOuter(notifyTwoWay);
     }
-    void resetToReccomended(bool notifyTwoWay = false)
+    void resetToRecommended(bool notifyTwoWay = false)
     {
-        m_int.resetToReccomended();
-        m_bool.resetToReccomended();
-        m_string.resetToReccomended();
+        m_int.resetToRecommended();
+        m_bool.resetToRecommended();
+        m_string.resetToRecommended();
         for (auto& child : m_children)
-            child.m_record->resetToReccomended();
+            child.m_record->resetToRecommended();
 
         notifyInnerAndOuter(notifyTwoWay);
     }
@@ -347,6 +347,21 @@ public:
     PropertyString& getPropertyString(size_t index)
     {
         return m_string.m_list[index];
+    }
+
+    static inline std::vector<std::string> s_presetNames{};
+
+    static bool setPresetNames(std::vector<std::string> names)
+    {
+        s_presetNames = std::move(names);
+        return true;
+    }
+    static int getPresetIndex(const std::string& name)
+    {
+        auto it = std::find(s_presetNames.cbegin(), s_presetNames.cend(), name);
+        if (it == s_presetNames.cend())
+            return -1;
+        return static_cast<int>(std::distance(s_presetNames.cbegin(), it));
     }
 };
 

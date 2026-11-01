@@ -11,6 +11,30 @@
 
 namespace D2ModGen {
 
+class CommonStruct_Qt : public QObject {
+    Q_OBJECT
+
+public:
+    CommonStruct_Qt(CommonStruct& data)
+        : m_data(data)
+    {}
+
+    Q_INVOKABLE void resetToZero() { m_data.resetToZero(true); }
+    Q_INVOKABLE void resetToRecommended() { m_data.resetToRecommended(true); }
+    Q_INVOKABLE void activatePreset(QString index)
+    {
+        int presetIndex = CommonStruct::getPresetIndex(index.toStdString());
+        if (presetIndex < 0)
+            return;
+
+        m_data.resetToRecommended(false);
+        m_data.activatePreset(presetIndex, true);
+    }
+
+private:
+    CommonStruct& m_data;
+};
+
 class PropertyBool_Qt : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool value READ getValue WRITE setValue NOTIFY dataChanged)

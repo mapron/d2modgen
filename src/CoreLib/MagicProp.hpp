@@ -7,6 +7,7 @@
 
 #include "AttributeHelper.hpp"
 #include "DataContext.hpp"
+#include "Config.hpp"
 
 namespace D2ModGen {
 
@@ -14,13 +15,12 @@ using SkillCodeResolver = std::function<int(const std::string&)>;
 using SkillGetter       = std::function<DataRow_skills_ptr(int)>;
 
 struct RandoParams {
-    int levelPlus           = 0;
-    int levelMinus          = 0;
-    int relativeCountMin    = 0;
-    int relativeCountMax    = 0;
-    int keepOriginalPercent = 0;
-    int typeFitPercent      = 0;
-    int casterTypePercent   = 0;
+    Config::ItemBalance::CommonSettings common;
+
+    int levelPlus         = 0;
+    int levelMinus        = 0;
+    int typeFitPercent    = 0;
+    int casterTypePercent = 0;
 
     bool enableGeneration   = true;
     bool uniqueCheckAcross  = false;

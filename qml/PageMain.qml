@@ -90,48 +90,20 @@ WidgetScrollable {
         Label {
             text: qsTr("Target D2 Game version:")
         }
-
-        ButtonGroup {
-            id: radioGroupMajor
-            onClicked: button => {
-                config.moduleMain.versionMajor.value = button.buttonIndex;
-            }
-        }
-        ButtonGroup {
-            id: radioGroupD2R
-            onClicked: button => {
-                config.moduleMain.versionD2R.value = button.buttonIndex;
-            }
-        }
-
-        Repeater {
+        RadioGroup {
             model: [qsTr("D2 Legacy"), qsTr("D2 Resurrected")]
-
-            RadioButton {
-                text: modelData
-                ButtonGroup.group: radioGroupMajor
-                property int buttonIndex: index
-                checked: index === config.moduleMain.versionMajor.value
-            }
+            value_key: config.moduleMain.versionMajor
         }
-
         Rectangle {
             visible: config.moduleMain.versionMajor.value === 1
             Layout.fillHeight: true
             Layout.preferredWidth: 1
             color: palette.accent
         }
-        Repeater {
+        RadioGroup {
             model: [qsTr("D2R - LoD"), qsTr("D2R - RotW")]
-            RadioButton {
-                text: modelData
-                visible: config.moduleMain.versionMajor.value === 1
-                ButtonGroup.group: radioGroupD2R
-                property int buttonIndex: index
-                checked: index === config.moduleMain.versionD2R.value
-            }
+            value_key: config.moduleMain.versionD2R
         }
-
         Item {
             Layout.fillWidth: true
         }
