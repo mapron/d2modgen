@@ -5,6 +5,7 @@
  */
 #include "PropRandomizer.hpp"
 #include "Logger.hpp"
+#include "RandoUtils.hpp"
 
 namespace D2ModGen {
 
@@ -286,6 +287,31 @@ PropRandomizer::PropGeneratorPtr PropRandomizer::getRandomAttributeGenerator(con
 
     const size_t i = filter.findLowerBound(frequencies, targetValue);
     return &gens[i];
+}
+
+MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator& rng) const
+{
+    MagicProp result = prop;
+    if (nonPar.has_value()) {
+        if (result.desc->rangeMode == RangeMode::Flag) {
+            result.min = result.max = 1;
+            return result;
+        }
+        const NonParValueSummary& vs = nonPar.value();
+
+        const int absLimit = result.desc->flags.contains(AttributeFlag::ZeroIsValid) ? 0 : 1;
+        const int min      = scaleValue(genRng(rng, vs.low), power, absLimit);
+        const int max      = scaleValue(genRng(rng, vs.high), power, absLimit);
+        const int par      = genRng(rng, vs.par);
+
+        result.min = min;
+        result.max = max;
+        result.par = par;
+
+        if (!result.par && result.desc->defaultParameter.has_value())
+            result.par = result.desc->defaultParameter;
+    }
+    return result;
 }
 
 }

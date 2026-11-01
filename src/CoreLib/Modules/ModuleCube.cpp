@@ -55,7 +55,7 @@ const std::map<std::string, std::string> s_craftedGemReplace{
 
 void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    const auto& module = config.m_moduleCube;
+    const auto& module = config.m_horadricCube;
 
     const bool noGemUpgrade  = module.m_noGemUpgrade;
     const bool quickPortals  = module.m_quickPortals;

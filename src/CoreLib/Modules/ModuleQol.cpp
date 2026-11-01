@@ -11,7 +11,7 @@ namespace D2ModGen {
 
 void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    const auto& module = config.m_moduleQol;
+    const auto& module = config.m_qualityOfLife;
 
     const int  tomeSize            = module.m_tomeSize;
     const int  keySize             = module.m_keySize;

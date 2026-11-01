@@ -50,10 +50,10 @@ std::string makeValue(std::string old, int copy)
 
 void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_moduleItemRandomizer.m_enabled)
+    if (!config.m_itemRandomizer.m_enabled)
         return;
 
-    const auto& module = config.m_moduleItemRandomizer;
+    const auto& module = config.m_itemRandomizer;
 
     m_codeResolver = [&output](const std::string& skillId) -> int {
         if (!skillId.empty()) {
@@ -151,10 +151,10 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     params.removeKnock    = module.m_removeKnock;
     params.updateExisting = module.m_updateExisting;
 
-    params.levelPlus         = module.m_levelPlus;
-    params.levelMinus        = module.m_levelMinus;
-    params.typeFitPercent    = module.m_itemFitPercent;
-    params.casterTypePercent = module.m_casterTypePercent;
+    params.levelPlus       = module.m_levelPlus;
+    params.levelMinus      = module.m_levelMinus;
+    params.typeFitPercent  = module.m_itemFit;
+    params.forceCasterType = module.m_forceCasterType;
 
     auto paramsSetitems              = params;
     paramsSetitems.common            = setitemsSettings;
@@ -251,6 +251,19 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
 
+    if (module.m_sameRarityForSetUniqueItems) {
+        for (auto& row : output.uniqueitems.rows) {
+            auto& rarity = row.rarity;
+            if (rarity.has_value())
+                rarity = 1;
+        }
+        for (auto& row : output.setitems.rows) {
+            auto& rarity = row.rarity;
+            if (rarity.has_value())
+                rarity = 1;
+        }
+    }
+
     if (extraTrace) {
         const AllAttributeData attrib = analyzeAll(grabAllProps(output));
         statisticsTable.addSnapshot(attrib, 1);
@@ -323,7 +336,7 @@ ModuleItemRandomizer::AllProps ModuleItemRandomizer::grabAllProps(const DataCont
 
 void ModuleItemRandomizer::createNewItems(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env, int repeatUniques, int repeatSets)
 {
-    const int setBonusMode = config.m_moduleItemRandomizer.m_setBonusMode;
+    const int setBonusMode = config.m_itemRandomizer.m_setBonusMode;
 
     if (repeatUniques == 1 && repeatSets == 1)
         return;
@@ -683,7 +696,7 @@ void ModuleItemRandomizer::MagicContext::addExtra(const Config& config, const Ge
     using A = AttributeId;
     actual.erase(A::skilltab);
 
-    const auto& module = config.m_moduleItemRandomizer;
+    const auto& module = config.m_itemRandomizer;
 
     Character lastCharacter = env.isRotW ? Character::War : Character::Ass;
     const int classCount    = static_cast<int>(lastCharacter) + 1;

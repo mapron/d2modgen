@@ -11,7 +11,7 @@ namespace D2ModGen {
 
 void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    const auto& module = config.m_moduleMonStats;
+    const auto& module = config.m_monsterStats;
     {
         auto proceedMonParam = [](int64_t percent, int& val) {
             val = val * percent / 100;
@@ -20,36 +20,34 @@ void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const C
             if (row.level <= 1)
                 continue;
             for (size_t i = 0; i < 6; ++i) {
-                proceedMonParam(module.m_mon_ar, row.TH[i]);
-                proceedMonParam(module.m_mon_def, row.AC[i]);
-                proceedMonParam(module.m_mon_hp, row.HP[i]);
-                proceedMonParam(module.m_mon_dam, row.DM[i]);
-                proceedMonParam(module.m_mon_xp, row.XP[i]);
+                proceedMonParam(module.m_monsterAttack, row.TH[i]);
+                proceedMonParam(module.m_monsterDefense, row.AC[i]);
+                proceedMonParam(module.m_monsterHealth, row.HP[i]);
+                proceedMonParam(module.m_monsterDamage, row.DM[i]);
+                proceedMonParam(module.m_monsterExperience, row.XP[i]);
             }
         }
     }
 
-    const int  maxResistCap   = module.m_max_resist;
+    const int  maxResistCap   = module.m_immunityLimit;
     const bool applyResistCap = maxResistCap < 250;
     if (applyResistCap) {
         std::vector<decltype(&DataRow_monstats::resCo)> resCols;
 
-        if (module.m_resist_apply_elem) {
+        if (module.m_applyCold)
             resCols.push_back(&DataRow_monstats::resCo);
+        if (module.m_applyLight)
             resCols.push_back(&DataRow_monstats::resLi);
+        if (module.m_applyFire)
             resCols.push_back(&DataRow_monstats::resFi);
-        }
-
-        if (module.m_resist_apply_poison)
+        if (module.m_applyPois)
             resCols.push_back(&DataRow_monstats::resPo);
-
-        if (module.m_resist_apply_magic)
+        if (module.m_applyMag)
             resCols.push_back(&DataRow_monstats::resMa);
-
-        if (module.m_resist_apply_physical)
+        if (module.m_applyPhys)
             resCols.push_back(&DataRow_monstats::resDm);
 
-        const int relResist = module.m_rel_resist;
+        const int relResist = module.m_relativeResistDmg;
 
         for (auto& row : output.monstats.rows) {
             if (!row.isRegularMob())

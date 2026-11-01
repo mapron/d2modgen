@@ -42,6 +42,7 @@ public:
     Q_INVOKABLE void saveConfig(QString filename);
     Q_INVOKABLE void loadConfig(QString filename);
     Q_INVOKABLE void clearConfig();
+    Q_INVOKABLE void resetToRecommended();
 
     bool loadConfig(const Mernel::PropertyTree& data);
 

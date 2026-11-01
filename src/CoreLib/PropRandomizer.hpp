@@ -6,7 +6,6 @@
 #pragma once
 
 #include "AttributeHelper.hpp"
-#include "DataContext.hpp"
 #include "DynamicBitSet.hpp"
 #include "MagicProp.hpp"
 

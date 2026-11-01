@@ -136,10 +136,4 @@ WidgetCommonTab {
         isCompact: true
         stretchCaption: true
     }
-
-    WidgetCheckbox {
-        caption: qsTr("Make all Uniques have equal rarity on same base")
-        tooltip: qsTr("Now Uniques with equal item base will have equal chance to drop.<br>For example Tyrael's and Templar's will have equal chance. (and all rings too)")
-        value_key: root.value_context.sameRarityForSetUniqueItems
-    }
 }

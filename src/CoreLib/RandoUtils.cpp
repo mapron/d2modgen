@@ -13,15 +13,19 @@
 
 namespace D2ModGen {
 
-namespace {
-
-int scaleValue(int val, int power, int absLimit = 1)
+int genRng(RandomGenerator& rng, const NonParValueSummary::Stat& stat)
 {
-    if (power == 100)
+    const auto bounds = rng(2) == 0 ? std::pair{ stat.min, stat.median } : std::pair{ stat.median, stat.max };
+    return genBetweenRng(rng, bounds.first, bounds.second);
+}
+
+int scaleValue(int val, int percent, int absLimit)
+{
+    if (percent == 100)
         return val;
 
     const bool isPositive = val > 0;
-    const int  scaledVal  = val * power / 100;
+    const int  scaledVal  = val * percent / 100;
     const int  limitsMin  = isPositive ? absLimit : std::numeric_limits<int>::min();
     const int  limitsMax  = isPositive ? std::numeric_limits<int>::max() : -absLimit;
     return std::clamp(scaledVal, limitsMin, limitsMax);
@@ -34,14 +38,6 @@ int genBetweenRng(RandomGenerator& rng, int first, int second)
     const int randomDiff = range > 0 ? rng(range + 1) : 0;
 
     return lowerBound + randomDiff;
-}
-
-int genRng(RandomGenerator& rng, const NonParValueSummary::Stat& stat)
-{
-    const auto bounds = rng(2) == 0 ? std::pair{ stat.min, stat.median } : std::pair{ stat.median, stat.max };
-    return genBetweenRng(rng, bounds.first, bounds.second);
-}
-
 }
 
 void MagicPropItem::process()
@@ -61,9 +57,9 @@ void MagicPropItem::process()
     const int genCountRel = genBetweenRng(*rng, randoParams->common.m_randoGenerateMin, randoParams->common.m_randoGenerateMin);
 
     const bool forceCaster = [this]() -> bool {
-        if (randoParams->casterTypePercent == 100)
+        if (randoParams->forceCasterType == 100)
             return true;
-        if (randoParams->casterTypePercent == 0)
+        if (randoParams->forceCasterType == 0)
             return false;
 
         return (*rng)(100) < randoParams->typeFitPercent;
@@ -91,7 +87,9 @@ void MagicPropItem::process()
         const int keepCnt       = scaleValue(originalCount, randoParams->common.m_randoKeepOriginalPercent, 0);
 
         const int genCountUnbound = scaleValue(originalCount, genCountRel, 0) + genCountRemainder;
-        const int genCount        = std::clamp(genCountUnbound, 0, std::max(0, rawList.affixLimit - keepCnt));
+        const int genCountMin     = genCountRel > 0 ? 1 : 0;
+        const int genCountMax     = std::max(1, rawList.affixLimit - keepCnt);
+        const int genCount        = std::clamp(genCountUnbound, genCountMin, genCountMax);
 
         genCountRemainder = randoParams->uniqueCheckAcross ? genCountUnbound - genCount : 0;
 
@@ -321,31 +319,6 @@ void PropFilter::indexAnd(DynamicBitSet& result, const PropRandomizer* propRando
     result &= attributeUnrestricted;
     if (addIdFilter)
         result &= availableIdPar;
-}
-
-MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator& rng) const
-{
-    MagicProp result = prop;
-    if (nonPar.has_value()) {
-        if (result.desc->rangeMode == RangeMode::Flag) {
-            result.min = result.max = 1;
-            return result;
-        }
-        const NonParValueSummary& vs = nonPar.value();
-
-        const int absLimit = result.desc->flags.contains(AttributeFlag::ZeroIsValid) ? 0 : 1;
-        const int min      = scaleValue(genRng(rng, vs.low), power, absLimit);
-        const int max      = scaleValue(genRng(rng, vs.high), power, absLimit);
-        const int par      = genRng(rng, vs.par);
-
-        result.min = min;
-        result.max = max;
-        result.par = par;
-
-        if (!result.par && result.desc->defaultParameter.has_value())
-            result.par = result.desc->defaultParameter;
-    }
-    return result;
 }
 
 }

@@ -18,7 +18,6 @@
 #include "Modules/ModuleGambling.hpp"
 #include "Modules/ModuleTreasureClasses.hpp"
 #include "Modules/ModuleItemRandomizer.hpp"
-#include "Modules/ModuleMonDensity.hpp"
 #include "Modules/ModuleMonRandomizer.hpp"
 #include "Modules/ModuleMonStats.hpp"
 #include "Modules/ModuleItemBalance.hpp"
@@ -67,7 +66,6 @@ struct ModuleAll : public IModule {
         modules.push_back(create<ModuleCharacter>("Character"));
         modules.push_back(create<ModuleGambling>("Gambling"));
         modules.push_back(create<ModuleTreasureClasses>("TreasureClasses"));
-        modules.push_back(create<ModuleMonDensity>("MonDensity"));
         modules.push_back(create<ModuleMonStats>("MonStats"));
         modules.push_back(create<ModuleQol>("Qol"));
 
@@ -103,7 +101,7 @@ ConfigHandler::ConfigHandler()
     , m_appData(Mernel::AppLocations("D2R mod generator").getAppdataDir())
     , m_defaultPath(m_appData / "config.json")
 {
-    loadConfig(Mernel::PropertyTree{}, true);
+    m_config.m_main.suppressPresets();
 }
 
 bool ConfigHandler::loadAppConfig()
@@ -159,11 +157,11 @@ bool ConfigHandler::saveConfig(const Mernel::std_path& filename) const
 
 bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data, bool resetMain)
 {
-    auto prevMain = m_config.m_moduleMain;
+    auto prevMain = m_config.m_main;
     m_config.readFromProperty(data);
     updateSeed(false);
     if (!resetMain)
-        m_config.m_moduleMain = prevMain;
+        m_config.m_main = prevMain;
 
     return true;
 }
@@ -177,11 +175,11 @@ bool ConfigHandler::saveConfig(Mernel::PropertyTree& data) const
 
 void ConfigHandler::updateSeed(bool onGenerate)
 {
-    auto& main = m_config.m_moduleMain;
+    auto& main = m_config.m_main;
     if (main.m_seed == 0 || main.m_refreshSeed && onGenerate) {
         std::random_device rd;
         main.m_seed = rd();
-        m_config.m_moduleMain.notifyChangeInner();
+        m_config.m_main.notifyChangeInner();
     }
 }
 
@@ -217,9 +215,9 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     if (!output.parseData(inData)) {
         return { "Failed parse D2 data files." };
     }
-    if (m_config.m_moduleMain.m_dumpDiff)
+    if (m_config.m_main.m_dumpDiff)
         initialOutput = output;
-    if (m_config.m_moduleMain.m_dumpIn) {
+    if (m_config.m_main.m_dumpIn) {
         IStorage::StoredData inDebug;
         output.writeDebug(inDebug);
         FolderStorage outDebugStorage(m_appData / "debug", StorageType::CsvFolder, env.modName, false, ".in");
@@ -249,14 +247,14 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
     }
     Logger() << "prepare output data.";
 
-    if (m_config.m_moduleMain.m_dumpOut) {
+    if (m_config.m_main.m_dumpOut) {
         IStorage::StoredData outDebug;
         output.writeDebug(outDebug);
         FolderStorage outDebugStorage(m_appData / "debug", StorageType::CsvFolder, env.modName, false, ".out");
         outDebugStorage.prepareForWrite();
         outDebugStorage.writeData(outDebug);
     }
-    if (m_config.m_moduleMain.m_dumpDiff) {
+    if (m_config.m_main.m_dumpDiff) {
         IStorage::StoredData outDebug;
         DataContext          diffOutput = output.calculateDiff(initialOutput);
 
@@ -283,7 +281,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
 
 GenerationEnvironment ConfigHandler::getEnv(std::string& err) const
 {
-    auto&                 main = m_config.m_moduleMain;
+    auto&                 main = m_config.m_main;
     GenerationEnvironment env;
 
     auto versionMajor = GenerationEnvironment::VersionMajor(main.m_versionMajor);

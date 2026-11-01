@@ -6,6 +6,100 @@
 
 namespace D2ModGen {
 
+class Config_Main_Qt : public CommonStruct_Qt {
+    Q_OBJECT
+    Q_PROPERTY(PropertyInt_Qt* d2rLocaleId READ get_d2rLocaleId CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* inputMode READ get_inputMode CONSTANT)
+    Q_PROPERTY(PropertyString_Qt* inputPath READ get_inputPath CONSTANT)
+    Q_PROPERTY(PropertyString_Qt* modname READ get_modname CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* outputMode READ get_outputMode CONSTANT)
+    Q_PROPERTY(PropertyString_Qt* outputPath READ get_outputPath CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* refreshSeed READ get_refreshSeed CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* seed READ get_seed CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* versionD2R READ get_versionD2R CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* versionMajor READ get_versionMajor CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* dumpIn READ get_dumpIn CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* dumpOut READ get_dumpOut CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* dumpDiff READ get_dumpDiff CONSTANT)
+
+public:
+    explicit Config_Main_Qt(Config::Main& data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
+        , m_d2rLocaleId(data.getPropertyInt(0))
+        , m_inputMode(data.getPropertyInt(1))
+        , m_inputPath(data.getPropertyString(0))
+        , m_modname(data.getPropertyString(1))
+        , m_outputMode(data.getPropertyInt(2))
+        , m_outputPath(data.getPropertyString(2))
+        , m_refreshSeed(data.getPropertyBool(0))
+        , m_seed(data.getPropertyInt(3))
+        , m_versionD2R(data.getPropertyInt(4))
+        , m_versionMajor(data.getPropertyInt(5))
+        , m_dumpIn(data.getPropertyBool(1))
+        , m_dumpOut(data.getPropertyBool(2))
+        , m_dumpDiff(data.getPropertyBool(3))
+    {
+    }
+
+    PropertyInt_Qt* get_d2rLocaleId() { return &m_d2rLocaleId; }
+
+    PropertyInt_Qt* get_inputMode() { return &m_inputMode; }
+
+    PropertyString_Qt* get_inputPath() { return &m_inputPath; }
+
+    PropertyString_Qt* get_modname() { return &m_modname; }
+
+    PropertyInt_Qt* get_outputMode() { return &m_outputMode; }
+
+    PropertyString_Qt* get_outputPath() { return &m_outputPath; }
+
+    PropertyBool_Qt* get_refreshSeed() { return &m_refreshSeed; }
+
+    PropertyInt_Qt* get_seed() { return &m_seed; }
+
+    PropertyInt_Qt* get_versionD2R() { return &m_versionD2R; }
+
+    PropertyInt_Qt* get_versionMajor() { return &m_versionMajor; }
+
+    PropertyBool_Qt* get_dumpIn() { return &m_dumpIn; }
+
+    PropertyBool_Qt* get_dumpOut() { return &m_dumpOut; }
+
+    PropertyBool_Qt* get_dumpDiff() { return &m_dumpDiff; }
+
+    Q_INVOKABLE void assign(Config_Main_Qt* another) { m_data.assign(another->m_data, true); }
+
+private:
+    Config::Main& m_data;
+
+    PropertyInt_Qt m_d2rLocaleId;
+
+    PropertyInt_Qt m_inputMode;
+
+    PropertyString_Qt m_inputPath;
+
+    PropertyString_Qt m_modname;
+
+    PropertyInt_Qt m_outputMode;
+
+    PropertyString_Qt m_outputPath;
+
+    PropertyBool_Qt m_refreshSeed;
+
+    PropertyInt_Qt m_seed;
+
+    PropertyInt_Qt m_versionD2R;
+
+    PropertyInt_Qt m_versionMajor;
+
+    PropertyBool_Qt m_dumpIn;
+
+    PropertyBool_Qt m_dumpOut;
+
+    PropertyBool_Qt m_dumpDiff;
+};
+
 class Config_TreasureClasses_Runes_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
@@ -77,7 +171,6 @@ class Config_TreasureClasses_Items_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyInt_Qt* superItemCount READ get_superItemCount CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* removeChampGold READ get_removeChampGold CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* removeElitePotions READ get_removeElitePotions CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* sameRarityForSetUniqueItems READ get_sameRarityForSetUniqueItems CONSTANT)
 
 public:
     explicit Config_TreasureClasses_Items_Qt(Config::TreasureClasses::Items& data)
@@ -100,7 +193,6 @@ public:
         , m_superItemCount(data.getPropertyInt(12))
         , m_removeChampGold(data.getPropertyBool(2))
         , m_removeElitePotions(data.getPropertyBool(3))
-        , m_sameRarityForSetUniqueItems(data.getPropertyBool(4))
     {
     }
 
@@ -137,8 +229,6 @@ public:
     PropertyBool_Qt* get_removeChampGold() { return &m_removeChampGold; }
 
     PropertyBool_Qt* get_removeElitePotions() { return &m_removeElitePotions; }
-
-    PropertyBool_Qt* get_sameRarityForSetUniqueItems() { return &m_sameRarityForSetUniqueItems; }
 
     Q_INVOKABLE void assign(Config_TreasureClasses_Items_Qt* another) { m_data.assign(another->m_data, true); }
 
@@ -178,8 +268,6 @@ private:
     PropertyBool_Qt m_removeChampGold;
 
     PropertyBool_Qt m_removeElitePotions;
-
-    PropertyBool_Qt m_sameRarityForSetUniqueItems;
 };
 
 class Config_TreasureClasses_Qt : public CommonStruct_Qt {
@@ -362,101 +450,289 @@ private:
     PropertyInt_Qt m_reqStr;
 };
 
-class Config_ModuleMain_Qt : public CommonStruct_Qt {
+class Config_ItemRandomizer_Qt : public CommonStruct_Qt {
     Q_OBJECT
-    Q_PROPERTY(PropertyInt_Qt* d2rLocaleId READ get_d2rLocaleId CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* inputMode READ get_inputMode CONSTANT)
-    Q_PROPERTY(PropertyString_Qt* inputPath READ get_inputPath CONSTANT)
-    Q_PROPERTY(PropertyString_Qt* modname READ get_modname CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* outputMode READ get_outputMode CONSTANT)
-    Q_PROPERTY(PropertyString_Qt* outputPath READ get_outputPath CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* refreshSeed READ get_refreshSeed CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* seed READ get_seed CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* versionD2R READ get_versionD2R CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* versionMajor READ get_versionMajor CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* dumpIn READ get_dumpIn CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* dumpOut READ get_dumpOut CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* dumpDiff READ get_dumpDiff CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* forceCasterType READ get_forceCasterType CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* itemFit READ get_itemFit CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* levelMinus READ get_levelMinus CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* levelPlus READ get_levelPlus CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* repeatSets READ get_repeatSets CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* repeatUniques READ get_repeatUniques CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* affixRandom READ get_affixRandom CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* gemsRandom READ get_gemsRandom CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* craftedRandom READ get_craftedRandom CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* removeKnock READ get_removeKnock CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* replaceCharges READ get_replaceCharges CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* replaceSkills READ get_replaceSkills CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* updateExisting READ get_updateExisting CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* setBonusMode READ get_setBonusMode CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* frequencyAuras READ get_frequencyAuras CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* frequencyCharAttributes READ get_frequencyCharAttributes CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* frequencyProcs READ get_frequencyProcs CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* frequencyResistances READ get_frequencyResistances CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* frequencySkills READ get_frequencySkills CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* sameRarityForSetUniqueItems READ get_sameRarityForSetUniqueItems CONSTANT)
 
 public:
-    explicit Config_ModuleMain_Qt(Config::ModuleMain& data)
+    explicit Config_ItemRandomizer_Qt(Config::ItemRandomizer& data)
         : CommonStruct_Qt(data)
         , m_data(data)
-        , m_d2rLocaleId(data.getPropertyInt(0))
-        , m_inputMode(data.getPropertyInt(1))
-        , m_inputPath(data.getPropertyString(0))
-        , m_modname(data.getPropertyString(1))
-        , m_outputMode(data.getPropertyInt(2))
-        , m_outputPath(data.getPropertyString(2))
-        , m_refreshSeed(data.getPropertyBool(0))
-        , m_seed(data.getPropertyInt(3))
-        , m_versionD2R(data.getPropertyInt(4))
-        , m_versionMajor(data.getPropertyInt(5))
-        , m_dumpIn(data.getPropertyBool(1))
-        , m_dumpOut(data.getPropertyBool(2))
-        , m_dumpDiff(data.getPropertyBool(3))
+        , m_enabled(data.getPropertyBool(0))
+        , m_forceCasterType(data.getPropertyInt(0))
+        , m_itemFit(data.getPropertyInt(1))
+        , m_levelMinus(data.getPropertyInt(2))
+        , m_levelPlus(data.getPropertyInt(3))
+        , m_repeatSets(data.getPropertyInt(4))
+        , m_repeatUniques(data.getPropertyInt(5))
+        , m_affixRandom(data.getPropertyBool(1))
+        , m_gemsRandom(data.getPropertyBool(2))
+        , m_craftedRandom(data.getPropertyBool(3))
+        , m_removeKnock(data.getPropertyBool(4))
+        , m_replaceCharges(data.getPropertyBool(5))
+        , m_replaceSkills(data.getPropertyBool(6))
+        , m_updateExisting(data.getPropertyBool(7))
+        , m_setBonusMode(data.getPropertyInt(6))
+        , m_frequencyAuras(data.getPropertyInt(7))
+        , m_frequencyCharAttributes(data.getPropertyInt(8))
+        , m_frequencyProcs(data.getPropertyInt(9))
+        , m_frequencyResistances(data.getPropertyInt(10))
+        , m_frequencySkills(data.getPropertyInt(11))
+        , m_sameRarityForSetUniqueItems(data.getPropertyBool(8))
     {
     }
 
-    PropertyInt_Qt* get_d2rLocaleId() { return &m_d2rLocaleId; }
+    PropertyBool_Qt* get_enabled() { return &m_enabled; }
 
-    PropertyInt_Qt* get_inputMode() { return &m_inputMode; }
+    PropertyInt_Qt* get_forceCasterType() { return &m_forceCasterType; }
 
-    PropertyString_Qt* get_inputPath() { return &m_inputPath; }
+    PropertyInt_Qt* get_itemFit() { return &m_itemFit; }
 
-    PropertyString_Qt* get_modname() { return &m_modname; }
+    PropertyInt_Qt* get_levelMinus() { return &m_levelMinus; }
 
-    PropertyInt_Qt* get_outputMode() { return &m_outputMode; }
+    PropertyInt_Qt* get_levelPlus() { return &m_levelPlus; }
 
-    PropertyString_Qt* get_outputPath() { return &m_outputPath; }
+    PropertyInt_Qt* get_repeatSets() { return &m_repeatSets; }
 
-    PropertyBool_Qt* get_refreshSeed() { return &m_refreshSeed; }
+    PropertyInt_Qt* get_repeatUniques() { return &m_repeatUniques; }
 
-    PropertyInt_Qt* get_seed() { return &m_seed; }
+    PropertyBool_Qt* get_affixRandom() { return &m_affixRandom; }
 
-    PropertyInt_Qt* get_versionD2R() { return &m_versionD2R; }
+    PropertyBool_Qt* get_gemsRandom() { return &m_gemsRandom; }
 
-    PropertyInt_Qt* get_versionMajor() { return &m_versionMajor; }
+    PropertyBool_Qt* get_craftedRandom() { return &m_craftedRandom; }
 
-    PropertyBool_Qt* get_dumpIn() { return &m_dumpIn; }
+    PropertyBool_Qt* get_removeKnock() { return &m_removeKnock; }
 
-    PropertyBool_Qt* get_dumpOut() { return &m_dumpOut; }
+    PropertyBool_Qt* get_replaceCharges() { return &m_replaceCharges; }
 
-    PropertyBool_Qt* get_dumpDiff() { return &m_dumpDiff; }
+    PropertyBool_Qt* get_replaceSkills() { return &m_replaceSkills; }
 
-    Q_INVOKABLE void assign(Config_ModuleMain_Qt* another) { m_data.assign(another->m_data, true); }
+    PropertyBool_Qt* get_updateExisting() { return &m_updateExisting; }
+
+    PropertyInt_Qt* get_setBonusMode() { return &m_setBonusMode; }
+
+    PropertyInt_Qt* get_frequencyAuras() { return &m_frequencyAuras; }
+
+    PropertyInt_Qt* get_frequencyCharAttributes() { return &m_frequencyCharAttributes; }
+
+    PropertyInt_Qt* get_frequencyProcs() { return &m_frequencyProcs; }
+
+    PropertyInt_Qt* get_frequencyResistances() { return &m_frequencyResistances; }
+
+    PropertyInt_Qt* get_frequencySkills() { return &m_frequencySkills; }
+
+    PropertyBool_Qt* get_sameRarityForSetUniqueItems() { return &m_sameRarityForSetUniqueItems; }
+
+    Q_INVOKABLE void assign(Config_ItemRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
 
 private:
-    Config::ModuleMain& m_data;
+    Config::ItemRandomizer& m_data;
 
-    PropertyInt_Qt m_d2rLocaleId;
+    PropertyBool_Qt m_enabled;
 
-    PropertyInt_Qt m_inputMode;
+    PropertyInt_Qt m_forceCasterType;
 
-    PropertyString_Qt m_inputPath;
+    PropertyInt_Qt m_itemFit;
 
-    PropertyString_Qt m_modname;
+    PropertyInt_Qt m_levelMinus;
 
-    PropertyInt_Qt m_outputMode;
+    PropertyInt_Qt m_levelPlus;
 
-    PropertyString_Qt m_outputPath;
+    PropertyInt_Qt m_repeatSets;
 
-    PropertyBool_Qt m_refreshSeed;
+    PropertyInt_Qt m_repeatUniques;
 
-    PropertyInt_Qt m_seed;
+    PropertyBool_Qt m_affixRandom;
 
-    PropertyInt_Qt m_versionD2R;
+    PropertyBool_Qt m_gemsRandom;
 
-    PropertyInt_Qt m_versionMajor;
+    PropertyBool_Qt m_craftedRandom;
 
-    PropertyBool_Qt m_dumpIn;
+    PropertyBool_Qt m_removeKnock;
 
-    PropertyBool_Qt m_dumpOut;
+    PropertyBool_Qt m_replaceCharges;
 
-    PropertyBool_Qt m_dumpDiff;
+    PropertyBool_Qt m_replaceSkills;
+
+    PropertyBool_Qt m_updateExisting;
+
+    PropertyInt_Qt m_setBonusMode;
+
+    PropertyInt_Qt m_frequencyAuras;
+
+    PropertyInt_Qt m_frequencyCharAttributes;
+
+    PropertyInt_Qt m_frequencyProcs;
+
+    PropertyInt_Qt m_frequencyResistances;
+
+    PropertyInt_Qt m_frequencySkills;
+
+    PropertyBool_Qt m_sameRarityForSetUniqueItems;
 };
 
-class Config_ModuleChallenge_Qt : public CommonStruct_Qt {
+class Config_MonsterRandomizer_Qt : public CommonStruct_Qt {
+    Q_OBJECT
+    Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* hellResistances READ get_hellResistances CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* numMonExtra READ get_numMonExtra CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* spawnKeepOriginal READ get_spawnKeepOriginal CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* chanceToSwapResistances READ get_chanceToSwapResistances CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* spawnGenerateMin READ get_spawnGenerateMin CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* spawnGenerateMax READ get_spawnGenerateMax CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* densityMin READ get_densityMin CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* densityMax READ get_densityMax CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* hellPacks READ get_hellPacks CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* maxPacks READ get_maxPacks CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* elitePacksMin READ get_elitePacksMin CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* elitePacksMax READ get_elitePacksMax CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* monGroupIncreaseSize READ get_monGroupIncreaseSize CONSTANT)
+
+public:
+    explicit Config_MonsterRandomizer_Qt(Config::MonsterRandomizer& data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
+        , m_enabled(data.getPropertyBool(0))
+        , m_hellResistances(data.getPropertyBool(1))
+        , m_numMonExtra(data.getPropertyInt(0))
+        , m_spawnKeepOriginal(data.getPropertyInt(1))
+        , m_chanceToSwapResistances(data.getPropertyInt(2))
+        , m_spawnGenerateMin(data.getPropertyInt(3))
+        , m_spawnGenerateMax(data.getPropertyInt(4))
+        , m_densityMin(data.getPropertyInt(5))
+        , m_densityMax(data.getPropertyInt(6))
+        , m_hellPacks(data.getPropertyBool(2))
+        , m_maxPacks(data.getPropertyBool(3))
+        , m_elitePacksMin(data.getPropertyInt(7))
+        , m_elitePacksMax(data.getPropertyInt(8))
+        , m_monGroupIncreaseSize(data.getPropertyInt(9))
+    {
+    }
+
+    PropertyBool_Qt* get_enabled() { return &m_enabled; }
+
+    PropertyBool_Qt* get_hellResistances() { return &m_hellResistances; }
+
+    PropertyInt_Qt* get_numMonExtra() { return &m_numMonExtra; }
+
+    PropertyInt_Qt* get_spawnKeepOriginal() { return &m_spawnKeepOriginal; }
+
+    PropertyInt_Qt* get_chanceToSwapResistances() { return &m_chanceToSwapResistances; }
+
+    PropertyInt_Qt* get_spawnGenerateMin() { return &m_spawnGenerateMin; }
+
+    PropertyInt_Qt* get_spawnGenerateMax() { return &m_spawnGenerateMax; }
+
+    PropertyInt_Qt* get_densityMin() { return &m_densityMin; }
+
+    PropertyInt_Qt* get_densityMax() { return &m_densityMax; }
+
+    PropertyBool_Qt* get_hellPacks() { return &m_hellPacks; }
+
+    PropertyBool_Qt* get_maxPacks() { return &m_maxPacks; }
+
+    PropertyInt_Qt* get_elitePacksMin() { return &m_elitePacksMin; }
+
+    PropertyInt_Qt* get_elitePacksMax() { return &m_elitePacksMax; }
+
+    PropertyInt_Qt* get_monGroupIncreaseSize() { return &m_monGroupIncreaseSize; }
+
+    Q_INVOKABLE void assign(Config_MonsterRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
+
+private:
+    Config::MonsterRandomizer& m_data;
+
+    PropertyBool_Qt m_enabled;
+
+    PropertyBool_Qt m_hellResistances;
+
+    PropertyInt_Qt m_numMonExtra;
+
+    PropertyInt_Qt m_spawnKeepOriginal;
+
+    PropertyInt_Qt m_chanceToSwapResistances;
+
+    PropertyInt_Qt m_spawnGenerateMin;
+
+    PropertyInt_Qt m_spawnGenerateMax;
+
+    PropertyInt_Qt m_densityMin;
+
+    PropertyInt_Qt m_densityMax;
+
+    PropertyBool_Qt m_hellPacks;
+
+    PropertyBool_Qt m_maxPacks;
+
+    PropertyInt_Qt m_elitePacksMin;
+
+    PropertyInt_Qt m_elitePacksMax;
+
+    PropertyInt_Qt m_monGroupIncreaseSize;
+};
+
+class Config_SkillRandomizer_Qt : public CommonStruct_Qt {
+    Q_OBJECT
+    Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* ensureDifferent READ get_ensureDifferent CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* skillDamage READ get_skillDamage CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* skillTree READ get_skillTree CONSTANT)
+
+public:
+    explicit Config_SkillRandomizer_Qt(Config::SkillRandomizer& data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
+        , m_enabled(data.getPropertyBool(0))
+        , m_ensureDifferent(data.getPropertyBool(1))
+        , m_skillDamage(data.getPropertyBool(2))
+        , m_skillTree(data.getPropertyBool(3))
+    {
+    }
+
+    PropertyBool_Qt* get_enabled() { return &m_enabled; }
+
+    PropertyBool_Qt* get_ensureDifferent() { return &m_ensureDifferent; }
+
+    PropertyBool_Qt* get_skillDamage() { return &m_skillDamage; }
+
+    PropertyBool_Qt* get_skillTree() { return &m_skillTree; }
+
+    Q_INVOKABLE void assign(Config_SkillRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
+
+private:
+    Config::SkillRandomizer& m_data;
+
+    PropertyBool_Qt m_enabled;
+
+    PropertyBool_Qt m_ensureDifferent;
+
+    PropertyBool_Qt m_skillDamage;
+
+    PropertyBool_Qt m_skillTree;
+};
+
+class Config_Challenge_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyInt_Qt* levelIncreaseHell READ get_levelIncreaseHell CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* levelIncreaseNightmare READ get_levelIncreaseNightmare CONSTANT)
@@ -469,7 +745,7 @@ class Config_ModuleChallenge_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyBool_Qt* disableDropsRejuvPot READ get_disableDropsRejuvPot CONSTANT)
 
 public:
-    explicit Config_ModuleChallenge_Qt(Config::ModuleChallenge& data)
+    explicit Config_Challenge_Qt(Config::Challenge& data)
         : CommonStruct_Qt(data)
         , m_data(data)
         , m_levelIncreaseHell(data.getPropertyInt(0))
@@ -502,10 +778,10 @@ public:
 
     PropertyBool_Qt* get_disableDropsRejuvPot() { return &m_disableDropsRejuvPot; }
 
-    Q_INVOKABLE void assign(Config_ModuleChallenge_Qt* another) { m_data.assign(another->m_data, true); }
+    Q_INVOKABLE void assign(Config_Challenge_Qt* another) { m_data.assign(another->m_data, true); }
 
 private:
-    Config::ModuleChallenge& m_data;
+    Config::Challenge& m_data;
 
     PropertyInt_Qt m_levelIncreaseHell;
 
@@ -526,7 +802,7 @@ private:
     PropertyBool_Qt m_disableDropsRejuvPot;
 };
 
-class Config_ModuleCharacter_Qt : public CommonStruct_Qt {
+class Config_Character_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* addCube READ get_addCube CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* addTeleport READ get_addTeleport CONSTANT)
@@ -544,7 +820,7 @@ class Config_ModuleCharacter_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyInt_Qt* mpPotEfficacy READ get_mpPotEfficacy CONSTANT)
 
 public:
-    explicit Config_ModuleCharacter_Qt(Config::ModuleCharacter& data)
+    explicit Config_Character_Qt(Config::Character& data)
         : CommonStruct_Qt(data)
         , m_data(data)
         , m_addCube(data.getPropertyBool(0))
@@ -592,10 +868,10 @@ public:
 
     PropertyInt_Qt* get_mpPotEfficacy() { return &m_mpPotEfficacy; }
 
-    Q_INVOKABLE void assign(Config_ModuleCharacter_Qt* another) { m_data.assign(another->m_data, true); }
+    Q_INVOKABLE void assign(Config_Character_Qt* another) { m_data.assign(another->m_data, true); }
 
 private:
-    Config::ModuleCharacter& m_data;
+    Config::Character& m_data;
 
     PropertyBool_Qt m_addCube;
 
@@ -626,7 +902,7 @@ private:
     PropertyInt_Qt m_mpPotEfficacy;
 };
 
-class Config_ModuleCube_Qt : public CommonStruct_Qt {
+class Config_HoradricCube_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* cheatCharms READ get_cheatCharms CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* craftHighIlvl READ get_craftHighIlvl CONSTANT)
@@ -639,7 +915,7 @@ class Config_ModuleCube_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyBool_Qt* upgrading READ get_upgrading CONSTANT)
 
 public:
-    explicit Config_ModuleCube_Qt(Config::ModuleCube& data)
+    explicit Config_HoradricCube_Qt(Config::HoradricCube& data)
         : CommonStruct_Qt(data)
         , m_data(data)
         , m_cheatCharms(data.getPropertyBool(0))
@@ -672,10 +948,10 @@ public:
 
     PropertyBool_Qt* get_upgrading() { return &m_upgrading; }
 
-    Q_INVOKABLE void assign(Config_ModuleCube_Qt* another) { m_data.assign(another->m_data, true); }
+    Q_INVOKABLE void assign(Config_HoradricCube_Qt* another) { m_data.assign(another->m_data, true); }
 
 private:
-    Config::ModuleCube& m_data;
+    Config::HoradricCube& m_data;
 
     PropertyBool_Qt m_cheatCharms;
 
@@ -696,7 +972,7 @@ private:
     PropertyBool_Qt m_upgrading;
 };
 
-class Config_ModuleGambling_Qt : public CommonStruct_Qt {
+class Config_Gambling_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* charmGamble READ get_charmGamble CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* ratioElite READ get_ratioElite CONSTANT)
@@ -706,7 +982,7 @@ class Config_ModuleGambling_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyInt_Qt* ratioUnique READ get_ratioUnique CONSTANT)
 
 public:
-    explicit Config_ModuleGambling_Qt(Config::ModuleGambling& data)
+    explicit Config_Gambling_Qt(Config::Gambling& data)
         : CommonStruct_Qt(data)
         , m_data(data)
         , m_charmGamble(data.getPropertyBool(0))
@@ -730,10 +1006,10 @@ public:
 
     PropertyInt_Qt* get_ratioUnique() { return &m_ratioUnique; }
 
-    Q_INVOKABLE void assign(Config_ModuleGambling_Qt* another) { m_data.assign(another->m_data, true); }
+    Q_INVOKABLE void assign(Config_Gambling_Qt* another) { m_data.assign(another->m_data, true); }
 
 private:
-    Config::ModuleGambling& m_data;
+    Config::Gambling& m_data;
 
     PropertyBool_Qt m_charmGamble;
 
@@ -748,317 +1024,101 @@ private:
     PropertyInt_Qt m_ratioUnique;
 };
 
-class Config_ModuleItemRandomizer_Qt : public CommonStruct_Qt {
+class Config_MonsterStats_Qt : public CommonStruct_Qt {
     Q_OBJECT
-    Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* casterTypePercent READ get_casterTypePercent CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* itemFitPercent READ get_itemFitPercent CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* levelMinus READ get_levelMinus CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* levelPlus READ get_levelPlus CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* repeatSets READ get_repeatSets CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* repeatUniques READ get_repeatUniques CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* affixRandom READ get_affixRandom CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* gemsRandom READ get_gemsRandom CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* craftedRandom READ get_craftedRandom CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* removeKnock READ get_removeKnock CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* replaceCharges READ get_replaceCharges CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* replaceSkills READ get_replaceSkills CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* updateExisting READ get_updateExisting CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* setBonusMode READ get_setBonusMode CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* frequencyAuras READ get_frequencyAuras CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* frequencyCharAttributes READ get_frequencyCharAttributes CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* frequencyProcs READ get_frequencyProcs CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* frequencyResistances READ get_frequencyResistances CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* frequencySkills READ get_frequencySkills CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* monsterAttack READ get_monsterAttack CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* monsterDamage READ get_monsterDamage CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* monsterDefense READ get_monsterDefense CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* monsterHealth READ get_monsterHealth CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* monsterExperience READ get_monsterExperience CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* immunityLimit READ get_immunityLimit CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* relativeResistDmg READ get_relativeResistDmg CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* applyFire READ get_applyFire CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* applyCold READ get_applyCold CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* applyLight READ get_applyLight CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* applyPois READ get_applyPois CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* applyMag READ get_applyMag CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* applyPhys READ get_applyPhys CONSTANT)
 
 public:
-    explicit Config_ModuleItemRandomizer_Qt(Config::ModuleItemRandomizer& data)
+    explicit Config_MonsterStats_Qt(Config::MonsterStats& data)
         : CommonStruct_Qt(data)
         , m_data(data)
-        , m_enabled(data.getPropertyBool(0))
-        , m_casterTypePercent(data.getPropertyInt(0))
-        , m_itemFitPercent(data.getPropertyInt(1))
-        , m_levelMinus(data.getPropertyInt(2))
-        , m_levelPlus(data.getPropertyInt(3))
-        , m_repeatSets(data.getPropertyInt(4))
-        , m_repeatUniques(data.getPropertyInt(5))
-        , m_affixRandom(data.getPropertyBool(1))
-        , m_gemsRandom(data.getPropertyBool(2))
-        , m_craftedRandom(data.getPropertyBool(3))
-        , m_removeKnock(data.getPropertyBool(4))
-        , m_replaceCharges(data.getPropertyBool(5))
-        , m_replaceSkills(data.getPropertyBool(6))
-        , m_updateExisting(data.getPropertyBool(7))
-        , m_setBonusMode(data.getPropertyInt(6))
-        , m_frequencyAuras(data.getPropertyInt(7))
-        , m_frequencyCharAttributes(data.getPropertyInt(8))
-        , m_frequencyProcs(data.getPropertyInt(9))
-        , m_frequencyResistances(data.getPropertyInt(10))
-        , m_frequencySkills(data.getPropertyInt(11))
+        , m_monsterAttack(data.getPropertyInt(0))
+        , m_monsterDamage(data.getPropertyInt(1))
+        , m_monsterDefense(data.getPropertyInt(2))
+        , m_monsterHealth(data.getPropertyInt(3))
+        , m_monsterExperience(data.getPropertyInt(4))
+        , m_immunityLimit(data.getPropertyInt(5))
+        , m_relativeResistDmg(data.getPropertyInt(6))
+        , m_applyFire(data.getPropertyBool(0))
+        , m_applyCold(data.getPropertyBool(1))
+        , m_applyLight(data.getPropertyBool(2))
+        , m_applyPois(data.getPropertyBool(3))
+        , m_applyMag(data.getPropertyBool(4))
+        , m_applyPhys(data.getPropertyBool(5))
     {
     }
 
-    PropertyBool_Qt* get_enabled() { return &m_enabled; }
+    PropertyInt_Qt* get_monsterAttack() { return &m_monsterAttack; }
 
-    PropertyInt_Qt* get_casterTypePercent() { return &m_casterTypePercent; }
+    PropertyInt_Qt* get_monsterDamage() { return &m_monsterDamage; }
 
-    PropertyInt_Qt* get_itemFitPercent() { return &m_itemFitPercent; }
+    PropertyInt_Qt* get_monsterDefense() { return &m_monsterDefense; }
 
-    PropertyInt_Qt* get_levelMinus() { return &m_levelMinus; }
+    PropertyInt_Qt* get_monsterHealth() { return &m_monsterHealth; }
 
-    PropertyInt_Qt* get_levelPlus() { return &m_levelPlus; }
+    PropertyInt_Qt* get_monsterExperience() { return &m_monsterExperience; }
 
-    PropertyInt_Qt* get_repeatSets() { return &m_repeatSets; }
+    PropertyInt_Qt* get_immunityLimit() { return &m_immunityLimit; }
 
-    PropertyInt_Qt* get_repeatUniques() { return &m_repeatUniques; }
+    PropertyInt_Qt* get_relativeResistDmg() { return &m_relativeResistDmg; }
 
-    PropertyBool_Qt* get_affixRandom() { return &m_affixRandom; }
+    PropertyBool_Qt* get_applyFire() { return &m_applyFire; }
 
-    PropertyBool_Qt* get_gemsRandom() { return &m_gemsRandom; }
+    PropertyBool_Qt* get_applyCold() { return &m_applyCold; }
 
-    PropertyBool_Qt* get_craftedRandom() { return &m_craftedRandom; }
+    PropertyBool_Qt* get_applyLight() { return &m_applyLight; }
 
-    PropertyBool_Qt* get_removeKnock() { return &m_removeKnock; }
+    PropertyBool_Qt* get_applyPois() { return &m_applyPois; }
 
-    PropertyBool_Qt* get_replaceCharges() { return &m_replaceCharges; }
+    PropertyBool_Qt* get_applyMag() { return &m_applyMag; }
 
-    PropertyBool_Qt* get_replaceSkills() { return &m_replaceSkills; }
+    PropertyBool_Qt* get_applyPhys() { return &m_applyPhys; }
 
-    PropertyBool_Qt* get_updateExisting() { return &m_updateExisting; }
-
-    PropertyInt_Qt* get_setBonusMode() { return &m_setBonusMode; }
-
-    PropertyInt_Qt* get_frequencyAuras() { return &m_frequencyAuras; }
-
-    PropertyInt_Qt* get_frequencyCharAttributes() { return &m_frequencyCharAttributes; }
-
-    PropertyInt_Qt* get_frequencyProcs() { return &m_frequencyProcs; }
-
-    PropertyInt_Qt* get_frequencyResistances() { return &m_frequencyResistances; }
-
-    PropertyInt_Qt* get_frequencySkills() { return &m_frequencySkills; }
-
-    Q_INVOKABLE void assign(Config_ModuleItemRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
+    Q_INVOKABLE void assign(Config_MonsterStats_Qt* another) { m_data.assign(another->m_data, true); }
 
 private:
-    Config::ModuleItemRandomizer& m_data;
+    Config::MonsterStats& m_data;
 
-    PropertyBool_Qt m_enabled;
+    PropertyInt_Qt m_monsterAttack;
 
-    PropertyInt_Qt m_casterTypePercent;
+    PropertyInt_Qt m_monsterDamage;
 
-    PropertyInt_Qt m_itemFitPercent;
+    PropertyInt_Qt m_monsterDefense;
 
-    PropertyInt_Qt m_levelMinus;
+    PropertyInt_Qt m_monsterHealth;
 
-    PropertyInt_Qt m_levelPlus;
+    PropertyInt_Qt m_monsterExperience;
 
-    PropertyInt_Qt m_repeatSets;
+    PropertyInt_Qt m_immunityLimit;
 
-    PropertyInt_Qt m_repeatUniques;
+    PropertyInt_Qt m_relativeResistDmg;
 
-    PropertyBool_Qt m_affixRandom;
+    PropertyBool_Qt m_applyFire;
 
-    PropertyBool_Qt m_gemsRandom;
+    PropertyBool_Qt m_applyCold;
 
-    PropertyBool_Qt m_craftedRandom;
+    PropertyBool_Qt m_applyLight;
 
-    PropertyBool_Qt m_removeKnock;
+    PropertyBool_Qt m_applyPois;
 
-    PropertyBool_Qt m_replaceCharges;
+    PropertyBool_Qt m_applyMag;
 
-    PropertyBool_Qt m_replaceSkills;
-
-    PropertyBool_Qt m_updateExisting;
-
-    PropertyInt_Qt m_setBonusMode;
-
-    PropertyInt_Qt m_frequencyAuras;
-
-    PropertyInt_Qt m_frequencyCharAttributes;
-
-    PropertyInt_Qt m_frequencyProcs;
-
-    PropertyInt_Qt m_frequencyResistances;
-
-    PropertyInt_Qt m_frequencySkills;
+    PropertyBool_Qt m_applyPhys;
 };
 
-class Config_ModuleMonDensity_Qt : public CommonStruct_Qt {
-    Q_OBJECT
-    Q_PROPERTY(PropertyInt_Qt* density READ get_density CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hellPacks READ get_hellPacks CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* monGroups READ get_monGroups CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* packs READ get_packs CONSTANT)
-
-public:
-    explicit Config_ModuleMonDensity_Qt(Config::ModuleMonDensity& data)
-        : CommonStruct_Qt(data)
-        , m_data(data)
-        , m_density(data.getPropertyInt(0))
-        , m_hellPacks(data.getPropertyBool(0))
-        , m_monGroups(data.getPropertyInt(1))
-        , m_packs(data.getPropertyInt(2))
-    {
-    }
-
-    PropertyInt_Qt* get_density() { return &m_density; }
-
-    PropertyBool_Qt* get_hellPacks() { return &m_hellPacks; }
-
-    PropertyInt_Qt* get_monGroups() { return &m_monGroups; }
-
-    PropertyInt_Qt* get_packs() { return &m_packs; }
-
-    Q_INVOKABLE void assign(Config_ModuleMonDensity_Qt* another) { m_data.assign(another->m_data, true); }
-
-private:
-    Config::ModuleMonDensity& m_data;
-
-    PropertyInt_Qt m_density;
-
-    PropertyBool_Qt m_hellPacks;
-
-    PropertyInt_Qt m_monGroups;
-
-    PropertyInt_Qt m_packs;
-};
-
-class Config_ModuleMonRandomizer_Qt : public CommonStruct_Qt {
-    Q_OBJECT
-    Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hellResistances READ get_hellResistances CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* maxTypes READ get_maxTypes CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* randomizeResistances READ get_randomizeResistances CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* randomizeSpawns READ get_randomizeSpawns CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* spawnedCount READ get_spawnedCount CONSTANT)
-
-public:
-    explicit Config_ModuleMonRandomizer_Qt(Config::ModuleMonRandomizer& data)
-        : CommonStruct_Qt(data)
-        , m_data(data)
-        , m_enabled(data.getPropertyBool(0))
-        , m_hellResistances(data.getPropertyBool(1))
-        , m_maxTypes(data.getPropertyInt(0))
-        , m_randomizeResistances(data.getPropertyBool(2))
-        , m_randomizeSpawns(data.getPropertyBool(3))
-        , m_spawnedCount(data.getPropertyInt(1))
-    {
-    }
-
-    PropertyBool_Qt* get_enabled() { return &m_enabled; }
-
-    PropertyBool_Qt* get_hellResistances() { return &m_hellResistances; }
-
-    PropertyInt_Qt* get_maxTypes() { return &m_maxTypes; }
-
-    PropertyBool_Qt* get_randomizeResistances() { return &m_randomizeResistances; }
-
-    PropertyBool_Qt* get_randomizeSpawns() { return &m_randomizeSpawns; }
-
-    PropertyInt_Qt* get_spawnedCount() { return &m_spawnedCount; }
-
-    Q_INVOKABLE void assign(Config_ModuleMonRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
-
-private:
-    Config::ModuleMonRandomizer& m_data;
-
-    PropertyBool_Qt m_enabled;
-
-    PropertyBool_Qt m_hellResistances;
-
-    PropertyInt_Qt m_maxTypes;
-
-    PropertyBool_Qt m_randomizeResistances;
-
-    PropertyBool_Qt m_randomizeSpawns;
-
-    PropertyInt_Qt m_spawnedCount;
-};
-
-class Config_ModuleMonStats_Qt : public CommonStruct_Qt {
-    Q_OBJECT
-    Q_PROPERTY(PropertyInt_Qt* mon_ar READ get_mon_ar CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* mon_dam READ get_mon_dam CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* mon_def READ get_mon_def CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* mon_hp READ get_mon_hp CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* mon_xp READ get_mon_xp CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* max_resist READ get_max_resist CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* rel_resist READ get_rel_resist CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* resist_apply_elem READ get_resist_apply_elem CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* resist_apply_magic READ get_resist_apply_magic CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* resist_apply_physical READ get_resist_apply_physical CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* resist_apply_poison READ get_resist_apply_poison CONSTANT)
-
-public:
-    explicit Config_ModuleMonStats_Qt(Config::ModuleMonStats& data)
-        : CommonStruct_Qt(data)
-        , m_data(data)
-        , m_mon_ar(data.getPropertyInt(0))
-        , m_mon_dam(data.getPropertyInt(1))
-        , m_mon_def(data.getPropertyInt(2))
-        , m_mon_hp(data.getPropertyInt(3))
-        , m_mon_xp(data.getPropertyInt(4))
-        , m_max_resist(data.getPropertyInt(5))
-        , m_rel_resist(data.getPropertyInt(6))
-        , m_resist_apply_elem(data.getPropertyBool(0))
-        , m_resist_apply_magic(data.getPropertyBool(1))
-        , m_resist_apply_physical(data.getPropertyBool(2))
-        , m_resist_apply_poison(data.getPropertyBool(3))
-    {
-    }
-
-    PropertyInt_Qt* get_mon_ar() { return &m_mon_ar; }
-
-    PropertyInt_Qt* get_mon_dam() { return &m_mon_dam; }
-
-    PropertyInt_Qt* get_mon_def() { return &m_mon_def; }
-
-    PropertyInt_Qt* get_mon_hp() { return &m_mon_hp; }
-
-    PropertyInt_Qt* get_mon_xp() { return &m_mon_xp; }
-
-    PropertyInt_Qt* get_max_resist() { return &m_max_resist; }
-
-    PropertyInt_Qt* get_rel_resist() { return &m_rel_resist; }
-
-    PropertyBool_Qt* get_resist_apply_elem() { return &m_resist_apply_elem; }
-
-    PropertyBool_Qt* get_resist_apply_magic() { return &m_resist_apply_magic; }
-
-    PropertyBool_Qt* get_resist_apply_physical() { return &m_resist_apply_physical; }
-
-    PropertyBool_Qt* get_resist_apply_poison() { return &m_resist_apply_poison; }
-
-    Q_INVOKABLE void assign(Config_ModuleMonStats_Qt* another) { m_data.assign(another->m_data, true); }
-
-private:
-    Config::ModuleMonStats& m_data;
-
-    PropertyInt_Qt m_mon_ar;
-
-    PropertyInt_Qt m_mon_dam;
-
-    PropertyInt_Qt m_mon_def;
-
-    PropertyInt_Qt m_mon_hp;
-
-    PropertyInt_Qt m_mon_xp;
-
-    PropertyInt_Qt m_max_resist;
-
-    PropertyInt_Qt m_rel_resist;
-
-    PropertyBool_Qt m_resist_apply_elem;
-
-    PropertyBool_Qt m_resist_apply_magic;
-
-    PropertyBool_Qt m_resist_apply_physical;
-
-    PropertyBool_Qt m_resist_apply_poison;
-};
-
-class Config_ModuleQol_Qt : public CommonStruct_Qt {
+class Config_QualityOfLife_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* disableExpPenalty READ get_disableExpPenalty CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* showItemLevel READ get_showItemLevel CONSTANT)
@@ -1073,7 +1133,7 @@ class Config_ModuleQol_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyBool_Qt* compactScrolls READ get_compactScrolls CONSTANT)
 
 public:
-    explicit Config_ModuleQol_Qt(Config::ModuleQol& data)
+    explicit Config_QualityOfLife_Qt(Config::QualityOfLife& data)
         : CommonStruct_Qt(data)
         , m_data(data)
         , m_disableExpPenalty(data.getPropertyBool(0))
@@ -1112,10 +1172,10 @@ public:
 
     PropertyBool_Qt* get_compactScrolls() { return &m_compactScrolls; }
 
-    Q_INVOKABLE void assign(Config_ModuleQol_Qt* another) { m_data.assign(another->m_data, true); }
+    Q_INVOKABLE void assign(Config_QualityOfLife_Qt* another) { m_data.assign(another->m_data, true); }
 
 private:
-    Config::ModuleQol& m_data;
+    Config::QualityOfLife& m_data;
 
     PropertyBool_Qt m_disableExpPenalty;
 
@@ -1140,138 +1200,92 @@ private:
     PropertyBool_Qt m_compactScrolls;
 };
 
-class Config_ModuleSkillRandomizer_Qt : public CommonStruct_Qt {
-    Q_OBJECT
-    Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* ensureDifferent READ get_ensureDifferent CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* skillDamage READ get_skillDamage CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* skillTree READ get_skillTree CONSTANT)
-
-public:
-    explicit Config_ModuleSkillRandomizer_Qt(Config::ModuleSkillRandomizer& data)
-        : CommonStruct_Qt(data)
-        , m_data(data)
-        , m_enabled(data.getPropertyBool(0))
-        , m_ensureDifferent(data.getPropertyBool(1))
-        , m_skillDamage(data.getPropertyBool(2))
-        , m_skillTree(data.getPropertyBool(3))
-    {
-    }
-
-    PropertyBool_Qt* get_enabled() { return &m_enabled; }
-
-    PropertyBool_Qt* get_ensureDifferent() { return &m_ensureDifferent; }
-
-    PropertyBool_Qt* get_skillDamage() { return &m_skillDamage; }
-
-    PropertyBool_Qt* get_skillTree() { return &m_skillTree; }
-
-    Q_INVOKABLE void assign(Config_ModuleSkillRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
-
-private:
-    Config::ModuleSkillRandomizer& m_data;
-
-    PropertyBool_Qt m_enabled;
-
-    PropertyBool_Qt m_ensureDifferent;
-
-    PropertyBool_Qt m_skillDamage;
-
-    PropertyBool_Qt m_skillTree;
-};
-
 class Config_Qt : public CommonStruct_Qt {
     Q_OBJECT
+    Q_PROPERTY(Config_Main_Qt* main READ get_main CONSTANT)
     Q_PROPERTY(Config_TreasureClasses_Qt* treasureClasses READ get_treasureClasses CONSTANT)
     Q_PROPERTY(Config_ItemBalance_Qt* itemBalance READ get_itemBalance CONSTANT)
-    Q_PROPERTY(Config_ModuleMain_Qt* moduleMain READ get_moduleMain CONSTANT)
-    Q_PROPERTY(Config_ModuleChallenge_Qt* moduleChallenge READ get_moduleChallenge CONSTANT)
-    Q_PROPERTY(Config_ModuleCharacter_Qt* moduleCharacter READ get_moduleCharacter CONSTANT)
-    Q_PROPERTY(Config_ModuleCube_Qt* moduleCube READ get_moduleCube CONSTANT)
-    Q_PROPERTY(Config_ModuleGambling_Qt* moduleGambling READ get_moduleGambling CONSTANT)
-    Q_PROPERTY(Config_ModuleItemRandomizer_Qt* moduleItemRandomizer READ get_moduleItemRandomizer CONSTANT)
-    Q_PROPERTY(Config_ModuleMonDensity_Qt* moduleMonDensity READ get_moduleMonDensity CONSTANT)
-    Q_PROPERTY(Config_ModuleMonRandomizer_Qt* moduleMonRandomizer READ get_moduleMonRandomizer CONSTANT)
-    Q_PROPERTY(Config_ModuleMonStats_Qt* moduleMonStats READ get_moduleMonStats CONSTANT)
-    Q_PROPERTY(Config_ModuleQol_Qt* moduleQol READ get_moduleQol CONSTANT)
-    Q_PROPERTY(Config_ModuleSkillRandomizer_Qt* moduleSkillRandomizer READ get_moduleSkillRandomizer CONSTANT)
+    Q_PROPERTY(Config_ItemRandomizer_Qt* itemRandomizer READ get_itemRandomizer CONSTANT)
+    Q_PROPERTY(Config_MonsterRandomizer_Qt* monsterRandomizer READ get_monsterRandomizer CONSTANT)
+    Q_PROPERTY(Config_SkillRandomizer_Qt* skillRandomizer READ get_skillRandomizer CONSTANT)
+    Q_PROPERTY(Config_Challenge_Qt* challenge READ get_challenge CONSTANT)
+    Q_PROPERTY(Config_Character_Qt* character READ get_character CONSTANT)
+    Q_PROPERTY(Config_HoradricCube_Qt* horadricCube READ get_horadricCube CONSTANT)
+    Q_PROPERTY(Config_Gambling_Qt* gambling READ get_gambling CONSTANT)
+    Q_PROPERTY(Config_MonsterStats_Qt* monsterStats READ get_monsterStats CONSTANT)
+    Q_PROPERTY(Config_QualityOfLife_Qt* qualityOfLife READ get_qualityOfLife CONSTANT)
 
 public:
     explicit Config_Qt(Config& data)
         : CommonStruct_Qt(data)
         , m_data(data)
+        , m_main(data.m_main)
         , m_treasureClasses(data.m_treasureClasses)
         , m_itemBalance(data.m_itemBalance)
-        , m_moduleMain(data.m_moduleMain)
-        , m_moduleChallenge(data.m_moduleChallenge)
-        , m_moduleCharacter(data.m_moduleCharacter)
-        , m_moduleCube(data.m_moduleCube)
-        , m_moduleGambling(data.m_moduleGambling)
-        , m_moduleItemRandomizer(data.m_moduleItemRandomizer)
-        , m_moduleMonDensity(data.m_moduleMonDensity)
-        , m_moduleMonRandomizer(data.m_moduleMonRandomizer)
-        , m_moduleMonStats(data.m_moduleMonStats)
-        , m_moduleQol(data.m_moduleQol)
-        , m_moduleSkillRandomizer(data.m_moduleSkillRandomizer)
+        , m_itemRandomizer(data.m_itemRandomizer)
+        , m_monsterRandomizer(data.m_monsterRandomizer)
+        , m_skillRandomizer(data.m_skillRandomizer)
+        , m_challenge(data.m_challenge)
+        , m_character(data.m_character)
+        , m_horadricCube(data.m_horadricCube)
+        , m_gambling(data.m_gambling)
+        , m_monsterStats(data.m_monsterStats)
+        , m_qualityOfLife(data.m_qualityOfLife)
     {
     }
+
+    Config_Main_Qt* get_main() { return &m_main; }
 
     Config_TreasureClasses_Qt* get_treasureClasses() { return &m_treasureClasses; }
 
     Config_ItemBalance_Qt* get_itemBalance() { return &m_itemBalance; }
 
-    Config_ModuleMain_Qt* get_moduleMain() { return &m_moduleMain; }
+    Config_ItemRandomizer_Qt* get_itemRandomizer() { return &m_itemRandomizer; }
 
-    Config_ModuleChallenge_Qt* get_moduleChallenge() { return &m_moduleChallenge; }
+    Config_MonsterRandomizer_Qt* get_monsterRandomizer() { return &m_monsterRandomizer; }
 
-    Config_ModuleCharacter_Qt* get_moduleCharacter() { return &m_moduleCharacter; }
+    Config_SkillRandomizer_Qt* get_skillRandomizer() { return &m_skillRandomizer; }
 
-    Config_ModuleCube_Qt* get_moduleCube() { return &m_moduleCube; }
+    Config_Challenge_Qt* get_challenge() { return &m_challenge; }
 
-    Config_ModuleGambling_Qt* get_moduleGambling() { return &m_moduleGambling; }
+    Config_Character_Qt* get_character() { return &m_character; }
 
-    Config_ModuleItemRandomizer_Qt* get_moduleItemRandomizer() { return &m_moduleItemRandomizer; }
+    Config_HoradricCube_Qt* get_horadricCube() { return &m_horadricCube; }
 
-    Config_ModuleMonDensity_Qt* get_moduleMonDensity() { return &m_moduleMonDensity; }
+    Config_Gambling_Qt* get_gambling() { return &m_gambling; }
 
-    Config_ModuleMonRandomizer_Qt* get_moduleMonRandomizer() { return &m_moduleMonRandomizer; }
+    Config_MonsterStats_Qt* get_monsterStats() { return &m_monsterStats; }
 
-    Config_ModuleMonStats_Qt* get_moduleMonStats() { return &m_moduleMonStats; }
-
-    Config_ModuleQol_Qt* get_moduleQol() { return &m_moduleQol; }
-
-    Config_ModuleSkillRandomizer_Qt* get_moduleSkillRandomizer() { return &m_moduleSkillRandomizer; }
+    Config_QualityOfLife_Qt* get_qualityOfLife() { return &m_qualityOfLife; }
 
     Q_INVOKABLE void assign(Config_Qt* another) { m_data.assign(another->m_data, true); }
 
 private:
     Config& m_data;
 
+    Config_Main_Qt m_main;
+
     Config_TreasureClasses_Qt m_treasureClasses;
 
     Config_ItemBalance_Qt m_itemBalance;
 
-    Config_ModuleMain_Qt m_moduleMain;
+    Config_ItemRandomizer_Qt m_itemRandomizer;
 
-    Config_ModuleChallenge_Qt m_moduleChallenge;
+    Config_MonsterRandomizer_Qt m_monsterRandomizer;
 
-    Config_ModuleCharacter_Qt m_moduleCharacter;
+    Config_SkillRandomizer_Qt m_skillRandomizer;
 
-    Config_ModuleCube_Qt m_moduleCube;
+    Config_Challenge_Qt m_challenge;
 
-    Config_ModuleGambling_Qt m_moduleGambling;
+    Config_Character_Qt m_character;
 
-    Config_ModuleItemRandomizer_Qt m_moduleItemRandomizer;
+    Config_HoradricCube_Qt m_horadricCube;
 
-    Config_ModuleMonDensity_Qt m_moduleMonDensity;
+    Config_Gambling_Qt m_gambling;
 
-    Config_ModuleMonRandomizer_Qt m_moduleMonRandomizer;
+    Config_MonsterStats_Qt m_monsterStats;
 
-    Config_ModuleMonStats_Qt m_moduleMonStats;
-
-    Config_ModuleQol_Qt m_moduleQol;
-
-    Config_ModuleSkillRandomizer_Qt m_moduleSkillRandomizer;
+    Config_QualityOfLife_Qt m_qualityOfLife;
 };
 
 }

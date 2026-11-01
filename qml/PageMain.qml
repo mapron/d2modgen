@@ -7,7 +7,7 @@ import "./Widgets"
 
 WidgetScrollable {
     id: root
-    property var value_context: config.moduleMain
+    property var value_context: config.main
 
     RowLayout {
         spacing: 6
@@ -19,7 +19,7 @@ WidgetScrollable {
 
         Button {
             text: qsTr("Reset to default")
-            onClicked: config.moduleMain.resetToDefault()
+            onClicked: config.main.resetToDefault()
         }
         Item {
             Layout.fillWidth: true
@@ -92,17 +92,17 @@ WidgetScrollable {
         }
         RadioGroup {
             model: [qsTr("D2 Legacy"), qsTr("D2 Resurrected")]
-            value_key: config.moduleMain.versionMajor
+            value_key: config.main.versionMajor
         }
         Rectangle {
-            visible: config.moduleMain.versionMajor.value === 1
+            visible: config.main.versionMajor.value === 1
             Layout.fillHeight: true
             Layout.preferredWidth: 1
             color: palette.accent
         }
         RadioGroup {
             model: [qsTr("D2R - LoD"), qsTr("D2R - RotW")]
-            value_key: config.moduleMain.versionD2R
+            value_key: config.main.versionD2R
         }
         Item {
             Layout.fillWidth: true

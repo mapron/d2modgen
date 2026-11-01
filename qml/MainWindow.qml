@@ -109,7 +109,6 @@ ApplicationWindow {
 
                     Item {}
                     ModuleMonStats {}
-                    ModuleMonDensity {}
                     ModuleChallenge {}
 
                     Item {}

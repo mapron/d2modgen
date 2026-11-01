@@ -9,7 +9,7 @@ namespace D2ModGen {
 
 void ModuleGambling::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    const auto& module = config.m_moduleGambling;
+    const auto& module = config.m_gambling;
 
     const bool charmGamble = module.m_charmGamble && env.isLegacy; // disabled for D2R now; it crashes the game.
     if (charmGamble) {

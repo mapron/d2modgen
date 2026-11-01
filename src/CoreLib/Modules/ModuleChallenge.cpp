@@ -9,7 +9,7 @@ namespace D2ModGen {
 
 void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    const auto& module = config.m_moduleChallenge;
+    const auto& module = config.m_challenge;
     struct Item {
         StringSet internalIds;
         bool      disableDrop;

@@ -24,17 +24,17 @@ ColumnLayout {
         },
         {
             name: qsTr("Item Randomizer"),
-            value_key: config.moduleItemRandomizer.enabled,
+            value_key: config.itemRandomizer.enabled,
             tabIndex: 4
         },
         {
             name: qsTr("Monster Randomizer"),
-            value_key: config.moduleMonRandomizer.enabled,
+            value_key: config.monsterRandomizer.enabled,
             tabIndex: 5
         },
         {
             name: qsTr("Skill Randomizer"),
-            value_key: config.moduleSkillRandomizer.enabled,
+            value_key: config.skillRandomizer.enabled,
             tabIndex: 6
         },
         {
@@ -60,12 +60,8 @@ ColumnLayout {
             tabIndex: 11
         },
         {
-            name: qsTr("Monster density"),
-            tabIndex: 12
-        },
-        {
             name: qsTr("Challenge"),
-            tabIndex: 13
+            tabIndex: 12
         },
         {
             name: qsTr("Misc"),
@@ -73,19 +69,19 @@ ColumnLayout {
         },
         {
             name: qsTr("Horadric Cube"),
-            tabIndex: 15
+            tabIndex: 14
         },
         {
             name: qsTr("Gambling"),
-            tabIndex: 16
+            tabIndex: 15
         },
         {
             name: qsTr("Character"),
-            tabIndex: 17
+            tabIndex: 16
         },
         {
             name: qsTr("Quality of life"),
-            tabIndex: 18
+            tabIndex: 17
         },
     ]
     // Block horizontal growth, keeping this sidebar strictly predictable

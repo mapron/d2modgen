@@ -6,8 +6,8 @@ import "./Widgets"
 
 WidgetScrollable {
     id: root
-    property var value_context: config.moduleMain
-    property bool isD2R: config.moduleMain.versionMajor.value === 1
+    property var value_context: config.main
+    property bool isD2R: config.main.versionMajor.value === 1
 
     RowLayout {
         id: pageHeaderRow

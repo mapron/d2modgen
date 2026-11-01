@@ -195,6 +195,8 @@ protected:
 
     CommonStruct* m_parent = nullptr;
 
+    bool m_suppressPresets = false;
+
     // this is to send notification from UX to BL, e.g. "user changed slider, please make undo frame"
     std::function<void()> m_sendChangeToOuter = [] {};
 
@@ -257,6 +259,8 @@ public:
     }
     void resetToRecommended(bool notifyTwoWay = false)
     {
+        if (m_suppressPresets)
+            return;
         m_int.resetToRecommended();
         m_bool.resetToRecommended();
         m_string.resetToRecommended();
@@ -279,6 +283,8 @@ public:
 
     void activatePreset(int globalIndex, bool notifyTwoWay = false)
     {
+        if (m_suppressPresets)
+            return;
         m_int.activatePreset(globalIndex);
         m_bool.activatePreset(globalIndex);
         m_string.activatePreset(globalIndex);
@@ -347,6 +353,11 @@ public:
     PropertyString& getPropertyString(size_t index)
     {
         return m_string.m_list[index];
+    }
+
+    void suppressPresets()
+    {
+        m_suppressPresets = true;
     }
 
     static inline std::vector<std::string> s_presetNames{};

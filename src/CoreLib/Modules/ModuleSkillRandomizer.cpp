@@ -228,9 +228,9 @@ struct SkillTree {
 
 void ModuleSkillRandomizer::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_moduleSkillRandomizer.m_enabled)
+    if (!config.m_skillRandomizer.m_enabled)
         return;
-    const auto& module = config.m_moduleSkillRandomizer;
+    const auto& module = config.m_skillRandomizer;
 
     const bool skillTreeRandomize   = module.m_skillTree;
     const bool skillDamageRandomize = module.m_skillDamage;

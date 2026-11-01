@@ -6,6 +6,7 @@
 #include "ModuleMonRandomizer.hpp"
 
 #include "Logger.hpp"
+#include "RandoUtils.hpp"
 
 #include <algorithm>
 
@@ -218,19 +219,19 @@ struct MonResist {
 
 void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    if (!config.m_moduleMonRandomizer.m_enabled)
+    if (!config.m_monsterRandomizer.m_enabled)
         return;
-    const auto&  module = config.m_moduleMonRandomizer;
+    const auto&  module = config.m_monsterRandomizer;
     MonTypeTable typeTable;
     TCTable      tcTable;
 
-    const bool randomizeSpawns      = module.m_randomizeSpawns;
-    const bool randomizeResistances = module.m_randomizeResistances;
-    const bool hellResistances      = module.m_hellResistances;
+    const bool randomizeSpawns         = module.m_spawnGenerateMin > 0 || module.m_spawnGenerateMax > 0;
+    const int  chanceToSwapResistances = module.m_chanceToSwapResistances;
+    const bool hellResistances         = module.m_hellResistances;
     if (randomizeSpawns)
         generateSpawns(output, rng, config, env, typeTable, tcTable);
 
-    if (randomizeResistances || hellResistances) {
+    if (chanceToSwapResistances || hellResistances) {
         for (auto& row : output.monstats.rows) {
             std::array<MonResist, 3> r;
             for (size_t i = 0; i < 3; ++i)
@@ -240,6 +241,7 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
                 r[0] = r[2];
                 r[1] = r[2];
             }
+            bool randomizeResistances = chanceToSwapResistances > 0 ? (rng(100) < chanceToSwapResistances) : false;
             if (randomizeResistances) {
                 for (size_t i = 0; i < 3; ++i)
                     r[i].shuffle(rng);
@@ -258,6 +260,62 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
             assert(!modelName.empty());
             jsonObject[newId] = Mernel::PropertyTreeScalar{ modelName };
         }
+    }
+
+    if (const int groupIncrease = module.m_monGroupIncreaseSize; groupIncrease > 0) {
+        for (auto& row : output.monstats.rows) {
+            if (!row.isRegularMob())
+                continue;
+            auto& valueMin = row.minGrp;
+            auto& valueMax = row.maxGrp;
+            if (!valueMin.has_value() || !valueMax.has_value())
+                continue;
+            if (valueMin == valueMax && valueMax == 1)
+                continue;
+            for (auto* value : { &valueMin, &valueMax }) {
+                const int prev = value->value();
+                const int next = prev + groupIncrease;
+                *value         = std::min(next, 99);
+            }
+        }
+    }
+
+    auto densityAdjust = [&module, &rng](std::optional<int>& value) {
+        if (module.m_densityMin == 100 && module.m_densityMax == 100)
+            return;
+
+        const int prev  = value.value();
+        const int scale = genBetweenRng(rng, module.m_densityMin, module.m_densityMax);
+        const int next  = scaleValue(prev, scale);
+        value           = std::clamp(next, 200, 9900);
+    };
+    auto packsAdjust = [&module, &rng](std::optional<int>& value) {
+        if (module.m_elitePacksMin == 100 && module.m_elitePacksMax == 100)
+            return;
+        const int prev  = value.value();
+        const int scale = genBetweenRng(rng, module.m_elitePacksMin, module.m_elitePacksMax);
+        const int next  = scaleValue(prev, scale);
+        value           = (std::min(next, 255));
+    };
+    for (auto& row : output.levels.rows) {
+        if (!row.hasSpawns())
+            continue;
+
+        if (module.m_hellPacks) {
+            row.monUMin[0] = row.monUMin[1] = row.monUMin[2];
+            row.monUMax[0] = row.monUMax[1] = row.monUMax[2];
+        }
+
+        for (size_t i = 0; i < 3; ++i) {
+            packsAdjust(row.monUMin[i]);
+            packsAdjust(row.monUMax[i]);
+            row.monUMax[i] = std::max(row.monUMin[i].value(), row.monUMax[i].value());
+            if (module.m_maxPacks)
+                row.monUMin[i] = row.monUMax[i];
+        }
+
+        for (auto& val : row.monDen)
+            densityAdjust(val);
     }
 }
 
@@ -278,9 +336,9 @@ void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& r
     {
         StringSet baseIds, ubaseIds, nonUniqueBaseIds;
 
-        const auto& module       = config.m_moduleMonRandomizer;
-        const int   spawnedCount = module.m_spawnedCount;
-        const int   maxTypes     = module.m_maxTypes;
+        const auto& module       = config.m_monsterRandomizer;
+        const int   spawnedCount = module.m_numMonExtra;
+
         for (auto& row : output.levels.rows) {
             if (row.name == "Act 5 - Mountain Top")
                 continue;
@@ -308,13 +366,22 @@ void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& r
             std::swap(nonUniqueBaseIds, resultData);
         }
 
+        auto setStringList = [](std::vector<std::string>& data, const std::vector<std::string>& gen, size_t limit) {
+            if (data.size() > limit)
+                data.resize(limit);
+            for (auto& val : gen)
+                data.push_back(val);
+        };
+
         StringVector idsList(baseIds.cbegin(), baseIds.cend());
         for (auto& row : output.levels.rows) {
-            if (row.mon.empty())
+            if (row.mon.empty() || !row.numMon.has_value())
                 continue;
             if (row.name == "Act 5 - Mountain Top")
                 continue;
             const int normalLevel = row.monLvlEx[0].value_or(0);
+            const int maxTypes    = genBetweenRng(rng, module.m_spawnGenerateMin, module.m_spawnGenerateMax);
+
             StringSet normalSet;
             for (int i = 0; i < maxTypes * 2; ++i) {
                 normalSet.insert(idsList[rng(idsList.size())]);
@@ -330,11 +397,11 @@ void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& r
                 if (!nonUniqueBaseIds.contains(baseId))
                     uniques << id;
             }
-            row.mon  = normalSetList;
-            row.nmon = normalSetList;
-            row.umon = uniques;
+            setStringList(row.mon, normalSetList, module.m_spawnKeepOriginal);
+            setStringList(row.nmon, normalSetList, module.m_spawnKeepOriginal);
+            setStringList(row.umon, uniques, module.m_spawnKeepOriginal);
 
-            row.numMon = spawnedCount;
+            row.numMon = std::max(2, row.numMon.value() + spawnedCount);
         }
     }
     for (size_t i = 0; i < 5 && generateCopies(output, rng, config, env, typeTable, tcTable); ++i) {

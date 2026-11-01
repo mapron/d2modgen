@@ -212,15 +212,10 @@ void ModuleTreasureClasses::generate(DataContext& output, RandomGenerator& rng, 
 void ModuleTreasureClasses::generateItems(DataContext& output, const Config::TreasureClasses::Items& config)
 {
     {
-        const int factorUnique   = config.m_uniqueFactorIncrease;
-        const int factorSet      = config.m_setFactorIncrease;
-        const int factorRare     = config.m_rareFactorIncrease;
-        const int factorNonElite = config.m_noneliteFactorIncrease;
-
-        const double factorUniqueInv   = 100.0 / double(factorUnique);
-        const double factorSetInv      = 100.0 / double(factorSet);
-        const double factorRareInv     = 100.0 / double(factorRare);
-        const double factorNonEliteInv = 100.0 / double(factorNonElite);
+        const double factorUnique   = double(config.m_uniqueFactorIncrease) / 100.0;
+        const double factorSet      = double(config.m_setFactorIncrease) / 100.0;
+        const double factorRare     = double(config.m_rareFactorIncrease) / 100.0;
+        const double factorNonElite = double(config.m_noneliteFactorIncrease) / 100.0;
 
         const int  factorHighlevel    = config.m_chanceForHighLevel;
         const int  percentDrop        = config.m_inverseNodropPercent;
@@ -238,11 +233,13 @@ void ModuleTreasureClasses::generateItems(DataContext& output, const Config::Tre
         auto factorAdjust = [](std::optional<int>& value, double factor, int maxFact) {
             if (factor == 1.0)
                 return;
+            const int prevInt = value.value_or(0);
+            if (prevInt >= maxFact)
+                return;
 
-            maxFact                     = std::max(maxFact, value.value_or(0));
-            const double prev           = value.value_or(0);
+            const double prev           = prevInt;
             const double probReverseOld = (1024. - prev);
-            const double probReverseNew = probReverseOld * factor;
+            const double probReverseNew = probReverseOld / factor;
             const double probNew        = (1024. - probReverseNew);
 
             const int next = static_cast<int>(probNew);
@@ -263,16 +260,19 @@ void ModuleTreasureClasses::generateItems(DataContext& output, const Config::Tre
                 pots = 1;
             if (total <= 2)
                 pots = 2;
+            if (removeElitePotions)
+                pots = 0;
 
-            if (removeElitePotions || pots == 0)
+            if (pots == 0)
                 items.pop_back();
 
             if (items[0].prob.value() == total)
                 return;
 
             items[0].prob = total;
-            items[1].prob = pots;
-            picks         = -(total + pots);
+            if (pots > 0)
+                items[1].prob = pots;
+            picks = -(total + pots);
         };
 
         output.treasureclassex.makeIndex(&DataRow_treasureclassex::name);
@@ -282,9 +282,6 @@ void ModuleTreasureClasses::generateItems(DataContext& output, const Config::Tre
             std::string& className     = row.name;
 
             const auto mobType = getMobType(treasureGroup, className);
-            if (mobType == MobType::Skip)
-                continue;
-
             if (alwaysQuest && mobType == MobType::ActBoss) {
                 auto* questRow = output.treasureclassex.index.at(Mernel::strToLower(s_bossTC.at(className)));
                 if (questRow) {
@@ -295,16 +292,14 @@ void ModuleTreasureClasses::generateItems(DataContext& output, const Config::Tre
                     row.noDrop   = questRow->noDrop;
                 }
             }
-            const double nonEliteAdjust = mobType == MobType::Normal ? factorNonEliteInv : 1.0;
+            const double nonEliteAdjust = mobType == MobType::Normal ? factorNonElite : 1.0;
 
-            auto& uniqueRatio = row.k_unique;
-            auto& setRatio    = row.k_set;
-            auto& rareRatio   = row.k_rare;
-
-            // these limits are empyrical - to prevent 100% drop chance on 1000% MF.
-            factorAdjust(uniqueRatio, factorUniqueInv * nonEliteAdjust, 1020);
-            factorAdjust(setRatio, factorSetInv * nonEliteAdjust, 1020);
-            factorAdjust(rareRatio, factorRareInv * nonEliteAdjust, 1024);
+            if (row.k_unique.has_value() || mobType == MobType::Normal) {
+                // these limits are empyrical - to prevent 100% drop chance on 1000% MF.
+                factorAdjust(row.k_unique, factorUnique * nonEliteAdjust, 1020);
+                factorAdjust(row.k_set, factorSet * nonEliteAdjust, 1020);
+                factorAdjust(row.k_rare, factorRare * nonEliteAdjust, 1024);
+            }
 
             if (mobType == MobType::ActBoss || mobType == MobType::SuperUniqueSpecial || mobType == MobType::Normal)
                 adjustPick(row.noDrop, 100, percentDrop);
@@ -352,19 +347,6 @@ void ModuleTreasureClasses::generateItems(DataContext& output, const Config::Tre
                         adjustPick(item.prob, 100, factorHighlevel);
                 }
             }
-        }
-    }
-
-    if (config.m_sameRarityForSetUniqueItems) {
-        for (auto& row : output.uniqueitems.rows) {
-            auto& rarity = row.rarity;
-            if (rarity.has_value())
-                rarity = 1;
-        }
-        for (auto& row : output.setitems.rows) {
-            auto& rarity = row.rarity;
-            if (rarity.has_value())
-                rarity = 1;
         }
     }
 }

@@ -73,6 +73,10 @@ MenuBar {
             title: qsTr("Config from preset")
 
             Action {
+                text: qsTr("Author recommended settings")
+                onTriggered: appui.resetToRecommended()
+            }
+            Action {
                 text: qsTr("Crazy over-powered and probably broken")
                 onTriggered: config.activatePreset("crazy")
             }
@@ -83,6 +87,10 @@ MenuBar {
             Action {
                 text: qsTr("Balanced and moderate")
                 onTriggered: config.activatePreset("weak")
+            }
+            Action {
+                text: qsTr("Pain and suffering")
+                onTriggered: config.activatePreset("pain")
             }
         }
         Action {

@@ -6,7 +6,6 @@
 #pragma once
 
 #include "AttributeHelper.hpp"
-#include "DataContext.hpp"
 
 #include "PropRandomizer.hpp"
 
@@ -142,5 +141,9 @@ struct MagicPropItem {
 
     std::string toString(bool withProperties) const;
 };
+
+int scaleValue(int val, int percent, int absLimit = 1);
+int genBetweenRng(RandomGenerator& rng, int first, int second);
+int genRng(RandomGenerator& rng, const NonParValueSummary::Stat& stat);
 
 }

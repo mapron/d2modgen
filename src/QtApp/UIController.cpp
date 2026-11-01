@@ -153,6 +153,14 @@ void UIController::clearConfig()
     emit statusUpdate(tr("Config is cleared."));
 }
 
+void UIController::resetToRecommended()
+{
+    auto prevMain = m_configHandler.m_config.m_main;
+    m_configHandler.m_config.resetToRecommended(false);
+    m_configHandler.m_config.m_main = prevMain;
+    m_configHandler.m_config.notifyInnerAndOuter(true);
+}
+
 bool UIController::loadConfig(const Mernel::PropertyTree& data)
 {
     const auto result = m_configHandler.loadConfig(data);
@@ -210,16 +218,16 @@ void UIController::browseToAppSettings()
 
 void UIController::newSeed()
 {
-    m_configHandler.m_config.m_moduleMain.m_seed = 0;
+    m_configHandler.m_config.m_main.m_seed = 0;
     m_configHandler.updateSeed(false);
 }
 
 void UIController::detectPath()
 {
-    auto& cfg         = m_configHandler.m_config.m_moduleMain;
+    auto& cfg         = m_configHandler.m_config.m_main;
     bool  resurrected = cfg.m_versionMajor == 1;
     cfg.m_inputPath   = getInstallLocationFromRegistry(resurrected).toStdString();
-    m_configHandler.m_config.m_moduleMain.notifyChangeInner();
+    m_configHandler.m_config.m_main.notifyChangeInner();
 }
 
 void UIController::sendDataChange()

@@ -5,15 +5,15 @@ import "../Widgets"
 
 WidgetCommonTab {
     id: root
-    value_context: config.moduleItemRandomizer
-    enabled_key: config.moduleItemRandomizer.enabled
+    value_context: config.itemRandomizer
+    enabled_key: config.itemRandomizer.enabled
     caption: qsTr("Item Randomizer")
     tooltip: qsTr("What item randomizer does in short - it reads all possible item properties from Uniques, Sets, etc,<br>And then reassign properties back, but in random order (also it does not mean every original will be used)<br>For details, check descriptions of every option.")
 
     WidgetPreset {
         model: [qsTr("Select preset..."), qsTr("I want to be overpowered machine!"), qsTr("I want crazy 9000+"), qsTr("Want to have fresh experience but balanced if possible"),]
         presetIds: ["", "crazy", "strong", "weak"]
-        value_key: config.moduleItemRandomizer
+        value_key: config.itemRandomizer
     }
 
     WidgetSlider {
@@ -34,7 +34,7 @@ WidgetCommonTab {
     WidgetSlider {
         caption: qsTr("Item fit")
         tooltip: qsTr("Item fit slider allow you to select how much item affixes will be related to original item type.<br>For example, if you choose 80%, then 4 of 5 affixes will be selected to pool for specific item type<br>Item can have have several pools related to its type - say, scepter is a rod and a melee weapon.<br>Item type-specific properties will be picked in proportion to all types.")
-        value_key: root.value_context.itemFitPercent
+        value_key: root.value_context.itemFit
         isCompact: true
         stretchCaption: true
     }
@@ -42,7 +42,7 @@ WidgetCommonTab {
     WidgetSlider {
         caption: qsTr("Caster items")
         tooltip: qsTr("How many generated items will be FORCED caster-specific.<br>Note that some item bases like sorc orbs already force item to be caster (not melee damage rolls)")
-        value_key: root.value_context.casterTypePercent
+        value_key: root.value_context.forceCasterType
         isCompact: true
         stretchCaption: true
     }
@@ -100,6 +100,11 @@ WidgetCommonTab {
                 caption: qsTr("Remove Knockback/Monster flee")
                 tooltip: ""
                 value_key: root.value_context.removeKnock
+            }
+            WidgetCheckbox {
+                caption: qsTr("Make all Uniques have equal rarity on same base")
+                tooltip: qsTr("Now Uniques with equal item base will have equal chance to drop.<br>For example Tyrael's and Templar's will have equal chance. (and all rings too)")
+                value_key: root.value_context.sameRarityForSetUniqueItems
             }
         }
     }

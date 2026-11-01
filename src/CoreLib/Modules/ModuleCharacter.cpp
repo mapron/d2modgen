@@ -9,7 +9,7 @@ namespace D2ModGen {
 
 void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
 {
-    const auto& module = config.m_moduleCharacter;
+    const auto& module = config.m_character;
 
     const int skillPointLimit = module.m_skillPointLimit;
     const int mercHPpercent   = module.m_mercHP;
@@ -50,8 +50,8 @@ void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const 
 
         addValue(row.statPerLevel, module.m_extraStatPerLevel);
         addValue(row.skillsPerLevel, module.m_extraSkillPerLevel);
-        addValue(row.hpPerLevel, module.m_extraHpPerLevel);
-        addValue(row.manaPerLevel, module.m_extraManaPerLevel);
+        addValue(row.hpPerLevel, module.m_extraHpPerLevel * 4);
+        addValue(row.manaPerLevel, module.m_extraManaPerLevel * 4);
         scaleValue(row.hpPotEfficacy, module.m_hpPotEfficacy);
         scaleValue(row.manaPotEfficacy, module.m_mpPotEfficacy);
     }
