@@ -144,6 +144,9 @@ struct MagicPropItem {
 
 int scaleValue(int val, int percent, int absLimit = 1);
 int genBetweenRng(RandomGenerator& rng, int first, int second);
+int genRandomScaledValue(RandomGenerator& rng, int value, int minPercent, int maxPercent);
 int genRng(RandomGenerator& rng, const NonParValueSummary::Stat& stat);
+
+std::vector<size_t> genRandomIndexes(RandomGenerator& rng, size_t size, size_t count);
 
 }

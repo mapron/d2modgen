@@ -100,9 +100,11 @@ struct DataRow_levels : public RowBase {
 
     std::string name;
 
+    bool useForRando = false;
+
     bool hasSpawns() const
     {
-        return monUMin[0].has_value() && monUMin[1].has_value() && monUMin[2].has_value();
+        return monUMax[0].has_value() || monUMax[1].has_value() || monUMax[2].has_value();
     }
 
     std::vector<std::string>           getColumns() const;
@@ -126,18 +128,79 @@ struct DataRow_monlvl : public RowBase {
     std::vector<std::string> getColumns() const;
     void                     serialize();
 };
+
+enum class AnimationMode
+{
+    Undefined = -1,
+    DT,
+    NU,
+    WL,
+    GH,
+    A1,
+    A2,
+    BL,
+    SC,
+    S1,
+    S2,
+    S3,
+    S4,
+    DD,
+    KB,
+    SQ,
+    RN,
+
+    count__,
+};
+
+inline auto getAnimationModes()
+{
+    using enum AnimationMode;
+    return std::array{ DT, NU, WL, GH, A1, A2, BL, SC, S1, S2, S3, S4, DD, KB, SQ, RN };
+}
+
+AnimationMode animationModeFromString(const std::string& mode);
+std::string   animationModeToString(AnimationMode mode);
+
+struct DataRow_monseq : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::monseq };
+
+    std::string        sequence;
+    AnimationMode      mode = AnimationMode::Undefined; // The specific frame mode token (e.g., "A1", "S1")
+    std::optional<int> frame;
+    std::optional<int> dir;
+    std::optional<int> event;
+    std::optional<int> eol;
+
+    std::vector<std::string>           getColumns() const;
+    std::map<std::string, std::string> getColumnAliases() const;
+    void                               serialize();
+};
+
 struct DataRow_monstats : public RowBase {
     static constexpr const TableId s_tableId{ TableId::monstats };
 
     std::array<std::optional<int>, 3> resFi, resLi, resCo, resPo, resMa, resDm;
 
     std::optional<bool> enabled, isspawn, killable, npc, boss;
+    std::optional<bool> rangedtype, melee, flying;
 
     std::optional<int> level, minGrp, maxGrp;
 
-    std::string id;
-    std::string baseId;
-    int         hcIdx = 0;
+    std::string                           id;
+    std::string                           baseId;
+    std::string                           monStatsEx;
+    std::string                           AI;
+    std::array<std::optional<int>, 8 * 3> aipar;
+
+    struct Skill {
+        std::string        name;
+        std::string        mode;
+        std::optional<int> level;
+    };
+
+    std::vector<Skill> skills;
+
+    int hcIdx = 0;
 
     std::array<std::array<std::string, 3>, 4> tc;
 
@@ -153,8 +216,18 @@ struct DataRow_monstats : public RowBase {
         return result;
     }
 
-    std::vector<int>           skLevels;
     std::array<std::string, 3> minionIds;
+
+    bool isRegular       = false;
+    bool useForRando     = false;
+    bool spawnedAsNormal = false;
+    bool spawnedAsElite  = false;
+    bool hasMinions      = false;
+    bool usedAsGuest     = false;
+
+    size_t                     donorIdx = size_t(-1);
+    std::string                donorId;
+    std::optional<std::string> chimeraId;
 
     bool isEnabled() const { return enabled.value_or(false); }
     bool isSpawn() const { return isspawn.value_or(false); }
@@ -162,10 +235,9 @@ struct DataRow_monstats : public RowBase {
     bool isNpc() const { return npc.value_or(false); }
     bool isBoss() const { return boss.value_or(false); }
 
-    bool isRegularMob() const
-    {
-        return isEnabled() && isSpawn() && isKillable() && !isNpc() && !isBoss() && level.has_value();
-    }
+    bool isRanged() const { return rangedtype.value_or(false); }
+    bool isMelee() const { return melee.value_or(false); }
+    bool isFlying() const { return flying.value_or(false); }
 
     std::vector<std::string> getColumns() const;
     void                     serialize();
@@ -176,6 +248,22 @@ private:
     static const size_t tcCount     = 4 + 9;
     static const size_t skCount     = 8;
     static const size_t minionCount = 3;
+    static const size_t aiParCount  = 8;
+};
+
+struct DataRow_monstatsEx : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::monstats2 };
+
+    std::string id;
+    std::string hitClass;
+
+    std::array<std::optional<bool>, 16> modes;
+
+    bool          hasMode(AnimationMode mode) const;
+    AnimationMode getSafeSupportedMode() const;
+
+    std::vector<std::string> getColumns() const;
+    void                     serialize();
 };
 
 struct DataRow_skilldesc : public RowBase {

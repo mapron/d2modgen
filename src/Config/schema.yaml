@@ -14,6 +14,7 @@ structs:
             dumpIn: { type: bool, zero: false }
             dumpOut: { type: bool, zero: false }
             dumpDiff: { type: bool, zero: false }
+
     TreasureClasses:
         structs:
             Runes:
@@ -25,6 +26,7 @@ structs:
 
                     runeInGoodTC: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true, presets: {crazy: 1000, strong: 300 , weak: 100} }
                     zodFactor: { type: int, zero: 1, recc: 20, min: 1, max: 1000, presets: {crazy: 1000, strong: 100 , weak: 10} }
+
             Items:
                 members:
                     enabled: { type: bool, zero: false, recc: true }
@@ -51,6 +53,7 @@ structs:
         members:
             runes: { type: struct, name: Runes }
             items: { type: struct, name: Items }
+
     ItemBalance:
         structs: 
             CommonSettings:
@@ -61,13 +64,12 @@ structs:
                     reqLevel:    { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
 
                     randoKeepOriginalPercent: { type: int, zero: 100, recc: 50, min: 0, max: 100, percent: true, presets: {crazy: 25, pain: 0} }
-                    
+
                     randoGenerateMin: { type: int, zero: 0, recc: 50 , min: 0, max: 1000, percent: true, logScale: true, presets: {crazy: 1000, strong: 60, weak: 40 } }
                     randoGenerateMax: { type: int, zero: 0, recc: 100, min: 0, max: 1000, percent: true, logScale: true, presets: {crazy: 1000, strong: 200, weak: 120} }
 
                     powerScaleLevel1:  { type: int, zero: 100, min: 50, max: 500, percent: true, logScale: true }
                     powerScaleLevel50: { type: int, zero: 100, min: 50, max: 500, percent: true, logScale: true }
-
 
         members:
             defaults:   { type: struct, name: CommonSettings }
@@ -79,13 +81,10 @@ structs:
             runewords:  { type: struct, name: CommonSettings }
             gems:       { type: struct, name: CommonSettings }
             equipment:  { type: struct, name: CommonSettings } # weapon+armor
-            
+
             reqDex:           { type: int, zero: 100, recc: 80 , min: 5, max: 150, percent: true }
             reqStr:           { type: int, zero: 100, recc: 80 , min: 5, max: 150, percent: true }
 
-
-
-            
     ItemRandomizer:
         members:
             enabled: { type: bool, zero: false, recc: true }
@@ -117,26 +116,30 @@ structs:
     MonsterRandomizer:
         members:
             enabled:              { type: bool, zero: false, recc: true }
-            hellResistances:      { type: bool, zero: false, recc: false, presets: { pain: true } }
-    
+            
             numMonExtra:          { type: int, zero: 0, min: -2, max: 10 }
-            spawnKeepOriginal:    { type: int, zero: 25, recc: 3, min: 0, max: 25 }
-    
-            chanceToSwapResistances: { type: int, zero: 0, recc: 0,  min: 0, max: 100, percent: true, presets: { pain: 100 } }
-    
-            spawnGenerateMin: { type: int, zero: 0, recc: 1, min: 0, max: 25 }
-            spawnGenerateMax: { type: int, zero: 0, recc: 3, min: 0, max: 25, presets: { pain: 10 } }
-    
-            densityMin:    { type: int, zero: 100, min: 20, max: 1000, percent: true, presets: {crazy: 200}, logScale: true }
-            densityMax:    { type: int, zero: 100, min: 20, max: 1000, percent: true, presets: {crazy: 300}, logScale: true }
-    
-            hellPacks: { type: bool, zero: false, recc: true }
-            maxPacks:  { type: bool, zero: false, recc: true }
-    
-            elitePacksMin: { type: int, zero: 100, min: 20, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
-            elitePacksMax: { type: int, zero: 100, min: 20, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
-    
+
+            # all = percent from set(mon+nmon+umon).size()
+            spawnKeepOriginal:  { type: int, zero: 100, recc: 100, min: 0, max: 100 , percent: true, presets: { pain: 50  } }
+            guestsMin:          { type: int, zero: 0  , recc: 25 , min: 0, max: 1000, percent: true, presets: { pain: 200 } }
+            guestsMax:          { type: int, zero: 0  , recc: 50 , min: 0, max: 1000, percent: true, presets: { pain: 200 } }
+            chimeraAIMin:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
+            chimeraAIMax:       { type: int, zero: 0  , recc: 50 , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
+            rollResistancesMin: { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
+            rollResistancesMax: { type: int, zero: 0  , recc: 30 , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
+            rollStatMin:        { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
+            rollStatMax:        { type: int, zero: 0  , recc: 50 , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
+
+            densityMin:         { type: int, zero: 100, recc: 100, min: 20, max: 1000, percent: true, presets: {crazy: 200 }, logScale: true }
+            densityMax:         { type: int, zero: 100, recc: 120, min: 20, max: 1000, percent: true, presets: {crazy: 300 }, logScale: true }
+            elitePacksMin:      { type: int, zero: 100, recc: 50 , min: 20, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
+            elitePacksMax:      { type: int, zero: 100, recc: 100, min: 20, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
+
             monGroupIncreaseSize: { type: int, zero: 0, min: 0, max: 20 } # dangerous and laggy! D2R tanks this
+            hellResistances:      { type: bool, zero: false, recc: false, presets: { pain: true } }
+            hellPacks:            { type: bool, zero: false, recc: false, presets: { pain: true } }
+            maxPacks:             { type: bool, zero: false, recc: true }
+
 
     SkillRandomizer:
         members:
@@ -156,6 +159,7 @@ structs:
             disableDropsHealthPot:  { type: bool, zero: false }
             disableDropsManaPot:    { type: bool, zero: false }
             disableDropsRejuvPot:   { type: bool, zero: false, presets: { pain: true } }
+    
     Character:
         members:
             addCube:     { type: bool, zero: false, recc: true }
@@ -176,6 +180,7 @@ structs:
 
             hpPotEfficacy:  { type: int, zero: 100 , min: 5 , max: 1000 , percent: true, logScale: true, presets: { pain: 50 } }
             mpPotEfficacy:  { type: int, zero: 100 , min: 5 , max: 1000 , percent: true, logScale: true, presets: { pain: 50 } }
+
     HoradricCube:
         members:
             cheatCharms:   { type: bool, zero: false, recc: true }
@@ -187,6 +192,7 @@ structs:
             quickQuests:   { type: bool, zero: false, recc: true }
             socketing:     { type: bool, zero: false, recc: true }
             upgrading:     { type: bool, zero: false, recc: true }
+
     Gambling:
         members:
             charmGamble:  { type: bool, zero: false }
@@ -195,6 +201,7 @@ structs:
             ratioRare:    { type: int, zero: 1, min: 1, max: 4 }
             ratioSet:     { type: int, zero: 1, min: 1, max: 250 }
             ratioUnique:  { type: int, zero: 1, min: 1, max: 500 }
+
     MonsterStats:
         members:
             monsterAttack:      { type: int, zero: 100,           min: 10, max: 1000, percent: true, logScale: true }
@@ -202,8 +209,8 @@ structs:
             monsterDefense:     { type: int, zero: 100,           min: 10, max: 1000, percent: true, logScale: true }
             monsterHealth:      { type: int, zero: 100, rec: 200, min: 10, max: 1000, percent: true, logScale: true }
             monsterExperience:  { type: int, zero: 100, rec: 200, min: 10, max: 1000, percent: true, logScale: true, presets: { pain: 75 } }
-            immunityLimit:     { type: int, zero: 250, min: 90, max: 250 }
-            relativeResistDmg: { type: int, zero: 100, min: 10, max: 1000, percent: true, logScale: true }
+            immunityLimit:      { type: int, zero: 250, min: 90, max: 250 }
+            relativeResistDmg:  { type: int, zero: 100, min: 10, max: 1000, percent: true, logScale: true }
             
             applyFire:  { type: bool, zero: false, recc: true }
             applyCold:  { type: bool, zero: false, recc: true }
@@ -211,6 +218,7 @@ structs:
             applyPois:  { type: bool, zero: false, recc: true }
             applyMag:   { type: bool, zero: false }
             applyPhys:  { type: bool, zero: false }
+
     QualityOfLife:
         members:
             disableExpPenalty:   { type: bool, zero: false, recc: true }
@@ -218,7 +226,7 @@ structs:
             uniqueCharmLimit:    { type: bool, zero: false, recc: false }
             weakenTownSkills:    { type: bool, zero: false, recc: true }
             weakenTownSkillsExt: { type: bool, zero: false, recc: false }
-    
+
             tomeSize:         { type: int, zero: 20, recc: 60, min: 2, max: 511}
             quiverSize:       { type: int, zero: 150, recc: 500, min: 2, max: 511 }
             keySize:          { type: int, zero: 12, recc: 50, min: 2, max: 511 }
@@ -228,7 +236,6 @@ structs:
             compactScrolls: { type: bool, zero: false, recc: true  }
 
 members:
-
     main:              { type: struct, name:  Main   }
 
     treasureClasses:   { type: struct, name:  TreasureClasses }

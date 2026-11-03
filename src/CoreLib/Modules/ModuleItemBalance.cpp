@@ -7,7 +7,7 @@
 
 namespace D2ModGen {
 
-void ModuleItemBalance::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
+void ModuleItemBalance::generate()
 {
     const auto& module = config.m_itemBalance;
 

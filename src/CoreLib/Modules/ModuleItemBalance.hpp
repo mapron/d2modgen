@@ -8,8 +8,10 @@
 
 namespace D2ModGen {
 
-struct ModuleItemBalance : public IModule {
-    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
+struct ModuleItemBalance : public AbstractModule {
+    using AbstractModule::AbstractModule;
+
+    void generate() override;
 };
 
 }

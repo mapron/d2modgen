@@ -14,257 +14,179 @@ namespace D2ModGen {
 
 namespace {
 constexpr const int s_maxIngameLevel = 110;
+
+std::string printStringSetSummary(const std::vector<std::string>& idsSource, int limit = 5)
+{
+    std::vector<std::string> idsUnique;
+
+    for (const auto& id : idsSource) {
+        if (std::find(idsUnique.cbegin(), idsUnique.cend(), id) == idsUnique.cend())
+            idsUnique.push_back(id);
+    }
+    std::ostringstream os;
+    for (int i = 0; std::string& ai : idsUnique) {
+        i++;
+        if (i > limit) {
+            os << ", ...";
+            break;
+        }
+        if (i > 1)
+            os << ", ";
+        os << ai;
+    }
+    os << " (unique: " << idsUnique.size() << ", total: " << idsSource.size() << ")";
+    return os.str();
 }
 
-struct ModuleMonRandomizer::MonTypeTable {
-    struct MonRecord {
-        std::string id;
-        int         level;
-    };
-    struct MonType {
-        std::string            baseId;
-        std::vector<MonRecord> children;
-        int                    count = 0;
-    };
-    std::map<std::string, MonType>     types;
-    std::map<std::string, std::string> id2base;
-    std::map<std::string, int>         id2index;
-    struct MonCopy {
-        int         sourceIndex;
-        std::string sourceId;
-        std::string newId;
-        int         oldLevel;
-        int         newLevel;
-    };
-    using MonCopyList = std::vector<MonCopy>;
-    MonCopyList newCopies;
-    MonCopyList allCopies;
+}
 
-    void add(const std::string& id, const std::string& baseId, int level, int index)
-    {
-        MonType& mt = types[baseId];
-        mt.baseId   = baseId;
-        MonRecord r{ id, level };
-        mt.children.push_back(r);
-        mt.count++;
-        id2base[id]  = baseId;
-        id2index[id] = index;
-    }
-
-    std::string pickRandomId(RandomGenerator& rng, const std::string& baseId) const
-    {
-        const MonType&   mt = types.at(baseId);
-        const MonRecord& mr = mt.children[rng(mt.count)];
-        return mr.id;
-    }
-
-    std::string pickRandomId(RandomGenerator& rng, const std::string& baseId, int targetLevel, int maxDistance = 3)
-    {
-        assert(types.contains(baseId));
-        MonType& mt = types[baseId];
-        assert(mt.count > 0);
-        std::vector<int> okIndexes;
-        for (int i = 0; i < mt.children.size(); ++i) {
-            const MonRecord& mr = mt.children[i];
-            if (std::abs(mr.level - targetLevel) <= maxDistance)
-                okIndexes.push_back(i);
-        }
-        if (okIndexes.empty()) {
-            okIndexes.push_back(mt.children.size());
-            auto             i      = rng(mt.count);
-            const MonRecord& source = mt.children[i];
-
-            std::string newId = source.id + "_" + std::to_string(targetLevel);
-            newCopies.push_back(MonCopy{ id2index[source.id], source.id, newId, source.level, targetLevel });
-            mt.children.push_back(MonRecord{ newId, targetLevel });
-        }
-        const int        index = okIndexes[rng((int) okIndexes.size())];
-        const MonRecord& mr    = mt.children[index];
-        return mr.id;
-    }
-
-    void dump() const
-    {
-        for (auto& p : types) {
-            auto&       type = p.second;
-            std::string s    = type.baseId + ": ";
-            for (auto& c : type.children)
-                s += c.id + "(" + std::to_string(c.level) + "), ";
-            Logger() << s;
-        }
-    }
-};
-
-struct ModuleMonRandomizer::TCTable {
-    struct TCGroup {
-        struct TCRecord {
-            std::string id;
-            int         level;
-        };
-        std::vector<TCRecord> records;
-    };
-    std::map<int, TCGroup>     groups;
-    std::map<std::string, int> tc2group;
-
-    void add(const std::string& id, int group, int level)
-    {
-        if (!group || !level)
-            return;
-        TCGroup& g = groups[group];
-        g.records.push_back(TCGroup::TCRecord{ id, level });
-        tc2group[id] = group;
-    }
-    std::string promote(const std::string& tc, const int oldLevel, const int newLevel) const
-    {
-        if (!tc2group.contains(tc) || oldLevel == newLevel)
-            return tc;
-        const TCGroup& g = groups.at(tc2group.at(tc));
-
-        std::string res = tc;
-        for (auto& rec : g.records) {
-            if (rec.level > newLevel)
-                break;
-            res = rec.id;
-        }
-        return res;
-    };
-};
-
-struct MonResist {
-    enum class Elem
-    {
-        Physical,
-        Magic,
-        Fire,
-        Light,
-        Cold,
-        Poison,
-    };
-    std::map<Elem, int> m_resist;
-
-    void readFromRow(const DataRow_monstats& row, size_t i)
-    {
-        m_resist[Elem::Physical] = row.resDm[i].value_or(0);
-        m_resist[Elem::Magic]    = row.resMa[i].value_or(0);
-        m_resist[Elem::Fire]     = row.resFi[i].value_or(0);
-        m_resist[Elem::Light]    = row.resLi[i].value_or(0);
-        m_resist[Elem::Cold]     = row.resCo[i].value_or(0);
-        m_resist[Elem::Poison]   = row.resPo[i].value_or(0);
-    }
-
-    void writeToRow(DataRow_monstats& row, size_t i) const
-    {
-        row.resDm[i] = m_resist.at(Elem::Physical);
-        row.resMa[i] = m_resist.at(Elem::Magic);
-        row.resFi[i] = m_resist.at(Elem::Fire);
-        row.resLi[i] = m_resist.at(Elem::Light);
-        row.resCo[i] = m_resist.at(Elem::Cold);
-        row.resPo[i] = m_resist.at(Elem::Poison);
-    }
-
-    void shuffle(RandomGenerator& rng)
-    {
-        std::map<Elem, Elem>    permutation;
-        const std::vector<Elem> commonElems{ Elem::Fire, Elem::Light, Elem::Cold, Elem::Poison };
-        std::set<Elem>          remaining{ Elem::Physical, Elem::Magic, Elem::Fire, Elem::Light, Elem::Cold, Elem::Poison };
-        // first, Physical and Magic have 20% chance to move to elemental, 20% to swap or 60% to stay the same.
-        if (rng(5) == 0) {
-            permutation[Elem::Physical] = Elem::Magic;
-            permutation[Elem::Magic]    = Elem::Physical;
-            remaining.erase(Elem::Physical);
-            remaining.erase(Elem::Magic);
-        } else {
-            auto remainingCopy = remaining;
-            remainingCopy.erase(Elem::Physical);
-            remainingCopy.erase(Elem::Magic);
-            for (Elem elem : { Elem::Physical, Elem::Magic }) {
-                if (rng(5) == 0) {
-                    auto it = remainingCopy.begin();
-                    if (remainingCopy.size() > 1)
-                        std::advance(it, rng(remainingCopy.size()));
-                    Elem dest         = *it;
-                    permutation[elem] = dest;
-                    remainingCopy.erase(dest);
-                    remaining.erase(dest);
-                } else {
-                    permutation[elem] = elem;
-                    remaining.erase(elem);
-                }
-            }
-        }
-        // second, common element permute with the rest
-        for (Elem elem : commonElems) {
-            auto it = remaining.begin();
-            if (remaining.size() > 1)
-                std::advance(it, rng(remaining.size()));
-            Elem dest         = *it;
-            permutation[elem] = dest;
-            remaining.erase(dest);
-        }
-        assert(remaining.size() == 0);
-        assert(permutation.size() == 6);
-        assert(permutation.count(Elem::Physical));
-        assert(permutation.count(Elem::Magic));
-        assert(permutation.count(Elem::Fire));
-        assert(permutation.count(Elem::Light));
-        assert(permutation.count(Elem::Cold));
-        assert(permutation.count(Elem::Poison));
-        std::map<Elem, int> newResist;
-        for (const auto& [src, dest] : permutation)
-            newResist[dest] = m_resist[src];
-
-        m_resist = newResist;
-    }
-};
-
-void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
+void ModuleMonRandomizer::generate()
 {
     if (!config.m_monsterRandomizer.m_enabled)
         return;
-    const auto&  module = config.m_monsterRandomizer;
-    MonTypeTable typeTable;
-    TCTable      tcTable;
+    updateLevelDensity();
 
-    const bool randomizeSpawns         = module.m_spawnGenerateMin > 0 || module.m_spawnGenerateMax > 0;
-    const int  chanceToSwapResistances = module.m_chanceToSwapResistances;
-    const bool hellResistances         = module.m_hellResistances;
-    if (randomizeSpawns)
-        generateSpawns(output, rng, config, env, typeTable, tcTable);
+    prepareChimeraPools();
+    prepareGuestPools();
 
-    if (chanceToSwapResistances || hellResistances) {
+    const auto& module = config.m_monsterRandomizer;
+
+    for (size_t areaIndex = 0; auto& row : output.levels.rows) {
+        areaIndex++;
+        if (!row.useForRando)
+            continue;
+
+        if (!row.name.starts_with("Act 1 - ") && !row.name.starts_with("Act 2 - "))
+            continue;
+
+        auto& monIds = row.nmon;
+
+        StringSet monSet;
+
+        Logger() << "Area '" << row.name << "' ";
+
+        MonsterTaskList                   tasks;
+        int                               targetLevel = 0;
+        std::set<const DataRow_monstats*> existingIndexes;
+        for (auto& id : monIds) {
+            MonsterTask task;
+            task.m_areaIndex = areaIndex - 1;
+            task.m_source    = output.monstats.find(id);
+            if (!task.m_source->useForRando)
+                task.m_skip = true;
+
+            existingIndexes.insert(task.m_source);
+            targetLevel = std::max(targetLevel, task.m_source->level.value_or(0));
+            tasks.push_back(task);
+        }
+        for (auto& task : tasks)
+            task.m_targetNormalLevel = targetLevel;
+
+        const int originalSize = tasks.size();
+        const int guestAmount  = genRandomScaledValue(rng, originalSize, module.m_guestsMin, module.m_guestsMax);
+        const int keepAmount   = scaleValue(originalSize, module.m_spawnKeepOriginal, 0);
+
+        if (keepAmount > 0) {
+            while (tasks.size() > keepAmount) {
+                auto r = rng(static_cast<int>(monIds.size()));
+                tasks.erase(tasks.begin() + r);
+            }
+        } else {
+            tasks.clear();
+        }
+
+        std::set<const DataRow_monstats*> guestIndexes = existingIndexes;
+        for (int i = 0, target = guestAmount + existingIndexes.size(); i < guestAmount + 5; ++i) {
+            if (guestIndexes.size() >= target)
+                break;
+            guestIndexes.insert(validGuestIndexes[rng(validGuestIndexes.size())]);
+        }
+        for (const DataRow_monstats* guestIdx : guestIndexes) {
+            if (existingIndexes.contains(guestIdx))
+                continue;
+            MonsterTask task;
+            task.m_areaIndex = areaIndex - 1;
+            task.m_source    = guestIdx;
+            task.m_isGuest   = true;
+            tasks.push_back(task);
+        }
+
+        const int totalAmount    = tasks.size();
+        const int chimeraAmount  = genRandomScaledValue(rng, totalAmount, module.m_chimeraAIMin, module.m_chimeraAIMax);
+        const int rollStatAmount = genRandomScaledValue(rng, totalAmount, module.m_rollStatMin, module.m_rollStatMax);
+        const int rollResAmount  = genRandomScaledValue(rng, totalAmount, module.m_rollResistancesMin, module.m_rollResistancesMax);
+
+        for (auto index : genRandomIndexes(rng, totalAmount, chimeraAmount))
+            tasks[index].m_makeChimera = true;
+        for (auto index : genRandomIndexes(rng, totalAmount, rollStatAmount))
+            tasks[index].m_rollStat = true;
+        for (auto index : genRandomIndexes(rng, totalAmount, rollResAmount))
+            tasks[index].m_rollRes = true;
+
+        Logger() << "> total=" << totalAmount << ", guests=" << guestAmount << ", chimera=" << chimeraAmount << ", rollStat=" << rollStatAmount << ", rollRes=" << rollResAmount;
+
+        for (auto& task : tasks) {
+            if (!task.hasAnyMods())
+                task.m_skip = true;
+
+            MonsterTaskList extraMinions;
+            processTask(task, extraMinions);
+
+            Logger() << "        " << task.toString();
+            for (auto& minionTask : extraMinions)
+                Logger() << "         minion: " << minionTask.toString();
+        }
+        row.mon.clear();
+        row.nmon.clear();
+        row.umon.clear();
+
+        for (auto& task : tasks) {
+            row.mon.push_back(task.m_dest.id);
+        }
+        for (auto& task : tasks) {
+            row.nmon.push_back(task.m_dest.id);
+        }
+        for (auto& task : tasks) {
+            if (task.m_source->spawnedAsElite)
+                row.umon.push_back(task.m_dest.id);
+        }
+    }
+    output.monstats.commitExtraRows();
+    output.monstatsEx.commitExtraRows();
+
+    if (module.m_hellResistances) {
         for (auto& row : output.monstats.rows) {
+            if (!row.isRegular)
+                continue;
+            size_t                   hell = 2;
             std::array<MonResist, 3> r;
             for (size_t i = 0; i < 3; ++i)
-                r[i].readFromRow(row, i);
+                r[i].readFromRow(row, hell);
 
-            if (hellResistances) {
-                r[0] = r[2];
-                r[1] = r[2];
-            }
-            bool randomizeResistances = chanceToSwapResistances > 0 ? (rng(100) < chanceToSwapResistances) : false;
-            if (randomizeResistances) {
-                for (size_t i = 0; i < 3; ++i)
-                    r[i].shuffle(rng);
-            }
             for (size_t i = 0; i < 3; ++i)
                 r[i].writeToRow(row, i);
         }
     }
-    if (randomizeSpawns && output.jsonFiles.contains(JsonId::Monsters)) {
+
+    if (output.jsonFiles.contains(JsonId::Monsters)) {
+        // update D2R 3D model for new records.
         auto& jsonDoc    = output.jsonFiles[JsonId::Monsters];
         auto& jsonObject = jsonDoc.getMap();
-        for (const auto& copy : typeTable.allCopies) {
-            const std::string sourceId  = copy.sourceId;
-            const std::string newId     = copy.newId;
+        for (const auto& [sourceId, newId] : idCopies) {
             const std::string modelName = jsonObject[sourceId].getScalar().toString();
             assert(!modelName.empty());
             jsonObject[newId] = Mernel::PropertyTreeScalar{ modelName };
         }
     }
+}
+
+void ModuleMonRandomizer::updateLevelDensity()
+{
+    const auto& module = config.m_monsterRandomizer;
 
     if (const int groupIncrease = module.m_monGroupIncreaseSize; groupIncrease > 0) {
         for (auto& row : output.monstats.rows) {
-            if (!row.isRegularMob())
+            if (!row.isRegular)
                 continue;
             auto& valueMin = row.minGrp;
             auto& valueMax = row.maxGrp;
@@ -275,32 +197,34 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
             for (auto* value : { &valueMin, &valueMax }) {
                 const int prev = value->value();
                 const int next = prev + groupIncrease;
-                *value         = std::min(next, 99);
+                *value         = std::clamp(next, 1, 99);
             }
         }
     }
 
-    auto densityAdjust = [&module, &rng](std::optional<int>& value) {
+    auto densityAdjust = [&module, this](std::optional<int>& value) {
         if (module.m_densityMin == 100 && module.m_densityMax == 100)
             return;
         if (!value.has_value())
             return;
 
-        const int prev  = value.value();
+        const int prev  = value.value_or(600);
         const int scale = genBetweenRng(rng, module.m_densityMin, module.m_densityMax);
         const int next  = scaleValue(prev, scale);
         value           = std::clamp(next, 200, 9900);
     };
-    auto packsAdjust = [&module, &rng](std::optional<int>& value) {
+    auto packsAdjust = [&module, this](std::optional<int>& value) {
         if (module.m_elitePacksMin == 100 && module.m_elitePacksMax == 100)
             return;
-        const int prev  = value.value();
+        const int prev  = value.value_or(0);
         const int scale = genBetweenRng(rng, module.m_elitePacksMin, module.m_elitePacksMax);
         const int next  = scaleValue(prev, scale);
         value           = (std::min(next, 255));
     };
+
+    const int spawnedCount = module.m_numMonExtra;
     for (auto& row : output.levels.rows) {
-        if (!row.hasSpawns())
+        if (!row.useForRando)
             continue;
 
         if (module.m_hellPacks) {
@@ -318,132 +242,341 @@ void ModuleMonRandomizer::generate(DataContext& output, RandomGenerator& rng, co
 
         for (auto& val : row.monDen)
             densityAdjust(val);
+
+        row.numMon = std::max(2, row.numMon.value() + spawnedCount);
     }
 }
 
-void ModuleMonRandomizer::generateSpawns(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env, MonTypeTable& typeTable, TCTable& tcTable) const
+bool ModuleMonRandomizer::compatibleMonSeq(const std::string& sequenceId, const DataRow_monstatsEx& recipient)
 {
-    {
-        for (int index = -1; auto& row : output.monstats.rows) {
-            index++;
-            if (!row.isRegularMob())
-                continue;
-            typeTable.add(row.id, row.baseId, row.level.value(), index);
+    for (const auto& row : output.monseq.rows) {
+        if (row.sequence == sequenceId) {
+            if (!recipient.hasMode(row.mode)) {
+                return false;
+            }
         }
     }
-    {
-        for (auto& row : output.treasureclassex.rows)
-            tcTable.add(row.name, row.group.value_or(0), row.level.value_or(0));
+
+    return true;
+}
+
+void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraMinions)
+{
+    DataRow_monstats& row = task.m_dest;
+    row                   = *task.m_source;
+
+    if (task.m_skip) {
+        return;
     }
-    {
-        StringSet baseIds, ubaseIds, nonUniqueBaseIds;
 
-        const auto& module       = config.m_monsterRandomizer;
-        const int   spawnedCount = module.m_numMonExtra;
+    DataRow_monstatsEx& rowEx = task.m_destEx;
+    rowEx                     = *output.monstatsEx.index.at(row.monStatsEx);
 
-        for (auto& row : output.levels.rows) {
-            if (row.name == "Act 5 - Mountain Top")
-                continue;
+    const std::string origId = row.id;
+    row.useForRando          = false;
+    row.id                   = "gen_" + row.id + "_" + std::to_string(task.m_areaIndex);
 
-            for (auto& id : row.mon) {
-                auto base = mapValue(typeTable.id2base, id);
-                if (!base.empty())
-                    baseIds.insert(base);
-            }
-            for (auto& id : row.nmon) {
-                auto base = mapValue(typeTable.id2base, id);
-                if (!base.empty())
-                    baseIds.insert(base);
-            }
-            for (auto& id : row.umon) {
-                auto base = mapValue(typeTable.id2base, id);
-                if (!base.empty())
-                    ubaseIds.insert(base);
+    const int guestOrigLevel = row.level.value_or(0);
+    row.level                = task.m_targetNormalLevel;
+
+    row.monStatsEx = row.id;
+    rowEx.id       = row.id;
+
+    if (task.m_isGuest) {
+        if (guestOrigLevel > task.m_targetNormalLevel) {
+            for (auto& skill : row.skills) {
+                const int newLevel = skill.level.value_or(0) * task.m_targetNormalLevel / guestOrigLevel;
+                skill.level        = (std::max(1, newLevel));
             }
         }
-        nonUniqueBaseIds = baseIds;
-        {
-            StringSet resultData;
-            std::set_difference(nonUniqueBaseIds.cbegin(), nonUniqueBaseIds.cend(), ubaseIds.cbegin(), ubaseIds.cend(), std::inserter(resultData, resultData.end()));
-            std::swap(nonUniqueBaseIds, resultData);
-        }
-
-        auto setStringList = [](std::vector<std::string>& data, const std::vector<std::string>& gen, size_t limit) {
-            if (data.size() > limit)
-                data.resize(limit);
-            for (auto& val : gen)
-                data.push_back(val);
-        };
-
-        StringVector idsList(baseIds.cbegin(), baseIds.cend());
-        for (auto& row : output.levels.rows) {
-            if (row.mon.empty() || !row.numMon.has_value())
-                continue;
-            if (row.name == "Act 5 - Mountain Top")
-                continue;
-            const int normalLevel = row.monLvlEx[0].value_or(0);
-            const int maxTypes    = genBetweenRng(rng, module.m_spawnGenerateMin, module.m_spawnGenerateMax);
-
-            StringSet normalSet;
-            for (int i = 0; i < maxTypes * 2; ++i) {
-                normalSet.insert(idsList[rng(idsList.size())]);
-                if (normalSet.size() >= maxTypes)
-                    break;
-            }
-
-            StringVector normalSetList;
-            StringVector uniques;
-            for (auto&& baseId : normalSet) {
-                auto id = typeTable.pickRandomId(rng, baseId, normalLevel);
-                normalSetList << id;
-                if (!nonUniqueBaseIds.contains(baseId))
-                    uniques << id;
-            }
-            setStringList(row.mon, normalSetList, module.m_spawnKeepOriginal);
-            setStringList(row.nmon, normalSetList, module.m_spawnKeepOriginal);
-            setStringList(row.umon, uniques, module.m_spawnKeepOriginal);
-
-            row.numMon = std::max(2, row.numMon.value() + spawnedCount);
+        for (auto* tc : row.nonEmptyTCs()) {
+            *tc = tcTable.promote(*tc, guestOrigLevel, task.m_targetNormalLevel);
         }
     }
-    for (size_t i = 0; i < 5 && generateCopies(output, rng, config, env, typeTable, tcTable); ++i) {
+
+    if (task.m_makeChimera) {
+        generateChimera(row, rowEx);
+    }
+
+    if (task.m_rollRes) {
+        std::array<MonResist, 3> r;
+        for (size_t i = 0; i < 3; ++i)
+            r[i].readFromRow(row, i);
+
+        for (size_t i = 0; i < 3; ++i)
+            r[i].shuffle(rng);
+
+        for (size_t i = 0; i < 3; ++i)
+            r[i].writeToRow(row, i);
+    }
+    if (task.m_rollStat) {
+        // @todo:
+    }
+
+    for (auto& minionId : row.minionIds) {
+        if (minionId.empty() || minionId == task.m_source->id)
+            continue;
+        MonsterTask minionTask = task;
+        minionTask.m_source    = output.monstats.index.at(minionId);
+        if (!minionTask.m_source->useForRando) {
+            minionTask.m_skip = true;
+        }
+        processTask(minionTask, extraMinions);
+        minionId = minionTask.m_dest.id;
+        extraMinions.push_back(minionTask);
+    }
+
+    output.monstats.extra.push_back(row);
+    output.monstatsEx.extra.push_back(rowEx);
+    idCopies.push_back({ origId, row.id });
+}
+
+void ModuleMonRandomizer::prepareChimeraPools()
+{
+    std::vector<std::vector<size_t>> pools;
+
+    std::vector<std::function<bool(const DataRow_monstats&)>> filters;
+    filters.push_back([](const DataRow_monstats& row) -> bool {
+        return !row.isRanged() && !row.isFlying(); // melee walkers
+    });
+    filters.push_back([](const DataRow_monstats& row) -> bool {
+        return row.isRanged() && !row.isFlying(); // ranged walkers
+    });
+
+    filters.push_back([](const DataRow_monstats& row) -> bool {
+        return !row.isRanged() && row.isFlying(); // melee flyers
+    });
+    filters.push_back([](const DataRow_monstats& row) -> bool {
+        return row.isRanged() && row.isFlying(); // ranged flyers
+    });
+
+    pools.resize(filters.size());
+    std::set<std::string> allGuestAiIds;
+
+    for (size_t p = 0; p < pools.size(); ++p) {
+        auto& pool = pools[p];
+        auto& f    = filters[p];
+        for (size_t i = 0; i < output.monstats.rows.size(); ++i) {
+            auto& row = output.monstats.rows[i];
+            if (row.useForRando && f(row)) {
+                pool.push_back(i);
+                row.usedAsGuest = true;
+                allGuestAiIds.insert(row.AI);
+            }
+        }
+    }
+
+    std::vector<std::string> nonRando;
+    for (size_t i = 0; i < output.monstats.rows.size() && i < 700; ++i) {
+        auto& row = output.monstats.rows[i];
+        if (!row.useForRando && !row.usedAsGuest && !allGuestAiIds.contains(row.AI)) {
+            nonRando.push_back(row.AI);
+            continue;
+        }
+    }
+    Logger() << "Unused: " << printStringSetSummary(nonRando, 20);
+
+    for (auto& pool : pools) {
+        if (pool.size() < 2)
+            return;
+        std::vector<std::string> ais;
+
+        for (size_t i = 0; i < pool.size(); ++i) {
+            const size_t recipientIdx = pool[i];
+            auto         ai           = output.monstats.rows[recipientIdx].AI;
+            ais.push_back(ai);
+        }
+        Logger() << "AI pool: " << printStringSetSummary(ais, 10);
+
+        for (size_t i = 0; i < pool.size(); ++i) {
+            const size_t shiftedI = pool.size() > 10 ? rng(pool.size()) : ((i + 1) % pool.size());
+
+            const size_t recipientIdx = pool[i];
+            const size_t donorIdx     = pool[shiftedI];
+
+            DataRow_monstats&       recipient = output.monstats.rows[recipientIdx];
+            const DataRow_monstats& donor     = output.monstats.rows[donorIdx];
+
+            recipient.donorIdx = donorIdx;
+        }
     }
 }
 
-bool ModuleMonRandomizer::generateCopies(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env, MonTypeTable& typeTable, TCTable& tcTable) const
+void ModuleMonRandomizer::prepareGuestPools()
 {
-    auto copies = typeTable.newCopies;
-    typeTable.newCopies.clear();
-    for (const auto& copy : copies) {
-        auto newRow  = output.monstats.rows[copy.sourceIndex];
-        newRow.id    = copy.newId;
-        newRow.level = copy.newLevel;
-        newRow.hcIdx = int(output.monstats.rows.size());
-        for (auto& minion : newRow.minionIds) {
-            if (minion.empty())
-                continue;
-            const auto minionBase = mapValue(typeTable.id2base, minion);
-            if (minionBase.empty()) {
-                minion = "";
-                continue;
-            }
-            auto id = typeTable.pickRandomId(rng, minionBase, copy.newLevel);
-            minion  = id;
-        }
-        if (copy.oldLevel > copy.newLevel) {
-            for (int& skill : newRow.skLevels) {
-                const int newLevel = copy.newLevel * skill / copy.oldLevel;
-                skill              = (std::max(1, newLevel));
-            }
-        }
-        for (auto* tc : newRow.nonEmptyTCs()) {
-            *tc = tcTable.promote(*tc, copy.oldLevel, copy.newLevel);
-        }
+    StringSet monSet;
+    for (auto& row : output.monstats.rows) {
+        if (!row.useForRando || !row.spawnedAsNormal || row.hasMinions)
+            continue;
 
-        output.monstats.rows.push_back(std::move(newRow));
+        validGuestIndexes.push_back(&row);
     }
-    typeTable.allCopies.insert(typeTable.allCopies.end(), copies.cbegin(), copies.cend());
-    return !typeTable.newCopies.empty(); //pickRandomId can add more.
+}
+
+void ModuleMonRandomizer::generateChimera(DataRow_monstats& chimera, DataRow_monstatsEx& chimeraEx)
+{
+    if (chimera.donorIdx == size_t(-1)) {
+        chimera.donorId = "FAIL";
+        Logger() << "Failed to generate chimera for " << chimera.id << " - no donor";
+        return;
+    }
+
+    const DataRow_monstats&   donor   = output.monstats.rows[chimera.donorIdx];
+    const DataRow_monstatsEx& donorEx = *output.monstatsEx.index.at(donor.monStatsEx);
+
+    chimera.donorId = donor.id;
+
+    /// todo:
+    //return;
+
+    // behavioral brain components from the AI donor row
+    chimera.AI     = donor.AI;
+    chimera.aipar  = donor.aipar;
+    chimera.skills = donor.skills;
+
+    // AI skill frames
+    chimeraEx.hitClass = donorEx.hitClass;
+
+    bool result = true;
+    // Handle skill mappings / AI sequence
+    for (auto& skill : chimera.skills) {
+        std::string& skillName = skill.name;
+        std::string& mode      = skill.mode;
+
+        // Check if the donor mode string represents a custom sequence hook
+        if (mode.starts_with("seq_")) {
+            if (!compatibleMonSeq(mode, chimeraEx)) {
+                const auto newMode = chimeraEx.getSafeSupportedMode();
+                skill.mode         = animationModeToString(newMode);
+            }
+        } else {
+            AnimationMode directMode = animationModeFromString(mode);
+            assert(directMode != AnimationMode::Undefined);
+            const auto newMode = chimeraEx.hasMode(directMode) ? directMode : chimeraEx.getSafeSupportedMode();
+            skill.mode         = animationModeToString(newMode);
+        }
+    }
+}
+
+void ModuleMonRandomizer::TCTable::add(const std::string& id, int group, int level)
+{
+    if (!group || !level)
+        return;
+    TCGroup& g = groups[group];
+    g.records.push_back(TCGroup::TCRecord{ id, level });
+    tc2group[id] = group;
+}
+
+std::string ModuleMonRandomizer::TCTable::promote(const std::string& tc, const int oldLevel, const int newLevel) const
+{
+    if (!tc2group.contains(tc) || oldLevel == newLevel)
+        return tc;
+    const TCGroup& g = groups.at(tc2group.at(tc));
+
+    std::string res = tc;
+    for (auto& rec : g.records) {
+        if (rec.level > newLevel)
+            break;
+        res = rec.id;
+    }
+    return res;
+}
+
+void ModuleMonRandomizer::MonResist::readFromRow(const DataRow_monstats& row, size_t i)
+{
+    m_resist[Element::Phys] = row.resDm[i].value_or(0);
+    m_resist[Element::Mag]  = row.resMa[i].value_or(0);
+    m_resist[Element::Fire] = row.resFi[i].value_or(0);
+    m_resist[Element::Ltng] = row.resLi[i].value_or(0);
+    m_resist[Element::Cold] = row.resCo[i].value_or(0);
+    m_resist[Element::Pois] = row.resPo[i].value_or(0);
+}
+
+void ModuleMonRandomizer::MonResist::writeToRow(DataRow_monstats& row, size_t i) const
+{
+    row.resDm[i] = m_resist.at(Element::Phys);
+    row.resMa[i] = m_resist.at(Element::Mag);
+    row.resFi[i] = m_resist.at(Element::Fire);
+    row.resLi[i] = m_resist.at(Element::Ltng);
+    row.resCo[i] = m_resist.at(Element::Cold);
+    row.resPo[i] = m_resist.at(Element::Pois);
+}
+
+void ModuleMonRandomizer::MonResist::shuffle(RandomGenerator& rng)
+{
+    std::map<Element, Element> permutation;
+    const std::vector<Element> commonElems{ Element::Fire, Element::Ltng, Element::Cold, Element::Pois };
+    std::set<Element>          remaining{ Element::Phys, Element::Mag, Element::Fire, Element::Ltng, Element::Cold, Element::Pois };
+    // first, Physical and Magic have 20% chance to move to elemental, 20% to swap or 60% to stay the same.
+    if (rng(5) == 0) {
+        permutation[Element::Phys] = Element::Mag;
+        permutation[Element::Mag]  = Element::Phys;
+        remaining.erase(Element::Phys);
+        remaining.erase(Element::Mag);
+    } else {
+        auto remainingCopy = remaining;
+        remainingCopy.erase(Element::Phys);
+        remainingCopy.erase(Element::Mag);
+        for (Element elem : { Element::Phys, Element::Mag }) {
+            if (rng(5) == 0) {
+                auto it = remainingCopy.begin();
+                if (remainingCopy.size() > 1)
+                    std::advance(it, rng(remainingCopy.size()));
+                Element dest      = *it;
+                permutation[elem] = dest;
+                remainingCopy.erase(dest);
+                remaining.erase(dest);
+            } else {
+                permutation[elem] = elem;
+                remaining.erase(elem);
+            }
+        }
+    }
+    // second, common element permute with the rest
+    for (Element elem : commonElems) {
+        auto it = remaining.begin();
+        if (remaining.size() > 1)
+            std::advance(it, rng(remaining.size()));
+        Element dest      = *it;
+        permutation[elem] = dest;
+        remaining.erase(dest);
+    }
+    assert(remaining.size() == 0);
+    assert(permutation.size() == 6);
+    assert(permutation.count(Element::Phys));
+    assert(permutation.count(Element::Mag));
+    assert(permutation.count(Element::Fire));
+    assert(permutation.count(Element::Ltng));
+    assert(permutation.count(Element::Cold));
+    assert(permutation.count(Element::Pois));
+    std::map<Element, int> newResist;
+    for (const auto& [src, dest] : permutation)
+        newResist[dest] = m_resist[src];
+
+    m_resist = newResist;
+}
+
+std::string ModuleMonRandomizer::MonsterTask::toString() const
+{
+    std::ostringstream os;
+    os << "{ srcId:" << m_source->id;
+    if (m_skip) {
+        os << ", SKIP }";
+        return os.str();
+    }
+    os << ", dstId:" << m_dest.id;
+    os << ", oldAI:" << m_source->AI;
+    os << ", newAI:" << m_dest.AI;
+    os << ", makeChimera:" << m_makeChimera;
+    if (m_makeChimera)
+        os << ", donor:" << m_dest.donorId;
+
+    os << ", rollStat:" << m_rollStat;
+    os << ", rollRes:" << m_rollRes;
+    os << ", tgtNorm:" << m_targetNormalLevel;
+
+    os << "}";
+    return os.str();
 }
 
 }

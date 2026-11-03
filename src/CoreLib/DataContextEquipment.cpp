@@ -20,6 +20,8 @@ SlotType DataRow_itemtypes::determineSlot() const
         return SlotType::OtherArmor;
     if (code == "pvpm" || code == "map" || code == "t4m" || code == "t5m")
         return SlotType::PD2Map;
+    if (code == "misl")
+        return SlotType::Weapon; // quiver
     if (bodyLoc1 == "head" || bodyLoc1 == "tors")
         return SlotType::MainArmor;
     if (bodyLoc1 == "feet" || bodyLoc1 == "glov" || bodyLoc1 == "belt")

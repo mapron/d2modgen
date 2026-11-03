@@ -53,7 +53,7 @@ const std::map<std::string, std::string> s_craftedGemReplace{
 
 }
 
-void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
+void ModuleCube::generate()
 {
     const auto& module = config.m_horadricCube;
 
@@ -119,10 +119,10 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Confi
         uber3.inputs[1]        = "\"isc,qty=4\"";
         uber3.output           = "\"Red Portal,lvl=137,qty=1\"";
 
-        output.cubemain.rows.push_back(cows);
-        output.cubemain.rows.push_back(uber1);
-        output.cubemain.rows.push_back(uber2);
-        output.cubemain.rows.push_back(uber3);
+        output.cubemain.extra.push_back(cows);
+        output.cubemain.extra.push_back(uber1);
+        output.cubemain.extra.push_back(uber2);
+        output.cubemain.extra.push_back(uber3);
     }
     if (quickQuests) {
         DataRow_cubemain base;
@@ -142,8 +142,8 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Confi
         khalim.inputs[1]        = "tsc";
         khalim.output           = "qf2";
 
-        output.cubemain.rows.push_back(staff);
-        output.cubemain.rows.push_back(khalim);
+        output.cubemain.extra.push_back(staff);
+        output.cubemain.extra.push_back(khalim);
     }
     if (newSocketing) {
         DataRow_cubemain base;
@@ -197,14 +197,14 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Confi
         socketClear.inputs[1] = "tsc";
         socketClear.output    = "\"useitem,uns\"";
 
-        output.cubemain.rows.push_back(socket3);
-        output.cubemain.rows.push_back(socket4);
-        output.cubemain.rows.push_back(socket5);
-        output.cubemain.rows.push_back(socket6);
-        output.cubemain.rows.push_back(socket1);
-        output.cubemain.rows.push_back(socket1a);
-        output.cubemain.rows.push_back(socket1b);
-        output.cubemain.rows.push_back(socketClear);
+        output.cubemain.extra.push_back(socket3);
+        output.cubemain.extra.push_back(socket4);
+        output.cubemain.extra.push_back(socket5);
+        output.cubemain.extra.push_back(socket6);
+        output.cubemain.extra.push_back(socket1);
+        output.cubemain.extra.push_back(socket1a);
+        output.cubemain.extra.push_back(socket1b);
+        output.cubemain.extra.push_back(socketClear);
     }
 
     if (upgrading) {
@@ -244,12 +244,12 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Confi
         DataRow_cubemain weapNor = armoNor;
         weapNor.inputs[0]        = "weap";
 
-        output.cubemain.rows.push_back(armo1);
-        output.cubemain.rows.push_back(weap1);
-        output.cubemain.rows.push_back(armo2);
-        output.cubemain.rows.push_back(weap2);
-        output.cubemain.rows.push_back(armoNor);
-        output.cubemain.rows.push_back(weapNor);
+        output.cubemain.extra.push_back(armo1);
+        output.cubemain.extra.push_back(weap1);
+        output.cubemain.extra.push_back(armo2);
+        output.cubemain.extra.push_back(weap2);
+        output.cubemain.extra.push_back(armoNor);
+        output.cubemain.extra.push_back(weapNor);
     }
 
     if (cheatCharms) {
@@ -374,9 +374,11 @@ void ModuleCube::generate(DataContext& output, RandomGenerator& rng, const Confi
             for (auto&& af : c.m_affixes) {
                 data.affixes_a.push_back(AffixProp{ .code = af.m_name, .par = "", .min = af.m_value, .max = af.m_value, .chance = 100 });
             }
-            output.cubemain.rows.push_back(data);
+            output.cubemain.extra.push_back(data);
         }
     }
+
+    output.cubemain.commitExtraRows();
 }
 
 }

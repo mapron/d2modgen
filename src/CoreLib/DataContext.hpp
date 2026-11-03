@@ -41,7 +41,9 @@ struct DataContext {
     DataTable<DataRow_itemstatcost>     itemstatcost;
     DataTable<DataRow_levels>           levels;
     DataTable<DataRow_monlvl>           monlvl;
+    DataTable<DataRow_monseq>           monseq;
     DataTable<DataRow_monstats>         monstats;
+    DataTable<DataRow_monstatsEx>       monstatsEx;
     DataTable<DataRow_skilldesc>        skilldesc;
     DataTable<DataRow_skills>           skills;
     DataTable<DataRow_treasureclassex>  treasureclassex;
@@ -74,8 +76,10 @@ struct DataContext {
             &DataContext::hireling,
             &DataContext::itemstatcost,
             &DataContext::levels,
+            &DataContext::monseq,
             &DataContext::monlvl,
             &DataContext::monstats,
+            &DataContext::monstatsEx,
             &DataContext::skilldesc,
             &DataContext::skills,
             &DataContext::treasureclassex,

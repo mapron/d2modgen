@@ -9,7 +9,7 @@
 
 namespace D2ModGen {
 
-void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
+void ModuleMonStats::generate()
 {
     const auto& module = config.m_monsterStats;
     {
@@ -50,7 +50,7 @@ void ModuleMonStats::generate(DataContext& output, RandomGenerator& rng, const C
         const int relResist = module.m_relativeResistDmg;
 
         for (auto& row : output.monstats.rows) {
-            if (!row.isRegularMob())
+            if (!row.isRegular)
                 continue;
 
             for (auto& col : resCols) {

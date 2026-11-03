@@ -10,6 +10,7 @@
 #include "Logger.hpp"
 
 #include "MernelPlatform/ChronoPoint.hpp"
+#include <numeric>
 
 namespace D2ModGen {
 
@@ -38,6 +39,43 @@ int genBetweenRng(RandomGenerator& rng, int first, int second)
     const int randomDiff = range > 0 ? rng(range + 1) : 0;
 
     return lowerBound + randomDiff;
+}
+
+int genRandomScaledValue(RandomGenerator& rng, int value, int minPercent, int maxPercent)
+{
+    const int absLimit = minPercent > 0 ? 1 : 0;
+    if (minPercent == maxPercent) {
+        if (minPercent == 0)
+            return 0;
+        if (minPercent == 100)
+            return value;
+        return scaleValue(value, minPercent, absLimit);
+    }
+
+    const int lowerBound       = std::min(minPercent, maxPercent);
+    const int upperBound       = std::max(minPercent, maxPercent);
+    const int valueScaledLower = scaleValue(value, lowerBound, absLimit);
+    const int valueScaledUpper = scaleValue(value, upperBound, absLimit);
+    return genBetweenRng(rng, valueScaledLower, valueScaledUpper);
+}
+
+std::vector<size_t> genRandomIndexes(RandomGenerator& rng, size_t size, size_t count)
+{
+    if (count == 0) {
+        return {};
+    }
+    assert(count <= size);
+
+    std::vector<size_t> result(size);
+    std::iota(result.begin(), result.end(), 0);
+    if (count >= size) {
+        return result;
+    }
+    while (result.size() > count) {
+        auto r = rng(static_cast<int>(result.size()));
+        result.erase(result.begin() + r);
+    }
+    return result;
 }
 
 void MagicPropItem::process()

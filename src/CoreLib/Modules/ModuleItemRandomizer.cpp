@@ -48,14 +48,14 @@ std::string makeValue(std::string old, int copy)
 
 }
 
-void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
+void ModuleItemRandomizer::generate()
 {
     if (!config.m_itemRandomizer.m_enabled)
         return;
 
     const auto& module = config.m_itemRandomizer;
 
-    m_codeResolver = [&output](const std::string& skillId) -> int {
+    m_codeResolver = [this](const std::string& skillId) -> int {
         if (!skillId.empty()) {
             int intId = std::atoi(skillId.c_str());
             if (intId > 0) {
@@ -70,7 +70,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
         return -1;
     };
-    m_skillGetter = [&output](int index) -> DataRow_skills_ptr {
+    m_skillGetter = [this](int index) -> DataRow_skills_ptr {
         if (index < 0)
             return nullptr;
         return &output.skills.rows[index];
@@ -84,7 +84,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     const bool extraTrace2 = !!getenv("MODGEN_RANDOMIZER_TRACE_PROPS");
 
     Logger() << "Grab properties from game data...";
-    const AllProps gameProps = grabAllProps(output, false, &unknownAttributes, &skippedAttributes);
+    const AllProps gameProps = grabAllProps(false, &unknownAttributes, &skippedAttributes);
     {
         std::ostringstream skipped, unknown;
         for (auto& str : skippedAttributes)
@@ -126,10 +126,10 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
         }
     }
 
-    createNewItems(output, rng, config, env, repeatUniques, repeatSets);
+    createNewItems(repeatUniques, repeatSets);
 
     if (extraTrace) {
-        const AllAttributeData attrib = analyzeAll(grabAllProps(output));
+        const AllAttributeData attrib = analyzeAll(grabAllProps());
         statisticsTable.addSnapshot(attrib, 0);
     }
 
@@ -186,7 +186,7 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
 
     ItemStatistics allStat;
 
-    auto fillProps = [&props, &rng, &allStat, this, extraTrace, extraTrace2]<typename Row>(DataTable<Row>& table, const RandoParams& params, RollType roll) {
+    auto fillProps = [&props, &allStat, this, extraTrace, extraTrace2]<typename Row>(DataTable<Row>& table, const RandoParams& params, RollType roll) {
         if (!params.enableGeneration)
             return;
         ItemStatistics tableStat;
@@ -266,14 +266,13 @@ void ModuleItemRandomizer::generate(DataContext& output, RandomGenerator& rng, c
     }
 
     if (extraTrace) {
-        const AllAttributeData attrib = analyzeAll(grabAllProps(output));
+        const AllAttributeData attrib = analyzeAll(grabAllProps());
         statisticsTable.addSnapshot(attrib, 1);
         statisticsTable.traceStatistics();
     }
 }
 
-ModuleItemRandomizer::AllProps ModuleItemRandomizer::grabAllProps(const DataContext&     output,
-                                                                  bool                   onlySetUniques,
+ModuleItemRandomizer::AllProps ModuleItemRandomizer::grabAllProps(bool                   onlySetUniques,
                                                                   std::set<std::string>* unknownList,
                                                                   std::set<std::string>* skippedList)
 {
@@ -335,7 +334,7 @@ ModuleItemRandomizer::AllProps ModuleItemRandomizer::grabAllProps(const DataCont
     return allProps;
 }
 
-void ModuleItemRandomizer::createNewItems(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env, int repeatUniques, int repeatSets)
+void ModuleItemRandomizer::createNewItems(int repeatUniques, int repeatSets)
 {
     const int setBonusMode = config.m_itemRandomizer.m_setBonusMode;
 
@@ -346,7 +345,7 @@ void ModuleItemRandomizer::createNewItems(DataContext& output, RandomGenerator& 
 
     const std::vector<std::string> colors{ "whit", "lgry", "dgry", "blac", "lblu", "dblu", "cblu", "lred", "dred", "cred", "lgrn", "dgrn", "cgrn", "lyel", "dyel", "lgld", "dgld", "lpur", "dpur", "oran", "bwht" };
 
-    auto getRandomColor = [&rng, &colors]() -> std::string {
+    auto getRandomColor = [this, &colors]() -> std::string {
         const int index = rng(50);
         if (index < colors.size()) {
             return colors[index];
@@ -365,10 +364,10 @@ void ModuleItemRandomizer::createNewItems(DataContext& output, RandomGenerator& 
     }
 
     {
-        auto getNewLevelAndCode = [&rng, &output, validArmor, validWeapon](std::optional<int>& lvl,
-                                                                           EquipmentType&      eqipmentType,
-                                                                           std::string&        eqipmentCode,
-                                                                           std::string&        eqipmentName) {
+        auto getNewLevelAndCode = [this, validArmor, validWeapon](std::optional<int>& lvl,
+                                                                  EquipmentType&      eqipmentType,
+                                                                  std::string&        eqipmentCode,
+                                                                  std::string&        eqipmentName) {
             int base_ilvl = -1;
             if (eqipmentType->category == EquipmentCategory::Armor) {
                 eqipmentType = validArmor[rng(validArmor.size())];
@@ -399,20 +398,18 @@ void ModuleItemRandomizer::createNewItems(DataContext& output, RandomGenerator& 
                 }
                 id++;
             }
-            std::vector<Row> copyRows;
-            copyRows.reserve(table.rows.size() + validRows.size() * (copies - 1));
-            copyRows.insert(copyRows.end(), table.rows.cbegin(), table.rows.cend());
+            table.extra.reserve(validRows.size() * (copies - 1));
 
             for (Row* row_ : validRows) {
                 for (int i = 1; i < copies; ++i) {
                     Row row = *row_;
                     row._ser_unusedCells.clear();
 
-                    afterCopy(int(copyRows.size()), i, row, *row_);
-                    copyRows.push_back(std::move(row));
+                    afterCopy(int(table.extra.size() + table.rows.size()), i, row, *row_);
+                    table.extra.push_back(std::move(row));
                 }
             }
-            std::swap(copyRows, table.rows);
+            table.commitExtraRows();
         };
 
         auto beforeCopyUniq = [](DataRow_uniqueitems& row) -> bool {

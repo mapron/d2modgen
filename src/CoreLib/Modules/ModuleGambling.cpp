@@ -7,17 +7,18 @@
 
 namespace D2ModGen {
 
-void ModuleGambling::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
+void ModuleGambling::generate()
 {
     const auto& module = config.m_gambling;
 
     const bool charmGamble = module.m_charmGamble && env.isLegacy; // disabled for D2R now; it crashes the game.
     if (charmGamble) {
         auto& table = output.gamble;
-        table.rows.push_back(DataRow_gamble{ .name = ("Charm Small"), .code = ("cm1") });
-        table.rows.push_back(DataRow_gamble{ .name = ("Charm Medium"), .code = ("cm2") });
-        table.rows.push_back(DataRow_gamble{ .name = ("Charm Large"), .code = ("cm3") });
-        table.rows.push_back(DataRow_gamble{ .name = ("Jewel"), .code = ("jew") });
+        table.extra.push_back(DataRow_gamble{ .name = ("Charm Small"), .code = ("cm1") });
+        table.extra.push_back(DataRow_gamble{ .name = ("Charm Medium"), .code = ("cm2") });
+        table.extra.push_back(DataRow_gamble{ .name = ("Charm Large"), .code = ("cm3") });
+        table.extra.push_back(DataRow_gamble{ .name = ("Jewel"), .code = ("jew") });
+        table.commitExtraRows();
     }
 
     auto& table = output.difficultylevels;

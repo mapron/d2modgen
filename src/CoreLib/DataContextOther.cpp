@@ -6,7 +6,48 @@
 
 #include "DataContextOther.hpp"
 
+#include <cassert>
+
 namespace D2ModGen {
+
+namespace {
+const std::vector<std::string> s_modeNames{
+    "DT",
+    "NU",
+    "WL",
+    "GH",
+    "A1",
+    "A2",
+    "BL",
+    "SC",
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "DD",
+    "KB",
+    "SQ",
+    "RN",
+};
+
+}
+
+AnimationMode animationModeFromString(const std::string& mode)
+{
+    for (size_t i = 0; i < s_modeNames.size(); i++) {
+        if (s_modeNames[i] == mode) {
+            return AnimationMode(i);
+        }
+    }
+    return AnimationMode::Undefined;
+}
+
+std::string animationModeToString(AnimationMode mode)
+{
+    if (mode == AnimationMode::Undefined)
+        return "";
+    return s_modeNames[static_cast<int>(mode)];
+}
 
 std::vector<std::string> DataRow_charstats::getColumns() const
 {
@@ -181,6 +222,30 @@ void DataRow_monlvl::serialize()
     ser(level);
 }
 
+std::vector<std::string> DataRow_monseq::getColumns() const
+{
+    return {
+        "mode", "sequence", "frame", "dir", "event", "*eol"
+    };
+}
+
+std::map<std::string, std::string> DataRow_monseq::getColumnAliases() const
+{
+    std::map<std::string, std::string> result;
+    result["eol"] = "*eol";
+    return result;
+}
+
+void DataRow_monseq::serialize()
+{
+    serEnum(mode, AnimationMode::Undefined, animationModeFromString, animationModeToString);
+    ser(sequence);
+    ser(frame);
+    ser(dir);
+    ser(event);
+    ser(eol);
+}
+
 std::vector<std::string> DataRow_monstats::getColumns() const
 {
     using namespace std::literals;
@@ -206,15 +271,24 @@ std::vector<std::string> DataRow_monstats::getColumns() const
 
     for (size_t i = 0; i < skCount; ++i) {
         auto istr = std::to_string(i + 1);
+        result.push_back("skill" + istr);
+        result.push_back("sk" + istr + "mode");
         result.push_back("sk" + istr + "lvl");
     }
-
+    for (size_t i = 0; i < aiParCount; ++i) {
+        auto istr = std::to_string(i + 1);
+        for (const auto& diffSuffix : diffs) {
+            result.push_back("aip" + istr + diffSuffix);
+        }
+    }
     std::vector<std::string> rest{
         // clang-format off
         "spawn", "minion1", "minion2",
         "enabled", "isspawn", "killable", "npc", "boss",
+        "rangedtype", "ismelee", "flying",
         "level", "mingrp", "maxgrp",
         "id", "baseid", "*hcidx",
+        "monstatsex", "ai",
         // clang-format on
     };
     result.insert(result.end(), rest.cbegin(), rest.cend());
@@ -232,7 +306,12 @@ void DataRow_monstats::serialize()
     ser(resDm);
 
     ser(tc);
-    ser(skLevels, skCount);
+    serArray(skills, skCount, [this](Skill& item) {
+        ser(item.name);
+        ser(item.mode);
+        ser(item.level); }, [](Skill& item) { return !item.name.empty(); });
+
+    ser(aipar);
     ser(minionIds);
 
     ser(enabled);
@@ -241,6 +320,10 @@ void DataRow_monstats::serialize()
     ser(npc);
     ser(boss);
 
+    ser(rangedtype);
+    ser(melee);
+    ser(flying);
+
     ser(level);
     ser(minGrp);
     ser(maxGrp);
@@ -248,6 +331,9 @@ void DataRow_monstats::serialize()
     ser(id);
     ser(baseId);
     ser(hcIdx);
+
+    ser(monStatsEx);
+    ser(AI);
 }
 
 std::map<std::string, std::string> DataRow_monstats::getColumnAliases() const
@@ -265,6 +351,48 @@ std::map<std::string, std::string> DataRow_monstats::getColumnAliases() const
     }
     result["hcidx"] = "*hcidx";
     return result;
+}
+
+bool DataRow_monstatsEx::hasMode(AnimationMode mode) const
+{
+    if (mode == AnimationMode::Undefined)
+        return false;
+    return modes[static_cast<int>(mode)].value_or(false);
+}
+
+AnimationMode DataRow_monstatsEx::getSafeSupportedMode() const
+{
+    for (AnimationMode safeMode : { AnimationMode::S1, AnimationMode::A1, AnimationMode::A2, AnimationMode::WL, AnimationMode::DT }) {
+        if (hasMode(safeMode)) {
+            return safeMode;
+        }
+    }
+    assert(0);
+    return AnimationMode::Undefined;
+}
+
+std::vector<std::string> DataRow_monstatsEx::getColumns() const
+{
+    // clang-format off
+    std::vector<std::string> result{
+        "id", "hitclass",
+        "mdt", "mnu", // D2R
+        "mwl", "mgh",
+        "ma1", "ma2", "mbl", "msc",
+        "ms1", "ms2", "ms3", "ms4",
+        "mdd", "mkb", "msq", "mrn",
+    };
+    // clang-format on
+
+    return result;
+}
+
+void DataRow_monstatsEx::serialize()
+{
+    ser(id);
+    ser(hitClass);
+    for (size_t i = 0; i < 16; ++i)
+        ser(modes[i], true);
 }
 
 std::vector<std::string> DataRow_skilldesc::getColumns() const

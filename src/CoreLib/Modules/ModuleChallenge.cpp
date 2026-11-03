@@ -7,7 +7,7 @@
 
 namespace D2ModGen {
 
-void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
+void ModuleChallenge::generate()
 {
     const auto& module = config.m_challenge;
     struct Item {
@@ -41,7 +41,7 @@ void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const 
         }
     }
     {
-        auto checkPenalty = [&output](int penalty, const std::string& name) {
+        auto checkPenalty = [this](int penalty, const std::string& name) {
             for (auto& row : output.difficultylevels.rows) {
                 if (row.name == name) {
                     row.resistPenalty = -penalty;
@@ -66,6 +66,9 @@ void ModuleChallenge::generate(DataContext& output, RandomGenerator& rng, const 
         };
 
         for (auto& row : output.levels.rows) {
+            if (!row.useForRando)
+                continue;
+
             adjustLevel(row.monLvlEx[1], levelIncreaseNightmare);
             adjustLevel(row.monLvlEx[2], levelIncreaseHell);
         }

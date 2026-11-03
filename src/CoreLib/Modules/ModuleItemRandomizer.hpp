@@ -11,15 +11,17 @@
 
 namespace D2ModGen {
 
-struct ModuleItemRandomizer : public IModule {
+struct ModuleItemRandomizer : public AbstractModule {
+    using AbstractModule::AbstractModule;
+
+    void generate() override;
+
     struct Loc {
         std::string key;
         std::string value;
     };
 
     using ExtraLoc = std::vector<Loc>;
-
-    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
 
     struct SlotPropsVal {
         std::map<int, MagicPropList> propsByLevel;
@@ -36,17 +38,11 @@ struct ModuleItemRandomizer : public IModule {
         std::map<AttributeId, AllPropsVal> propsById;
     };
 
-    AllProps grabAllProps(const DataContext&     output,
-                          bool                   onlySetUniques = true,
+    AllProps grabAllProps(bool                   onlySetUniques = true,
                           std::set<std::string>* unknownList    = nullptr,
                           std::set<std::string>* skippedList    = nullptr);
 
-    void createNewItems(DataContext&                 output,
-                        RandomGenerator&             rng,
-                        const Config&                config,
-                        const GenerationEnvironment& env,
-                        int                          repeatUniques,
-                        int                          repeatSets);
+    void createNewItems(int repeatUniques, int repeatSets);
 
     AllAttributeData analyzeAll(const AllProps& allProps);
 

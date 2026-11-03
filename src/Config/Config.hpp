@@ -283,25 +283,29 @@ struct Config : public CommonStruct {
     struct MonsterRandomizer : public CommonStruct {
         bool m_enabled{ false };
 
-        bool m_hellResistances{ false };
-
         int64_t m_numMonExtra{ 0 };
 
-        int64_t m_spawnKeepOriginal{ 25 };
+        int64_t m_spawnKeepOriginal{ 100 };
 
-        int64_t m_chanceToSwapResistances{ 0 };
+        int64_t m_guestsMin{ 0 };
 
-        int64_t m_spawnGenerateMin{ 0 };
+        int64_t m_guestsMax{ 0 };
 
-        int64_t m_spawnGenerateMax{ 0 };
+        int64_t m_chimeraAIMin{ 0 };
+
+        int64_t m_chimeraAIMax{ 0 };
+
+        int64_t m_rollResistancesMin{ 0 };
+
+        int64_t m_rollResistancesMax{ 0 };
+
+        int64_t m_rollStatMin{ 0 };
+
+        int64_t m_rollStatMax{ 0 };
 
         int64_t m_densityMin{ 100 };
 
         int64_t m_densityMax{ 100 };
-
-        bool m_hellPacks{ false };
-
-        bool m_maxPacks{ false };
 
         int64_t m_elitePacksMin{ 100 };
 
@@ -309,22 +313,33 @@ struct Config : public CommonStruct {
 
         int64_t m_monGroupIncreaseSize{ 0 };
 
+        bool m_hellResistances{ false };
+
+        bool m_hellPacks{ false };
+
+        bool m_maxPacks{ false };
+
         MonsterRandomizer()
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true);
-            addScalar("hellResistances", m_hellResistances).setZero(false).setRecc(false).addPreset(3, true);
             addScalar("numMonExtra", m_numMonExtra).setRange(-2, 10).setZero(0);
-            addScalar("spawnKeepOriginal", m_spawnKeepOriginal).setRange(0, 25).setZero(25).setRecc(3);
-            addScalar("chanceToSwapResistances", m_chanceToSwapResistances).setRange(0, 100).setZero(0).setRecc(0).setPercent().addPreset(3, 100);
-            addScalar("spawnGenerateMin", m_spawnGenerateMin).setRange(0, 25).setZero(0).setRecc(1);
-            addScalar("spawnGenerateMax", m_spawnGenerateMax).setRange(0, 25).setZero(0).setRecc(3).addPreset(3, 10);
-            addScalar("densityMin", m_densityMin).setRange(20, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 200);
-            addScalar("densityMax", m_densityMax).setRange(20, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 300);
-            addScalar("hellPacks", m_hellPacks).setZero(false).setRecc(true);
-            addScalar("maxPacks", m_maxPacks).setZero(false).setRecc(true);
-            addScalar("elitePacksMin", m_elitePacksMin).setRange(20, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 1000);
-            addScalar("elitePacksMax", m_elitePacksMax).setRange(20, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 1000);
+            addScalar("spawnKeepOriginal", m_spawnKeepOriginal).setRange(0, 100).setZero(100).setRecc(100).setPercent().addPreset(3, 50);
+            addScalar("guestsMin", m_guestsMin).setRange(0, 1000).setZero(0).setRecc(25).setPercent().addPreset(3, 200);
+            addScalar("guestsMax", m_guestsMax).setRange(0, 1000).setZero(0).setRecc(50).setPercent().addPreset(3, 200);
+            addScalar("chimeraAIMin", m_chimeraAIMin).setRange(0, 100).setZero(0).setRecc(0).setPercent().addPreset(3, 100);
+            addScalar("chimeraAIMax", m_chimeraAIMax).setRange(0, 100).setZero(0).setRecc(50).setPercent().addPreset(3, 100);
+            addScalar("rollResistancesMin", m_rollResistancesMin).setRange(0, 100).setZero(0).setRecc(0).setPercent().addPreset(3, 100);
+            addScalar("rollResistancesMax", m_rollResistancesMax).setRange(0, 100).setZero(0).setRecc(30).setPercent().addPreset(3, 100);
+            addScalar("rollStatMin", m_rollStatMin).setRange(0, 100).setZero(0).setRecc(0).setPercent().addPreset(3, 100);
+            addScalar("rollStatMax", m_rollStatMax).setRange(0, 100).setZero(0).setRecc(50).setPercent().addPreset(3, 100);
+            addScalar("densityMin", m_densityMin).setRange(20, 1000).setZero(100).setRecc(100).setPercent().setLogScale().addPreset(0, 200);
+            addScalar("densityMax", m_densityMax).setRange(20, 1000).setZero(100).setRecc(120).setPercent().setLogScale().addPreset(0, 300);
+            addScalar("elitePacksMin", m_elitePacksMin).setRange(20, 1000).setZero(100).setRecc(50).setPercent().setLogScale().addPreset(0, 1000);
+            addScalar("elitePacksMax", m_elitePacksMax).setRange(20, 1000).setZero(100).setRecc(100).setPercent().setLogScale().addPreset(0, 1000);
             addScalar("monGroupIncreaseSize", m_monGroupIncreaseSize).setRange(0, 20).setZero(0);
+            addScalar("hellResistances", m_hellResistances).setZero(false).setRecc(false).addPreset(3, true);
+            addScalar("hellPacks", m_hellPacks).setZero(false).setRecc(false).addPreset(3, true);
+            addScalar("maxPacks", m_maxPacks).setZero(false).setRecc(true);
         }
     };
     struct SkillRandomizer : public CommonStruct {

@@ -12,9 +12,26 @@
 namespace D2ModGen {
 
 struct IModule {
-    virtual void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) = 0;
+    virtual void generate() = 0;
 
     virtual ~IModule() = default;
+};
+
+struct AbstractModule : public IModule {
+    DataContext&                 output;
+    RandomGenerator&             rng;
+    const Config&                config;
+    const GenerationEnvironment& env;
+
+    AbstractModule(DataContext& output_, RandomGenerator& rng_, const Config& config_, const GenerationEnvironment& env_)
+        : output(output_)
+        , rng(rng_)
+        , config(config_)
+        , env(env_)
+    {
+    }
+
+    ~AbstractModule() override = default;
 };
 
 }

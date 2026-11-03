@@ -46,42 +46,42 @@ namespace D2ModGen {
 
 namespace {
 
-struct ModuleRecord {
-    std::string              m_id;
-    std::unique_ptr<IModule> m_gen;
-};
-
-template<class T>
-ModuleRecord create(const std::string& id)
-{
-    return ModuleRecord{ id, std::make_unique<T>() };
-}
-
-struct ModuleAll : public IModule {
-    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override
+class ModuleAll : public AbstractModule {
+public:
+    ModuleAll(DataContext& output_, RandomGenerator& rng_, const Config& config_, const GenerationEnvironment& env_)
+        : AbstractModule(output_, rng_, config_, env_)
     {
-        std::vector<ModuleRecord> modules;
+        reset();
+    }
+
+    std::string getErr() const { return m_err; }
+
+    void reset()
+    {
         // light modules
-        modules.push_back(create<ModuleChallenge>("Challenge"));
-        modules.push_back(create<ModuleCharacter>("Character"));
-        modules.push_back(create<ModuleGambling>("Gambling"));
-        modules.push_back(create<ModuleTreasureClasses>("TreasureClasses"));
-        modules.push_back(create<ModuleMonStats>("MonStats"));
-        modules.push_back(create<ModuleQol>("Qol"));
+        create<ModuleChallenge>("Challenge");
+        create<ModuleCharacter>("Character");
+        create<ModuleGambling>("Gambling");
+        create<ModuleTreasureClasses>("TreasureClasses");
+        create<ModuleMonStats>("MonsterStats");
+        create<ModuleQol>("QualityOfLife");
 
         // modules that can add more rows, thus in the end
-        modules.push_back(create<ModuleCube>("Cube"));
-        modules.push_back(create<ModuleMonRandomizer>("MonRandomizer"));
-        modules.push_back(create<ModuleItemRandomizer>("ItemRandomizer"));
-        modules.push_back(create<ModuleSkillRandomizer>("SkillRandomizer"));
+        create<ModuleCube>("HoradricCube");
+        create<ModuleMonRandomizer>("MonsterRandomizer");
+        create<ModuleItemRandomizer>("ItemRandomizer");
+        create<ModuleSkillRandomizer>("SkillRandomizer");
 
         // item balance affect input for randomizer, that's why it is in the end.
-        modules.push_back(create<ModuleItemBalance>("ItemBalance"));
+        create<ModuleItemBalance>("ItemBalance");
+    }
 
-        for (auto& module : modules) {
+    void generate() override
+    {
+        for (auto& module : m_modules) {
             Logger() << "start module: " << module.m_id;
             try {
-                module.m_gen->generate(output, rng, config, env);
+                module.m_gen->generate();
             }
             catch (const std::exception& ex) {
                 m_err = std::string("module '" + module.m_id + "': " + std::string(ex.what()));
@@ -91,7 +91,21 @@ struct ModuleAll : public IModule {
         }
     }
 
+private:
+    struct ModuleRecord {
+        std::string              m_id;
+        std::unique_ptr<IModule> m_gen;
+    };
+    template<class T>
+    void create(const std::string& id)
+    {
+        m_modules.push_back(ModuleRecord{ id, std::make_unique<T>(output, rng, config, env) });
+    }
+
+private:
     std::string m_err;
+
+    std::vector<ModuleRecord> m_modules;
 };
 
 }
@@ -238,10 +252,10 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             return Distribution32(0, bound - 1)(engine);
         };
 
-        ModuleAll all;
-        all.generate(output, rngWrapper, m_config, env);
-        if (!all.m_err.empty())
-            return { all.m_err };
+        ModuleAll all(output, rngWrapper, m_config, env);
+        all.generate();
+        if (!all.getErr().empty())
+            return { all.getErr() };
 
         Logger(Logger::Notice) << "generate logic finished in: " << start.GetElapsedTime().ToProfilingTime();
     }

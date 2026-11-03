@@ -595,68 +595,88 @@ private:
 class Config_MonsterRandomizer_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hellResistances READ get_hellResistances CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* numMonExtra READ get_numMonExtra CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* spawnKeepOriginal READ get_spawnKeepOriginal CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* chanceToSwapResistances READ get_chanceToSwapResistances CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* spawnGenerateMin READ get_spawnGenerateMin CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* spawnGenerateMax READ get_spawnGenerateMax CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* guestsMin READ get_guestsMin CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* guestsMax READ get_guestsMax CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* chimeraAIMin READ get_chimeraAIMin CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* chimeraAIMax READ get_chimeraAIMax CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* rollResistancesMin READ get_rollResistancesMin CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* rollResistancesMax READ get_rollResistancesMax CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* rollStatMin READ get_rollStatMin CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* rollStatMax READ get_rollStatMax CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* densityMin READ get_densityMin CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* densityMax READ get_densityMax CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* hellPacks READ get_hellPacks CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* maxPacks READ get_maxPacks CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* elitePacksMin READ get_elitePacksMin CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* elitePacksMax READ get_elitePacksMax CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* monGroupIncreaseSize READ get_monGroupIncreaseSize CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* hellResistances READ get_hellResistances CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* hellPacks READ get_hellPacks CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* maxPacks READ get_maxPacks CONSTANT)
 
 public:
     explicit Config_MonsterRandomizer_Qt(Config::MonsterRandomizer& data)
         : CommonStruct_Qt(data)
         , m_data(data)
         , m_enabled(data.getPropertyBool(0))
-        , m_hellResistances(data.getPropertyBool(1))
         , m_numMonExtra(data.getPropertyInt(0))
         , m_spawnKeepOriginal(data.getPropertyInt(1))
-        , m_chanceToSwapResistances(data.getPropertyInt(2))
-        , m_spawnGenerateMin(data.getPropertyInt(3))
-        , m_spawnGenerateMax(data.getPropertyInt(4))
-        , m_densityMin(data.getPropertyInt(5))
-        , m_densityMax(data.getPropertyInt(6))
+        , m_guestsMin(data.getPropertyInt(2))
+        , m_guestsMax(data.getPropertyInt(3))
+        , m_chimeraAIMin(data.getPropertyInt(4))
+        , m_chimeraAIMax(data.getPropertyInt(5))
+        , m_rollResistancesMin(data.getPropertyInt(6))
+        , m_rollResistancesMax(data.getPropertyInt(7))
+        , m_rollStatMin(data.getPropertyInt(8))
+        , m_rollStatMax(data.getPropertyInt(9))
+        , m_densityMin(data.getPropertyInt(10))
+        , m_densityMax(data.getPropertyInt(11))
+        , m_elitePacksMin(data.getPropertyInt(12))
+        , m_elitePacksMax(data.getPropertyInt(13))
+        , m_monGroupIncreaseSize(data.getPropertyInt(14))
+        , m_hellResistances(data.getPropertyBool(1))
         , m_hellPacks(data.getPropertyBool(2))
         , m_maxPacks(data.getPropertyBool(3))
-        , m_elitePacksMin(data.getPropertyInt(7))
-        , m_elitePacksMax(data.getPropertyInt(8))
-        , m_monGroupIncreaseSize(data.getPropertyInt(9))
     {
     }
 
     PropertyBool_Qt* get_enabled() { return &m_enabled; }
 
-    PropertyBool_Qt* get_hellResistances() { return &m_hellResistances; }
-
     PropertyInt_Qt* get_numMonExtra() { return &m_numMonExtra; }
 
     PropertyInt_Qt* get_spawnKeepOriginal() { return &m_spawnKeepOriginal; }
 
-    PropertyInt_Qt* get_chanceToSwapResistances() { return &m_chanceToSwapResistances; }
+    PropertyInt_Qt* get_guestsMin() { return &m_guestsMin; }
 
-    PropertyInt_Qt* get_spawnGenerateMin() { return &m_spawnGenerateMin; }
+    PropertyInt_Qt* get_guestsMax() { return &m_guestsMax; }
 
-    PropertyInt_Qt* get_spawnGenerateMax() { return &m_spawnGenerateMax; }
+    PropertyInt_Qt* get_chimeraAIMin() { return &m_chimeraAIMin; }
+
+    PropertyInt_Qt* get_chimeraAIMax() { return &m_chimeraAIMax; }
+
+    PropertyInt_Qt* get_rollResistancesMin() { return &m_rollResistancesMin; }
+
+    PropertyInt_Qt* get_rollResistancesMax() { return &m_rollResistancesMax; }
+
+    PropertyInt_Qt* get_rollStatMin() { return &m_rollStatMin; }
+
+    PropertyInt_Qt* get_rollStatMax() { return &m_rollStatMax; }
 
     PropertyInt_Qt* get_densityMin() { return &m_densityMin; }
 
     PropertyInt_Qt* get_densityMax() { return &m_densityMax; }
-
-    PropertyBool_Qt* get_hellPacks() { return &m_hellPacks; }
-
-    PropertyBool_Qt* get_maxPacks() { return &m_maxPacks; }
 
     PropertyInt_Qt* get_elitePacksMin() { return &m_elitePacksMin; }
 
     PropertyInt_Qt* get_elitePacksMax() { return &m_elitePacksMax; }
 
     PropertyInt_Qt* get_monGroupIncreaseSize() { return &m_monGroupIncreaseSize; }
+
+    PropertyBool_Qt* get_hellResistances() { return &m_hellResistances; }
+
+    PropertyBool_Qt* get_hellPacks() { return &m_hellPacks; }
+
+    PropertyBool_Qt* get_maxPacks() { return &m_maxPacks; }
 
     Q_INVOKABLE void assign(Config_MonsterRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
 
@@ -665,31 +685,41 @@ private:
 
     PropertyBool_Qt m_enabled;
 
-    PropertyBool_Qt m_hellResistances;
-
     PropertyInt_Qt m_numMonExtra;
 
     PropertyInt_Qt m_spawnKeepOriginal;
 
-    PropertyInt_Qt m_chanceToSwapResistances;
+    PropertyInt_Qt m_guestsMin;
 
-    PropertyInt_Qt m_spawnGenerateMin;
+    PropertyInt_Qt m_guestsMax;
 
-    PropertyInt_Qt m_spawnGenerateMax;
+    PropertyInt_Qt m_chimeraAIMin;
+
+    PropertyInt_Qt m_chimeraAIMax;
+
+    PropertyInt_Qt m_rollResistancesMin;
+
+    PropertyInt_Qt m_rollResistancesMax;
+
+    PropertyInt_Qt m_rollStatMin;
+
+    PropertyInt_Qt m_rollStatMax;
 
     PropertyInt_Qt m_densityMin;
 
     PropertyInt_Qt m_densityMax;
-
-    PropertyBool_Qt m_hellPacks;
-
-    PropertyBool_Qt m_maxPacks;
 
     PropertyInt_Qt m_elitePacksMin;
 
     PropertyInt_Qt m_elitePacksMax;
 
     PropertyInt_Qt m_monGroupIncreaseSize;
+
+    PropertyBool_Qt m_hellResistances;
+
+    PropertyBool_Qt m_hellPacks;
+
+    PropertyBool_Qt m_maxPacks;
 };
 
 class Config_SkillRandomizer_Qt : public CommonStruct_Qt {

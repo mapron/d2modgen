@@ -9,7 +9,7 @@
 
 namespace D2ModGen {
 
-void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
+void ModuleQol::generate()
 {
     const auto& module = config.m_qualityOfLife;
 
@@ -85,7 +85,7 @@ void ModuleQol::generate(DataContext& output, RandomGenerator& rng, const Config
             row.expRatio = 1024;
     }
 
-    auto replaceJson = [&output, &env](const std::map<std::string, std::string>& replacements, const JsonId& name) {
+    auto replaceJson = [this](const std::map<std::string, std::string>& replacements, const JsonId& name) {
         if (replacements.empty() || !output.jsonFiles.contains(name))
             return;
         auto& jsonDoc   = output.jsonFiles[name];

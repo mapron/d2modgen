@@ -133,6 +133,8 @@ bool DataContext::postProcess()
     weapons.makeIndex(&RowBaseEquipment::code);
     misc.makeIndex(&RowBaseEquipment::code);
     skills.makeIndex(&DataRow_skills::skill);
+    monstatsEx.makeIndex(&DataRow_monstatsEx::id);
+    monstats.makeIndex(&DataRow_monstats::id);
 
     const size_t skill_Leap             = 132;
     skills.rows[skill_Leap].canBeOskill = false;
@@ -142,8 +144,7 @@ bool DataContext::postProcess()
             code.resize(4);
         if (code == "amu")
             code = "amul";
-        auto it = itemtypes.index.find(code);
-        return it == itemtypes.index.cend() ? nullptr : it->second;
+        return itemtypes.find(code);
     };
 
     auto bindEquip = [this, &getItemType](RowBaseEquipment& row) {
@@ -160,12 +161,12 @@ bool DataContext::postProcess()
         bindEquip(row);
 
     auto findEquip = [this](const std::string& equipCode) -> EquipmentType {
-        if (auto it = armor.index.find(equipCode); it != armor.index.cend())
-            return it->second;
-        if (auto it = weapons.index.find(equipCode); it != weapons.index.cend())
-            return it->second;
-        if (auto it = misc.index.find(equipCode); it != misc.index.cend())
-            return it->second;
+        if (auto it = armor.find(equipCode))
+            return it;
+        if (auto it = weapons.find(equipCode))
+            return it;
+        if (auto it = misc.find(equipCode))
+            return it;
         assert(false);
         return nullptr;
     };
@@ -299,9 +300,59 @@ bool DataContext::postProcess()
         input1 = Mernel::strToLower(input1);
 
         row.itemType = getItemType(input1);
-        if (!row.itemType)
+        if (!row.itemType) {
             row.eqipmentType = findEquip(input1);
+
+        } else {
+            auto slot = row.itemType->determineSlot();
+            assert(slot != SlotType::None);
+        }
     }
+    for (auto& row : levels.rows) {
+        if (!row.name.starts_with("Act "))
+            continue;
+        if (row.name == "Act 5 - Mountain Top")
+            continue;
+        if (row.mon.empty() || row.umon.empty() || !row.numMon.has_value())
+            continue;
+        if (!row.hasSpawns())
+            continue;
+        row.useForRando = true;
+        for (auto& id : row.mon) {
+            if (auto idx = monstats.findN(id); idx != size_t(-1))
+                monstats.rows[idx].spawnedAsNormal = true;
+        }
+        for (auto& id : row.nmon) {
+            if (auto idx = monstats.findN(id); idx != size_t(-1))
+                monstats.rows[idx].spawnedAsNormal = true;
+        }
+        for (auto& id : row.umon) {
+            if (auto idx = monstats.findN(id); idx != size_t(-1))
+                monstats.rows[idx].spawnedAsElite = true;
+        }
+    }
+
+    bool hasRegular = false;
+    for (auto& row : monstats.rows) {
+        if (row.spawnedAsNormal) {
+            for (auto& minionId : row.minionIds) {
+                if (minionId.empty() || minionId == row.id)
+                    continue;
+
+                auto n = monstats.findN(minionId);
+                if (n != size_t(-1))
+                    monstats.rows[n].spawnedAsNormal = true;
+            }
+        }
+    }
+    for (auto& row : monstats.rows) {
+        row.isRegular = row.isEnabled() && row.isSpawn() && row.isKillable() && !row.isNpc() && !row.isBoss() && row.level.has_value();
+        row.isRegular = row.isRegular && monstatsEx.index.contains(row.monStatsEx);
+
+        row.useForRando = row.isRegular && row.spawnedAsNormal;
+        hasRegular      = hasRegular || row.isRegular;
+    }
+    assert(hasRegular);
 
     return true;
 }

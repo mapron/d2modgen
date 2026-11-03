@@ -35,6 +35,7 @@ struct ItemCodeList : public std::vector<ItemType> {
 template<class Row>
 struct DataTable {
     std::vector<Row> rows;
+    std::vector<Row> extra;
 
     std::vector<std::string> requestedColumns;
     std::vector<std::string> columnsOriginal;
@@ -45,6 +46,8 @@ struct DataTable {
 
     std::unordered_map<std::string, const Row*> index;
     std::unordered_map<std::string, int>        indexN;
+
+    std::string Row::* indexField = nullptr;
 
     bool valid = false;
 
@@ -64,10 +67,17 @@ struct DataTable {
     }
     void makeIndex(std::string Row::* m)
     {
+        indexField = m;
+        updateIndex();
+    }
+    void updateIndex()
+    {
+        if (!indexField)
+            return;
         indexN.clear();
         index.clear();
         for (int i = 0; auto& row : rows) {
-            auto key    = Mernel::strToLower(row.*m);
+            auto key    = Mernel::strToLower(row.*indexField);
             index[key]  = &row;
             indexN[key] = i++;
         }
@@ -76,6 +86,25 @@ struct DataTable {
     bool parseTable(const std::string& buffer);
 
     bool serializeTable(std::string& buffer, bool full) const;
+
+    const Row* find(const std::string& code) const
+    {
+        auto it = index.find(code);
+        return it == index.cend() ? nullptr : it->second;
+    }
+
+    size_t findN(const std::string& code) const
+    {
+        auto it = indexN.find(code);
+        return it == indexN.cend() ? size_t(-1) : it->second;
+    }
+
+    void commitExtraRows()
+    {
+        rows.insert(rows.end(), extra.begin(), extra.end());
+        extra.clear();
+        updateIndex();
+    }
 };
 
 struct AffixProp {
@@ -187,6 +216,23 @@ struct RowBase {
     {
         for (size_t i = 0; i < size; ++i)
             ser(data[i]);
+    }
+    template<class T, class FromString, class ToString>
+    void serEnum(T& data, T def, FromString&& fromString, ToString&& toString)
+    {
+        auto& str = _ser_usedCells[_ser_cellIndex++];
+        if (_ser_read) {
+            if (str.empty() || str == s_empty) {
+                data = def;
+            } else {
+                data = fromString(str);
+            }
+        } else {
+            if (data == def)
+                str = {};
+            else
+                str = toString(data);
+        }
     }
 };
 

@@ -7,7 +7,7 @@
 
 namespace D2ModGen {
 
-void ModuleCharacter::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
+void ModuleCharacter::generate()
 {
     const auto& module = config.m_character;
 

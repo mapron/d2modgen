@@ -9,8 +9,10 @@
 
 namespace D2ModGen {
 
-struct ModuleTreasureClasses : public IModule {
-    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
+struct ModuleTreasureClasses : public AbstractModule {
+    using AbstractModule::AbstractModule;
+
+    void generate() override;
 
 private:
     void generateItems(DataContext& output, const Config::TreasureClasses::Items& config);

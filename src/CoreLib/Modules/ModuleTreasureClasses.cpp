@@ -195,7 +195,7 @@ struct ActAndDiff {
     }
 };
 
-void ModuleTreasureClasses::generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env)
+void ModuleTreasureClasses::generate()
 {
     {
         const auto& module = config.m_treasureClasses.m_runes;

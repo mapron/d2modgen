@@ -8,8 +8,10 @@
 
 namespace D2ModGen {
 
-struct ModuleSkillRandomizer : public IModule {
-    void generate(DataContext& output, RandomGenerator& rng, const Config& config, const GenerationEnvironment& env) override;
+struct ModuleSkillRandomizer : public AbstractModule {
+    using AbstractModule::AbstractModule;
+
+    void generate() override;
 };
 
 }
