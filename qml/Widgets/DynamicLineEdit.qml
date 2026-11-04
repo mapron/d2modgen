@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * SPDX-License-Identifier: BSL-1.0
+ * See LICENSE file for details.
+ */
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
@@ -24,5 +29,6 @@ TextField {
         color: textInput.palette.base
         border.color: textInput.acceptableInput ? palette.accent : "red"
         border.width: textInput.acceptableInput ? 1 : 2
+        radius: 3
     }
 }

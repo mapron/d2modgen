@@ -837,6 +837,7 @@ class Config_Character_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyBool_Qt* addCube READ get_addCube CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* addTeleport READ get_addTeleport CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* idTome READ get_idTome CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* tpTome READ get_tpTome CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* manaPots READ get_manaPots CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* mercDam READ get_mercDam CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* mercHP READ get_mercHP CONSTANT)
@@ -856,7 +857,8 @@ public:
         , m_addCube(data.getPropertyBool(0))
         , m_addTeleport(data.getPropertyBool(1))
         , m_idTome(data.getPropertyBool(2))
-        , m_manaPots(data.getPropertyBool(3))
+        , m_tpTome(data.getPropertyBool(3))
+        , m_manaPots(data.getPropertyBool(4))
         , m_mercDam(data.getPropertyInt(0))
         , m_mercHP(data.getPropertyInt(1))
         , m_skillPointLimit(data.getPropertyInt(2))
@@ -875,6 +877,8 @@ public:
     PropertyBool_Qt* get_addTeleport() { return &m_addTeleport; }
 
     PropertyBool_Qt* get_idTome() { return &m_idTome; }
+
+    PropertyBool_Qt* get_tpTome() { return &m_tpTome; }
 
     PropertyBool_Qt* get_manaPots() { return &m_manaPots; }
 
@@ -908,6 +912,8 @@ private:
     PropertyBool_Qt m_addTeleport;
 
     PropertyBool_Qt m_idTome;
+
+    PropertyBool_Qt m_tpTome;
 
     PropertyBool_Qt m_manaPots;
 

@@ -34,16 +34,15 @@ void ModuleCharacter::generate()
 
         if (module.m_addCube)
             row.items.push_back(DataRow_charstats::Item{ "box", 1 });
-        if (module.m_idTome)
-            for (auto& item : row.items) {
-                if (item.code == "isc")
-                    item.code = "ibk";
-            }
-        if (module.m_manaPots)
-            for (auto& item : row.items) {
-                if (item.code == "hp1")
-                    item.code = "mp1";
-            }
+
+        for (auto& item : row.items) {
+            if (item.code == "isc" && module.m_idTome)
+                item.code = "ibk";
+            if (item.code == "tsc" && module.m_tpTome)
+                item.code = "tbk";
+            if (item.code == "hp1" && module.m_manaPots)
+                item.code = "mp1";
+        }
 
         if (module.m_addTeleport)
             row.skills.push_back("Teleport");

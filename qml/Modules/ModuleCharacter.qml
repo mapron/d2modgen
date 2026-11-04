@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * SPDX-License-Identifier: BSL-1.0
+ * See LICENSE file for details.
+ */
 import QtQuick.Controls.Fusion
 import QtQuick.Layouts
 import QtQuick
@@ -26,6 +31,12 @@ WidgetCommonTab {
     }
 
     WidgetCheckbox {
+        caption: qsTr("Replace TP scroll with TP tome")
+        tooltip: ""
+        value_key: root.value_context.tpTome
+    }
+
+    WidgetCheckbox {
         caption: qsTr("Replace starting Health pots with Mana")
         tooltip: ""
         value_key: root.value_context.manaPots
@@ -41,63 +52,53 @@ WidgetCommonTab {
         caption: qsTr("Additional stat points gain per level")
         tooltip: ""
         value_key: root.value_context.extraStatPerLevel
-        isCompact: false
     }
 
     WidgetSlider {
         caption: qsTr("Additional skill points gain per level")
-        tooltip: ""
+        tooltip: qsTr("D2R only")
         value_key: root.value_context.extraSkillPerLevel
-        isCompact: false
-        visible: isD2R
     }
 
     WidgetSlider {
         caption: qsTr("Additional Health gain per level")
+        tooltip: qsTr("D2R only")
         value_key: root.value_context.extraHpPerLevel
-        isCompact: false
     }
     WidgetSlider {
         caption: qsTr("Additional Mana gain per level")
+        tooltip: qsTr("D2R only")
         value_key: root.value_context.extraManaPerLevel
-        isCompact: false
     }
     WidgetSlider {
         caption: qsTr("Health potion speed increase")
         value_key: root.value_context.hpPotEfficacy
-        isCompact: false
     }
     WidgetSlider {
         caption: qsTr("Mana potion speed increase")
         value_key: root.value_context.mpPotEfficacy
-        isCompact: false
     }
 
     WidgetSlider {
         caption: qsTr("Maximum hard points for skill")
-        tooltip: ""
+        tooltip: qsTr("D2R only")
         value_key: root.value_context.skillPointLimit
-        isCompact: false
-        visible: isD2R
     }
     WidgetSlider {
-        caption: qsTr("Change Minimal level required to spent points into skill")
+        caption: qsTr("Minimal level to spent points into skill")
         tooltip: qsTr("For example, if you select 50%, you can get level 30 skill on level 15 instead.")
         value_key: root.value_context.skillsReqLevel
-        isCompact: false
     }
 
     WidgetSlider {
-        caption: qsTr("Change mercenaries Health, multiply by")
+        caption: qsTr("Change mercenaries Health")
         tooltip: ""
         value_key: root.value_context.mercHP
-        isCompact: false
     }
 
     WidgetSlider {
-        caption: qsTr("Change mercenaries Damage, multiply by")
+        caption: qsTr("Change mercenaries Damage")
         tooltip: ""
         value_key: root.value_context.mercDam
-        isCompact: false
     }
 }

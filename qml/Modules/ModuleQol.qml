@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * SPDX-License-Identifier: BSL-1.0
+ * See LICENSE file for details.
+ */
 import QtQuick.Controls.Fusion
 import QtQuick.Layouts
 import QtQuick
@@ -48,21 +53,18 @@ WidgetCommonTab {
         caption: qsTr("Tomes (ID/TP) size")
         tooltip: ""
         value_key: root.value_context.tomeSize
-        isCompact: true
     }
 
     WidgetSlider {
         caption: qsTr("Key chain size")
         tooltip: ""
         value_key: root.value_context.keySize
-        isCompact: true
     }
 
     WidgetSlider {
         caption: qsTr("Quivers size")
         tooltip: qsTr("D2R already have 500 quiver size, and PD2 have unlimited, so use this for LoD")
         value_key: root.value_context.quiverSize
-        isCompact: true
     }
 
     WidgetSlider {
@@ -73,7 +75,7 @@ WidgetCommonTab {
     }
 
     Label {
-        text: qsTr("<b>Make item names compact</b>: this will make item names take less space, e.g. '!HP2' for health potion.<br>Have only effect for D2R")
+        text: qsTr("<b>Make item names compact</b><br>this will make item names take less space, e.g. '!HP2' for health potion.<br>Have only effect for D2R. Use loot filters for PD2.")
     }
 
     WidgetCheckbox {

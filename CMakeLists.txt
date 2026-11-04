@@ -17,7 +17,7 @@ option(ENABLE_SCHEMA_GEN "Turn on code-generation for Config.hpp" FALSE)
 
 cmake_minimum_required(VERSION 3.31...4.0)
 
-project(modgen VERSION 1.0.0)
+project(modgen VERSION 1.0.1)
 
 set(MERNEL_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/mernel)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake ${MERNEL_ROOT}/cmake)
@@ -106,6 +106,7 @@ AddTarget( TYPE app_qt NAME modgen_ui
     )
 
 file(GLOB_RECURSE qmlFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/qml/*.qml)
+file(GLOB_RECURSE jsFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/qml/*.js)
 file(GLOB cppFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/QtApp/*.cpp)
 
 qt6_add_qml_module(modgen_ui
@@ -114,6 +115,7 @@ qt6_add_qml_module(modgen_ui
     VERSION 1.0
     QML_FILES
         ${qmlFiles}
+        ${jsFiles}
         
 )
 

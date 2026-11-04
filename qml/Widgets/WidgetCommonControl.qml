@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * SPDX-License-Identifier: BSL-1.0
+ * See LICENSE file for details.
+ */
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
@@ -7,10 +12,10 @@ ColumnLayout {
     // Base properties for data and strings
     property string caption: ""
     property string tooltip: ""
-    property bool isCompact: false // do not place caption on separate baseline
+    property bool isCompact: true // do not place caption on separate baseline
     property bool controlAfterCaption: true // used only for isCompact==true
     property bool hideCaption: false // used only for isCompact==true
-    property bool stretchCaption: false // used only for isCompact==true
+    property bool stretchCaption: true // used only for isCompact==true
 
     spacing: 4
     Layout.fillWidth: true
@@ -36,12 +41,16 @@ ColumnLayout {
     }
 
     RowLayout {
+        id: mainRowLayout
         spacing: 6
+
         RowLayout {
+            id: captionContainer
             spacing: 6
             visible: root.isCompact && root.controlAfterCaption
-            Layout.fillWidth: root.stretchCaption
-            Layout.horizontalStretchFactor: root.stretchCaption ? 1 : -1
+
+            Layout.fillWidth: true
+            Layout.preferredWidth: root.stretchCaption ? 0 : -1
 
             Label {
                 visible: !hideCaption
@@ -56,11 +65,13 @@ ColumnLayout {
                 Layout.fillWidth: root.stretchCaption
             }
         }
+
         RowLayout {
             id: contentContainer
-            Layout.horizontalStretchFactor: 1
             Layout.fillWidth: true
+            Layout.preferredWidth: root.stretchCaption ? 0 : -1
         }
+
         RowLayout {
             spacing: 6
             visible: root.isCompact && !root.controlAfterCaption

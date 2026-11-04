@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * SPDX-License-Identifier: BSL-1.0
+ * See LICENSE file for details.
+ */
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
@@ -23,16 +28,12 @@ WidgetScrollable {
         }
     }
 
-    Rectangle {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 1
-        color: palette.accent
-    }
+    Separator {}
 
     WidgetCommonControl {
         caption: qsTr("Mod id:")
         tooltip: qsTr("That will affect game's saves folder subdirectory and mod subfolder for D2R")
-        isCompact: true
+        stretchCaption: false
         visible: root.isD2R
 
         control: DynamicLineEdit {
@@ -82,11 +83,8 @@ WidgetScrollable {
         }
     }
 
-    Rectangle {
+    Separator {
         visible: root.isD2R
-        Layout.fillWidth: true
-        Layout.preferredHeight: 1
-        color: palette.accent
     }
 
     // -------------------------------------------------------------
@@ -149,6 +147,7 @@ WidgetScrollable {
     }
 
     WidgetComboBox {
+        isCompact: false
         caption: qsTr("Locale id for D2R:")
         tooltip: ""
         model: ["enUS", "deDE", "esES", "esMX", "frFR", "itIT", "jaJP", "koKR", "plPL", "ptBR", "ruRU", "zhCN", "zhTW"]

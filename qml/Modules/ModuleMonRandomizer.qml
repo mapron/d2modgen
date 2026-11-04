@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * SPDX-License-Identifier: BSL-1.0
+ * See LICENSE file for details.
+ */
 import QtQuick.Controls.Fusion
 import QtQuick.Layouts
 import QtQuick
@@ -17,108 +22,63 @@ WidgetCommonTab {
     WidgetSlider {
         caption: qsTr("How many original monsters to keep")
         value_key: root.value_context.spawnKeepOriginal
-        isCompact: true
     }
 
-    WidgetSlider {
-        caption: qsTr("Amount of guest spawns in area, Max")
+    WidgetRangeSlider {
+        caption: qsTr("Amount of guest spawns in area")
         tooltip: qsTr("This option 'invites' guests from other zones and acts in each area.")
-        value_key: root.value_context.guestsMin
-        isCompact: true
-    }
-    WidgetSlider {
-        caption: qsTr("Amount of guest spawns in area, Max")
-        value_key: root.value_context.guestsMax
-        isCompact: true
-    }
-    WidgetSlider {
-        caption: qsTr("Amount in zone to change AI, Min")
-        tooltip: ""
-        value_key: root.value_context.chimeraAIMin
-        isCompact: true
-    }
-    WidgetSlider {
-        caption: qsTr("Amount in zone to change AI, Max")
-        tooltip: ""
-        value_key: root.value_context.chimeraAIMax
-        isCompact: true
+        value_key1: root.value_context.guestsMin
+        value_key2: root.value_context.guestsMax
     }
 
-    WidgetSlider {
-        caption: qsTr("Amount to change resistances, Min")
-        tooltip: ""
-        value_key: root.value_context.rollResistancesMin
-        isCompact: true
-    }
-    WidgetSlider {
-        caption: qsTr("Amount to change resistances, Max")
-        tooltip: ""
-        value_key: root.value_context.rollResistancesMax
-        isCompact: true
-    }
-    WidgetSlider {
-        caption: qsTr("Amount to change stats (except res), Min")
-        tooltip: ""
-        value_key: root.value_context.rollStatMin
-        isCompact: true
-    }
-    WidgetSlider {
-        caption: qsTr("Amount to change stats (except res), Max")
-        tooltip: ""
-        value_key: root.value_context.rollStatMax
-        isCompact: true
+    WidgetRangeSlider {
+        caption: qsTr("Amount in zone to change AI <br><b>WARNING: experimental, read tooltip!</b>")
+        tooltip: qsTr("This can cause crashes, lags, flickering, and so on!<br>Also some monsters can become harmless due to skill set change.<br>Do not set this too high.")
+        value_key1: root.value_context.chimeraAIMin
+        value_key2: root.value_context.chimeraAIMax
     }
 
-    Rectangle {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 1
-        color: palette.accent
+    WidgetRangeSlider {
+        caption: qsTr("Amount to change resistances")
+        tooltip: ""
+        value_key1: root.value_context.rollResistancesMin
+        value_key2: root.value_context.rollResistancesMax
     }
 
-    WidgetSlider {
-        caption: qsTr("Increase density, Min")
+    WidgetRangeSlider {
+        caption: qsTr("Amount to change stats (except res)")
         tooltip: ""
-        value_key: root.value_context.densityMin
-        isCompact: true
+        value_key1: root.value_context.rollStatMin
+        value_key2: root.value_context.rollStatMax
     }
-    WidgetSlider {
-        caption: qsTr("Increase density, Max")
+
+    Separator {}
+
+    WidgetRangeSlider {
+        caption: qsTr("Increase density")
         tooltip: qsTr("For each zone, value between Min and Max generated.<br>Next original density of zone is scaled to that percent.")
-        value_key: root.value_context.densityMax
-        isCompact: true
+        value_key1: root.value_context.densityMin
+        value_key2: root.value_context.densityMax
+    }
+    WidgetRangeSlider {
+        caption: qsTr("Increase Boss packs count")
+        tooltip: ""
+        value_key1: root.value_context.elitePacksMin
+        value_key2: root.value_context.elitePacksMax
     }
 
-    WidgetSlider {
-        caption: qsTr("Increase Boss packs count, Min")
-        tooltip: ""
-        value_key: root.value_context.elitePacksMin
-        isCompact: true
-    }
-    WidgetSlider {
-        caption: qsTr("Increase Boss packs count, Max")
-        tooltip: ""
-        value_key: root.value_context.elitePacksMax
-        isCompact: true
-    }
-
-    Rectangle {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 1
-        color: palette.accent
-    }
+    Separator {}
 
     WidgetSlider {
         caption: qsTr("Add max possible simultaneous spawns")
         tooltip: qsTr("This option choose how many different types will spawn at once (default is 3, which is D2 original behavior).<br>Note that some map tiles have predefined spawns (shaman camps etc) that can not be randomized.")
         value_key: root.value_context.numMonExtra
-        isCompact: true
     }
 
     WidgetSlider {
-        caption: qsTr("Increase monster groups population, +count<br><b>Beware! This setting have the most impact on getting screen laggy!<b><br><b>Having value above +3 will work well only if previous options are not maxed!</b>")
-        tooltip: ""
+        caption: qsTr("Increase monster groups population, +count<br><b>Can drop performance for D2R, see tooltip<b>")
+        tooltip: qsTr("Beware! This setting have the most impact on getting screen laggy!<br>Having value above +3 will work well only if previous options are not maxed!<br>For D2R loading hundreds of monsters on screen can take several seconds.<br>Game will work, but you will fight invisible mobs.")
         value_key: root.value_context.monGroupIncreaseSize
-        isCompact: true
     }
 
     WidgetCheckbox {

@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * SPDX-License-Identifier: BSL-1.0
+ * See LICENSE file for details.
+ */
 import QtQuick.Controls.Fusion
 import QtQuick.Layouts
 import QtQuick
@@ -117,13 +122,11 @@ WidgetCommonTab {
         value_key: root.value_context.setBonusMode
     }
 
-    Rectangle {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 1
-        color: palette.accent
-    }
+    Separator {}
     Label {
         text: qsTr("Adjust amount of different attribute rolls:")
+        font.bold: true
+        Component.onCompleted: font.pointSize = font.pointSize * 1.2
     }
 
     WidgetSlider {

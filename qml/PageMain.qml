@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * SPDX-License-Identifier: BSL-1.0
+ * See LICENSE file for details.
+ */
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
@@ -30,6 +35,7 @@ WidgetScrollable {
         caption: qsTr("Input folder (mandatory):")
         tooltip: qsTr("Generally, just choose folder with Game.exe.<br>Note: for ProjectD2, select subfolder named 'ProjectD2' in Diablo II.<br>Press Detect! to find information in Windows Registry.")
 
+        isCompact: false
         control: RowLayout {
             Layout.fillWidth: true
 
@@ -61,6 +67,8 @@ WidgetScrollable {
     WidgetCommonControl {
         caption: qsTr("Output folder (optional, leave empty to auto-detect):")
         tooltip: ""
+
+        isCompact: false
 
         control: RowLayout {
             Layout.fillWidth: true
@@ -101,6 +109,7 @@ WidgetScrollable {
             color: palette.accent
         }
         RadioGroup {
+            visible: config.main.versionMajor.value === 1
             model: [qsTr("D2R - LoD"), qsTr("D2R - RotW")]
             value_key: config.main.versionD2R
         }
@@ -114,6 +123,7 @@ WidgetScrollable {
         tooltip: qsTr("This determines source data that is used by randomizer<br><b>Game data archive</b> - For D2R Resurrected, this is CASC storage;<br><b>Game data archive</b> - For D2 Legacy this is .mpq file;<br><b>Folder with extracted data</b> - If you want to use D2R select folder containing modinfo.json, otherwise select game root<br><b>Only .txt</b> - Folder with .txt files")
         model: [qsTr("Game data archive (CASC or Storm=mpq)"), qsTr("Folder with extracted data"), qsTr("Only .txt")]
         value_key: root.value_context.inputMode
+        stretchCaption: false
     }
 
     WidgetComboBox {
@@ -121,6 +131,7 @@ WidgetScrollable {
         tooltip: qsTr("This determines output type:<br><b>D2 Resurrected mod</b> - create D2R mod with all needed subfolders, path is determined by config name (see Extra tab)<br><b>Full folders</b> - create folder structure (data/global/...) with txt/json<br><b>Only .txt</b> - Folder with .txt files, note that for D2R that will mean json files will not be written<br><b>Dry run</b> - read input, process randomizer, but don't write anything")
         model: [qsTr("D2 Resurrected mod"), qsTr("Full folders"), qsTr("Only .txt"), qsTr("Dry run")]
         value_key: root.value_context.outputMode
+        stretchCaption: false
     }
 
     RowLayout {

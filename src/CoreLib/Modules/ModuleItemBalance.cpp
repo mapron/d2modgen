@@ -146,11 +146,8 @@ void ModuleItemBalance::generate()
     empowerTable(output.gems, makeScaler1(gemSettings), gemSettings);
     empowerTable(output.cubemain, makeScaler1(craftedSettings), craftedSettings);
 
-    if (module.m_equipment.m_rollMode) {
-        for (auto& row : output.armor.rows) {
-            if (row.maxac.has_value())
-                row.minac = row.maxac;
-        }
+    for (auto& row : output.armor.rows) {
+        applyMinMax(module.m_equipment, row.minac, row.maxac);
     }
 }
 

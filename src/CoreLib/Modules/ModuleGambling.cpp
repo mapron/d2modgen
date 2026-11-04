@@ -11,7 +11,7 @@ void ModuleGambling::generate()
 {
     const auto& module = config.m_gambling;
 
-    const bool charmGamble = module.m_charmGamble && env.isLegacy; // disabled for D2R now; it crashes the game.
+    const bool charmGamble = module.m_charmGamble && env.isLegacy;
     if (charmGamble) {
         auto& table = output.gamble;
         table.extra.push_back(DataRow_gamble{ .name = ("Charm Small"), .code = ("cm1") });

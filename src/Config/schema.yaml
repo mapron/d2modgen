@@ -33,22 +33,22 @@ structs:
                     forceQuestDrops: { type: bool, zero: false, recc: true }
                     chanceForHighLevel: { type: int, zero: 100, recc: 200, min: 50, max: 2000, percent: true, logScale: true }
 
-                    noneliteFactorIncrease: { type: int, zero: 100, recc: 300, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 300 , weak: 200} }
+                    noneliteFactorIncrease: { type: int, zero: 100, recc: 200, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 1000, strong: 300 , weak: 150} }
 
-                    rareFactorIncrease:   { type: int, zero: 100, recc: 300, min: 20, max: 2000, percent: true, logScale: true, presets: {crazy: 2000, strong: 600 , weak: 100} }
-                    setFactorIncrease:    { type: int, zero: 100, recc: 500, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 1200, weak: 150} }
-                    uniqueFactorIncrease: { type: int, zero: 100, recc: 700, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 1500, weak: 300} }
+                    rareFactorIncrease:   { type: int, zero: 100, recc: 200, min: 20, max: 2000, percent: true, logScale: true, presets: {crazy: 2000, strong: 200 , weak: 100} }
+                    setFactorIncrease:    { type: int, zero: 100, recc: 400, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 600 , weak: 200} }
+                    uniqueFactorIncrease: { type: int, zero: 100, recc: 500, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 700 , weak: 250} }
                     
-                    inverseNodropPercent:  { type: int, zero: 100, recc: 300, min: 25, max: 9100, percent: true, logScale: true, presets: {crazy: 9000} }
+                    inverseNodropPercent:  { type: int, zero: 100, recc: 200, min: 25, max: 9100, percent: true, logScale: true, presets: {crazy: 9000, strong: 300} }
                     equipPercent: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
                     goldPercent:  { type: int, zero: 100, min: 5 , max: 1000, percent: true, logScale: true }
                     goodPercent:  { type: int, zero: 100, min: 25, max: 1000, percent: true, logScale: true }
                     junkPercent:  { type: int, zero: 100, recc: 10, min: 5 , max: 500 , percent: true, logScale: true }
 
-                    championItemCount: { type: int, zero: 1, recc: 2, min: 0, max: 6 }
-                    uniqueItemCount: { type: int, zero: 1, recc: 3, min: 0, max: 6 }
-                    superItemCount: { type: int, zero: 2, recc: 4, min: 0, max: 6 }
-                    removeChampGold: { type: bool, zero: false, recc: true }
+                    championItemCount:  { type: int, zero: 1, recc: 2, min: 0, max: 6,  presets: {crazy: 6, strong: 3}  }
+                    uniqueItemCount:    { type: int, zero: 1, recc: 2, min: 0, max: 6,  presets: {crazy: 6, strong: 3}  }
+                    superItemCount:     { type: int, zero: 2, recc: 3, min: 0, max: 6,  presets: {crazy: 6, strong: 4}  }
+                    removeChampGold:    { type: bool, zero: false, recc: true }
                     removeElitePotions: { type: bool, zero: false, recc: false,  presets: {pain: true} }
         members:
             runes: { type: struct, name: Runes }
@@ -123,8 +123,8 @@ structs:
             spawnKeepOriginal:  { type: int, zero: 100, recc: 100, min: 0, max: 100 , percent: true, presets: { pain: 50  } }
             guestsMin:          { type: int, zero: 0  , recc: 25 , min: 0, max: 1000, percent: true, presets: { pain: 200 } }
             guestsMax:          { type: int, zero: 0  , recc: 50 , min: 0, max: 1000, percent: true, presets: { pain: 200 } }
-            chimeraAIMin:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
-            chimeraAIMax:       { type: int, zero: 0  , recc: 50 , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
+            chimeraAIMin:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 0   } }
+            chimeraAIMax:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 0   } }
             rollResistancesMin: { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
             rollResistancesMax: { type: int, zero: 0  , recc: 30 , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
             rollStatMin:        { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
@@ -165,6 +165,7 @@ structs:
             addCube:     { type: bool, zero: false, recc: true }
             addTeleport: { type: bool, zero: false, recc: true }
             idTome:      { type: bool, zero: false, recc: true }
+            tpTome:      { type: bool, zero: false, recc: true }
             manaPots:    { type: bool, zero: false, recc: false }
 
             mercDam:     { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
