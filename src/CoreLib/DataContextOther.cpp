@@ -281,8 +281,22 @@ std::vector<std::string> DataRow_monstats::getColumns() const
             result.push_back("aip" + istr + diffSuffix);
         }
     }
+
+    for (const auto& diffSuffix : diffs) {
+        for (const std::string& code : {
+                 // clang-format off
+                                         "minhp"s, "maxhp"s, "ac"s, "exp"s, "a1mind"s, "a1maxd"s, "a1th"s,
+                                         "a2mind"s, "a2maxd"s, "a2th"s, "s1mind"s, "s1maxd"s, "s1th"s,
+                                         "el1pct"s, "el1mind"s, "el1maxd"s, "el1dur"s
+                 // clang-format on
+             }) {
+            result.push_back(code + diffSuffix);
+        }
+    }
+
     std::vector<std::string> rest{
         // clang-format off
+        "velocity", "run", "toblock", "el1mode", "el1type",
         "spawn", "minion1", "minion2",
         "enabled", "isspawn", "killable", "npc", "boss",
         "rangedtype", "ismelee", "flying",
@@ -312,6 +326,31 @@ void DataRow_monstats::serialize()
         ser(item.level); }, [](Skill& item) { return !item.name.empty(); });
 
     ser(aipar);
+    for (size_t i = 0; i < 3; ++i) {
+        ser(battleStats[i].minHP);
+        ser(battleStats[i].maxHP);
+        ser(battleStats[i].AC);
+        ser(battleStats[i].exp);
+        ser(battleStats[i].A1minD);
+        ser(battleStats[i].A1maxD);
+        ser(battleStats[i].A1TH);
+        ser(battleStats[i].A2minD);
+        ser(battleStats[i].A2maxD);
+        ser(battleStats[i].A2TH);
+        ser(battleStats[i].S1minD);
+        ser(battleStats[i].S1maxD);
+        ser(battleStats[i].S1TH);
+        ser(battleStats[i].el1Pct);
+        ser(battleStats[i].el1MinD);
+        ser(battleStats[i].el1MaxD);
+        ser(battleStats[i].el1Dur);
+    }
+    ser(walkSpeed);
+    ser(runSpeed);
+    ser(toBlock);
+    ser(el1Mode);
+    ser(el1Type);
+
     ser(minionIds);
 
     ser(enabled);
@@ -362,7 +401,7 @@ bool DataRow_monstatsEx::hasMode(AnimationMode mode) const
 
 AnimationMode DataRow_monstatsEx::getSafeSupportedMode() const
 {
-    for (AnimationMode safeMode : { AnimationMode::S1, AnimationMode::A1, AnimationMode::A2, AnimationMode::WL, AnimationMode::DT }) {
+    for (AnimationMode safeMode : { AnimationMode::A1, AnimationMode::A2, AnimationMode::NU }) {
         if (hasMode(safeMode)) {
             return safeMode;
         }
@@ -375,7 +414,7 @@ std::vector<std::string> DataRow_monstatsEx::getColumns() const
 {
     // clang-format off
     std::vector<std::string> result{
-        "id", "hitclass",
+        "id", "hitclass", "*hcidx",
         "mdt", "mnu", // D2R
         "mwl", "mgh",
         "ma1", "ma2", "mbl", "msc",
@@ -391,8 +430,16 @@ void DataRow_monstatsEx::serialize()
 {
     ser(id);
     ser(hitClass);
+    ser(hcIdx);
     for (size_t i = 0; i < 16; ++i)
         ser(modes[i], true);
+}
+
+std::map<std::string, std::string> DataRow_monstatsEx::getColumnAliases() const
+{
+    std::map<std::string, std::string> result;
+    result["hcidx"] = "*hcidx";
+    return result;
 }
 
 std::vector<std::string> DataRow_skilldesc::getColumns() const

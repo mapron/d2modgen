@@ -84,6 +84,7 @@ private:
     std::vector<const DataRow_monstats*> validGuestIndexes;
 
     std::vector<std::pair<std::string, std::string>> idCopies;
+    int                                              hcIdx = 0;
 };
 
 }

@@ -313,6 +313,8 @@ bool DataContext::postProcess()
             continue;
         if (row.name == "Act 5 - Mountain Top")
             continue;
+        if (row.name.starts_with("Act 5 - Pandemonium"))
+            continue;
         if (row.mon.empty() || row.umon.empty() || !row.numMon.has_value())
             continue;
         if (!row.hasSpawns())

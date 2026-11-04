@@ -44,6 +44,12 @@ void ModuleMonRandomizer::generate()
 {
     if (!config.m_monsterRandomizer.m_enabled)
         return;
+
+    hcIdx = output.monstats.rows.back().hcIdx + 1;
+
+    for (auto& row : output.treasureclassex.rows)
+        tcTable.add(row.name, row.group.value_or(0), row.level.value_or(0));
+
     updateLevelDensity();
 
     prepareChimeraPools();
@@ -56,14 +62,11 @@ void ModuleMonRandomizer::generate()
         if (!row.useForRando)
             continue;
 
-        if (!row.name.starts_with("Act 1 - ") && !row.name.starts_with("Act 2 - "))
-            continue;
+        auto prevRow = row;
 
         auto& monIds = row.nmon;
 
         StringSet monSet;
-
-        Logger() << "Area '" << row.name << "' ";
 
         MonsterTaskList                   tasks;
         int                               targetLevel = 0;
@@ -74,13 +77,13 @@ void ModuleMonRandomizer::generate()
             task.m_source    = output.monstats.find(id);
             if (!task.m_source->useForRando)
                 task.m_skip = true;
+            if (existingIndexes.contains(task.m_source))
+                continue;
 
             existingIndexes.insert(task.m_source);
             targetLevel = std::max(targetLevel, task.m_source->level.value_or(0));
             tasks.push_back(task);
         }
-        for (auto& task : tasks)
-            task.m_targetNormalLevel = targetLevel;
 
         const int originalSize = tasks.size();
         const int guestAmount  = genRandomScaledValue(rng, originalSize, module.m_guestsMin, module.m_guestsMax);
@@ -105,9 +108,10 @@ void ModuleMonRandomizer::generate()
             if (existingIndexes.contains(guestIdx))
                 continue;
             MonsterTask task;
-            task.m_areaIndex = areaIndex - 1;
-            task.m_source    = guestIdx;
-            task.m_isGuest   = true;
+            task.m_areaIndex         = areaIndex - 1;
+            task.m_source            = guestIdx;
+            task.m_isGuest           = true;
+            task.m_targetNormalLevel = targetLevel;
             tasks.push_back(task);
         }
 
@@ -123,7 +127,7 @@ void ModuleMonRandomizer::generate()
         for (auto index : genRandomIndexes(rng, totalAmount, rollResAmount))
             tasks[index].m_rollRes = true;
 
-        Logger() << "> total=" << totalAmount << ", guests=" << guestAmount << ", chimera=" << chimeraAmount << ", rollStat=" << rollStatAmount << ", rollRes=" << rollResAmount;
+        Logger() << "Area '" << row.name << "' > total=" << totalAmount << ", guests=" << guestAmount << ", chimera=" << chimeraAmount << ", rollStat=" << rollStatAmount << ", rollRes=" << rollResAmount << ", targetLevel=" << targetLevel;
 
         for (auto& task : tasks) {
             if (!task.hasAnyMods())
@@ -132,9 +136,11 @@ void ModuleMonRandomizer::generate()
             MonsterTaskList extraMinions;
             processTask(task, extraMinions);
 
-            Logger() << "        " << task.toString();
-            for (auto& minionTask : extraMinions)
-                Logger() << "         minion: " << minionTask.toString();
+            if (0) {
+                Logger() << "        " << task.toString();
+                for (auto& minionTask : extraMinions)
+                    Logger() << "         minion: " << minionTask.toString();
+            }
         }
         row.mon.clear();
         row.nmon.clear();
@@ -151,6 +157,7 @@ void ModuleMonRandomizer::generate()
                 row.umon.push_back(task.m_dest.id);
         }
     }
+
     output.monstats.commitExtraRows();
     output.monstatsEx.commitExtraRows();
 
@@ -235,9 +242,11 @@ void ModuleMonRandomizer::updateLevelDensity()
         for (size_t i = 0; i < 3; ++i) {
             packsAdjust(row.monUMin[i]);
             packsAdjust(row.monUMax[i]);
-            row.monUMax[i] = std::max(row.monUMin[i].value(), row.monUMax[i].value());
-            if (module.m_maxPacks)
-                row.monUMin[i] = row.monUMax[i];
+            if (row.monUMax[i].has_value()) {
+                row.monUMax[i] = std::max(row.monUMin[i].value_or(0), row.monUMax[i].value_or(0));
+                if (module.m_maxPacks)
+                    row.monUMin[i] = row.monUMax[i];
+            }
         }
 
         for (auto& val : row.monDen)
@@ -282,6 +291,17 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
     row.monStatsEx = row.id;
     rowEx.id       = row.id;
 
+    row.hcIdx   = hcIdx;
+    rowEx.hcIdx = hcIdx;
+    hcIdx++;
+
+    if (0) {
+        output.monstats.extra.push_back(row);
+        output.monstatsEx.extra.push_back(rowEx);
+        idCopies.push_back({ origId, row.id });
+        return;
+    }
+
     if (task.m_isGuest) {
         if (guestOrigLevel > task.m_targetNormalLevel) {
             for (auto& skill : row.skills) {
@@ -290,7 +310,8 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
             }
         }
         for (auto* tc : row.nonEmptyTCs()) {
-            *tc = tcTable.promote(*tc, guestOrigLevel, task.m_targetNormalLevel);
+            auto promoted = tcTable.promote(*tc, guestOrigLevel, task.m_targetNormalLevel);
+            *tc           = promoted;
         }
     }
 
@@ -310,7 +331,83 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
             r[i].writeToRow(row, i);
     }
     if (task.m_rollStat) {
-        // @todo:
+        auto genTriangle = [this](int steps) -> int {
+            int totalF = 0;
+            for (int i = steps; i >= 1; --i)
+                totalF += i;
+            int number = rng(totalF);
+            totalF     = 0;
+            for (int i = steps, result = 0; i >= 1; --i, result++) {
+                totalF += i;
+                if (totalF > number)
+                    return result;
+            }
+            return 0;
+        };
+
+        auto genStat = [this, &genTriangle](std::optional<int>& val, int min, int med, int max, int steps = 4) {
+            if (!val.has_value())
+                return;
+            int branch = rng(3);
+            if (branch == 0) {
+                val = med;
+                return;
+            }
+            const int roll = genTriangle(steps) + 1; // [1..steps]
+            const int diff = (branch == 1 ? max : min) - med;
+            val            = med + roll * diff / steps;
+        };
+        genStat(row.walkSpeed, 2, 6, 10);
+        genStat(row.runSpeed, 6, 10, 14);
+        genStat(row.toBlock, 5, 25, 45);
+        for (auto& s : row.battleStats) {
+            auto old = s.maxHP;
+            genStat(s.maxHP, 40, 120, 280);
+            if (s.maxHP.has_value())
+                s.minHP = s.maxHP.value() * 3 / 4;
+
+            genStat(s.AC, 70, 100, 150);
+            genStat(s.exp, 50, 100, 180);
+
+            s.A1minD = 0;
+            s.A1maxD = 0;
+            s.A1TH   = 0;
+            s.A2minD = 0;
+            s.A2maxD = 0;
+            s.A2TH   = 0;
+            s.S1minD = 0;
+            s.S1maxD = 0;
+            s.S1TH   = 0;
+
+            genStat(s.A1minD, 50, 90, 160);
+            genStat(s.A1maxD, 110, 160, 250);
+            genStat(s.A2minD, 50, 90, 160);
+            genStat(s.A2maxD, 110, 160, 250);
+            genStat(s.S1minD, 50, 90, 160);
+            genStat(s.S1maxD, 110, 160, 250);
+
+            genStat(s.A1TH, 70, 100, 220);
+            genStat(s.A2TH, 70, 100, 220);
+            genStat(s.S1TH, 70, 100, 220);
+
+            if (!s.el1Dur.has_value())
+                s.el1Dur = 100;
+
+            genStat(s.el1Pct, 25, 50, 75);
+            genStat(s.el1MinD, 10, 30, 60);
+            genStat(s.el1MaxD, 30, 60, 100);
+
+            Element ran;
+        }
+        if (rowEx.hasMode(AnimationMode::A1) && row.el1Mode.empty()) {
+            row.el1Mode = "A1";
+        }
+        if (rowEx.hasMode(AnimationMode::A2) && row.el1Mode.empty()) {
+            row.el1Mode = "A2";
+        }
+        const auto elements     = std::array{ Element::Ltng, Element::Fire, Element::Cold, Element::Pois };
+        Element    randoElement = elements[rng(elements.size())];
+        row.el1Type             = enumToString(randoElement);
     }
 
     for (auto& minionId : row.minionIds) {
@@ -426,9 +523,6 @@ void ModuleMonRandomizer::generateChimera(DataRow_monstats& chimera, DataRow_mon
 
     chimera.donorId = donor.id;
 
-    /// todo:
-    //return;
-
     // behavioral brain components from the AI donor row
     chimera.AI     = donor.AI;
     chimera.aipar  = donor.aipar;
@@ -472,14 +566,14 @@ std::string ModuleMonRandomizer::TCTable::promote(const std::string& tc, const i
     if (!tc2group.contains(tc) || oldLevel == newLevel)
         return tc;
     const TCGroup& g = groups.at(tc2group.at(tc));
-
-    std::string res = tc;
-    for (auto& rec : g.records) {
-        if (rec.level > newLevel)
+    std::string    res;
+    for (int i = g.records.size() - 1; i >= 0; i--) {
+        if (g.records[i].level > newLevel)
+            res = g.records[i].id;
+        else
             break;
-        res = rec.id;
     }
-    return res;
+    return res.empty() ? tc : res;
 }
 
 void ModuleMonRandomizer::MonResist::readFromRow(const DataRow_monstats& row, size_t i)
@@ -574,6 +668,7 @@ std::string ModuleMonRandomizer::MonsterTask::toString() const
     os << ", rollStat:" << m_rollStat;
     os << ", rollRes:" << m_rollRes;
     os << ", tgtNorm:" << m_targetNormalLevel;
+    os << ", lvl:" << m_source->level.value_or(0);
 
     os << "}";
     return os.str();

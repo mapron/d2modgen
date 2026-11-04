@@ -24,6 +24,8 @@ int scaleValue(int val, int percent, int absLimit)
 {
     if (percent == 100)
         return val;
+    if (val == 0)
+        return 0;
 
     const bool isPositive = val > 0;
     const int  scaledVal  = val * percent / 100;

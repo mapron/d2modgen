@@ -204,6 +204,38 @@ struct DataRow_monstats : public RowBase {
 
     std::array<std::array<std::string, 3>, 4> tc;
 
+    struct Stats {
+        std::optional<int> minHP;
+        std::optional<int> maxHP;
+
+        std::optional<int> AC; // defence
+        std::optional<int> exp;
+
+        std::optional<int> A1minD;
+        std::optional<int> A1maxD;
+        std::optional<int> A1TH; // attack rating
+
+        std::optional<int> A2minD;
+        std::optional<int> A2maxD;
+        std::optional<int> A2TH;
+
+        std::optional<int> S1minD;
+        std::optional<int> S1maxD;
+        std::optional<int> S1TH;
+
+        std::optional<int> el1Pct;
+        std::optional<int> el1MinD;
+        std::optional<int> el1MaxD;
+        std::optional<int> el1Dur;
+    };
+    std::array<Stats, 3> battleStats;
+
+    std::optional<int> walkSpeed;
+    std::optional<int> runSpeed;
+    std::optional<int> toBlock;
+    std::string        el1Mode;
+    std::string        el1Type;
+
     std::vector<std::string*> nonEmptyTCs()
     {
         std::vector<std::string*> result;
@@ -257,6 +289,8 @@ struct DataRow_monstatsEx : public RowBase {
     std::string id;
     std::string hitClass;
 
+    int hcIdx = 0;
+
     std::array<std::optional<bool>, 16> modes;
 
     bool          hasMode(AnimationMode mode) const;
@@ -264,6 +298,8 @@ struct DataRow_monstatsEx : public RowBase {
 
     std::vector<std::string> getColumns() const;
     void                     serialize();
+
+    std::map<std::string, std::string> getColumnAliases() const;
 };
 
 struct DataRow_skilldesc : public RowBase {

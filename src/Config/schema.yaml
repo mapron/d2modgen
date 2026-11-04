@@ -140,7 +140,6 @@ structs:
             hellPacks:            { type: bool, zero: false, recc: false, presets: { pain: true } }
             maxPacks:             { type: bool, zero: false, recc: true }
 
-
     SkillRandomizer:
         members:
             enabled:         { type: bool, zero: false, presets: {pain: true} }

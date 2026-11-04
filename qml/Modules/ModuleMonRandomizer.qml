@@ -32,8 +32,8 @@ WidgetCommonTab {
     }
 
     WidgetRangeSlider {
-        caption: qsTr("Amount in zone to change AI <br><b>WARNING: experimental, read tooltip!</b>")
-        tooltip: qsTr("This can cause crashes, lags, flickering, and so on!<br>Also some monsters can become harmless due to skill set change.<br>Do not set this too high.")
+        caption: qsTr("Amount in zone to change AI <br><b>experimental, see tooltip for known issues</b>")
+        tooltip: qsTr("This option makes 'chimeras' - monsters with visuals of one type and AI for another.<br>This can cause flickering or on some rare occasion invisible monster sprite.<br>Sometimes combination renders monster harmless (it stays in idle animation or have 0 damage).<br><b>Do not set this too high for better experience!</b>")
         value_key1: root.value_context.chimeraAIMin
         value_key2: root.value_context.chimeraAIMax
     }
