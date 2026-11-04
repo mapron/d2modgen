@@ -945,6 +945,14 @@ Character getClassId(const std::string& code)
 
     return Character::None;
 }
+Element getElementId(const std::string& code)
+{
+    for (auto& desc : s_elements)
+        if (desc.code == code)
+            return desc.elem;
+
+    return Element::None;
+}
 
 std::string enumToString(Character type, bool asEnum)
 {

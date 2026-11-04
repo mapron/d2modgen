@@ -674,6 +674,7 @@ struct AttributeDesc {
 
 Character   getClassId(const std::string& code);
 AttributeId getAttributeId(const std::string& code);
+Element     getElementId(const std::string& code);
 
 bool hasFlag(AttributeId code, AttributeFlag flag);
 bool isMinMaxRange(AttributeId code);
