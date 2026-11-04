@@ -57,8 +57,7 @@ void ModuleMonRandomizer::generate()
 
     const auto& module = config.m_monsterRandomizer;
 
-    for (size_t areaIndex = 0; auto& row : output.levels.rows) {
-        areaIndex++;
+    for (auto& row : output.levels.rows) {
         if (!row.useForRando)
             continue;
 
@@ -73,8 +72,8 @@ void ModuleMonRandomizer::generate()
         std::set<const DataRow_monstats*> existingIndexes;
         for (auto& id : monIds) {
             MonsterTask task;
-            task.m_areaIndex = areaIndex - 1;
-            task.m_source    = output.monstats.find(id);
+            task.m_areaId = row.id;
+            task.m_source = output.monstats.find(id);
             if (!task.m_source->useForRando)
                 task.m_skip = true;
             if (existingIndexes.contains(task.m_source))
@@ -108,7 +107,7 @@ void ModuleMonRandomizer::generate()
             if (existingIndexes.contains(guestIdx))
                 continue;
             MonsterTask task;
-            task.m_areaIndex         = areaIndex - 1;
+            task.m_areaId            = row.id;
             task.m_source            = guestIdx;
             task.m_isGuest           = true;
             task.m_targetNormalLevel = targetLevel;
@@ -142,16 +141,22 @@ void ModuleMonRandomizer::generate()
                     Logger() << "         minion: " << minionTask.toString();
             }
         }
-        row.mon.clear();
-        row.nmon.clear();
-        row.umon.clear();
 
-        for (auto& task : tasks) {
-            row.mon.push_back(task.m_dest.id);
-        }
+        row.nmon.clear();
         for (auto& task : tasks) {
             row.nmon.push_back(task.m_dest.id);
         }
+
+        const bool enableNormalSpawns = row.id >= (module.m_minNormalZoneId);
+        if (!enableNormalSpawns)
+            continue;
+
+        row.mon.clear();
+        for (auto& task : tasks) {
+            row.mon.push_back(task.m_dest.id);
+        }
+
+        row.umon.clear();
         for (auto& task : tasks) {
             if (task.m_source->spawnedAsElite)
                 row.umon.push_back(task.m_dest.id);
@@ -195,6 +200,7 @@ void ModuleMonRandomizer::updateLevelDensity()
         for (auto& row : output.monstats.rows) {
             if (!row.isRegular)
                 continue;
+
             auto& valueMin = row.minGrp;
             auto& valueMax = row.maxGrp;
             if (!valueMin.has_value() || !valueMax.has_value())
@@ -209,18 +215,25 @@ void ModuleMonRandomizer::updateLevelDensity()
         }
     }
 
-    auto densityAdjust = [&module, this](std::optional<int>& value) {
+    auto densityAdjust = [&module, this](std::optional<int>& value, int min) {
+        if (!value.has_value() || value.value() == 0)
+            return;
+        if (min > 0) {
+            value = std::max(min, value.value_or(0));
+        }
+
         if (module.m_densityMin == 100 && module.m_densityMax == 100)
             return;
-        if (!value.has_value())
-            return;
 
-        const int prev  = value.value_or(600);
+        const int prev  = value.value_or(0);
         const int scale = genBetweenRng(rng, module.m_densityMin, module.m_densityMax);
         const int next  = scaleValue(prev, scale);
         value           = std::clamp(next, 200, 9900);
     };
-    auto packsAdjust = [&module, this](std::optional<int>& value) {
+    auto packsAdjust = [&module, this](std::optional<int>& value, int min) {
+        if (min > 0) {
+            value = std::max(min, value.value_or(0));
+        }
         if (module.m_elitePacksMin == 100 && module.m_elitePacksMax == 100)
             return;
         const int prev  = value.value_or(0);
@@ -240,8 +253,8 @@ void ModuleMonRandomizer::updateLevelDensity()
         }
 
         for (size_t i = 0; i < 3; ++i) {
-            packsAdjust(row.monUMin[i]);
-            packsAdjust(row.monUMax[i]);
+            packsAdjust(row.monUMin[i], module.m_minAbsPacks);
+            packsAdjust(row.monUMax[i], module.m_minAbsPacks);
             if (row.monUMax[i].has_value()) {
                 row.monUMax[i] = std::max(row.monUMin[i].value_or(0), row.monUMax[i].value_or(0));
                 if (module.m_maxPacks)
@@ -250,7 +263,7 @@ void ModuleMonRandomizer::updateLevelDensity()
         }
 
         for (auto& val : row.monDen)
-            densityAdjust(val);
+            densityAdjust(val, module.m_minAbsDensity);
 
         row.numMon = std::max(2, row.numMon.value() + spawnedCount);
     }
@@ -283,7 +296,7 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
 
     const std::string origId = row.id;
     row.useForRando          = false;
-    row.id                   = "gen_" + row.id + "_" + std::to_string(task.m_areaIndex);
+    row.id                   = "gen_" + row.id + "_" + std::to_string(task.m_areaId);
 
     const int guestOrigLevel = row.level.value_or(0);
     row.level                = task.m_targetNormalLevel;

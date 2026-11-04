@@ -117,28 +117,32 @@ structs:
         members:
             enabled:              { type: bool, zero: false, recc: true }
             
-            numMonExtra:          { type: int, zero: 0, min: -2, max: 10 }
+            numMonExtra:          { type: int, zero: 0, min: -2, max: 10, presets: { crazy: 5} }
 
             # all = percent from set(mon+nmon+umon).size()
-            spawnKeepOriginal:  { type: int, zero: 100, recc: 100, min: 0, max: 100 , percent: true, presets: { pain: 50  } }
-            guestsMin:          { type: int, zero: 0  , recc: 25 , min: 0, max: 1000, percent: true, presets: { pain: 200 } }
-            guestsMax:          { type: int, zero: 0  , recc: 50 , min: 0, max: 1000, percent: true, presets: { pain: 200 } }
-            chimeraAIMin:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 0   } }
-            chimeraAIMax:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 0   } }
+            spawnKeepOriginal:  { type: int, zero: 100, recc: 100, min: 0, max: 100 , percent: true, presets: { crazy:  50, pain: 50  } }
+            guestsMin:          { type: int, zero: 0  , recc: 25 , min: 0, max: 1000, percent: true, presets: { crazy:   0, pain: 200 } }
+            guestsMax:          { type: int, zero: 0  , recc: 50 , min: 0, max: 1000, percent: true, presets: { crazy: 300, pain: 200 } }
+            chimeraAIMin:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true                         }
+            chimeraAIMax:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true                         }
             rollResistancesMin: { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
             rollResistancesMax: { type: int, zero: 0  , recc: 30 , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
             rollStatMin:        { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
             rollStatMax:        { type: int, zero: 0  , recc: 50 , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
 
-            densityMin:         { type: int, zero: 100, recc: 100, min: 20, max: 1000, percent: true, presets: {crazy: 200 }, logScale: true }
-            densityMax:         { type: int, zero: 100, recc: 120, min: 20, max: 1000, percent: true, presets: {crazy: 300 }, logScale: true }
-            elitePacksMin:      { type: int, zero: 100, recc: 50 , min: 20, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
-            elitePacksMax:      { type: int, zero: 100, recc: 100, min: 20, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
+            densityMin:         { type: int, zero: 100, recc: 100, min: 20, max: 1000, percent: true, logScale: true }
+            densityMax:         { type: int, zero: 100, recc: 150, min: 20, max: 1000, percent: true, logScale: true }
+            elitePacksMin:      { type: int, zero: 100, recc: 100, min: 20, max: 1000, percent: true, logScale: true }
+            elitePacksMax:      { type: int, zero: 100, recc: 150, min: 20, max: 1000, percent: true, logScale: true }
 
-            monGroupIncreaseSize: { type: int, zero: 0, min: 0, max: 20 } # dangerous and laggy! D2R tanks this
+            monGroupIncreaseSize: { type: int, zero: 0, min: 0, max: 20, presets: { crazy: 5, strong: 2 } } # dangerous and laggy! D2R tanks this
             hellResistances:      { type: bool, zero: false, recc: false, presets: { pain: true } }
-            hellPacks:            { type: bool, zero: false, recc: false, presets: { pain: true } }
+            hellPacks:            { type: bool, zero: false, recc: false }
             maxPacks:             { type: bool, zero: false, recc: true }
+            minAbsDensity:        { type: int, zero: 0  , recc: 800 , min: 0, max: 9000 , presets: { crazy: 5000 , pain: 1500 }}
+            minAbsPacks:          { type: int, zero: 0  , recc: 3   , min: 0, max: 20   , presets: { crazy: 10, strong: 5 , pain: 10 }}
+
+            minNormalZoneId:      { type: int, zero: 0  , recc: 12 , min: 0, max: 133 ,  presets: { pain: 0 } }
 
     SkillRandomizer:
         members:

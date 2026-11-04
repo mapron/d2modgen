@@ -32,9 +32,8 @@ Frame {
             id: pageHeaderRow
             spacing: 6
 
-            Label {
+            LabelLarge {
                 text: root.caption
-                font.pointSize: 11
             }
 
             Item {

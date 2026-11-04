@@ -59,9 +59,8 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    Label {
+    LabelLarge {
         text: qsTr("Apply resistance options to following:")
-        Component.onCompleted: font.pointSize = font.pointSize * 1.2
     }
 
     RowLayout {
@@ -81,6 +80,9 @@ WidgetCommonTab {
                 tooltip: ""
                 value_key: root.value_context.applyLight
             }
+            Item {
+                Layout.fillHeight: true
+            }
         }
         ColumnLayout {
             WidgetCheckbox {
@@ -98,6 +100,9 @@ WidgetCommonTab {
                 caption: qsTr("Physical")
                 tooltip: ""
                 value_key: root.value_context.applyPhys
+            }
+            Item {
+                Layout.fillHeight: true
             }
         }
     }

@@ -11,8 +11,8 @@ WidgetScrollable {
     property QtObject value_context: null
     property QtObject enabled_key: null
 
-    property string caption: ""
-    property string tooltip: ""
+    property alias caption: captionLabel.text
+    property alias tooltip: tooltipIcon.tooltipText
 
     default property alias contentSlot: contentContainer.data
 
@@ -20,13 +20,12 @@ WidgetScrollable {
         id: pageHeaderRow
         spacing: 6
 
-        Label {
-            text: root.caption
-            font.pointSize: 11
+        LabelLarge {
+            id: captionLabel
         }
 
         WidgetHelpIcon {
-            tooltipText: root.tooltip
+            id: tooltipIcon
         }
 
         Item {

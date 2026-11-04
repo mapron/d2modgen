@@ -166,7 +166,7 @@ struct RowBase {
 
     std::map<std::string, std::string> getColumnAliases() const { return {}; }
 
-    void ser(int& data);
+    void ser(int& data, int empty = 0);
     void ser(std::optional<int>& data);
     void ser(std::optional<bool>& data);
     void ser(std::optional<bool>& data, bool valueIfNoColumn);
@@ -209,7 +209,7 @@ struct RowBase {
     }
     void ser(std::vector<int>& data, size_t size)
     {
-        serArray(data, size, [this](int& item) { ser(item); }, [](int& item) { return item > 0; });
+        serArray(data, size, [this](int& item) { ser(item); }, [](int& item) { return item != 0; });
     }
     template<class T, size_t size>
     void ser(std::array<T, size>& data)

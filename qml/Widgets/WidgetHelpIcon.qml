@@ -9,12 +9,17 @@ import QtQuick.Controls.Fusion
 Label {
     id: root
     property string tooltipText: ""
+    property bool isWarning: false
 
-    // Only show if tooltip text is provided
+    leftPadding: 0
+    rightPadding: 10
+
+    horizontalAlignment: Text.AlignLeft
+
     visible: tooltipText !== ""
-    text: "🛈"
+    text: root.isWarning === true ? "⚠" : "🛈"
     font.pointSize: 14
-    color: window.palette.highlight
+    color: root.isWarning === true ? "#FFB256" : window.palette.highlight
 
     MouseArea {
         anchors.fill: parent
@@ -31,7 +36,7 @@ Label {
             contentItem: Text {
                 text: instantTip.text
                 color: window.palette.windowText
-                font.pointSize: 9
+                font.pointSize: 10
                 textFormat: Text.RichText
             }
 

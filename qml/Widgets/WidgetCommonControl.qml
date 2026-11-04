@@ -9,9 +9,9 @@ import QtQuick.Controls.Fusion
 
 ColumnLayout {
     id: root
-    // Base properties for data and strings
     property string caption: ""
     property string tooltip: ""
+    property bool tooltipWarning: false
     property bool isCompact: true // do not place caption on separate baseline
     property bool controlAfterCaption: true // used only for isCompact==true
     property bool hideCaption: false // used only for isCompact==true
@@ -33,6 +33,7 @@ ColumnLayout {
 
         WidgetHelpIcon {
             tooltipText: root.tooltip
+            isWarning: root.tooltipWarning
         }
 
         Item {
@@ -59,6 +60,8 @@ ColumnLayout {
 
             WidgetHelpIcon {
                 tooltipText: root.tooltip
+                isWarning: root.tooltipWarning
+                Layout.fillWidth: false
             }
             Item {
                 visible: root.stretchCaption
@@ -75,6 +78,7 @@ ColumnLayout {
         RowLayout {
             spacing: 6
             visible: root.isCompact && !root.controlAfterCaption
+            Layout.fillWidth: false
 
             Label {
                 visible: !hideCaption
@@ -83,6 +87,8 @@ ColumnLayout {
 
             WidgetHelpIcon {
                 tooltipText: root.tooltip
+                isWarning: root.tooltipWarning
+                Layout.fillWidth: false
             }
         }
 

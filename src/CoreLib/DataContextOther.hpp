@@ -93,6 +93,8 @@ struct DataRow_itemstatcost : public RowBase {
 struct DataRow_levels : public RowBase {
     static constexpr const TableId s_tableId{ TableId::levels };
 
+    int id = -1;
+
     std::array<std::optional<int>, 3> monUMin, monUMax, monDen;
     std::array<std::optional<int>, 3> monLvlEx;
     std::optional<int>                numMon;

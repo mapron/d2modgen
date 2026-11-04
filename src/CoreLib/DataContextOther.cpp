@@ -157,7 +157,7 @@ std::vector<std::string> DataRow_levels::getColumns() const
 {
     std::vector<std::string> result{
         // clang-format off
-        "name", "nummon",
+        "id", "name", "nummon",
         "monumin"  , "monumin(n)"  , "monumin(h)",
         "monumax"  , "monumax(n)"  , "monumax(h)",
         "monden"   , "monden(n)"   , "monden(h)" ,
@@ -185,6 +185,7 @@ std::map<std::string, std::string> DataRow_levels::getColumnAliases() const
 
 void DataRow_levels::serialize()
 {
+    ser(id, -1);
     ser(name);
     ser(numMon);
     ser(monUMin);
@@ -219,7 +220,7 @@ void DataRow_monlvl::serialize()
     ser(DM);
     ser(XP);
 
-    ser(level);
+    ser(level, -1);
 }
 
 std::vector<std::string> DataRow_monseq::getColumns() const
@@ -369,7 +370,7 @@ void DataRow_monstats::serialize()
 
     ser(id);
     ser(baseId);
-    ser(hcIdx);
+    ser(hcIdx, -1);
 
     ser(monStatsEx);
     ser(AI);
@@ -430,7 +431,7 @@ void DataRow_monstatsEx::serialize()
 {
     ser(id);
     ser(hitClass);
-    ser(hcIdx);
+    ser(hcIdx, -1);
     for (size_t i = 0; i < 16; ++i)
         ser(modes[i], true);
 }

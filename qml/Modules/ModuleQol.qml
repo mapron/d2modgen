@@ -33,6 +33,9 @@ WidgetCommonTab {
                 tooltip: ""
                 value_key: root.value_context.uniqueCharmLimit
             }
+            Item {
+                Layout.fillHeight: true
+            }
         }
         ColumnLayout {
             WidgetCheckbox {
@@ -45,6 +48,9 @@ WidgetCommonTab {
                 caption: qsTr("Allow all skills in town")
                 tooltip: ""
                 value_key: root.value_context.weakenTownSkillsExt
+            }
+            Item {
+                Layout.fillHeight: true
             }
         }
     }

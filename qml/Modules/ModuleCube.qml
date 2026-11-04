@@ -67,9 +67,8 @@ WidgetCommonTab {
         value_key: root.value_context.cheatCharms
     }
 
-    Label {
+    LabelLarge {
         text: qsTr("Simplify crafting:")
-        Component.onCompleted: font.pointSize = font.pointSize * 1.2
     }
 
     WidgetCheckbox {

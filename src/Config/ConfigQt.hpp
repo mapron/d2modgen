@@ -613,6 +613,9 @@ class Config_MonsterRandomizer_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyBool_Qt* hellResistances READ get_hellResistances CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* hellPacks READ get_hellPacks CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* maxPacks READ get_maxPacks CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* minAbsDensity READ get_minAbsDensity CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* minAbsPacks READ get_minAbsPacks CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* minNormalZoneId READ get_minNormalZoneId CONSTANT)
 
 public:
     explicit Config_MonsterRandomizer_Qt(Config::MonsterRandomizer& data)
@@ -637,6 +640,9 @@ public:
         , m_hellResistances(data.getPropertyBool(1))
         , m_hellPacks(data.getPropertyBool(2))
         , m_maxPacks(data.getPropertyBool(3))
+        , m_minAbsDensity(data.getPropertyInt(15))
+        , m_minAbsPacks(data.getPropertyInt(16))
+        , m_minNormalZoneId(data.getPropertyInt(17))
     {
     }
 
@@ -677,6 +683,12 @@ public:
     PropertyBool_Qt* get_hellPacks() { return &m_hellPacks; }
 
     PropertyBool_Qt* get_maxPacks() { return &m_maxPacks; }
+
+    PropertyInt_Qt* get_minAbsDensity() { return &m_minAbsDensity; }
+
+    PropertyInt_Qt* get_minAbsPacks() { return &m_minAbsPacks; }
+
+    PropertyInt_Qt* get_minNormalZoneId() { return &m_minNormalZoneId; }
 
     Q_INVOKABLE void assign(Config_MonsterRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
 
@@ -720,6 +732,12 @@ private:
     PropertyBool_Qt m_hellPacks;
 
     PropertyBool_Qt m_maxPacks;
+
+    PropertyInt_Qt m_minAbsDensity;
+
+    PropertyInt_Qt m_minAbsPacks;
+
+    PropertyInt_Qt m_minNormalZoneId;
 };
 
 class Config_SkillRandomizer_Qt : public CommonStruct_Qt {

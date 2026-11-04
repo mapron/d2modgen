@@ -25,47 +25,37 @@ WidgetCommonTab {
         caption: qsTr("Buff level range")
         tooltip: qsTr("Crazyness level - determine level difference to be used when selecting new properties for item/rune/etc.<br>For example, with value '10', new item can be 10 levels higher in terms of used properties.<br>That does not affect item level or its requirements.")
         value_key: root.value_context.levelPlus
-        isCompact: true
-        stretchCaption: true
     }
     WidgetSlider {
         caption: qsTr("Nerf level range")
         tooltip: qsTr("This is just as previous option, but forces item to be sometimes worse than original.")
         value_key: root.value_context.levelMinus
-        isCompact: true
-        stretchCaption: true
     }
 
     WidgetSlider {
         caption: qsTr("Item fit")
         tooltip: qsTr("Item fit slider allow you to select how much item affixes will be related to original item type.<br>For example, if you choose 80%, then 4 of 5 affixes will be selected to pool for specific item type<br>Item can have have several pools related to its type - say, scepter is a rod and a melee weapon.<br>Item type-specific properties will be picked in proportion to all types.")
         value_key: root.value_context.itemFit
-        isCompact: true
-        stretchCaption: true
     }
 
     WidgetSlider {
         caption: qsTr("Caster items")
         tooltip: qsTr("How many generated items will be FORCED caster-specific.<br>Note that some item bases like sorc orbs already force item to be caster (not melee damage rolls)")
         value_key: root.value_context.forceCasterType
-        isCompact: true
-        stretchCaption: true
     }
 
     WidgetSlider {
         caption: qsTr("Number of versions of each unique")
-        tooltip: qsTr("allow you to have different uniques with same name and level, but different properties,<br>you will have N different uniques with differnet stats;<br>so you have an opportunity to pick same item again to check it out.<br>This works only with Uniques, not Sets.")
+        tooltip: qsTr("Allow you to have different uniques with same name and level, but different properties,<br>you will have N different uniques with different stats;<br>so you have an opportunity to pick same item again to check it out.<br>This works only with Uniques, not Sets.<br>Warning: you CAN NOT reduce it after you created the mod, otherwise game will crash!")
+        tooltipWarning: true
         value_key: root.value_context.repeatUniques
-        isCompact: true
-        stretchCaption: true
     }
 
     WidgetSlider {
         caption: qsTr("Number of different incompatible Sets")
-        tooltip: qsTr("Whis will create additional sets (Angelic 2, Angelic 3) with different properties.")
+        tooltip: qsTr("Whis will create additional sets (Angelic 2, Angelic 3) with different properties.<br>Warning: you CAN NOT reduce it after you created the mod, otherwise game will crash!")
+        tooltipWarning: true
         value_key: root.value_context.repeatSets
-        isCompact: true
-        stretchCaption: true
     }
 
     RowLayout {
@@ -88,6 +78,9 @@ WidgetCommonTab {
                 tooltip: qsTr("Properties that are selected to remain will be updated with new value range.")
                 value_key: root.value_context.updateExisting
             }
+            Item {
+                Layout.fillHeight: true
+            }
         }
         ColumnLayout {
             WidgetCheckbox {
@@ -108,14 +101,17 @@ WidgetCommonTab {
             }
             WidgetCheckbox {
                 caption: qsTr("Make all Uniques have equal rarity on same base")
-                tooltip: qsTr("Now Uniques with equal item base will have equal chance to drop.<br>For example Tyrael's and Templar's will have equal chance. (and all rings too)")
+                //tooltip: qsTr("Now Uniques with equal item base will have equal chance to drop.<br>For example Tyrael's and Templar's will have equal chance. (and all rings too)")
                 value_key: root.value_context.sameRarityForSetUniqueItems
+            }
+            Item {
+                Layout.fillHeight: true
             }
         }
     }
 
     WidgetComboBox {
-        isCompact: true
+
         caption: qsTr("Set items partial bonus")
         tooltip: qsTr("How generated items will use partial set bonuses:<br>Keep original - Existing item logic is preserved;<br>No partial - space for extra attributes will used for 'Blue' properties<br>Use partial - extra set attributes will require other pieces, 'Green' props.")
         model: [qsTr("Keep original"), qsTr("No partial"), qsTr("Use partial")]
@@ -123,45 +119,33 @@ WidgetCommonTab {
     }
 
     Separator {}
-    Label {
+    LabelImportant {
         text: qsTr("Adjust amount of different attribute rolls:")
-        font.bold: true
-        Component.onCompleted: font.pointSize = font.pointSize * 1.2
     }
 
     WidgetSlider {
         caption: qsTr("Resistances:")
         tooltip: ""
         value_key: root.value_context.frequencyResistances
-        isCompact: true
-        stretchCaption: true
     }
     WidgetSlider {
         caption: qsTr("Aura when equip:")
         tooltip: ""
         value_key: root.value_context.frequencyAuras
-        isCompact: true
-        stretchCaption: true
     }
     WidgetSlider {
         caption: qsTr("On hit/attack/struck procs:")
         tooltip: ""
         value_key: root.value_context.frequencyProcs
-        isCompact: true
-        stretchCaption: true
     }
     WidgetSlider {
         caption: qsTr("+skills:")
         tooltip: ""
         value_key: root.value_context.frequencySkills
-        isCompact: true
-        stretchCaption: true
     }
     WidgetSlider {
         caption: qsTr("Stats - life/mana/attributes:")
         tooltip: ""
         value_key: root.value_context.frequencyCharAttributes
-        isCompact: true
-        stretchCaption: true
     }
 }

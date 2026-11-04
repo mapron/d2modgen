@@ -164,7 +164,7 @@ ApplicationWindow {
 
             Button {
                 text: qsTr("Generate")
-                font.pointSize: 13
+                Component.onCompleted: font.pointSize = font.pointSize * 1.2
 
                 onClicked: appui.generate()
             }

@@ -18,9 +18,8 @@ WidgetScrollable {
         id: pageHeaderRow
         spacing: 6
 
-        Label {
+        LabelLarge {
             text: qsTr("Extra helpful utilities")
-            font.pointSize: 11
         }
 
         Item {

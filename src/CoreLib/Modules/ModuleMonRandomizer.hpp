@@ -58,7 +58,7 @@ private:
 
         int m_targetNormalLevel = 0;
 
-        size_t m_areaIndex = 0;
+        size_t m_areaId = 0;
 
         bool hasAnyMods() const
         {

@@ -83,10 +83,8 @@ WidgetCommonTab {
     }
 
     Separator {}
-    Label {
+    LabelImportant {
         text: qsTr("Adjust proportion of main drop classes")
-        font.bold: true
-        Component.onCompleted: font.pointSize = font.pointSize * 1.2
     }
 
     WidgetSlider {

@@ -17,9 +17,8 @@ WidgetScrollable {
     RowLayout {
         spacing: 6
 
-        Label {
+        LabelLarge {
             text: qsTr("Main")
-            font.pointSize: 11
         }
 
         Button {

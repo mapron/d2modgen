@@ -11,17 +11,20 @@ namespace D2ModGen {
 
 const std::string RowBase::s_empty("\0\0", 2);
 
-void RowBase::ser(int& data)
+void RowBase::ser(int& data, int empty)
 {
     auto& str = _ser_usedCells[_ser_cellIndex++];
     if (_ser_read) {
         if (str.empty() || str == s_empty) {
-            data = 0;
+            data = empty;
         } else {
             data = std::atoi(str.c_str());
         }
     } else {
-        str = std::to_string(data);
+        if (data == empty)
+            str.clear();
+        else
+            str = std::to_string(data);
     }
 }
 

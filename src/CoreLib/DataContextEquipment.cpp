@@ -230,7 +230,7 @@ void RowBaseUniqueSet::serialize()
     ser(ux.dropsound);
     ser(ux.dropsfxframe);
     ser(ux.usesound);
-    ser(ux.eol);
+    ser(ux.eol, 0);
 
     if (_ser_read) {
         displayName = index;
@@ -450,7 +450,7 @@ void DataRow_cubemain::serialize()
     ser(enabled);
     ser(version);
     ser(op);
-    ser(eol);
+    ser(eol, 0);
     ser(numinputs);
     ser(output);
     ser(ilvl);
