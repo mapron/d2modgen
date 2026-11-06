@@ -141,6 +141,7 @@ bool DataContext::postProcess()
     monstatsEx.makeIndex(&DataRow_monstatsEx::id);
     monstats.makeIndex(&DataRow_monstats::id);
     skilldesc.makeIndex(&DataRow_skilldesc::skilldesc);
+    missiles.makeIndex(&DataRow_missiles::name);
 
     const size_t skill_Leap             = 132;
     skills.rows[skill_Leap].canBeOskill = false;

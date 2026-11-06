@@ -47,6 +47,7 @@ struct DataContext {
     DataTable<DataRow_skilldesc>        skilldesc;
     DataTable<DataRow_skills>           skills;
     DataTable<DataRow_treasureclassex>  treasureclassex;
+    DataTable<DataRow_missiles>         missiles;
 
     static auto allTables()
     {
@@ -83,6 +84,7 @@ struct DataContext {
             &DataContext::skilldesc,
             &DataContext::skills,
             &DataContext::treasureclassex,
+            &DataContext::missiles,
         };
     }
 
@@ -92,6 +94,17 @@ struct DataContext {
     std::map<BlobId, std::string>          blobs;
 
     int64_t dataVersion = 0;
+
+    struct IdClone {
+        std::string from;
+        std::string to;
+    };
+    using IdCloneList = std::vector<IdClone>;
+    struct {
+        IdCloneList monstats;
+        IdCloneList missiles;
+        IdCloneList skills;
+    } idClones;
 
     DataContext();
     ~DataContext();

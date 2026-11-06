@@ -348,8 +348,11 @@ public:
     std::optional<int> skillColumn;
     std::optional<int> listRow;
 
-    std::array<std::string, maxDesc * 2>  calc;
-    std::array<std::string, maxDesc3 * 2> desc3; // used for synergy lines
+    std::array<std::string, maxDesc * 2>    calc;
+    std::array<std::string, maxDesc * 2>    desc;
+    std::array<std::optional<int>, maxDesc> descLine;
+
+    std::array<std::string, 3> missile;
 
     std::string strName; // Strings like "Skillname265" for "Cloak of Shadows". Do not match exact id!
 
@@ -395,7 +398,10 @@ public:
     std::string              charclass;
     Character                classSpecific = Character::None;
 
+    std::array<std::string, 10> missile;
+
     std::string itypea1;
+    std::string aurastat1;
 
     bool canBeOskill = true;
 
@@ -430,6 +436,38 @@ struct DataRow_treasureclassex : public RowBase {
 
     std::vector<std::string> getColumns() const;
     void                     serialize();
+
+private:
+    static const size_t maxItems = 10;
+};
+
+struct DataRow_missiles : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::missiles };
+
+    bool operator==(const DataRow_missiles&) const noexcept = default;
+
+    std::string name;
+    int         id = -1;
+
+    std::string        skill;
+    std::optional<int> missileSkill;
+
+    std::string eType;
+    struct Color {
+        int red   = 0;
+        int green = 0;
+        int blue  = 0;
+
+        bool operator==(const Color&) const noexcept = default;
+    };
+    Color color;
+
+    std::array<std::string, 15> childmissile;
+
+    std::vector<std::string>           getColumns() const;
+    std::map<std::string, std::string> getColumnAliases() const;
+
+    void serialize();
 
 private:
     static const size_t maxItems = 10;

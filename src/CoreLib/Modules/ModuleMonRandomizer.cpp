@@ -179,17 +179,6 @@ void ModuleMonRandomizer::generate()
                 r[i].writeToRow(row, i);
         }
     }
-
-    if (output.jsonFiles.contains(JsonId::Monsters)) {
-        // update D2R 3D model for new records.
-        auto& jsonDoc    = output.jsonFiles[JsonId::Monsters];
-        auto& jsonObject = jsonDoc.getMap();
-        for (const auto& [sourceId, newId] : idCopies) {
-            const std::string modelName = jsonObject[sourceId].getScalar().toString();
-            assert(!modelName.empty());
-            jsonObject[newId] = Mernel::PropertyTreeScalar{ modelName };
-        }
-    }
 }
 
 void ModuleMonRandomizer::updateLevelDensity()
@@ -311,7 +300,7 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
     if (0) {
         output.monstats.extra.push_back(row);
         output.monstatsEx.extra.push_back(rowEx);
-        idCopies.push_back({ origId, row.id });
+        output.idClones.monstats.push_back({ origId, row.id });
         return;
     }
 
@@ -438,7 +427,7 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
 
     output.monstats.extra.push_back(row);
     output.monstatsEx.extra.push_back(rowEx);
-    idCopies.push_back({ origId, row.id });
+    output.idClones.monstats.push_back({ origId, row.id });
 }
 
 void ModuleMonRandomizer::prepareChimeraPools()

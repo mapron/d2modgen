@@ -108,125 +108,10 @@ const StringSet s_bannedRandoPickSkills{
     "double throw",
 };
 
-const StringSet s_skillsOkToRandomizeDamage{
-    "fire bolt",
-    "charged bolt",
-    "ice bolt",
-    "inferno",
-    "static field",
-    "frost nova",
-    "ice blast",
-    "blaze",
-    "nova",
-    "lightning",
-    "fire wall",
-    "chain lightning",
-    "thunder storm",
-    "blizzard",
-    "hydra",
-    "frozen orb",
-
-    "fire arrow",
-    "cold arrow",
-    "ice arrow",
-
-    "firestorm",
-    "hurricane",
-    "molten boulder",
-    "arctic blast",
-    "eruption",
-
-    "blessed hammer",
-    "fist of the heavens",
-
-    "teeth",
-    "bone spear",
-    "bone spirit",
-    "poison dagger",
-    "poison nova",
-    "poison explosion",
-
-    "fire trauma",
-    "shock field",
-    "fists of fire",
-    "charged bolt sentry",
-    "wake of fire sentry",
-    "claws of thunder",
-    "lightning sentry",
-    "inferno sentry",
-    "blades of ice",
-    "death sentry",
-
-};
+const StringSet s_noPoison{};
 
 const StringSet s_skippedSkills{
-    //ama
-    "charged strike",
-    "exploding arrow",
-    "freezing arrow",
-    "immolation arrow",
-    "lightning bolt",
-    "lightning fury",
-    "lightning strike",
-    "plague javelin",
-    "poison javelin",
-    "power strike",
-
-    //sor
-    "chilling armor",
-    "enchant",
-    "fire ball",
-    "fire mastery",
-    "glacial spike",
-    "meteor",
-    "shiver armor",
-    "telekinesis",
-    "warmth",
-
-    //nec
-    "corpse explosion",
-    "firegolem",
-
-    //pal
-    "holy bolt",
-    "holy fire",
-    "holy freeze",
-    "holy shock",
-    "sanctuary",
-    "vengeance",
-
-    //bar
-    "berserk",
-    "concentrate",
-    "frenzy",
-
-    //dru
-    "armageddon",
-    "fire claws",
-    "plague poppy",
-    "rabies",
-    "summon spirit wolf",
-    "volcano",
-
-    //ass
-    "dragon tail",
-    "psychic hammer",
-    "venom",
-
-    //war
-    "abyss",
-    "apocalypse",
-    "blade warp",
-    "blood boil",
-    "eldritch blast",
-    "flame wave",
-    "hex bane",
-    "hex purge",
-    "miasma bolt",
-    "miasma chains",
-    "ring of fire",
-    "sigil death",
-    "summon tainted",
+    "static field",
 };
 
 const StringSet s_skippedSkills_PD2{
@@ -303,7 +188,9 @@ const std::map<Element, int> s_compensateBitShift{
     { Element::Fire, 0 },
     { Element::Cold, 0 },
     { Element::Mag, -1 },  // Magic damage is unresisted, so the skill needs to be weaker to compensate
-    { Element::Pois, -4 }, // compensate 4 times for poison
+    { Element::Pois, -5 }, // compensate 2^5==32 times for poison as we do 100 frames duration and it needs 32x damage reduction (total damage is 3x higher)
+    { Element::Burn, 0 },
+    { Element::Frze, 0 },
 };
 const std::map<Element, int> s_defaultDuration{
     { Element::Ltng, 0 },
@@ -311,7 +198,54 @@ const std::map<Element, int> s_defaultDuration{
     { Element::Cold, 50 },
     { Element::Mag, 0 },
     { Element::Pois, 100 },
+    { Element::Burn, 0 },
+    { Element::Frze, 0 },
 };
+
+const std::map<Element, std::string> s_descId{
+    { Element::Ltng, "StrSkill7" },
+    { Element::Fire, "StrSkill5" },
+    { Element::Cold, "StrSkill6" },
+    { Element::Mag, "StrSkill39" },
+    { Element::Pois, "StrSkill8" },
+    { Element::Phys, "StrSkill4" },
+    { Element::Frze, "StrSkill29" },
+    { Element::Burn, "Skillld226" },
+};
+
+void dump(std::string indent, DataContext& output, const DataRow_missiles& row)
+{
+    std::string                       idsStr = "";
+    std::set<const DataRow_missiles*> children;
+    for (const std::string& child : row.childmissile) {
+        if (child.empty())
+            continue;
+        if (auto* c = output.missiles.find(child))
+            children.insert(c);
+        idsStr += child + ", ";
+    }
+    Logger() << indent << row.name << " E: '" << row.eType << "' parent skill: '"
+             << row.skill << "' missileSkill: " << row.missileSkill.value_or(0)
+             << ", children missiles: " << idsStr;
+    for (auto* row : children)
+        dump(indent + "- ", output, *row);
+}
+
+void dump(std::string indent, DataContext& output, const DataRow_skills& row)
+{
+    std::string                       idsStr = "";
+    std::set<const DataRow_missiles*> children;
+    for (const std::string& child : row.missile) {
+        if (child.empty())
+            continue;
+        if (auto* c = output.missiles.find(child))
+            children.insert(c);
+        idsStr += child + ", ";
+    }
+    Logger() << indent << "SKILL '" << row.skill << "' E: '" << row.eType << "' children missiles: " << idsStr;
+    for (auto* row : children)
+        dump(indent + "- ", output, *row);
+}
 
 }
 
@@ -320,6 +254,13 @@ void ModuleSkillRandomizer::generate()
     const auto& module = config.m_skillRandomizer;
     if (!module.m_enabled)
         return;
+
+    /*
+    for (auto& skill : output.skills.rows) {
+        if (s_skippedSkills.contains(Mernel::strToLower(skill.skill)))
+            dump("", output, skill);
+    }
+    return;*/
 
     const int totalNewSkillsPerClass = 60;
 
@@ -392,7 +333,7 @@ void ModuleSkillRandomizer::generate()
         }
 
         cha.insertRows(output, totalNewSkillsPerClass);
-        cha.createIdx();
+        cha.createIdx(output);
         output.skills.updateIndex();
         output.skilldesc.updateIndex();
         if (randoEnabled) {
@@ -403,10 +344,19 @@ void ModuleSkillRandomizer::generate()
         cha.updateSkillPower(module.m_globalHitShift - 2);
 
         cha.randomizeElements(rng, module.m_maximumElements, module.m_chanceElemChange);
+        cha.updateMissiles(output);
     }
 
     for (auto& [key, cha] : generatedData) {
         cha.writeOut(output);
+    }
+
+    output.missiles.commitExtraRows();
+
+    for (auto& skill : output.skills.rows) {
+        if (skill.classSpecific != Character::Nec)
+            continue;
+        dump("", output, skill);
     }
 }
 
@@ -521,7 +471,7 @@ void ModuleSkillRandomizer::CharacterData::generateAdditionalSkills(RandomGenera
              << generated << " from '" << enumToString(someOtherClass.clas) << "' with incomingSize=" << incomingSize;
 }
 
-void ModuleSkillRandomizer::CharacterData::createIdx()
+void ModuleSkillRandomizer::CharacterData::createIdx(DataContext& output)
 {
     Logger() << "char " << enumToString(clas) << " createIdx start=" << rowIdxStart;
     size_t i = 0;
@@ -541,7 +491,9 @@ void ModuleSkillRandomizer::CharacterData::createIdx()
         row.classSpecific = clas;
         row.charclass     = enumToString(clas);
 
-        row.skilldesc  = "gen_" + enumToString(clas) + "_" + std::to_string(i);
+        row.skilldesc = "gen_" + enumToString(clas) + "_" + std::to_string(i);
+        output.idClones.skills.push_back({ .from = row.skill, .to = row.skilldesc });
+
         row.skill      = row.skilldesc;
         row.id         = rowIdx;
         desc.skilldesc = row.skilldesc;
@@ -707,7 +659,10 @@ Necromancer
             replaceTokensInplace(str, replaceSkillId);
     }
     for (Ptr skill : activeSkills) {
-        for (auto& str : skill->desc.desc3) {
+        for (auto& str : skill->desc.desc) {
+            if (str == skill->desc.strName)
+                continue;
+
             auto it = replacementBySkillTranslationKey.find(str);
             if (it != replacementBySkillTranslationKey.cend()) {
                 str = it->second->desc.strName;
@@ -745,13 +700,17 @@ void ModuleSkillRandomizer::CharacterData::randomizeElements(RandomGenerator& rn
         if (skill.stype != SType::ExistingActive && skill.stype != SType::GenActive)
             continue;
 
-        if (skill.eType == Element::None)
+        if (skill.eType == Element::None) {
+            Logger() << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " elem=None, SKIP";
             continue;
+        }
 
-        if (!s_skillsOkToRandomizeDamage.contains(Mernel::strToLower(skill.originalId))) {
-            //if (!s_skippedSkills.contains(skillInfo.lowercaseKey) && !s_skippedSkills_PD2.contains(skillInfo.lowercaseKey))
-            //   skipped[skillInfo.classSpecific].push_back("\"" + skillInfo.lowercaseKey + "\"");
-            Logger() << "Skipping \"" << skill.originalId << "\" with elem=" << enumToString(skill.eType);
+        if (s_skippedSkills.contains(Mernel::strToLower(skill.originalId))) {
+            Logger() << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " ignoredlist, SKIP";
+            continue;
+        }
+        if (!skill.row.aurastat1.empty()) {
+            Logger() << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " aurastat=" << skill.row.aurastat1 << ", SKIP";
             continue;
         }
         if (percentToChange < 100) {
@@ -759,9 +718,12 @@ void ModuleSkillRandomizer::CharacterData::randomizeElements(RandomGenerator& rn
                 continue;
         }
         auto elementsTmp = elementsTmp1;
+        if (s_noPoison.contains(Mernel::strToLower(skill.originalId))) {
+            if (auto it = std::find(elementsTmp.begin(), elementsTmp.end(), Element::Pois); it != elementsTmp.end())
+                elementsTmp.erase(it);
+        }
 
-        auto it = std::find(elementsTmp.begin(), elementsTmp.end(), skill.eType);
-        if (it != elementsTmp.end() && !elementsTmp.empty())
+        if (auto it = std::find(elementsTmp.begin(), elementsTmp.end(), skill.eType); it != elementsTmp.end())
             elementsTmp.erase(it);
 
         if (!elementsTmp.empty())
@@ -785,26 +747,99 @@ void ModuleSkillRandomizer::CharacterData::insertRows(DataContext& output, int r
     output.skilldesc.rows.resize(output.skilldesc.rows.size() + rowsPerClass);
 }
 
+void ModuleSkillRandomizer::CharacterData::updateMissiles(DataContext& output)
+{
+    for (auto& skill : skills) {
+        if (skill.stype != SType::ExistingActive && skill.stype != SType::GenActive)
+            continue;
+
+        if (skill.eType == Element::None)
+            continue;
+
+        std::map<std::string, std::string> skillScope;
+        for (std::string& child : skill.row.missile)
+            updateMissile(output, skill, child, skillScope);
+
+        for (std::string& child : skill.desc.missile)
+            updateMissile(output, skill, child, skillScope);
+    }
+}
+
+void ModuleSkillRandomizer::CharacterData::updateMissile(DataContext& output, const SkillInfo& parent, std::string& missileId, std::map<std::string, std::string>& scope)
+{
+    if (missileId.empty())
+        return;
+    if (auto it = scope.find(missileId); it != scope.cend()) {
+        missileId = it->second;
+        return;
+    }
+
+    auto* miss = output.missiles.find(missileId);
+    if (!miss) {
+        Logger(Logger::Warning) << "Unknown missileId: " << missileId;
+        return;
+    }
+    DataRow_missiles newMiss = *miss;
+    for (std::string& child : newMiss.childmissile) {
+        updateMissile(output, parent, child, scope);
+    }
+
+    auto origId  = newMiss.name;
+    newMiss.name = parent.row.skill + "_" + newMiss.name;
+    newMiss.id   = output.missiles.rows.size() + output.missiles.extra.size();
+    missileId    = newMiss.name;
+
+    if (getElementId(newMiss.eType) != Element::None) // will skip freeze/bleed
+        newMiss.eType = enumToString(parent.eType);
+
+    if (!newMiss.skill.empty())
+        newMiss.skill = parent.row.skill;
+
+    output.missiles.extra.push_back(newMiss);
+    output.idClones.missiles.push_back({ .from = origId, .to = newMiss.name });
+    scope[origId] = newMiss.name;
+}
+
 void ModuleSkillRandomizer::SkillInfo::setNewElement(Element element)
 {
     if (eType == element)
         return;
-    const int oldCompensation = s_compensateBitShift.at(eType);
-
-    Logger() << "'" << row.id << "' (og='" << originalId << "') " << " element change " << enumToString(eType) << " -> " << enumToString(element);
+    const auto old             = eType;
+    const int  oldCompensation = s_compensateBitShift.at(old);
+    const auto oldDescText     = s_descId.at(old);
 
     eType = element;
 
-    const int newCompensation = s_compensateBitShift.at(eType);
+    const int  newCompensation = s_compensateBitShift.at(eType);
+    const auto newDescText     = s_descId.at(element);
 
     row.hitShift = std::clamp(row.hitShift.value_or(0) - oldCompensation + newCompensation, 0, 15);
 
+    Logger() << "'" << row.skill << "' (og='" << originalId << "') " << " element change " << enumToString(old) << " -> " << enumToString(element) << " (hs=" << row.hitShift.value_or(0) << ")";
+
     const int duration = s_defaultDuration.at(eType);
     if (duration > 0) {
-        if (!row.eLen.has_value())
-            row.eLen = duration;
+        row.eLen = duration;
     } else {
         row.eLen.reset();
+    }
+
+    for (auto& str : desc.desc) {
+        if (str == oldDescText)
+            str = newDescText;
+    }
+
+    if (element == Element::Pois) {
+        for (auto& str : desc.calc) {
+            if (str == "enma" || str == "exma" || str == "exms" || str == "exms")
+                str += "*100";
+        }
+    }
+    if (old == Element::Pois) {
+        for (auto& str : desc.calc) {
+            if (str.ends_with("*edln/256") && str.size() == 13)
+                str = str.substr(0, 4);
+        }
     }
 }
 

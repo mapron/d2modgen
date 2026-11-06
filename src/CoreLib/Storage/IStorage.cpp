@@ -27,6 +27,7 @@ const std::array<std::string_view, size_t(TableId::count__)> s_tableNames{
     "magicprefix",
     "magicsuffix",
     "misc",
+    "missiles",
     "monlvl",
     "monseq",
     "monstats",
@@ -44,6 +45,7 @@ const std::array<std::string_view, size_t(JsonId::count__)> s_jsonpaths{
     "data\\local\\lng\\strings\\item-names.json",
     "data\\local\\lng\\strings\\item-nameaffixes.json",
     "data\\hd\\character\\monsters.json",
+    "data\\hd\\missiles\\missiles.json",
 };
 
 const std::array<std::string_view, size_t(BlobId::count__)> s_blobpaths{

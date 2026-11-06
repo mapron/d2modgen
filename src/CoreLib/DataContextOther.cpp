@@ -452,6 +452,10 @@ std::vector<std::string> DataRow_skilldesc::getColumns() const
         "skillcolumn",
         "listrow",
         "str name",
+
+        "descmissile1",
+        "descmissile2",
+        "descmissile3",
     };
     for (size_t i = 0; i < maxDesc1; ++i) {
         auto istr = std::to_string(i + 1);
@@ -468,10 +472,33 @@ std::vector<std::string> DataRow_skilldesc::getColumns() const
         result.push_back("dsc3calca" + istr);
         result.push_back("dsc3calcb" + istr);
     }
+    for (size_t i = 0; i < maxDesc1; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("desctexta" + istr);
+        result.push_back("desctextb" + istr);
+    }
+    for (size_t i = 0; i < maxDesc2; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("dsc2texta" + istr);
+        result.push_back("dsc2textb" + istr);
+    }
     for (size_t i = 0; i < maxDesc3; ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("dsc3texta" + istr);
         result.push_back("dsc3textb" + istr);
+    }
+
+    for (size_t i = 0; i < maxDesc1; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("descline" + istr);
+    }
+    for (size_t i = 0; i < maxDesc2; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("dsc2line" + istr);
+    }
+    for (size_t i = 0; i < maxDesc3; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("dsc3line" + istr);
     }
 
     return result;
@@ -486,8 +513,11 @@ void DataRow_skilldesc::serialize()
     ser(listRow);
     ser(strName);
 
+    ser(missile);
+
     ser(calc);
-    ser(desc3);
+    ser(desc);
+    ser(descLine);
 }
 
 std::vector<std::string> DataRow_skills::getColumns() const
@@ -496,8 +526,11 @@ std::vector<std::string> DataRow_skills::getColumns() const
         // clang-format off
         "skill", "*id", "skilldesc", "maxlvl", "reqlevel", "intown", "cost mult", "cost add" ,
         "elen", "hitshift", "manashift", "etype", "charclass",
-        "itypea1",
+        "itypea1", "aurastat1",
         "reqskill1", "reqskill2", "reqskill3",
+
+        "srvmissile","srvmissilea","srvmissileb","srvmissilec","srvmissiled",
+        "cltmissile", "cltmissilea","cltmissileb","cltmissilec","cltmissiled",
         
         "tohitcalc",
         "dmgsympercalc",
@@ -540,8 +573,10 @@ void DataRow_skills::serialize()
     ser(eType);
     ser(charclass);
     ser(itypea1);
+    ser(aurastat1);
 
     ser(reqskills, 3);
+    ser(missile);
 
     ser(calc);
 }
@@ -596,6 +631,39 @@ int DataRow_treasureclassex::getDropSomethingProb() const
     for (const auto& item : items)
         totalOther += item.prob.value_or(0);
     return totalOther;
+}
+
+std::vector<std::string> DataRow_missiles::getColumns() const
+{
+    return {
+        // clang-format off
+    "missile", "*id", "etype", "red", "green", "blue" , "skill", "missileskill",
+    "explosionmissile", "submissile1", "submissile2", "submissile3",
+    "hitsubmissile1", "hitsubmissile2", "hitsubmissile3", "hitsubmissile4",
+    "cltsubmissile1", "cltsubmissile2", "cltsubmissile3",
+    "clthitsubmissile1", "clthitsubmissile2", "clthitsubmissile3", "clthitsubmissile4",
+        // clang-format on
+    };
+}
+
+std::map<std::string, std::string> DataRow_missiles::getColumnAliases() const
+{
+    std::map<std::string, std::string> result;
+    result["id"] = "*id";
+    return result;
+}
+
+void DataRow_missiles::serialize()
+{
+    ser(name);
+    ser(id, -1);
+    ser(eType);
+    ser(color.red);
+    ser(color.green);
+    ser(color.blue);
+    ser(skill);
+    ser(missileSkill);
+    ser(childmissile);
 }
 
 }

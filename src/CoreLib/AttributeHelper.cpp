@@ -76,6 +76,8 @@ const ElementDesc s_elements[]{
     { Element::Mag, "mag", "Mag" },
     { Element::Pois, "pois", "Pois" },
     { Element::Phys, "phys", "Phys" },
+    { Element::Burn, "burn", "Burn" },
+    { Element::Frze, "frze", "Frze" },
 };
 
 struct SlotTypeDesc {

@@ -452,6 +452,9 @@ enum class Element
     Mag,
     Pois,
     Phys,
+
+    Burn,
+    Frze,
 };
 
 enum class SlotType

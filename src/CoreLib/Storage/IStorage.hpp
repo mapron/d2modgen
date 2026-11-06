@@ -29,6 +29,7 @@ enum class TableId
     magicprefix,
     magicsuffix,
     misc,
+    missiles,
     monlvl,
     monseq,
     monstats,
@@ -59,6 +60,7 @@ enum class JsonId
     ItemNames,
     ItemNameAffixes,
     Monsters,
+    Missiles,
 
     count__,
 };

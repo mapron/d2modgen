@@ -12,17 +12,7 @@
 #include "MernelPlatform/ScopeExit.hpp"
 #include "MernelPlatform/ChronoPoint.hpp"
 
-#include "Modules/ModuleChallenge.hpp"
-#include "Modules/ModuleCharacter.hpp"
-#include "Modules/ModuleCube.hpp"
-#include "Modules/ModuleGambling.hpp"
-#include "Modules/ModuleTreasureClasses.hpp"
-#include "Modules/ModuleItemRandomizer.hpp"
-#include "Modules/ModuleMonRandomizer.hpp"
-#include "Modules/ModuleMonStats.hpp"
-#include "Modules/ModuleItemBalance.hpp"
-#include "Modules/ModuleQol.hpp"
-#include "Modules/ModuleSkillRandomizer.hpp"
+#include "Modules/ModuleGlobal.hpp"
 
 #include "Storage/StorageCache.hpp"
 #include "Storage/FolderStorage.hpp"
@@ -43,72 +33,6 @@
     });
 
 namespace D2ModGen {
-
-namespace {
-
-class ModuleAll : public AbstractModule {
-public:
-    ModuleAll(DataContext& output_, RandomGenerator& rng_, const Config& config_, const GenerationEnvironment& env_)
-        : AbstractModule(output_, rng_, config_, env_)
-    {
-        reset();
-    }
-
-    std::string getErr() const { return m_err; }
-
-    void reset()
-    {
-        // light modules
-        create<ModuleChallenge>("Challenge");
-        create<ModuleCharacter>("Character");
-        create<ModuleGambling>("Gambling");
-        create<ModuleTreasureClasses>("TreasureClasses");
-        create<ModuleMonStats>("MonsterStats");
-        create<ModuleQol>("QualityOfLife");
-
-        // modules that can add more rows, thus in the end
-        create<ModuleCube>("HoradricCube");
-        create<ModuleMonRandomizer>("MonsterRandomizer");
-        create<ModuleItemRandomizer>("ItemRandomizer");
-        create<ModuleSkillRandomizer>("SkillRandomizer");
-
-        // item balance affect input for randomizer, that's why it is in the end.
-        create<ModuleItemBalance>("ItemBalance");
-    }
-
-    void generate() override
-    {
-        for (auto& module : m_modules) {
-            Logger() << "start module: " << module.m_id;
-            try {
-                module.m_gen->generate();
-            }
-            catch (const std::exception& ex) {
-                m_err = std::string("module '" + module.m_id + "': " + std::string(ex.what()));
-
-                return;
-            }
-        }
-    }
-
-private:
-    struct ModuleRecord {
-        std::string              m_id;
-        std::unique_ptr<IModule> m_gen;
-    };
-    template<class T>
-    void create(const std::string& id)
-    {
-        m_modules.push_back(ModuleRecord{ id, std::make_unique<T>(output, rng, config, env) });
-    }
-
-private:
-    std::string m_err;
-
-    std::vector<ModuleRecord> m_modules;
-};
-
-}
 
 ConfigHandler::ConfigHandler()
     : m_mainStorageCache(std::make_unique<StorageCache>())
@@ -252,7 +176,7 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
             return Distribution32(0, bound - 1)(engine);
         };
 
-        ModuleAll all(output, rngWrapper, m_config, env);
+        ModuleGlobal all(output, rngWrapper, m_config, env);
         all.generate();
         if (!all.getErr().empty())
             return { all.getErr() };

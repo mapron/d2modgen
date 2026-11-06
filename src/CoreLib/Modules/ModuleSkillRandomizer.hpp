@@ -69,7 +69,7 @@ private:
         void makeInactive(RandomGenerator& rng, int keepCnt);
 
         void generateAdditionalSkills(RandomGenerator& rng, const CharacterData& someOtherClass, int generateCount);
-        void createIdx();
+        void createIdx(DataContext& output);
 
         void randomizePositions(RandomGenerator& rng);
 
@@ -80,6 +80,9 @@ private:
         void randomizeElements(RandomGenerator& rng, int maximumVariants, int percentToChange);
 
         void insertRows(DataContext& output, int rowsPerClass);
+        void updateMissiles(DataContext& output);
+
+        void updateMissile(DataContext& output, const SkillInfo& parent, std::string& missileId, std::map<std::string, std::string>& scope);
     };
 
     using AllCharacterData = std::map<Character, CharacterData>;

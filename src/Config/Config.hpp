@@ -399,10 +399,10 @@ struct Config : public CommonStruct {
         SkillRandomizer()
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true).addPreset(2, false);
-            addScalar("chanceElemChange", m_chanceElemChange).setRange(0, 100).setZero(0).setRecc(100).setPercent();
+            addScalar("chanceElemChange", m_chanceElemChange).setRange(0, 100).setZero(0).setRecc(0).setPercent();
             addScalar("maximumElements", m_maximumElements).setRange(2, 5).setZero(5).setRecc(3);
             addScalar("randoMode", m_randoMode).setRange(0, 3).setZero(0).setRecc(3);
-            addScalar("specificClass", m_specificClass).setRange(0, 7).setZero(0).setRecc(3);
+            addScalar("specificClass", m_specificClass).setRange(0, 7).setZero(0).setRecc(0);
             addScalar("keepOriginal", m_keepOriginal).setRange(0, 40).setZero(40).setRecc(15);
             addScalar("generate", m_generate).setRange(0, 54).setZero(0).setRecc(15);
             addScalar("globalHitShift", m_globalHitShift).setRange(0, 5).setZero(2).setRecc(2);
