@@ -365,7 +365,7 @@ public:
         skillPage   = 0;
         skillRow    = 0;
         skillColumn = 0;
-        listRow     = -1;
+        listRow     = 0;
     }
 };
 struct DataRow_skills : public RowBase {
@@ -389,6 +389,7 @@ public:
     std::optional<int> eLen;
     std::string        eType;
     std::optional<int> hitShift;
+    std::optional<int> manaShift;
 
     std::vector<std::string> reqskills;
     std::string              charclass;

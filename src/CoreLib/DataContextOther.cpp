@@ -495,7 +495,7 @@ std::vector<std::string> DataRow_skills::getColumns() const
     std::vector<std::string> result{
         // clang-format off
         "skill", "*id", "skilldesc", "maxlvl", "reqlevel", "intown", "cost mult", "cost add" ,
-        "elen", "hitshift", "etype", "charclass",
+        "elen", "hitshift", "manashift", "etype", "charclass",
         "itypea1",
         "reqskill1", "reqskill2", "reqskill3",
         
@@ -536,6 +536,7 @@ void DataRow_skills::serialize()
 
     ser(eLen);
     ser(hitShift);
+    ser(manaShift);
     ser(eType);
     ser(charclass);
     ser(itypea1);

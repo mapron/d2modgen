@@ -25,11 +25,11 @@ private:
     struct SkillInfo {
         SType stype = SType::Filler;
 
-        Element eType    = Element::None;
-        int     hitShift = 0;
+        Element eType = Element::None;
 
-        int rowIdx  = -1;
-        int descIdx = -1;
+        int rowIdx      = -1;
+        int descIdx     = -1;
+        int changeInRow = 0;
 
         std::string originalId;
 
@@ -73,8 +73,9 @@ private:
 
         void randomizePositions(RandomGenerator& rng);
 
-        void updateSkillReq(const Config::SkillRandomizer& module);
+        void updateSkillReq(const Config::SkillRandomizer& module, bool recalDeps);
         void updateSkillNameRef(const DataContext& output, RandomGenerator& rng);
+        void updateSkillPower(int globalHitShift);
 
         void randomizeElements(RandomGenerator& rng, int maximumVariants, int percentToChange);
 

@@ -302,8 +302,8 @@ const std::map<Element, int> s_compensateBitShift{
     { Element::Ltng, 0 },
     { Element::Fire, 0 },
     { Element::Cold, 0 },
-    { Element::Mag, -1 }, // Magic damage is unresisted, so the skill needs to be weaker to compensate
-    { Element::Pois, 2 }, // compensate 4 times for poison
+    { Element::Mag, -1 },  // Magic damage is unresisted, so the skill needs to be weaker to compensate
+    { Element::Pois, -4 }, // compensate 4 times for poison
 };
 const std::map<Element, int> s_defaultDuration{
     { Element::Ltng, 0 },
@@ -352,10 +352,11 @@ void ModuleSkillRandomizer::generate()
         return 0;
     };
 
-    generatedData = existingData;
+    generatedData           = existingData;
+    const bool randoEnabled = module.m_randoMode > 0;
 
     for (auto& [key, cha] : generatedData) {
-        if (module.m_randoMode > 0) {
+        if (randoEnabled) {
             cha.makeInactive(rng, keepSkillCount);
         }
         if (module.m_randoMode == 1) {
@@ -394,11 +395,13 @@ void ModuleSkillRandomizer::generate()
         cha.createIdx();
         output.skills.updateIndex();
         output.skilldesc.updateIndex();
-        if (module.m_randoMode > 0) {
+        if (randoEnabled) {
             cha.randomizePositions(rng);
-            cha.updateSkillReq(module);
             cha.updateSkillNameRef(output, rng);
         }
+        cha.updateSkillReq(module, randoEnabled);
+        cha.updateSkillPower(module.m_globalHitShift - 2);
+
         cha.randomizeElements(rng, module.m_maximumElements, module.m_chanceElemChange);
     }
 
@@ -454,6 +457,7 @@ bool ModuleSkillRandomizer::CharacterData::readExisting(DataContext& output)
         } else {
             skill.stype = SType::ExistingActive;
         }
+        skill.eType = getElementId(row.eType);
         skills.push_back(skill);
     }
     return validCnt > 0;
@@ -464,8 +468,12 @@ void ModuleSkillRandomizer::CharacterData::writeOut(DataContext& output) const
     for (const SkillInfo& skill : skills) {
         if (skill.stype < SType::GenHidden)
             continue;
-        output.skills.rows[skill.rowIdx]     = skill.row;
+
+        auto& row                            = output.skills.rows[skill.rowIdx];
+        row                                  = skill.row;
         output.skilldesc.rows[skill.descIdx] = skill.desc;
+        if (skill.eType != Element::None)
+            row.eType = enumToString(skill.eType);
     }
 }
 
@@ -515,10 +523,10 @@ void ModuleSkillRandomizer::CharacterData::generateAdditionalSkills(RandomGenera
 
 void ModuleSkillRandomizer::CharacterData::createIdx()
 {
-    Logger() << "char " << enumToString(clas) << " createIdx: rowIdxStart=" << rowIdxStart;
+    Logger() << "char " << enumToString(clas) << " createIdx start=" << rowIdxStart;
     size_t i = 0;
     for (SkillInfo& skill : skills) {
-        Logger() << "    i=" << i << ", skill " << skill.row.skill << ", stype=" << int(skill.stype) << " skill.rowIdx=" << skill.rowIdx;
+        //Logger() << "    i=" << i << ", skill " << skill.row.skill << ", stype=" << int(skill.stype) << " skill.rowIdx=" << skill.rowIdx;
 
         if (skill.rowIdx >= 0)
             continue;
@@ -553,12 +561,14 @@ void ModuleSkillRandomizer::CharacterData::randomizePositions(RandomGenerator& r
 
     for (int i = -1; Ptr skill : activeSkills) {
         i++;
-        auto& desc = skill->desc;
+        auto&     desc   = skill->desc;
+        const int oldRow = desc.skillRow.value_or(0);
 
         const int page            = (i / tabSize) + 1;
         const int indexInsidePage = i % tabSize;
         desc.listRow = desc.skillPage = page;
         desc.skillRow                 = indexToRow[indexInsidePage];
+        skill->changeInRow            = desc.skillRow.value() - oldRow;
 
         auto& cols       = pageAndRowCounter[page][desc.skillRow.value()];
         desc.skillColumn = (++cols);
@@ -578,7 +588,7 @@ void ModuleSkillRandomizer::CharacterData::randomizePositions(RandomGenerator& r
     }
 }
 
-void ModuleSkillRandomizer::CharacterData::updateSkillReq(const Config::SkillRandomizer& module)
+void ModuleSkillRandomizer::CharacterData::updateSkillReq(const Config::SkillRandomizer& module, bool recalDeps)
 {
     auto getLevelFromRow = [&module](int row) -> int {
         switch (row) {
@@ -594,10 +604,26 @@ void ModuleSkillRandomizer::CharacterData::updateSkillReq(const Config::SkillRan
         return 0;
     };
 
-    PtrList activeSkills = getActive();
+    PtrList              activeSkills = getActive();
+    std::vector<PtrList> columns(9);
     for (Ptr skill : activeSkills) {
-        skill->row.lvlreq    = getLevelFromRow(skill->desc.skillRow.value_or(0));
-        skill->row.reqskills = {};
+        skill->row.lvlreq = getLevelFromRow(skill->desc.skillRow.value_or(0));
+        int col           = skill->desc.skillColumn.value() - 1;
+        int page          = skill->desc.skillPage.value() - 1;
+        columns[col + page * 3].push_back(skill);
+    }
+    if (recalDeps) {
+        for (PtrList& columns1 : columns) {
+            std::sort(columns1.begin(), columns1.end(), [](Ptr l, Ptr r) { return l->desc.skillRow.value() < r->desc.skillRow.value(); });
+            Ptr prev = nullptr;
+            for (Ptr skill : columns1) {
+                skill->row.reqskills.clear();
+                if (prev) {
+                    skill->row.reqskills.push_back(prev->row.skill);
+                }
+                prev = skill;
+            }
+        }
     }
 }
 
@@ -690,6 +716,20 @@ Necromancer
     }
 }
 
+void ModuleSkillRandomizer::CharacterData::updateSkillPower(int globalHitShift)
+{
+    for (Ptr skill : getActive()) {
+        int rowCompensate = 0;
+        if (skill->changeInRow > 1) {
+            rowCompensate = ((skill->changeInRow - 0) / 2);
+        } else if (skill->changeInRow < -1) {
+            rowCompensate = ((skill->changeInRow + 1) / 2);
+        }
+        skill->row.hitShift  = std::clamp(skill->row.hitShift.value_or(0) + globalHitShift + rowCompensate, 0, 16);
+        skill->row.manaShift = std::clamp(skill->row.manaShift.value_or(0) + rowCompensate, 0, 16);
+    }
+}
+
 void ModuleSkillRandomizer::CharacterData::randomizeElements(RandomGenerator& rng, int maximumVariants, int percentToChange)
 {
     if (percentToChange == 0)
@@ -702,12 +742,16 @@ void ModuleSkillRandomizer::CharacterData::randomizeElements(RandomGenerator& rn
     }
 
     for (auto& skill : skills) {
+        if (skill.stype != SType::ExistingActive && skill.stype != SType::GenActive)
+            continue;
+
         if (skill.eType == Element::None)
             continue;
-        if (!s_skillsOkToRandomizeDamage.contains(Mernel::strToLower(skill.row.skill))) {
+
+        if (!s_skillsOkToRandomizeDamage.contains(Mernel::strToLower(skill.originalId))) {
             //if (!s_skippedSkills.contains(skillInfo.lowercaseKey) && !s_skippedSkills_PD2.contains(skillInfo.lowercaseKey))
             //   skipped[skillInfo.classSpecific].push_back("\"" + skillInfo.lowercaseKey + "\"");
-            //Logger() << "Skipping \"" << skillInfo.lowercaseKey << "\" with E=" << enumToString(oldE);
+            Logger() << "Skipping \"" << skill.originalId << "\" with elem=" << enumToString(skill.eType);
             continue;
         }
         if (percentToChange < 100) {
@@ -743,7 +787,11 @@ void ModuleSkillRandomizer::CharacterData::insertRows(DataContext& output, int r
 
 void ModuleSkillRandomizer::SkillInfo::setNewElement(Element element)
 {
+    if (eType == element)
+        return;
     const int oldCompensation = s_compensateBitShift.at(eType);
+
+    Logger() << "'" << row.id << "' (og='" << originalId << "') " << " element change " << enumToString(eType) << " -> " << enumToString(element);
 
     eType = element;
 
