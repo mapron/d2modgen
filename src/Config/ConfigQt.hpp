@@ -743,28 +743,100 @@ private:
 class Config_SkillRandomizer_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* ensureDifferent READ get_ensureDifferent CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* skillDamage READ get_skillDamage CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* skillTree READ get_skillTree CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* chanceElemChange READ get_chanceElemChange CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* maximumElements READ get_maximumElements CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* randoMode READ get_randoMode CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* specificClass READ get_specificClass CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* keepOriginal READ get_keepOriginal CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* generate READ get_generate CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* globalHitShift READ get_globalHitShift CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* weightAma READ get_weightAma CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* weightSor READ get_weightSor CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* weightNec READ get_weightNec CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* weightPal READ get_weightPal CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* weightBar READ get_weightBar CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* weightDru READ get_weightDru CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* weightAss READ get_weightAss CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* weightWar READ get_weightWar CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* lvlreqRow1 READ get_lvlreqRow1 CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* lvlreqRow2 READ get_lvlreqRow2 CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* lvlreqRow3 READ get_lvlreqRow3 CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* lvlreqRow4 READ get_lvlreqRow4 CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* lvlreqRow5 READ get_lvlreqRow5 CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* lvlreqRow6 READ get_lvlreqRow6 CONSTANT)
 
 public:
     explicit Config_SkillRandomizer_Qt(Config::SkillRandomizer& data)
         : CommonStruct_Qt(data)
         , m_data(data)
         , m_enabled(data.getPropertyBool(0))
-        , m_ensureDifferent(data.getPropertyBool(1))
-        , m_skillDamage(data.getPropertyBool(2))
-        , m_skillTree(data.getPropertyBool(3))
+        , m_chanceElemChange(data.getPropertyInt(0))
+        , m_maximumElements(data.getPropertyInt(1))
+        , m_randoMode(data.getPropertyInt(2))
+        , m_specificClass(data.getPropertyInt(3))
+        , m_keepOriginal(data.getPropertyInt(4))
+        , m_generate(data.getPropertyInt(5))
+        , m_globalHitShift(data.getPropertyInt(6))
+        , m_weightAma(data.getPropertyInt(7))
+        , m_weightSor(data.getPropertyInt(8))
+        , m_weightNec(data.getPropertyInt(9))
+        , m_weightPal(data.getPropertyInt(10))
+        , m_weightBar(data.getPropertyInt(11))
+        , m_weightDru(data.getPropertyInt(12))
+        , m_weightAss(data.getPropertyInt(13))
+        , m_weightWar(data.getPropertyInt(14))
+        , m_lvlreqRow1(data.getPropertyInt(15))
+        , m_lvlreqRow2(data.getPropertyInt(16))
+        , m_lvlreqRow3(data.getPropertyInt(17))
+        , m_lvlreqRow4(data.getPropertyInt(18))
+        , m_lvlreqRow5(data.getPropertyInt(19))
+        , m_lvlreqRow6(data.getPropertyInt(20))
     {
     }
 
     PropertyBool_Qt* get_enabled() { return &m_enabled; }
 
-    PropertyBool_Qt* get_ensureDifferent() { return &m_ensureDifferent; }
+    PropertyInt_Qt* get_chanceElemChange() { return &m_chanceElemChange; }
 
-    PropertyBool_Qt* get_skillDamage() { return &m_skillDamage; }
+    PropertyInt_Qt* get_maximumElements() { return &m_maximumElements; }
 
-    PropertyBool_Qt* get_skillTree() { return &m_skillTree; }
+    PropertyInt_Qt* get_randoMode() { return &m_randoMode; }
+
+    PropertyInt_Qt* get_specificClass() { return &m_specificClass; }
+
+    PropertyInt_Qt* get_keepOriginal() { return &m_keepOriginal; }
+
+    PropertyInt_Qt* get_generate() { return &m_generate; }
+
+    PropertyInt_Qt* get_globalHitShift() { return &m_globalHitShift; }
+
+    PropertyInt_Qt* get_weightAma() { return &m_weightAma; }
+
+    PropertyInt_Qt* get_weightSor() { return &m_weightSor; }
+
+    PropertyInt_Qt* get_weightNec() { return &m_weightNec; }
+
+    PropertyInt_Qt* get_weightPal() { return &m_weightPal; }
+
+    PropertyInt_Qt* get_weightBar() { return &m_weightBar; }
+
+    PropertyInt_Qt* get_weightDru() { return &m_weightDru; }
+
+    PropertyInt_Qt* get_weightAss() { return &m_weightAss; }
+
+    PropertyInt_Qt* get_weightWar() { return &m_weightWar; }
+
+    PropertyInt_Qt* get_lvlreqRow1() { return &m_lvlreqRow1; }
+
+    PropertyInt_Qt* get_lvlreqRow2() { return &m_lvlreqRow2; }
+
+    PropertyInt_Qt* get_lvlreqRow3() { return &m_lvlreqRow3; }
+
+    PropertyInt_Qt* get_lvlreqRow4() { return &m_lvlreqRow4; }
+
+    PropertyInt_Qt* get_lvlreqRow5() { return &m_lvlreqRow5; }
+
+    PropertyInt_Qt* get_lvlreqRow6() { return &m_lvlreqRow6; }
 
     Q_INVOKABLE void assign(Config_SkillRandomizer_Qt* another) { m_data.assign(another->m_data, true); }
 
@@ -773,11 +845,47 @@ private:
 
     PropertyBool_Qt m_enabled;
 
-    PropertyBool_Qt m_ensureDifferent;
+    PropertyInt_Qt m_chanceElemChange;
 
-    PropertyBool_Qt m_skillDamage;
+    PropertyInt_Qt m_maximumElements;
 
-    PropertyBool_Qt m_skillTree;
+    PropertyInt_Qt m_randoMode;
+
+    PropertyInt_Qt m_specificClass;
+
+    PropertyInt_Qt m_keepOriginal;
+
+    PropertyInt_Qt m_generate;
+
+    PropertyInt_Qt m_globalHitShift;
+
+    PropertyInt_Qt m_weightAma;
+
+    PropertyInt_Qt m_weightSor;
+
+    PropertyInt_Qt m_weightNec;
+
+    PropertyInt_Qt m_weightPal;
+
+    PropertyInt_Qt m_weightBar;
+
+    PropertyInt_Qt m_weightDru;
+
+    PropertyInt_Qt m_weightAss;
+
+    PropertyInt_Qt m_weightWar;
+
+    PropertyInt_Qt m_lvlreqRow1;
+
+    PropertyInt_Qt m_lvlreqRow2;
+
+    PropertyInt_Qt m_lvlreqRow3;
+
+    PropertyInt_Qt m_lvlreqRow4;
+
+    PropertyInt_Qt m_lvlreqRow5;
+
+    PropertyInt_Qt m_lvlreqRow6;
 };
 
 class Config_Challenge_Qt : public CommonStruct_Qt {

@@ -354,18 +354,72 @@ struct Config : public CommonStruct {
     struct SkillRandomizer : public CommonStruct {
         bool m_enabled{ false };
 
-        bool m_ensureDifferent{ false };
+        int64_t m_chanceElemChange{ 0 };
 
-        bool m_skillDamage{ false };
+        int64_t m_maximumElements{ 5 };
 
-        bool m_skillTree{ false };
+        int64_t m_randoMode{ 0 };
+
+        int64_t m_specificClass{ 0 };
+
+        int64_t m_keepOriginal{ 40 };
+
+        int64_t m_generate{ 0 };
+
+        int64_t m_globalHitShift{ 2 };
+
+        int64_t m_weightAma{ 100 };
+
+        int64_t m_weightSor{ 100 };
+
+        int64_t m_weightNec{ 100 };
+
+        int64_t m_weightPal{ 100 };
+
+        int64_t m_weightBar{ 100 };
+
+        int64_t m_weightDru{ 100 };
+
+        int64_t m_weightAss{ 100 };
+
+        int64_t m_weightWar{ 100 };
+
+        int64_t m_lvlreqRow1{ 0 };
+
+        int64_t m_lvlreqRow2{ 6 };
+
+        int64_t m_lvlreqRow3{ 12 };
+
+        int64_t m_lvlreqRow4{ 18 };
+
+        int64_t m_lvlreqRow5{ 24 };
+
+        int64_t m_lvlreqRow6{ 30 };
 
         SkillRandomizer()
         {
-            addScalar("enabled", m_enabled).setZero(false).addPreset(3, true);
-            addScalar("ensureDifferent", m_ensureDifferent).setZero(false).setRecc(true);
-            addScalar("skillDamage", m_skillDamage).setZero(false).setRecc(true);
-            addScalar("skillTree", m_skillTree).setZero(false).setRecc(true);
+            addScalar("enabled", m_enabled).setZero(false).setRecc(true).addPreset(2, false);
+            addScalar("chanceElemChange", m_chanceElemChange).setRange(0, 100).setZero(0).setRecc(100).setPercent();
+            addScalar("maximumElements", m_maximumElements).setRange(2, 5).setZero(5).setRecc(3);
+            addScalar("randoMode", m_randoMode).setRange(0, 3).setZero(0).setRecc(3);
+            addScalar("specificClass", m_specificClass).setRange(0, 7).setZero(0).setRecc(3);
+            addScalar("keepOriginal", m_keepOriginal).setRange(0, 40).setZero(40).setRecc(15);
+            addScalar("generate", m_generate).setRange(0, 54).setZero(0).setRecc(15);
+            addScalar("globalHitShift", m_globalHitShift).setRange(0, 5).setZero(2).setRecc(2);
+            addScalar("weightAma", m_weightAma).setRange(0, 100).setZero(100).setRecc(100);
+            addScalar("weightSor", m_weightSor).setRange(0, 100).setZero(100).setRecc(100);
+            addScalar("weightNec", m_weightNec).setRange(0, 100).setZero(100).setRecc(100);
+            addScalar("weightPal", m_weightPal).setRange(0, 100).setZero(100).setRecc(100);
+            addScalar("weightBar", m_weightBar).setRange(0, 100).setZero(100).setRecc(100);
+            addScalar("weightDru", m_weightDru).setRange(0, 100).setZero(100).setRecc(100);
+            addScalar("weightAss", m_weightAss).setRange(0, 100).setZero(100).setRecc(100);
+            addScalar("weightWar", m_weightWar).setRange(0, 100).setZero(100).setRecc(100);
+            addScalar("lvlreqRow1", m_lvlreqRow1).setRange(0, 50).setZero(0).setRecc(0);
+            addScalar("lvlreqRow2", m_lvlreqRow2).setRange(0, 50).setZero(6).setRecc(6);
+            addScalar("lvlreqRow3", m_lvlreqRow3).setRange(0, 50).setZero(12).setRecc(12);
+            addScalar("lvlreqRow4", m_lvlreqRow4).setRange(0, 50).setZero(18).setRecc(18);
+            addScalar("lvlreqRow5", m_lvlreqRow5).setRange(0, 50).setZero(24).setRecc(24);
+            addScalar("lvlreqRow6", m_lvlreqRow6).setRange(0, 50).setZero(30).setRecc(30);
         }
     };
     struct Challenge : public CommonStruct {

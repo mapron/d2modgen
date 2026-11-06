@@ -141,6 +141,8 @@ struct IItem {
 
     virtual ItemCodeList     getItemFilter() const = 0;
     virtual AttributeFlagSet getAttributes() const = 0;
+
+    bool operator==(const IItem&) const noexcept { return true; }
 };
 
 struct IAffixContainer : public IItem {
@@ -153,6 +155,8 @@ struct IAffixContainer : public IItem {
 
     virtual RollTypes rollTypesGrab() const = 0;
     virtual RollTypes rollTypesGen() const  = 0;
+
+    bool operator==(const IAffixContainer&) const noexcept { return true; }
 };
 
 struct RowBase {
@@ -165,6 +169,8 @@ struct RowBase {
     static const std::string s_empty;
 
     std::map<std::string, std::string> getColumnAliases() const { return {}; }
+
+    bool operator==(const RowBase&) const noexcept { return true; }
 
     void ser(int& data, int empty = 0);
     void ser(std::optional<int>& data);
@@ -239,6 +245,8 @@ struct RowBase {
 struct RowBaseAffixes
     : public RowBase
     , public IAffixContainer {
+    bool operator==(const RowBaseAffixes&) const noexcept = default;
+
     std::optional<int>  lvl;
     std::optional<int>  maxlevel;
     std::optional<int>  lvlreq;
@@ -299,6 +307,8 @@ enum class EquipmentCategory
 struct RowBaseEquipment
     : public RowBase
     , public IItem {
+    bool operator==(const RowBaseEquipment&) const noexcept = default;
+
     EquipmentCategory   category = EquipmentCategory::Misc;
     std::optional<int>  lvl;
     std::optional<int>  lvlreq;

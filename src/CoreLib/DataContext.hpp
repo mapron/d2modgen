@@ -103,6 +103,8 @@ struct DataContext {
 
     DataContext calculateDiff(const DataContext& older) const;
 
+    int getClassesCount() const;
+
 private:
     bool postProcess();
 

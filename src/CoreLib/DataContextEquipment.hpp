@@ -13,6 +13,8 @@ namespace D2ModGen {
 struct DataRow_itemtypes : public RowBase {
     static constexpr const TableId s_tableId{ TableId::itemtypes };
 
+    bool operator==(const DataRow_itemtypes&) const noexcept = default;
+
     std::string clas;
     std::string code;
     std::string itemType;
@@ -192,6 +194,8 @@ struct DataRow_sets : public RowBase
     , public IAffixContainer {
     static constexpr const TableId s_tableId{ TableId::sets };
 
+    bool operator==(const DataRow_sets&) const noexcept = default;
+
     int level = 0;
 
     std::optional<int> version = 100;
@@ -228,13 +232,16 @@ struct DataRow_sets : public RowBase
 struct DataRow_runes : public RowBase
     , public IAffixContainer {
     static constexpr const TableId s_tableId{ TableId::runes };
-    int                            lvl = 1; // calculated.
-    std::vector<std::string>       runeCodes;
-    AffixPropList                  affixes{ 7 };
-    std::optional<bool>            complete;
-    std::vector<std::string>       itype;
-    std::vector<std::string>       etype;
-    ItemCodeList                   filter;
+
+    bool operator==(const DataRow_runes&) const noexcept = default;
+
+    int                      lvl = 1; // calculated.
+    std::vector<std::string> runeCodes;
+    AffixPropList            affixes{ 7 };
+    std::optional<bool>      complete;
+    std::vector<std::string> itype;
+    std::vector<std::string> etype;
+    ItemCodeList             filter;
 
     std::string name;
 
@@ -281,6 +288,8 @@ struct DataRow_gems : public RowBase
     , public IAffixContainer {
     static constexpr const TableId s_tableId{ TableId::gems };
 
+    bool operator==(const DataRow_gems&) const noexcept = default;
+
     AffixPropList affixes_weapon{ 3 };
     AffixPropList affixes_helm{ 3 };
     AffixPropList affixes_shield{ 3 };
@@ -324,6 +333,8 @@ struct DataRow_gems : public RowBase
 struct DataRow_cubemain : public RowBase
     , public IAffixContainer {
     static constexpr const TableId s_tableId{ TableId::cubemain };
+
+    bool operator==(const DataRow_cubemain&) const noexcept = default;
 
     AffixPropList            affixes_a{ 5 };
     AffixPropList            affixes_b{ 5 };

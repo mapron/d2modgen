@@ -146,11 +146,32 @@ structs:
 
     SkillRandomizer:
         members:
-            enabled:         { type: bool, zero: false, presets: {pain: true} }
-            ensureDifferent: { type: bool, zero: false, recc: true }
-            skillDamage:     { type: bool, zero: false, recc: true }
-            skillTree:       { type: bool, zero: false, recc: true }
+            enabled:               { type: bool, zero: false, recc: true , presets: { weak: false} }
 
+            chanceElemChange:      { type: int , zero: 0, recc: 100, min: 0, max: 100, percent: true}
+            maximumElements:       { type: int , zero: 5, recc: 3  , min: 2, max: 5 }
+
+            randoMode:             { type: int , zero: 0, recc: 3  , min: 0, max: 3 } # disabled|same class shuffle|specific class|all classes
+            specificClass:         { type: int , zero: 0, recc: 0  , min: 0, max: 7 }
+            keepOriginal:          { type: int , zero: 40, recc: 15, min: 0, max: 40 }
+            generate:              { type: int , zero: 0 , recc: 15, min: 0, max: 54 }
+            globalHitShift:        { type: int , zero: 2, recc: 2  , min: 0, max: 5 }
+            
+            weightAma:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightSor:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightNec:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightPal:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightBar:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightDru:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightAss:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightWar:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            
+            lvlreqRow1:            { type: int , zero: 0 , recc: 0 , min: 0, max: 50 }
+            lvlreqRow2:            { type: int , zero: 6 , recc: 6 , min: 0, max: 50 }
+            lvlreqRow3:            { type: int , zero: 12, recc: 12, min: 0, max: 50 }
+            lvlreqRow4:            { type: int , zero: 18, recc: 18, min: 0, max: 50 }
+            lvlreqRow5:            { type: int , zero: 24, recc: 24, min: 0, max: 50 }
+            lvlreqRow6:            { type: int , zero: 30, recc: 30, min: 0, max: 50 }
     Challenge:
         members:
             levelIncreaseHell:      { type: int, zero: 0, recc: 10, min: 0, max: 30 }

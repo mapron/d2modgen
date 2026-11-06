@@ -556,6 +556,8 @@ public:
         }
         return true;
     }
+
+    bool operator==(const TinyMap&) const noexcept = default;
 };
 
 template<class T, T maxValue = T::last__>
@@ -600,6 +602,8 @@ public:
         }
         return result;
     }
+
+    bool operator==(const TinySet&) const noexcept = default;
 };
 
 using AttributeFlagSet = TinySet<AttributeFlag>;

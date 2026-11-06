@@ -65,7 +65,7 @@ private:
         AllAttributeData precompiledSkipped;
         AllAttributeData gameDataSkipped;
 
-        void addExtra(const Config& config, const GenerationEnvironment& env);
+        void addExtra(const Config& config, const DataContext& output);
         void homogenizeNonPar(int64_t scalePercent, const std::vector<AttributeId>& attrs);
         void scaleSettings(int64_t scalePercent, const std::vector<AttributeId>& attrs);
     };

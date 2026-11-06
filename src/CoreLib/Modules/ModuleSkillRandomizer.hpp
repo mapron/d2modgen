@@ -14,85 +14,78 @@ struct ModuleSkillRandomizer : public AbstractModule {
     void generate() override;
 
 private:
-    struct EType {
-        Element e = Element::None;
-
-        std::string extra;
-        void        set(const std::string& str);
-
-        std::string toString() const;
-
-        bool operator==(const EType&) const = default;
+    enum SType
+    {
+        ExistingHidden, // this is kept in main range and not updated
+        ExistingActive, // this is kept in main range and not updated, but used as pool
+        GenHidden,      // this is kept in main range and UPDATED
+        GenActive,      // this added to the end with NEW DATA
+        Filler,         // this added to the end with ID ONLY
     };
-
-    struct SkillLocation {
-        int skillPage   = 0;
-        int skillRow    = 0;
-        int skillColumn = 0;
-        int listRow     = 0;
-        int reqlevel    = 0;
-
-        bool operator==(const SkillLocation&) const = default;
-
-        std::string toString() const;
-    };
-
-    struct SkillDamageInfo {
-        EType              eType;
-        std::optional<int> eLen;
-        std::optional<int> eLenLev;
-        std::optional<int> eLenSyn;
-
-        int hitShift = 0;
-
-        bool operator==(const SkillDamageInfo&) const = default;
-
-        std::string toString() const;
-    };
-
     struct SkillInfo {
-        std::string     uppercaseKey;
-        std::string     lowercaseKey;
-        Character       classSpecific; // ass|bar|...
-        SkillLocation   loc;
-        SkillDamageInfo dmg;
-        StringVector    reqSkills;
+        SType stype = SType::Filler;
 
-        void readFromRowMain(const DataRow_skills& row);
-        void readFromRowDesc(const DataRow_skilldesc& row);
-        void writeToRowMain(DataRow_skills& row);
-        void writeToRowDesc(DataRow_skilldesc& row);
+        Element eType    = Element::None;
+        int     hitShift = 0;
+
+        int rowIdx  = -1;
+        int descIdx = -1;
+
+        std::string originalId;
+
+        DataRow_skills    row;
+        DataRow_skilldesc desc;
 
         std::string toString() const;
 
-        bool operator==(const SkillInfo&) const = default;
+        bool operator==(const SkillInfo&) const noexcept = default;
+
+        void resetIdx()
+        {
+            rowIdx  = -1;
+            descIdx = -1;
+        }
+
+        void setNewElement(Element element);
+    };
+    using Ptr     = SkillInfo*;
+    using PtrList = std::vector<Ptr>;
+    using PtrSet  = std::set<Ptr>;
+
+    struct CharacterData {
+        std::vector<SkillInfo> skills;
+
+        int rowIdxStart  = -1;
+        int descIdxStart = -1;
+
+        Character clas = Character::None;
+
+        std::vector<size_t> getIndexesByType(SType stype, SType stype2 = SType::Filler) const;
+        PtrList             getActive();
+
+        bool readExisting(DataContext& output);
+        void writeOut(DataContext& output) const;
+
+        void makeInactive(RandomGenerator& rng, int keepCnt);
+
+        void generateAdditionalSkills(RandomGenerator& rng, const CharacterData& someOtherClass, int generateCount);
+        void createIdx();
+
+        void randomizePositions(RandomGenerator& rng);
+
+        void updateSkillReq(const Config::SkillRandomizer& module);
+        void updateSkillNameRef(const DataContext& output, RandomGenerator& rng);
+
+        void randomizeElements(RandomGenerator& rng, int maximumVariants, int percentToChange);
+
+        void insertRows(DataContext& output, int rowsPerClass);
     };
 
-    using SkillParsedData = std::map<std::string, SkillInfo>;
+    using AllCharacterData = std::map<Character, CharacterData>;
 
-    struct SkillTree {
-        struct CharacterData {
-            struct Skill {
-                SkillLocation    loc;
-                int              skillId;
-                std::vector<int> reqSkillIds;
-            };
-            std::vector<Skill> skills;
-            Character          classSpecific;
-            StringVector       skillIds;
+    AllCharacterData existingData;
 
-            int addSkillId(const std::string& skill);
-        };
-        std::map<Character, CharacterData> chars;
-
-        void parse(const SkillParsedData& data);
-
-        void randomizeTabs(RandomGenerator& rng);
-
-        void randomizeDmg(SkillParsedData& data, RandomGenerator& rng, const bool ensureDifferent);
-
-        void writeOutput(SkillParsedData& data) const;
-    };
+    AllCharacterData generatedData;
 };
 
 }

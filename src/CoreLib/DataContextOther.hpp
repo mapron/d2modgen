@@ -13,6 +13,8 @@ namespace D2ModGen {
 struct DataRow_charstats : public RowBase {
     static constexpr const TableId s_tableId{ TableId::charstats };
 
+    bool operator==(const DataRow_charstats&) const noexcept = default;
+
     std::string clas;
 
     struct Item {
@@ -41,6 +43,8 @@ private:
 struct DataRow_difficultylevels : public RowBase {
     static constexpr const TableId s_tableId{ TableId::difficultylevels };
 
+    bool operator==(const DataRow_difficultylevels&) const noexcept = default;
+
     std::string        name;
     std::optional<int> resistPenalty;
     std::optional<int> gambleRare;
@@ -55,6 +59,8 @@ struct DataRow_difficultylevels : public RowBase {
 struct DataRow_experience : public RowBase {
     static constexpr const TableId s_tableId{ TableId::experience };
 
+    bool operator==(const DataRow_experience&) const noexcept = default;
+
     std::optional<int> expRatio;
 
     std::vector<std::string> getColumns() const;
@@ -62,6 +68,8 @@ struct DataRow_experience : public RowBase {
 };
 struct DataRow_gamble : public RowBase {
     static constexpr const TableId s_tableId{ TableId::gamble };
+
+    bool operator==(const DataRow_gamble&) const noexcept = default;
 
     std::string name;
     std::string code;
@@ -71,6 +79,8 @@ struct DataRow_gamble : public RowBase {
 };
 struct DataRow_hireling : public RowBase {
     static constexpr const TableId s_tableId{ TableId::hireling };
+
+    bool operator==(const DataRow_hireling&) const noexcept = default;
 
     std::optional<int> hp;
     std::optional<int> hp_lvl;
@@ -84,6 +94,8 @@ struct DataRow_hireling : public RowBase {
 struct DataRow_itemstatcost : public RowBase {
     static constexpr const TableId s_tableId{ TableId::itemstatcost };
 
+    bool operator==(const DataRow_itemstatcost&) const noexcept = default;
+
     std::optional<int> multiply;
     std::optional<int> add;
 
@@ -92,6 +104,8 @@ struct DataRow_itemstatcost : public RowBase {
 };
 struct DataRow_levels : public RowBase {
     static constexpr const TableId s_tableId{ TableId::levels };
+
+    bool operator==(const DataRow_levels&) const noexcept = default;
 
     int id = -1;
 
@@ -119,6 +133,8 @@ private:
 
 struct DataRow_monlvl : public RowBase {
     static constexpr const TableId s_tableId{ TableId::monlvl };
+
+    bool operator==(const DataRow_monlvl&) const noexcept = default;
 
     std::array<int, 6> TH; // to hit, attack rating
     std::array<int, 6> AC; // armor class, defence
@@ -166,6 +182,8 @@ std::string   animationModeToString(AnimationMode mode);
 struct DataRow_monseq : public RowBase {
     static constexpr const TableId s_tableId{ TableId::monseq };
 
+    bool operator==(const DataRow_monseq&) const noexcept = default;
+
     std::string        sequence;
     AnimationMode      mode = AnimationMode::Undefined; // The specific frame mode token (e.g., "A1", "S1")
     std::optional<int> frame;
@@ -180,6 +198,8 @@ struct DataRow_monseq : public RowBase {
 
 struct DataRow_monstats : public RowBase {
     static constexpr const TableId s_tableId{ TableId::monstats };
+
+    bool operator==(const DataRow_monstats&) const noexcept = default;
 
     std::array<std::optional<int>, 3> resFi, resLi, resCo, resPo, resMa, resDm;
 
@@ -198,6 +218,8 @@ struct DataRow_monstats : public RowBase {
         std::string        name;
         std::string        mode;
         std::optional<int> level;
+
+        bool operator==(const Skill&) const noexcept = default;
     };
 
     std::vector<Skill> skills;
@@ -229,6 +251,8 @@ struct DataRow_monstats : public RowBase {
         std::optional<int> el1MinD;
         std::optional<int> el1MaxD;
         std::optional<int> el1Dur;
+
+        bool operator==(const Stats&) const noexcept = default;
     };
     std::array<Stats, 3> battleStats;
 
@@ -288,6 +312,8 @@ private:
 struct DataRow_monstatsEx : public RowBase {
     static constexpr const TableId s_tableId{ TableId::monstats2 };
 
+    bool operator==(const DataRow_monstatsEx&) const noexcept = default;
+
     std::string id;
     std::string hitClass;
 
@@ -305,7 +331,16 @@ struct DataRow_monstatsEx : public RowBase {
 };
 
 struct DataRow_skilldesc : public RowBase {
+private:
+    static const size_t maxDesc1 = 6;
+    static const size_t maxDesc2 = 5; // d2 legacy has 4
+    static const size_t maxDesc3 = 7;
+    static const size_t maxDesc  = maxDesc1 + maxDesc2 + maxDesc3;
+
+public:
     static constexpr const TableId s_tableId{ TableId::skilldesc };
+
+    bool operator==(const DataRow_skilldesc&) const noexcept = default;
 
     std::string        skilldesc;
     std::optional<int> skillPage;
@@ -313,13 +348,38 @@ struct DataRow_skilldesc : public RowBase {
     std::optional<int> skillColumn;
     std::optional<int> listRow;
 
+    std::array<std::string, maxDesc * 2>  calc;
+    std::array<std::string, maxDesc3 * 2> desc3; // used for synergy lines
+
+    std::string strName; // Strings like "Skillname265" for "Cloak of Shadows". Do not match exact id!
+
     std::vector<std::string> getColumns() const;
     void                     serialize();
+
+    bool isValid() const
+    {
+        return skillPage.value_or(0) > 0 && skillRow.value_or(0) > 0 && skillColumn.value_or(0) > 0 && listRow.value_or(0) > 0;
+    }
+    void makeHidden()
+    {
+        skillPage   = 0;
+        skillRow    = 0;
+        skillColumn = 0;
+        listRow     = -1;
+    }
 };
 struct DataRow_skills : public RowBase {
+private:
+    static constexpr const size_t s_calcCount = 6 + 6 + 14 + 3 + 5 + 3 + 10;
+
+public:
     static constexpr const TableId s_tableId{ TableId::skills };
 
+    bool operator==(const DataRow_skills&) const noexcept = default;
+
+    int                 id = -1;
     std::string         skill;
+    std::string         skilldesc;
     std::optional<int>  maxlvl;
     std::optional<int>  lvlreq;
     std::optional<bool> inTown;
@@ -334,14 +394,23 @@ struct DataRow_skills : public RowBase {
     std::string              charclass;
     Character                classSpecific = Character::None;
 
+    std::string itypea1;
+
     bool canBeOskill = true;
+
+    std::array<std::string, s_calcCount> calc;
 
     std::vector<std::string> getColumns() const;
     void                     serialize();
+
+    std::map<std::string, std::string> getColumnAliases() const;
 };
+
 using DataRow_skills_ptr = const DataRow_skills*;
 struct DataRow_treasureclassex : public RowBase {
     static constexpr const TableId s_tableId{ TableId::treasureclassex };
+
+    bool operator==(const DataRow_treasureclassex&) const noexcept = default;
 
     struct Item {
         std::string        tc;

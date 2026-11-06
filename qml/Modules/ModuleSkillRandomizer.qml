@@ -13,23 +13,143 @@ WidgetCommonTab {
     value_context: config.skillRandomizer
     enabled_key: config.skillRandomizer.enabled
     caption: qsTr("Skill Randomizer")
-    tooltip: qsTr("This allow to bring 'some' randomization into character skills.")
 
-    WidgetCheckbox {
-        caption: qsTr("Randomize skill tabs within each character")
-        tooltip: qsTr("That DOES not move skills between characters! What it can do:<br>-Move a skill to a different skill tab;<br>-Move a skill to a higher/lower level;<br>-Change skill requirements.<br>So, after level 50 there is not much of a difference. Synergies are also untouched.")
-        value_key: root.value_context.skillTree
+    WidgetSlider {
+        caption: qsTr("Chance to change element of skill")
+        tooltip: qsTr("Supported 5 different element, physical damage can not be rolled.")
+        value_key: root.value_context.chanceElemChange
     }
 
-    WidgetCheckbox {
-        caption: qsTr("Randomize element types for some damage skills")
-        tooltip: qsTr("For some skills, where it is easy to change damage type, it will randomize between 5 different elements:<br>Cold, Fire, Lightning, Magic and Poison<br>WARNING! Skill descriptions won't be updated and will be completely wrong!<br>Also, character info screen does not show difference between cold and magic correctly.<br>You need to find by yourself what damage (magic or cold) was rolled.<br>For poison, all damage is dealt over 2 seconds and slightly more than original.")
-        value_key: root.value_context.skillDamage
+    WidgetSlider {
+        caption: qsTr("Maximum elements rolled on single character class")
+        value_key: root.value_context.maximumElements
     }
 
-    WidgetCheckbox {
-        caption: qsTr("Ensure that element types are different from original")
-        tooltip: qsTr("If the source element is Cold, then new randomized element never should be Cold.<br>If this turned off, ~20% of skills will remain original behaviour.")
-        value_key: root.value_context.ensureDifferent
+    Separator {}
+
+    RowLayout {
+        spacing: 10
+        Layout.fillWidth: true
+        Label {
+            text: qsTr("Skill randomizer:")
+        }
+        RadioGroup {
+            model: [qsTr("Disable"), qsTr("Same class shuffle"), qsTr("Select class"), qsTr("Full class rando")]
+            value_key: root.value_context.randoMode
+        }
+        Item {
+            Layout.fillWidth: true
+        }
+    }
+
+    WidgetComboBox {
+        caption: qsTr("Pull all skills from single class:")
+        model: [qsTr("Amazon"), qsTr("Sorceress"), qsTr("Necromancer"), qsTr("Paladin"), qsTr("Barbarian"), qsTr("Druid"), qsTr("Assassin"), qsTr("Warlock"),]
+        value_key: root.value_context.specificClass
+        visible: root.value_context.randoMode.value === 2
+        stretchCaption: false
+    }
+    WidgetSlider {
+        caption: qsTr("How many skills to keep")
+        value_key: root.value_context.keepOriginal
+        visible: root.value_context.randoMode.value > 1
+    }
+    WidgetSlider {
+        caption: qsTr("How many skills generate")
+        value_key: root.value_context.generate
+        visible: root.value_context.randoMode.value > 0
+    }
+
+    RowLayout {
+        spacing: 10
+        Layout.fillWidth: true
+        Label {
+            text: qsTr("Adjust all skill damage")
+        }
+        WidgetHelpIcon {
+            tooltipText: qsTr("Weird values because technicalities:<br>easy adjustement only goes with power of 2.<br>Use as last resort to compensate for bad seed.")
+        }
+        RadioGroup {
+            model: [qsTr("1/4"), qsTr("1/2"), qsTr("Normal"), qsTr("2x"), qsTr("4x")]
+            value_key: root.value_context.globalHitShift
+        }
+        Item {
+            Layout.fillWidth: true
+        }
+    }
+    Separator {
+        visible: root.value_context.randoMode.value === 3
+    }
+    LabelLarge {
+        text: qsTr("Relative chance to select skill from specific class:")
+        visible: root.value_context.randoMode.value === 3
+    }
+    WidgetSlider {
+        caption: qsTr("Amazon")
+        value_key: root.value_context.weightAma
+        visible: root.value_context.randoMode.value === 3
+    }
+    WidgetSlider {
+        caption: qsTr("Sorceress")
+        value_key: root.value_context.weightSor
+        visible: root.value_context.randoMode.value === 3
+    }
+    WidgetSlider {
+        caption: qsTr("Necromancer")
+        value_key: root.value_context.weightNec
+        visible: root.value_context.randoMode.value === 3
+    }
+    WidgetSlider {
+        caption: qsTr("Paladin")
+        value_key: root.value_context.weightPal
+        visible: root.value_context.randoMode.value === 3
+    }
+    WidgetSlider {
+        caption: qsTr("Barbarian")
+        value_key: root.value_context.weightBar
+        visible: root.value_context.randoMode.value === 3
+    }
+    WidgetSlider {
+        caption: qsTr("Druid")
+        value_key: root.value_context.weightDru
+        visible: root.value_context.randoMode.value === 3
+    }
+    WidgetSlider {
+        caption: qsTr("Assassin")
+        value_key: root.value_context.weightAss
+        visible: root.value_context.randoMode.value === 3
+    }
+    WidgetSlider {
+        caption: qsTr("Warlock")
+        value_key: root.value_context.weightWar
+        visible: root.value_context.randoMode.value === 3
+    }
+    Separator {}
+    LabelLarge {
+        text: qsTr("Change skill requirement for each skill row:")
+    }
+    WidgetSlider {
+        caption: qsTr("Row 1 (from level 0)")
+        value_key: root.value_context.lvlreqRow1
+    }
+    WidgetSlider {
+        caption: qsTr("Row 2 (from level 6)")
+        value_key: root.value_context.lvlreqRow2
+    }
+    WidgetSlider {
+        caption: qsTr("Row 3 (from level 12)")
+        value_key: root.value_context.lvlreqRow3
+    }
+    WidgetSlider {
+        caption: qsTr("Row 4 (from level 18)")
+        value_key: root.value_context.lvlreqRow4
+    }
+    WidgetSlider {
+        caption: qsTr("Row 5 (from level 24)")
+        value_key: root.value_context.lvlreqRow5
+    }
+    WidgetSlider {
+        caption: qsTr("Row 6 (from level 30)")
+        value_key: root.value_context.lvlreqRow6
     }
 }

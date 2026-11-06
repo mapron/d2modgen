@@ -108,7 +108,7 @@ void ModuleItemRandomizer::generate()
 
     Logger() << "Add some extra fine-tuned properties...";
 
-    magicContext.addExtra(config, env);
+    magicContext.addExtra(config, output);
 
     StatisticsTable statisticsTable;
 
@@ -689,15 +689,14 @@ void ModuleItemRandomizer::updateLoDtranslation(std::string& patchstringTlb)
     tbl.writeToBuffer(patchstringTlb);
 }
 
-void ModuleItemRandomizer::MagicContext::addExtra(const Config& config, const GenerationEnvironment& env)
+void ModuleItemRandomizer::MagicContext::addExtra(const Config& config, const DataContext& output)
 {
     using A = AttributeId;
     actual.erase(A::skilltab);
 
     const auto& module = config.m_itemRandomizer;
 
-    Character lastCharacter = env.isRotW ? Character::War : Character::Ass;
-    const int classCount    = static_cast<int>(lastCharacter) + 1;
+    const int classCount = output.getClassesCount();
 
     // Fill skilltab values
     auto fillPropList = [classCount](PropWithRangeList& props, int min, int max) -> int {

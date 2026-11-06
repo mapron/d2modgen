@@ -445,13 +445,36 @@ std::map<std::string, std::string> DataRow_monstatsEx::getColumnAliases() const
 
 std::vector<std::string> DataRow_skilldesc::getColumns() const
 {
-    return {
+    std::vector<std::string> result{
         "skilldesc",
         "skillpage",
         "skillrow",
         "skillcolumn",
         "listrow",
+        "str name",
     };
+    for (size_t i = 0; i < maxDesc1; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("desccalca" + istr);
+        result.push_back("desccalcb" + istr);
+    }
+    for (size_t i = 0; i < maxDesc2; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("dsc2calca" + istr);
+        result.push_back("dsc2calcb" + istr);
+    }
+    for (size_t i = 0; i < maxDesc3; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("dsc3calca" + istr);
+        result.push_back("dsc3calcb" + istr);
+    }
+    for (size_t i = 0; i < maxDesc3; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("dsc3texta" + istr);
+        result.push_back("dsc3textb" + istr);
+    }
+
+    return result;
 }
 
 void DataRow_skilldesc::serialize()
@@ -461,20 +484,50 @@ void DataRow_skilldesc::serialize()
     ser(skillRow);
     ser(skillColumn);
     ser(listRow);
+    ser(strName);
+
+    ser(calc);
+    ser(desc3);
 }
 
 std::vector<std::string> DataRow_skills::getColumns() const
 {
-    // clang-format off
-    return { "skill", "maxlvl", "reqlevel", "intown", "cost mult", "cost add" ,
-             "elen", "hitshift", "etype", "charclass",
-             "reqskill1", "reqskill2", "reqskill3"};
-    // clang-format on
+    std::vector<std::string> result{
+        // clang-format off
+        "skill", "*id", "skilldesc", "maxlvl", "reqlevel", "intown", "cost mult", "cost add" ,
+        "elen", "hitshift", "etype", "charclass",
+        "itypea1",
+        "reqskill1", "reqskill2", "reqskill3",
+        
+        "tohitcalc",
+        "dmgsympercalc",
+        "edmgsympercalc",
+        "elensympercalc",
+        "auralencalc",
+        "aurarangecalc",
+        // clang-format on
+    };
+    for (size_t i = 0; i < 6; ++i)
+        result.push_back("aurastatcalc" + std::to_string(i + 1));
+    for (size_t i = 0; i < 14; ++i)
+        result.push_back("passivecalc" + std::to_string(i + 1));
+    for (size_t i = 0; i < 3; ++i)
+        result.push_back("prgcalc" + std::to_string(i + 1));
+    for (size_t i = 0; i < 5; ++i)
+        result.push_back("sumsk" + std::to_string(i + 1) + "calc");
+    for (size_t i = 0; i < 3; ++i)
+        result.push_back("cltcalc" + std::to_string(i + 1));
+    for (size_t i = 0; i < 10; ++i)
+        result.push_back("calc" + std::to_string(i + 1));
+
+    return result;
 }
 
 void DataRow_skills::serialize()
 {
     ser(skill);
+    ser(id, -1);
+    ser(skilldesc);
     ser(maxlvl);
     ser(lvlreq);
     ser(inTown);
@@ -485,8 +538,16 @@ void DataRow_skills::serialize()
     ser(hitShift);
     ser(eType);
     ser(charclass);
+    ser(itypea1);
 
     ser(reqskills, 3);
+
+    ser(calc);
+}
+
+std::map<std::string, std::string> DataRow_skills::getColumnAliases() const
+{
+    return { { "id", "*id" } };
 }
 
 std::vector<std::string> DataRow_treasureclassex::getColumns() const
