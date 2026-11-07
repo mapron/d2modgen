@@ -148,13 +148,13 @@ structs:
         members:
             enabled:               { type: bool, zero: false, recc: true , presets: { weak: false} }
 
-            chanceElemChange:      { type: int , zero: 0, recc: 100, min: 0, max: 100, percent: true}
+            chanceElemChange:      { type: int , zero: 0, recc: 75 , min: 0, max: 100, percent: true}
             maximumElements:       { type: int , zero: 5, recc: 3  , min: 2, max: 5 }
 
             randoMode:             { type: int , zero: 0, recc: 3  , min: 0, max: 3 } # disabled|same class shuffle|specific class|all classes
             specificClass:         { type: int , zero: 0, recc: 0  , min: 0, max: 7 }
-            keepOriginal:          { type: int , zero: 40, recc: 15, min: 0, max: 40 }
-            generate:              { type: int , zero: 0 , recc: 15, min: 0, max: 54 }
+            keepOriginal:          { type: int , zero: 40, recc: 10, min: 0, max: 40 }
+            generate:              { type: int , zero: 0 , recc: 20, min: 0, max: 54 }
             globalHitShift:        { type: int , zero: 2, recc: 2  , min: 0, max: 5 }
             
             weightAma:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }

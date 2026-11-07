@@ -526,7 +526,7 @@ std::vector<std::string> DataRow_skills::getColumns() const
         // clang-format off
         "skill", "*id", "skilldesc", "maxlvl", "reqlevel", "intown", "cost mult", "cost add" ,
         "elen", "hitshift", "manashift", "etype", "charclass",
-        "itypea1", "aurastat1",
+        "itypea1", "anim", "seqtrans",
         "reqskill1", "reqskill2", "reqskill3",
 
         "srvmissile","srvmissilea","srvmissileb","srvmissilec","srvmissiled",
@@ -540,8 +540,6 @@ std::vector<std::string> DataRow_skills::getColumns() const
         "aurarangecalc",
         // clang-format on
     };
-    for (size_t i = 0; i < 6; ++i)
-        result.push_back("aurastatcalc" + std::to_string(i + 1));
     for (size_t i = 0; i < 14; ++i)
         result.push_back("passivecalc" + std::to_string(i + 1));
     for (size_t i = 0; i < 3; ++i)
@@ -552,6 +550,16 @@ std::vector<std::string> DataRow_skills::getColumns() const
         result.push_back("cltcalc" + std::to_string(i + 1));
     for (size_t i = 0; i < 10; ++i)
         result.push_back("calc" + std::to_string(i + 1));
+
+    for (size_t i = 0; i < 6; ++i)
+        result.push_back("aurastatcalc" + std::to_string(i + 1));
+
+    for (size_t i = 0; i < 6; ++i)
+        result.push_back("aurastat" + std::to_string(i + 1));
+    for (size_t i = 0; i < 14; ++i) {
+        auto istr = std::to_string(i + 1);
+        result.push_back("passivestat" + istr);
+    }
 
     return result;
 }
@@ -573,17 +581,38 @@ void DataRow_skills::serialize()
     ser(eType);
     ser(charclass);
     ser(itypea1);
-    ser(aurastat1);
+    ser(anim);
+    ser(seqtrans);
 
     ser(reqskills, 3);
     ser(missile);
 
     ser(calc);
+
+    ser(aurastatcalc, 6);
+    ser(aurastat, 6);
+    ser(passivestat, 14);
 }
 
 std::map<std::string, std::string> DataRow_skills::getColumnAliases() const
 {
     return { { "id", "*id" } };
+}
+
+void DataRow_skills::setNewClass(Character clas)
+{
+    if (clas != classSpecific) {
+        if (classSpecific == Character::Ass) {
+            std::set<std::string> codeChange{ "KK", "S2" };
+            for (auto* col : { &anim, &seqtrans }) {
+                if (codeChange.contains(*col))
+                    *col = "A1";
+            }
+        }
+    }
+
+    classSpecific = clas;
+    charclass     = enumToString(clas);
 }
 
 std::vector<std::string> DataRow_treasureclassex::getColumns() const

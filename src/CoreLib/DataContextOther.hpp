@@ -373,7 +373,7 @@ public:
 };
 struct DataRow_skills : public RowBase {
 private:
-    static constexpr const size_t s_calcCount = 6 + 6 + 14 + 3 + 5 + 3 + 10;
+    static constexpr const size_t s_calcCount = 6 + 14 + 3 + 5 + 3 + 10;
 
 public:
     static constexpr const TableId s_tableId{ TableId::skills };
@@ -400,8 +400,14 @@ public:
 
     std::array<std::string, 10> missile;
 
-    std::string itypea1;
-    std::string aurastat1;
+    std::vector<std::string> passivestat;
+
+    std::string              itypea1;
+    std::vector<std::string> aurastat;
+    std::vector<std::string> aurastatcalc;
+
+    std::string anim;
+    std::string seqtrans;
 
     bool canBeOskill = true;
 
@@ -411,6 +417,8 @@ public:
     void                     serialize();
 
     std::map<std::string, std::string> getColumnAliases() const;
+
+    void setNewClass(Character clas);
 };
 
 using DataRow_skills_ptr = const DataRow_skills*;

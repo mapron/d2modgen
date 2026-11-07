@@ -103,114 +103,48 @@ const StringSet s_bannedRandoPickSkills{
     "fire mastery",
     "cold mastery",
     "lightning mastery",
+
     "frenzy",
     "double swing",
     "double throw",
+
+    "fists of fire",
+    "claws of thunder",
+    "blades of ice",
+    "dragon claw",
 };
 
 const StringSet s_noPoison{};
 
 const StringSet s_skippedSkills{
     "static field",
+    "vengeance",
+
 };
 
-const StringSet s_skippedSkills_PD2{
-
-    //ama
-    "dopplezon",
-    "guided arrow",
-    "inner sight",
-    "magic arrow",
-    "shattering arrow",
-    "slow movement",
-    "valkyrie",
-
-    //sor
-    "cold enchant",
-    "cold mastery",
-    "combustion",
-    "energy shield",
-    "ice barrage",
-    "lesser hydra",
-    "lightning mastery",
-    "teleport",
-
-    //nec
-    "ampdmg",
-    "attract",
-    "bone armor",
-    "bone prison",
-    "bone wall",
-    "clay golem",
-    "confuse",
-    "dark pact",
-    "decrepify",
-    "desecrate",
-    "dim vision",
-    "golem mastery",
-    "iron maiden",
-    "irongolem",
-    "life tap",
-    "lowres",
-    "raise skeletal mage",
-    "raise skeleton",
-    "raise skeleton archer",
-    "revive",
-    "skeleton mastery",
-    "terror",
-    "weaken",
-
-    //pal
-    "cleansing",
-    "holy light",
-    "holy nova",
-    "holy shield",
-    "holy sword",
-    "meditation",
-    "resist cold",
-    "resist fire",
-    "resist lightning",
-
-    //dru
-    "gust",
-    "raven",
-    "vines",
-
-    //ass
-    "chain lightning sentry",
-    "cobra strike",
+struct ElemDesc {
+    std::string descId;
+    std::string minattr;
+    std::string maxattr;
+    std::string lenattr;
+    int         compensate = 0;
+    int         dur        = 0;
 };
 
 const auto s_knownElements = std::vector{ Element::Ltng, Element::Fire, Element::Cold, Element::Mag, Element::Pois };
 
-const std::map<Element, int> s_compensateBitShift{
-    { Element::Ltng, 0 },
-    { Element::Fire, 0 },
-    { Element::Cold, 0 },
-    { Element::Mag, -1 },  // Magic damage is unresisted, so the skill needs to be weaker to compensate
-    { Element::Pois, -5 }, // compensate 2^5==32 times for poison as we do 100 frames duration and it needs 32x damage reduction (total damage is 3x higher)
-    { Element::Burn, 0 },
-    { Element::Frze, 0 },
-};
-const std::map<Element, int> s_defaultDuration{
-    { Element::Ltng, 0 },
-    { Element::Fire, 0 },
-    { Element::Cold, 50 },
-    { Element::Mag, 0 },
-    { Element::Pois, 100 },
-    { Element::Burn, 0 },
-    { Element::Frze, 0 },
-};
+// Magic damage is unresisted, so the skill needs to be weaker to compensate
+// Poison compensate 2^5==32 times for poison as we do 100 frames duration and it needs 32x damage reduction (total damage is 3x higher)
+const std::map<Element, ElemDesc> s_elemDesc{
+    { Element::Ltng, ElemDesc{ .descId = "StrSkill7", .minattr = "lightmindam", .maxattr = "lightmaxdam" } },
+    { Element::Fire, ElemDesc{ .descId = "StrSkill5", .minattr = "firemindam", .maxattr = "firemaxdam" } },
+    { Element::Cold, ElemDesc{ .descId = "StrSkill6", .minattr = "coldmindam", .maxattr = "coldmaxdam", .dur = 50 } },
+    { Element::Mag, ElemDesc{ .descId = "StrSkill39", .minattr = "magicmindam", .maxattr = "magicmaxdam", .compensate = -1 } },
+    { Element::Pois, ElemDesc{ .descId = "StrSkill8", .minattr = "poisonmindam", .maxattr = "poisonmaxdam", .lenattr = "poisonlength", .compensate = -5, .dur = 100 } },
 
-const std::map<Element, std::string> s_descId{
-    { Element::Ltng, "StrSkill7" },
-    { Element::Fire, "StrSkill5" },
-    { Element::Cold, "StrSkill6" },
-    { Element::Mag, "StrSkill39" },
-    { Element::Pois, "StrSkill8" },
-    { Element::Phys, "StrSkill4" },
-    { Element::Frze, "StrSkill29" },
-    { Element::Burn, "Skillld226" },
+    { Element::Phys, ElemDesc{ .descId = "StrSkill4" } },
+    { Element::Frze, ElemDesc{ .descId = "StrSkill29" } },
+    { Element::Burn, ElemDesc{ .descId = "Skillld226" } },
 };
 
 void dump(std::string indent, DataContext& output, const DataRow_missiles& row)
@@ -219,6 +153,8 @@ void dump(std::string indent, DataContext& output, const DataRow_missiles& row)
     std::set<const DataRow_missiles*> children;
     for (const std::string& child : row.childmissile) {
         if (child.empty())
+            continue;
+        if (child == row.name)
             continue;
         if (auto* c = output.missiles.find(child))
             children.insert(c);
@@ -254,13 +190,6 @@ void ModuleSkillRandomizer::generate()
     const auto& module = config.m_skillRandomizer;
     if (!module.m_enabled)
         return;
-
-    /*
-    for (auto& skill : output.skills.rows) {
-        if (s_skippedSkills.contains(Mernel::strToLower(skill.skill)))
-            dump("", output, skill);
-    }
-    return;*/
 
     const int totalNewSkillsPerClass = 60;
 
@@ -488,8 +417,7 @@ void ModuleSkillRandomizer::CharacterData::createIdx(DataContext& output)
         rowIdx       = rowIdxStart + i;
         descIdx      = descIdxStart + i;
 
-        row.classSpecific = clas;
-        row.charclass     = enumToString(clas);
+        row.setNewClass(clas);
 
         row.skilldesc = "gen_" + enumToString(clas) + "_" + std::to_string(i);
         output.idClones.skills.push_back({ .from = row.skill, .to = row.skilldesc });
@@ -657,6 +585,8 @@ Necromancer
             replaceTokensInplace(str, replaceSkillId);
         for (auto& str : skill->row.calc)
             replaceTokensInplace(str, replaceSkillId);
+        for (auto& str : skill->row.aurastatcalc)
+            replaceTokensInplace(str, replaceSkillId);
     }
     for (Ptr skill : activeSkills) {
         for (auto& str : skill->desc.desc) {
@@ -695,6 +625,13 @@ void ModuleSkillRandomizer::CharacterData::randomizeElements(RandomGenerator& rn
         auto i = rng(static_cast<int>(elementsTmp1.size()));
         elementsTmp1.erase(elementsTmp1.begin() + i);
     }
+    std::set<std::string> passiveMinMax;
+    for (auto& [key, desc] : s_elemDesc) {
+        if (!desc.minattr.empty())
+            passiveMinMax.insert(desc.minattr);
+        if (!desc.maxattr.empty())
+            passiveMinMax.insert(desc.maxattr);
+    }
 
     for (auto& skill : skills) {
         if (skill.stype != SType::ExistingActive && skill.stype != SType::GenActive)
@@ -709,16 +646,18 @@ void ModuleSkillRandomizer::CharacterData::randomizeElements(RandomGenerator& rn
             Logger() << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " ignoredlist, SKIP";
             continue;
         }
-        if (!skill.row.aurastat1.empty()) {
-            Logger() << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " aurastat=" << skill.row.aurastat1 << ", SKIP";
-            continue;
-        }
         if (percentToChange < 100) {
             if (rng(100) > percentToChange)
                 continue;
         }
+        bool noPoison = s_noPoison.contains(Mernel::strToLower(skill.originalId));
+        for (auto& pass : skill.row.passivestat) {
+            if (passiveMinMax.contains(pass))
+                noPoison = true;
+        }
+
         auto elementsTmp = elementsTmp1;
-        if (s_noPoison.contains(Mernel::strToLower(skill.originalId))) {
+        if (noPoison) {
             if (auto it = std::find(elementsTmp.begin(), elementsTmp.end(), Element::Pois); it != elementsTmp.end())
                 elementsTmp.erase(it);
         }
@@ -726,8 +665,10 @@ void ModuleSkillRandomizer::CharacterData::randomizeElements(RandomGenerator& rn
         if (auto it = std::find(elementsTmp.begin(), elementsTmp.end(), skill.eType); it != elementsTmp.end())
             elementsTmp.erase(it);
 
-        if (!elementsTmp.empty())
-            skill.setNewElement(elementsTmp[rng((int) elementsTmp.size())]);
+        if (elementsTmp.empty())
+            continue;
+
+        skill.setNewElement(elementsTmp[rng((int) elementsTmp.size())]);
     }
 }
 
@@ -780,7 +721,12 @@ void ModuleSkillRandomizer::CharacterData::updateMissile(DataContext& output, co
         return;
     }
     DataRow_missiles newMiss = *miss;
+    std::string      newName = parent.row.skill + "_" + newMiss.name;
     for (std::string& child : newMiss.childmissile) {
+        if (child == newMiss.name) {
+            child = newName;
+            continue;
+        }
         updateMissile(output, parent, child, scope);
     }
 
@@ -804,20 +750,23 @@ void ModuleSkillRandomizer::SkillInfo::setNewElement(Element element)
 {
     if (eType == element)
         return;
-    const auto old             = eType;
-    const int  oldCompensation = s_compensateBitShift.at(old);
-    const auto oldDescText     = s_descId.at(old);
+    const auto      old     = eType;
+    const ElemDesc& oldDesc = s_elemDesc.at(old);
+    const ElemDesc& newDesc = s_elemDesc.at(element);
+
+    const int  oldCompensation = oldDesc.compensate;
+    const auto oldDescText     = oldDesc.descId;
+
+    const int  newCompensation = newDesc.compensate;
+    const auto newDescText     = newDesc.descId;
 
     eType = element;
-
-    const int  newCompensation = s_compensateBitShift.at(eType);
-    const auto newDescText     = s_descId.at(element);
 
     row.hitShift = std::clamp(row.hitShift.value_or(0) - oldCompensation + newCompensation, 0, 15);
 
     Logger() << "'" << row.skill << "' (og='" << originalId << "') " << " element change " << enumToString(old) << " -> " << enumToString(element) << " (hs=" << row.hitShift.value_or(0) << ")";
 
-    const int duration = s_defaultDuration.at(eType);
+    const int duration = newDesc.dur;
     if (duration > 0) {
         row.eLen = duration;
     } else {
@@ -828,17 +777,52 @@ void ModuleSkillRandomizer::SkillInfo::setNewElement(Element element)
         if (str == oldDescText)
             str = newDescText;
     }
+    for (auto& pass : row.passivestat) {
+        if (pass == oldDesc.minattr)
+            pass = newDesc.minattr;
+        if (pass == oldDesc.maxattr)
+            pass = newDesc.maxattr;
+    }
+    bool hasReplacedAura = false;
+    for (auto& pass : row.aurastat) {
+        if (pass == oldDesc.minattr) {
+            pass            = newDesc.minattr;
+            hasReplacedAura = true;
+        }
+        if (pass == oldDesc.maxattr) {
+            pass            = newDesc.maxattr;
+            hasReplacedAura = true;
+        }
+    }
 
     if (element == Element::Pois) {
         for (auto& str : desc.calc) {
-            if (str == "enma" || str == "exma" || str == "exms" || str == "exms")
-                str += "*100";
+            if (str == "enma" || str == "exma") {
+                str = str == "enma" ? "enms" : "exms";
+                str += "*edln/256";
+            }
+        }
+        for (auto& str : row.aurastatcalc) {
+            if (str == "enma" || str == "exma") {
+                str = str == "enma" ? "enms" : "exms";
+            }
+        }
+        if (hasReplacedAura) {
+            row.aurastat.push_back(newDesc.lenattr);
+            row.aurastatcalc.push_back("100");
         }
     }
     if (old == Element::Pois) {
         for (auto& str : desc.calc) {
-            if (str.ends_with("*edln/256") && str.size() == 13)
+            if (str == "StrSkillPoisonLengthSingular")
+                str = "StrSkill0";
+            if (str.ends_with("*edln/256")) {
                 str = str.substr(0, 4);
+                if (str == "enms")
+                    str = "enma";
+                if (str == "exms")
+                    str = "exma";
+            }
         }
     }
 }
