@@ -46,17 +46,58 @@ std::string IStorage::makeTableRelativePath(TableId id, bool baseSub)
     return base + std::string(getTableIdString(id)) + ".txt";
 }
 
-FolderStorage::FolderStorage(const std_path&    storageRoot,
-                             StorageType        storage,
-                             const std::string& modname,
-                             bool               needBaseSubfolder,
-                             std::string        suffix)
+FolderStorage::FolderStorage(const std_path& storageRoot,
+                             StorageType     storage)
     : m_storageType(storage)
-    , m_modName(modname)
-    , m_root(storage == StorageType::D2ResurrectedModFolder ? storageRoot / "mods" / modname / (modname + ".mpq") : (storageRoot / "fake").parent_path())
-    , m_needBaseSubfolder(needBaseSubfolder)
-    , m_suffix(suffix)
+    , m_root(storageRoot)
 {
+}
+
+std_path FolderStorage::getRoot() const
+{
+    std_path root = m_root;
+    if (m_storageType == StorageType::D2ResurrectedModFolder)
+        root = m_root / "mods" / m_modname / (m_modname + ".mpq");
+    return root;
+}
+
+bool FolderStorage::writeFile(const std::string& data, const std_path& relPath) const
+{
+    const auto absPath = getRoot() / relPath;
+    if (!createDirectoriesForFile(absPath))
+        return false;
+
+    if (std_fs::exists(absPath))
+        std_fs::remove(absPath);
+    if (data.empty())
+        return true;
+
+    auto res = Mernel::writeFileFromBufferNoexcept(absPath, data);
+    if (!m_silent) {
+        if (res) {
+            Logger() << "Write: " << path2string(relPath) << " [size: " << data.size() << "]";
+        } else {
+            Logger(Logger::Err) << "Failed to write file:" << relPath;
+        }
+    }
+    return res;
+}
+
+bool FolderStorage::readFile(std::string& data, const std_path& relPath, bool warnNonExistent) const
+{
+    const auto absPath = getRoot() / relPath;
+    if (!warnNonExistent && !std_fs::exists(absPath))
+        return false;
+
+    auto res = Mernel::readFileIntoBufferNoexcept(absPath, data);
+    if (!m_silent) {
+        if (res) {
+            Logger() << "Read: " << path2string(relPath);
+        } else {
+            Logger(Logger::Err) << "Failed to read file:" << relPath;
+        }
+    }
+    return res;
 }
 
 IStorage::StoredData FolderStorage::readData() const noexcept
@@ -66,34 +107,36 @@ IStorage::StoredData FolderStorage::readData() const noexcept
     if (m_storageType == StorageType::None)
         return result;
 
-    const auto rootLength = path2string(m_root).size() + 1;
+    if (!m_silent) {
+        Logger(Logger::Notice) << "Start reading from root:" << getRoot();
+    }
 
-    auto readFile = [this](std::string& data, const std::string& relPath) -> bool {
-        const auto absPath = m_root / relPath;
-        if (!Mernel::readFileIntoBufferNoexcept(absPath, data))
-            return false;
+    const auto root = getRoot();
 
-        Logger() << "read  " << path2string(absPath);
-        return true;
-    };
-
-    for (TableId id : getTableIds()) {
+    for (TableId id : getTableIdsRead()) {
         std::string       buffer;
         const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + ".txt" : makeTableRelativePath(id, m_needBaseSubfolder);
-        if (!readFile(buffer, relPath))
+        if (!readFile(buffer, relPath, true))
             continue;
 
         result.tables[id] = std::move(buffer);
     }
     if (m_storageType != StorageType::CsvFolder) {
-        for (JsonId id : getJsonIds()) {
+        for (JsonId id : getJsonIdsRead()) {
             std::string buffer;
             if (!readFile(buffer, std::string(getJsonRelPath(id))))
                 continue;
 
             result.jsonFiles[id] = std::move(buffer);
         }
-        for (BlobId id : getBlobIds()) {
+        for (BlobId id : getBlobIdsLegacy()) {
+            std::string buffer;
+            if (!readFile(buffer, std::string(getBlobRelPath(id))))
+                continue;
+
+            result.blobs[id] = std::move(buffer);
+        }
+        for (BlobId id : getBlobIdsResurrected()) {
             std::string buffer;
             if (!readFile(buffer, std::string(getBlobRelPath(id))))
                 continue;
@@ -107,100 +150,125 @@ IStorage::StoredData FolderStorage::readData() const noexcept
     return result;
 }
 
-bool FolderStorage::prepareForWrite() const noexcept
+bool FolderStorage::create() const noexcept
 {
     if (m_storageType == StorageType::None)
         return true;
 
-    const auto data = m_root / "data";
+    if (!m_silent) {
+        Logger(Logger::Notice) << "Start creating: " << getRoot();
+    }
+
+    const auto root = getRoot();
+    const auto data = root / "data";
     if (m_storageType != StorageType::CsvFolder) {
         if (std_fs::exists(data)) {
+            const auto global = data / "global";
+            if (!std_fs::exists(global)) {
+                Logger(Logger::Err) << "There is /data/ subfolder, but no /data/global/";
+                return false;
+            }
+
             removeRecursively(data);
-            Logger() << "Remove dir: " << path2string(data);
         }
     }
 
-    if (!createDirectories(m_root)) {
-        Logger() << "Failed to create: " << m_root;
+    if (!createDirectories(root)) {
+        Logger(Logger::Err) << "Failed to create: " << path2string(root);
         return false;
     }
-    if (m_storageType == StorageType::D2ResurrectedModFolder) {
-        auto jsonPath = m_root / "modinfo.json";
-        if (std_fs::exists(jsonPath))
-            std_fs::remove(jsonPath);
-        Mernel::PropertyTree modinfo;
-        modinfo.convertToMap();
-        modinfo["name"]     = Mernel::PropertyTreeScalar(m_modName);
-        modinfo["savepath"] = Mernel::PropertyTreeScalar(m_modName + "/");
-        std::string buffer;
-        writeJsonToBufferNoexcept(buffer, modinfo);
-        if (!Mernel::writeFileFromBufferNoexcept(jsonPath, buffer)) {
-            Logger() << "Failed to write: " << jsonPath;
-            return false;
-        } else {
-            Logger() << "Write: " << path2string(jsonPath);
-        }
-    }
+
     if (m_storageType != StorageType::CsvFolder) {
-        const auto excelRoot = m_root / s_tableSubfolder;
-        if (!createDirectories(excelRoot))
+        const auto excelRoot = root / s_tableSubfolder;
+        if (!createDirectories(excelRoot)) {
+            Logger(Logger::Err) << "Failed to create: " + path2string(excelRoot);
             return false;
+        }
     }
 
     return true;
 }
 
-bool FolderStorage::writeData(const StoredData& data) const noexcept
+bool FolderStorage::writeMeta(const StoredData& data) const noexcept
+{
+    if (m_storageType != StorageType::D2ResurrectedModFolder)
+        return true;
+
+    if (!m_silent) {
+        Logger(Logger::Info) << "Write meta to: " << getRoot();
+    }
+
+    const auto           root     = getRoot();
+    auto                 jsonPath = root / "modinfo.json";
+    Mernel::PropertyTree modinfo;
+    modinfo.convertToMap();
+    modinfo["name"]     = Mernel::PropertyTreeScalar(m_modname);
+    modinfo["savepath"] = Mernel::PropertyTreeScalar(m_modname + "/");
+    std::string buffer;
+    writeJsonToBufferNoexcept(buffer, modinfo, true);
+    if (!writeFile(buffer, jsonPath))
+        return false;
+
+    const auto absPath = root / IStorage::s_dataVersionPath;
+    if (data.dataVersion && !writeFile(std::to_string(data.dataVersion), absPath))
+        return false;
+
+    return true;
+}
+
+bool FolderStorage::writeMainData(const StoredData& data) const noexcept
 {
     if (m_storageType == StorageType::None)
         return true;
-    auto writeData = [](const std::string& data, const std_path& absPath) {
-        if (!createDirectoriesForFile(absPath))
-            return false;
 
-        if (std_fs::exists(absPath))
-            std_fs::remove(absPath);
-        if (data.empty())
-            return true;
-
-        auto res = Mernel::writeFileFromBufferNoexcept(absPath, data);
-        if (res) {
-            Logger() << "Write: " << path2string(absPath);
-        } else {
-            Logger(Logger::Warning) << "failed to write to:" << absPath;
-        }
-        return res;
-    };
+    const auto root = getRoot();
+    if (!m_silent) {
+        Logger(Logger::Notice) << "Write data to: " << getRoot();
+    }
 
     for (const auto& [id, tableData] : data.tables) {
         const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + m_suffix + ".txt" : makeTableRelativePath(id, m_needBaseSubfolder);
-        const auto        absPath = m_root / relPath;
-        if (!writeData(tableData, absPath)) {
+        const auto        absPath = root / relPath;
+        if (!writeFile(tableData, absPath)) {
             return false;
         }
     }
     if (m_storageType != StorageType::CsvFolder) {
-        if (data.dataVersion) {
-            const auto absPath = m_root / IStorage::s_dataVersionPath;
-            if (!writeData(std::to_string(data.dataVersion), absPath)) {
-                return false;
-            }
-        }
         for (const auto& [id, memoryData] : data.jsonFiles) {
-            const auto absPath = m_root / std::string(getJsonRelPath(id));
-            if (!writeData(memoryData, absPath)) {
+            const auto absPath = root / std::string(getJsonRelPath(id));
+            if (!writeFile(memoryData, absPath)) {
                 return false;
             }
         }
         for (const auto& [id, memoryData] : data.blobs) {
-            const auto absPath = m_root / std::string(getBlobRelPath(id));
-            if (!writeData(memoryData, absPath)) {
+            const auto absPath = root / std::string(getBlobRelPath(id));
+            if (!writeFile(memoryData, absPath)) {
                 return false;
             }
         }
     }
 
     return true;
+}
+
+bool FolderStorage::writeBitmaps(const StoredData& data) const noexcept
+{
+    if (m_storageType == StorageType::None)
+        return true;
+    if (data.bitmaps.empty())
+        return true;
+
+    if (!m_silent) {
+        Logger(Logger::Info) << "Write bitmaps to: " << getRoot();
+    }
+    const auto root = getRoot();
+    for (auto& [key, buffer] : data.bitmaps) {
+        auto path = root / (key + m_suffix + ".bmp");
+        if (!writeFile(buffer, path)) {
+            return false;
+        }
+    }
+    return false;
 }
 
 }

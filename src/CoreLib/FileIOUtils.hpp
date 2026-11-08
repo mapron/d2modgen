@@ -5,13 +5,9 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
-
 #include "ModgenCoreExport.hpp"
 
 #include "MernelPlatform/FileIOUtils.hpp"
-
-#include <filesystem>
 
 namespace D2ModGen {
 

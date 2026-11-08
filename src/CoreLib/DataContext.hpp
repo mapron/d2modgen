@@ -14,6 +14,38 @@
 
 namespace D2ModGen {
 
+struct Bitmap {
+    std::vector<uint8_t> rgba;
+    size_t               width  = 0;
+    size_t               height = 0;
+
+    struct Color {
+        uint8_t r{};
+        uint8_t g{};
+        uint8_t b{};
+        uint8_t a{};
+    };
+
+    Color brush;
+
+    void           resize(size_t w, size_t h);
+    uint8_t*       getPixel(size_t x, size_t y);
+    const uint8_t* getPixel(size_t x, size_t y) const;
+    Color          getColor(size_t x, size_t y) const;
+
+    void putDot(size_t x, size_t y);
+
+    void dumpToBuffer(std::string& buffer) const;
+    bool readFromSprite(const std::string& spriteBuffer);
+    void writeToSprite(std::string& spriteBuffer);
+    void paintLineH(size_t x1, size_t x2, size_t y);
+    void paintLineV(size_t x, size_t y1, size_t y2);
+    void fillRectPoints(size_t x1, size_t x2, size_t y1, size_t y2);
+
+    void fillRect(size_t x, size_t y, size_t w, size_t h);
+    void linedRect(size_t x, size_t y, size_t w, size_t h);
+};
+
 struct DataContext {
     DataTable<DataRow_itemtypes> itemtypes;
 
@@ -48,6 +80,7 @@ struct DataContext {
     DataTable<DataRow_skills>           skills;
     DataTable<DataRow_treasureclassex>  treasureclassex;
     DataTable<DataRow_missiles>         missiles;
+    DataTable<DataRow_inventory>        inventory;
 
     static auto allTables()
     {
@@ -85,6 +118,7 @@ struct DataContext {
             &DataContext::skills,
             &DataContext::treasureclassex,
             &DataContext::missiles,
+            &DataContext::inventory,
         };
     }
 
@@ -92,8 +126,10 @@ struct DataContext {
 
     std::map<JsonId, Mernel::PropertyTree> jsonFiles;
     std::map<BlobId, std::string>          blobs;
+    std::map<std::string, Bitmap>          bitmaps;
 
     int64_t dataVersion = 0;
+    bool    silent      = true;
 
     struct IdClone {
         std::string from;
@@ -109,14 +145,21 @@ struct DataContext {
     DataContext();
     ~DataContext();
 
-    bool parseData(const IStorage::StoredData& data);
+    bool parseData(const IStorage::StoredData& data, bool doPostprocess = true);
     bool serializeData(IStorage::StoredData& data) const;
 
-    void writeDebug(IStorage::StoredData& data) const;
+    IStorage::StoredData writeDebug() const;
 
     DataContext calculateDiff(const DataContext& older) const;
 
     int getClassesCount() const;
+
+    DataContext makeSilent() const
+    {
+        DataContext result = *this;
+        result.silent      = true;
+        return result;
+    }
 
 private:
     bool postProcess();

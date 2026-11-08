@@ -10,8 +10,9 @@
 #include <map>
 #include <vector>
 #include <optional>
+#include <set>
 
-#include <AttributeHelper.hpp>
+#include "AttributeHelper.hpp"
 
 namespace D2ModGen {
 

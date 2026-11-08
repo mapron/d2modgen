@@ -395,7 +395,6 @@ public:
     std::optional<int> manaShift;
 
     std::vector<std::string> reqskills;
-    std::string              charclass;
     Character                classSpecific = Character::None;
 
     std::array<std::string, 10> missile;
@@ -479,6 +478,21 @@ struct DataRow_missiles : public RowBase {
 
 private:
     static const size_t maxItems = 10;
+};
+
+struct DataRow_inventory : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::inventory };
+
+    bool operator==(const DataRow_inventory&) const noexcept = default;
+
+    std::string charclass;
+    bool        isChar2 = false;
+
+    std::optional<int> gridX;
+    std::optional<int> gridY;
+
+    std::vector<std::string> getColumns() const;
+    void                     serialize();
 };
 
 }

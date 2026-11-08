@@ -8,7 +8,7 @@
 #include "MernelPlatform/PropertyTree.hpp"
 #include "MernelPlatform/FsUtils.hpp"
 
-#include "CommonTypes.hpp"
+#include "GenerationEnvironment.hpp"
 
 #include "ModgenCoreExport.hpp"
 #include "Config.hpp"
@@ -32,14 +32,7 @@ public:
 
     void updateSeed(bool onGenerate = false);
 
-    struct GenerateResult {
-        std::string m_error;
-        bool        m_success = false;
-    };
-
-    GenerateResult generate();
-
-    GenerationEnvironment getEnv(std::string& err) const;
+    bool generate(const GenerationEnvironment& env);
 
     Mernel::PropertyTree m_appConfig;
 

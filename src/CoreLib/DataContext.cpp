@@ -9,16 +9,222 @@
 #include "MernelPlatform/FileFormatJson.hpp"
 #include "MernelPlatform/FileFormatCSV.hpp"
 #include "MernelPlatform/StringUtils.hpp"
+#include "MernelPlatform/ByteOrderStream.hpp"
 
+#include <cassert>
 #include <algorithm>
+#include <sstream>
 
 namespace D2ModGen {
+
+Bitmap::Color Bitmap::getColor(size_t x, size_t y) const
+{
+    const uint8_t* pix = getPixel(x, y);
+    return Color{ .r = pix[0], .g = pix[1], .b = pix[2], .a = pix[3] };
+}
+
+void Bitmap::resize(size_t w, size_t h)
+{
+    width  = w;
+    height = h;
+    rgba.resize(width * height * 4);
+}
+
+uint8_t* Bitmap::getPixel(size_t x, size_t y)
+{
+    size_t offset = width * y * 4 + x * 4;
+    if (offset > rgba.size())
+        return nullptr;
+
+    return rgba.data() + offset;
+}
+
+const uint8_t* Bitmap::getPixel(size_t x, size_t y) const
+{
+    size_t offset = width * y * 4 + x * 4;
+    if (offset > rgba.size())
+        return nullptr;
+
+    return rgba.data() + offset;
+}
+
+void Bitmap::putDot(size_t x, size_t y)
+{
+    uint8_t* pix = getPixel(x, y);
+    if (!pix)
+        return;
+    pix[0] = brush.r;
+    pix[1] = brush.b;
+    pix[2] = brush.g;
+    pix[3] = brush.a;
+}
+
+void Bitmap::dumpToBuffer(std::string& buffer) const
+{
+    using namespace Mernel;
+    ByteArrayHolder binaryBuffer;
+
+    ByteOrderBuffer           bobuffer(binaryBuffer);
+    ByteOrderDataStreamWriter stream(bobuffer, ByteOrderDataStream::s_littleEndian);
+
+    const uint32_t imageSize = static_cast<uint32_t>(width * height * 4);
+    const uint32_t fileSize  = 122 + imageSize; // 14 (FileHeader) + 108 (BITMAPV4HEADER)
+
+    // --- BITMAPFILEHEADER (14 bytes) ---
+    stream.writeBlock("BM", 2);  // Signature
+    stream << uint32_t(fileSize) // File size
+           << uint16_t(0)        // Reserved 1
+           << uint16_t(0)        // Reserved 2
+           << uint32_t(122);     // Offset to pixel data (0x7A)
+
+    // --- BITMAPV4HEADER (108 bytes to support Alpha Channel) ---
+    stream << uint32_t(108)       // Header size
+           << int32_t(width)      // Width
+           << int32_t(height)     // Height (Positive = bottom-up)
+           << uint16_t(1)         // Planes
+           << uint16_t(32)        // Bits per pixel (RGBA)
+           << uint32_t(3)         // BI_BITFIELDS compression
+           << uint32_t(imageSize) // Image size
+           << int32_t(2835)       // H-Resolution (72 DPI)
+           << int32_t(2835)       // V-Resolution (72 DPI)
+           << uint32_t(0)         // Colors items in palette
+           << uint32_t(0);        // Important colors
+
+    stream << uint32_t(0x00FF0000)  // Red mask   (Byte 2)
+           << uint32_t(0x0000FF00)  // Green mask (Byte 1)
+           << uint32_t(0x000000FF)  // Blue mask  (Byte 0)
+           << uint32_t(0xFF000000); // Alpha mask (Byte 3)
+
+    stream.writeBlock("BGRs", 4); // bV4CSType: "sRGB"
+
+    stream.zeroPadding(9 * 4);
+    stream.zeroPadding(3 * 4); // bV4Gamma
+
+    std::vector<uint8_t> rowBuffer(width * 4);
+
+    for (size_t y = 0; y < height; ++y) {
+        const uint8_t* rowIn = rgba.data() + (height - 1 - y) * width * 4;
+
+        for (size_t x = 0; x < width; ++x) {
+            size_t idx         = x * 4;
+            rowBuffer[idx + 0] = rowIn[idx + 2]; // B
+            rowBuffer[idx + 1] = rowIn[idx + 1]; // G
+            rowBuffer[idx + 2] = rowIn[idx + 0]; // R
+            rowBuffer[idx + 3] = rowIn[idx + 3]; // A
+        }
+
+        stream.writeBlock(reinterpret_cast<const char*>(rowBuffer.data()), rowBuffer.size());
+    }
+
+    buffer.resize(bobuffer.getSize());
+    memcpy(buffer.data(), binaryBuffer.data(), binaryBuffer.size());
+}
+
+bool Bitmap::readFromSprite(const std::string& spriteBuffer)
+{
+    if (spriteBuffer.empty())
+        return false;
+
+    using namespace Mernel;
+    ByteArrayHolder binaryBuffer;
+    binaryBuffer.resize(spriteBuffer.size());
+    memcpy(binaryBuffer.data(), spriteBuffer.data(), spriteBuffer.size());
+
+    ByteOrderBuffer           bobuffer(binaryBuffer);
+    ByteOrderDataStreamReader stream(bobuffer, ByteOrderDataStream::s_littleEndian);
+    uint32_t                  unused1{};
+    uint16_t                  version{};
+    uint16_t                  unused2{};
+    uint32_t                  width{};
+    uint32_t                  height{};
+    stream >> unused1;
+    stream >> version;
+    stream >> unused2;
+    stream >> width;
+    stream >> height;
+
+    if (version != 31)
+        return false;
+
+    resize(width, height);
+    size_t rgbaOffset   = 0x28;
+    size_t expectedSize = rgba.size() + rgbaOffset;
+    assert(expectedSize == spriteBuffer.size());
+
+    if (expectedSize != spriteBuffer.size())
+        return false;
+    memcpy(rgba.data(), spriteBuffer.data() + rgbaOffset, rgba.size());
+
+    return true;
+}
+
+void Bitmap::writeToSprite(std::string& spriteBuffer)
+{
+    using namespace Mernel;
+    ByteArrayHolder binaryBuffer;
+
+    ByteOrderBuffer           bobuffer(binaryBuffer);
+    ByteOrderDataStreamWriter stream(bobuffer, ByteOrderDataStream::s_littleEndian);
+    stream.writeBlock("SpA1", 4);
+    stream << uint16_t(31);
+    stream << uint16_t(width);
+    stream << uint32_t(width);
+    stream << uint32_t(height);
+    stream << uint32_t(0);
+    stream << uint32_t(1);
+    stream.zeroPadding(16);
+    stream.writeBlock(rgba.data(), rgba.size());
+
+    spriteBuffer.resize(bobuffer.getSize());
+
+    memcpy(spriteBuffer.data(), binaryBuffer.data(), binaryBuffer.size());
+}
+
+void Bitmap::paintLineH(size_t x1, size_t x2, size_t y)
+{
+    for (size_t x = x1; x <= x2; x++) {
+        putDot(x, y);
+    }
+}
+
+void Bitmap::paintLineV(size_t x, size_t y1, size_t y2)
+{
+    for (size_t y = y1; y <= y2; y++) {
+        putDot(x, y);
+    }
+}
+
+void Bitmap::fillRectPoints(size_t x1, size_t x2, size_t y1, size_t y2)
+{
+    for (size_t x = x1; x <= x2; x++) {
+        for (size_t y = y1; y <= y2; y++) {
+            putDot(x, y);
+        }
+    }
+}
+
+void Bitmap::fillRect(size_t x, size_t y, size_t w, size_t h)
+{
+    fillRectPoints(x, x + w - 1, y, y + h - 1);
+}
+
+void Bitmap::linedRect(size_t x, size_t y, size_t w, size_t h)
+{
+    const int x1 = x;
+    const int y1 = y;
+    const int x2 = x + w - 1;
+    const int y2 = y + h - 1;
+    paintLineH(x1, x2, y1);
+    paintLineH(x1, x2, y2);
+    paintLineV(x1, y1, y2);
+    paintLineV(x2, y1, y2);
+}
 
 DataContext::DataContext() = default;
 
 DataContext::~DataContext() = default;
 
-bool DataContext::parseData(const IStorage::StoredData& data)
+bool DataContext::parseData(const IStorage::StoredData& data, bool doPostprocess)
 {
     dataVersion = data.dataVersion;
 
@@ -34,24 +240,33 @@ bool DataContext::parseData(const IStorage::StoredData& data)
 
     if (!result)
         return true;
+    if (!doPostprocess)
+        return true;
 
-    Logger() << "Tables have parsed successfully, now doing postprocess to establish links";
+    if (!silent)
+        Logger() << "Tables have parsed successfully, now doing postprocess to establish links";
     if (!postProcess()) {
-        Logger(Logger::Err) << "Postprocess failure";
+        if (!silent)
+            Logger(Logger::Err) << "Postprocess failure";
         return false;
     }
 
-    Logger() << "Postprocess done";
+    if (!silent)
+        Logger() << "Postprocess done";
 
     for (const auto& [id, fileData] : data.jsonFiles) {
         Mernel::PropertyTree doc;
-        Logger() << "parse json: " << std::string(getJsonRelPath(id));
-        if (!readJsonFromBufferNoexcept(fileData, doc)) {
-            Logger(Logger::Warning) << "failed to parse json: " << getJsonRelPath(id);
+        if (!silent)
+            Logger() << "parse json: " << std::string(getJsonRelPath(id));
+        if (!readDirtyJsonFromBufferNoexcept(fileData, doc)) {
+            if (!silent)
+                Logger(Logger::Warning) << "failed to parse json: " << getJsonRelPath(id);
             return false;
         }
         jsonFiles[id] = std::move(doc);
     }
+    assert(data.bitmaps.empty());
+
     blobs = data.blobs;
 
     return true;
@@ -77,16 +292,22 @@ bool DataContext::serializeData(IStorage::StoredData& data) const
 
     for (const auto& [id, json] : jsonFiles) {
         std::string buffer;
-        writeJsonToBufferNoexcept(buffer, json);
+        writeJsonToBufferNoexcept(buffer, json, isPrettyPrintable(id));
         data.jsonFiles[id] = std::move(buffer);
+    }
+    for (auto& [key, bitmap] : bitmaps) {
+        std::string buffer;
+        bitmap.dumpToBuffer(buffer);
+        data.bitmaps[key] = std::move(buffer);
     }
 
     data.blobs = blobs;
     return true;
 }
 
-void DataContext::writeDebug(IStorage::StoredData& data) const
+IStorage::StoredData DataContext::writeDebug() const
 {
+    IStorage::StoredData data;
     data.valid       = true;
     data.dataVersion = dataVersion;
 
@@ -99,6 +320,7 @@ void DataContext::writeDebug(IStorage::StoredData& data) const
         return (serializeTab(std::forward<decltype(args)>(args)) && ...);
     },
                              allTables());
+    return data;
 }
 
 DataContext DataContext::calculateDiff(const DataContext& older) const
@@ -203,11 +425,6 @@ bool DataContext::postProcess()
 
     const std::set<std::string> casterCodes{ "wand", "staf", "orb", "head" };
     const std::set<std::string> brawlCodes{ "h2h", "bow", "xbow", "miss", "thro" };
-
-    for (auto& row : skills.rows) {
-        if (!row.charclass.empty())
-            row.classSpecific = getClassId(row.charclass);
-    }
 
     for (auto& row : itemtypes.rows) {
         const auto codeStr  = row.code;
@@ -374,16 +591,18 @@ bool DataContext::parseTable(DataTable<Row>& table, const IStorage::StoredData& 
         return true;
     const std::string& buffer = data.tables.at(tableId);
     if (!table.parseTable(buffer)) {
-        Logger(Logger::Warning) << "failed to parse csv:" << getTableIdString(tableId);
+        if (!silent)
+            Logger(Logger::Warning) << "failed to parse csv:" << getTableIdString(tableId);
         return false;
     }
     for (size_t i = 0; i < table.indicesUsed.size(); i++) {
-        if (table.indicesUsed[i] == size_t(-1)) {
+        if (table.indicesUsed[i] == size_t(-1) && !silent) {
             Logger(Logger::Warning) << "Missing column '" << table.requestedColumns[i] << "' in table '" << getTableIdString(tableId) << "', generation may be incomplete.";
         }
     }
 
-    Logger() << "parse '" << getTableIdString(tableId) << "' buffer[" << buffer.size() << "] => csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "]";
+    if (!silent)
+        Logger() << "parse '" << getTableIdString(tableId) << "' buffer[" << buffer.size() << "] => csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "]";
 
     return true;
 }

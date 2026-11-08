@@ -5,47 +5,16 @@
  */
 #pragma once
 
-#include <map>
-#include <string>
-#include <set>
-#include <vector>
 #include <functional>
+#include <set>
+#include <string>
 
 #include "MernelPlatform/FsUtils.hpp"
+#include "ModgenCoreExport.hpp"
 
 namespace D2ModGen {
 
-using StringVector = std::vector<std::string>;
-using StringSet    = std::set<std::string>;
-
-inline StringVector& operator<<(StringVector& rh, const StringVector& lh)
-{
-    rh.insert(rh.end(), lh.cbegin(), lh.cend());
-    return rh;
-}
-
-inline StringVector& operator<<(StringVector& rh, const std::string& lh)
-{
-    rh.push_back(lh);
-    return rh;
-}
-
-inline std::string toLower(std::string s)
-{
-    for (auto& c : s)
-        c = static_cast<char>(::tolower(c));
-    return s;
-}
-
-template<class Val>
-Val mapValue(const std::map<std::string, Val>& m, const std::string& key, const Val& d = Val())
-{
-    auto it = m.find(key);
-    if (it == m.cend())
-        return d;
-    return it->second;
-}
-
+struct Config;
 using RandomGenerator = std::function<int(int)>; // generate [0, max)
 
 enum class StorageType
@@ -58,7 +27,7 @@ enum class StorageType
     None,
 };
 
-struct GenerationEnvironment {
+struct MODGENCORE_EXPORT GenerationEnvironment {
     enum class VersionMajor
     {
         Legacy,
@@ -95,18 +64,12 @@ struct GenerationEnvironment {
     StorageType      inputMode         = StorageType::D2ResurrectedInternal;
     StorageType      outputMode        = StorageType::D2ResurrectedModFolder;
 
-    uint32_t seed;
-};
+    std::set<std::string> extraTrace;
+    Mernel::std_path      extraFile;
 
-enum class ConflictPolicy
-{
-    Replace,   // clear previous data
-    Append,    // place new data at the end
-    Update,    // overwrite records with same key
-    AppendNew, // add non-existent data to the end
-    Merge,     // try Update, then Append
-    Skip,      // skip new version
-    RaiseError,
+    uint32_t seed{};
+
+    bool init(const Config& config);
 };
 
 }

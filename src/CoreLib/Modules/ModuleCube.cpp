@@ -8,6 +8,16 @@
 namespace D2ModGen {
 
 namespace {
+
+template<class Val>
+Val mapValue(const std::map<std::string, Val>& m, const std::string& key, const Val& d = Val())
+{
+    auto it = m.find(key);
+    if (it == m.cend())
+        return d;
+    return it->second;
+}
+
 const std::map<std::string, std::string> s_craftedTypeReplace{
     { "\"fhl,mag,upg\"", "\"helm,mag\"" },
     { "\"mbt,mag,upg\"", "\"boot,mag\"" },

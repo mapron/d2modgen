@@ -5,11 +5,14 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
+#include "GenerationEnvironment.hpp"
 #include "DataContext.hpp"
 #include "Config.hpp"
 
 namespace D2ModGen {
+
+using StringVector = std::vector<std::string>;
+using StringSet    = std::set<std::string>;
 
 struct IModule {
     virtual void generate() = 0;

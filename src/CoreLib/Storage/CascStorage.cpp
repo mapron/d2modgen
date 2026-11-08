@@ -54,19 +54,26 @@ IStorage::StoredData CascStorage::readData() const noexcept
 
     IStorage::StoredData result{ true };
 
-    for (TableId id : getTableIds()) {
+    for (TableId id : getTableIdsRead()) {
         std::string buffer;
         if (!readCascFile(buffer, IStorage::makeTableRelativePath(id, m_needBaseSubfolder)))
             continue;
 
         result.tables[id] = std::move(buffer);
     }
-    for (JsonId id : getJsonIds()) {
+    for (JsonId id : getJsonIdsRead()) {
         std::string buffer;
         if (!readCascFile(buffer, std::string(getJsonRelPath(id))))
             continue;
 
         result.jsonFiles[id] = std::move(buffer);
+    }
+    for (BlobId id : getBlobIdsResurrected()) {
+        std::string buffer;
+        if (!readCascFile(buffer, std::string(getBlobRelPath(id))))
+            continue;
+
+        result.blobs[id] = std::move(buffer);
     }
 
     std::string buffer;

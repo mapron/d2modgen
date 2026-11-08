@@ -46,7 +46,7 @@ private:
             descIdx = -1;
         }
 
-        void setNewElement(Element element);
+        void setNewElement(Element element, bool extraTrace);
     };
     using Ptr     = SkillInfo*;
     using PtrList = std::vector<Ptr>;
@@ -54,6 +54,7 @@ private:
 
     struct CharacterData {
         std::vector<SkillInfo> skills;
+        bool                   extraTrace = false;
 
         int rowIdxStart  = -1;
         int descIdxStart = -1;

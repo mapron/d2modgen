@@ -83,7 +83,8 @@ private:
 
     std::vector<const DataRow_monstats*> validGuestIndexes;
 
-    int hcIdx = 0;
+    int  hcIdx      = 0;
+    bool extraTrace = false;
 };
 
 }

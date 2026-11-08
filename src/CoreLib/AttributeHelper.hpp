@@ -5,9 +5,10 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
-
 #include <array>
+#include <optional>
+#include <vector>
+#include <string>
 
 namespace D2ModGen {
 

@@ -88,6 +88,10 @@ ColumnLayout {
             name: qsTr("Quality of life"),
             tabIndex: 17
         },
+    /*{
+            name: qsTr("Large inventory"),
+            tabIndex: 18
+        },*/
     ]
     // Block horizontal growth, keeping this sidebar strictly predictable
     Layout.fillWidth: false

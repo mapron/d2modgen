@@ -11,9 +11,7 @@ structs:
             seed: { type: int, zero: 0, min: 0, max: 4294967295 }
             versionD2R: { type: int, zero: 1, min: 0, max: 1 }
             versionMajor: { type: int, zero: 1, min: 0, max: 1 }
-            dumpIn: { type: bool, zero: false }
-            dumpOut: { type: bool, zero: false }
-            dumpDiff: { type: bool, zero: false }
+            extraTrace: { type: str, zero: ""}
 
     TreasureClasses:
         structs:
@@ -259,6 +257,9 @@ structs:
 
             compactPots:    { type: bool, zero: false, recc: true  }
             compactScrolls: { type: bool, zero: false, recc: true  }
+    ExpandedInventory:
+        members:
+            inventoryHeight: { type: int, zero: 4, recc: 4, min: 4, max: 8 }
 
 members:
     main:              { type: struct, name:  Main   }
@@ -276,4 +277,5 @@ members:
     gambling:          { type: struct, name:  Gambling   }
     monsterStats:      { type: struct, name:  MonsterStats   }
     qualityOfLife:     { type: struct, name:  QualityOfLife   }
+    expandedInventory: { type: struct, name:  ExpandedInventory   }
 

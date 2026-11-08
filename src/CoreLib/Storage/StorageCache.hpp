@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include "CommonTypes.hpp"
+#include "GenerationEnvironment.hpp"
 
 #include "IStorage.hpp"
 
@@ -22,15 +22,7 @@ public:
     };
 
 public:
-    IStorage::StoredData load(const Context& input)
-    {
-        if (input == m_prev)
-            return m_cache;
-
-        m_cache = loadImpl(input);
-        m_prev  = input;
-        return m_cache;
-    }
+    IStorage::StoredData load(const Context& input);
 
 private:
     static IStorage::StoredData loadImpl(const Context& input);

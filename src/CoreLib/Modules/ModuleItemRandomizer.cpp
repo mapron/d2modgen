@@ -80,8 +80,8 @@ void ModuleItemRandomizer::generate()
     std::set<std::string> skippedAttributes;
     std::set<std::string> unknownAttributes;
 
-    const bool extraTrace  = !!getenv("MODGEN_RANDOMIZER_TRACE");
-    const bool extraTrace2 = !!getenv("MODGEN_RANDOMIZER_TRACE_PROPS");
+    const bool extraTrace     = env.extraTrace.contains("item_rando_verbose");
+    const bool traceItemProps = env.extraTrace.contains("item_rando_props");
 
     Logger() << "Grab properties from game data...";
     const AllProps gameProps = grabAllProps(false, &unknownAttributes, &skippedAttributes);
@@ -118,11 +118,9 @@ void ModuleItemRandomizer::generate()
     const int64_t repeatSets       = std::clamp(module.m_repeatSets, int64_t(1), repeatSetsMax);
 
     {
-        auto*      dumpFileName = getenv("MODGEN_ATTRIBUTE_DUMP_FILE");
-        const bool dumpAll      = !!getenv("MODGEN_ATTRIBUTE_DUMP_ALL");
-        if (dumpFileName) {
-            const Mernel::std_path dumpFile = Mernel::string2path(dumpFileName);
-            dumpAttributes(dumpFile, magicContext.actual, dumpAll ? std::set<AttributeId>{} : magicContext.precompiled.ids);
+        if (!env.extraFile.empty()) {
+            const bool dumpAll = env.extraTrace.contains("item_rando_all_attr");
+            dumpAttributes(env.extraFile, magicContext.actual, dumpAll ? std::set<AttributeId>{} : magicContext.precompiled.ids);
         }
     }
 
@@ -186,7 +184,7 @@ void ModuleItemRandomizer::generate()
 
     ItemStatistics allStat;
 
-    auto fillProps = [&props, &allStat, this, extraTrace, extraTrace2]<typename Row>(DataTable<Row>& table, const RandoParams& params, RollType roll) {
+    auto fillProps = [&props, &allStat, this, extraTrace, traceItemProps]<typename Row>(DataTable<Row>& table, const RandoParams& params, RollType roll) {
         if (!params.enableGeneration)
             return;
         ItemStatistics tableStat;
@@ -203,7 +201,7 @@ void ModuleItemRandomizer::generate()
             item.readAffixes(row, m_codeResolver, m_skillGetter, nullptr, nullptr);
 
             if (extraTrace && item.id == "Ripsaw b") {
-                Logger() << "read: " << item.toString(extraTrace2);
+                Logger() << "read: " << item.toString(traceItemProps);
             }
 
             if (item.filter.props.slot == SlotType::None || item.filter.props.slot == SlotType::PD2Map)
@@ -215,7 +213,7 @@ void ModuleItemRandomizer::generate()
             tableStat += item.stats;
 
             if (extraTrace)
-                Logger() << "write: " << item.toString(extraTrace2);
+                Logger() << "write: " << item.toString(traceItemProps);
         }
         allStat += tableStat;
 

@@ -11,6 +11,7 @@
 
 #include <unordered_map>
 #include <optional>
+#include <set>
 
 namespace D2ModGen {
 

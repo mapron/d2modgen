@@ -82,14 +82,14 @@ IStorage::StoredData StormStorage::readData() const noexcept
     };
 
     StoredData result{ true };
-    for (TableId id : getTableIds()) {
+    for (TableId id : getTableIdsRead()) {
         std::string buffer;
         if (!readStormFile(buffer, IStorage::makeTableRelativePath(id, false)))
             continue;
 
         result.tables[id] = std::move(buffer);
     }
-    for (BlobId id : getBlobIds()) {
+    for (BlobId id : getBlobIdsLegacy()) {
         std::string buffer;
         if (!readStormFile(buffer, std::string(getBlobRelPath(id))))
             continue;

@@ -8,6 +8,7 @@
 #include "AttributeHelper.hpp"
 #include "DataContext.hpp"
 #include "Config.hpp"
+#include "GenerationEnvironment.hpp"
 
 namespace D2ModGen {
 

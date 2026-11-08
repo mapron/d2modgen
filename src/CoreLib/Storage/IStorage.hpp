@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <array>
+#include <vector>
 
 namespace D2ModGen {
 
@@ -23,6 +24,7 @@ enum class TableId
     gamble,
     gems,
     hireling,
+    inventory,
     itemstatcost,
     itemtypes,
     levels,
@@ -45,7 +47,7 @@ enum class TableId
     count__,
 };
 
-inline std::array<TableId, size_t(TableId::count__)> getTableIds()
+inline auto getTableIdsRead()
 {
     std::array<TableId, size_t(TableId::count__)> result;
     for (size_t i = 0; i < result.size(); ++i)
@@ -62,10 +64,17 @@ enum class JsonId
     Monsters,
     Missiles,
 
+    ProfileHd,
+    ProfileLv,
+    LayoutControllerClassic,
+    LayoutControllerExpansion,
+    LayoutClassic,
+    LayoutExpansion,
+
     count__,
 };
 
-inline auto getJsonIds()
+inline auto getJsonIdsRead()
 {
     std::array<JsonId, size_t(JsonId::count__)> result;
     for (size_t i = 0; i < result.size(); ++i)
@@ -74,19 +83,48 @@ inline auto getJsonIds()
 }
 
 std::string_view getJsonRelPath(JsonId id);
+bool             isPrettyPrintable(JsonId id);
 
 enum class BlobId
 {
     PatchStringTbl,
 
+    InventorySprite,
+    InventorySpriteLowend,
+
+    SidePanelRSprite,
+    SidePanelRSpriteLowend,
+
+    BackgroundSprite,
+    BackgroundSpriteLowend,
+
     count__,
+    LegacyFirst = PatchStringTbl,
+    LegacyLast  = PatchStringTbl,
+
+    ResurrectedFirst = InventorySprite,
+    ResurrectedLast  = BackgroundSpriteLowend,
 };
 
-inline auto getBlobIds()
+inline auto getBlobIdsLegacy()
 {
-    std::array<BlobId, size_t(BlobId::count__)> result;
-    for (size_t i = 0; i < result.size(); ++i)
-        result[i] = static_cast<BlobId>(i);
+    using enum BlobId;
+    const size_t                        start = size_t(LegacyFirst);
+    const size_t                        end   = size_t(LegacyLast);
+    std::array<BlobId, 1 + end - start> result;
+    for (size_t i = start; i <= end; ++i)
+        result[i - start] = static_cast<BlobId>(i);
+    return result;
+}
+
+inline auto getBlobIdsResurrected()
+{
+    using enum BlobId;
+    const size_t                        start = size_t(ResurrectedFirst);
+    const size_t                        end   = size_t(ResurrectedLast);
+    std::array<BlobId, 1 + end - start> result;
+    for (size_t i = start; i <= end; ++i)
+        result[i - start] = static_cast<BlobId>(i);
     return result;
 }
 
@@ -99,10 +137,11 @@ public:
     static std::string_view s_dataVersionPath;
 
     struct StoredData {
-        bool                           valid = false;
-        std::map<TableId, std::string> tables;
-        std::map<JsonId, std::string>  jsonFiles;
-        std::map<BlobId, std::string>  blobs;
+        bool                               valid = false;
+        std::map<TableId, std::string>     tables;
+        std::map<JsonId, std::string>      jsonFiles;
+        std::map<BlobId, std::string>      blobs;
+        std::map<std::string, std::string> bitmaps;
 
         int64_t dataVersion = 0;
 
@@ -113,12 +152,21 @@ public:
     virtual ~IStorage() = default;
 
     virtual StoredData readData() const noexcept = 0;
+
+    virtual void setSilentTrace(bool silent) noexcept {}
+    virtual void setFileSuffix(const std::string& suffix) noexcept {}
+    virtual void setUseBaseSubolder(bool useBaseSubfolder) noexcept {}
 };
 
 class IWriteableStorage : public IStorage {
 public:
-    virtual bool prepareForWrite() const noexcept                 = 0;
-    virtual bool writeData(const StoredData& data) const noexcept = 0;
+    virtual void setModName(const std::string& modname) noexcept = 0;
+
+    virtual bool create() const noexcept = 0;
+
+    virtual bool writeMeta(const StoredData& data) const noexcept     = 0;
+    virtual bool writeMainData(const StoredData& data) const noexcept = 0;
+    virtual bool writeBitmaps(const StoredData& data) const noexcept  = 0;
 };
 
 }

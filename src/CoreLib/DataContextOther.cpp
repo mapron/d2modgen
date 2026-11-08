@@ -579,7 +579,7 @@ void DataRow_skills::serialize()
     ser(hitShift);
     ser(manaShift);
     ser(eType);
-    ser(charclass);
+    serEnum(classSpecific, Character::None, getClassId, [](Character c) { return enumToString(c); });
     ser(itypea1);
     ser(anim);
     ser(seqtrans);
@@ -612,7 +612,6 @@ void DataRow_skills::setNewClass(Character clas)
     }
 
     classSpecific = clas;
-    charclass     = enumToString(clas);
 }
 
 std::vector<std::string> DataRow_treasureclassex::getColumns() const
@@ -693,6 +692,23 @@ void DataRow_missiles::serialize()
     ser(skill);
     ser(missileSkill);
     ser(childmissile);
+}
+
+std::vector<std::string> DataRow_inventory::getColumns() const
+{
+    return { "class", "gridx", "gridy" };
+}
+
+void DataRow_inventory::serialize()
+{
+    ser(charclass);
+    ser(gridX);
+    ser(gridY);
+    if (_ser_read) {
+        std::array<std::string, 8> classes{ "Amazon2", "Assassin2", "Barbarian2", "Druid2", "Necromancer2", "Paladin2", "Sorceress2", "Warlock2" };
+        if (std::find(classes.cbegin(), classes.cend(), charclass) != classes.cend())
+            isChar2 = true;
+    }
 }
 
 }

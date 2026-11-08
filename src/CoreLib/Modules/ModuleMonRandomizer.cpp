@@ -44,6 +44,7 @@ void ModuleMonRandomizer::generate()
 {
     if (!config.m_monsterRandomizer.m_enabled)
         return;
+    extraTrace = env.extraTrace.contains("monster_rando");
 
     hcIdx = output.monstats.rows.back().hcIdx + 1;
 
@@ -126,7 +127,8 @@ void ModuleMonRandomizer::generate()
         for (auto index : genRandomIndexes(rng, totalAmount, rollResAmount))
             tasks[index].m_rollRes = true;
 
-        Logger() << "Area '" << row.name << "' > total=" << totalAmount << ", guests=" << guestAmount << ", chimera=" << chimeraAmount << ", rollStat=" << rollStatAmount << ", rollRes=" << rollResAmount << ", targetLevel=" << targetLevel;
+        if (extraTrace)
+            Logger() << "Area '" << row.name << "' > total=" << totalAmount << ", guests=" << guestAmount << ", chimera=" << chimeraAmount << ", rollStat=" << rollStatAmount << ", rollRes=" << rollResAmount << ", targetLevel=" << targetLevel;
 
         for (auto& task : tasks) {
             if (!task.hasAnyMods())
@@ -473,7 +475,8 @@ void ModuleMonRandomizer::prepareChimeraPools()
             continue;
         }
     }
-    Logger() << "Unused: " << printStringSetSummary(nonRando, 20);
+    if (extraTrace)
+        Logger() << "Unused: " << printStringSetSummary(nonRando, 20);
 
     for (auto& pool : pools) {
         if (pool.size() < 2)

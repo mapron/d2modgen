@@ -152,4 +152,10 @@ WidgetScrollable {
         model: ["enUS", "deDE", "esES", "esMX", "frFR", "itIT", "jaJP", "koKR", "plPL", "ptBR", "ruRU", "zhCN", "zhTW"]
         value_key: root.value_context.d2rLocaleId
     }
+    WidgetLineEdit {
+        caption: qsTr("Extra trace ids, comma-separated:")
+        tooltip: qsTr("That is mainly used by developer, or to collect extra traces for support.")
+        stretchCaption: false
+        value_key: root.value_context.extraTrace
+    }
 }

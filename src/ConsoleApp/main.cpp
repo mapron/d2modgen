@@ -20,12 +20,14 @@ int main(int argc, char* argv[])
 
     ConfigHandler configHandler;
     configHandler.loadConfig(configHandler.m_defaultPath);
-    auto res = configHandler.generate();
-    if (!res.m_success) {
-        Logger(Logger::Err) << res.m_error;
-        return 1;
+    GenerationEnvironment env;
+    if (!env.init(configHandler.m_config))
+        return EXIT_FAILURE;
+
+    if (!configHandler.generate(env)) {
+        return EXIT_FAILURE;
     }
     configHandler.saveConfig(configHandler.m_defaultPath);
     Logger(Logger::Info) << "Success!";
-    return 0;
+    return EXIT_SUCCESS;
 }

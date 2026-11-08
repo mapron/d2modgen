@@ -18,9 +18,7 @@ class Config_Main_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyInt_Qt* seed READ get_seed CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* versionD2R READ get_versionD2R CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* versionMajor READ get_versionMajor CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* dumpIn READ get_dumpIn CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* dumpOut READ get_dumpOut CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* dumpDiff READ get_dumpDiff CONSTANT)
+    Q_PROPERTY(PropertyString_Qt* extraTrace READ get_extraTrace CONSTANT)
 
 public:
     explicit Config_Main_Qt(Config::Main& data)
@@ -36,9 +34,7 @@ public:
         , m_seed(data.getPropertyInt(3))
         , m_versionD2R(data.getPropertyInt(4))
         , m_versionMajor(data.getPropertyInt(5))
-        , m_dumpIn(data.getPropertyBool(1))
-        , m_dumpOut(data.getPropertyBool(2))
-        , m_dumpDiff(data.getPropertyBool(3))
+        , m_extraTrace(data.getPropertyString(3))
     {
     }
 
@@ -62,11 +58,7 @@ public:
 
     PropertyInt_Qt* get_versionMajor() { return &m_versionMajor; }
 
-    PropertyBool_Qt* get_dumpIn() { return &m_dumpIn; }
-
-    PropertyBool_Qt* get_dumpOut() { return &m_dumpOut; }
-
-    PropertyBool_Qt* get_dumpDiff() { return &m_dumpDiff; }
+    PropertyString_Qt* get_extraTrace() { return &m_extraTrace; }
 
     Q_INVOKABLE void assign(Config_Main_Qt* another) { m_data.assign(another->m_data, true); }
 
@@ -93,11 +85,7 @@ private:
 
     PropertyInt_Qt m_versionMajor;
 
-    PropertyBool_Qt m_dumpIn;
-
-    PropertyBool_Qt m_dumpOut;
-
-    PropertyBool_Qt m_dumpDiff;
+    PropertyString_Qt m_extraTrace;
 };
 
 class Config_TreasureClasses_Runes_Qt : public CommonStruct_Qt {
@@ -1362,6 +1350,28 @@ private:
     PropertyBool_Qt m_compactScrolls;
 };
 
+class Config_ExpandedInventory_Qt : public CommonStruct_Qt {
+    Q_OBJECT
+    Q_PROPERTY(PropertyInt_Qt* inventoryHeight READ get_inventoryHeight CONSTANT)
+
+public:
+    explicit Config_ExpandedInventory_Qt(Config::ExpandedInventory& data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
+        , m_inventoryHeight(data.getPropertyInt(0))
+    {
+    }
+
+    PropertyInt_Qt* get_inventoryHeight() { return &m_inventoryHeight; }
+
+    Q_INVOKABLE void assign(Config_ExpandedInventory_Qt* another) { m_data.assign(another->m_data, true); }
+
+private:
+    Config::ExpandedInventory& m_data;
+
+    PropertyInt_Qt m_inventoryHeight;
+};
+
 class Config_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(Config_Main_Qt* main READ get_main CONSTANT)
@@ -1376,6 +1386,7 @@ class Config_Qt : public CommonStruct_Qt {
     Q_PROPERTY(Config_Gambling_Qt* gambling READ get_gambling CONSTANT)
     Q_PROPERTY(Config_MonsterStats_Qt* monsterStats READ get_monsterStats CONSTANT)
     Q_PROPERTY(Config_QualityOfLife_Qt* qualityOfLife READ get_qualityOfLife CONSTANT)
+    Q_PROPERTY(Config_ExpandedInventory_Qt* expandedInventory READ get_expandedInventory CONSTANT)
 
 public:
     explicit Config_Qt(Config& data)
@@ -1393,6 +1404,7 @@ public:
         , m_gambling(data.m_gambling)
         , m_monsterStats(data.m_monsterStats)
         , m_qualityOfLife(data.m_qualityOfLife)
+        , m_expandedInventory(data.m_expandedInventory)
     {
     }
 
@@ -1419,6 +1431,8 @@ public:
     Config_MonsterStats_Qt* get_monsterStats() { return &m_monsterStats; }
 
     Config_QualityOfLife_Qt* get_qualityOfLife() { return &m_qualityOfLife; }
+
+    Config_ExpandedInventory_Qt* get_expandedInventory() { return &m_expandedInventory; }
 
     Q_INVOKABLE void assign(Config_Qt* another) { m_data.assign(another->m_data, true); }
 
@@ -1448,6 +1462,8 @@ private:
     Config_MonsterStats_Qt m_monsterStats;
 
     Config_QualityOfLife_Qt m_qualityOfLife;
+
+    Config_ExpandedInventory_Qt m_expandedInventory;
 };
 
 }

@@ -121,6 +121,7 @@ ApplicationWindow {
                     ModuleGambling {}
                     ModuleCharacter {}
                     ModuleQol {}
+                    //ModuleExpandedInventory {}
                 }
             }
         }

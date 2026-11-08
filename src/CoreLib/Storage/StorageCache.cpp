@@ -8,21 +8,34 @@
 #include "CascStorage.hpp"
 #include "StormStorage.hpp"
 #include "FolderStorage.hpp"
-
-#include <cassert>
+#include "Logger.hpp"
 
 namespace D2ModGen {
+
+IStorage::StoredData StorageCache::load(const Context& input)
+{
+    if (input == m_prev) {
+        Logger(Logger::Info) << "Using cached data for " << path2string(input.m_root);
+        return m_cache;
+    }
+
+    m_cache = loadImpl(input);
+    m_prev  = input;
+    return m_cache;
+}
 
 IStorage::StoredData StorageCache::loadImpl(const Context& input)
 {
     std::unique_ptr<IStorage> storage;
     if (input.m_storage == StorageType::D2ResurrectedInternal)
-        storage = std::make_unique<CascStorage>(input.m_root, input.m_needBaseSubfolder);
+        storage = std::make_unique<CascStorage>(input.m_root);
     else if (input.m_storage == StorageType::D2LegacyInternal)
         storage = std::make_unique<StormStorage>(input.m_root);
     else {
-        storage = std::make_unique<FolderStorage>(input.m_root, input.m_storage, "", input.m_needBaseSubfolder);
+        storage = std::make_unique<FolderStorage>(input.m_root, input.m_storage);
     }
+    storage->setUseBaseSubolder(input.m_needBaseSubfolder);
+    storage->setSilentTrace(false);
     return storage->readData();
 }
 

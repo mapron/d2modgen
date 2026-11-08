@@ -12,17 +12,18 @@ namespace D2ModGen {
 
 class CascStorage final : public IStorage {
 public:
-    CascStorage(const Mernel::std_path& storageRoot, bool needBaseSubfolder)
+    CascStorage(const Mernel::std_path& storageRoot)
         : m_storageRoot(storageRoot)
-        , m_needBaseSubfolder(needBaseSubfolder)
     {}
+
+    void setUseBaseSubolder(bool useBaseSubfolder) noexcept override { m_needBaseSubfolder = useBaseSubfolder; }
 
 private:
     StoredData readData() const noexcept override;
 
 private:
     const Mernel::std_path m_storageRoot;
-    const bool             m_needBaseSubfolder;
+    bool                   m_needBaseSubfolder = false;
 };
 
 }

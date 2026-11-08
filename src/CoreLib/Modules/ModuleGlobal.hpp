@@ -12,8 +12,6 @@ namespace D2ModGen {
 struct ModuleGlobal : public AbstractModule {
     ModuleGlobal(DataContext& output_, RandomGenerator& rng_, const Config& config_, const GenerationEnvironment& env_);
 
-    std::string getErr() const { return m_err; }
-
     void reset();
 
     void generate() override;
@@ -27,8 +25,6 @@ private:
     void create(const std::string& id);
 
 private:
-    std::string m_err;
-
     std::vector<ModuleRecord> m_modules;
 };
 

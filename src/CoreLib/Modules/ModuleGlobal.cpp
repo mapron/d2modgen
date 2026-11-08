@@ -16,6 +16,7 @@
 #include "ModuleItemBalance.hpp"
 #include "ModuleQol.hpp"
 #include "ModuleSkillRandomizer.hpp"
+#include "ModuleExpandedInventory.hpp"
 
 #include "Logger.hpp"
 
@@ -36,6 +37,7 @@ void ModuleGlobal::reset()
     create<ModuleTreasureClasses>("TreasureClasses");
     create<ModuleMonStats>("MonsterStats");
     create<ModuleQol>("QualityOfLife");
+    create<ModuleExpandedInventory>("ExpandedInventory");
 
     // modules that can add more rows, thus in the end
     create<ModuleCube>("HoradricCube");
@@ -43,7 +45,7 @@ void ModuleGlobal::reset()
     create<ModuleItemRandomizer>("ItemRandomizer");
     create<ModuleSkillRandomizer>("SkillRandomizer");
 
-    // item balance affect input for randomizer, that's why it is in the end.
+    // item balance affect possible input (item stat ranges) for randomizer, that's why it is in the end.
     create<ModuleItemBalance>("ItemBalance");
 }
 
@@ -55,9 +57,9 @@ void ModuleGlobal::generate()
             module.m_gen->generate();
         }
         catch (const std::exception& ex) {
-            m_err = std::string("module '" + module.m_id + "': " + std::string(ex.what()));
+            std::string msg("module '" + module.m_id + "': " + std::string(ex.what()));
 
-            return;
+            throw std::runtime_error(msg);
         }
     }
 

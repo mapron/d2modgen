@@ -196,9 +196,12 @@ void ModuleSkillRandomizer::generate()
     const int keepSkillCount = module.m_randoMode == 1 ? 0 : module.m_keepOriginal;
     const int generateCount  = module.m_generate;
 
+    const bool extraTrace = env.extraTrace.contains("skill_rando");
+
     for (Character clas : getClassTypes()) {
         CharacterData data;
-        data.clas = clas;
+        data.extraTrace = extraTrace;
+        data.clas       = clas;
         if (data.readExisting(output))
             existingData[clas] = std::move(data);
     }
@@ -285,7 +288,8 @@ void ModuleSkillRandomizer::generate()
     for (auto& skill : output.skills.rows) {
         if (skill.classSpecific != Character::Nec)
             continue;
-        dump("", output, skill);
+        if (extraTrace)
+            dump("", output, skill);
     }
 }
 
@@ -396,13 +400,15 @@ void ModuleSkillRandomizer::CharacterData::generateAdditionalSkills(RandomGenera
         generated++;
         incoming.erase(incoming.begin() + r);
     }
-    Logger() << "char '" << enumToString(clas) << "' generateCount=" << generateCount << ", generated="
-             << generated << " from '" << enumToString(someOtherClass.clas) << "' with incomingSize=" << incomingSize;
+    if (extraTrace)
+        Logger() << "char '" << enumToString(clas) << "' generateCount=" << generateCount << ", generated="
+                 << generated << " from '" << enumToString(someOtherClass.clas) << "' with incomingSize=" << incomingSize;
 }
 
 void ModuleSkillRandomizer::CharacterData::createIdx(DataContext& output)
 {
-    Logger() << "char " << enumToString(clas) << " createIdx start=" << rowIdxStart;
+    if (extraTrace)
+        Logger() << "char " << enumToString(clas) << " createIdx start=" << rowIdxStart;
     size_t i = 0;
     for (SkillInfo& skill : skills) {
         //Logger() << "    i=" << i << ", skill " << skill.row.skill << ", stype=" << int(skill.stype) << " skill.rowIdx=" << skill.rowIdx;
@@ -638,12 +644,14 @@ void ModuleSkillRandomizer::CharacterData::randomizeElements(RandomGenerator& rn
             continue;
 
         if (skill.eType == Element::None) {
-            Logger() << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " elem=None, SKIP";
+            if (extraTrace)
+                Logger() << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " elem=None, SKIP";
             continue;
         }
 
         if (s_skippedSkills.contains(Mernel::strToLower(skill.originalId))) {
-            Logger() << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " ignoredlist, SKIP";
+            if (extraTrace)
+                Logger() << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " ignoredlist, SKIP";
             continue;
         }
         if (percentToChange < 100) {
@@ -668,7 +676,7 @@ void ModuleSkillRandomizer::CharacterData::randomizeElements(RandomGenerator& rn
         if (elementsTmp.empty())
             continue;
 
-        skill.setNewElement(elementsTmp[rng((int) elementsTmp.size())]);
+        skill.setNewElement(elementsTmp[rng((int) elementsTmp.size())], extraTrace);
     }
 }
 
@@ -746,7 +754,7 @@ void ModuleSkillRandomizer::CharacterData::updateMissile(DataContext& output, co
     scope[origId] = newMiss.name;
 }
 
-void ModuleSkillRandomizer::SkillInfo::setNewElement(Element element)
+void ModuleSkillRandomizer::SkillInfo::setNewElement(Element element, bool extraTrace)
 {
     if (eType == element)
         return;
@@ -764,7 +772,8 @@ void ModuleSkillRandomizer::SkillInfo::setNewElement(Element element)
 
     row.hitShift = std::clamp(row.hitShift.value_or(0) - oldCompensation + newCompensation, 0, 15);
 
-    Logger() << "'" << row.skill << "' (og='" << originalId << "') " << " element change " << enumToString(old) << " -> " << enumToString(element) << " (hs=" << row.hitShift.value_or(0) << ")";
+    if (extraTrace)
+        Logger() << "'" << row.skill << "' (og='" << originalId << "') " << " element change " << enumToString(old) << " -> " << enumToString(element) << " (hs=" << row.hitShift.value_or(0) << ")";
 
     const int duration = newDesc.dur;
     if (duration > 0) {

@@ -9,6 +9,7 @@
 
 #include "ConfigHandler.hpp"
 #include "PropertyUtil.hpp"
+#include "Logger.hpp"
 
 #include "MernelPlatform/FileFormatJson.hpp"
 #include "MernelPlatform/ShellUtils.hpp"
@@ -242,15 +243,17 @@ void UIController::updateUndoAction()
 
 void UIController::generateFinish()
 {
-    auto result = m_configHandler.generate();
-    if (!result.m_success) {
-        emit statusUpdate(tr("Error: %1").arg(QString::fromStdString(result.m_error)));
+    GenerationEnvironment env;
+
+    bool result = env.init(m_configHandler.m_config) && m_configHandler.generate(env);
+
+    if (!result) {
+        emit statusUpdate(tr("Error: %1").arg(QString::fromStdString("generation failure")));
         return;
     }
 
-    std::string err;
-    emit        statusUpdate(tr("Mod '%1' is updated.")
-                                 .arg(QString::fromStdString(m_configHandler.getEnv(err).modName)));
+    emit statusUpdate(tr("Mod '%1' is updated.")
+                          .arg(QString::fromStdString(m_configHandler.m_config.m_main.m_modname)));
 }
 
 void UIController::setLaunch(QString arg)
@@ -284,9 +287,8 @@ void UIController::setLaunch(QString arg)
 
 void UIController::makeShortCut(QString arg)
 {
-    std::string err;
-    auto        env = m_configHandler.getEnv(err);
-    if (!err.empty())
+    GenerationEnvironment env;
+    if (!env.init(m_configHandler.m_config))
         return;
 
     const bool        legacy = env.isLegacy;
@@ -304,8 +306,9 @@ void UIController::makeShortCut(QString arg)
 
 void UIController::copyModSettings()
 {
-    std::string   err;
-    auto          env   = m_configHandler.getEnv(err);
+    GenerationEnvironment env;
+    if (!env.init(m_configHandler.m_config))
+        return;
     const QString saves = ensureTrailingSlash(getSaveRoot());
     if (saves.isEmpty() || !QFileInfo::exists(saves))
         return;
@@ -320,8 +323,9 @@ void UIController::copyModSettings()
 
 void UIController::copySaves()
 {
-    std::string   err;
-    auto          env   = m_configHandler.getEnv(err);
+    GenerationEnvironment env;
+    if (!env.init(m_configHandler.m_config))
+        return;
     const QString saves = ensureTrailingSlash(getSaveRoot());
     if (saves.isEmpty() || !QFileInfo::exists(saves))
         return;

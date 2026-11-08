@@ -29,11 +29,7 @@ struct Config : public CommonStruct {
 
         int64_t m_versionMajor{ 1 };
 
-        bool m_dumpIn{ false };
-
-        bool m_dumpOut{ false };
-
-        bool m_dumpDiff{ false };
+        std::string m_extraTrace{ "" };
 
         Main()
         {
@@ -47,9 +43,7 @@ struct Config : public CommonStruct {
             addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0);
             addScalar("versionD2R", m_versionD2R).setRange(0, 1).setZero(1);
             addScalar("versionMajor", m_versionMajor).setRange(0, 1).setZero(1);
-            addScalar("dumpIn", m_dumpIn).setZero(false);
-            addScalar("dumpOut", m_dumpOut).setZero(false);
-            addScalar("dumpDiff", m_dumpDiff).setZero(false);
+            addScalar("extraTrace", m_extraTrace).setZero("");
         }
     };
     struct TreasureClasses : public CommonStruct {
@@ -641,6 +635,14 @@ struct Config : public CommonStruct {
             addScalar("compactScrolls", m_compactScrolls).setZero(false).setRecc(true);
         }
     };
+    struct ExpandedInventory : public CommonStruct {
+        int64_t m_inventoryHeight{ 4 };
+
+        ExpandedInventory()
+        {
+            addScalar("inventoryHeight", m_inventoryHeight).setRange(4, 8).setZero(4).setRecc(4);
+        }
+    };
     Main m_main{};
 
     TreasureClasses m_treasureClasses{};
@@ -665,6 +667,8 @@ struct Config : public CommonStruct {
 
     QualityOfLife m_qualityOfLife{};
 
+    ExpandedInventory m_expandedInventory{};
+
     Config()
     {
         addStruct("main", m_main);
@@ -679,6 +683,7 @@ struct Config : public CommonStruct {
         addStruct("gambling", m_gambling);
         addStruct("monsterStats", m_monsterStats);
         addStruct("qualityOfLife", m_qualityOfLife);
+        addStruct("expandedInventory", m_expandedInventory);
     }
 };
 }

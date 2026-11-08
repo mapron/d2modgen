@@ -121,46 +121,52 @@ void ConfigHandler::updateSeed(bool onGenerate)
     }
 }
 
-ConfigHandler::GenerateResult ConfigHandler::generate()
+bool ConfigHandler::generate(const GenerationEnvironment& env)
 {
     auto startAll = Mernel::ChronoPoint(true);
     updateSeed(true);
 
-    std::string                 err;
-    const GenerationEnvironment env = getEnv(err);
-    if (!err.empty()) {
-        return { err };
-    }
+    FolderStorage outDebugStorage(m_appData / "debug");
+    FolderStorage outStorage(env.outputPath, env.outputMode);
+    outStorage.setModName(env.modName);
+    outStorage.setUseBaseSubolder(env.needDataSubfolder);
+    outStorage.setSilentTrace(false);
 
-    FolderStorage outStorage(env.outputPath, env.outputMode, env.modName, env.needDataSubfolder);
+    DataContext previousData;
 
-    Logger(Logger::Notice) << "started generation in " << path2string(env.outputPath) << ", seed:" << env.seed;
-    if (!outStorage.prepareForWrite()) {
-        return { "Failed to write data in destination folder; try to launch as admin." };
+    Logger(Logger::Notice) << "started in: " << path2string(env.outputPath) << ", seed:" << env.seed;
+
+    IStorage::StoredData previousStoredData = outStorage.readData();
+
+    if (previousStoredData.valid) {
+        previousData.parseData(previousStoredData, false);
     }
 
     DataContext output;
+    output.silent = false;
+
     DataContext initialOutput;
 
     Logger() << "Loading data from main storage...";
     const IStorage::StoredData inData = m_mainStorageCache->load({ env.inputMode, env.inputPath, env.needDataSubfolder });
     if (!inData.valid) {
-        return { "Failed to read data files from D2 folder." };
+        Logger(Logger::Err) << "Failed to read data files from D2 folder.";
+        return false;
     }
-    Logger(Logger::Notice) << "Load files from game storage time: " << startAll.GetElapsedTime().ToProfilingTime();
+    Logger(Logger::Info) << "Load files from game storage time: " << startAll.GetElapsedTime().ToProfilingTime();
 
     Logger() << "Parsing json and txt...";
     if (!output.parseData(inData)) {
-        return { "Failed parse D2 data files." };
+        Logger(Logger::Err) << "Failed parse D2 data files.";
+        return false;
     }
-    if (m_config.m_main.m_dumpDiff)
-        initialOutput = output;
-    if (m_config.m_main.m_dumpIn) {
-        IStorage::StoredData inDebug;
-        output.writeDebug(inDebug);
-        FolderStorage outDebugStorage(m_appData / "debug", StorageType::CsvFolder, env.modName, false, ".in");
-        outDebugStorage.prepareForWrite();
-        outDebugStorage.writeData(inDebug);
+    if (env.extraTrace.contains("dump_diff")) {
+        initialOutput = output.makeSilent();
+    }
+    if (env.extraTrace.contains("dump_in")) {
+        outDebugStorage.setFileSuffix(".in");
+        if (outDebugStorage.create())
+            outDebugStorage.writeMainData(output.makeSilent().writeDebug());
     }
 
     Logger() << "prepare ended; Starting generate phase.";
@@ -177,114 +183,47 @@ ConfigHandler::GenerateResult ConfigHandler::generate()
         };
 
         ModuleGlobal all(output, rngWrapper, m_config, env);
-        all.generate();
-        if (!all.getErr().empty())
-            return { all.getErr() };
+        try {
+            all.generate();
+        }
+        catch (const std::exception& ex) {
+            Logger(Logger::Err) << ex.what();
+            return false;
+        }
 
-        Logger(Logger::Notice) << "generate logic finished in: " << start.GetElapsedTime().ToProfilingTime();
+        Logger(Logger::Info) << "generate logic finished in: " << start.GetElapsedTime().ToProfilingTime();
     }
-    Logger() << "prepare output data.";
 
-    if (m_config.m_main.m_dumpOut) {
-        IStorage::StoredData outDebug;
-        output.writeDebug(outDebug);
-        FolderStorage outDebugStorage(m_appData / "debug", StorageType::CsvFolder, env.modName, false, ".out");
-        outDebugStorage.prepareForWrite();
-        outDebugStorage.writeData(outDebug);
+    if (env.extraTrace.contains("dump_out")) {
+        outDebugStorage.setFileSuffix(".out");
+        if (outDebugStorage.create())
+            outDebugStorage.writeMainData(output.makeSilent().writeDebug());
     }
-    if (m_config.m_main.m_dumpDiff) {
-        IStorage::StoredData outDebug;
-        DataContext          diffOutput = output.calculateDiff(initialOutput);
 
-        diffOutput.writeDebug(outDebug);
-        FolderStorage outDebugStorage(m_appData / "debug", StorageType::CsvFolder, env.modName, false, ".diff");
-        outDebugStorage.prepareForWrite();
-        outDebugStorage.writeData(outDebug);
+    if (env.extraTrace.contains("dump_diff")) {
+        outDebugStorage.setFileSuffix(".diff");
+        if (outDebugStorage.create())
+            outDebugStorage.writeMainData(output.calculateDiff(initialOutput).makeSilent().writeDebug());
     }
 
     IStorage::StoredData outData;
-    if (!output.serializeData(outData)) {
-        Logger() << "Failed to prepare data buffers"; // highly unlikely.
-        return {};
+    if (!output.serializeData(outData))
+        return false;
+
+    if (!outStorage.create())
+        return false;
+
+    if (env.extraTrace.contains("dump_bmp")) {
+        FolderStorage outDebugStorageBmp(m_appData / "debugBitmaps");
+        if (outDebugStorageBmp.create())
+            outDebugStorageBmp.writeBitmaps(outData);
     }
 
-    Logger() << "writing output to disk.";
-    if (!outStorage.writeData(outData)) {
-        return { "Failed write output data to disk" };
-    }
+    if (!outStorage.writeMainData(outData) || !outStorage.writeMeta(outData))
+        return false;
 
-    Logger(Logger::Notice) << "Total time: " << startAll.GetElapsedTime().ToProfilingTime();
-    return { "", true };
-}
-
-GenerationEnvironment ConfigHandler::getEnv(std::string& err) const
-{
-    auto&                 main = m_config.m_main;
-    GenerationEnvironment env;
-
-    auto versionMajor = GenerationEnvironment::VersionMajor(main.m_versionMajor);
-    auto versionD2R   = GenerationEnvironment::VersionD2R(main.m_versionD2R);
-    auto inputMode    = GenerationEnvironment::InputMode(main.m_inputMode);
-    auto outputMode   = GenerationEnvironment::OutputMode(main.m_outputMode);
-
-    std::vector<std::string> localeIds{ "enUS", "deDE", "esES", "esMX", "frFR", "itIT", "jaJP", "koKR", "plPL", "ptBR", "ruRU", "zhCN", "zhTW" };
-    int                      localeIdIndex = main.m_d2rLocaleId;
-
-    env.d2rLocaleId = localeIds.at(localeIdIndex);
-    env.modName     = main.m_modname;
-    env.inputPath   = main.m_inputPath;
-    env.outputPath  = main.m_outputPath;
-    env.refreshSeed = main.m_refreshSeed;
-    env.seed        = static_cast<uint32_t>(main.m_seed);
-    if (env.outputPath.empty()) {
-        if (inputMode != GenerationEnvironment::InputMode::Game) {
-            err = "Cannot detect output path.";
-            return env;
-        }
-        env.outputPath = env.inputPath;
-    }
-
-    if (env.inputPath.empty()) {
-        err = "Input path is empty!";
-        return env;
-    }
-
-    if (!Mernel::isExistingDirectory(env.inputPath)) {
-        err = "Input path is not a valid dir:" + path2string(env.inputPath);
-        return env;
-    }
-
-    env.isLegacy          = versionMajor == GenerationEnvironment::VersionMajor::Legacy;
-    env.needDataSubfolder = versionD2R == GenerationEnvironment::VersionD2R::LoD;
-    env.isRotW            = !env.isLegacy && versionD2R == GenerationEnvironment::VersionD2R::RotW;
-    if (inputMode == GenerationEnvironment::InputMode::Game) {
-        if (env.isLegacy) {
-            env.inputMode = StorageType::D2LegacyInternal;
-        }
-    } else if (inputMode == GenerationEnvironment::InputMode::FullFolders) {
-        if (env.isLegacy) {
-            env.inputMode = StorageType::D2LegacyFolder;
-        } else {
-            env.inputMode = StorageType::D2ResurrectedModFolder;
-        }
-    } else {
-        env.inputMode = StorageType::CsvFolder;
-    }
-
-    if (outputMode == GenerationEnvironment::OutputMode::D2RMod) {
-        if (env.isLegacy) {
-            err = "You must select another output mode!";
-            return env;
-        }
-    } else if (outputMode == GenerationEnvironment::OutputMode::FullFolders) {
-        env.outputMode = StorageType::D2LegacyFolder;
-    } else if (outputMode == GenerationEnvironment::OutputMode::Txt) {
-        env.outputMode = StorageType::CsvFolder;
-    } else {
-        env.outputMode = StorageType::None;
-    }
-
-    return env;
+    Logger(Logger::Info) << "Total time: " << startAll.GetElapsedTime().ToProfilingTime();
+    return true;
 }
 
 ConfigHandler::~ConfigHandler() = default;

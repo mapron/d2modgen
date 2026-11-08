@@ -21,6 +21,7 @@ const std::array<std::string_view, size_t(TableId::count__)> s_tableNames{
     "gamble",
     "gems",
     "hireling",
+    "inventory",
     "itemstatcost",
     "itemtypes",
     "levels",
@@ -46,10 +47,48 @@ const std::array<std::string_view, size_t(JsonId::count__)> s_jsonpaths{
     "data\\local\\lng\\strings\\item-nameaffixes.json",
     "data\\hd\\character\\monsters.json",
     "data\\hd\\missiles\\missiles.json",
+
+    "data\\global\\ui\\layouts\\_profilehd.json",
+    "data\\global\\ui\\layouts\\_profilelv.json",
+    "data\\global\\ui\\layouts\\controller\\playerinventoryoriginallayouthd.json",
+    "data\\global\\ui\\layouts\\controller\\playerinventoryexpansionlayouthd.json",
+    "data\\global\\ui\\layouts\\playerinventoryoriginallayouthd.json",
+    "data\\global\\ui\\layouts\\playerinventoryexpansionlayouthd.json",
+
+};
+
+const std::array<bool, size_t(JsonId::count__)> s_jsonPretty{
+    false,
+    false,
+    false,
+    false,
+
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
 };
 
 const std::array<std::string_view, size_t(BlobId::count__)> s_blobpaths{
     "data\\local\\lng\\eng\\patchstring.tbl",
+
+    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg.lowend.sprite",
+
+    "data\\hd\\global\\ui\\panel\\docking_bar\\sidepanel_r.sprite",
+    "data\\hd\\global\\ui\\panel\\docking_bar\\sidepanel_r.lowend.sprite",
+
+    "data\\hd\\global\\ui\\panel\\inventory\\background.sprite",
+    "data\\hd\\global\\ui\\panel\\inventory\\background.lowend.sprite",
+
+    /// "data\\hd\\global\\ui\\panel\\inventory\\background_d2modgen.sprite",
+    /// "data\\hd\\global\\ui\\panel\\inventory\\background_d2modgen.lowend.sprite",
+
+    ///  "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_d2modgen.sprite",
+    ///  "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_d2modgen.lowend.sprite",
+
 };
 
 }
@@ -62,6 +101,11 @@ std::string_view getTableIdString(TableId id)
 std::string_view getJsonRelPath(JsonId id)
 {
     return s_jsonpaths[static_cast<size_t>(id)];
+}
+
+bool isPrettyPrintable(JsonId id)
+{
+    return s_jsonPretty[static_cast<size_t>(id)];
 }
 
 std::string_view getBlobRelPath(BlobId id)
