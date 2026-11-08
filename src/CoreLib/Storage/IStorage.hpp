@@ -105,6 +105,24 @@ enum class BlobId
     OrignCtrlInventoryExpansnSpriteHighre,
     OrignCtrlInventoryExpansnSpriteLowend,
 
+    IconAmaHighre,
+    IconAmaLowres,
+    IconSorHighre,
+    IconSorLowres,
+    IconNecHighre,
+    IconNecLowres,
+    IconPalHighre,
+    IconPalLowres,
+
+    IconBarHighre,
+    IconBarLowres,
+    IconDruHighre,
+    IconDruLowres,
+    IconAssHighre,
+    IconAssLowres,
+    IconWarHighre,
+    IconWarLowres,
+
     // Patched version of sprite with different name
     PatchMnkbInventoryClassicSpriteHighre,
     PatchMnkbInventoryClassicSpriteLowres,
@@ -121,7 +139,7 @@ enum class BlobId
     LegacyLast  = PatchStringTbl,
 
     ResurrectedFirst = OrignMnkbInventoryClassicSpriteHighre,
-    ResurrectedLast  = OrignCtrlInventoryExpansnSpriteLowend,
+    ResurrectedLast  = IconWarLowres,
 
     SkipWriteFirst = OrignMnkbInventoryClassicSpriteHighre,
     SkipWriteLast  = OrignCtrlInventoryExpansnSpriteLowend,

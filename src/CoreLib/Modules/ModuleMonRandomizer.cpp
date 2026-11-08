@@ -137,7 +137,7 @@ void ModuleMonRandomizer::generate()
             MonsterTaskList extraMinions;
             processTask(task, extraMinions);
 
-            if (0) {
+            if (extraTrace) {
                 Logger() << "        " << task.toString();
                 for (auto& minionTask : extraMinions)
                     Logger() << "         minion: " << minionTask.toString();
@@ -289,6 +289,9 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
     row.useForRando          = false;
     row.id                   = "gen_" + row.id + "_" + std::to_string(task.m_areaId);
 
+    if (generatedIds.contains(row.id))
+        return;
+
     const int guestOrigLevel = row.level.value_or(0);
     row.level                = task.m_targetNormalLevel;
 
@@ -426,10 +429,11 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
         minionId = minionTask.m_dest.id;
         extraMinions.push_back(minionTask);
     }
-
+    assert(!generatedIds.contains(row.id));
     output.monstats.extra.push_back(row);
     output.monstatsEx.extra.push_back(rowEx);
     output.idClones.monstats.push_back({ origId, row.id });
+    generatedIds.insert(row.id);
 }
 
 void ModuleMonRandomizer::prepareChimeraPools()

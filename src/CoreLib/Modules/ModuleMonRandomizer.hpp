@@ -79,7 +79,8 @@ private:
     void processTask(MonsterTask& task, MonsterTaskList& extraMinions);
 
 private:
-    TCTable tcTable;
+    TCTable               tcTable;
+    std::set<std::string> generatedIds;
 
     std::vector<const DataRow_monstats*> validGuestIndexes;
 

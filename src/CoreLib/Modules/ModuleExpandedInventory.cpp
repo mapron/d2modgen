@@ -248,6 +248,10 @@ void ModuleExpandedInventory::generate()
     if (module.m_inventoryHeight == 4)
         return;
 
+    if (1) {
+        return;
+    }
+
     auto& jsonProfileHd = output.jsonFiles.at(JsonId::ProfileHd);
     auto& jsonProfileLv = output.jsonFiles.at(JsonId::ProfileLv);
 

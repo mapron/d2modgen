@@ -19,6 +19,9 @@ struct Bitmap {
     size_t               width  = 0;
     size_t               height = 0;
 
+    size_t frameWidth = 0;
+    size_t frameCount = 0;
+
     struct Color {
         uint8_t r{};
         uint8_t g{};

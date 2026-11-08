@@ -170,6 +170,8 @@ void MagicPropItem::process()
             rawList.makePerfect();
 
         rawList.replaceToOskill(*randoParams);
+
+        assert(!rawList.parsedProps.empty());
     }
 
     stats.process += start.GetElapsedTime().GetUS();

@@ -87,6 +87,24 @@ const std::array<std::string_view, size_t(BlobId::count__)> s_blobpaths{
     "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg.sprite",
     "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg.lowend.sprite",
 
+    "data\\hd\\global\\ui\\spells\\amazon\\amskillicon.sprite",
+    "data\\hd\\global\\ui\\spells\\amazon\\amskillicon.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\sorceress\\soskillicon.sprite",
+    "data\\hd\\global\\ui\\spells\\sorceress\\soskillicon.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\necromancer\\neskillicon.sprite",
+    "data\\hd\\global\\ui\\spells\\necromancer\\neskillicon.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\paladin\\paskillicon.sprite",
+    "data\\hd\\global\\ui\\spells\\paladin\\paskillicon.lowend.sprite",
+
+    "data\\hd\\global\\ui\\spells\\barbarian\\baskillicon.sprite",
+    "data\\hd\\global\\ui\\spells\\barbarian\\baskillicon.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\druid\\drskillicon.sprite",
+    "data\\hd\\global\\ui\\spells\\druid\\drskillicon.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\assassin\\asskillicon.sprite",
+    "data\\hd\\global\\ui\\spells\\assassin\\asskillicon.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\warlock\\waskillicon.sprite",
+    "data\\hd\\global\\ui\\spells\\warlock\\waskillicon.lowend.sprite",
+
     "data\\hd\\global\\ui\\panel\\inventory\\classic_background_expanded.sprite",
     "data\\hd\\global\\ui\\panel\\inventory\\classic_background_expanded.lowend.sprite",
     "data\\hd\\global\\ui\\panel\\inventory\\background_expanded.sprite",
@@ -96,6 +114,7 @@ const std::array<std::string_view, size_t(BlobId::count__)> s_blobpaths{
     "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_classic_expanded.lowend.sprite",
     "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_expanded.sprite",
     "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_expanded.lowend.sprite",
+
 };
 
 }

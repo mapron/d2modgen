@@ -13,6 +13,23 @@ namespace D2ModGen {
 
 namespace {
 
+struct SpriteCfg {
+    Character cha;
+    BlobId    high;
+    BlobId    low;
+};
+using SpriteCfgList         = std::vector<SpriteCfg>;
+const SpriteCfgList s_unite = {
+    SpriteCfg{ Character::Ama, BlobId::IconAmaHighre, BlobId::IconAmaLowres },
+    SpriteCfg{ Character::Sor, BlobId::IconSorHighre, BlobId::IconSorLowres },
+    SpriteCfg{ Character::Nec, BlobId::IconNecHighre, BlobId::IconNecLowres },
+    SpriteCfg{ Character::Pal, BlobId::IconPalHighre, BlobId::IconPalLowres },
+    SpriteCfg{ Character::Bar, BlobId::IconBarHighre, BlobId::IconBarLowres },
+    SpriteCfg{ Character::Dru, BlobId::IconDruHighre, BlobId::IconDruLowres },
+    SpriteCfg{ Character::Ass, BlobId::IconAssHighre, BlobId::IconAssLowres },
+    SpriteCfg{ Character::War, BlobId::IconWarHighre, BlobId::IconWarLowres },
+};
+
 using Replacer = std::function<std::string(std::string)>;
 
 void replaceTokensInplace(std::string&       str,
@@ -208,6 +225,42 @@ void ModuleSkillRandomizer::generate()
     const auto& module = config.m_skillRandomizer;
     if (!module.m_enabled)
         return;
+
+    if (0) {
+        Bitmap bmpUnite;
+        for (const auto& cfg : s_unite) {
+            auto& spriteBlob = output.blobs[cfg.high];
+
+            Bitmap& bmp = output.bitmaps[enumToString(cfg.cha)];
+
+            bmp.readFromSprite(spriteBlob);
+            bmpUnite.height = bmp.height;
+            bmpUnite.width  = bmp.width;
+            break;
+        }
+        bmpUnite.resize(bmpUnite.width * 2, bmpUnite.height);
+        int posX = 0;
+        int cnt  = 0;
+        for (const auto& cfg : s_unite) {
+            auto& spriteBlob = output.blobs[cfg.high];
+
+            Bitmap& bmp = output.bitmaps[enumToString(cfg.cha)];
+
+            bmp.readFromSprite(spriteBlob);
+            Bitmap::blit(bmp, 0, 0, bmpUnite, posX, 0, bmp.width, bmp.height);
+            posX += bmp.width;
+            cnt++;
+            if (cnt == 2)
+                break;
+        }
+        for (const auto& cfg : s_unite) {
+            auto& spriteBlob = output.blobs[cfg.high];
+
+            Bitmap& bmp = output.bitmaps[enumToString(cfg.cha)];
+            bmp         = bmpUnite;
+            bmp.writeToSprite(spriteBlob);
+        }
+    }
 
     const int totalNewSkillsPerClass = 60;
 
@@ -486,34 +539,52 @@ void ModuleSkillRandomizer::CharacterData::randomizePositions(RandomGenerator& r
 
     std::vector indexToRow{ 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6 };
 
-    for (int i = -1; Ptr skill : activeSkills) {
-        i++;
-        auto&     desc   = skill->desc;
-        const int oldRow = desc.skillRow.value_or(0);
+    std::vector<std::vector<Ptr>> megacolumns;
+    megacolumns.resize(9);
 
-        const int page            = (i / tabSize) + 1;
-        const int indexInsidePage = i % tabSize;
-        desc.listRow = desc.skillPage = page;
-        desc.skillRow                 = indexToRow[indexInsidePage];
-        skill->changeInRow            = desc.skillRow.value() - oldRow;
-
-        auto& cols       = pageAndRowCounter[page][desc.skillRow.value()];
-        desc.skillColumn = (++cols);
+    int total = activeSkills.size();
+    int i     = 0;
+    for (i = 0; i < total / 2; ++i) {
+        megacolumns[i % 9].push_back(activeSkills[i]);
     }
-    /*
-    for (Ptr skill : activeSkills) {
-        auto&     desc = skill->desc;
-        const int page = desc.skillPage.value();
+    for (; i < total; ++i) {
+        int col = rng(9);
 
-        const int rowTotal = pageAndRowCounter[page][desc.skillRow.value()];
-
-        if (rowTotal == 1) {
-            desc.skillColumn = rng(3) + 1;
-        } else if (rowTotal == 2 && desc.skillColumn == 1) {
-            if (rng(2))
-                desc.skillColumn = 3;
+        while (megacolumns[col].size() == 6) {
+            col = (col + 1) % 9;
         }
-    }*/
+
+        megacolumns[col].push_back(activeSkills[i]);
+    }
+
+    for (int megacol = 0; megacol < 9; megacol++) {
+        const int        page            = (megacol / 3) + 1;
+        const int        col             = (megacol % 3) + 1;
+        std::vector<int> allowedRowsLeft = { 1, 2, 3, 4, 5, 6 };
+
+        for (int megarow = 0; megarow < megacolumns[megacol].size(); megarow++) {
+            Ptr       skill  = megacolumns[megacol][megarow];
+            auto&     desc   = skill->desc;
+            const int oldRow = desc.skillRow.value_or(0);
+
+            desc.listRow = desc.skillPage = page;
+            desc.skillColumn              = col;
+
+            if (megarow == 0 && col == 1) {
+                desc.skillRow = 1;
+                allowedRowsLeft.erase(allowedRowsLeft.begin());
+            } else if (megarow == 0 && col == 3) {
+                desc.skillRow = 6;
+                allowedRowsLeft.pop_back();
+            } else {
+                int idx       = rng(allowedRowsLeft.size());
+                desc.skillRow = allowedRowsLeft[idx];
+                allowedRowsLeft.erase(allowedRowsLeft.begin() + idx);
+            }
+
+            skill->changeInRow = desc.skillRow.value() - oldRow;
+        }
+    }
 }
 
 void ModuleSkillRandomizer::CharacterData::updateSkillReq(const Config::SkillRandomizer& module, bool recalDeps)
