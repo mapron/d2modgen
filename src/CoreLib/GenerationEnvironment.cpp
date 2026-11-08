@@ -59,7 +59,7 @@ bool GenerationEnvironment::init(const Config& config)
         if (isLegacy) {
             inputMode = StorageType::D2LegacyFolder;
         } else {
-            inputMode = StorageType::D2ResurrectedModFolder;
+            inputMode = StorageType::D2LegacyFolder;
         }
     } else {
         inputMode = StorageType::CsvFolder;

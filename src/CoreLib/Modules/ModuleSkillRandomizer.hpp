@@ -8,20 +8,22 @@
 
 namespace D2ModGen {
 
+enum SType
+{
+    ExistingHidden, // this is kept in main range and not updated
+    ExistingActive, // this is kept in main range and not updated, but used as pool
+    GenHidden,      // this is kept in main range and UPDATED
+    GenActive,      // this added to the end with NEW DATA
+    Filler,         // this added to the end with ID ONLY
+};
+std::string enumToString(SType stype, bool asEnum = false);
+
 struct ModuleSkillRandomizer : public AbstractModule {
     using AbstractModule::AbstractModule;
 
     void generate() override;
 
 private:
-    enum SType
-    {
-        ExistingHidden, // this is kept in main range and not updated
-        ExistingActive, // this is kept in main range and not updated, but used as pool
-        GenHidden,      // this is kept in main range and UPDATED
-        GenActive,      // this added to the end with NEW DATA
-        Filler,         // this added to the end with ID ONLY
-    };
     struct SkillInfo {
         SType stype = SType::Filler;
 

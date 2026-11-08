@@ -41,9 +41,12 @@ struct Bitmap {
     void paintLineH(size_t x1, size_t x2, size_t y);
     void paintLineV(size_t x, size_t y1, size_t y2);
     void fillRectPoints(size_t x1, size_t x2, size_t y1, size_t y2);
+    void fill();
 
     void fillRect(size_t x, size_t y, size_t w, size_t h);
     void linedRect(size_t x, size_t y, size_t w, size_t h);
+
+    static void blit(const Bitmap& src, int srcX, int srcY, Bitmap& dest, int destX, int destY, int width, int height);
 };
 
 struct DataContext {

@@ -50,10 +50,10 @@ const std::array<std::string_view, size_t(JsonId::count__)> s_jsonpaths{
 
     "data\\global\\ui\\layouts\\_profilehd.json",
     "data\\global\\ui\\layouts\\_profilelv.json",
-    "data\\global\\ui\\layouts\\controller\\playerinventoryoriginallayouthd.json",
-    "data\\global\\ui\\layouts\\controller\\playerinventoryexpansionlayouthd.json",
     "data\\global\\ui\\layouts\\playerinventoryoriginallayouthd.json",
     "data\\global\\ui\\layouts\\playerinventoryexpansionlayouthd.json",
+    "data\\global\\ui\\layouts\\controller\\playerinventoryoriginallayouthd.json",
+    "data\\global\\ui\\layouts\\controller\\playerinventoryexpansionlayouthd.json",
 
 };
 
@@ -74,21 +74,28 @@ const std::array<bool, size_t(JsonId::count__)> s_jsonPretty{
 const std::array<std::string_view, size_t(BlobId::count__)> s_blobpaths{
     "data\\local\\lng\\eng\\patchstring.tbl",
 
-    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg.sprite",
-    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg.lowend.sprite",
+    /// "data\\hd\\global\\ui\\panel\\docking_bar\\sidepanel_r.sprite",
+    /// "data\\hd\\global\\ui\\panel\\docking_bar\\sidepanel_r.lowend.sprite",
 
-    "data\\hd\\global\\ui\\panel\\docking_bar\\sidepanel_r.sprite",
-    "data\\hd\\global\\ui\\panel\\docking_bar\\sidepanel_r.lowend.sprite",
-
+    "data\\hd\\global\\ui\\panel\\inventory\\classic_background.sprite",
+    "data\\hd\\global\\ui\\panel\\inventory\\classic_background.lowend.sprite",
     "data\\hd\\global\\ui\\panel\\inventory\\background.sprite",
     "data\\hd\\global\\ui\\panel\\inventory\\background.lowend.sprite",
 
-    /// "data\\hd\\global\\ui\\panel\\inventory\\background_d2modgen.sprite",
-    /// "data\\hd\\global\\ui\\panel\\inventory\\background_d2modgen.lowend.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_classic.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_classic.lowend.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg.lowend.sprite",
 
-    ///  "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_d2modgen.sprite",
-    ///  "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_d2modgen.lowend.sprite",
+    "data\\hd\\global\\ui\\panel\\inventory\\classic_background_expanded.sprite",
+    "data\\hd\\global\\ui\\panel\\inventory\\classic_background_expanded.lowend.sprite",
+    "data\\hd\\global\\ui\\panel\\inventory\\background_expanded.sprite",
+    "data\\hd\\global\\ui\\panel\\inventory\\background_expanded.lowend.sprite",
 
+    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_classic_expanded.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_classic_expanded.lowend.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_expanded.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg_expanded.lowend.sprite",
 };
 
 }

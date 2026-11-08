@@ -1353,16 +1353,20 @@ private:
 class Config_ExpandedInventory_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyInt_Qt* inventoryHeight READ get_inventoryHeight CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* inventoryWidth READ get_inventoryWidth CONSTANT)
 
 public:
     explicit Config_ExpandedInventory_Qt(Config::ExpandedInventory& data)
         : CommonStruct_Qt(data)
         , m_data(data)
         , m_inventoryHeight(data.getPropertyInt(0))
+        , m_inventoryWidth(data.getPropertyInt(1))
     {
     }
 
     PropertyInt_Qt* get_inventoryHeight() { return &m_inventoryHeight; }
+
+    PropertyInt_Qt* get_inventoryWidth() { return &m_inventoryWidth; }
 
     Q_INVOKABLE void assign(Config_ExpandedInventory_Qt* another) { m_data.assign(another->m_data, true); }
 
@@ -1370,6 +1374,8 @@ private:
     Config::ExpandedInventory& m_data;
 
     PropertyInt_Qt m_inventoryHeight;
+
+    PropertyInt_Qt m_inventoryWidth;
 };
 
 class Config_Qt : public CommonStruct_Qt {

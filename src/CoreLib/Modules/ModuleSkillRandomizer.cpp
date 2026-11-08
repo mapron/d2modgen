@@ -185,6 +185,24 @@ void dump(std::string indent, DataContext& output, const DataRow_skills& row)
 
 }
 
+std::string enumToString(SType stype, bool asEnum)
+{
+    using enum SType;
+    switch (stype) {
+        case ExistingHidden:
+            return "ExistingHidden";
+        case ExistingActive:
+            return "ExistingActive";
+        case GenHidden:
+            return "GenHidden";
+        case GenActive:
+            return "GenActive";
+        case Filler:
+            return "Filler";
+    };
+    return "?";
+}
+
 void ModuleSkillRandomizer::generate()
 {
     const auto& module = config.m_skillRandomizer;
@@ -193,8 +211,8 @@ void ModuleSkillRandomizer::generate()
 
     const int totalNewSkillsPerClass = 60;
 
-    const int keepSkillCount = module.m_randoMode == 1 ? 0 : module.m_keepOriginal;
-    const int generateCount  = module.m_generate;
+    const int keepSkillCount          = module.m_randoMode == 1 ? 0 : module.m_keepOriginal;
+    const int generateCountSuggestion = module.m_generate;
 
     const bool extraTrace = env.extraTrace.contains("skill_rando");
 
@@ -232,6 +250,12 @@ void ModuleSkillRandomizer::generate()
         if (randoEnabled) {
             cha.makeInactive(rng, keepSkillCount);
         }
+        const int keptActve           = cha.getActive().size();
+        const int skillLimit          = 54;
+        const int availableToGenerate = skillLimit - keptActve;
+        const int generateCount       = std::min(generateCountSuggestion, availableToGenerate);
+        const int desirableTotal      = generateCount + keptActve;
+
         if (module.m_randoMode == 1) {
             // same class shuffle
             for (auto& [sourceKey, sourceData] : existingData) {
@@ -248,13 +272,18 @@ void ModuleSkillRandomizer::generate()
                 const int characterGenerateCount = generateCount;
                 cha.generateAdditionalSkills(rng, sourceData, characterGenerateCount);
             }
+            [[maybe_unused]] const size_t activeSize = cha.getActive().size();
+            assert(activeSize == desirableTotal);
         }
         if (module.m_randoMode == 3) {
             // pick from any class
             std::vector<int> weights;
 
             for (auto& [sourceKey, sourceData] : existingData) {
-                weights.push_back(getClassWeight(sourceKey));
+                int w = getClassWeight(sourceKey);
+                if (sourceKey == cha.clas && keptActve > 0)
+                    w = 0;
+                weights.push_back(w);
             }
             std::vector<int> counts;
             splitWeights(generateCount, weights, counts);
@@ -262,6 +291,8 @@ void ModuleSkillRandomizer::generate()
                 const int characterGenerateCount = counts[i++];
                 cha.generateAdditionalSkills(rng, sourceData, characterGenerateCount);
             }
+            [[maybe_unused]] const size_t activeSize = cha.getActive().size();
+            assert(activeSize == desirableTotal);
         }
 
         cha.insertRows(output, totalNewSkillsPerClass);
@@ -348,15 +379,21 @@ bool ModuleSkillRandomizer::CharacterData::readExisting(DataContext& output)
 
 void ModuleSkillRandomizer::CharacterData::writeOut(DataContext& output) const
 {
-    for (const SkillInfo& skill : skills) {
-        if (skill.stype < SType::GenHidden)
+    for (int i = -1; const SkillInfo& skill : skills) {
+        i++;
+        if (skill.stype < SType::ExistingActive) {
+            if (extraTrace)
+                Logger() << "WRITE-SKIP [" << i << "] " << enumToString(clas) << " " << skill.toString();
             continue;
+        }
 
         auto& row                            = output.skills.rows[skill.rowIdx];
         row                                  = skill.row;
         output.skilldesc.rows[skill.descIdx] = skill.desc;
         if (skill.eType != Element::None)
             row.eType = enumToString(skill.eType);
+        if (extraTrace)
+            Logger() << "WRITE      [" << i << "] " << enumToString(clas) << " " << skill.toString();
     }
 }
 
@@ -400,6 +437,8 @@ void ModuleSkillRandomizer::CharacterData::generateAdditionalSkills(RandomGenera
         generated++;
         incoming.erase(incoming.begin() + r);
     }
+    [[maybe_unused]] const size_t activeSize = getActive().size();
+    assert(activeSize <= 18 * 3);
     if (extraTrace)
         Logger() << "char '" << enumToString(clas) << "' generateCount=" << generateCount << ", generated="
                  << generated << " from '" << enumToString(someOtherClass.clas) << "' with incomingSize=" << incomingSize;
@@ -443,7 +482,9 @@ void ModuleSkillRandomizer::CharacterData::randomizePositions(RandomGenerator& r
     const int                         tabSize = (activeSkills.size() + 2) / 3;
     assert(tabSize <= 18);
 
-    std::vector indexToRow{ 1, 6, 2, 5, 3, 4, 1, 3, 5, 2, 4, 6, 1, 2, 3, 4, 5, 6 };
+    // std::vector indexToRow{ 1, 6, 2, 5, 3, 4, 1, 3, 5, 2, 4, 6, 1, 2, 3, 4, 5, 6 };
+
+    std::vector indexToRow{ 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6 };
 
     for (int i = -1; Ptr skill : activeSkills) {
         i++;
@@ -459,6 +500,7 @@ void ModuleSkillRandomizer::CharacterData::randomizePositions(RandomGenerator& r
         auto& cols       = pageAndRowCounter[page][desc.skillRow.value()];
         desc.skillColumn = (++cols);
     }
+    /*
     for (Ptr skill : activeSkills) {
         auto&     desc = skill->desc;
         const int page = desc.skillPage.value();
@@ -471,7 +513,7 @@ void ModuleSkillRandomizer::CharacterData::randomizePositions(RandomGenerator& r
             if (rng(2))
                 desc.skillColumn = 3;
         }
-    }
+    }*/
 }
 
 void ModuleSkillRandomizer::CharacterData::updateSkillReq(const Config::SkillRandomizer& module, bool recalDeps)
@@ -752,6 +794,14 @@ void ModuleSkillRandomizer::CharacterData::updateMissile(DataContext& output, co
     output.missiles.extra.push_back(newMiss);
     output.idClones.missiles.push_back({ .from = origId, .to = newMiss.name });
     scope[origId] = newMiss.name;
+}
+
+std::string ModuleSkillRandomizer::SkillInfo::toString() const
+{
+    std::ostringstream os;
+    os << " '" << row.skill << "' OG='" << originalId << "' idx=" << descIdx << " stype=" << enumToString(stype);
+    os << " pos: (" << desc.skillPage.value() << ", " << desc.skillRow.value() << ", " << desc.skillColumn.value() << ")";
+    return os.str();
 }
 
 void ModuleSkillRandomizer::SkillInfo::setNewElement(Element element, bool extraTrace)

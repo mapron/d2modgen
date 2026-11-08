@@ -638,9 +638,12 @@ struct Config : public CommonStruct {
     struct ExpandedInventory : public CommonStruct {
         int64_t m_inventoryHeight{ 4 };
 
+        int64_t m_inventoryWidth{ 10 };
+
         ExpandedInventory()
         {
             addScalar("inventoryHeight", m_inventoryHeight).setRange(4, 8).setZero(4).setRecc(4);
+            addScalar("inventoryWidth", m_inventoryWidth).setRange(10, 14).setZero(10).setRecc(10);
         }
     };
     Main m_main{};

@@ -259,7 +259,8 @@ structs:
             compactScrolls: { type: bool, zero: false, recc: true  }
     ExpandedInventory:
         members:
-            inventoryHeight: { type: int, zero: 4, recc: 4, min: 4, max: 8 }
+            inventoryHeight: { type: int, zero:  4, recc:  4, min:  4, max: 8 }
+            inventoryWidth:  { type: int, zero: 10, recc: 10, min: 10, max: 14 }
 
 members:
     main:              { type: struct, name:  Main   }

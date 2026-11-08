@@ -18,4 +18,8 @@ WidgetCommonTab {
         caption: qsTr("Inventory height")
         value_key: root.value_context.inventoryHeight
     }
+    WidgetSlider {
+        caption: qsTr("Inventory width")
+        value_key: root.value_context.inventoryWidth
+    }
 }

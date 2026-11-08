@@ -66,10 +66,12 @@ enum class JsonId
 
     ProfileHd,
     ProfileLv,
-    LayoutControllerClassic,
-    LayoutControllerExpansion,
-    LayoutClassic,
-    LayoutExpansion,
+
+    LayoutMnkbClassic,
+    LayoutMnkbExpansn,
+
+    LayoutCtrlClassic,
+    LayoutCtrlExpansn,
 
     count__,
 };
@@ -89,21 +91,40 @@ enum class BlobId
 {
     PatchStringTbl,
 
-    InventorySprite,
-    InventorySpriteLowend,
+    // Mnkb = Mouse and keyboard
+    // Orign = unpatched sprite
+    // Lowend = 1/2 resolution
+    OrignMnkbInventoryClassicSpriteHighre,
+    OrignMnkbInventoryClassicSpriteLowres,
+    OrignMnkbInventoryExpansnSpriteHighre,
+    OrignMnkbInventoryExpansnSpriteLowend,
 
-    SidePanelRSprite,
-    SidePanelRSpriteLowend,
+    // Ctrl = controller
+    OrignCtrlInventoryClassicSpriteHighre,
+    OrignCtrlInventoryClassicSpriteLowres,
+    OrignCtrlInventoryExpansnSpriteHighre,
+    OrignCtrlInventoryExpansnSpriteLowend,
 
-    BackgroundSprite,
-    BackgroundSpriteLowend,
+    // Patched version of sprite with different name
+    PatchMnkbInventoryClassicSpriteHighre,
+    PatchMnkbInventoryClassicSpriteLowres,
+    PatchMnkbInventoryExpansnSpriteHighre,
+    PatchMnkbInventoryExpansnSpriteLowend,
+
+    PatchCtrlInventoryClassicSpriteHighre,
+    PatchCtrlInventoryClassicSpriteLowres,
+    PatchCtrlInventoryExpansnSpriteHighre,
+    PatchCtrlInventoryExpansnSpriteLowend,
 
     count__,
     LegacyFirst = PatchStringTbl,
     LegacyLast  = PatchStringTbl,
 
-    ResurrectedFirst = InventorySprite,
-    ResurrectedLast  = BackgroundSpriteLowend,
+    ResurrectedFirst = OrignMnkbInventoryClassicSpriteHighre,
+    ResurrectedLast  = OrignCtrlInventoryExpansnSpriteLowend,
+
+    SkipWriteFirst = OrignMnkbInventoryClassicSpriteHighre,
+    SkipWriteLast  = OrignCtrlInventoryExpansnSpriteLowend,
 };
 
 inline auto getBlobIdsLegacy()

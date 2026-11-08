@@ -203,13 +203,51 @@ void Bitmap::fillRectPoints(size_t x1, size_t x2, size_t y1, size_t y2)
     }
 }
 
+void Bitmap::fill()
+{
+    for (size_t i = 0; i < rgba.size(); i += 4) {
+        rgba[i + 0] = brush.r;
+        rgba[i + 1] = brush.g;
+        rgba[i + 2] = brush.b;
+        rgba[i + 3] = brush.a;
+    }
+}
+void Bitmap::blit(const Bitmap& src, int srcX, int srcY, Bitmap& dest, int destX, int destY, int width, int height)
+{
+    int startX = std::max(0, -destX);
+    int startY = std::max(0, -destY);
+
+    int endX = std::min(width, static_cast<int>(src.width) - srcX);
+    endX     = std::min(endX, static_cast<int>(dest.width) - destX);
+
+    int endY = std::min(height, static_cast<int>(src.height) - srcY);
+    endY     = std::min(endY, static_cast<int>(dest.height) - destY);
+
+    for (int y = startY; y < endY; ++y) {
+        const uint8_t* srcRow  = src.rgba.data() + ((srcY + y) * src.width + (srcX + startX)) * 4;
+        uint8_t*       destRow = dest.rgba.data() + ((destY + y) * dest.width + (destX + startX)) * 4;
+
+        for (int x = startX; x < endX; ++x) {
+            if (srcRow[3] == 255) {
+                memcpy(destRow, srcRow, 4);
+            }
+            srcRow += 4;
+            destRow += 4;
+        }
+    }
+}
+
 void Bitmap::fillRect(size_t x, size_t y, size_t w, size_t h)
 {
+    if (!w || !h)
+        return;
     fillRectPoints(x, x + w - 1, y, y + h - 1);
 }
 
 void Bitmap::linedRect(size_t x, size_t y, size_t w, size_t h)
 {
+    if (!w || !h)
+        return;
     const int x1 = x;
     const int y1 = y;
     const int x2 = x + w - 1;
@@ -300,8 +338,12 @@ bool DataContext::serializeData(IStorage::StoredData& data) const
         bitmap.dumpToBuffer(buffer);
         data.bitmaps[key] = std::move(buffer);
     }
+    for (auto& [id, blob] : blobs) {
+        if (id >= BlobId::SkipWriteFirst && id <= BlobId::SkipWriteLast)
+            continue;
+        data.blobs[id] = blob;
+    }
 
-    data.blobs = blobs;
     return true;
 }
 
@@ -365,8 +407,9 @@ bool DataContext::postProcess()
     skilldesc.makeIndex(&DataRow_skilldesc::skilldesc);
     missiles.makeIndex(&DataRow_missiles::name);
 
-    const size_t skill_Leap             = 132;
-    skills.rows[skill_Leap].canBeOskill = false;
+    const size_t skill_Leap = 132;
+    if (skills.rows.size() > skill_Leap)
+        skills.rows[skill_Leap].canBeOskill = false;
 
     auto getItemType = [this](std::string code) -> ItemType {
         if (code.size() > 4)
@@ -578,7 +621,7 @@ bool DataContext::postProcess()
         row.useForRando = row.isRegular && row.spawnedAsNormal;
         hasRegular      = hasRegular || row.isRegular;
     }
-    assert(hasRegular);
+    assert(monstats.rows.empty() || hasRegular);
 
     return true;
 }
