@@ -643,7 +643,7 @@ struct Config : public CommonStruct {
         ExpandedInventory()
         {
             addScalar("inventoryHeight", m_inventoryHeight).setRange(4, 8).setZero(4).setRecc(4);
-            addScalar("inventoryWidth", m_inventoryWidth).setRange(10, 14).setZero(10).setRecc(10);
+            addScalar("inventoryWidth", m_inventoryWidth).setRange(10, 15).setZero(10).setRecc(10);
         }
     };
     Main m_main{};

@@ -705,9 +705,14 @@ void DataRow_inventory::serialize()
     ser(gridX);
     ser(gridY);
     if (_ser_read) {
-        std::array<std::string, 8> classes{ "Amazon2", "Assassin2", "Barbarian2", "Druid2", "Necromancer2", "Paladin2", "Sorceress2", "Warlock2" };
+        std::array<std::string, 16> classes{
+            // clang-format off
+             "Amazon", "Assassin", "Barbarian", "Druid", "Necromancer", "Paladin", "Sorceress", "Warlock",
+             "Amazon2", "Assassin2", "Barbarian2", "Druid2", "Necromancer2", "Paladin2", "Sorceress2", "Warlock2",
+            // clang-format on
+        };
         if (std::find(classes.cbegin(), classes.cend(), charclass) != classes.cend())
-            isChar2 = true;
+            isPlayable = true;
     }
 }
 

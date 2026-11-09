@@ -6,8 +6,10 @@
 #include "ModuleExpandedInventory.hpp"
 
 #include "Logger.hpp"
+#include "Image.hpp"
 
 namespace D2ModGen {
+using namespace Image;
 
 namespace {
 
@@ -48,92 +50,34 @@ std::vector<JsonIDDesc> s_jsonDescs{
 
 };
 
-struct Point {
-    int x{};
-    int y{};
-
-    void read(const Mernel::PropertyTree& data)
-    {
-        x = data.value("x", Mernel::PropertyTreeScalar(0)).toInt();
-        y = data.value("y", Mernel::PropertyTreeScalar(0)).toInt();
-    }
-    void write(Mernel::PropertyTree& data) const
-    {
-        data["x"] = Mernel::PropertyTreeScalar(x);
-        data["y"] = Mernel::PropertyTreeScalar(y);
-    }
-
-    Point& operator+=(const Point& r)
-    {
-        x += r.x;
-        y += r.y;
-        return *this;
-    }
-    Point& operator/=(int downscale)
-    {
-        x /= downscale;
-        y /= downscale;
-        return *this;
-    }
-};
-
-struct Size {
-    int width{};
-    int height{};
-
-    void read(const Mernel::PropertyTree& data)
-    {
-        width  = data.value("width", Mernel::PropertyTreeScalar(0)).toInt();
-        height = data.value("height", Mernel::PropertyTreeScalar(0)).toInt();
-    }
-    void write(Mernel::PropertyTree& data) const
-    {
-        data["width"]  = Mernel::PropertyTreeScalar(width);
-        data["height"] = Mernel::PropertyTreeScalar(height);
-    }
-    Size& operator/=(int downscale)
-    {
-        width /= downscale;
-        height /= downscale;
-        return *this;
-    }
-};
-
-struct Rect {
-    Point topLeft;
-    Size  size;
+struct Field {
+    std::string name;
+    Rect        rect;
 
     bool read(const Mernel::PropertyTree& data)
     {
+        rect = {};
         if (!data.contains("fields"))
             return false;
         if (!data["fields"].contains("rect"))
             return false;
-        auto& rect = data["fields"]["rect"];
-        topLeft.read(rect);
-        size.read(rect);
-        return true;
+        auto& rect_ = data["fields"]["rect"];
+
+        return rect.read(rect_);
     }
     void write(Mernel::PropertyTree& data, bool writeSize = false) const
     {
         auto& f = data["fields"];
         f.convertToMap();
-        auto& rect = f["rect"];
-        if (!rect.isMap()) {
-            rect = {};
-            rect.convertToMap();
+        auto& rect_ = f["rect"];
+        if (!rect_.isMap()) {
+            rect_ = {};
+            rect_.convertToMap();
         }
-        topLeft.write(rect);
-        if (writeSize)
-            size.write(rect);
-    }
-    Rect& operator/=(int downscale)
-    {
-        topLeft /= downscale;
-        size /= downscale;
-        return *this;
+        rect.write(rect_, writeSize);
     }
 };
+
 const Point mkb1{ -14, 12 };
 const Point mkb2{ 227, 12 };
 
@@ -191,30 +135,28 @@ const auto s_rectsCorrectionCTRL = std::map<std::string, Point>{
 
     { "background_right_arm", ctrl1 },
     { "background_right_arm_selected", ctrl1 },
-    { "weaponswap_right_arm", ctrl1 },
+    { "WeaponSwapRightLegend", ctrl1 },
     { "text_i_left", ctrl1 },
     { "text_ii_left", ctrl1 },
 
     { "background_left_arm", ctrl2 },
     { "background_left_arm_selected", ctrl2 },
-    { "weaponswap_left_arm", ctrl2 },
+    { "WeaponSwapLeftLegend", ctrl2 },
     { "text_i_right", ctrl2 },
     { "text_ii_right", ctrl2 },
 };
 
-struct DebugOverlay {
+struct DebugOverlay : public Field {
     bool controller = false;
 
     bool expansion = false;
 
-    Bitmap::Color color{ .r = 255, .a = 255 };
-
-    Rect rect;
+    Color color{ .r = 255, .a = 255 };
 
     void paintTo(Bitmap& bitmap)
     {
         bitmap.brush = color;
-        bitmap.linedRect(rect.topLeft.x, rect.topLeft.y, rect.size.width, rect.size.height);
+        bitmap.linedRect(rect);
     }
 
     DebugOverlay& operator/=(int downscale)
@@ -222,20 +164,39 @@ struct DebugOverlay {
         rect /= downscale;
         return *this;
     }
+    std::string toString() const { return name + ": " + rect.toString() + " " + (expansion ? "EXP " : "CLA ") + (controller ? "CTRL " : "MKB "); }
 };
 using DebugOverlayList = std::vector<DebugOverlay>;
 
-const std::vector<Bitmap::Color> s_colors{
-    Bitmap::Color(255, 0, 0, 255),
-    Bitmap::Color(0, 255, 0, 255),
-    Bitmap::Color(0, 0, 255, 255),
-    Bitmap::Color(255, 255, 0, 255),
+const std::vector<Color> s_colors{
+    Color(255, 0, 0, 255),
+    Color(0, 255, 0, 255),
+    Color(0, 0, 255, 255),
+    Color(255, 255, 0, 255),
 
-    Bitmap::Color(255, 0, 255, 255),
-    Bitmap::Color(0, 255, 255, 255),
-    Bitmap::Color(128, 128, 128, 255),
-    Bitmap::Color(255, 255, 255, 255),
+    Color(255, 0, 255, 255),
+    Color(0, 255, 255, 255),
+    Color(128, 128, 128, 255),
+    Color(255, 255, 255, 255),
 };
+
+struct BlitDesc {
+    Rect  rect;
+    Point moveTo;
+    int   repeatX = 1;
+    int   repeatY = 1;
+
+    bool controller = false;
+    bool expansion  = false;
+
+    BlitDesc& operator/=(int downscale)
+    {
+        rect /= downscale;
+        moveTo /= downscale;
+        return *this;
+    }
+};
+using BlitDescList = std::vector<BlitDesc>;
 
 }
 
@@ -248,24 +209,72 @@ void ModuleExpandedInventory::generate()
     if (module.m_inventoryHeight == 4)
         return;
 
-    if (1) {
-        return;
-    }
-
     auto& jsonProfileHd = output.jsonFiles.at(JsonId::ProfileHd);
     auto& jsonProfileLv = output.jsonFiles.at(JsonId::ProfileLv);
 
+    {
+        Mernel::PropertyTree rect;
+
+        rect["height"] = Mernel::PropertyTreeScalar(1507);
+        rect["scale"]  = Mernel::PropertyTreeScalar(1.16);
+        rect["width"]  = Mernel::PropertyTreeScalar(1382 + 200);
+        rect["x"]      = Mernel::PropertyTreeScalar(-1601.2 - 200);
+        rect["y"]      = Mernel::PropertyTreeScalar(-856);
+
+        jsonProfileLv["RightPanelRect_ExpandedInventory"] = rect;
+    }
+    {
+        Mernel::PropertyTree rect;
+
+        rect["height"] = Mernel::PropertyTreeScalar(1507);
+        rect["width"]  = Mernel::PropertyTreeScalar(1382 + 200);
+        rect["x"]      = Mernel::PropertyTreeScalar(-1614 - 200);
+        rect["y"]      = Mernel::PropertyTreeScalar(-651);
+
+        jsonProfileHd["RightPanelRect_ExpandedInventory"] = rect;
+    }
+    {
+        Mernel::PropertyTree rect;
+
+        rect["x"] = Mernel::PropertyTreeScalar(1316 + 200);
+        rect["y"] = Mernel::PropertyTreeScalar(630);
+
+        jsonProfileHd["RightHingeRect_ExpandedInventory"] = rect;
+        jsonProfileHd["RightHingeRect"]["x"]              = Mernel::PropertyTreeScalar(1096);
+    }
+    {
+        Mernel::PropertyTree rect;
+
+        rect["height"] = Mernel::PropertyTreeScalar(1495);
+        rect["width"]  = Mernel::PropertyTreeScalar(1093 + 200);
+        rect["x"]      = Mernel::PropertyTreeScalar(0);
+        rect["y"]      = Mernel::PropertyTreeScalar(45);
+
+        jsonProfileHd["PanelClickCatcherRect_ExpandedInventory"] = rect;
+    }
+    {
+        Mernel::PropertyTree rect;
+
+        rect["height"] = Mernel::PropertyTreeScalar(71);
+        rect["width"]  = Mernel::PropertyTreeScalar(972 + 200);
+        rect["x"]      = Mernel::PropertyTreeScalar(201);
+        rect["y"]      = Mernel::PropertyTreeScalar(64);
+
+        jsonProfileHd["TitleRect_ExpandedInventory"] = rect;
+    }
     const int cellWidth  = jsonProfileHd["ItemCellSize"]["x"].getScalar().toInt();
     const int cellHeight = jsonProfileHd["ItemCellSize"]["y"].getScalar().toInt();
 
-    const int cellCountX = module.m_inventoryWidth;
-    const int cellCountY = module.m_inventoryHeight;
+    const int cellCountX    = module.m_inventoryWidth;
+    const int cellCountY    = module.m_inventoryHeight;
+    const int cellCountXmax = 15;
+    const int cellCountYmax = 8;
 
     int cellCountXold = 0;
     int cellCountYold = 0;
 
     for (auto& row : output.inventory.rows) {
-        if (row.isChar2) {
+        if (row.isPlayable) {
             cellCountXold = row.gridX.value();
             cellCountYold = row.gridY.value();
             row.gridX     = cellCountX;
@@ -278,7 +287,11 @@ void ModuleExpandedInventory::generate()
     const int growWidth  = growCellX * cellWidth;
     const int growHeight = growCellY * cellHeight;
 
+    const auto gridOffset    = Point{ ((cellCountXmax - cellCountX) / 2) * cellWidth, ((cellCountYmax - cellCountY) / 2) * cellHeight };
+    const auto widgetsOffset = Point{ 100, 0 };
+
     DebugOverlayList debugOverlays;
+    BlitDescList     blitList;
 
     for (auto& desc : s_jsonDescs) {
         auto& json = output.jsonFiles.at(desc.id);
@@ -287,57 +300,132 @@ void ModuleExpandedInventory::generate()
         DebugOverlay d;
         d.expansion  = desc.expansion;
         d.controller = desc.controller;
+        BlitDesc bd;
+        bd.expansion  = desc.expansion;
+        bd.controller = desc.controller;
+
+        if (!desc.expansion && !desc.controller)
+            json["fields"]["rect"] = Mernel::PropertyTreeScalar("$RightPanelRect_ExpandedInventory");
 
         for (Mernel::PropertyTree& child : json["children"].getList()) {
-            std::string name = child["name"].getScalar().toString();
-            Rect        value;
+            d.name     = child["name"].getScalar().toString();
+            d.color    = s_colors[0];
+            bd.repeatX = 1;
+            bd.repeatY = 1;
 
-            if (auto it = adjustements.find(name); it != adjustements.cend()) {
+            if (auto it = adjustements.find(d.name); it != adjustements.cend()) {
                 const Point correction = it->second;
 
-                if (!value.read(child))
+                if (!d.read(child))
                     continue;
-                value.topLeft += correction;
-                value.write(child);
 
-                d.color = s_colors[0];
-                debugOverlays.push_back(d);
-            } else if (name == "grid") {
+                bd.rect = d.rect;
+                d.rect.topLeft += correction;
+                d.rect.topLeft += widgetsOffset;
+                bd.moveTo = d.rect.topLeft;
+
+                d.write(child);
+                blitList.push_back(bd);
+
+                //Logger() << d.name << " " << bd.rect.toString() << " -> " << bd.moveTo.toString();
+
+            } else if (d.name == "grid") {
                 Point correction = desc.controller ? Point{ -132, -344 } : Point{ -37, -229 };
-                if (!value.read(child))
+                if (!d.read(child))
                     continue;
-                value.topLeft += correction;
-                value.write(child);
-                value.size.width  = cellCountX * cellWidth;
-                value.size.height = cellCountY * cellHeight;
+
+                bd.rect = d.rect;
+                d.rect.topLeft += correction;
+                d.rect.topLeft += gridOffset;
+
+                bd.rect.size.width  = cellWidth;
+                bd.rect.size.height = cellHeight;
+                bd.moveTo           = d.rect.topLeft;
+                bd.repeatX          = cellCountX;
+                bd.repeatY          = cellCountY;
+
+                d.write(child);
+                blitList.push_back(bd);
+
+                d.rect.size.width  = cellCountX * cellWidth;
+                d.rect.size.height = cellCountY * cellHeight;
 
                 child["fields"]["cellCount"]["x"] = Mernel::PropertyTreeScalar(cellCountX);
                 child["fields"]["cellCount"]["y"] = Mernel::PropertyTreeScalar(cellCountY);
 
-                d.rect  = value;
                 d.color = s_colors[1];
-                debugOverlays.push_back(d);
+            } else if (d.name == "click_catcher") {
+                if (desc.controller) {
+                    //
+                } else {
+                    child["fields"]["rect"] = Mernel::PropertyTreeScalar("$PanelClickCatcherRect_ExpandedInventory");
+                }
+
+            } else if (d.name == "background") {
+                if (desc.controller) {
+                    child["fields"]["filename"] = Mernel::PropertyTreeScalar("Controller/Panel/InventoryPanel/V2/InventoryBG_Expanded");
+                    if (!desc.expansion) {
+                        child["fields"]["filename"]  = Mernel::PropertyTreeScalar("Controller/Panel/InventoryPanel/V2/InventoryBG_Classic_Expanded");
+                        child["fields"]["rect"]["x"] = Mernel::PropertyTreeScalar(-674);
+                        child["fields"]["rect"]["y"] = Mernel::PropertyTreeScalar(-860);
+                    }
+                } else {
+                    child["fields"]["filename"] = Mernel::PropertyTreeScalar("PANEL\\Inventory\\Background_Expanded");
+                    if (!desc.expansion) {
+                        child["fields"]["filename"] = Mernel::PropertyTreeScalar("PANEL\\Inventory\\Classic_Background_Expanded");
+                    }
+                }
+
+            } else if (d.name == "RightHinge") {
+                child["fields"]["rect"] = Mernel::PropertyTreeScalar("$RightHingeRect_ExpandedInventory");
+            } else if (d.name == "title") {
+                if (!desc.expansion && !desc.controller)
+                    child["fields"]["rect"] = Mernel::PropertyTreeScalar("$TitleRect_ExpandedInventory");
             } else {
                 continue;
             }
+            debugOverlays.push_back(d);
         }
     }
+
+    Bitmap stone;
+    stone.resize({ 1600, 800 });
+    stone.fillWithStone();
 
     for (const auto& desc : s_spriteDescs) {
         const auto& origSpriteBlob    = output.blobs[desc.orig];
         auto&       patchedSpriteBlob = output.blobs[desc.patched];
+        const int   downscale         = desc.lowres ? 2 : 1;
 
-        Bitmap& bmp = output.bitmaps[desc.name];
+        Bitmap& origBmp = output.bitmaps[desc.name + "_orig"];
+        Bitmap& bmp     = output.bitmaps[desc.name];
         bmp.readFromSprite(origSpriteBlob);
 
-        const Bitmap origBmp = bmp;
+        origBmp = bmp;
 
-        Size newSize = desc.controller ? Size{ 1381, 1582 } : Size{ 1381, 1507 };
-        newSize /= desc.lowres ? 2 : 1;
-        bmp.resize(newSize.width, newSize.height);
-        bmp.brush = Bitmap::Color{ 20, 20, 20, 255 };
-        bmp.fill();
-        Bitmap::blit(origBmp, 0, 0, bmp, 0, 0, origBmp.width, origBmp.height);
+        Size newSize    = desc.controller ? Size{ 1381 + 200, 1582 } : Size{ 1381 + 200, 1507 };
+        Size cornerSize = Size{ 65, 65 };
+        newSize /= downscale;
+        cornerSize /= downscale;
+        bmp.resize(newSize);
+        bmp.tileWith(stone);
+        //bmp.brush = Color{ 255, 0, 0, 255 };
+        // bmp.fill();
+        if (!desc.controller)
+            bmp.copyBorders(origBmp, cornerSize);
+
+        for (BlitDesc bd : blitList) {
+            if (bd.controller != desc.controller)
+                continue;
+            if (!desc.expansion && bd.expansion)
+                continue;
+            bd /= downscale;
+            for (int x = 0, offsetX = 0; x < bd.repeatX; x++, offsetX += bd.rect.size.width) {
+                for (int y = 0, offsetY = 0; y < bd.repeatY; y++, offsetY += bd.rect.size.height) {
+                    bmp.draw(bd.moveTo + Point(offsetX, offsetY), origBmp, bd.rect.topLeft, bd.rect.size);
+                }
+            }
+        }
 
         bmp.writeToSprite(patchedSpriteBlob);
 

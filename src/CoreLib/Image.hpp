@@ -1,0 +1,136 @@
+/*
+ * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * SPDX-License-Identifier: BSL-1.0
+ * See LICENSE file for details.
+ */
+#pragma once
+
+#include "MernelPlatform/PropertyTree.hpp"
+
+namespace D2ModGen::Image {
+struct Size;
+struct Point {
+    int x{};
+    int y{};
+
+    void  read(const Mernel::PropertyTree& data);
+    void  write(Mernel::PropertyTree& data) const;
+    Point operator+(const Point& s);
+
+    Point&      operator+=(const Point& r);
+    Point&      operator/=(int downscale);
+    std::string toString() const;
+};
+
+struct Size {
+    int width{};
+    int height{};
+
+    void        read(const Mernel::PropertyTree& data);
+    void        write(Mernel::PropertyTree& data) const;
+    Size&       operator/=(int downscale);
+    std::string toString() const;
+};
+
+struct Rect {
+    Point topLeft;
+    Size  size;
+
+    int getTop() const { return topLeft.y; }
+    int getBottom() const { return topLeft.y + size.height - 1; }
+    int getLeft() const { return topLeft.x; }
+    int getRight() const { return topLeft.x + size.width - 1; }
+
+    Point getTopRight() const
+    {
+        return { getRight(), getTop() };
+    }
+    Point getBottomRight() const
+    {
+        return { getRight(), getBottom() };
+    }
+    Point getBottomLeft() const
+    {
+        return { getLeft(), getBottom() };
+    }
+    int getHeight() const { return size.height; }
+    int getWidth() const { return size.width; }
+
+    bool isValid() const
+    {
+        return size.width > 0 && size.height > 0;
+    }
+
+    bool read(const Mernel::PropertyTree& data)
+    {
+        topLeft = {};
+        size    = {};
+        topLeft.read(data);
+        size.read(data);
+        return true;
+    }
+    void write(Mernel::PropertyTree& data, bool writeSize = false) const
+    {
+        if (!data.isMap())
+            data = {};
+
+        topLeft.write(data);
+        if (writeSize)
+            size.write(data);
+    }
+    Rect& operator/=(int downscale)
+    {
+        topLeft /= downscale;
+        size /= downscale;
+        return *this;
+    }
+    std::string toString() const { return "Rect{ " + topLeft.toString() + ", " + size.toString() + " }"; }
+};
+
+struct Color {
+    uint8_t r{};
+    uint8_t g{};
+    uint8_t b{};
+    uint8_t a{};
+};
+
+struct Bitmap {
+    std::vector<uint8_t> rgba;
+    Size                 size;
+
+    size_t frameWidth = 0;
+    size_t frameCount = 0;
+
+    Color brush;
+
+    void           resize(Size size);
+    uint8_t*       getPixel(Point point);
+    const uint8_t* getPixel(Point point) const;
+    Color          getColor(Point point) const;
+
+    void putDot(Point point);
+    void putDot(Point point, Color c);
+
+    void dumpToBuffer(std::string& buffer) const;
+    bool readFromSprite(const std::string& spriteBuffer);
+    void writeToSprite(std::string& spriteBuffer);
+    void paintLineH(Point point, int width);
+    void paintLineV(Point point, int height);
+
+    void fill();
+    void fillWithStone();
+    void copyBorders(const Bitmap& src, Size cornerSize);
+
+    void fillRect(Rect rect);
+    void linedRect(Rect rect);
+
+    void draw(Point destPoint, const Bitmap& src, Point srcPoint, Size size);
+
+    Bitmap cropAndMirror(Point srcPoint, Size size) const;
+
+    void tileWith(const Bitmap& tile);
+
+    void drawDot(Point destPoint, const Bitmap& src, Point srcPoint);
+};
+
+}

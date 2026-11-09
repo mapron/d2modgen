@@ -12,45 +12,9 @@
 #include "DataContextEquipment.hpp"
 #include "DataContextOther.hpp"
 
+#include "Image.hpp"
+
 namespace D2ModGen {
-
-struct Bitmap {
-    std::vector<uint8_t> rgba;
-    size_t               width  = 0;
-    size_t               height = 0;
-
-    size_t frameWidth = 0;
-    size_t frameCount = 0;
-
-    struct Color {
-        uint8_t r{};
-        uint8_t g{};
-        uint8_t b{};
-        uint8_t a{};
-    };
-
-    Color brush;
-
-    void           resize(size_t w, size_t h);
-    uint8_t*       getPixel(size_t x, size_t y);
-    const uint8_t* getPixel(size_t x, size_t y) const;
-    Color          getColor(size_t x, size_t y) const;
-
-    void putDot(size_t x, size_t y);
-
-    void dumpToBuffer(std::string& buffer) const;
-    bool readFromSprite(const std::string& spriteBuffer);
-    void writeToSprite(std::string& spriteBuffer);
-    void paintLineH(size_t x1, size_t x2, size_t y);
-    void paintLineV(size_t x, size_t y1, size_t y2);
-    void fillRectPoints(size_t x1, size_t x2, size_t y1, size_t y2);
-    void fill();
-
-    void fillRect(size_t x, size_t y, size_t w, size_t h);
-    void linedRect(size_t x, size_t y, size_t w, size_t h);
-
-    static void blit(const Bitmap& src, int srcX, int srcY, Bitmap& dest, int destX, int destY, int width, int height);
-};
 
 struct DataContext {
     DataTable<DataRow_itemtypes> itemtypes;
@@ -132,7 +96,7 @@ struct DataContext {
 
     std::map<JsonId, Mernel::PropertyTree> jsonFiles;
     std::map<BlobId, std::string>          blobs;
-    std::map<std::string, Bitmap>          bitmaps;
+    std::map<std::string, Image::Bitmap>   bitmaps;
 
     int64_t dataVersion = 0;
     bool    silent      = true;

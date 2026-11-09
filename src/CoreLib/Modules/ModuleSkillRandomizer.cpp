@@ -7,10 +7,11 @@
 #include "MernelPlatform/StringUtils.hpp"
 
 #include "Logger.hpp"
+#include "Image.hpp"
 #include <numeric>
 
 namespace D2ModGen {
-
+using namespace Image;
 namespace {
 
 struct SpriteCfg {
@@ -234,11 +235,10 @@ void ModuleSkillRandomizer::generate()
             Bitmap& bmp = output.bitmaps[enumToString(cfg.cha)];
 
             bmp.readFromSprite(spriteBlob);
-            bmpUnite.height = bmp.height;
-            bmpUnite.width  = bmp.width;
+            bmpUnite.size = bmp.size;
             break;
         }
-        bmpUnite.resize(bmpUnite.width * 2, bmpUnite.height);
+        bmpUnite.resize({ bmpUnite.size.width * 2, bmpUnite.size.height });
         int posX = 0;
         int cnt  = 0;
         for (const auto& cfg : s_unite) {
@@ -247,8 +247,8 @@ void ModuleSkillRandomizer::generate()
             Bitmap& bmp = output.bitmaps[enumToString(cfg.cha)];
 
             bmp.readFromSprite(spriteBlob);
-            Bitmap::blit(bmp, 0, 0, bmpUnite, posX, 0, bmp.width, bmp.height);
-            posX += bmp.width;
+            //Bitmap::blit(bmp, 0, 0, bmpUnite, posX, 0, bmp.width, bmp.height);
+            posX += bmp.size.width;
             cnt++;
             if (cnt == 2)
                 break;

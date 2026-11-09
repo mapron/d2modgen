@@ -486,7 +486,7 @@ struct DataRow_inventory : public RowBase {
     bool operator==(const DataRow_inventory&) const noexcept = default;
 
     std::string charclass;
-    bool        isChar2 = false;
+    bool        isPlayable = false;
 
     std::optional<int> gridX;
     std::optional<int> gridY;
