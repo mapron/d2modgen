@@ -7,6 +7,8 @@
 
 #include "MernelPlatform/PropertyTree.hpp"
 
+#include <cstdint>
+
 namespace D2ModGen::Image {
 struct Size;
 struct Point {
