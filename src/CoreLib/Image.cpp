@@ -8,6 +8,7 @@
 #include "MernelPlatform/ByteOrderStream.hpp"
 
 #include <numeric>
+#include <cmath>
 
 namespace D2ModGen::Image {
 
