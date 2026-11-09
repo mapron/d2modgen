@@ -9,6 +9,7 @@
 #include <bitset>
 #include <array>
 #include <stdexcept>
+#include <cstdint>
 
 namespace D2ModGen {
 
