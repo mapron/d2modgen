@@ -321,8 +321,10 @@ void ModuleExpandedInventory::generate()
 
                 bd.rect = d.rect;
                 d.rect.topLeft += correction;
-                d.rect.topLeft += widgetsOffset;
+                d.rect.topLeft += widgetsOffset; // @todo: future uncollapsing
                 bd.moveTo = d.rect.topLeft;
+                bd.rect.expand(10);
+                bd.moveTo += Point{ -10, -10 }; // extra borders
 
                 d.write(child);
                 blitList.push_back(bd);

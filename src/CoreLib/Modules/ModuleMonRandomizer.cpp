@@ -302,13 +302,6 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
     rowEx.hcIdx = hcIdx;
     hcIdx++;
 
-    if (0) {
-        output.monstats.extra.push_back(row);
-        output.monstatsEx.extra.push_back(rowEx);
-        output.idClones.monstats.push_back({ origId, row.id });
-        return;
-    }
-
     if (task.m_isGuest) {
         if (guestOrigLevel > task.m_targetNormalLevel) {
             for (auto& skill : row.skills) {

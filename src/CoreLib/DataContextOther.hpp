@@ -347,6 +347,7 @@ public:
     std::optional<int> skillRow;
     std::optional<int> skillColumn;
     std::optional<int> listRow;
+    std::optional<int> iconCel;
 
     std::array<std::string, maxDesc * 2>    calc;
     std::array<std::string, maxDesc * 2>    desc;

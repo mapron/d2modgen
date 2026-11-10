@@ -452,6 +452,7 @@ std::vector<std::string> DataRow_skilldesc::getColumns() const
         "skillcolumn",
         "listrow",
         "str name",
+        "iconcel",
 
         "descmissile1",
         "descmissile2",
@@ -512,6 +513,7 @@ void DataRow_skilldesc::serialize()
     ser(skillColumn);
     ser(listRow);
     ser(strName);
+    ser(iconCel);
 
     ser(missile);
 

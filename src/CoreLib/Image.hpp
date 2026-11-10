@@ -87,6 +87,14 @@ struct Rect {
         return *this;
     }
     std::string toString() const { return "Rect{ " + topLeft.toString() + ", " + size.toString() + " }"; }
+
+    void expand(int thickness)
+    {
+        topLeft.x -= thickness;
+        topLeft.y -= thickness;
+        size.width += thickness * 2;
+        size.height += thickness * 2;
+    }
 };
 
 struct Color {
@@ -100,11 +108,12 @@ struct Bitmap {
     std::vector<uint8_t> rgba;
     Size                 size;
 
-    size_t frameWidth = 0;
-    size_t frameCount = 0;
+    int frameWidth = 0;
+    int frameCount = 1;
 
     Color brush;
 
+    void           alloc();
     void           resize(Size size);
     uint8_t*       getPixel(Point point);
     const uint8_t* getPixel(Point point) const;
@@ -127,8 +136,6 @@ struct Bitmap {
     void linedRect(Rect rect);
 
     void draw(Point destPoint, const Bitmap& src, Point srcPoint, Size size);
-
-    Bitmap cropAndMirror(Point srcPoint, Size size) const;
 
     void tileWith(const Bitmap& tile);
 

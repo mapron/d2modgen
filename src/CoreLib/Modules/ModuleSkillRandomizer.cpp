@@ -19,8 +19,8 @@ struct SpriteCfg {
     BlobId    high;
     BlobId    low;
 };
-using SpriteCfgList         = std::vector<SpriteCfg>;
-const SpriteCfgList s_unite = {
+using SpriteCfgList                  = std::vector<SpriteCfg>;
+const SpriteCfgList s_skillSritesD2R = {
     SpriteCfg{ Character::Ama, BlobId::IconAmaHighre, BlobId::IconAmaLowres },
     SpriteCfg{ Character::Sor, BlobId::IconSorHighre, BlobId::IconSorLowres },
     SpriteCfg{ Character::Nec, BlobId::IconNecHighre, BlobId::IconNecLowres },
@@ -227,39 +227,27 @@ void ModuleSkillRandomizer::generate()
     if (!module.m_enabled)
         return;
 
-    if (0) {
-        Bitmap bmpUnite;
-        for (const auto& cfg : s_unite) {
-            auto& spriteBlob = output.blobs[cfg.high];
-
-            Bitmap& bmp = output.bitmaps[enumToString(cfg.cha)];
-
-            bmp.readFromSprite(spriteBlob);
-            bmpUnite.size = bmp.size;
+    bool spritesD2RExist = true;
+    for (const auto& cfg : s_skillSritesD2R) {
+        if (!output.blobs.contains(cfg.high)) {
+            spritesD2RExist = false;
             break;
         }
-        bmpUnite.resize({ bmpUnite.size.width * 2, bmpUnite.size.height });
-        int posX = 0;
-        int cnt  = 0;
-        for (const auto& cfg : s_unite) {
-            auto& spriteBlob = output.blobs[cfg.high];
 
-            Bitmap& bmp = output.bitmaps[enumToString(cfg.cha)];
+        auto& spriteBlobHi = output.blobs[cfg.high];
+        auto& spriteBlobLo = output.blobs[cfg.low];
 
-            bmp.readFromSprite(spriteBlob);
-            //Bitmap::blit(bmp, 0, 0, bmpUnite, posX, 0, bmp.width, bmp.height);
-            posX += bmp.size.width;
-            cnt++;
-            if (cnt == 2)
-                break;
+        Bitmap& bmpHi = output.bitmaps["skills_out_HI_" + enumToString(cfg.cha)];
+        Bitmap& bmpLo = output.bitmaps["skills_out_LO_" + enumToString(cfg.cha)];
+
+        if (!bmpHi.readFromSprite(spriteBlobHi) || !bmpLo.readFromSprite(spriteBlobLo)) {
+            Logger(Logger::Err) << "Failed to read sprite: " << enumToString(cfg.cha);
+            spritesD2RExist = false;
+            break;
         }
-        for (const auto& cfg : s_unite) {
-            auto& spriteBlob = output.blobs[cfg.high];
 
-            Bitmap& bmp = output.bitmaps[enumToString(cfg.cha)];
-            bmp         = bmpUnite;
-            bmp.writeToSprite(spriteBlob);
-        }
+        spriteMapExisting[cfg.cha][0] = bmpHi;
+        spriteMapExisting[cfg.cha][1] = bmpLo;
     }
 
     const int totalNewSkillsPerClass = 60;
@@ -361,6 +349,9 @@ void ModuleSkillRandomizer::generate()
 
         cha.randomizeElements(rng, module.m_maximumElements, module.m_chanceElemChange);
         cha.updateMissiles(output);
+        if (spritesD2RExist) {
+            cha.makeSprites(spriteMapExisting, spriteMapGenerated[key]);
+        }
     }
 
     for (auto& [key, cha] : generatedData) {
@@ -374,6 +365,22 @@ void ModuleSkillRandomizer::generate()
             continue;
         if (extraTrace)
             dump("", output, skill);
+    }
+
+    for (const auto& cfg : s_skillSritesD2R) {
+        if (!spritesD2RExist)
+            break;
+        auto& spriteBlobHi = output.blobs[cfg.high];
+        auto& spriteBlobLo = output.blobs[cfg.low];
+
+        Bitmap& bmpHi = output.bitmaps["skills_out_HI_" + enumToString(cfg.cha)];
+        Bitmap& bmpLo = output.bitmaps["skills_out_LO_" + enumToString(cfg.cha)];
+
+        bmpHi = spriteMapGenerated[cfg.cha][0];
+        bmpLo = spriteMapGenerated[cfg.cha][1];
+
+        bmpHi.writeToSprite(spriteBlobHi);
+        bmpLo.writeToSprite(spriteBlobLo);
     }
 }
 
@@ -413,11 +420,13 @@ bool ModuleSkillRandomizer::CharacterData::readExisting(DataContext& output)
 
         validCnt++;
         SkillInfo skill;
-        skill.rowIdx     = rowIdx;
-        skill.row        = row;
-        skill.descIdx    = output.skilldesc.indexN.at(Mernel::strToLower(row.skilldesc));
-        skill.desc       = output.skilldesc.rows[skill.descIdx];
-        skill.originalId = row.skill;
+        skill.rowIdx          = rowIdx;
+        skill.row             = row;
+        skill.descIdx         = output.skilldesc.indexN.at(Mernel::strToLower(row.skilldesc));
+        skill.desc            = output.skilldesc.rows[skill.descIdx];
+        skill.originalId      = row.skill;
+        skill.origClass       = row.classSpecific;
+        skill.originalIconCel = skill.desc.iconCel.value_or(-1);
 
         if (!skill.desc.isValid()) {
             skill.stype = SType::ExistingHidden;
@@ -501,19 +510,40 @@ void ModuleSkillRandomizer::CharacterData::createIdx(DataContext& output)
 {
     if (extraTrace)
         Logger() << "char " << enumToString(clas) << " createIdx start=" << rowIdxStart;
-    size_t i = 0;
-    for (SkillInfo& skill : skills) {
-        //Logger() << "    i=" << i << ", skill " << skill.row.skill << ", stype=" << int(skill.stype) << " skill.rowIdx=" << skill.rowIdx;
+    size_t i          = 0;
+    int    iconCel    = 0;
+    auto   pushSprite = [&iconCel, this](std::optional<int>& iconCelSrc, Character ogClass) {
+        int cel = iconCelSrc.value();
+        if (extraTrace)
+            Logger() << "   skill icon " << cel << " from " << enumToString(ogClass);
+        skillsIcons.push_back({ ogClass, cel });
+        skillsIcons.push_back({ ogClass, cel + 1 });
 
-        if (skill.rowIdx >= 0)
-            continue;
+        iconCelSrc = iconCel;
+        iconCel += 2;
+    };
+
+    for (SkillInfo& skill : skills) {
         auto& row  = skill.row;
         auto& desc = skill.desc;
+        if (skill.rowIdx >= 0) {
+            if (skill.stype == ExistingActive) {
+                pushSprite(desc.iconCel, row.classSpecific);
+            }
+
+            continue;
+        }
 
         int& rowIdx  = skill.rowIdx;
         int& descIdx = skill.descIdx;
         rowIdx       = rowIdxStart + i;
         descIdx      = descIdxStart + i;
+
+        if (skill.stype != SType::Filler) {
+            pushSprite(desc.iconCel, row.classSpecific);
+        } else {
+            desc.iconCel = 0;
+        }
 
         row.setNewClass(clas);
 
@@ -530,14 +560,7 @@ void ModuleSkillRandomizer::CharacterData::createIdx(DataContext& output)
 
 void ModuleSkillRandomizer::CharacterData::randomizePositions(RandomGenerator& rng)
 {
-    PtrList                           activeSkills = getActive();
-    std::map<int, std::map<int, int>> pageAndRowCounter;
-    const int                         tabSize = (activeSkills.size() + 2) / 3;
-    assert(tabSize <= 18);
-
-    // std::vector indexToRow{ 1, 6, 2, 5, 3, 4, 1, 3, 5, 2, 4, 6, 1, 2, 3, 4, 5, 6 };
-
-    std::vector indexToRow{ 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6 };
+    PtrList activeSkills = getActive();
 
     std::vector<std::vector<Ptr>> megacolumns;
     megacolumns.resize(9);
@@ -867,11 +890,43 @@ void ModuleSkillRandomizer::CharacterData::updateMissile(DataContext& output, co
     scope[origId] = newMiss.name;
 }
 
+void ModuleSkillRandomizer::CharacterData::makeSprites(const SkillSpriteMap& allExisting, std::array<Image::Bitmap, 2>& generated) const
+{
+    for (int res = 0; res < 2; res++) {
+        const Bitmap& origClassSprite = allExisting.at(clas)[res];
+        const int     origSpriteCount = origClassSprite.frameCount;
+
+        const int frameWidthCalc = origClassSprite.size.width / origClassSprite.frameCount;
+        const int frameHeight    = origClassSprite.size.height;
+        const int newFrameCount  = skillsIcons.size();
+
+        Bitmap& out    = generated[res];
+        out.frameWidth = origClassSprite.frameWidth; // I am not so sure what that field even do. This is off-by-2 width.
+
+        out.frameCount = std::max(newFrameCount, origSpriteCount);
+
+        out.size.height = frameHeight;
+        out.size.width  = out.frameCount * frameWidthCalc;
+        out.alloc();
+        out.draw(Point{ 0, 0 }, origClassSprite, Point{ 0, 0 }, origClassSprite.size);
+
+        for (int frame = 0; frame < newFrameCount; ++frame) {
+            const Character& sourceClass = skillsIcons[frame].first;
+            const int        sourceFrame = skillsIcons[frame].second;
+
+            const Bitmap& sourceClassSprite = allExisting.at(sourceClass)[res];
+
+            out.draw(Point{ frame * frameWidthCalc, 0 }, sourceClassSprite, Point{ sourceFrame * frameWidthCalc, 0 }, Size{ frameWidthCalc, frameHeight });
+        }
+    }
+}
+
 std::string ModuleSkillRandomizer::SkillInfo::toString() const
 {
     std::ostringstream os;
     os << " '" << row.skill << "' OG='" << originalId << "' idx=" << descIdx << " stype=" << enumToString(stype);
     os << " pos: (" << desc.skillPage.value() << ", " << desc.skillRow.value() << ", " << desc.skillColumn.value() << ")";
+    os << " iconCel: " << desc.iconCel.value_or(0);
     return os.str();
 }
 

@@ -34,6 +34,8 @@ private:
         int changeInRow = 0;
 
         std::string originalId;
+        Character   origClass       = Character::None;
+        int         originalIconCel = -1;
 
         DataRow_skills    row;
         DataRow_skilldesc desc;
@@ -54,7 +56,11 @@ private:
     using PtrList = std::vector<Ptr>;
     using PtrSet  = std::set<Ptr>;
 
+    using SkillSpriteMap = std::map<Character, std::array<Image::Bitmap, 2>>;
+
     struct CharacterData {
+        std::vector<std::pair<Character, int>> skillsIcons;
+
         std::vector<SkillInfo> skills;
         bool                   extraTrace = false;
 
@@ -86,9 +92,14 @@ private:
         void updateMissiles(DataContext& output);
 
         void updateMissile(DataContext& output, const SkillInfo& parent, std::string& missileId, std::map<std::string, std::string>& scope);
+
+        void makeSprites(const SkillSpriteMap& allExisting, std::array<Image::Bitmap, 2>& generated) const;
     };
 
     using AllCharacterData = std::map<Character, CharacterData>;
+
+    SkillSpriteMap spriteMapExisting;
+    SkillSpriteMap spriteMapGenerated;
 
     AllCharacterData existingData;
 

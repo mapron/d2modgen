@@ -287,10 +287,15 @@ Color Bitmap::getColor(Point point) const
     return Color{ .r = pix[0], .g = pix[1], .b = pix[2], .a = pix[3] };
 }
 
+void Bitmap::alloc()
+{
+    rgba.resize(size.width * size.height * 4);
+}
+
 void Bitmap::resize(Size size_)
 {
     size = size_;
-    rgba.resize(size.width * size.height * 4);
+    alloc();
 }
 
 uint8_t* Bitmap::getPixel(Point point)
@@ -404,28 +409,44 @@ bool Bitmap::readFromSprite(const std::string& spriteBuffer)
 
     ByteOrderBuffer           bobuffer(binaryBuffer);
     ByteOrderDataStreamReader stream(bobuffer, ByteOrderDataStream::s_littleEndian);
-    uint32_t                  unused1{};
-    uint16_t                  version{};
-    uint16_t                  unused2{};
-    int32_t                   width{};
-    int32_t                   height{};
-    stream >> unused1;
+
+    uint32_t magicCode{};
+    uint16_t version{};
+    uint16_t frameWidth16{};
+    int32_t  width{};
+    int32_t  height{};
+    int32_t  frameCount32{};
+    uint32_t dataSize{};
+    uint32_t channels{}; // == 4
+
+    stream >> magicCode; // "SpA1"
     stream >> version;
-    stream >> unused2;
+    stream >> frameWidth16;
     stream >> width;
     stream >> height;
+    // offset: 16 / 0x10
 
     if (version != 31)
         return false;
 
-    resize({ width, height });
-    size_t rgbaOffset   = 0x28;
-    size_t expectedSize = rgba.size() + rgbaOffset;
-    assert(expectedSize == spriteBuffer.size());
+    stream.zeroPadding(4);
+    stream >> frameCount32;
+    stream.zeroPadding(8);
+    // offset: 32 / 0x20
 
-    if (expectedSize != spriteBuffer.size())
-        return false;
-    memcpy(rgba.data(), spriteBuffer.data() + rgbaOffset, rgba.size());
+    stream >> dataSize;
+    stream >> channels;
+    // offset: 40 / 0x28
+
+    frameWidth = frameWidth16;
+    frameCount = frameCount32;
+
+    resize({ width, height });
+
+    assert(dataSize == rgba.size());
+    stream.readBlock(rgba.data(), dataSize);
+    auto remaining = stream.getBuffer().getRemainRead();
+    assert(remaining == 0);
 
     return true;
 }
@@ -437,18 +458,26 @@ void Bitmap::writeToSprite(std::string& spriteBuffer)
 
     ByteOrderBuffer           bobuffer(binaryBuffer);
     ByteOrderDataStreamWriter stream(bobuffer, ByteOrderDataStream::s_littleEndian);
-    stream.writeBlock("SpA1", 4);
-    uint16_t frameWidth = size.width;
-    uint32_t frameCount = 1;
-    uint16_t version{ 31 };
+
+    const uint16_t frameWidth16 = frameWidth ? frameWidth : size.width;
+    const uint16_t version{ 31 };
+
+    stream.writeBlock("SpA1", 4); // magicCode
     stream << version;
-    stream << uint16_t(frameWidth);
+    stream << frameWidth16;
     stream << uint32_t(size.width);
     stream << uint32_t(size.height);
-    stream << uint32_t(0);
+    // offset: 16 / 0x10
+
+    stream.zeroPadding(4);
     stream << uint32_t(frameCount);
-    stream.zeroPadding(16);
+    stream.zeroPadding(8);
+    // offset: 32 / 0x20
+
+    stream << uint32_t(rgba.size());
+    stream << uint32_t(4);
     stream.writeBlock(rgba.data(), rgba.size());
+    // offset: 40 / 0x28
 
     spriteBuffer.resize(bobuffer.getSize());
 
@@ -497,28 +526,6 @@ void Bitmap::draw(Point destPoint, const Bitmap& src, Point srcPoint, Size size)
             drawDot(destPoint + Point{ x, y }, src, srcPoint + Point{ x, y });
         }
     }
-}
-
-Bitmap Bitmap::cropAndMirror(Point srcPoint, Size size) const
-{
-    Bitmap result;
-    result.resize({ size.width * 2 - 1, size.height * 2 - 1 });
-    int w = size.width;
-    int h = size.height;
-
-    for (int x = 0; x < size.width; ++x) {
-        const int r = size.width * 2 - 2 - x;
-        for (int y = 0; y < size.height; ++y) {
-            const int b = size.height * 2 - 2 - y;
-            Color     c = this->getColor(srcPoint + Point{ x, y });
-
-            result.putDot({ 0 + x, 0 + y }, c);
-            result.putDot({ 0 + r, 0 + y }, c);
-            result.putDot({ 0 + x, 0 + b }, c);
-            result.putDot({ 0 + r, 0 + b }, c);
-        }
-    }
-    return result;
 }
 
 void Bitmap::tileWith(const Bitmap& tile)
