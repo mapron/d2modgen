@@ -91,7 +91,7 @@ void ModuleMonRandomizer::generate()
 
         if (keepAmount > 0) {
             while (tasks.size() > keepAmount) {
-                auto r = rng(static_cast<int>(monIds.size()));
+                auto r = rng(static_cast<int>(tasks.size()));
                 tasks.erase(tasks.begin() + r);
             }
         } else {
