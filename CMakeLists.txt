@@ -38,10 +38,8 @@ include(qt_helpers)
 
 add_definitions(-DCASCLIB_NO_AUTO_LINK_LIBRARY -DSTORMLIB_NO_AUTO_LINK)
 
-if (WIN32)
 include(CascLib)
 include(StormLib)
-endif()
 
 include(ext/mernel/mernel_thirdparty.cmake)
 include(ext/mernel/mernel.cmake)
@@ -78,7 +76,7 @@ AddTarget(TYPE shared NAME ModgenCore
     SOURCE_DIR ${sourceRoot}/CoreLib
 	INCLUDES   ${sourceRoot}/CoreLib
     EXPORT_INCLUDES
-    LINK_LIBRARIES [ WIN32 ? casclib stormlib ] rapidjson MernelPlatform Config
+    LINK_LIBRARIES casclib stormlib rapidjson MernelPlatform Config
     )
 
 # ConsoleApp
@@ -131,12 +129,14 @@ qt_add_translations(modgen_ui
 )
 
 # a "shortcut"
+if (WIN32)
 AddTarget( TYPE app_ui NAME modgen
     SOURCE_DIR ${sourceRoot}/Shortcut
     STATIC_RUNTIME
     SKIP_INSTALL
     )
 install(TARGETS modgen RUNTIME DESTINATION .)
+endif()
 
 
 #[[

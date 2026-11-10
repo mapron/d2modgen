@@ -247,6 +247,10 @@ set(stormSrc
 	zlib/zutil.c
 	#DllMain.c
 	)
+if (NOT WIN32)
+	list(REMOVE_ITEM stormSrc lzma/C/LzFindMt.c lzma/C/Threads.c)
+endif()
+
 set(stormSrcFull)
 foreach(file ${stormSrc})
 	list(APPEND stormSrcFull ${stormInc}/${file})
@@ -255,3 +259,6 @@ endforeach()
 add_library(stormlib STATIC ${stormSrcFull})
 target_include_directories(stormlib PUBLIC ${stormInc})
 target_compile_definitions(stormlib PUBLIC __STORMLIB_NO_STATIC_LINK__)
+if (NOT WIN32)
+	target_compile_definitions(stormlib PRIVATE _7ZIP_ST BZ_STRICT_ANSI)
+endif()
