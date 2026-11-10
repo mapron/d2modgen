@@ -114,6 +114,16 @@ const auto s_rectsCorrectionMKBD = std::map<std::string, Point>{
 const Point ctrl1{ -99, -60 };
 const Point ctrl2{ 123, -62 };
 
+// Controller backgrounds are anchored at the panel center, so their sprites do not start at the panel origin.
+const Point s_ctrlPanelCenter{ 1408 / 2, 1486 / 2 };
+const Point s_ctrlBackgroundRectOrig{ -508, -700 };
+const Point s_ctrlBackgroundRectExpanded{ -789, -860 };
+const Point s_ctrlSpriteOriginOrig{ s_ctrlPanelCenter.x + s_ctrlBackgroundRectOrig.x, s_ctrlPanelCenter.y + s_ctrlBackgroundRectOrig.y };
+const Point s_ctrlSpriteOriginExpanded{ s_ctrlPanelCenter.x + s_ctrlBackgroundRectExpanded.x, s_ctrlPanelCenter.y + s_ctrlBackgroundRectExpanded.y };
+
+const int  s_ctrlFrameMargin = 12; // controller frames extend past the widget rect
+const Size s_ctrlBeltSize{ 505, 118 };
+
 const auto s_rectsCorrectionCTRL = std::map<std::string, Point>{
 
     { "slot_right_arm", { .x = -99, .y = -60 } },
@@ -129,9 +139,9 @@ const auto s_rectsCorrectionCTRL = std::map<std::string, Point>{
     { "slot_right_hand", { .x = 389, .y = -417 } },
     { "slot_left_hand", { .x = 126, .y = -417 } },
 
-    { "Belt", { .x = +15, .y = 595 } },
-    { "gold_amount", { .x = -464, .y = 20 } },
-    { "gold_button", { .x = -464, .y = 20 } },
+    { "Belt", { .x = +223, .y = 595 } },
+    { "gold_amount", { .x = -256, .y = 20 } },
+    { "gold_button", { .x = -256, .y = 20 } },
 
     { "background_right_arm", ctrl1 },
     { "background_right_arm_selected", ctrl1 },
@@ -287,8 +297,8 @@ void ModuleExpandedInventory::generate()
     const int growWidth  = growCellX * cellWidth;
     const int growHeight = growCellY * cellHeight;
 
-    const auto gridOffset    = Point{ ((cellCountXmax - cellCountX) / 2) * cellWidth, ((cellCountYmax - cellCountY) / 2) * cellHeight };
-    const auto widgetsOffset = Point{ 100, 0 };
+    const auto gridOffsetMkbd = Point{ ((cellCountXmax - cellCountX) / 2) * cellWidth, ((cellCountYmax - cellCountY) / 2) * cellHeight };
+    const auto gridOffsetCtrl = Point{ (cellCountXmax - cellCountX) * cellWidth / 2, gridOffsetMkbd.y };
 
     DebugOverlayList debugOverlays;
     BlitDescList     blitList;
@@ -303,6 +313,12 @@ void ModuleExpandedInventory::generate()
         BlitDesc bd;
         bd.expansion  = desc.expansion;
         bd.controller = desc.controller;
+
+        const Point sourceOrigin = desc.controller ? s_ctrlSpriteOriginOrig : Point{};
+        const Point targetOrigin = desc.controller ? s_ctrlSpriteOriginExpanded : Point{};
+
+        const Point widgetsOffset = desc.controller ? Point{ -15, 0 } : Point{ 100, 0 };
+        const Point gridOffset    = desc.controller ? gridOffsetCtrl : gridOffsetMkbd;
 
         if (!desc.expansion && !desc.controller)
             json["fields"]["rect"] = Mernel::PropertyTreeScalar("$RightPanelRect_ExpandedInventory");
@@ -319,12 +335,21 @@ void ModuleExpandedInventory::generate()
                 if (!d.read(child))
                     continue;
 
+                if (desc.controller && d.name == "Belt")
+                    d.rect.size = s_ctrlBeltSize; // the layout only stores its position
+
                 bd.rect = d.rect;
                 d.rect.topLeft += correction;
                 d.rect.topLeft += widgetsOffset; // @todo: future uncollapsing
                 bd.moveTo = d.rect.topLeft;
-                bd.rect.expand(10);
-                bd.moveTo += Point{ -10, -10 }; // extra borders
+
+                if (!desc.controller || bd.rect.size.width > 0) {
+                    const int margin = desc.controller ? s_ctrlFrameMargin : 10; // extra borders
+                    bd.rect.expand(margin);
+                    bd.moveTo -= Point{ margin, margin };
+                }
+                bd.rect.topLeft -= sourceOrigin;
+                bd.moveTo -= targetOrigin;
 
                 d.write(child);
                 blitList.push_back(bd);
@@ -332,17 +357,19 @@ void ModuleExpandedInventory::generate()
                 //Logger() << d.name << " " << bd.rect.toString() << " -> " << bd.moveTo.toString();
 
             } else if (d.name == "grid") {
-                Point correction = desc.controller ? Point{ -132, -344 } : Point{ -37, -229 };
+                Point correction = desc.controller ? Point{ -247, -344 } : Point{ -37, -229 };
                 if (!d.read(child))
                     continue;
 
                 bd.rect = d.rect;
+                bd.rect.topLeft -= sourceOrigin;
                 d.rect.topLeft += correction;
                 d.rect.topLeft += gridOffset;
 
                 bd.rect.size.width  = cellWidth;
                 bd.rect.size.height = cellHeight;
                 bd.moveTo           = d.rect.topLeft;
+                bd.moveTo -= targetOrigin;
                 bd.repeatX          = cellCountX;
                 bd.repeatY          = cellCountY;
 
@@ -368,8 +395,8 @@ void ModuleExpandedInventory::generate()
                     child["fields"]["filename"] = Mernel::PropertyTreeScalar("Controller/Panel/InventoryPanel/V2/InventoryBG_Expanded");
                     if (!desc.expansion) {
                         child["fields"]["filename"]  = Mernel::PropertyTreeScalar("Controller/Panel/InventoryPanel/V2/InventoryBG_Classic_Expanded");
-                        child["fields"]["rect"]["x"] = Mernel::PropertyTreeScalar(-674);
-                        child["fields"]["rect"]["y"] = Mernel::PropertyTreeScalar(-860);
+                        child["fields"]["rect"]["x"] = Mernel::PropertyTreeScalar(s_ctrlBackgroundRectExpanded.x);
+                        child["fields"]["rect"]["y"] = Mernel::PropertyTreeScalar(s_ctrlBackgroundRectExpanded.y);
                     }
                 } else {
                     child["fields"]["filename"] = Mernel::PropertyTreeScalar("PANEL\\Inventory\\Background_Expanded");
@@ -411,8 +438,9 @@ void ModuleExpandedInventory::generate()
         cornerSize /= downscale;
         bmp.resize(newSize);
         bmp.frameWidth = newSize.width;
-        if (!desc.controller) {
-            // controller use transparent back
+        if (desc.controller) {
+            bmp.rgba.assign(bmp.rgba.size(), 0); // the game draws its own panel behind the controller background
+        } else {
             bmp.tileWith(stone);
             bmp.copyBorders(origBmp, cornerSize);
         }
@@ -425,7 +453,10 @@ void ModuleExpandedInventory::generate()
             bd /= downscale;
             for (int x = 0, offsetX = 0; x < bd.repeatX; x++, offsetX += bd.rect.size.width) {
                 for (int y = 0, offsetY = 0; y < bd.repeatY; y++, offsetY += bd.rect.size.height) {
-                    bmp.draw(bd.moveTo + Point(offsetX, offsetY), origBmp, bd.rect.topLeft, bd.rect.size);
+                    if (bd.controller)
+                        bmp.drawBlended(bd.moveTo + Point(offsetX, offsetY), origBmp, bd.rect.topLeft, bd.rect.size);
+                    else
+                        bmp.draw(bd.moveTo + Point(offsetX, offsetY), origBmp, bd.rect.topLeft, bd.rect.size);
                 }
             }
         }
@@ -438,6 +469,8 @@ void ModuleExpandedInventory::generate()
             if (!desc.expansion && overlay.expansion)
                 continue;
 
+            if (overlay.controller)
+                overlay.rect.topLeft -= s_ctrlSpriteOriginExpanded;
             overlay /= desc.lowres ? 2 : 1;
             overlay.paintTo(bmp);
         }

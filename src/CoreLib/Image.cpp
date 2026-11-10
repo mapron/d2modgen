@@ -308,6 +308,13 @@ Point& Point::operator+=(const Point& r)
     return *this;
 }
 
+Point& Point::operator-=(const Point& r)
+{
+    x -= r.x;
+    y -= r.y;
+    return *this;
+}
+
 Point& Point::operator/=(int downscale)
 {
     x /= downscale;
@@ -622,6 +629,29 @@ void Bitmap::draw(Point destPoint, const Bitmap& src, Point srcPoint, Size size)
     for (int y = 0; y < size.height; ++y) {
         for (int x = 0; x < size.width; ++x) {
             drawDot(destPoint + Point{ x, y }, src, srcPoint + Point{ x, y });
+        }
+    }
+}
+
+void Bitmap::drawBlended(Point destPoint, const Bitmap& src, Point srcPoint, Size size)
+{
+    for (int y = 0; y < size.height; ++y) {
+        for (int x = 0; x < size.width; ++x) {
+            auto*       destPixel = getPixel(destPoint + Point{ x, y });
+            const auto* srcPixel  = src.getPixel(srcPoint + Point{ x, y });
+            if (!destPixel || !srcPixel)
+                continue;
+
+            if (destPixel[3] == 0) {
+                memcpy(destPixel, srcPixel, 4);
+                continue;
+            }
+
+            const int alpha = srcPixel[3];
+            for (int channel = 0; channel < 3; ++channel)
+                destPixel[channel] = uint8_t((srcPixel[channel] * alpha + destPixel[channel] * (255 - alpha)) / 255);
+            if (alpha > destPixel[3])
+                destPixel[3] = uint8_t(alpha);
         }
     }
 }

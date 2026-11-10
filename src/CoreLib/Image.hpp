@@ -22,6 +22,7 @@ struct Point {
     Point operator+(const Point& s);
 
     Point&      operator+=(const Point& r);
+    Point&      operator-=(const Point& r);
     Point&      operator/=(int downscale);
     std::string toString() const;
 };
@@ -157,6 +158,7 @@ struct MODGENCORE_EXPORT Bitmap {
     void linedRect(Rect rect);
 
     void draw(Point destPoint, const Bitmap& src, Point srcPoint, Size size);
+    void drawBlended(Point destPoint, const Bitmap& src, Point srcPoint, Size size);
 
     void tileWith(const Bitmap& tile);
 
