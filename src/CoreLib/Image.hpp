@@ -6,8 +6,10 @@
 #pragma once
 
 #include "MernelPlatform/PropertyTree.hpp"
+#include "ModgenCoreExport.hpp"
 
 #include <cstdint>
+#include <array>
 
 namespace D2ModGen::Image {
 struct Size;
@@ -102,9 +104,25 @@ struct Color {
     uint8_t g{};
     uint8_t b{};
     uint8_t a{};
+
+    bool operator==(const Color&) const noexcept = default;
 };
 
-struct Bitmap {
+struct Pal8Bitmap {
+    std::vector<uint8_t> pixels;
+    Size                 size;
+    Point                offset;
+    uint8_t              trans = 0;
+};
+using Pal8BitmapList = std::vector<Pal8Bitmap>;
+
+struct MODGENCORE_EXPORT Palette {
+    std::array<Color, 256> colors{};
+
+    static const Palette s_defaultPalette;
+};
+
+struct MODGENCORE_EXPORT Bitmap {
     std::vector<uint8_t> rgba;
     Size                 size;
 
@@ -124,7 +142,10 @@ struct Bitmap {
 
     void dumpToBuffer(std::string& buffer) const;
     bool readFromSprite(const std::string& spriteBuffer);
-    void writeToSprite(std::string& spriteBuffer);
+    void writeToSprite(std::string& spriteBuffer) const;
+    void readFromPal8(const Pal8Bitmap& palBitmap, const Palette& palette);
+    void writeToPal8(Pal8Bitmap& palBitmap, const Palette& palette);
+
     void paintLineH(Point point, int width);
     void paintLineV(Point point, int height);
 

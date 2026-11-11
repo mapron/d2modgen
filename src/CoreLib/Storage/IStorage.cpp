@@ -74,6 +74,14 @@ const std::array<bool, size_t(JsonId::count__)> s_jsonPretty{
 const std::array<std::string_view, size_t(BlobId::count__)> s_blobpaths{
     "data\\local\\lng\\eng\\patchstring.tbl",
 
+    "data\\global\\ui\\spells\\amskillicon.dc6",
+    "data\\global\\ui\\spells\\soskillicon.dc6",
+    "data\\global\\ui\\spells\\neskillicon.dc6",
+    "data\\global\\ui\\spells\\paskillicon.dc6",
+    "data\\global\\ui\\spells\\baskillicon.dc6",
+    "data\\global\\ui\\spells\\drskillicon.dc6",
+    "data\\global\\ui\\spells\\asskillicon.dc6",
+
     /// "data\\hd\\global\\ui\\panel\\docking_bar\\sidepanel_r.sprite",
     /// "data\\hd\\global\\ui\\panel\\docking_bar\\sidepanel_r.lowend.sprite",
 

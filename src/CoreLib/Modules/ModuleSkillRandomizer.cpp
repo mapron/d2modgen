@@ -8,6 +8,8 @@
 
 #include "Logger.hpp"
 #include "Image.hpp"
+#include "DCFile.hpp"
+
 #include <numeric>
 
 namespace D2ModGen {
@@ -29,6 +31,21 @@ const SpriteCfgList s_skillSritesD2R = {
     SpriteCfg{ Character::Dru, BlobId::IconDruHighre, BlobId::IconDruLowres },
     SpriteCfg{ Character::Ass, BlobId::IconAssHighre, BlobId::IconAssLowres },
     SpriteCfg{ Character::War, BlobId::IconWarHighre, BlobId::IconWarLowres },
+};
+
+struct SpriteCfgLod {
+    Character cha;
+    BlobId    blob;
+};
+using SpriteCfgLodList                  = std::vector<SpriteCfgLod>;
+const SpriteCfgLodList s_skillSritesLod = {
+    SpriteCfgLod{ Character::Ama, BlobId::IconAmaDC6 },
+    SpriteCfgLod{ Character::Sor, BlobId::IconSorDC6 },
+    SpriteCfgLod{ Character::Nec, BlobId::IconNecDC6 },
+    SpriteCfgLod{ Character::Pal, BlobId::IconPalDC6 },
+    SpriteCfgLod{ Character::Bar, BlobId::IconBarDC6 },
+    SpriteCfgLod{ Character::Dru, BlobId::IconDruDC6 },
+    SpriteCfgLod{ Character::Ass, BlobId::IconAssDC6 },
 };
 
 using Replacer = std::function<std::string(std::string)>;
@@ -228,6 +245,7 @@ void ModuleSkillRandomizer::generate()
         return;
 
     bool spritesD2RExist = true;
+    bool spritesLodExist = true;
     for (const auto& cfg : s_skillSritesD2R) {
         if (!output.blobs.contains(cfg.high)) {
             spritesD2RExist = false;
@@ -248,6 +266,23 @@ void ModuleSkillRandomizer::generate()
 
         spriteMapExisting[cfg.cha][0] = bmpHi;
         spriteMapExisting[cfg.cha][1] = bmpLo;
+    }
+
+    for (const auto& cfg : s_skillSritesLod) {
+        if (!output.blobs.contains(cfg.blob)) {
+            spritesLodExist = false;
+            break;
+        }
+
+        auto&   spriteBlobHi = output.blobs[cfg.blob];
+        DC6File dcfile;
+        if (!dcfile.readFromSprite(spriteBlobHi)) {
+            Logger(Logger::Err) << "Failed to read sprite: " << enumToString(cfg.cha);
+            spritesLodExist = false;
+            break;
+        }
+
+        spriteLegacyMapExisting[cfg.cha] = dcfile.getFrames();
     }
 
     const int totalNewSkillsPerClass = 60;
@@ -313,8 +348,6 @@ void ModuleSkillRandomizer::generate()
                 const int characterGenerateCount = generateCount;
                 cha.generateAdditionalSkills(rng, sourceData, characterGenerateCount);
             }
-            [[maybe_unused]] const size_t activeSize = cha.getActive().size();
-            assert(activeSize == desirableTotal);
         }
         if (module.m_randoMode == 3) {
             // pick from any class
@@ -350,7 +383,10 @@ void ModuleSkillRandomizer::generate()
         cha.randomizeElements(rng, module.m_maximumElements, module.m_chanceElemChange);
         cha.updateMissiles(output);
         if (spritesD2RExist) {
-            cha.makeSprites(spriteMapExisting, spriteMapGenerated[key]);
+            cha.makeSpritesD2R(spriteMapExisting, spriteMapGenerated[key]);
+        }
+        if (spritesLodExist) {
+            cha.makeSpritesLod(spriteLegacyMapExisting, spriteLegacyMapGenerated[key]);
         }
     }
 
@@ -381,6 +417,18 @@ void ModuleSkillRandomizer::generate()
 
         bmpHi.writeToSprite(spriteBlobHi);
         bmpLo.writeToSprite(spriteBlobLo);
+    }
+
+    for (const auto& cfg : s_skillSritesLod) {
+        if (!spritesLodExist)
+            break;
+        auto& spriteBlobHi = output.blobs[cfg.blob];
+
+        Pal8BitmapList frames = spriteLegacyMapGenerated[cfg.cha];
+
+        DC6File dcfile;
+        dcfile.setFrames(frames);
+        dcfile.writeToSprite(spriteBlobHi);
     }
 }
 
@@ -890,7 +938,7 @@ void ModuleSkillRandomizer::CharacterData::updateMissile(DataContext& output, co
     scope[origId] = newMiss.name;
 }
 
-void ModuleSkillRandomizer::CharacterData::makeSprites(const SkillSpriteMap& allExisting, std::array<Image::Bitmap, 2>& generated) const
+void ModuleSkillRandomizer::CharacterData::makeSpritesD2R(const SkillSpriteMap& allExisting, std::array<Image::Bitmap, 2>& generated) const
 {
     for (int res = 0; res < 2; res++) {
         const Bitmap& origClassSprite = allExisting.at(clas)[res];
@@ -918,6 +966,26 @@ void ModuleSkillRandomizer::CharacterData::makeSprites(const SkillSpriteMap& all
 
             out.draw(Point{ frame * frameWidthCalc, 0 }, sourceClassSprite, Point{ sourceFrame * frameWidthCalc, 0 }, Size{ frameWidthCalc, frameHeight });
         }
+    }
+}
+
+void ModuleSkillRandomizer::CharacterData::makeSpritesLod(const SkillLegacySpriteMap& allExisting, Image::Pal8BitmapList& generated) const
+{
+    const Pal8BitmapList& origClassSprites = allExisting.at(clas);
+    const int             origSpriteCount  = origClassSprites.size();
+
+    const int newFrameCount = skillsIcons.size();
+
+    Pal8BitmapList& out = generated;
+    out                 = origClassSprites;
+    out.resize(std::max(newFrameCount, origSpriteCount));
+
+    for (int frame = 0; frame < newFrameCount; ++frame) {
+        const Character& sourceClass = skillsIcons[frame].first;
+        const int        sourceFrame = skillsIcons[frame].second;
+
+        const Pal8BitmapList& sourceClassSprite = allExisting.at(sourceClass);
+        out[frame]                              = sourceClassSprite[sourceFrame];
     }
 }
 

@@ -92,7 +92,7 @@ bool FolderStorage::readFile(std::string& data, const std_path& relPath, bool wa
     auto res = Mernel::readFileIntoBufferNoexcept(absPath, data);
     if (!m_silent) {
         if (res) {
-            Logger() << "Read: " << path2string(relPath);
+            Logger() << "Read: " << path2string(relPath) << " [size: " << data.size() << "]";
         } else {
             Logger(Logger::Err) << "Failed to read file:" << relPath;
         }

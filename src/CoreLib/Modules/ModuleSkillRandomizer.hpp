@@ -58,6 +58,8 @@ private:
 
     using SkillSpriteMap = std::map<Character, std::array<Image::Bitmap, 2>>;
 
+    using SkillLegacySpriteMap = std::map<Character, Image::Pal8BitmapList>;
+
     struct CharacterData {
         std::vector<std::pair<Character, int>> skillsIcons;
 
@@ -93,7 +95,8 @@ private:
 
         void updateMissile(DataContext& output, const SkillInfo& parent, std::string& missileId, std::map<std::string, std::string>& scope);
 
-        void makeSprites(const SkillSpriteMap& allExisting, std::array<Image::Bitmap, 2>& generated) const;
+        void makeSpritesD2R(const SkillSpriteMap& allExisting, std::array<Image::Bitmap, 2>& generated) const;
+        void makeSpritesLod(const SkillLegacySpriteMap& allExisting, Image::Pal8BitmapList& generated) const;
     };
 
     using AllCharacterData = std::map<Character, CharacterData>;
@@ -101,8 +104,10 @@ private:
     SkillSpriteMap spriteMapExisting;
     SkillSpriteMap spriteMapGenerated;
 
-    AllCharacterData existingData;
+    SkillLegacySpriteMap spriteLegacyMapExisting;
+    SkillLegacySpriteMap spriteLegacyMapGenerated;
 
+    AllCharacterData existingData;
     AllCharacterData generatedData;
 };
 

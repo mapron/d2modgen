@@ -15,43 +15,44 @@ namespace D2ModGen {
 
 IStorage::StoredData StormStorage::readData() const noexcept
 {
-    const Mernel::std_path utf8data  = m_storageRoot / "d2data.mpq";
-    const Mernel::std_path utf8data2 = m_storageRoot / "pd2data.mpq";
-    const Mernel::std_path utf8patch = m_storageRoot / "patch_d2.mpq";
+    using namespace Mernel;
+    std_path              mainMpqPath;
+    std::vector<std_path> patches;
+    {
+        const bool     isPD2       = std_fs::exists(m_storageRoot / "pd2data.mpq");
+        const std_path vanillaRoot = isPD2 ? m_storageRoot / ".." : m_storageRoot;
 
-    const auto basedata  = utf8data.native();
-    const auto basedata2 = utf8data2.native();
-    const auto patchdata = utf8patch.native();
+        mainMpqPath = vanillaRoot / "d2data.mpq";
 
-    bool   hasData   = true;
-    bool   needPatch = true;
-    HANDLE mpq;
-    if (!SFileOpenArchive(basedata.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
-        if (Mernel::std_fs::exists(utf8data2)) {
-            if (!SFileOpenArchive(basedata2.c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
-                hasData = false;
-            } else {
-                Logger() << "Opened mpq: " << path2string(basedata2);
-                needPatch = false;
-            }
-        } else {
-            hasData = false;
+        patches = { vanillaRoot / "d2exp.mpq", vanillaRoot / "patch_d2.mpq" };
+
+        if (isPD2) {
+            patches.push_back(m_storageRoot / "pd2data.mpq");
+            patches.push_back(m_storageRoot / "pd2assets.mpq");
         }
-    } else {
-        Logger() << "Opened mpq: " << path2string(basedata);
+
+        if (!std_fs::exists(mainMpqPath)) {
+            Logger(Logger::Err) << "Base game data file not found: " << path2string(mainMpqPath);
+            return {};
+        }
     }
-    if (!hasData) {
+
+    HANDLE mpq;
+    if (!SFileOpenArchive(mainMpqPath.native().c_str(), 0, STREAM_FLAG_READ_ONLY, &mpq)) {
+        Logger(Logger::Err) << "Failed to load main mpq: " << path2string(mainMpqPath);
         return {};
+    } else {
+        Logger() << "Opened main mpq: " << path2string(mainMpqPath);
     }
 
     MERNEL_SCOPE_EXIT([mpq] { SFileCloseArchive(mpq); });
 
-    if (needPatch) {
-        if (!SFileOpenPatchArchive(mpq, patchdata.c_str(), nullptr, STREAM_FLAG_READ_ONLY)) {
-            Logger() << "d2data.mpq found, but patch_d2.mpq is missing";
+    for (auto& patchPath : patches) {
+        if (!SFileOpenPatchArchive(mpq, patchPath.native().c_str(), nullptr, STREAM_FLAG_READ_ONLY)) {
+            Logger(Logger::Err) << "Failed to load patch mpq: " << path2string(patchPath);
             return {};
         } else {
-            Logger() << "Opened patch mpq: " << path2string(patchdata);
+            Logger() << "Opened patch mpq: " << path2string(patchPath);
         }
     }
 
@@ -76,6 +77,8 @@ IStorage::StoredData StormStorage::readData() const noexcept
             Logger(Logger::Warning) << "failed to read:" << fullId.c_str();
             return false;
         }
+
+        Logger() << "Read: " << filename << " [size: " << data.size() << "]";
 
         return true;
     };

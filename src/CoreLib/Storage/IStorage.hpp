@@ -91,6 +91,14 @@ enum class BlobId
 {
     PatchStringTbl,
 
+    IconAmaDC6,
+    IconSorDC6,
+    IconNecDC6,
+    IconPalDC6,
+    IconBarDC6,
+    IconDruDC6,
+    IconAssDC6,
+
     // Mnkb = Mouse and keyboard
     // Orign = unpatched sprite
     // Lowend = 1/2 resolution
@@ -136,7 +144,7 @@ enum class BlobId
 
     count__,
     LegacyFirst = PatchStringTbl,
-    LegacyLast  = PatchStringTbl,
+    LegacyLast  = IconAssDC6,
 
     ResurrectedFirst = OrignMnkbInventoryClassicSpriteHighre,
     ResurrectedLast  = IconWarLowres,

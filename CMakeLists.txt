@@ -17,7 +17,7 @@ option(ENABLE_SCHEMA_GEN "Turn on code-generation for Config.hpp" FALSE)
 
 cmake_minimum_required(VERSION 3.31...4.0)
 
-project(modgen VERSION 1.0.6)
+project(modgen VERSION 1.0.7)
 
 set(MERNEL_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/mernel)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake ${MERNEL_ROOT}/cmake)
