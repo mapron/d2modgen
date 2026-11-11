@@ -211,10 +211,8 @@ set(stormSrc
 	libtommath/bn_s_mp_sqr.c
 	libtommath/bn_s_mp_sub.c
 	lzma/C/LzFind.c
-	lzma/C/LzFindMt.c
 	lzma/C/LzmaDec.c
 	lzma/C/LzmaEnc.c
-	lzma/C/Threads.c
 	pklib/explode.c
 	pklib/implode.c
 	SBaseCommon.cpp
@@ -247,8 +245,8 @@ set(stormSrc
 	zlib/zutil.c
 	#DllMain.c
 	)
-if (NOT WIN32)
-	list(REMOVE_ITEM stormSrc lzma/C/LzFindMt.c lzma/C/Threads.c)
+if (WIN32)
+	list(APPEND stormSrc lzma/C/LzFindMt.c lzma/C/Threads.c)
 endif()
 
 set(stormSrcFull)
