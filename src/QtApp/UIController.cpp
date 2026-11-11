@@ -21,6 +21,7 @@
 #include <QDir>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QUrl>
 
 namespace D2ModGen {
 
@@ -125,7 +126,7 @@ void UIController::generate()
 
 void UIController::saveConfig(QString filename)
 {
-    filename.replace("file:///", "");
+    filename = QUrl(filename).toLocalFile();
     if (m_configHandler.saveConfig(filename.toStdString())) {
         emit statusUpdate(tr("Saved."));
     } else {
@@ -135,7 +136,7 @@ void UIController::saveConfig(QString filename)
 
 void UIController::loadConfig(QString filename)
 {
-    filename.replace("file:///", "");
+    filename          = QUrl(filename).toLocalFile();
     const auto result = m_configHandler.loadConfig(filename.toStdString());
 
     if (result) {
@@ -215,6 +216,16 @@ void UIController::disableAutoSave()
 void UIController::browseToAppSettings()
 {
     QProcess::startDetached("explorer.exe", QStringList() << QDir::toNativeSeparators(QString::fromStdString(path2string(m_configHandler.m_appData))));
+}
+
+QString UIController::urlToPath(const QUrl& url) const
+{
+    return url.toLocalFile();
+}
+
+QUrl UIController::pathToUrl(const QString& path) const
+{
+    return QUrl::fromLocalFile(path);
 }
 
 void UIController::newSeed()
