@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
     Logger::SetLoggerBackend(std::make_unique<Mernel::LoggerBackendConsole>(verbose ? Logger::Debug : Logger::Info, false, false, false, Mernel::LoggerBackendConsole::Type::Cout));
 
     ConfigHandler configHandler;
+    configHandler.loadAppConfig();
     configHandler.loadConfig(configHandler.m_defaultPath);
     GenerationEnvironment env;
     if (!env.init(configHandler.m_appConfig))
