@@ -136,7 +136,7 @@ void UIController::saveConfig(QString filename)
 
 void UIController::loadConfig(QString filename)
 {
-    filename = QUrl(filename).toLocalFile();
+    filename          = QUrl(filename).toLocalFile();
     const auto result = m_configHandler.loadConfig(filename.toStdString());
 
     if (result) {
