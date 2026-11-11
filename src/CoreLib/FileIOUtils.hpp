@@ -24,6 +24,9 @@ inline std_path string2path(const std::string& str)
     return Mernel::string2path(str);
 }
 
+/// Treats '\\' as a separator on every platform (storage paths use it, POSIX doesn't).
+MODGENCORE_EXPORT std_path toFsPath(const std_path& path);
+
 MODGENCORE_EXPORT bool createDirectories(const std_path& folder);
 MODGENCORE_EXPORT bool createDirectoriesForFile(const std_path& filename);
 

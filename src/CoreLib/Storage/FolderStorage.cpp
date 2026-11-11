@@ -10,7 +10,6 @@
 
 #include "MernelPlatform/FileFormatJson.hpp"
 
-#include <algorithm>
 #include <cassert>
 
 namespace D2ModGen {
@@ -18,12 +17,6 @@ namespace D2ModGen {
 namespace {
 static const std::string s_tableSubfolder = "data\\global\\excel\\";
 static const std::string s_tableBase      = s_tableSubfolder + "base\\";
-
-std_path toFsPath(std::string relPath)
-{
-    std::replace(relPath.begin(), relPath.end(), '\\', '/');
-    return std_path(relPath);
-}
 
 void removeRecursively(const std_path& folder)
 {
@@ -70,7 +63,7 @@ std_path FolderStorage::getRoot() const
 
 bool FolderStorage::writeFile(const std::string& data, const std_path& relPath) const
 {
-    const auto absPath = getRoot() / relPath;
+    const auto absPath = getRoot() / toFsPath(relPath);
     if (!createDirectoriesForFile(absPath))
         return false;
 
@@ -92,7 +85,7 @@ bool FolderStorage::writeFile(const std::string& data, const std_path& relPath) 
 
 bool FolderStorage::readFile(std::string& data, const std_path& relPath, bool warnNonExistent) const
 {
-    const auto absPath = getRoot() / relPath;
+    const auto absPath = getRoot() / toFsPath(relPath);
     if (!warnNonExistent && !std_fs::exists(absPath))
         return false;
 
@@ -123,7 +116,7 @@ IStorage::StoredData FolderStorage::readData() const noexcept
     for (TableId id : getTableIdsRead()) {
         std::string       buffer;
         const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + ".txt" : makeTableRelativePath(id, m_needBaseSubfolder);
-        if (!readFile(buffer, toFsPath(relPath), true))
+        if (!readFile(buffer, relPath, true))
             continue;
 
         result.tables[id] = std::move(buffer);
@@ -131,21 +124,21 @@ IStorage::StoredData FolderStorage::readData() const noexcept
     if (m_storageType != StorageType::CsvFolder) {
         for (JsonId id : getJsonIdsRead()) {
             std::string buffer;
-            if (!readFile(buffer, toFsPath(std::string(getJsonRelPath(id)))))
+            if (!readFile(buffer, std::string(getJsonRelPath(id))))
                 continue;
 
             result.jsonFiles[id] = std::move(buffer);
         }
         for (BlobId id : getBlobIdsLegacy()) {
             std::string buffer;
-            if (!readFile(buffer, toFsPath(std::string(getBlobRelPath(id)))))
+            if (!readFile(buffer, std::string(getBlobRelPath(id))))
                 continue;
 
             result.blobs[id] = std::move(buffer);
         }
         for (BlobId id : getBlobIdsResurrected()) {
             std::string buffer;
-            if (!readFile(buffer, toFsPath(std::string(getBlobRelPath(id)))))
+            if (!readFile(buffer, std::string(getBlobRelPath(id))))
                 continue;
 
             result.blobs[id] = std::move(buffer);
@@ -186,7 +179,7 @@ bool FolderStorage::create() const noexcept
     }
 
     if (m_storageType != StorageType::CsvFolder) {
-        const auto excelRoot = root / toFsPath(s_tableSubfolder);
+        const auto excelRoot = root / s_tableSubfolder;
         if (!createDirectories(excelRoot)) {
             Logger(Logger::Err) << "Failed to create: " + path2string(excelRoot);
             return false;
@@ -216,7 +209,7 @@ bool FolderStorage::writeMeta(const StoredData& data) const noexcept
     if (!writeFile(buffer, jsonPath))
         return false;
 
-    const auto absPath = root / toFsPath(std::string(IStorage::s_dataVersionPath));
+    const auto absPath = root / IStorage::s_dataVersionPath;
     if (data.dataVersion && !writeFile(std::to_string(data.dataVersion), absPath))
         return false;
 
@@ -235,20 +228,20 @@ bool FolderStorage::writeMainData(const StoredData& data) const noexcept
 
     for (const auto& [id, tableData] : data.tables) {
         const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + m_suffix + ".txt" : makeTableRelativePath(id, m_needBaseSubfolder);
-        const auto        absPath = root / toFsPath(relPath);
+        const auto        absPath = root / relPath;
         if (!writeFile(tableData, absPath)) {
             return false;
         }
     }
     if (m_storageType != StorageType::CsvFolder) {
         for (const auto& [id, memoryData] : data.jsonFiles) {
-            const auto absPath = root / toFsPath(std::string(getJsonRelPath(id)));
+            const auto absPath = root / std::string(getJsonRelPath(id));
             if (!writeFile(memoryData, absPath)) {
                 return false;
             }
         }
         for (const auto& [id, memoryData] : data.blobs) {
-            const auto absPath = root / toFsPath(std::string(getBlobRelPath(id)));
+            const auto absPath = root / std::string(getBlobRelPath(id));
             if (!writeFile(memoryData, absPath)) {
                 return false;
             }
@@ -270,7 +263,7 @@ bool FolderStorage::writeBitmaps(const StoredData& data) const noexcept
     }
     const auto root = getRoot();
     for (auto& [key, buffer] : data.bitmaps) {
-        auto path = root / toFsPath(key + m_suffix + ".bmp");
+        auto path = root / (key + m_suffix + ".bmp");
         if (!writeFile(buffer, path)) {
             return false;
         }
