@@ -68,3 +68,7 @@ endforeach()
 
 add_library(casclib STATIC ${cascSrcFull})
 target_include_directories(casclib PUBLIC ${cascInc})
+
+if (NOT WIN32)
+	target_compile_definitions(casclib PRIVATE LPDWORD=PDWORD)
+endif()

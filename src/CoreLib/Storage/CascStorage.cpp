@@ -9,7 +9,6 @@
 
 #include "Logger.hpp"
 
-#ifdef _WIN32
 #include <CascLib.h>
 
 namespace D2ModGen {
@@ -17,7 +16,7 @@ namespace D2ModGen {
 IStorage::StoredData CascStorage::readData() const noexcept
 {
     const Mernel::std_path utf8path = m_storageRoot;
-    const std::wstring     wdata    = utf8path.wstring();
+    const auto             wdata    = utf8path.native();
     HANDLE                 storage;
 
     CASC_OPEN_STORAGE_ARGS openArgs = { sizeof(CASC_OPEN_STORAGE_ARGS) };
@@ -86,12 +85,3 @@ IStorage::StoredData CascStorage::readData() const noexcept
 }
 
 }
-#else
-namespace D2ModGen {
-
-IStorage::StoredData CascStorage::readData() const noexcept
-{
-    return {};
-}
-}
-#endif

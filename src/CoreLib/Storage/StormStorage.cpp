@@ -9,7 +9,6 @@
 
 #include "Logger.hpp"
 
-#ifdef _WIN32
 #include <StormLib.h>
 
 namespace D2ModGen {
@@ -20,9 +19,9 @@ IStorage::StoredData StormStorage::readData() const noexcept
     const Mernel::std_path utf8data2 = m_storageRoot / "pd2data.mpq";
     const Mernel::std_path utf8patch = m_storageRoot / "patch_d2.mpq";
 
-    const std::wstring basedata  = (utf8data).wstring();
-    const std::wstring basedata2 = (utf8data2).wstring();
-    const std::wstring patchdata = (utf8patch).wstring();
+    const auto basedata  = utf8data.native();
+    const auto basedata2 = utf8data2.native();
+    const auto patchdata = utf8patch.native();
 
     bool   hasData   = true;
     bool   needPatch = true;
@@ -103,14 +102,3 @@ IStorage::StoredData StormStorage::readData() const noexcept
 }
 
 }
-
-#else
-
-namespace D2ModGen {
-
-IStorage::StoredData StormStorage::readData() const noexcept
-{
-    return {};
-}
-}
-#endif

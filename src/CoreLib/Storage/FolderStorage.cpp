@@ -63,7 +63,7 @@ std_path FolderStorage::getRoot() const
 
 bool FolderStorage::writeFile(const std::string& data, const std_path& relPath) const
 {
-    const auto absPath = getRoot() / relPath;
+    const auto absPath = getRoot() / toFsPath(relPath);
     if (!createDirectoriesForFile(absPath))
         return false;
 
@@ -85,7 +85,7 @@ bool FolderStorage::writeFile(const std::string& data, const std_path& relPath) 
 
 bool FolderStorage::readFile(std::string& data, const std_path& relPath, bool warnNonExistent) const
 {
-    const auto absPath = getRoot() / relPath;
+    const auto absPath = getRoot() / toFsPath(relPath);
     if (!warnNonExistent && !std_fs::exists(absPath))
         return false;
 
