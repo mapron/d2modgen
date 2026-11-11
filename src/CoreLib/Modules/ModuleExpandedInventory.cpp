@@ -410,11 +410,12 @@ void ModuleExpandedInventory::generate()
         newSize /= downscale;
         cornerSize /= downscale;
         bmp.resize(newSize);
-        bmp.tileWith(stone);
-        //bmp.brush = Color{ 255, 0, 0, 255 };
-        // bmp.fill();
-        if (!desc.controller)
+        bmp.frameWidth = newSize.width;
+        if (!desc.controller){
+            // controller use transparent back
+            bmp.tileWith(stone);
             bmp.copyBorders(origBmp, cornerSize);
+        }
 
         for (BlitDesc bd : blitList) {
             if (bd.controller != desc.controller)
