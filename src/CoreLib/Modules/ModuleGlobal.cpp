@@ -22,8 +22,8 @@
 
 namespace D2ModGen {
 
-ModuleGlobal::ModuleGlobal(DataContext& output_, RandomGenerator& rng_, const Config& config_, const GenerationEnvironment& env_)
-    : AbstractModule(output_, rng_, config_, env_)
+ModuleGlobal::ModuleGlobal(DataContext& output_, const Config& config_, const GenerationEnvironment& env_)
+    : AbstractModule(output_, config_, env_)
 {
     reset();
 }
@@ -120,7 +120,7 @@ void ModuleGlobal::generate()
 template<class T>
 void ModuleGlobal::create(const std::string& id)
 {
-    m_modules.push_back(ModuleRecord{ id, std::make_unique<T>(output, rng, config, env) });
+    m_modules.push_back(ModuleRecord{ id, std::make_unique<T>(output, config, env) });
 }
 
 }

@@ -11,8 +11,8 @@ import "./Widgets"
 
 WidgetScrollable {
     id: root
-    property var value_context: config.main
-    property bool isD2R: config.main.versionMajor.value === 1
+    property var value_context: appConfig
+    property bool isD2R: appConfig.versionMajor.value === 1
 
     RowLayout {
         id: pageHeaderRow
@@ -29,17 +29,20 @@ WidgetScrollable {
 
     Separator {}
 
-    WidgetCommonControl {
+    WidgetLineEdit {
         caption: qsTr("Mod id:")
         tooltip: qsTr("That will affect game's saves folder subdirectory and mod subfolder for D2R")
         stretchCaption: false
         visible: root.isD2R
+        value_key: root.value_context.modname
+    }
 
-        control: DynamicLineEdit {
-            id: modname_edit
-            Layout.minimumWidth: 100
-            value_key: root.value_context.modname
-        }
+    WidgetFolder {
+        caption: qsTr("Wine user root:")
+        tooltip: qsTr("Path to user root folder (drive_c/Users/username) of the Wine/Proton prefix where D2R is installed")
+        isCompact: false
+        value_key: root.value_context.userHome
+        visible: Qt.platform.os === "linux"
     }
 
     ColumnLayout {
@@ -53,7 +56,7 @@ WidgetScrollable {
         TextField {
             id: user_settings
             readOnly: true
-            text: appui.saveFolder + modname_edit.text
+            text: appConfig.userHome.value + appConfig.saveSubfolder.value + appConfig.modname.value
             Layout.fillWidth: true
         }
     }
@@ -99,7 +102,7 @@ WidgetScrollable {
         TextField {
             id: command_line
             readOnly: true
-            text: (root.isD2R ? "-mod " + modname_edit.text : "-direct -3dfx") + " -txt "
+            text: (root.isD2R ? "-mod " + appConfig.modname.value : "-direct -3dfx") + " -txt "
             Layout.fillWidth: true
         }
     }

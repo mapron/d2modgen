@@ -15,7 +15,7 @@ ApplicationWindow {
 
     menuBar: MainMenuBar {}
 
-    property bool isDarkMode: appui.getApp("themeId", "dark") === "dark"
+    property bool isDarkMode: appConfig.themeId.value === "dark"
 
     palette: isDarkMode ? darkPalette : lightPalette
 

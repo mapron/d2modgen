@@ -33,7 +33,6 @@ private:
 
 class UIController : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QString saveFolder READ getSaveFolder NOTIFY saveFolderChanged FINAL)
 public:
     UIController(ConfigHandler& configHandler);
     ~UIController();
@@ -45,33 +44,29 @@ public:
     Q_INVOKABLE void clearConfig();
     Q_INVOKABLE void resetToRecommended();
 
-    bool loadConfig(const Mernel::PropertyTree& data);
-
-    Q_INVOKABLE QString getApp(const QString& key, const QString& def) const;
-    Q_INVOKABLE void    setApp(const QString& key, const QString& value);
-
     Q_INVOKABLE void makeUndo();
     Q_INVOKABLE void disableAutoSave();
 
-    Q_INVOKABLE void browseToAppSettings();
-    Q_INVOKABLE void newSeed();
-    Q_INVOKABLE void detectPath();
-    Q_INVOKABLE void setLaunch(QString arg);
-    Q_INVOKABLE void makeShortCut(QString arg);
+    Q_INVOKABLE void    browseToAppSettings();
+    Q_INVOKABLE void    refreshAllSeeds();
+    Q_INVOKABLE QString detectPath();
+    Q_INVOKABLE void    setLaunch(QString arg);
+    Q_INVOKABLE void    makeShortCut(QString arg);
 
-    Q_INVOKABLE void    copyModSettings();
-    Q_INVOKABLE void    copySaves();
-    Q_INVOKABLE QString getSaveFolder();
+    Q_INVOKABLE void copyModSettings();
+    Q_INVOKABLE void copySaves();
 
     Q_INVOKABLE QString urlToPath(const QUrl& url) const;
     Q_INVOKABLE QUrl    pathToUrl(const QString& path) const;
 
-    void sendDataChange();
+    Q_INVOKABLE qlonglong makeSeed();
+
+    Q_INVOKABLE QString getSaveRoot(bool modSubfolder);
+    QString             getBattleNetConfig();
 
 signals:
     void statusUpdate(QString status);
     void generateInternal();
-    void saveFolderChanged();
 
 private:
     void pushUndo(const Mernel::PropertyTree& data);
@@ -88,6 +83,7 @@ private:
 
 class BasicPathValidator : public QValidator {
     Q_OBJECT
+    Q_PROPERTY(bool enabled MEMBER m_enabled)
 public:
     explicit BasicPathValidator(QObject* parent = nullptr)
         : QValidator(parent)
@@ -95,14 +91,17 @@ public:
 
     State validate(QString& input, int& pos) const override
     {
-        //if (input.isEmpty()) {
-        //return Intermediate;
-        //}
+        if (!m_enabled)
+            return Acceptable;
+
         if (input.length() < 5) {
             return Intermediate;
         }
         return Acceptable;
     }
+
+private:
+    bool m_enabled = true;
 };
 
 }

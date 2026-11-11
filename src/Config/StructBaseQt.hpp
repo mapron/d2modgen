@@ -137,4 +137,20 @@ private:
     CommonStruct::PropertyString& m_data;
 };
 
+class ConstantPropertyString_Qt : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(QString value READ getValue CONSTANT)
+
+public:
+    ConstantPropertyString_Qt(CommonStruct::PropertyString& data)
+        : m_data(data)
+    {
+    }
+
+    QString getValue() const { return QString::fromStdString(m_data.get()); }
+
+private:
+    CommonStruct::PropertyString& m_data;
+};
+
 }

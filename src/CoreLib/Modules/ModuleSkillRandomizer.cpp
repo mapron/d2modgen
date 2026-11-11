@@ -244,6 +244,8 @@ void ModuleSkillRandomizer::generate()
     if (!module.m_enabled)
         return;
 
+    rng = createRNG(module.m_seed);
+
     bool spritesD2RExist = true;
     bool spritesLodExist = true;
     for (const auto& cfg : s_skillSritesD2R) {

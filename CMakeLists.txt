@@ -17,7 +17,7 @@ option(ENABLE_SCHEMA_GEN "Turn on code-generation for Config.hpp" FALSE)
 
 cmake_minimum_required(VERSION 3.31...4.0)
 
-project(modgen VERSION 1.0.7)
+project(modgen VERSION 1.1.0)
 
 set(MERNEL_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/mernel)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake ${MERNEL_ROOT}/cmake)
@@ -56,20 +56,28 @@ AddTarget(TYPE static NAME Config
     COMPILE_DEFINITIONS [ Qt6_FOUND ? USE_QT ]
 )
 target_sources(Config PRIVATE 
-    ${sourceRoot}/Config/schema.yaml
+    ${sourceRoot}/Config/Config.yaml
+    ${sourceRoot}/Config/AppConfig.yaml
     ${sourceRoot}/Config/update.py
 )
 
 if (Python3_EXECUTABLE AND ENABLE_SCHEMA_GEN)
-    add_custom_target(Config_codegen
-        COMMAND "${Python3_EXECUTABLE}" "${sourceRoot}/Config/update.py"
-        DEPENDS "${sourceRoot}/Config/schema.yaml"
-        BYPRODUCTS 
-            "${sourceRoot}/Config/Config.hpp"
-            "${sourceRoot}/Config/ConfigQt.hpp"
-        WORKING_DIRECTORY "${sourceRoot}/Config"
-        COMMENT "Generating config structures froms schema.yaml"
-        VERBATIM)
+    add_custom_command(OUTPUT "${sourceRoot}/Config/Config.hpp" "${sourceRoot}/Config/ConfigQt.hpp"
+                       COMMAND "${Python3_EXECUTABLE}" "${sourceRoot}/Config/update.py" "Config"
+                       MAIN_DEPENDENCY "${sourceRoot}/Config/Config.yaml"
+                       DEPENDS  "${sourceRoot}/Config/update.py"
+                       WORKING_DIRECTORY "${sourceRoot}/Config"
+                       COMMENT "Generating Config.hpp from Config.yaml"
+                       VERBATIM
+                       CODEGEN)
+    add_custom_command(OUTPUT "${sourceRoot}/Config/AppConfig.hpp" "${sourceRoot}/Config/AppConfigQt.hpp"
+                       COMMAND "${Python3_EXECUTABLE}" "${sourceRoot}/Config/update.py" "AppConfig"
+                       MAIN_DEPENDENCY "${sourceRoot}/Config/AppConfig.yaml"
+                       DEPENDS  "${sourceRoot}/Config/update.py"
+                       WORKING_DIRECTORY "${sourceRoot}/Config"
+                       COMMENT "Generating AppConfig.hpp from AppConfig.yaml"
+                       VERBATIM
+                       CODEGEN)
 endif()
 
 AddTarget(TYPE shared NAME ModgenCore

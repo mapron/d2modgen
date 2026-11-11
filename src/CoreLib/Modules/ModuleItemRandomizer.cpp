@@ -54,6 +54,7 @@ void ModuleItemRandomizer::generate()
         return;
 
     const auto& module = config.m_itemRandomizer;
+    rng                = createRNG(module.m_seed);
 
     m_codeResolver = [this](const std::string& skillId) -> int {
         if (!skillId.empty()) {

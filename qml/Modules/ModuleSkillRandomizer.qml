@@ -14,6 +14,10 @@ WidgetCommonTab {
     enabled_key: config.skillRandomizer.enabled
     caption: qsTr("Skill Randomizer")
 
+    WidgetSeed {
+        value_key: root.value_context.seed
+    }
+
     WidgetSlider {
         caption: qsTr("Chance to change element of skill")
         tooltip: qsTr("Supported 5 different element, physical damage can not be rolled.")

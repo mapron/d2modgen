@@ -14,8 +14,8 @@
 
 namespace D2ModGen {
 
-struct Config;
-using RandomGenerator = std::function<int(int)>; // generate [0, max)
+struct AppConfig;
+using RandomGenerator = std::function<int(int)>; // generate [0, max), calling (0) or (1) is safely return 0.
 
 enum class StorageType
 {
@@ -67,9 +67,9 @@ struct MODGENCORE_EXPORT GenerationEnvironment {
     std::set<std::string> extraTrace;
     Mernel::std_path      extraFile;
 
-    uint32_t seed{};
-
-    bool init(const Config& config);
+    bool init(const AppConfig& config);
 };
+
+RandomGenerator createRNG(uint32_t seed);
 
 }

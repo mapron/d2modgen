@@ -12,6 +12,7 @@
 
 #include "ModgenCoreExport.hpp"
 #include "Config.hpp"
+#include "AppConfig.hpp"
 
 namespace D2ModGen {
 class StorageCache;
@@ -24,17 +25,17 @@ public:
     bool loadAppConfig();
     bool saveAppConfig() const;
 
-    bool loadConfig(const Mernel::std_path& filename, bool resetMain = true);
+    bool loadConfig(const Mernel::std_path& filename);
     bool saveConfig(const Mernel::std_path& filename) const;
 
-    bool loadConfig(const Mernel::PropertyTree& data, bool resetMain = true);
+    bool loadConfig(const Mernel::PropertyTree& data);
     bool saveConfig(Mernel::PropertyTree& data) const;
 
-    void updateSeed(bool onGenerate = false);
+    void updateSeeds(bool forceUpdate);
 
     bool generate(const GenerationEnvironment& env);
 
-    Mernel::PropertyTree m_appConfig;
+    AppConfig m_appConfig;
 
     Config m_config;
 

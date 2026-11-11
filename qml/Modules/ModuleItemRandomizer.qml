@@ -20,6 +20,9 @@ WidgetCommonTab {
         presetIds: ["", "crazy", "strong", "weak"]
         value_key: config.itemRandomizer
     }
+    WidgetSeed {
+        value_key: root.value_context.seed
+    }
 
     WidgetSlider {
         caption: qsTr("Buff level range")

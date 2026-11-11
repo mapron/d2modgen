@@ -1,5 +1,5 @@
 #pragma once
-// Do not edit, this file was generated from schema.yaml using update.py
+// Do not edit, this file was generated from Config.yaml using update.py
 
 #include "StructBaseCpp.hpp"
 
@@ -8,44 +8,6 @@ namespace D2ModGen {
 [[maybe_unused]] static inline bool s_presetNamesSetter_unused = CommonStruct::setPresetNames({ "crazy", "strong", "weak", "pain" });
 
 struct Config : public CommonStruct {
-    struct Main : public CommonStruct {
-        int64_t m_d2rLocaleId{ 0 };
-
-        int64_t m_inputMode{ 0 };
-
-        std::string m_inputPath{};
-
-        std::string m_modname{ "rando" };
-
-        int64_t m_outputMode{ 0 };
-
-        std::string m_outputPath{};
-
-        bool m_refreshSeed{ true };
-
-        int64_t m_seed{ 0 };
-
-        int64_t m_versionD2R{ 1 };
-
-        int64_t m_versionMajor{ 1 };
-
-        std::string m_extraTrace{ "" };
-
-        Main()
-        {
-            addScalar("d2rLocaleId", m_d2rLocaleId).setRange(0, 14).setZero(0);
-            addScalar("inputMode", m_inputMode).setRange(0, 2).setZero(0);
-            addScalar("inputPath", m_inputPath);
-            addScalar("modname", m_modname).setZero("rando");
-            addScalar("outputMode", m_outputMode).setRange(0, 3).setZero(0);
-            addScalar("outputPath", m_outputPath);
-            addScalar("refreshSeed", m_refreshSeed).setZero(true).setRecc(true);
-            addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0);
-            addScalar("versionD2R", m_versionD2R).setRange(0, 1).setZero(1);
-            addScalar("versionMajor", m_versionMajor).setRange(0, 1).setZero(1);
-            addScalar("extraTrace", m_extraTrace).setZero("");
-        }
-    };
     struct TreasureClasses : public CommonStruct {
         struct Runes : public CommonStruct {
             bool m_enabled{ false };
@@ -209,6 +171,8 @@ struct Config : public CommonStruct {
     struct ItemRandomizer : public CommonStruct {
         bool m_enabled{ false };
 
+        int64_t m_seed{ 0 };
+
         int64_t m_forceCasterType{ 0 };
 
         int64_t m_itemFit{ 100 };
@@ -252,6 +216,7 @@ struct Config : public CommonStruct {
         ItemRandomizer()
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true);
+            addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0);
             addScalar("forceCasterType", m_forceCasterType).setRange(0, 100).setZero(0).setRecc(25).setPercent();
             addScalar("itemFit", m_itemFit).setRange(0, 100).setZero(100).setRecc(90).setPercent().addPreset(0, 50).addPreset(1, 75);
             addScalar("levelMinus", m_levelMinus).setRange(0, 100).setZero(0).setRecc(10).addPreset(0, 0).addPreset(1, 5);
@@ -276,6 +241,8 @@ struct Config : public CommonStruct {
     };
     struct MonsterRandomizer : public CommonStruct {
         bool m_enabled{ false };
+
+        int64_t m_seed{ 0 };
 
         int64_t m_numMonExtra{ 0 };
 
@@ -322,6 +289,7 @@ struct Config : public CommonStruct {
         MonsterRandomizer()
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true);
+            addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0);
             addScalar("numMonExtra", m_numMonExtra).setRange(-2, 10).setZero(0).addPreset(0, 5);
             addScalar("spawnKeepOriginal", m_spawnKeepOriginal).setRange(0, 100).setZero(100).setRecc(100).setPercent().addPreset(0, 50).addPreset(3, 50);
             addScalar("guestsMin", m_guestsMin).setRange(0, 1000).setZero(0).setRecc(25).setPercent().addPreset(0, 0).addPreset(3, 200);
@@ -347,6 +315,8 @@ struct Config : public CommonStruct {
     };
     struct SkillRandomizer : public CommonStruct {
         bool m_enabled{ false };
+
+        int64_t m_seed{ 0 };
 
         int64_t m_chanceElemChange{ 0 };
 
@@ -393,6 +363,7 @@ struct Config : public CommonStruct {
         SkillRandomizer()
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true).addPreset(2, false);
+            addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0);
             addScalar("chanceElemChange", m_chanceElemChange).setRange(0, 100).setZero(0).setRecc(75).setPercent();
             addScalar("maximumElements", m_maximumElements).setRange(2, 5).setZero(5).setRecc(3);
             addScalar("randoMode", m_randoMode).setRange(0, 3).setZero(0).setRecc(3);
@@ -646,8 +617,6 @@ struct Config : public CommonStruct {
             addScalar("inventoryWidth", m_inventoryWidth).setRange(10, 15).setZero(10).setRecc(10);
         }
     };
-    Main m_main{};
-
     TreasureClasses m_treasureClasses{};
 
     ItemBalance m_itemBalance{};
@@ -674,7 +643,6 @@ struct Config : public CommonStruct {
 
     Config()
     {
-        addStruct("main", m_main);
         addStruct("treasureClasses", m_treasureClasses);
         addStruct("itemBalance", m_itemBalance);
         addStruct("itemRandomizer", m_itemRandomizer);

@@ -12,7 +12,7 @@ import "./Widgets"
 
 WidgetScrollable {
     id: root
-    property var value_context: config.main
+    property var value_context: appConfig
 
     RowLayout {
         spacing: 6
@@ -22,73 +22,27 @@ WidgetScrollable {
         }
 
         Button {
-            text: qsTr("Reset to default")
-            onClicked: config.main.resetToDefault()
+            text: qsTr("Clear global app config")
+            onClicked: appConfig.resetToZero()
         }
         Item {
             Layout.fillWidth: true
         }
     }
 
-    WidgetCommonControl {
+    WidgetFolder {
         caption: qsTr("Input folder (mandatory):")
         tooltip: qsTr("Generally, just choose folder with Game.exe.<br>Note: for ProjectD2, select subfolder named 'ProjectD2' in Diablo II.<br>Press Detect! to find information in Windows Registry.")
 
-        isCompact: false
-        control: RowLayout {
-            Layout.fillWidth: true
+        validateNonEmpty: true
+        showDetect: true
 
-            DynamicLineEdit {
-                id: folderInputEdit
-                validator: BasicPathValidator {}
-                Layout.fillWidth: true
-                value_key: root.value_context.inputPath
-            }
-            Button {
-                text: qsTr("Detect!")
-                onClicked: appui.detectPath()
-            }
-            Button {
-                text: qsTr("Browse...")
-                onClicked: {
-                    folderDialogInputPath.currentFolder = appui.pathToUrl(folderInputEdit.text);
-                    folderDialogInputPath.open();
-                }
-            }
-        }
-
-        FolderDialog {
-            id: folderDialogInputPath
-            onAccepted: folderInputEdit.setTextValue(appui.urlToPath(folderDialogInputPath.selectedFolder))
-        }
+        value_key: root.value_context.inputPath
     }
 
-    WidgetCommonControl {
+    WidgetFolder {
         caption: qsTr("Output folder (optional, leave empty to auto-detect):")
-        tooltip: ""
-
-        isCompact: false
-
-        control: RowLayout {
-            Layout.fillWidth: true
-            DynamicLineEdit {
-                id: folderOutputEdit
-                Layout.fillWidth: true
-                value_key: root.value_context.outputPath
-            }
-            Button {
-                text: qsTr("Browse...")
-                onClicked: {
-                    folderDialogOutputPath.currentFolder = appui.pathToUrl(folderOutputEdit.text);
-                    folderDialogOutputPath.open();
-                }
-            }
-        }
-
-        FolderDialog {
-            id: folderDialogOutputPath
-            onAccepted: folderOutputEdit.setTextValue(appui.urlToPath(folderDialogOutputPath.selectedFolder))
-        }
+        value_key: root.value_context.outputPath
     }
 
     RowLayout {
@@ -99,18 +53,18 @@ WidgetScrollable {
         }
         RadioGroup {
             model: [qsTr("D2 Legacy"), qsTr("D2 Resurrected")]
-            value_key: config.main.versionMajor
+            value_key: appConfig.versionMajor
         }
         Rectangle {
-            visible: config.main.versionMajor.value === 1
+            visible: appConfig.versionMajor.value === 1
             Layout.fillHeight: true
             Layout.preferredWidth: 1
             color: palette.accent
         }
         RadioGroup {
-            visible: config.main.versionMajor.value === 1
+            visible: appConfig.versionMajor.value === 1
             model: [qsTr("D2R - LoD"), qsTr("D2R - RotW")]
-            value_key: config.main.versionD2R
+            value_key: appConfig.versionD2R
         }
         Item {
             Layout.fillWidth: true
@@ -132,30 +86,9 @@ WidgetScrollable {
         value_key: root.value_context.outputMode
         stretchCaption: false
     }
-
-    RowLayout {
-        spacing: 10
-        Layout.fillWidth: true
-
-        Label {
-            text: qsTr("Random seed:")
-        }
-        WidgetHelpIcon {
-            tooltipText: qsTr("Seed determine how reproduceable generation results are.<br>If seed stays the same, output of generation is also always exactly the same.<br>If you want each generation be stable and reproduceable, remove <b>Create new seed</b>")
-        }
-        DynamicLineEdit {
-            value_key: root.value_context.seed
-
-            Layout.minimumWidth: 100
-        }
-        Button {
-            text: qsTr("Generate new")
-            onClicked: appui.newSeed()
-        }
-        WidgetCheckbox {
-            caption: qsTr("Create new seed on every Generate call")
-            tooltip: ""
-            value_key: root.value_context.refreshSeed
-        }
+    WidgetCheckbox {
+        caption: qsTr("Create new seed on every Generate call")
+        tooltip: qsTr("Default behavior: when you press generate, then if nothing changes, your mod will be exactly the same.<br>With this option Generate will produce different result, updating seeds on all 3 randomizer tabs")
+        value_key: root.value_context.refreshSeed
     }
 }

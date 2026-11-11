@@ -10,7 +10,7 @@
 namespace D2ModGen {
 
 struct ModuleGlobal : public AbstractModule {
-    ModuleGlobal(DataContext& output_, RandomGenerator& rng_, const Config& config_, const GenerationEnvironment& env_);
+    ModuleGlobal(DataContext& output_, const Config& config_, const GenerationEnvironment& env_);
 
     void reset();
 

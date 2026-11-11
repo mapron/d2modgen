@@ -76,9 +76,10 @@ private:
     void generateChimera(DataRow_monstats& chimera, DataRow_monstatsEx& chimeraEx);
     bool compatibleMonSeq(const std::string& sequenceId, const DataRow_monstatsEx& recipient);
 
-    void processTask(MonsterTask& task, MonsterTaskList& extraMinions);
+    void processTask(MonsterTask& task, MonsterTaskList& extraMinions, int depth);
 
 private:
+    RandomGenerator       rng;
     TCTable               tcTable;
     std::set<std::string> generatedIds;
 

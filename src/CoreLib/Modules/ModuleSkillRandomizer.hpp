@@ -109,6 +109,8 @@ private:
 
     AllCharacterData existingData;
     AllCharacterData generatedData;
+
+    RandomGenerator rng;
 };
 
 }

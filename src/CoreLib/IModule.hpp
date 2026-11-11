@@ -22,13 +22,11 @@ struct IModule {
 
 struct AbstractModule : public IModule {
     DataContext&                 output;
-    RandomGenerator&             rng;
     const Config&                config;
     const GenerationEnvironment& env;
 
-    AbstractModule(DataContext& output_, RandomGenerator& rng_, const Config& config_, const GenerationEnvironment& env_)
+    AbstractModule(DataContext& output_, const Config& config_, const GenerationEnvironment& env_)
         : output(output_)
-        , rng(rng_)
         , config(config_)
         , env(env_)
     {

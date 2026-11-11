@@ -73,6 +73,7 @@ private:
     SkillCodeResolver m_codeResolver;
     SkillGetter       m_skillGetter;
     ExtraLoc          m_extraLoc;
+    RandomGenerator   rng;
 };
 
 }

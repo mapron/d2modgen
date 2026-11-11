@@ -1,0 +1,19 @@
+members:
+    d2rLocaleId:   { type: int, zero: 0, min: 0, max: 14 }
+    inputMode:     { type: int, zero: 0, min: 0, max: 2 }
+    inputPath:     { type: str }
+    modname:       { type: str, zero: "rando"}
+    outputMode:    { type: int, zero: 0, min: 0, max: 3 }
+    outputPath:    { type: str }
+    refreshSeed:   { type: bool, zero: false }
+    versionD2R:    { type: int, zero: 1, min: 0, max: 1 }
+    versionMajor:  { type: int, zero: 1, min: 0, max: 1 }
+    extraTrace:    { type: str, zero: "" }
+    langId:        { type: str, zero: "en_US" }
+    themeId:       { type: str, zero: "dark" }
+    userHome:      { type: str, zero: "" }
+
+    installLocationLegacy: { type: str, zero: "" , constant: true } # constant in a way that it is init once in BL.
+    installLocationD2R:    { type: str, zero: "" , constant: true }
+    saveSubfolder:         { type: str, zero: "Saved Games/Diablo II Resurrected/" , constant: true }
+    bnetConfig:            { type: str, zero: "AppData/Roaming/Battle.net/Battle.net.config" , constant: true }

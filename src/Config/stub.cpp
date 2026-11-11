@@ -5,9 +5,11 @@
  */
 
 #include "Config.hpp"
+#include "AppConfig.hpp"
 
 #ifdef USE_QT
 
 #include "ConfigQt.hpp"
+#include "AppConfigQt.hpp"
 
 #endif

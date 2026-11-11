@@ -19,18 +19,9 @@
 
 #include "MernelPlatform/FileFormatJson.hpp"
 
-#include <random>
-
 #include "MernelPlatform/AppLocations.hpp"
 
-#define TRACK_IO(filename, title) \
-    bool result = false; \
-    MERNEL_SCOPE_EXIT([&result, &filename]() { \
-        if (result) \
-            Mernel::Logger() << title << " OK: " << path2string(filename); \
-        else \
-            Mernel::Logger(Mernel::Logger::LogLevel::Err) << title << " FAIL: " << path2string(filename); \
-    });
+#include <random>
 
 namespace D2ModGen {
 
@@ -39,67 +30,85 @@ ConfigHandler::ConfigHandler()
     , m_appData(Mernel::AppLocations("D2R mod generator").getAppdataDir())
     , m_defaultPath(m_appData / "config.json")
 {
-    m_config.m_main.suppressPresets();
 }
 
 bool ConfigHandler::loadAppConfig()
 {
     const Mernel::std_path filename = m_appData / "app.json";
-    TRACK_IO(filename, "Load");
-    std::string buffer;
-    m_appConfig = {};
-    m_appConfig.convertToMap();
-    if (!Mernel::readFileIntoBufferNoexcept((filename), buffer) || !readJsonFromBufferNoexcept(buffer, m_appConfig)) {
+    Logger() << "Read: " << path2string(filename);
+    m_appConfig.resetToZero();
+
+    std::string          buffer;
+    Mernel::PropertyTree data;
+    if (!Mernel::readFileIntoBufferNoexcept((filename), buffer) || !readJsonFromBufferNoexcept(buffer, data)) {
         return false;
     }
-    result = true;
-    return result;
+
+    m_appConfig.readFromProperty(data);
+    return true;
 }
 
 bool ConfigHandler::saveAppConfig() const
 {
     const Mernel::std_path filename = m_appData / "app.json";
-    TRACK_IO(filename, "Save");
-    if (!createDirectoriesForFile((filename)))
-        return false;
-    std::string buffer;
-    Mernel::writeJsonToBufferNoexcept(buffer, m_appConfig);
-    result = Mernel::writeFileFromBufferNoexcept((filename), buffer);
-    return result;
-}
+    Logger() << "Write: " << path2string(filename);
 
-bool ConfigHandler::loadConfig(const Mernel::std_path& filename, bool resetMain)
-{
-    TRACK_IO(filename, "Load");
-    std::string          buffer;
-    Mernel::PropertyTree doc;
-    if (!Mernel::readFileIntoBufferNoexcept((filename), buffer) || !readJsonFromBufferNoexcept(buffer, doc)) {
+    if (!createDirectoriesForFile((filename))) {
+        Logger(Logger::Err) << "Failed to create directories for: " << path2string(filename);
         return false;
     }
-    result = loadConfig(doc, resetMain);
-    return result;
+
+    Mernel::PropertyTree data;
+    m_appConfig.writeToProperty(data);
+
+    std::string buffer;
+    Mernel::writeJsonToBufferNoexcept(buffer, data, true);
+    if (!Mernel::writeFileFromBufferNoexcept(filename, buffer)) {
+        Logger(Logger::Err) << "Failed to write: " << path2string(filename);
+        return false;
+    }
+    return true;
+}
+
+bool ConfigHandler::loadConfig(const Mernel::std_path& filename)
+{
+    Logger() << "Read: " << path2string(filename);
+
+    std::string          buffer;
+    Mernel::PropertyTree data;
+    if (!Mernel::readFileIntoBufferNoexcept((filename), buffer) || !readJsonFromBufferNoexcept(buffer, data)) {
+        return false;
+    }
+
+    return loadConfig(data);
 }
 
 bool ConfigHandler::saveConfig(const Mernel::std_path& filename) const
 {
-    TRACK_IO(filename, "Save");
+    Logger() << "Write: " << path2string(filename);
     Mernel::PropertyTree data;
+    data.convertToMap();
     saveConfig(data);
-    if (!createDirectoriesForFile((filename)))
+    if (!createDirectoriesForFile((filename))) {
+        Logger(Logger::Err) << "Failed to create directories for: " << path2string(filename);
         return false;
+    }
+
     std::string buffer;
-    Mernel::writeJsonToBufferNoexcept(buffer, data);
-    result = Mernel::writeFileFromBufferNoexcept((filename), buffer);
-    return result;
+    Mernel::writeJsonToBufferNoexcept(buffer, data, true);
+    if (!Mernel::writeFileFromBufferNoexcept((filename), buffer)) {
+        Logger(Logger::Err) << "Failed to write: " << path2string(filename);
+        return false;
+    }
+    return true;
 }
 
-bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data, bool resetMain)
+bool ConfigHandler::loadConfig(const Mernel::PropertyTree& data)
 {
-    auto prevMain = m_config.m_main;
     m_config.readFromProperty(data);
-    updateSeed(false);
-    if (!resetMain)
-        m_config.m_main = prevMain;
+    updateSeeds(false);
+
+    m_config.notifyChangeInner();
 
     return true;
 }
@@ -111,20 +120,27 @@ bool ConfigHandler::saveConfig(Mernel::PropertyTree& data) const
     return true;
 }
 
-void ConfigHandler::updateSeed(bool onGenerate)
+void ConfigHandler::updateSeeds(bool forceUpdate)
 {
-    auto& main = m_config.m_main;
-    if (main.m_seed == 0 || main.m_refreshSeed && onGenerate) {
-        std::random_device rd;
-        main.m_seed = rd();
-        m_config.m_main.notifyChangeInner();
+    std::random_device rd;
+    if (m_config.m_itemRandomizer.m_seed == 0 || forceUpdate) {
+        m_config.m_itemRandomizer.m_seed = rd();
+        m_config.m_itemRandomizer.notifyChangeInner();
+    }
+    if (m_config.m_monsterRandomizer.m_seed == 0 || forceUpdate) {
+        m_config.m_monsterRandomizer.m_seed = rd();
+        m_config.m_monsterRandomizer.notifyChangeInner();
+    }
+    if (m_config.m_skillRandomizer.m_seed == 0 || forceUpdate) {
+        m_config.m_skillRandomizer.m_seed = rd();
+        m_config.m_skillRandomizer.notifyChangeInner();
     }
 }
 
 bool ConfigHandler::generate(const GenerationEnvironment& env)
 {
     auto startAll = Mernel::ChronoPoint(true);
-    updateSeed(true);
+    updateSeeds(m_appConfig.m_refreshSeed);
 
     FolderStorage outDebugStorage(m_appData / "debug");
     FolderStorage outStorage(env.outputPath, env.outputMode);
@@ -134,7 +150,7 @@ bool ConfigHandler::generate(const GenerationEnvironment& env)
 
     DataContext previousData;
 
-    Logger(Logger::Notice) << "started in: " << path2string(env.outputPath) << ", seed:" << env.seed;
+    Logger(Logger::Notice) << "started in: " << path2string(env.outputPath);
 
     IStorage::StoredData previousStoredData = outStorage.readData();
 
@@ -172,17 +188,9 @@ bool ConfigHandler::generate(const GenerationEnvironment& env)
     Logger() << "prepare ended; Starting generate phase.";
 
     {
-        auto start           = Mernel::ChronoPoint(true);
-        using Distribution32 = std::uniform_int_distribution<int32_t>;
-        std::mt19937_64 engine;
-        engine.seed(env.seed); // really we need A LOT of bits to safely seed mt engine. But for our purpose 32 bits more than enough.
-        std::function<int(int)> rngWrapper = [&engine](int bound) {
-            if (bound <= 1)
-                return 0;
-            return Distribution32(0, bound - 1)(engine);
-        };
+        auto start = Mernel::ChronoPoint(true);
 
-        ModuleGlobal all(output, rngWrapper, m_config, env);
+        ModuleGlobal all(output, m_config, env);
         try {
             all.generate();
         }

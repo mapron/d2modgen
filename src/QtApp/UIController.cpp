@@ -8,7 +8,6 @@
 #include "FileIOUtils.hpp"
 
 #include "ConfigHandler.hpp"
-#include "PropertyUtil.hpp"
 #include "Logger.hpp"
 
 #include "MernelPlatform/FileFormatJson.hpp"
@@ -23,7 +22,16 @@
 #include <QStandardPaths>
 #include <QUrl>
 
+#include <random>
+
 namespace D2ModGen {
+
+constexpr const bool s_isWindows =
+#ifdef _WIN32
+    true;
+#else
+    false;
+#endif
 
 namespace {
 
@@ -35,34 +43,27 @@ QString ensureTrailingSlash(QString value)
 }
 
 #ifdef _WIN32
-QString getInstallLocationFromRegistry(bool resurrected)
+std::string getInstallLocationFromRegistry(bool resurrected)
 {
     static const QString base("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II");
     QSettings            set(base + (resurrected ? " Resurrected" : ""),
                              QSettings::Registry32Format);
-    return ensureTrailingSlash(set.value("InstallLocation").toString());
+    return ensureTrailingSlash(set.value("InstallLocation").toString()).toStdString();
 }
 #else
-QString getInstallLocationFromRegistry(bool resurrected)
+std::string getInstallLocationFromRegistry(bool resurrected)
 {
     return {};
 }
 #endif
 
-QString getUserHome()
+QString getUserHomeDefault()
 {
-    return ensureTrailingSlash(QStandardPaths::standardLocations(QStandardPaths::HomeLocation).value(0));
-}
-
-QString getSaveRoot()
-{
-    return getUserHome() + "Saved Games/Diablo II Resurrected/";
-}
-
-QString getBattleNetConfig()
-{
-    const QString config = getUserHome() + "AppData/Roaming/Battle.net/Battle.net.config";
-    return QFileInfo::exists(config) ? config : "";
+    QString home = ensureTrailingSlash(QStandardPaths::standardLocations(QStandardPaths::HomeLocation).value(0));
+    if (!s_isWindows) {
+        home += ".steam/steam/steamapps/compatdata/2536520/pfx/"; // 2536520 = app id for D2R.
+    }
+    return home;
 }
 
 }
@@ -103,10 +104,16 @@ UIController::UIController(ConfigHandler& configHandler)
     m_configHandler.loadConfig(m_configHandler.m_defaultPath);
 
     m_configHandler.m_config.setCallbackForInnerChanges([this] {
-        //qWarning() << "Config changed!";
-
         m_delayTimer->start();
     });
+
+    auto& cfg = m_configHandler.m_appConfig;
+
+    if (s_isWindows || cfg.m_userHome.empty())
+        cfg.m_userHome = getUserHomeDefault().toStdString();
+
+    cfg.m_installLocationD2R    = getInstallLocationFromRegistry(true);
+    cfg.m_installLocationLegacy = getInstallLocationFromRegistry(false);
 
     pushUndoCurrent();
 }
@@ -118,10 +125,26 @@ UIController::~UIController()
         m_configHandler.saveConfig(m_configHandler.m_defaultPath);
 }
 
+QString UIController::getSaveRoot(bool modSubfolder)
+{
+    auto& cfg  = m_configHandler.m_appConfig;
+    auto  root = ensureTrailingSlash(cfg.m_userHome) + cfg.m_saveSubfolder;
+    if (modSubfolder)
+        root += "mods/" + cfg.m_modname + "/";
+    return QString::fromStdString(root);
+}
+
+QString UIController::getBattleNetConfig()
+{
+    auto&         cfg    = m_configHandler.m_appConfig;
+    const QString config = QString::fromStdString(ensureTrailingSlash(cfg.m_userHome) + cfg.m_bnetConfig);
+    return QFileInfo::exists(config) ? config : "";
+}
+
 void UIController::generate()
 {
     emit statusUpdate(tr("Start..."));
-    QTimer::singleShot(30, this, &UIController::generateFinish);
+    QTimer::singleShot(30, this, &UIController::generateFinish); // todo: move this bs to another thread.
 }
 
 void UIController::saveConfig(QString filename)
@@ -140,7 +163,6 @@ void UIController::loadConfig(QString filename)
     const auto result = m_configHandler.loadConfig(filename.toStdString());
 
     if (result) {
-        sendDataChange();
         emit statusUpdate(tr("Loaded."));
     } else {
         emit statusUpdate(tr("Error when loading!"));
@@ -149,36 +171,16 @@ void UIController::loadConfig(QString filename)
 
 void UIController::clearConfig()
 {
-    m_configHandler.loadConfig(Mernel::PropertyTree{}, false);
+    m_configHandler.m_config.resetToZero(true);
 
-    sendDataChange();
     emit statusUpdate(tr("Config is cleared."));
 }
 
 void UIController::resetToRecommended()
 {
-    auto prevMain = m_configHandler.m_config.m_main;
-    m_configHandler.m_config.resetToRecommended(false);
-    m_configHandler.m_config.m_main = prevMain;
-    m_configHandler.m_config.notifyInnerAndOuter(true);
-}
+    m_configHandler.m_config.resetToRecommended(true);
 
-bool UIController::loadConfig(const Mernel::PropertyTree& data)
-{
-    const auto result = m_configHandler.loadConfig(data);
-
-    sendDataChange();
-    return result;
-}
-
-QString UIController::getApp(const QString& key, const QString& def) const
-{
-    return QString::fromStdString(m_configHandler.m_appConfig.value(key.toStdString(), Mernel::PropertyTreeScalar(def.toStdString())).toString());
-}
-
-void UIController::setApp(const QString& key, const QString& value)
-{
-    m_configHandler.m_appConfig.getMap()[key.toStdString()] = Mernel::PropertyTreeScalar{ value.toStdString() };
+    emit statusUpdate(tr("Preset applied."));
 }
 
 void UIController::pushUndo(const Mernel::PropertyTree& data)
@@ -204,7 +206,9 @@ void UIController::makeUndo()
         return;
 
     m_undo.removeLast();
-    loadConfig(m_undo.last());
+
+    m_configHandler.loadConfig(m_undo.last());
+
     updateUndoAction();
 }
 
@@ -220,7 +224,7 @@ void UIController::browseToAppSettings()
 
 QString UIController::urlToPath(const QUrl& url) const
 {
-    return url.toLocalFile();
+    return ensureTrailingSlash(url.toLocalFile());
 }
 
 QUrl UIController::pathToUrl(const QString& path) const
@@ -228,35 +232,28 @@ QUrl UIController::pathToUrl(const QString& path) const
     return QUrl::fromLocalFile(path);
 }
 
-void UIController::newSeed()
+void UIController::refreshAllSeeds()
 {
-    m_configHandler.m_config.m_main.m_seed = 0;
-    m_configHandler.updateSeed(false);
+    m_configHandler.updateSeeds(true);
 }
 
-void UIController::detectPath()
+QString UIController::detectPath()
 {
-    auto& cfg         = m_configHandler.m_config.m_main;
+    auto& cfg         = m_configHandler.m_appConfig;
     bool  resurrected = cfg.m_versionMajor == 1;
-    cfg.m_inputPath   = getInstallLocationFromRegistry(resurrected).toStdString();
-    m_configHandler.m_config.m_main.notifyChangeInner();
-}
-
-void UIController::sendDataChange()
-{
-    m_configHandler.m_config.notifyChangeInner();
+    return QString::fromStdString(resurrected ? cfg.m_installLocationD2R : cfg.m_installLocationLegacy);
 }
 
 void UIController::updateUndoAction()
 {
-    //
+    // @todo: change enabled state
 }
 
 void UIController::generateFinish()
 {
     GenerationEnvironment env;
 
-    bool result = env.init(m_configHandler.m_config) && m_configHandler.generate(env);
+    bool result = env.init(m_configHandler.m_appConfig) && m_configHandler.generate(env);
 
     if (!result) {
         emit statusUpdate(tr("Error: %1").arg(QString::fromStdString("generation failure")));
@@ -264,23 +261,23 @@ void UIController::generateFinish()
     }
 
     emit statusUpdate(tr("Mod '%1' is updated.")
-                          .arg(QString::fromStdString(m_configHandler.m_config.m_main.m_modname)));
+                          .arg(QString::fromStdString(m_configHandler.m_appConfig.m_modname)));
 }
 
 void UIController::setLaunch(QString arg)
 {
-    const QString config = getBattleNetConfig();
-    if (config.isEmpty()) {
-        emit statusUpdate(tr("Failed to locate Battle.net.config"));
+    const QString bnetPath = getBattleNetConfig();
+    if (bnetPath.isEmpty())
         return;
-    }
-    const auto           configPath = string2path(config.toStdString());
+
+    const auto           configPath = string2path(bnetPath.toStdString());
     Mernel::PropertyTree doc;
     std::string          buffer;
     if (!Mernel::readFileIntoBufferNoexcept(configPath, buffer) || !Mernel::readJsonFromBufferNoexcept(buffer, doc)) {
         emit statusUpdate(tr("Failed to read data from Battle.net.config"));
         return;
     }
+    Logger() << "Updating: " << configPath;
 
     auto& valGames                      = doc["Games"].getMap();
     auto& valOsi                        = valGames["osi"];
@@ -299,13 +296,17 @@ void UIController::setLaunch(QString arg)
 void UIController::makeShortCut(QString arg)
 {
     GenerationEnvironment env;
-    if (!env.init(m_configHandler.m_config))
+
+    auto& cfg = m_configHandler.m_appConfig;
+    if (!env.init(cfg))
         return;
 
     const bool        legacy = env.isLegacy;
     auto              d2path = env.inputPath;
-    auto              desk   = string2path(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation).toStdString());
-    const std::string title  = "Diablo II - " + env.modName + " Mod";
+    const std::string desk   = cfg.m_userHome + "Desktop/";
+    const std::string title  = "Diablo II - " + cfg.m_modname + " Mod";
+
+    Logger() << "Short cut: " << desk << " -> " << d2path;
 
     if (!Mernel::createShortCut(desk, title, d2path, (legacy ? "Diablo II.exe" : "D2R.exe"), arg.toStdString())) {
         emit statusUpdate(tr("Failed to write shortcut"));
@@ -317,13 +318,11 @@ void UIController::makeShortCut(QString arg)
 
 void UIController::copyModSettings()
 {
-    GenerationEnvironment env;
-    if (!env.init(m_configHandler.m_config))
-        return;
-    const QString saves = ensureTrailingSlash(getSaveRoot());
+    const QString saves = getSaveRoot(false);
     if (saves.isEmpty() || !QFileInfo::exists(saves))
         return;
-    const QString modSaves = saves + "mods/" + QString::fromStdString(env.modName) + "/";
+
+    const QString modSaves = getSaveRoot(true);
     if (!QFileInfo::exists(modSaves))
         QDir().mkpath(modSaves);
     const QString name = "Settings.json";
@@ -334,13 +333,11 @@ void UIController::copyModSettings()
 
 void UIController::copySaves()
 {
-    GenerationEnvironment env;
-    if (!env.init(m_configHandler.m_config))
-        return;
-    const QString saves = ensureTrailingSlash(getSaveRoot());
+    const QString saves = getSaveRoot(false);
     if (saves.isEmpty() || !QFileInfo::exists(saves))
         return;
-    const QString modSaves = saves + "mods/" + QString::fromStdString(env.modName) + "/";
+
+    const QString modSaves = getSaveRoot(true);
     if (!QFileInfo::exists(modSaves))
         QDir().mkpath(modSaves);
 
@@ -352,9 +349,11 @@ void UIController::copySaves()
     emit statusUpdate(tr("Save files copied (%1)").arg(files.size()));
 }
 
-QString UIController::getSaveFolder()
+qlonglong UIController::makeSeed()
 {
-    return getSaveRoot() + "mods/";
+    std::random_device dev;
+
+    return dev();
 }
 
 }

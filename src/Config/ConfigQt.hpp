@@ -1,92 +1,10 @@
 #pragma once
-// Do not edit, this file was generated from schema.yaml using update.py
+// Do not edit, this file was generated from Config.yaml using update.py
 
 #include "Config.hpp"
 #include "StructBaseQt.hpp"
 
 namespace D2ModGen {
-
-class Config_Main_Qt : public CommonStruct_Qt {
-    Q_OBJECT
-    Q_PROPERTY(PropertyInt_Qt* d2rLocaleId READ get_d2rLocaleId CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* inputMode READ get_inputMode CONSTANT)
-    Q_PROPERTY(PropertyString_Qt* inputPath READ get_inputPath CONSTANT)
-    Q_PROPERTY(PropertyString_Qt* modname READ get_modname CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* outputMode READ get_outputMode CONSTANT)
-    Q_PROPERTY(PropertyString_Qt* outputPath READ get_outputPath CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* refreshSeed READ get_refreshSeed CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* seed READ get_seed CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* versionD2R READ get_versionD2R CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* versionMajor READ get_versionMajor CONSTANT)
-    Q_PROPERTY(PropertyString_Qt* extraTrace READ get_extraTrace CONSTANT)
-
-public:
-    explicit Config_Main_Qt(Config::Main& data)
-        : CommonStruct_Qt(data)
-        , m_data(data)
-        , m_d2rLocaleId(data.getPropertyInt(0))
-        , m_inputMode(data.getPropertyInt(1))
-        , m_inputPath(data.getPropertyString(0))
-        , m_modname(data.getPropertyString(1))
-        , m_outputMode(data.getPropertyInt(2))
-        , m_outputPath(data.getPropertyString(2))
-        , m_refreshSeed(data.getPropertyBool(0))
-        , m_seed(data.getPropertyInt(3))
-        , m_versionD2R(data.getPropertyInt(4))
-        , m_versionMajor(data.getPropertyInt(5))
-        , m_extraTrace(data.getPropertyString(3))
-    {
-    }
-
-    PropertyInt_Qt* get_d2rLocaleId() { return &m_d2rLocaleId; }
-
-    PropertyInt_Qt* get_inputMode() { return &m_inputMode; }
-
-    PropertyString_Qt* get_inputPath() { return &m_inputPath; }
-
-    PropertyString_Qt* get_modname() { return &m_modname; }
-
-    PropertyInt_Qt* get_outputMode() { return &m_outputMode; }
-
-    PropertyString_Qt* get_outputPath() { return &m_outputPath; }
-
-    PropertyBool_Qt* get_refreshSeed() { return &m_refreshSeed; }
-
-    PropertyInt_Qt* get_seed() { return &m_seed; }
-
-    PropertyInt_Qt* get_versionD2R() { return &m_versionD2R; }
-
-    PropertyInt_Qt* get_versionMajor() { return &m_versionMajor; }
-
-    PropertyString_Qt* get_extraTrace() { return &m_extraTrace; }
-
-    Q_INVOKABLE void assign(Config_Main_Qt* another) { m_data.assign(another->m_data, true); }
-
-private:
-    Config::Main& m_data;
-
-    PropertyInt_Qt m_d2rLocaleId;
-
-    PropertyInt_Qt m_inputMode;
-
-    PropertyString_Qt m_inputPath;
-
-    PropertyString_Qt m_modname;
-
-    PropertyInt_Qt m_outputMode;
-
-    PropertyString_Qt m_outputPath;
-
-    PropertyBool_Qt m_refreshSeed;
-
-    PropertyInt_Qt m_seed;
-
-    PropertyInt_Qt m_versionD2R;
-
-    PropertyInt_Qt m_versionMajor;
-
-    PropertyString_Qt m_extraTrace;
-};
 
 class Config_TreasureClasses_Runes_Qt : public CommonStruct_Qt {
     Q_OBJECT
@@ -441,6 +359,7 @@ private:
 class Config_ItemRandomizer_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* seed READ get_seed CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* forceCasterType READ get_forceCasterType CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* itemFit READ get_itemFit CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* levelMinus READ get_levelMinus CONSTANT)
@@ -467,12 +386,13 @@ public:
         : CommonStruct_Qt(data)
         , m_data(data)
         , m_enabled(data.getPropertyBool(0))
-        , m_forceCasterType(data.getPropertyInt(0))
-        , m_itemFit(data.getPropertyInt(1))
-        , m_levelMinus(data.getPropertyInt(2))
-        , m_levelPlus(data.getPropertyInt(3))
-        , m_repeatSets(data.getPropertyInt(4))
-        , m_repeatUniques(data.getPropertyInt(5))
+        , m_seed(data.getPropertyInt(0))
+        , m_forceCasterType(data.getPropertyInt(1))
+        , m_itemFit(data.getPropertyInt(2))
+        , m_levelMinus(data.getPropertyInt(3))
+        , m_levelPlus(data.getPropertyInt(4))
+        , m_repeatSets(data.getPropertyInt(5))
+        , m_repeatUniques(data.getPropertyInt(6))
         , m_affixRandom(data.getPropertyBool(1))
         , m_gemsRandom(data.getPropertyBool(2))
         , m_craftedRandom(data.getPropertyBool(3))
@@ -480,17 +400,19 @@ public:
         , m_replaceCharges(data.getPropertyBool(5))
         , m_replaceSkills(data.getPropertyBool(6))
         , m_updateExisting(data.getPropertyBool(7))
-        , m_setBonusMode(data.getPropertyInt(6))
-        , m_frequencyAuras(data.getPropertyInt(7))
-        , m_frequencyCharAttributes(data.getPropertyInt(8))
-        , m_frequencyProcs(data.getPropertyInt(9))
-        , m_frequencyResistances(data.getPropertyInt(10))
-        , m_frequencySkills(data.getPropertyInt(11))
+        , m_setBonusMode(data.getPropertyInt(7))
+        , m_frequencyAuras(data.getPropertyInt(8))
+        , m_frequencyCharAttributes(data.getPropertyInt(9))
+        , m_frequencyProcs(data.getPropertyInt(10))
+        , m_frequencyResistances(data.getPropertyInt(11))
+        , m_frequencySkills(data.getPropertyInt(12))
         , m_sameRarityForSetUniqueItems(data.getPropertyBool(8))
     {
     }
 
     PropertyBool_Qt* get_enabled() { return &m_enabled; }
+
+    PropertyInt_Qt* get_seed() { return &m_seed; }
 
     PropertyInt_Qt* get_forceCasterType() { return &m_forceCasterType; }
 
@@ -539,6 +461,8 @@ private:
 
     PropertyBool_Qt m_enabled;
 
+    PropertyInt_Qt m_seed;
+
     PropertyInt_Qt m_forceCasterType;
 
     PropertyInt_Qt m_itemFit;
@@ -583,6 +507,7 @@ private:
 class Config_MonsterRandomizer_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* seed READ get_seed CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* numMonExtra READ get_numMonExtra CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* spawnKeepOriginal READ get_spawnKeepOriginal CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* guestsMin READ get_guestsMin CONSTANT)
@@ -610,31 +535,34 @@ public:
         : CommonStruct_Qt(data)
         , m_data(data)
         , m_enabled(data.getPropertyBool(0))
-        , m_numMonExtra(data.getPropertyInt(0))
-        , m_spawnKeepOriginal(data.getPropertyInt(1))
-        , m_guestsMin(data.getPropertyInt(2))
-        , m_guestsMax(data.getPropertyInt(3))
-        , m_chimeraAIMin(data.getPropertyInt(4))
-        , m_chimeraAIMax(data.getPropertyInt(5))
-        , m_rollResistancesMin(data.getPropertyInt(6))
-        , m_rollResistancesMax(data.getPropertyInt(7))
-        , m_rollStatMin(data.getPropertyInt(8))
-        , m_rollStatMax(data.getPropertyInt(9))
-        , m_densityMin(data.getPropertyInt(10))
-        , m_densityMax(data.getPropertyInt(11))
-        , m_elitePacksMin(data.getPropertyInt(12))
-        , m_elitePacksMax(data.getPropertyInt(13))
-        , m_monGroupIncreaseSize(data.getPropertyInt(14))
+        , m_seed(data.getPropertyInt(0))
+        , m_numMonExtra(data.getPropertyInt(1))
+        , m_spawnKeepOriginal(data.getPropertyInt(2))
+        , m_guestsMin(data.getPropertyInt(3))
+        , m_guestsMax(data.getPropertyInt(4))
+        , m_chimeraAIMin(data.getPropertyInt(5))
+        , m_chimeraAIMax(data.getPropertyInt(6))
+        , m_rollResistancesMin(data.getPropertyInt(7))
+        , m_rollResistancesMax(data.getPropertyInt(8))
+        , m_rollStatMin(data.getPropertyInt(9))
+        , m_rollStatMax(data.getPropertyInt(10))
+        , m_densityMin(data.getPropertyInt(11))
+        , m_densityMax(data.getPropertyInt(12))
+        , m_elitePacksMin(data.getPropertyInt(13))
+        , m_elitePacksMax(data.getPropertyInt(14))
+        , m_monGroupIncreaseSize(data.getPropertyInt(15))
         , m_hellResistances(data.getPropertyBool(1))
         , m_hellPacks(data.getPropertyBool(2))
         , m_maxPacks(data.getPropertyBool(3))
-        , m_minAbsDensity(data.getPropertyInt(15))
-        , m_minAbsPacks(data.getPropertyInt(16))
-        , m_minNormalZoneId(data.getPropertyInt(17))
+        , m_minAbsDensity(data.getPropertyInt(16))
+        , m_minAbsPacks(data.getPropertyInt(17))
+        , m_minNormalZoneId(data.getPropertyInt(18))
     {
     }
 
     PropertyBool_Qt* get_enabled() { return &m_enabled; }
+
+    PropertyInt_Qt* get_seed() { return &m_seed; }
 
     PropertyInt_Qt* get_numMonExtra() { return &m_numMonExtra; }
 
@@ -685,6 +613,8 @@ private:
 
     PropertyBool_Qt m_enabled;
 
+    PropertyInt_Qt m_seed;
+
     PropertyInt_Qt m_numMonExtra;
 
     PropertyInt_Qt m_spawnKeepOriginal;
@@ -731,6 +661,7 @@ private:
 class Config_SkillRandomizer_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* seed READ get_seed CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* chanceElemChange READ get_chanceElemChange CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* maximumElements READ get_maximumElements CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* randoMode READ get_randoMode CONSTANT)
@@ -758,31 +689,34 @@ public:
         : CommonStruct_Qt(data)
         , m_data(data)
         , m_enabled(data.getPropertyBool(0))
-        , m_chanceElemChange(data.getPropertyInt(0))
-        , m_maximumElements(data.getPropertyInt(1))
-        , m_randoMode(data.getPropertyInt(2))
-        , m_specificClass(data.getPropertyInt(3))
-        , m_keepOriginal(data.getPropertyInt(4))
-        , m_generate(data.getPropertyInt(5))
-        , m_globalHitShift(data.getPropertyInt(6))
-        , m_weightAma(data.getPropertyInt(7))
-        , m_weightSor(data.getPropertyInt(8))
-        , m_weightNec(data.getPropertyInt(9))
-        , m_weightPal(data.getPropertyInt(10))
-        , m_weightBar(data.getPropertyInt(11))
-        , m_weightDru(data.getPropertyInt(12))
-        , m_weightAss(data.getPropertyInt(13))
-        , m_weightWar(data.getPropertyInt(14))
-        , m_lvlreqRow1(data.getPropertyInt(15))
-        , m_lvlreqRow2(data.getPropertyInt(16))
-        , m_lvlreqRow3(data.getPropertyInt(17))
-        , m_lvlreqRow4(data.getPropertyInt(18))
-        , m_lvlreqRow5(data.getPropertyInt(19))
-        , m_lvlreqRow6(data.getPropertyInt(20))
+        , m_seed(data.getPropertyInt(0))
+        , m_chanceElemChange(data.getPropertyInt(1))
+        , m_maximumElements(data.getPropertyInt(2))
+        , m_randoMode(data.getPropertyInt(3))
+        , m_specificClass(data.getPropertyInt(4))
+        , m_keepOriginal(data.getPropertyInt(5))
+        , m_generate(data.getPropertyInt(6))
+        , m_globalHitShift(data.getPropertyInt(7))
+        , m_weightAma(data.getPropertyInt(8))
+        , m_weightSor(data.getPropertyInt(9))
+        , m_weightNec(data.getPropertyInt(10))
+        , m_weightPal(data.getPropertyInt(11))
+        , m_weightBar(data.getPropertyInt(12))
+        , m_weightDru(data.getPropertyInt(13))
+        , m_weightAss(data.getPropertyInt(14))
+        , m_weightWar(data.getPropertyInt(15))
+        , m_lvlreqRow1(data.getPropertyInt(16))
+        , m_lvlreqRow2(data.getPropertyInt(17))
+        , m_lvlreqRow3(data.getPropertyInt(18))
+        , m_lvlreqRow4(data.getPropertyInt(19))
+        , m_lvlreqRow5(data.getPropertyInt(20))
+        , m_lvlreqRow6(data.getPropertyInt(21))
     {
     }
 
     PropertyBool_Qt* get_enabled() { return &m_enabled; }
+
+    PropertyInt_Qt* get_seed() { return &m_seed; }
 
     PropertyInt_Qt* get_chanceElemChange() { return &m_chanceElemChange; }
 
@@ -832,6 +766,8 @@ private:
     Config::SkillRandomizer& m_data;
 
     PropertyBool_Qt m_enabled;
+
+    PropertyInt_Qt m_seed;
 
     PropertyInt_Qt m_chanceElemChange;
 
@@ -1380,7 +1316,6 @@ private:
 
 class Config_Qt : public CommonStruct_Qt {
     Q_OBJECT
-    Q_PROPERTY(Config_Main_Qt* main READ get_main CONSTANT)
     Q_PROPERTY(Config_TreasureClasses_Qt* treasureClasses READ get_treasureClasses CONSTANT)
     Q_PROPERTY(Config_ItemBalance_Qt* itemBalance READ get_itemBalance CONSTANT)
     Q_PROPERTY(Config_ItemRandomizer_Qt* itemRandomizer READ get_itemRandomizer CONSTANT)
@@ -1398,7 +1333,6 @@ public:
     explicit Config_Qt(Config& data)
         : CommonStruct_Qt(data)
         , m_data(data)
-        , m_main(data.m_main)
         , m_treasureClasses(data.m_treasureClasses)
         , m_itemBalance(data.m_itemBalance)
         , m_itemRandomizer(data.m_itemRandomizer)
@@ -1413,8 +1347,6 @@ public:
         , m_expandedInventory(data.m_expandedInventory)
     {
     }
-
-    Config_Main_Qt* get_main() { return &m_main; }
 
     Config_TreasureClasses_Qt* get_treasureClasses() { return &m_treasureClasses; }
 
@@ -1444,8 +1376,6 @@ public:
 
 private:
     Config& m_data;
-
-    Config_Main_Qt m_main;
 
     Config_TreasureClasses_Qt m_treasureClasses;
 

@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     ConfigHandler configHandler;
     configHandler.loadConfig(configHandler.m_defaultPath);
     GenerationEnvironment env;
-    if (!env.init(configHandler.m_config))
+    if (!env.init(configHandler.m_appConfig))
         return EXIT_FAILURE;
 
     if (!configHandler.generate(env)) {

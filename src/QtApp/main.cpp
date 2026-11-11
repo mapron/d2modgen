@@ -14,6 +14,7 @@
 #include "VersionChecker.hpp"
 
 #include "ConfigQt.hpp"
+#include "AppConfigQt.hpp"
 
 #include <QApplication>
 #include <QFile>
@@ -119,18 +120,20 @@ int main(int argc, char* argv[])
     configHandler.loadAppConfig();
 
     UIController   appui(configHandler);
-    RAIITranslator trans(appui.getApp("langId", "en_US"));
+    RAIITranslator trans(QString::fromStdString(configHandler.m_appConfig.m_langId));
 
     VersionChecker versionChecker;
 
     qmlRegisterType<D2ModGen::BasicPathValidator>("CustomValidators", 1, 0, "BasicPathValidator");
 
-    Config_Qt rootQt(configHandler.m_config);
+    Config_Qt    configQt(configHandler.m_config);
+    AppConfig_Qt appConfigQt(configHandler.m_appConfig);
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("versionChecker", &versionChecker);
     engine.rootContext()->setContextProperty("appui", &appui);
-    engine.rootContext()->setContextProperty("config", &rootQt);
+    engine.rootContext()->setContextProperty("config", &configQt);
+    engine.rootContext()->setContextProperty("appConfig", &appConfigQt);
 
     engine.load(QUrl(QStringLiteral("qrc:/qml/MainWindow.qml")));
 

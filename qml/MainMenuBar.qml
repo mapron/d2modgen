@@ -155,7 +155,7 @@ MenuBar {
         Action {
             text: qsTr("New seed")
             shortcut: "F5"
-            onTriggered: appui.newSeed()
+            onTriggered: appui.refreshAllSeeds()
         }
         Action {
             text: qsTr("Undo")
@@ -169,19 +169,13 @@ MenuBar {
                 checkable: true
                 checked: window.isDarkMode
                 text: qsTr("Dark")
-                onTriggered: {
-                    window.isDarkMode = true;
-                    appui.setApp("themeId", "dark");
-                }
+                onTriggered: appConfig.themeId = "dark"
             }
             Action {
                 checkable: true
                 checked: !window.isDarkMode
                 text: qsTr("Light")
-                onTriggered: {
-                    window.isDarkMode = false;
-                    appui.setApp("themeId", "light");
-                }
+                onTriggered: appConfig.themeId = "light"
             }
         }
 
@@ -191,17 +185,17 @@ MenuBar {
             Action {
                 checkable: true
                 text: qsTr("English")
-                onTriggered: appui.setApp("langId", "en_US")
+                onTriggered: appConfig.langId = "en_US"
             }
             Action {
                 checkable: true
                 text: qsTr("Russian")
-                onTriggered: appui.setApp("langId", "ru_RU")
+                onTriggered: appui.langId = "ru_RU"
             }
             Action {
                 checkable: true
                 text: qsTr("Korean")
-                onTriggered: appui.setApp("langId", "ko_KR")
+                onTriggered: appui.langId = "ko_KR"
             }
         }
     }

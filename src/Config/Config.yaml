@@ -1,18 +1,4 @@
 structs:
-    Main:
-        members:
-            d2rLocaleId: { type: int, zero: 0, min: 0, max: 14 }
-            inputMode: { type: int, zero: 0, min: 0, max: 2 }
-            inputPath: { type: str }
-            modname: { type: str, zero: "rando"}
-            outputMode: { type: int, zero: 0, min: 0, max: 3 }
-            outputPath: { type: str }
-            refreshSeed: { type: bool, zero: true, recc: true }
-            seed: { type: int, zero: 0, min: 0, max: 4294967295 }
-            versionD2R: { type: int, zero: 1, min: 0, max: 1 }
-            versionMajor: { type: int, zero: 1, min: 0, max: 1 }
-            extraTrace: { type: str, zero: ""}
-
     TreasureClasses:
         structs:
             Runes:
@@ -86,6 +72,8 @@ structs:
     ItemRandomizer:
         members:
             enabled: { type: bool, zero: false, recc: true }
+
+            seed: { type: int, zero: 0, min: 0, max: 4294967295 }
     
             forceCasterType:         { type: int, zero: 0,   recc: 25, min: 0, max: 100, percent: true }
             itemFit:                 { type: int, zero: 100, recc: 90, min: 0, max: 100, percent: true, presets: {crazy: 50, strong: 75} }
@@ -114,6 +102,8 @@ structs:
     MonsterRandomizer:
         members:
             enabled:              { type: bool, zero: false, recc: true }
+
+            seed: { type: int, zero: 0, min: 0, max: 4294967295 }
             
             numMonExtra:          { type: int, zero: 0, min: -2, max: 10, presets: { crazy: 5} }
 
@@ -145,6 +135,8 @@ structs:
     SkillRandomizer:
         members:
             enabled:               { type: bool, zero: false, recc: true , presets: { weak: false} }
+
+            seed: { type: int, zero: 0, min: 0, max: 4294967295 }
 
             chanceElemChange:      { type: int , zero: 0, recc: 75 , min: 0, max: 100, percent: true}
             maximumElements:       { type: int , zero: 5, recc: 3  , min: 2, max: 5 }
@@ -263,8 +255,6 @@ structs:
             inventoryWidth:  { type: int, zero: 10, recc: 10, min: 10, max: 15 }
 
 members:
-    main:              { type: struct, name:  Main   }
-
     treasureClasses:   { type: struct, name:  TreasureClasses }
     itemBalance:       { type: struct, name:  ItemBalance     }
 

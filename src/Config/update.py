@@ -5,6 +5,7 @@ pip install pyyaml
 """
 
 import yaml
+import sys
 
 def get_index_from_list(li, value):
     idx = len(li)
@@ -79,6 +80,8 @@ def get_member_info(key, record, preset_names, counters, fqn):
             setters = setters +  f'.setPercent()'
         if 'logScale' in record:
             setters = setters +  f'.setLogScale()'
+        if 'constant' in record:
+            setters = setters +  f'.setConstant()'
         if 'presets' in record:
             for preset_name, preset_value in record['presets'].items():
                 idx = get_index_from_list(preset_names, preset_name)
@@ -95,6 +98,8 @@ def get_member_info(key, record, preset_names, counters, fqn):
     
     if is_primitive:
         child_qt_type = qt_type_map[type_name_orig]
+        if record.get('constant', ''):
+            child_qt_type = "Constant" + child_qt_type
         prop_index = counters[type_name_orig]
         counters[type_name_orig] = prop_index + 1
         prop_getter = property_getter[type_name_orig]
@@ -191,11 +196,17 @@ def visit_struct(struct_ident, schema, fqn_prefix, tab, preset_names, lines_cpp,
 
 
 def main():
-    input_file = 'schema.yaml'
+    if len(sys.argv) < 2:
+        print("Usage: python update.py <baseFilename>")
+        sys.exit(1)
+
+    base_filename = sys.argv[1]
+
+    input_file = base_filename + '.yaml'
     with open(input_file, 'r') as file:
         schema = yaml.safe_load(file)
 
-    with open("Config.hpp", "w") as output_cpp, open("ConfigQt.hpp", "w") as output_qt:
+    with open(base_filename + ".hpp", "w") as output_cpp, open(base_filename + "Qt.hpp", "w") as output_qt:
         header = f"#pragma once\n// Do not edit, this file was generated from {input_file} using update.py\n"
         
         lines_cpp = []
@@ -206,7 +217,7 @@ def main():
         lines_cpp.append('namespace D2ModGen {\n')
         
         lines_qt.append(header)
-        lines_qt.append('#include "Config.hpp"')
+        lines_qt.append(f'#include "{base_filename}.hpp"')
         lines_qt.append('#include "StructBaseQt.hpp"\n')
         lines_qt.append('namespace D2ModGen {\n')
         
@@ -214,10 +225,11 @@ def main():
         lines_cpp_impl = []
         lines_qt_impl = []
 
-        visit_struct('Config', schema, '', '', preset_names, lines_cpp_impl, lines_qt_impl)
+        visit_struct(base_filename, schema, '', '', preset_names, lines_cpp_impl, lines_qt_impl)
 
-        lines_cpp.append('[[maybe_unused]] static inline bool s_presetNamesSetter_unused = CommonStruct::setPresetNames({ "' + '", "'.join(preset_names) + '" });')
-        lines_cpp.append('');
+        if base_filename == 'Config':
+            lines_cpp.append('[[maybe_unused]] static inline bool s_presetNamesSetter_unused = CommonStruct::setPresetNames({ "' + '", "'.join(preset_names) + '" });')
+            lines_cpp.append('');
 
         lines_cpp.extend(lines_cpp_impl)
         lines_cpp.append('}')

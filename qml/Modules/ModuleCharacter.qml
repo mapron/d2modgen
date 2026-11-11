@@ -13,7 +13,7 @@ WidgetCommonTab {
     value_context: config.character
     enabled_key: null
 
-    property bool isD2R: config.main.versionMajor.value === 1
+    property bool isD2R: appConfig.versionMajor.value === 1
 
     caption: qsTr("Character")
     tooltip: qsTr("First three options allow you to change starting items for characters: <br>add Cube, replace id scroll with Tome (useful for No-town runs), and replace health with mana potions. <br>Next two sliders allow you to change how many skill and stat poits you get on levelup. <br>Last slider allow you to lower Strength and Dexterity requirements on all items. ")

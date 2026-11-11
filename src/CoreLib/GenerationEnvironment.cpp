@@ -7,14 +7,16 @@
 #include "GenerationEnvironment.hpp"
 
 #include "Logger.hpp"
-#include "Config.hpp"
+#include "AppConfig.hpp"
 #include "MernelPlatform/StringUtils.hpp"
+
+#include <random>
 
 namespace D2ModGen {
 
-bool GenerationEnvironment::init(const Config& config)
+bool GenerationEnvironment::init(const AppConfig& config)
 {
-    auto& main = config.m_main;
+    auto& main = config;
 
     auto versionMajor     = GenerationEnvironment::VersionMajor(main.m_versionMajor);
     auto versionD2R       = GenerationEnvironment::VersionD2R(main.m_versionD2R);
@@ -29,7 +31,7 @@ bool GenerationEnvironment::init(const Config& config)
     inputPath   = main.m_inputPath;
     outputPath  = main.m_outputPath;
     refreshSeed = main.m_refreshSeed;
-    seed        = static_cast<uint32_t>(main.m_seed);
+
     if (outputPath.empty()) {
         if (configInputMode != GenerationEnvironment::InputMode::Game) {
             Logger(Logger::Err) << "Cannot detect output path.";
@@ -96,6 +98,22 @@ bool GenerationEnvironment::init(const Config& config)
     }
 
     return true;
+}
+
+RandomGenerator createRNG(uint32_t seed)
+{
+    using Distribution32 = std::uniform_int_distribution<int32_t>;
+    std::mt19937_64 engine;
+    // Really we need A LOT of bits to safely seed mt engine!
+    // But for our purpose 32 bits more than enough.
+    // don't use that approach for cryptography, read the docs!
+    engine.seed(seed);
+    std::function<int(int)> rngWrapper = [engine](int bound) mutable {
+        if (bound <= 1)
+            return 0;
+        return Distribution32(0, bound - 1)(engine);
+    };
+    return rngWrapper;
 }
 
 }

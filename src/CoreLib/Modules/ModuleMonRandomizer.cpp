@@ -44,6 +44,10 @@ void ModuleMonRandomizer::generate()
 {
     if (!config.m_monsterRandomizer.m_enabled)
         return;
+
+    const auto& module = config.m_monsterRandomizer;
+    rng                = createRNG(module.m_seed);
+
     extraTrace = env.extraTrace.contains("monster_rando");
 
     hcIdx = output.monstats.rows.back().hcIdx + 1;
@@ -55,8 +59,6 @@ void ModuleMonRandomizer::generate()
 
     prepareChimeraPools();
     prepareGuestPools();
-
-    const auto& module = config.m_monsterRandomizer;
 
     for (auto& row : output.levels.rows) {
         if (!row.useForRando)
@@ -135,7 +137,7 @@ void ModuleMonRandomizer::generate()
                 task.m_skip = true;
 
             MonsterTaskList extraMinions;
-            processTask(task, extraMinions);
+            processTask(task, extraMinions, 0);
 
             if (extraTrace) {
                 Logger() << "        " << task.toString();
@@ -273,8 +275,13 @@ bool ModuleMonRandomizer::compatibleMonSeq(const std::string& sequenceId, const 
     return true;
 }
 
-void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraMinions)
+void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraMinions, int depth)
 {
+    if (depth > 10) {
+        assert(false);
+        throw std::runtime_error("Infinite recursion detected");
+    }
+
     DataRow_monstats& row = task.m_dest;
     row                   = *task.m_source;
 
@@ -418,7 +425,7 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
         if (!minionTask.m_source->useForRando) {
             minionTask.m_skip = true;
         }
-        processTask(minionTask, extraMinions);
+        processTask(minionTask, extraMinions, depth + 1);
         minionId = minionTask.m_dest.id;
         extraMinions.push_back(minionTask);
     }

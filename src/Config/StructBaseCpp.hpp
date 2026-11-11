@@ -28,6 +28,7 @@ struct CommonStruct {
             Scalar m_value;
         };
         std::vector<Preset> m_presets;
+        bool                m_isConstant = false;
 
         Derived& addPreset(int globalIndex, Scalar value)
         {
@@ -53,6 +54,11 @@ struct CommonStruct {
             m_recc = value;
             return static_cast<Derived&>(*this);
         }
+        Derived& setConstant()
+        {
+            m_isConstant = true;
+            return static_cast<Derived&>(*this);
+        }
 
         CommonStruct* m_parent = nullptr;
         // this is to send notification from BL to UX, e.g. "we reloaded configuration, please update controls"
@@ -60,11 +66,12 @@ struct CommonStruct {
 
         void notifyChangeInner()
         {
-            m_sendChangeToInner();
+            if (!m_isConstant)
+                m_sendChangeToInner();
         }
         void notifyChangeOuter()
         {
-            if (m_parent)
+            if (!m_isConstant && m_parent)
                 return m_parent->notifyChangeOuter();
         }
         // this is set in UX to subscribe for changes from BL
@@ -76,7 +83,8 @@ struct CommonStruct {
         Scalar get() const { return *m_pointer; }
         void   set(const Scalar& val)
         {
-            *m_pointer = val;
+            if (!m_isConstant)
+                *m_pointer = val;
         }
         void activatePreset(int globalIndex)
         {
@@ -128,28 +136,32 @@ protected:
         void resetToZero()
         {
             for (auto& prop : m_list)
-                *prop.m_pointer = prop.m_zero;
+                if (!prop.m_isConstant)
+                    *prop.m_pointer = prop.m_zero;
         }
         void resetToRecommended()
         {
             for (auto& prop : m_list)
-                *prop.m_pointer = prop.m_recc;
+                if (!prop.m_isConstant)
+                    *prop.m_pointer = prop.m_recc;
         }
         void activatePreset(int globalIndex)
         {
             for (auto& prop : m_list)
-                prop.activatePreset(globalIndex);
+                if (!prop.m_isConstant)
+                    prop.activatePreset(globalIndex);
         }
         void readFromProperty(const Mernel::PropertyTree& propertyTree)
         {
             for (auto& prop : m_list)
-                propertyTree.value(prop.getName(), Mernel::PropertyTreeScalar(prop.m_zero)).convertTo(*prop.m_pointer);
+                if (!prop.m_isConstant)
+                    propertyTree.value(prop.getName(), Mernel::PropertyTreeScalar(prop.m_zero)).convertTo(*prop.m_pointer);
         }
 
         void writeToProperty(Mernel::PropertyTree& propertyTree) const
         {
             for (auto& prop : m_list) {
-                if (*prop.m_pointer == prop.m_zero)
+                if (*prop.m_pointer == prop.m_zero || prop.m_isConstant)
                     continue;
 
                 propertyTree[prop.getName()] = Mernel::PropertyTreeScalar(*prop.m_pointer);
@@ -194,8 +206,6 @@ protected:
     std::vector<Child> m_children;
 
     CommonStruct* m_parent = nullptr;
-
-    bool m_suppressPresets = false;
 
     // this is to send notification from UX to BL, e.g. "user changed slider, please make undo frame"
     std::function<void()> m_sendChangeToOuter = [] {};
@@ -259,8 +269,6 @@ public:
     }
     void resetToRecommended(bool notifyTwoWay = false)
     {
-        if (m_suppressPresets)
-            return;
         m_int.resetToRecommended();
         m_bool.resetToRecommended();
         m_string.resetToRecommended();
@@ -283,8 +291,6 @@ public:
 
     void activatePreset(int globalIndex, bool notifyTwoWay = false)
     {
-        if (m_suppressPresets)
-            return;
         m_int.activatePreset(globalIndex);
         m_bool.activatePreset(globalIndex);
         m_string.activatePreset(globalIndex);
@@ -353,11 +359,6 @@ public:
     PropertyString& getPropertyString(size_t index)
     {
         return m_string.m_list[index];
-    }
-
-    void suppressPresets()
-    {
-        m_suppressPresets = true;
     }
 
     static inline std::vector<std::string> s_presetNames{};

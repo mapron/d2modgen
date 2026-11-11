@@ -19,6 +19,9 @@ WidgetCommonTab {
         presetIds: ["", "crazy", "strong", "pain"]
         value_key: config.monsterRandomizer
     }
+    WidgetSeed {
+        value_key: root.value_context.seed
+    }
 
     RowLayout {
         spacing: 6
