@@ -411,7 +411,7 @@ void ModuleExpandedInventory::generate()
         cornerSize /= downscale;
         bmp.resize(newSize);
         bmp.frameWidth = newSize.width;
-        if (!desc.controller){
+        if (!desc.controller) {
             // controller use transparent back
             bmp.tileWith(stone);
             bmp.copyBorders(origBmp, cornerSize);
