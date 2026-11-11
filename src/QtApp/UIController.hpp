@@ -7,6 +7,7 @@
 
 #include <QObject>
 #include <QScopedPointer>
+#include <QUrl>
 #include <QVariant>
 #include <QValidator>
 
@@ -61,6 +62,9 @@ public:
     Q_INVOKABLE void    copyModSettings();
     Q_INVOKABLE void    copySaves();
     Q_INVOKABLE QString getSaveFolder();
+
+    Q_INVOKABLE QString urlToPath(const QUrl& url) const;
+    Q_INVOKABLE QUrl    pathToUrl(const QString& path) const;
 
     void sendDataChange();
 

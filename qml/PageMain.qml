@@ -51,7 +51,7 @@ WidgetScrollable {
             Button {
                 text: qsTr("Browse...")
                 onClicked: {
-                    folderDialogInputPath.currentFolder = "file:///" + folderInputEdit.text;
+                    folderDialogInputPath.currentFolder = appui.pathToUrl(folderInputEdit.text);
                     folderDialogInputPath.open();
                 }
             }
@@ -59,7 +59,7 @@ WidgetScrollable {
 
         FolderDialog {
             id: folderDialogInputPath
-            onAccepted: folderInputEdit.setTextValue(folderDialogInputPath.selectedFolder.toString().substring(8))
+            onAccepted: folderInputEdit.setTextValue(appui.urlToPath(folderDialogInputPath.selectedFolder))
         }
     }
 
@@ -79,7 +79,7 @@ WidgetScrollable {
             Button {
                 text: qsTr("Browse...")
                 onClicked: {
-                    folderDialogOutputPath.currentFolder = "file:///" + folderOutputEdit.text;
+                    folderDialogOutputPath.currentFolder = appui.pathToUrl(folderOutputEdit.text);
                     folderDialogOutputPath.open();
                 }
             }
@@ -87,7 +87,7 @@ WidgetScrollable {
 
         FolderDialog {
             id: folderDialogOutputPath
-            onAccepted: folderOutputEdit.setTextValue(folderDialogOutputPath.selectedFolder.toString().substring(8))
+            onAccepted: folderOutputEdit.setTextValue(appui.urlToPath(folderDialogOutputPath.selectedFolder))
         }
     }
 
