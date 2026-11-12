@@ -20,7 +20,7 @@ struct Point {
     void  read(const Mernel::PropertyTree& data);
     void  write(Mernel::PropertyTree& data) const;
     Point operator+(const Point& s);
-    Point operator-(const Point& s) const;
+    Point operator-(const Point& s);
 
     Point&      operator+=(const Point& r);
     Point&      operator-=(const Point& r);

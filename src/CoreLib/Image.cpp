@@ -149,7 +149,7 @@ Point Point::operator+(const Point& s)
     return result;
 }
 
-Point Point::operator-(const Point& s) const
+Point Point::operator-(const Point& s)
 {
     Point result = *this;
     result.x -= s.x;
