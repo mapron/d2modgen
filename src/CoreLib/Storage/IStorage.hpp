@@ -42,6 +42,7 @@ enum class TableId
     sets,
     skilldesc,
     skills,
+    superuniques,
     treasureclassex,
     uniqueitems,
 

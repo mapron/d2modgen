@@ -45,20 +45,33 @@ int genBetweenRng(RandomGenerator& rng, int first, int second)
 
 int genRandomScaledValue(RandomGenerator& rng, int value, int minPercent, int maxPercent)
 {
-    const int absLimit = minPercent > 0 ? 1 : 0;
-    if (minPercent == maxPercent) {
-        if (minPercent == 0)
-            return 0;
-        if (minPercent == 100)
-            return value;
-        return scaleValue(value, minPercent, absLimit);
-    }
+    if (value == 0)
+        return 0;
 
-    const int lowerBound       = std::min(minPercent, maxPercent);
-    const int upperBound       = std::max(minPercent, maxPercent);
-    const int valueScaledLower = scaleValue(value, lowerBound, absLimit);
-    const int valueScaledUpper = scaleValue(value, upperBound, absLimit);
-    return genBetweenRng(rng, valueScaledLower, valueScaledUpper);
+    const int lowerBound = std::min(minPercent, maxPercent);
+    const int upperBound = std::max(minPercent, maxPercent);
+    if (upperBound <= 0)
+        return 0;
+
+    const int rolledPercent = (lowerBound == upperBound)
+                                  ? lowerBound
+                                  : genBetweenRng(rng, lowerBound, upperBound);
+
+    if (rolledPercent == 100)
+        return value;
+
+    const int exact100    = value * rolledPercent;
+    const int fracPart100 = exact100 % 100;
+
+    int result = exact100 / 100;
+
+    if (fracPart100 > 0 && rng(100) < fracPart100)
+        result += 1;
+
+    if (lowerBound > 0 && result < 1)
+        return 1;
+
+    return result;
 }
 
 std::vector<size_t> genRandomIndexes(RandomGenerator& rng, size_t size, size_t count)

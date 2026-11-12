@@ -109,6 +109,7 @@ structs:
 
             # all = percent from set(mon+nmon+umon).size()
             spawnKeepOriginal:  { type: int, zero: 100, recc: 100, min: 0, max: 100 , percent: true, presets: { crazy:  50, pain: 50  } }
+            superuniqueRando:   { type: int, zero: 0  , recc: 50 , min: 0, max: 100 , percent: true, presets: { crazy: 100, pain: 100 } }
             guestsMin:          { type: int, zero: 0  , recc: 25 , min: 0, max: 1000, percent: true, presets: { crazy:   0, pain: 200 } }
             guestsMax:          { type: int, zero: 0  , recc: 50 , min: 0, max: 1000, percent: true, presets: { crazy: 300, pain: 200 } }
             chimeraAIMin:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true                         }

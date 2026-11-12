@@ -76,14 +76,13 @@ private:
     void generateChimera(DataRow_monstats& chimera, DataRow_monstatsEx& chimeraEx);
     bool compatibleMonSeq(const std::string& sequenceId, const DataRow_monstatsEx& recipient);
 
-    void processTask(MonsterTask& task, MonsterTaskList& extraMinions, int depth);
+    void processTask(MonsterTask& task, MonsterTaskList& extraMinions, std::map<std::string, std::string>& exisingRepl, int depth);
 
 private:
-    RandomGenerator       rng;
-    TCTable               tcTable;
-    std::set<std::string> generatedIds;
+    RandomGenerator rng;
+    TCTable         tcTable;
 
-    std::vector<const DataRow_monstats*> validGuestIndexes;
+    std::vector<const DataRow_monstats*> validGuestPointers;
 
     int  hcIdx      = 0;
     bool extraTrace = false;

@@ -60,6 +60,37 @@ void ModuleMonRandomizer::generate()
     prepareChimeraPools();
     prepareGuestPools();
 
+    for (int idx = -1; auto& row : output.levels.rows) {
+        idx++;
+        if (!row.useForRando)
+            continue;
+
+        for (const auto* monSet : { &row.mon, &row.umon, &row.nmon }) {
+            for (auto& id : *monSet) {
+                auto n = output.monstats.findN(id);
+                if (n == size_t(-1))
+                    continue;
+
+                auto& monstat = output.monstats.rows[n];
+                if (monstat.useForRando && monstat.firstAreaIndexToSpawn == -1) {
+                    monstat.firstAreaIndexToSpawn = idx;
+                    //if (extraTrace)
+                    //    Logger() << "detecting first spawn of '" << monstat.id << "' as level [" << idx << "] (" << row.name << ")";
+                }
+            }
+        }
+    }
+    for (int idx = -1; auto& row : output.superuniques.rows) {
+        idx++;
+        auto n = output.monstats.findN(row.monsterClass);
+        if (n == size_t(-1))
+            continue;
+
+        auto& monstat = output.monstats.rows[n];
+        if (monstat.firstAreaIndexToSpawn >= 0)
+            output.levels.rows[monstat.firstAreaIndexToSpawn].superUniquesIndexes.push_back(idx);
+    }
+
     for (auto& row : output.levels.rows) {
         if (!row.useForRando)
             continue;
@@ -104,7 +135,7 @@ void ModuleMonRandomizer::generate()
         for (int i = 0, target = guestAmount + existingIndexes.size(); i < guestAmount + 5; ++i) {
             if (guestIndexes.size() >= target)
                 break;
-            guestIndexes.insert(validGuestIndexes[rng(validGuestIndexes.size())]);
+            guestIndexes.insert(validGuestPointers[rng(validGuestPointers.size())]);
         }
         for (const DataRow_monstats* guestIdx : guestIndexes) {
             if (existingIndexes.contains(guestIdx))
@@ -132,18 +163,41 @@ void ModuleMonRandomizer::generate()
         if (extraTrace)
             Logger() << "Area '" << row.name << "' > total=" << totalAmount << ", guests=" << guestAmount << ", chimera=" << chimeraAmount << ", rollStat=" << rollStatAmount << ", rollRes=" << rollResAmount << ", targetLevel=" << targetLevel;
 
+        std::map<std::string, std::string> exisingRepl;
         for (auto& task : tasks) {
             if (!task.hasAnyMods())
                 task.m_skip = true;
 
             MonsterTaskList extraMinions;
-            processTask(task, extraMinions, 0);
+            processTask(task, extraMinions, exisingRepl, 0);
 
             if (extraTrace) {
                 Logger() << "        " << task.toString();
                 for (auto& minionTask : extraMinions)
                     Logger() << "         minion: " << minionTask.toString();
             }
+        }
+        for (int superUniqIdx : row.superUniquesIndexes) {
+            auto&       su = output.superuniques.rows[superUniqIdx];
+            MonsterTask task;
+            task.m_areaId            = row.id;
+            task.m_source            = validGuestPointers[rng(validGuestPointers.size())];
+            task.m_isGuest           = true;
+            task.m_targetNormalLevel = targetLevel;
+            task.m_makeChimera       = genRandomScaledValue(rng, 1, module.m_chimeraAIMin, module.m_chimeraAIMax);
+            task.m_rollStat          = genRandomScaledValue(rng, 1, module.m_rollStatMin, module.m_rollStatMax);
+            task.m_rollRes           = genRandomScaledValue(rng, 1, module.m_rollResistancesMin, module.m_rollResistancesMax);
+
+            MonsterTaskList extraMinions;
+            processTask(task, extraMinions, exisingRepl, 0);
+
+            if (extraTrace) {
+                Logger() << "        superunique [" << superUniqIdx << "] " << su.monsterClass << " -> " << task.m_dest.id;
+                Logger() << "        " << task.toString();
+                for (auto& minionTask : extraMinions)
+                    Logger() << "         minion: " << minionTask.toString();
+            }
+            su.monsterClass = task.m_dest.id;
         }
 
         row.nmon.clear();
@@ -275,9 +329,9 @@ bool ModuleMonRandomizer::compatibleMonSeq(const std::string& sequenceId, const 
     return true;
 }
 
-void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraMinions, int depth)
+void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraMinions, std::map<std::string, std::string>& exisingRepl, int depth)
 {
-    if (depth > 10) {
+    if (depth > 5) {
         assert(false);
         throw std::runtime_error("Infinite recursion detected");
     }
@@ -294,10 +348,15 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
 
     const std::string origId = row.id;
     row.useForRando          = false;
-    row.id                   = "gen_" + row.id + "_" + std::to_string(task.m_areaId);
 
-    if (generatedIds.contains(row.id))
+    if (exisingRepl.contains(origId)) {
+        row.id = exisingRepl[origId];
         return;
+    }
+    const auto generatedId = "gen_" + origId + "_" + std::to_string(task.m_areaId);
+
+    exisingRepl[origId] = generatedId;
+    row.id              = generatedId;
 
     const int guestOrigLevel = row.level.value_or(0);
     row.level                = task.m_targetNormalLevel;
@@ -320,6 +379,7 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
             auto promoted = tcTable.promote(*tc, guestOrigLevel, task.m_targetNormalLevel);
             *tc           = promoted;
         }
+        row.level = task.m_targetNormalLevel;
     }
 
     if (task.m_makeChimera) {
@@ -364,9 +424,10 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
             const int diff = (branch == 1 ? max : min) - med;
             val            = med + roll * diff / steps;
         };
-        genStat(row.walkSpeed, 2, 6, 10);
-        genStat(row.runSpeed, 6, 10, 14);
+        genStat(row.walkSpeed, 2, 8, 14);
+        genStat(row.runSpeed, 6, 12, 18);
         genStat(row.toBlock, 5, 25, 45);
+
         for (auto& s : row.battleStats) {
             auto old = s.maxHP;
             genStat(s.maxHP, 40, 120, 280);
@@ -376,23 +437,22 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
             genStat(s.AC, 70, 100, 150);
             genStat(s.exp, 50, 100, 180);
 
-            s.A1minD = 0;
-            s.A1maxD = 0;
-            s.A1TH   = 0;
-            s.A2minD = 0;
-            s.A2maxD = 0;
-            s.A2TH   = 0;
-            s.S1minD = 0;
-            s.S1maxD = 0;
-            s.S1TH   = 0;
+            auto genMinMax = [&genStat](std::optional<int>& minVal, std::optional<int>& maxVal, int minLow, int minMed, int minHigh, int maxLow, int maxMed, int maxHigh) {
+                minVal = 0;
+                maxVal = 0;
+                genStat(minVal, minLow, minMed, minHigh);
+                genStat(maxVal, maxLow, maxMed, maxHigh);
+                maxVal = std::max(*minVal + 1, *maxVal);
+            };
 
-            genStat(s.A1minD, 50, 90, 160);
-            genStat(s.A1maxD, 110, 160, 250);
-            genStat(s.A2minD, 50, 90, 160);
-            genStat(s.A2maxD, 110, 160, 250);
-            genStat(s.S1minD, 50, 90, 160);
-            genStat(s.S1maxD, 110, 160, 250);
+            genMinMax(s.A1minD, s.A1maxD, 50, 90, 160, 110, 160, 250);
+            genMinMax(s.A2minD, s.A2maxD, 50, 90, 160, 110, 160, 250);
+            genMinMax(s.S1minD, s.S1maxD, 50, 90, 160, 110, 160, 250);
+            genMinMax(s.el1MinD, s.el1MaxD, 10, 30, 60, 30, 60, 100);
 
+            s.A1TH = 0;
+            s.A2TH = 0;
+            s.S1TH = 0;
             genStat(s.A1TH, 70, 100, 220);
             genStat(s.A2TH, 70, 100, 220);
             genStat(s.S1TH, 70, 100, 220);
@@ -400,11 +460,7 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
             if (!s.el1Dur.has_value())
                 s.el1Dur = 100;
 
-            genStat(s.el1Pct, 25, 50, 75);
-            genStat(s.el1MinD, 10, 30, 60);
-            genStat(s.el1MaxD, 30, 60, 100);
-
-            Element ran;
+            genStat(s.el1Pct, 25, 50, 100);
         }
         if (rowEx.hasMode(AnimationMode::A1) && row.el1Mode.empty()) {
             row.el1Mode = "A1";
@@ -418,14 +474,14 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
     }
 
     for (auto& minionId : row.minionIds) {
-        if (minionId.empty() || minionId == task.m_source->id)
+        if (minionId.empty())
             continue;
         MonsterTask minionTask = task;
         minionTask.m_source    = output.monstats.index.at(minionId);
         if (!minionTask.m_source->useForRando) {
             minionTask.m_skip = true;
         }
-        processTask(minionTask, extraMinions, depth + 1);
+        processTask(minionTask, extraMinions, exisingRepl, depth + 1);
         minionId = minionTask.m_dest.id;
         extraMinions.push_back(minionTask);
     }
@@ -433,7 +489,6 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
     output.monstats.extra.push_back(row);
     output.monstatsEx.extra.push_back(rowEx);
     output.idClones.monstats.push_back({ origId, row.id });
-    generatedIds.insert(row.id);
 }
 
 void ModuleMonRandomizer::prepareChimeraPools()
@@ -515,7 +570,7 @@ void ModuleMonRandomizer::prepareGuestPools()
         if (!row.useForRando || !row.spawnedAsNormal || row.hasMinions)
             continue;
 
-        validGuestIndexes.push_back(&row);
+        validGuestPointers.push_back(&row);
     }
 }
 

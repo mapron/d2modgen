@@ -114,6 +114,8 @@ struct DataRow_levels : public RowBase {
     std::optional<int>                numMon;
     std::vector<std::string>          mon, nmon, umon;
 
+    std::vector<int> superUniquesIndexes;
+
     std::string name;
 
     bool useForRando = false;
@@ -282,6 +284,8 @@ struct DataRow_monstats : public RowBase {
     bool spawnedAsElite  = false;
     bool hasMinions      = false;
     bool usedAsGuest     = false;
+
+    int firstAreaIndexToSpawn = -1;
 
     size_t                     donorIdx = size_t(-1);
     std::string                donorId;
@@ -509,9 +513,17 @@ struct DataRow_lvlmaze : public RowBase {
 
     std::vector<std::string> getColumns() const;
     void                     serialize();
+};
 
-private:
-    static const size_t maxTypes = 25;
+struct DataRow_superuniques : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::superuniques };
+
+    bool operator==(const DataRow_superuniques&) const noexcept = default;
+
+    std::string monsterClass;
+
+    std::vector<std::string> getColumns() const;
+    void                     serialize();
 };
 
 }

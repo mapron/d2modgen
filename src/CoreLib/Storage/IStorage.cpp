@@ -39,6 +39,7 @@ const std::array<std::string_view, size_t(TableId::count__)> s_tableNames{
     "sets",
     "skilldesc",
     "skills",
+    "superuniques",
     "treasureclassex",
     "uniqueitems",
 };

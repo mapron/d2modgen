@@ -248,6 +248,8 @@ struct Config : public CommonStruct {
 
         int64_t m_spawnKeepOriginal{ 100 };
 
+        int64_t m_superuniqueRando{ 0 };
+
         int64_t m_guestsMin{ 0 };
 
         int64_t m_guestsMax{ 0 };
@@ -292,6 +294,7 @@ struct Config : public CommonStruct {
             addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0).skipPresets();
             addScalar("numMonExtra", m_numMonExtra).setRange(-2, 10).setZero(0).addPreset(0, 5);
             addScalar("spawnKeepOriginal", m_spawnKeepOriginal).setRange(0, 100).setZero(100).setRecc(100).setPercent().addPreset(0, 50).addPreset(3, 50);
+            addScalar("superuniqueRando", m_superuniqueRando).setRange(0, 100).setZero(0).setRecc(50).setPercent().addPreset(0, 100).addPreset(3, 100);
             addScalar("guestsMin", m_guestsMin).setRange(0, 1000).setZero(0).setRecc(25).setPercent().addPreset(0, 0).addPreset(3, 200);
             addScalar("guestsMax", m_guestsMax).setRange(0, 1000).setZero(0).setRecc(50).setPercent().addPreset(0, 300).addPreset(3, 200);
             addScalar("chimeraAIMin", m_chimeraAIMin).setRange(0, 100).setZero(0).setRecc(0).setPercent();

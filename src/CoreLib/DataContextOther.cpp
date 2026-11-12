@@ -730,4 +730,14 @@ void DataRow_lvlmaze::serialize()
     ser(rooms);
 }
 
+std::vector<std::string> DataRow_superuniques::getColumns() const
+{
+    return { "class" };
+}
+
+void DataRow_superuniques::serialize()
+{
+    ser(monsterClass);
+}
+
 }

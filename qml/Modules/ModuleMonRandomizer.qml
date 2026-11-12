@@ -50,6 +50,10 @@ WidgetCommonTab {
         caption: qsTr("How many original monsters to keep")
         value_key: root.value_context.spawnKeepOriginal
     }
+    WidgetSlider {
+        caption: qsTr("Amount of random super-uniques")
+        value_key: root.value_context.superuniqueRando
+    }
 
     WidgetRangeSlider {
         caption: qsTr("Amount of guest spawns in area")

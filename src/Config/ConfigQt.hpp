@@ -510,6 +510,7 @@ class Config_MonsterRandomizer_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyInt_Qt* seed READ get_seed CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* numMonExtra READ get_numMonExtra CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* spawnKeepOriginal READ get_spawnKeepOriginal CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* superuniqueRando READ get_superuniqueRando CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* guestsMin READ get_guestsMin CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* guestsMax READ get_guestsMax CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* chimeraAIMin READ get_chimeraAIMin CONSTANT)
@@ -538,25 +539,26 @@ public:
         , m_seed(data.getPropertyInt(0))
         , m_numMonExtra(data.getPropertyInt(1))
         , m_spawnKeepOriginal(data.getPropertyInt(2))
-        , m_guestsMin(data.getPropertyInt(3))
-        , m_guestsMax(data.getPropertyInt(4))
-        , m_chimeraAIMin(data.getPropertyInt(5))
-        , m_chimeraAIMax(data.getPropertyInt(6))
-        , m_rollResistancesMin(data.getPropertyInt(7))
-        , m_rollResistancesMax(data.getPropertyInt(8))
-        , m_rollStatMin(data.getPropertyInt(9))
-        , m_rollStatMax(data.getPropertyInt(10))
-        , m_densityMin(data.getPropertyInt(11))
-        , m_densityMax(data.getPropertyInt(12))
-        , m_elitePacksMin(data.getPropertyInt(13))
-        , m_elitePacksMax(data.getPropertyInt(14))
-        , m_monGroupIncreaseSize(data.getPropertyInt(15))
+        , m_superuniqueRando(data.getPropertyInt(3))
+        , m_guestsMin(data.getPropertyInt(4))
+        , m_guestsMax(data.getPropertyInt(5))
+        , m_chimeraAIMin(data.getPropertyInt(6))
+        , m_chimeraAIMax(data.getPropertyInt(7))
+        , m_rollResistancesMin(data.getPropertyInt(8))
+        , m_rollResistancesMax(data.getPropertyInt(9))
+        , m_rollStatMin(data.getPropertyInt(10))
+        , m_rollStatMax(data.getPropertyInt(11))
+        , m_densityMin(data.getPropertyInt(12))
+        , m_densityMax(data.getPropertyInt(13))
+        , m_elitePacksMin(data.getPropertyInt(14))
+        , m_elitePacksMax(data.getPropertyInt(15))
+        , m_monGroupIncreaseSize(data.getPropertyInt(16))
         , m_hellResistances(data.getPropertyBool(1))
         , m_hellPacks(data.getPropertyBool(2))
         , m_maxPacks(data.getPropertyBool(3))
-        , m_minAbsDensity(data.getPropertyInt(16))
-        , m_minAbsPacks(data.getPropertyInt(17))
-        , m_minNormalZoneId(data.getPropertyInt(18))
+        , m_minAbsDensity(data.getPropertyInt(17))
+        , m_minAbsPacks(data.getPropertyInt(18))
+        , m_minNormalZoneId(data.getPropertyInt(19))
     {
     }
 
@@ -567,6 +569,8 @@ public:
     PropertyInt_Qt* get_numMonExtra() { return &m_numMonExtra; }
 
     PropertyInt_Qt* get_spawnKeepOriginal() { return &m_spawnKeepOriginal; }
+
+    PropertyInt_Qt* get_superuniqueRando() { return &m_superuniqueRando; }
 
     PropertyInt_Qt* get_guestsMin() { return &m_guestsMin; }
 
@@ -618,6 +622,8 @@ private:
     PropertyInt_Qt m_numMonExtra;
 
     PropertyInt_Qt m_spawnKeepOriginal;
+
+    PropertyInt_Qt m_superuniqueRando;
 
     PropertyInt_Qt m_guestsMin;
 

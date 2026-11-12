@@ -40,18 +40,19 @@ struct DataContext {
     DataTable<DataRow_experience>       experience;
     DataTable<DataRow_gamble>           gamble;
     DataTable<DataRow_hireling>         hireling;
+    DataTable<DataRow_inventory>        inventory;
     DataTable<DataRow_itemstatcost>     itemstatcost;
     DataTable<DataRow_levels>           levels;
+    DataTable<DataRow_lvlmaze>          lvlmaze;
+    DataTable<DataRow_missiles>         missiles;
     DataTable<DataRow_monlvl>           monlvl;
     DataTable<DataRow_monseq>           monseq;
     DataTable<DataRow_monstats>         monstats;
     DataTable<DataRow_monstatsEx>       monstatsEx;
     DataTable<DataRow_skilldesc>        skilldesc;
     DataTable<DataRow_skills>           skills;
+    DataTable<DataRow_superuniques>     superuniques;
     DataTable<DataRow_treasureclassex>  treasureclassex;
-    DataTable<DataRow_missiles>         missiles;
-    DataTable<DataRow_inventory>        inventory;
-    DataTable<DataRow_lvlmaze>          lvlmaze;
 
     static auto allTables()
     {
@@ -79,18 +80,19 @@ struct DataContext {
             &DataContext::experience,
             &DataContext::gamble,
             &DataContext::hireling,
+            &DataContext::inventory,
             &DataContext::itemstatcost,
             &DataContext::levels,
-            &DataContext::monseq,
+            &DataContext::lvlmaze,
+            &DataContext::missiles,
             &DataContext::monlvl,
+            &DataContext::monseq,
             &DataContext::monstats,
             &DataContext::monstatsEx,
             &DataContext::skilldesc,
             &DataContext::skills,
+            &DataContext::superuniques,
             &DataContext::treasureclassex,
-            &DataContext::missiles,
-            &DataContext::inventory,
-            &DataContext::lvlmaze,
         };
     }
 
