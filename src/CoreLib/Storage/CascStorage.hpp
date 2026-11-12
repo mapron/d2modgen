@@ -16,14 +16,11 @@ public:
         : m_storageRoot(storageRoot)
     {}
 
-    void setUseBaseSubolder(bool useBaseSubfolder) noexcept override { m_needBaseSubfolder = useBaseSubfolder; }
-
 private:
     StoredData readData() const noexcept override;
 
 private:
     const Mernel::std_path m_storageRoot;
-    bool                   m_needBaseSubfolder = false;
 };
 
 }

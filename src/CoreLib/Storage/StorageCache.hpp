@@ -16,7 +16,6 @@ public:
     struct Context {
         StorageType      m_storage;
         Mernel::std_path m_root;
-        bool             m_needBaseSubfolder = false;
 
         bool operator==(const Context& rh) const noexcept = default;
     };

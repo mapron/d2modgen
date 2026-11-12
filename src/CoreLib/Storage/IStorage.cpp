@@ -10,6 +10,10 @@ namespace D2ModGen {
 std::string_view IStorage::s_dataVersionPath = "data\\global\\dataversionbuild.txt";
 
 namespace {
+
+static const std::string s_tableSubfolder = "data\\global\\excel\\";
+static const std::string s_tableBase      = s_tableSubfolder + "base\\";
+
 const std::array<std::string_view, size_t(TableId::count__)> s_tableNames{
     "weapons",
     "armor",
@@ -147,6 +151,11 @@ bool isPrettyPrintable(JsonId id)
 std::string_view getBlobRelPath(BlobId id)
 {
     return s_blobpaths[static_cast<size_t>(id)];
+}
+std::string IStorage::makeTableRelativePath(TableId id, bool baseSub)
+{
+    const std::string& base = baseSub ? s_tableBase : s_tableSubfolder;
+    return base + std::string(getTableIdString(id)) + ".txt";
 }
 
 }

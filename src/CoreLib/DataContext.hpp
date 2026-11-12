@@ -102,8 +102,9 @@ struct DataContext {
     std::map<BlobId, std::string>          blobs;
     std::map<std::string, Image::Bitmap>   bitmaps;
 
-    int64_t dataVersion = 0;
-    bool    silent      = true;
+    int64_t dataVersion  = 0;
+    bool    silent       = true;
+    bool    useBaseTable = false;
 
     struct IdClone {
         std::string from;
@@ -139,10 +140,10 @@ private:
     bool postProcess();
 
     template<class Row>
-    bool parseTable(DataTable<Row>& table, const IStorage::StoredData& data);
+    bool parseTable(DataTable<Row>& table, const IStorage::TableMap& data);
 
     template<class Row>
-    bool serializeTable(const DataTable<Row>& table, IStorage::StoredData& data, bool full) const;
+    bool serializeTable(const DataTable<Row>& table, IStorage::TableMap& data, bool full) const;
 
     template<class Row>
     void diffTable(const DataTable<Row>& tableOlder, const DataTable<Row>& tableNewer, DataTable<Row>& result) const;

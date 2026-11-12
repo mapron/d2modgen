@@ -145,10 +145,10 @@ bool ConfigHandler::generate(const GenerationEnvironment& env)
     FolderStorage outDebugStorage(m_appData / "debug");
     FolderStorage outStorage(env.outputPath, env.outputMode);
     outStorage.setModName(env.modName);
-    outStorage.setUseBaseSubolder(env.needDataSubfolder);
     outStorage.setSilentTrace(false);
 
     DataContext previousData;
+    previousData.useBaseTable = env.needDataSubfolder;
 
     Logger(Logger::Notice) << "started in: " << path2string(env.outputPath);
 
@@ -159,12 +159,13 @@ bool ConfigHandler::generate(const GenerationEnvironment& env)
     }
 
     DataContext output;
-    output.silent = false;
+    output.useBaseTable = env.needDataSubfolder;
+    output.silent       = false;
 
     DataContext initialOutput;
 
     Logger() << "Loading data from main storage...";
-    const IStorage::StoredData inData = m_mainStorageCache->load({ env.inputMode, env.inputPath, env.needDataSubfolder });
+    const IStorage::StoredData inData = m_mainStorageCache->load({ env.inputMode, env.inputPath });
     if (!inData.valid) {
         Logger(Logger::Err) << "Failed to read data files from D2 folder.";
         return false;
@@ -217,6 +218,24 @@ bool ConfigHandler::generate(const GenerationEnvironment& env)
     IStorage::StoredData outData;
     if (!output.serializeData(outData))
         return false;
+
+    if (output.useBaseTable) {
+        // if we target pre-RotW, still generate copy of monstats tables in excel/. Need to use new column layout, that's why we read them again.
+        IStorage::StoredData outDataCopy;
+        DataContext          outputCopy;
+        outputCopy.useBaseTable = false; // switch to tablesMain read/write
+        outputCopy.parseData(inData);
+        outputCopy.monstats.rows   = output.monstats.rows;
+        outputCopy.monstatsEx.rows = output.monstatsEx.rows;
+
+        outputCopy.silent = true;
+        if (!outputCopy.serializeData(outDataCopy))
+            return false;
+
+        outData.tablesMain.clear();
+        outData.tablesMain[TableId::monstats]  = outDataCopy.tablesMain[TableId::monstats];
+        outData.tablesMain[TableId::monstats2] = outDataCopy.tablesMain[TableId::monstats2];
+    }
 
     if (!outStorage.create())
         return false;

@@ -28,7 +28,7 @@ bool DataContext::parseData(const IStorage::StoredData& data, bool doPostprocess
 
     auto parseTab = [&data, this](auto m) -> bool {
         auto& table = this->*m;
-        return parseTable(table, data);
+        return parseTable(table, useBaseTable ? data.tablesBase : data.tablesMain);
     };
 
     const auto result = std::apply([&parseTab](const auto&... args) -> bool {
@@ -77,7 +77,7 @@ bool DataContext::serializeData(IStorage::StoredData& data) const
 
     auto serializeTab = [&data, this](auto m) -> bool {
         const auto& table = this->*m;
-        return serializeTable(table, data, true);
+        return serializeTable(table, useBaseTable ? data.tablesBase : data.tablesMain, true);
     };
 
     const auto result = std::apply([&serializeTab](const auto&... args) -> bool {
@@ -115,7 +115,7 @@ IStorage::StoredData DataContext::writeDebug() const
 
     auto serializeTab = [&data, this](auto m) -> bool {
         const auto& table = this->*m;
-        return serializeTable(table, data, false);
+        return serializeTable(table, useBaseTable ? data.tablesBase : data.tablesMain, false);
     };
 
     std::ignore = std::apply([&serializeTab](const auto&... args) -> bool {
@@ -387,12 +387,12 @@ bool DataContext::postProcess()
 }
 
 template<class Row>
-bool DataContext::parseTable(DataTable<Row>& table, const IStorage::StoredData& data)
+bool DataContext::parseTable(DataTable<Row>& table, const IStorage::TableMap& data)
 {
     const TableId tableId = Row::s_tableId;
-    if (!data.tables.contains(tableId))
+    if (!data.contains(tableId))
         return true;
-    const std::string& buffer = data.tables.at(tableId);
+    const std::string& buffer = data.at(tableId);
     if (!table.parseTable(buffer)) {
         if (!silent)
             Logger(Logger::Warning) << "failed to parse csv:" << getTableIdString(tableId);
@@ -411,17 +411,17 @@ bool DataContext::parseTable(DataTable<Row>& table, const IStorage::StoredData& 
 }
 
 template<class Row>
-bool DataContext::serializeTable(const DataTable<Row>& table, IStorage::StoredData& data, bool full) const
+bool DataContext::serializeTable(const DataTable<Row>& table, IStorage::TableMap& data, bool full) const
 {
     if (!table.valid)
         return true;
 
     const TableId tableId = Row::s_tableId;
-    std::string&  buffer  = data.tables[tableId];
+    std::string&  buffer  = data[tableId];
     if (!table.serializeTable(buffer, full))
         return false;
 
-    if (full)
+    if (full && !silent)
         Logger() << "serialize '" << getTableIdString(tableId) << "' csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "] => buffer[" << buffer.size() << "] ";
 
     return true;

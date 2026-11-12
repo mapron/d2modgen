@@ -89,7 +89,7 @@ IStorage::StoredData StormStorage::readData() const noexcept
         if (!readStormFile(buffer, IStorage::makeTableRelativePath(id, false)))
             continue;
 
-        result.tables[id] = std::move(buffer);
+        result.tablesMain[id] = std::move(buffer);
     }
     for (BlobId id : getBlobIdsLegacy()) {
         std::string buffer;
@@ -99,7 +99,7 @@ IStorage::StoredData StormStorage::readData() const noexcept
         result.blobs[id] = std::move(buffer);
     }
     // hmm probably never will have json in mpq.
-    result.valid = !result.tables.empty();
+    result.valid = !result.tablesMain.empty();
 
     return result;
 }

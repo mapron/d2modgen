@@ -27,7 +27,6 @@ public:
 
     void setSilentTrace(bool silent) noexcept override { m_silent = silent; }
     void setFileSuffix(const std::string& suffix) noexcept override { m_suffix = suffix; }
-    void setUseBaseSubolder(bool useBaseSubfolder) noexcept override { m_needBaseSubfolder = useBaseSubfolder; }
     void setModName(const std::string& modname) noexcept override { m_modname = modname; }
 
 private:
@@ -37,7 +36,6 @@ private:
 
     const StorageType m_storageType;
     std_path          m_root;
-    bool              m_needBaseSubfolder;
     bool              m_silent = true;
     std::string       m_suffix;
     std::string       m_modname;

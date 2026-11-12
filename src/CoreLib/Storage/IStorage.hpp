@@ -184,10 +184,12 @@ public:
     static std::string makeTableRelativePath(TableId id, bool baseSub);
 
     static std::string_view s_dataVersionPath;
+    using TableMap = std::map<TableId, std::string>;
 
     struct StoredData {
         bool                               valid = false;
-        std::map<TableId, std::string>     tables;
+        TableMap                           tablesMain;
+        TableMap                           tablesBase; // D2R - LoD
         std::map<JsonId, std::string>      jsonFiles;
         std::map<BlobId, std::string>      blobs;
         std::map<std::string, std::string> bitmaps;
@@ -204,7 +206,6 @@ public:
 
     virtual void setSilentTrace(bool silent) noexcept {}
     virtual void setFileSuffix(const std::string& suffix) noexcept {}
-    virtual void setUseBaseSubolder(bool useBaseSubfolder) noexcept {}
 };
 
 class IWriteableStorage : public IStorage {

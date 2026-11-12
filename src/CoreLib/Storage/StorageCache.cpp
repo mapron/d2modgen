@@ -34,7 +34,6 @@ IStorage::StoredData StorageCache::loadImpl(const Context& input)
     else {
         storage = std::make_unique<FolderStorage>(input.m_root, input.m_storage);
     }
-    storage->setUseBaseSubolder(input.m_needBaseSubfolder);
     storage->setSilentTrace(false);
     return storage->readData();
 }

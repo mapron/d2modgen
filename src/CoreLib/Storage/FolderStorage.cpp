@@ -16,7 +16,6 @@ namespace D2ModGen {
 
 namespace {
 static const std::string s_tableSubfolder = "data\\global\\excel\\";
-static const std::string s_tableBase      = s_tableSubfolder + "base\\";
 
 void removeRecursively(const std_path& folder)
 {
@@ -38,12 +37,6 @@ void removeRecursively(const std_path& folder)
     }
 }
 
-}
-
-std::string IStorage::makeTableRelativePath(TableId id, bool baseSub)
-{
-    const std::string& base = baseSub ? s_tableBase : s_tableSubfolder;
-    return base + std::string(getTableIdString(id)) + ".txt";
 }
 
 FolderStorage::FolderStorage(const std_path& storageRoot,
@@ -115,11 +108,21 @@ IStorage::StoredData FolderStorage::readData() const noexcept
 
     for (TableId id : getTableIdsRead()) {
         std::string       buffer;
-        const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + ".txt" : makeTableRelativePath(id, m_needBaseSubfolder);
+        const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + ".txt" : makeTableRelativePath(id, false);
         if (!readFile(buffer, relPath, true))
             continue;
 
-        result.tables[id] = std::move(buffer);
+        result.tablesMain[id] = std::move(buffer);
+    }
+    if (m_storageType != StorageType::CsvFolder) {
+        for (TableId id : getTableIdsRead()) {
+            std::string       buffer;
+            const std::string relPath = makeTableRelativePath(id, true);
+            if (!readFile(buffer, relPath))
+                continue;
+
+            result.tablesBase[id] = std::move(buffer);
+        }
     }
     if (m_storageType != StorageType::CsvFolder) {
         for (JsonId id : getJsonIdsRead()) {
@@ -145,7 +148,7 @@ IStorage::StoredData FolderStorage::readData() const noexcept
         }
     }
 
-    result.valid = !result.tables.empty();
+    result.valid = !(result.tablesMain.empty() && result.tablesBase.empty());
 
     return result;
 }
@@ -225,15 +228,21 @@ bool FolderStorage::writeMainData(const StoredData& data) const noexcept
     if (!m_silent) {
         Logger(Logger::Notice) << "Write data to: " << getRoot();
     }
-
-    for (const auto& [id, tableData] : data.tables) {
-        const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + m_suffix + ".txt" : makeTableRelativePath(id, m_needBaseSubfolder);
+    for (const auto& [id, tableData] : data.tablesMain) {
+        const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + m_suffix + ".txt" : makeTableRelativePath(id, false);
         const auto        absPath = root / relPath;
         if (!writeFile(tableData, absPath)) {
             return false;
         }
     }
     if (m_storageType != StorageType::CsvFolder) {
+        for (const auto& [id, tableData] : data.tablesBase) {
+            const std::string relPath = makeTableRelativePath(id, true);
+            const auto        absPath = root / relPath;
+            if (!writeFile(tableData, absPath)) {
+                return false;
+            }
+        }
         for (const auto& [id, memoryData] : data.jsonFiles) {
             const auto absPath = root / std::string(getJsonRelPath(id));
             if (!writeFile(memoryData, absPath)) {
