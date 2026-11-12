@@ -28,6 +28,7 @@ enum class TableId
     itemstatcost,
     itemtypes,
     levels,
+    lvlmaze,
     magicprefix,
     magicsuffix,
     misc,

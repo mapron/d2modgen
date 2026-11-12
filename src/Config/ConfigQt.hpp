@@ -1314,6 +1314,28 @@ private:
     PropertyInt_Qt m_inventoryWidth;
 };
 
+class Config_Maps_Qt : public CommonStruct_Qt {
+    Q_OBJECT
+    Q_PROPERTY(PropertyInt_Qt* mazeMode READ get_mazeMode CONSTANT)
+
+public:
+    explicit Config_Maps_Qt(Config::Maps& data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
+        , m_mazeMode(data.getPropertyInt(0))
+    {
+    }
+
+    PropertyInt_Qt* get_mazeMode() { return &m_mazeMode; }
+
+    Q_INVOKABLE void assign(Config_Maps_Qt* another) { m_data.assign(another->m_data, true); }
+
+private:
+    Config::Maps& m_data;
+
+    PropertyInt_Qt m_mazeMode;
+};
+
 class Config_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(Config_TreasureClasses_Qt* treasureClasses READ get_treasureClasses CONSTANT)
@@ -1328,6 +1350,7 @@ class Config_Qt : public CommonStruct_Qt {
     Q_PROPERTY(Config_MonsterStats_Qt* monsterStats READ get_monsterStats CONSTANT)
     Q_PROPERTY(Config_QualityOfLife_Qt* qualityOfLife READ get_qualityOfLife CONSTANT)
     Q_PROPERTY(Config_ExpandedInventory_Qt* expandedInventory READ get_expandedInventory CONSTANT)
+    Q_PROPERTY(Config_Maps_Qt* maps READ get_maps CONSTANT)
 
 public:
     explicit Config_Qt(Config& data)
@@ -1345,6 +1368,7 @@ public:
         , m_monsterStats(data.m_monsterStats)
         , m_qualityOfLife(data.m_qualityOfLife)
         , m_expandedInventory(data.m_expandedInventory)
+        , m_maps(data.m_maps)
     {
     }
 
@@ -1371,6 +1395,8 @@ public:
     Config_QualityOfLife_Qt* get_qualityOfLife() { return &m_qualityOfLife; }
 
     Config_ExpandedInventory_Qt* get_expandedInventory() { return &m_expandedInventory; }
+
+    Config_Maps_Qt* get_maps() { return &m_maps; }
 
     Q_INVOKABLE void assign(Config_Qt* another) { m_data.assign(another->m_data, true); }
 
@@ -1400,6 +1426,8 @@ private:
     Config_QualityOfLife_Qt m_qualityOfLife;
 
     Config_ExpandedInventory_Qt m_expandedInventory;
+
+    Config_Maps_Qt m_maps;
 };
 
 }

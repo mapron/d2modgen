@@ -496,4 +496,22 @@ struct DataRow_inventory : public RowBase {
     void                     serialize();
 };
 
+struct DataRow_lvlmaze : public RowBase {
+    static constexpr const TableId s_tableId{ TableId::lvlmaze };
+
+    bool operator==(const DataRow_lvlmaze&) const noexcept = default;
+
+    std::string                       name;
+    std::optional<int>                levelId;
+    std::array<std::optional<int>, 3> rooms;
+
+    bool isValid() const { return levelId.has_value(); }
+
+    std::vector<std::string> getColumns() const;
+    void                     serialize();
+
+private:
+    static const size_t maxTypes = 25;
+};
+
 }

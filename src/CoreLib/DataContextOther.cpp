@@ -718,4 +718,16 @@ void DataRow_inventory::serialize()
     }
 }
 
+std::vector<std::string> DataRow_lvlmaze::getColumns() const
+{
+    return { "name", "level", "rooms", "rooms(n)", "rooms(h)" };
+}
+
+void DataRow_lvlmaze::serialize()
+{
+    ser(name);
+    ser(levelId);
+    ser(rooms);
+}
+
 }

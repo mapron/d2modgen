@@ -17,6 +17,7 @@
 #include "ModuleQol.hpp"
 #include "ModuleSkillRandomizer.hpp"
 #include "ModuleExpandedInventory.hpp"
+#include "ModuleMaps.hpp"
 
 #include "Logger.hpp"
 
@@ -38,6 +39,7 @@ void ModuleGlobal::reset()
     create<ModuleMonStats>("MonsterStats");
     create<ModuleQol>("QualityOfLife");
     create<ModuleExpandedInventory>("ExpandedInventory");
+    create<ModuleMaps>("Maps");
 
     // modules that can add more rows, thus in the end
     create<ModuleCube>("HoradricCube");

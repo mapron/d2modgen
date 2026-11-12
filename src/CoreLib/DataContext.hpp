@@ -51,6 +51,7 @@ struct DataContext {
     DataTable<DataRow_treasureclassex>  treasureclassex;
     DataTable<DataRow_missiles>         missiles;
     DataTable<DataRow_inventory>        inventory;
+    DataTable<DataRow_lvlmaze>          lvlmaze;
 
     static auto allTables()
     {
@@ -89,6 +90,7 @@ struct DataContext {
             &DataContext::treasureclassex,
             &DataContext::missiles,
             &DataContext::inventory,
+            &DataContext::lvlmaze,
         };
     }
 

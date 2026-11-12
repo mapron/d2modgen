@@ -25,6 +25,7 @@ const std::array<std::string_view, size_t(TableId::count__)> s_tableNames{
     "itemstatcost",
     "itemtypes",
     "levels",
+    "lvlmaze",
     "magicprefix",
     "magicsuffix",
     "misc",

@@ -115,6 +115,7 @@ ApplicationWindow {
                     Item {}
                     ModuleMonStats {}
                     ModuleChallenge {}
+                    ModuleMaps {}
 
                     Item {}
                     ModuleCube {}

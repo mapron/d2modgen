@@ -617,6 +617,14 @@ struct Config : public CommonStruct {
             addScalar("inventoryWidth", m_inventoryWidth).setRange(10, 15).setZero(10).setRecc(10);
         }
     };
+    struct Maps : public CommonStruct {
+        int64_t m_mazeMode{ 0 };
+
+        Maps()
+        {
+            addScalar("mazeMode", m_mazeMode).setRange(0, 4).setZero(0).setRecc(0);
+        }
+    };
     TreasureClasses m_treasureClasses{};
 
     ItemBalance m_itemBalance{};
@@ -641,6 +649,8 @@ struct Config : public CommonStruct {
 
     ExpandedInventory m_expandedInventory{};
 
+    Maps m_maps{};
+
     Config()
     {
         addStruct("treasureClasses", m_treasureClasses);
@@ -655,6 +665,7 @@ struct Config : public CommonStruct {
         addStruct("monsterStats", m_monsterStats);
         addStruct("qualityOfLife", m_qualityOfLife);
         addStruct("expandedInventory", m_expandedInventory);
+        addStruct("maps", m_maps);
     }
 };
 }

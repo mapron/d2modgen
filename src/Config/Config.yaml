@@ -253,6 +253,10 @@ structs:
         members:
             inventoryHeight: { type: int, zero:  4, recc:  4, min:  4, max: 8 }
             inventoryWidth:  { type: int, zero: 10, recc: 10, min: 10, max: 15 }
+            
+    Maps:
+        members:
+            mazeMode: { type: int, zero:  0, recc:  0, min:  0, max: 4 } # enum=none|compact|hormal|hell
 
 members:
     treasureClasses:   { type: struct, name:  TreasureClasses }
@@ -269,4 +273,5 @@ members:
     monsterStats:      { type: struct, name:  MonsterStats   }
     qualityOfLife:     { type: struct, name:  QualityOfLife   }
     expandedInventory: { type: struct, name:  ExpandedInventory   }
+    maps:              { type: struct, name:  Maps   }
 

@@ -69,28 +69,32 @@ ColumnLayout {
             tabIndex: 12
         },
         {
+            name: qsTr("Areas and density"),
+            tabIndex: 13
+        },
+        {
             name: qsTr("Misc"),
             tabIndex: -1
         },
         {
             name: qsTr("Horadric Cube"),
-            tabIndex: 14
-        },
-        {
-            name: qsTr("Gambling"),
             tabIndex: 15
         },
         {
-            name: qsTr("Character"),
+            name: qsTr("Gambling"),
             tabIndex: 16
         },
         {
-            name: qsTr("Quality of life"),
+            name: qsTr("Character"),
             tabIndex: 17
         },
         {
-            name: qsTr("Large inventory"),
+            name: qsTr("Quality of life"),
             tabIndex: 18
+        },
+        {
+            name: qsTr("Large inventory"),
+            tabIndex: 19
         },
     ]
     // Block horizontal growth, keeping this sidebar strictly predictable
