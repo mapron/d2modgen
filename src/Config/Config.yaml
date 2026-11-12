@@ -15,15 +15,15 @@ structs:
                 members:
                     enabled: { type: bool, zero: false, recc: true }
                     forceQuestDrops: { type: bool, zero: false, recc: true }
-                    chanceForHighLevel: { type: int, zero: 100, recc: 200, min: 50, max: 2000, percent: true, logScale: true }
+                    chanceForHighLevel: { type: int, zero: 100, recc: 150, min: 50, max: 2000, percent: true, logScale: true }
 
-                    noneliteFactorIncrease: { type: int, zero: 100, recc: 200, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 1000, strong: 300 , weak: 150} }
+                    noneliteFactorIncrease: { type: int, zero: 100, recc: 150, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 1000, strong: 300 , weak: 150} }
 
                     rareFactorIncrease:   { type: int, zero: 100, recc: 200, min: 20, max: 2000, percent: true, logScale: true, presets: {crazy: 2000, strong: 200 , weak: 100} }
-                    setFactorIncrease:    { type: int, zero: 100, recc: 400, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 600 , weak: 200} }
-                    uniqueFactorIncrease: { type: int, zero: 100, recc: 500, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 700 , weak: 250} }
+                    setFactorIncrease:    { type: int, zero: 100, recc: 300, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 600 , weak: 200} }
+                    uniqueFactorIncrease: { type: int, zero: 100, recc: 400, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 700 , weak: 250} }
                     
-                    inverseNodropPercent:  { type: int, zero: 100, recc: 200, min: 25, max: 9100, percent: true, logScale: true, presets: {crazy: 9000, strong: 300} }
+                    inverseNodropPercent:  { type: int, zero: 100, recc: 150, min: 25, max: 9100, percent: true, logScale: true, presets: {crazy: 9000, strong: 300} }
                     equipPercent: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
                     goldPercent:  { type: int, zero: 100, min: 5 , max: 1000, percent: true, logScale: true }
                     goodPercent:  { type: int, zero: 100, min: 25, max: 1000, percent: true, logScale: true }

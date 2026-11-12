@@ -71,12 +71,12 @@ struct Config : public CommonStruct {
             {
                 addScalar("enabled", m_enabled).setZero(false).setRecc(true);
                 addScalar("forceQuestDrops", m_forceQuestDrops).setZero(false).setRecc(true);
-                addScalar("chanceForHighLevel", m_chanceForHighLevel).setRange(50, 2000).setZero(100).setRecc(200).setPercent().setLogScale();
-                addScalar("noneliteFactorIncrease", m_noneliteFactorIncrease).setRange(20, 5000).setZero(100).setRecc(200).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 300).addPreset(2, 150);
+                addScalar("chanceForHighLevel", m_chanceForHighLevel).setRange(50, 2000).setZero(100).setRecc(150).setPercent().setLogScale();
+                addScalar("noneliteFactorIncrease", m_noneliteFactorIncrease).setRange(20, 5000).setZero(100).setRecc(150).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 300).addPreset(2, 150);
                 addScalar("rareFactorIncrease", m_rareFactorIncrease).setRange(20, 2000).setZero(100).setRecc(200).setPercent().setLogScale().addPreset(0, 2000).addPreset(1, 200).addPreset(2, 100);
-                addScalar("setFactorIncrease", m_setFactorIncrease).setRange(20, 5000).setZero(100).setRecc(400).setPercent().setLogScale().addPreset(0, 5000).addPreset(1, 600).addPreset(2, 200);
-                addScalar("uniqueFactorIncrease", m_uniqueFactorIncrease).setRange(20, 5000).setZero(100).setRecc(500).setPercent().setLogScale().addPreset(0, 5000).addPreset(1, 700).addPreset(2, 250);
-                addScalar("inverseNodropPercent", m_inverseNodropPercent).setRange(25, 9100).setZero(100).setRecc(200).setPercent().setLogScale().addPreset(0, 9000).addPreset(1, 300);
+                addScalar("setFactorIncrease", m_setFactorIncrease).setRange(20, 5000).setZero(100).setRecc(300).setPercent().setLogScale().addPreset(0, 5000).addPreset(1, 600).addPreset(2, 200);
+                addScalar("uniqueFactorIncrease", m_uniqueFactorIncrease).setRange(20, 5000).setZero(100).setRecc(400).setPercent().setLogScale().addPreset(0, 5000).addPreset(1, 700).addPreset(2, 250);
+                addScalar("inverseNodropPercent", m_inverseNodropPercent).setRange(25, 9100).setZero(100).setRecc(150).setPercent().setLogScale().addPreset(0, 9000).addPreset(1, 300);
                 addScalar("equipPercent", m_equipPercent).setRange(20, 1000).setZero(100).setPercent().setLogScale();
                 addScalar("goldPercent", m_goldPercent).setRange(5, 1000).setZero(100).setPercent().setLogScale();
                 addScalar("goodPercent", m_goodPercent).setRange(25, 1000).setZero(100).setPercent().setLogScale();
