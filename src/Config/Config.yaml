@@ -73,7 +73,7 @@ structs:
         members:
             enabled: { type: bool, zero: false, recc: true }
 
-            seed: { type: int, zero: 0, min: 0, max: 4294967295 }
+            seed: { type: int, zero: 0, min: 0, max: 4294967295, skipPresets: true }
     
             forceCasterType:         { type: int, zero: 0,   recc: 25, min: 0, max: 100, percent: true }
             itemFit:                 { type: int, zero: 100, recc: 90, min: 0, max: 100, percent: true, presets: {crazy: 50, strong: 75} }
@@ -103,7 +103,7 @@ structs:
         members:
             enabled:              { type: bool, zero: false, recc: true }
 
-            seed: { type: int, zero: 0, min: 0, max: 4294967295 }
+            seed: { type: int, zero: 0, min: 0, max: 4294967295, skipPresets: true }
             
             numMonExtra:          { type: int, zero: 0, min: -2, max: 10, presets: { crazy: 5} }
 
@@ -136,7 +136,7 @@ structs:
         members:
             enabled:               { type: bool, zero: false, recc: true , presets: { weak: false} }
 
-            seed: { type: int, zero: 0, min: 0, max: 4294967295 }
+            seed: { type: int, zero: 0, min: 0, max: 4294967295, skipPresets: true }
 
             chanceElemChange:      { type: int , zero: 0, recc: 75 , min: 0, max: 100, percent: true}
             maximumElements:       { type: int , zero: 5, recc: 3  , min: 2, max: 5 }

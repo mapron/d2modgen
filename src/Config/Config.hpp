@@ -216,7 +216,7 @@ struct Config : public CommonStruct {
         ItemRandomizer()
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true);
-            addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0);
+            addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0).skipPresets();
             addScalar("forceCasterType", m_forceCasterType).setRange(0, 100).setZero(0).setRecc(25).setPercent();
             addScalar("itemFit", m_itemFit).setRange(0, 100).setZero(100).setRecc(90).setPercent().addPreset(0, 50).addPreset(1, 75);
             addScalar("levelMinus", m_levelMinus).setRange(0, 100).setZero(0).setRecc(10).addPreset(0, 0).addPreset(1, 5);
@@ -289,7 +289,7 @@ struct Config : public CommonStruct {
         MonsterRandomizer()
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true);
-            addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0);
+            addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0).skipPresets();
             addScalar("numMonExtra", m_numMonExtra).setRange(-2, 10).setZero(0).addPreset(0, 5);
             addScalar("spawnKeepOriginal", m_spawnKeepOriginal).setRange(0, 100).setZero(100).setRecc(100).setPercent().addPreset(0, 50).addPreset(3, 50);
             addScalar("guestsMin", m_guestsMin).setRange(0, 1000).setZero(0).setRecc(25).setPercent().addPreset(0, 0).addPreset(3, 200);
@@ -363,7 +363,7 @@ struct Config : public CommonStruct {
         SkillRandomizer()
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true).addPreset(2, false);
-            addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0);
+            addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0).skipPresets();
             addScalar("chanceElemChange", m_chanceElemChange).setRange(0, 100).setZero(0).setRecc(75).setPercent();
             addScalar("maximumElements", m_maximumElements).setRange(2, 5).setZero(5).setRecc(3);
             addScalar("randoMode", m_randoMode).setRange(0, 3).setZero(0).setRecc(3);

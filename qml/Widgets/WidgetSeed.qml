@@ -27,6 +27,6 @@ RowLayout {
     }
     Button {
         text: qsTr("Generate new")
-        onClicked: root.value_key = appui.makeSeed()
+        onClicked: root.value_key.value = appui.makeSeed()
     }
 }

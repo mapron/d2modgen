@@ -28,7 +28,8 @@ struct CommonStruct {
             Scalar m_value;
         };
         std::vector<Preset> m_presets;
-        bool                m_isConstant = false;
+        bool                m_isConstant  = false;
+        bool                m_skipPresets = false;
 
         Derived& addPreset(int globalIndex, Scalar value)
         {
@@ -59,6 +60,11 @@ struct CommonStruct {
             m_isConstant = true;
             return static_cast<Derived&>(*this);
         }
+        Derived& skipPresets()
+        {
+            m_skipPresets = true;
+            return static_cast<Derived&>(*this);
+        }
 
         CommonStruct* m_parent = nullptr;
         // this is to send notification from BL to UX, e.g. "we reloaded configuration, please update controls"
@@ -86,8 +92,23 @@ struct CommonStruct {
             if (!m_isConstant)
                 *m_pointer = val;
         }
+        void resetToZero()
+        {
+            if (m_skipPresets || m_isConstant)
+                return;
+            *m_pointer = m_zero;
+        }
+        void resetToRecommended()
+        {
+            if (m_skipPresets || m_isConstant)
+                return;
+            *m_pointer = m_recc;
+        }
+
         void activatePreset(int globalIndex)
         {
+            if (m_skipPresets || m_isConstant)
+                return;
             for (auto& preset : m_presets)
                 if (preset.m_globalIndex == globalIndex)
                     set(preset.m_value);
@@ -136,20 +157,17 @@ protected:
         void resetToZero()
         {
             for (auto& prop : m_list)
-                if (!prop.m_isConstant)
-                    *prop.m_pointer = prop.m_zero;
+                prop.resetToZero();
         }
         void resetToRecommended()
         {
             for (auto& prop : m_list)
-                if (!prop.m_isConstant)
-                    *prop.m_pointer = prop.m_recc;
+                prop.resetToRecommended();
         }
         void activatePreset(int globalIndex)
         {
             for (auto& prop : m_list)
-                if (!prop.m_isConstant)
-                    prop.activatePreset(globalIndex);
+                prop.activatePreset(globalIndex);
         }
         void readFromProperty(const Mernel::PropertyTree& propertyTree)
         {

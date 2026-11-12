@@ -82,6 +82,8 @@ def get_member_info(key, record, preset_names, counters, fqn):
             setters = setters +  f'.setLogScale()'
         if 'constant' in record:
             setters = setters +  f'.setConstant()'
+        if 'skipPresets' in record:
+            setters = setters +  f'.skipPresets()'
         if 'presets' in record:
             for preset_name, preset_value in record['presets'].items():
                 idx = get_index_from_list(preset_names, preset_name)
