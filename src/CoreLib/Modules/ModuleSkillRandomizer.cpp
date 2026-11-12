@@ -467,6 +467,8 @@ bool ModuleSkillRandomizer::CharacterData::readExisting(DataContext& output)
         rowIdx++;
         if (row.classSpecific != clas)
             continue;
+        if (row.skilldesc.empty())
+            continue;
 
         validCnt++;
         SkillInfo skill;
