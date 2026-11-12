@@ -300,8 +300,7 @@ void ModuleExpandedInventory::generate()
     const int growWidth  = growCellX * cellWidth;
     const int growHeight = growCellY * cellHeight;
 
-    const auto gridOffsetMkbd = Point{ ((cellCountXmax - cellCountX) / 2) * cellWidth, ((cellCountYmax - cellCountY) / 2) * cellHeight };
-    const auto gridOffsetCtrl = Point{ (cellCountXmax - cellCountX) * cellWidth / 2, gridOffsetMkbd.y };
+    const auto gridOffset = Point{ (cellCountXmax - cellCountX) * cellWidth / 2, (cellCountYmax - cellCountY) * cellHeight / 2 };
 
     DebugOverlayList debugOverlays;
     BlitDescList     blitList;
@@ -321,7 +320,6 @@ void ModuleExpandedInventory::generate()
         const Point targetOrigin = desc.controller ? s_ctrlSpriteOriginExpanded : Point{};
 
         const Point widgetsOffset = desc.controller ? Point{ -15, 0 } : Point{ 100, 0 };
-        const Point gridOffset    = desc.controller ? gridOffsetCtrl : gridOffsetMkbd;
 
         if (!desc.expansion && !desc.controller)
             json["fields"]["rect"] = Mernel::PropertyTreeScalar("$RightPanelRect_ExpandedInventory");
