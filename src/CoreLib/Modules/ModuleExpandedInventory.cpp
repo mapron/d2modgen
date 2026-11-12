@@ -121,6 +121,9 @@ const Point s_ctrlBackgroundRectExpanded{ -789, -860 };
 const Point s_ctrlSpriteOriginOrig{ s_ctrlPanelCenter.x + s_ctrlBackgroundRectOrig.x, s_ctrlPanelCenter.y + s_ctrlBackgroundRectOrig.y };
 const Point s_ctrlSpriteOriginExpanded{ s_ctrlPanelCenter.x + s_ctrlBackgroundRectExpanded.x, s_ctrlPanelCenter.y + s_ctrlBackgroundRectExpanded.y };
 
+// Stone area of the biggest panel in controller mainpanelbg.sprite, without its frame and corner ornaments.
+const Rect s_panelBgStoneRect{ .topLeft = { 645, 202 }, .size = { 1590, 1366 } };
+
 const int  s_ctrlFrameMargin = 12; // controller frames extend past the widget rect
 const Size s_ctrlBeltSize{ 505, 118 };
 
@@ -343,7 +346,7 @@ void ModuleExpandedInventory::generate()
                 d.rect.topLeft += widgetsOffset; // @todo: future uncollapsing
                 bd.moveTo = d.rect.topLeft;
 
-                if (!desc.controller || bd.rect.size.width > 0) {
+                if (bd.rect.size.width > 0) {
                     const int margin = desc.controller ? s_ctrlFrameMargin : 10; // extra borders
                     bd.rect.expand(margin);
                     bd.moveTo -= Point{ margin, margin };
@@ -417,9 +420,9 @@ void ModuleExpandedInventory::generate()
         }
     }
 
-    Bitmap stone;
-    stone.resize({ 1600, 800 });
-    stone.fillWithStone();
+    Bitmap panelBgHighre, panelBgLowend;
+    panelBgHighre.readFromSprite(output.blobs[BlobId::OrignCtrlMainPanelBgSpriteHighre]);
+    panelBgLowend.readFromSprite(output.blobs[BlobId::OrignCtrlMainPanelBgSpriteLowend]);
 
     for (const auto& desc : s_spriteDescs) {
         const auto& origSpriteBlob    = output.blobs[desc.orig];
@@ -441,7 +444,9 @@ void ModuleExpandedInventory::generate()
         if (desc.controller) {
             bmp.rgba.assign(bmp.rgba.size(), 0); // the game draws its own panel behind the controller background
         } else {
-            bmp.tileWith(stone);
+            Rect stoneRect = s_panelBgStoneRect;
+            stoneRect /= downscale;
+            bmp.drawScaled({ .topLeft = {}, .size = newSize }, desc.lowres ? panelBgLowend : panelBgHighre, stoneRect);
             bmp.copyBorders(origBmp, cornerSize);
         }
 

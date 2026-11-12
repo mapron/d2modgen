@@ -151,7 +151,6 @@ struct MODGENCORE_EXPORT Bitmap {
     void paintLineV(Point point, int height);
 
     void fill();
-    void fillWithStone();
     void copyBorders(const Bitmap& src, Size cornerSize);
 
     void fillRect(Rect rect);
@@ -160,7 +159,7 @@ struct MODGENCORE_EXPORT Bitmap {
     void draw(Point destPoint, const Bitmap& src, Point srcPoint, Size size);
     void drawBlended(Point destPoint, const Bitmap& src, Point srcPoint, Size size);
 
-    void tileWith(const Bitmap& tile);
+    void drawScaled(Rect destRect, const Bitmap& src, Rect srcRect); // bilinear
 
     void drawDot(Point destPoint, const Bitmap& src, Point srcPoint);
 };
