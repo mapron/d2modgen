@@ -82,11 +82,13 @@ void ModuleGlobal::generate()
     };
     auto underscored = [](std::string s) {
         std::replace(s.begin(), s.end(), ' ', '_');
+        std::replace(s.begin(), s.end(), '-', '_');
         return s;
     };
 
-    auto doReplace = [&replaceKey, &underscoreBeforeLast, &underscored](const DataContext::IdCloneList& cloneList, Mernel::PropertyTree& jsonDoc) {
+    auto doReplace = [&replaceKey, &underscoreBeforeLast, &underscored](const DataContext::IdCloneList& cloneList, Mernel::PropertyTree& jsonDoc, std::string title) {
         Mernel::PropertyTreeMap& jsonObject = jsonDoc.getMap();
+        Logger() << "Start updating " << title << ", existing keys: " << jsonObject.size() << ", clone list size:" << cloneList.size();
         for (const auto& [sourceId, newId] : cloneList) {
             if (replaceKey(jsonObject, sourceId, newId))
                 continue;
@@ -98,24 +100,22 @@ void ModuleGlobal::generate()
 
             safeId   = underscoreBeforeLast(safeId);
             safeDest = underscoreBeforeLast(safeDest);
-            if (jsonObject.contains(safeId)) {
-                replaceKey(jsonObject, safeId, safeDest);
+            if (replaceKey(jsonObject, safeId, safeDest)) {
                 continue;
             }
             Logger(Logger::Err) << "Not found replacement for=" << sourceId << " / " << safeId;
         }
+        Logger() << "Finish  updating " << title << ", new size: " << jsonObject.size();
     };
 
     if (output.jsonFiles.contains(JsonId::Monsters)) {
-        Logger() << "Update monster.json";
-        Mernel::PropertyTree& jsonDoc = output.jsonFiles[JsonId::Monsters];
-        doReplace(output.idClones.monstats, jsonDoc);
+        auto& jsonDoc = output.jsonFiles[JsonId::Monsters];
+        doReplace(output.idClones.monstats, jsonDoc, "monster.json");
     }
 
     if (output.jsonFiles.contains(JsonId::Missiles)) {
-        Logger() << "Update missiles.json";
         auto& jsonDoc = output.jsonFiles[JsonId::Missiles];
-        doReplace(output.idClones.missiles, jsonDoc);
+        doReplace(output.idClones.missiles, jsonDoc, "missiles.json");
     }
 }
 

@@ -16,6 +16,14 @@ namespace D2ModGen {
 using namespace Image;
 namespace {
 
+std::string makeIdString(std::string id)
+{
+    id = Mernel::strToLower(id);
+    std::replace(id.begin(), id.end(), ' ', '_');
+    std::replace(id.begin(), id.end(), '-', '_');
+    return id;
+}
+
 struct SpriteCfg {
     Character cha;
     BlobId    high;
@@ -916,18 +924,15 @@ void ModuleSkillRandomizer::CharacterData::updateMissile(DataContext& output, co
         Logger(Logger::Warning) << "Unknown missileId: " << missileId;
         return;
     }
-    DataRow_missiles newMiss = *miss;
-    std::string      newName = parent.row.skill + "_" + newMiss.name;
-    for (std::string& child : newMiss.childmissile) {
-        if (child == newMiss.name) {
-            child = newName;
-            continue;
-        }
-        updateMissile(output, parent, child, scope);
-    }
+    DataRow_missiles  newMiss = *miss;
+    auto              origId  = newMiss.name;
+    const std::string newName = makeIdString(parent.row.skill + "_" + newMiss.name);
+    scope[origId]             = newName;
 
-    auto origId  = newMiss.name;
-    newMiss.name = parent.row.skill + "_" + newMiss.name;
+    for (std::string& child : newMiss.childmissile)
+        updateMissile(output, parent, child, scope);
+
+    newMiss.name = newName;
     newMiss.id   = output.missiles.rows.size() + output.missiles.extra.size();
     missileId    = newMiss.name;
 
@@ -939,7 +944,6 @@ void ModuleSkillRandomizer::CharacterData::updateMissile(DataContext& output, co
 
     output.missiles.extra.push_back(newMiss);
     output.idClones.missiles.push_back({ .from = origId, .to = newMiss.name });
-    scope[origId] = newMiss.name;
 }
 
 void ModuleSkillRandomizer::CharacterData::makeSpritesD2R(const SkillSpriteMap& allExisting, std::array<Image::Bitmap, 2>& generated) const
