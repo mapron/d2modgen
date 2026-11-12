@@ -43,6 +43,12 @@ private:
         void shuffle(RandomGenerator& rng);
     };
 
+    struct AreaContext {
+        int                                m_areaNormalLevel = 0;
+        int                                m_areaIndex       = 0;
+        std::map<std::string, std::string> m_exisingRepl;
+    };
+
     struct MonsterTask {
         const DataRow_monstats* m_source = nullptr;
 
@@ -55,10 +61,6 @@ private:
         bool m_rollRes     = false;
 
         bool m_skip = false;
-
-        int m_targetNormalLevel = 0;
-
-        size_t m_areaId = 0;
 
         bool hasAnyMods() const
         {
@@ -76,7 +78,7 @@ private:
     void generateChimera(DataRow_monstats& chimera, DataRow_monstatsEx& chimeraEx);
     bool compatibleMonSeq(const std::string& sequenceId, const DataRow_monstatsEx& recipient);
 
-    void processTask(MonsterTask& task, MonsterTaskList& extraMinions, std::map<std::string, std::string>& exisingRepl, int depth);
+    void processTask(MonsterTask& task, MonsterTaskList& extraMinions, AreaContext& context, int depth);
 
 private:
     RandomGenerator rng;

@@ -101,12 +101,14 @@ void ModuleMonRandomizer::generate()
 
         StringSet monSet;
 
+        AreaContext context;
+        context.m_areaIndex       = row.id;
+        context.m_areaNormalLevel = 0;
+
         MonsterTaskList                   tasks;
-        int                               targetLevel = 0;
         std::set<const DataRow_monstats*> existingIndexes;
         for (auto& id : monIds) {
             MonsterTask task;
-            task.m_areaId = row.id;
             task.m_source = output.monstats.find(id);
             if (!task.m_source->useForRando)
                 task.m_skip = true;
@@ -114,9 +116,11 @@ void ModuleMonRandomizer::generate()
                 continue;
 
             existingIndexes.insert(task.m_source);
-            targetLevel = std::max(targetLevel, task.m_source->level.value_or(0));
+            context.m_areaNormalLevel = std::max(context.m_areaNormalLevel, task.m_source->level.value_or(0));
             tasks.push_back(task);
         }
+        assert(context.m_areaNormalLevel > 0);
+        context.m_areaNormalLevel = context.m_areaNormalLevel * 9 / 10;
 
         const int originalSize = tasks.size();
         const int guestAmount  = genRandomScaledValue(rng, originalSize, module.m_guestsMin, module.m_guestsMax);
@@ -141,10 +145,8 @@ void ModuleMonRandomizer::generate()
             if (existingIndexes.contains(guestIdx))
                 continue;
             MonsterTask task;
-            task.m_areaId            = row.id;
-            task.m_source            = guestIdx;
-            task.m_isGuest           = true;
-            task.m_targetNormalLevel = targetLevel;
+            task.m_source  = guestIdx;
+            task.m_isGuest = true;
             tasks.push_back(task);
         }
 
@@ -161,15 +163,14 @@ void ModuleMonRandomizer::generate()
             tasks[index].m_rollRes = true;
 
         if (extraTrace)
-            Logger() << "Area '" << row.name << "' > total=" << totalAmount << ", guests=" << guestAmount << ", chimera=" << chimeraAmount << ", rollStat=" << rollStatAmount << ", rollRes=" << rollResAmount << ", targetLevel=" << targetLevel;
+            Logger() << "Area '" << row.name << "' > total=" << totalAmount << ", guests=" << guestAmount << ", chimera=" << chimeraAmount << ", rollStat=" << rollStatAmount << ", rollRes=" << rollResAmount << ", targetLevel=" << context.m_areaNormalLevel;
 
-        std::map<std::string, std::string> exisingRepl;
         for (auto& task : tasks) {
             if (!task.hasAnyMods())
                 task.m_skip = true;
 
             MonsterTaskList extraMinions;
-            processTask(task, extraMinions, exisingRepl, 0);
+            processTask(task, extraMinions, context, 0);
 
             if (extraTrace) {
                 Logger() << "        " << task.toString();
@@ -180,16 +181,14 @@ void ModuleMonRandomizer::generate()
         for (int superUniqIdx : row.superUniquesIndexes) {
             auto&       su = output.superuniques.rows[superUniqIdx];
             MonsterTask task;
-            task.m_areaId            = row.id;
-            task.m_source            = validGuestPointers[rng(validGuestPointers.size())];
-            task.m_isGuest           = true;
-            task.m_targetNormalLevel = targetLevel;
-            task.m_makeChimera       = genRandomScaledValue(rng, 1, module.m_chimeraAIMin, module.m_chimeraAIMax);
-            task.m_rollStat          = genRandomScaledValue(rng, 1, module.m_rollStatMin, module.m_rollStatMax);
-            task.m_rollRes           = genRandomScaledValue(rng, 1, module.m_rollResistancesMin, module.m_rollResistancesMax);
+            task.m_source      = validGuestPointers[rng(validGuestPointers.size())];
+            task.m_isGuest     = true;
+            task.m_makeChimera = genRandomScaledValue(rng, 1, module.m_chimeraAIMin, module.m_chimeraAIMax);
+            task.m_rollStat    = genRandomScaledValue(rng, 1, module.m_rollStatMin, module.m_rollStatMax);
+            task.m_rollRes     = genRandomScaledValue(rng, 1, module.m_rollResistancesMin, module.m_rollResistancesMax);
 
             MonsterTaskList extraMinions;
-            processTask(task, extraMinions, exisingRepl, 0);
+            processTask(task, extraMinions, context, 0);
 
             if (extraTrace) {
                 Logger() << "        superunique [" << superUniqIdx << "] " << su.monsterClass << " -> " << task.m_dest.id;
@@ -329,7 +328,7 @@ bool ModuleMonRandomizer::compatibleMonSeq(const std::string& sequenceId, const 
     return true;
 }
 
-void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraMinions, std::map<std::string, std::string>& exisingRepl, int depth)
+void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraMinions, AreaContext& context, int depth)
 {
     if (depth > 5) {
         assert(false);
@@ -349,17 +348,16 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
     const std::string origId = row.id;
     row.useForRando          = false;
 
-    if (exisingRepl.contains(origId)) {
-        row.id = exisingRepl[origId];
+    if (context.m_exisingRepl.contains(origId)) {
+        row.id = context.m_exisingRepl[origId];
         return;
     }
-    const auto generatedId = "gen_" + origId + "_" + std::to_string(task.m_areaId);
+    const auto generatedId = "gen_" + origId + "_" + std::to_string(context.m_areaIndex);
 
-    exisingRepl[origId] = generatedId;
-    row.id              = generatedId;
+    context.m_exisingRepl[origId] = generatedId;
+    row.id                        = generatedId;
 
     const int guestOrigLevel = row.level.value_or(0);
-    row.level                = task.m_targetNormalLevel;
 
     row.monStatsEx = row.id;
     rowEx.id       = row.id;
@@ -369,17 +367,17 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
     hcIdx++;
 
     if (task.m_isGuest) {
-        if (guestOrigLevel > task.m_targetNormalLevel) {
+        if (guestOrigLevel > context.m_areaNormalLevel) {
             for (auto& skill : row.skills) {
-                const int newLevel = skill.level.value_or(0) * task.m_targetNormalLevel / guestOrigLevel;
+                const int newLevel = skill.level.value_or(0) * context.m_areaNormalLevel / guestOrigLevel;
                 skill.level        = (std::max(1, newLevel));
             }
         }
         for (auto* tc : row.nonEmptyTCs()) {
-            auto promoted = tcTable.promote(*tc, guestOrigLevel, task.m_targetNormalLevel);
+            auto promoted = tcTable.promote(*tc, guestOrigLevel, context.m_areaNormalLevel);
             *tc           = promoted;
         }
-        row.level = task.m_targetNormalLevel;
+        row.level = context.m_areaNormalLevel;
     }
 
     if (task.m_makeChimera) {
@@ -481,11 +479,10 @@ void ModuleMonRandomizer::processTask(MonsterTask& task, MonsterTaskList& extraM
         if (!minionTask.m_source->useForRando) {
             minionTask.m_skip = true;
         }
-        processTask(minionTask, extraMinions, exisingRepl, depth + 1);
+        processTask(minionTask, extraMinions, context, depth + 1);
         minionId = minionTask.m_dest.id;
         extraMinions.push_back(minionTask);
     }
-    assert(!generatedIds.contains(row.id));
     output.monstats.extra.push_back(row);
     output.monstatsEx.extra.push_back(rowEx);
     output.idClones.monstats.push_back({ origId, row.id });
@@ -731,8 +728,8 @@ std::string ModuleMonRandomizer::MonsterTask::toString() const
 
     os << ", rollStat:" << m_rollStat;
     os << ", rollRes:" << m_rollRes;
-    os << ", tgtNorm:" << m_targetNormalLevel;
-    os << ", lvl:" << m_source->level.value_or(0);
+    os << ", srcLvl:" << m_source->level.value_or(0);
+    os << ", dstLvl:" << m_dest.level.value_or(0);
 
     os << "}";
     return os.str();
