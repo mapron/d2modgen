@@ -61,7 +61,8 @@ QString getUserHomeDefault()
 {
     QString home = ensureTrailingSlash(QStandardPaths::standardLocations(QStandardPaths::HomeLocation).value(0));
     if (!s_isWindows) {
-        home += ".steam/steam/steamapps/compatdata/2536520/pfx/"; // 2536520 = app id for D2R.
+        // 2536520 = app id for D2R
+        home += ".steam/steam/steamapps/compatdata/2536520/pfx/drive_c/users/steamuser/";
     }
     return home;
 }
@@ -267,8 +268,10 @@ void UIController::generateFinish()
 void UIController::setLaunch(QString arg)
 {
     const QString bnetPath = getBattleNetConfig();
-    if (bnetPath.isEmpty())
+    if (bnetPath.isEmpty()) {
+        emit statusUpdate(tr("Failed to locate Battle.net.config"));
         return;
+    }
 
     const auto           configPath = string2path(bnetPath.toStdString());
     Mernel::PropertyTree doc;
