@@ -342,7 +342,7 @@ void ModuleExpandedInventory::generate()
                 bd.rect = d.rect;
                 d.rect.topLeft += correction;
                 d.rect.topLeft += widgetsOffset; // @todo: future uncollapsing
-                bd.moveTo = d.rect.topLeft;
+                bd.moveTo = d.rect.topLeft - targetOrigin;
 
                 if (bd.rect.size.width > 0) {
                     const int margin = desc.controller ? s_ctrlFrameMargin : 10; // extra borders
@@ -350,7 +350,6 @@ void ModuleExpandedInventory::generate()
                     bd.moveTo -= Point{ margin, margin };
                 }
                 bd.rect.topLeft -= sourceOrigin;
-                bd.moveTo -= targetOrigin;
 
                 d.write(child);
                 blitList.push_back(bd);
@@ -369,8 +368,7 @@ void ModuleExpandedInventory::generate()
 
                 bd.rect.size.width  = cellWidth;
                 bd.rect.size.height = cellHeight;
-                bd.moveTo           = d.rect.topLeft;
-                bd.moveTo -= targetOrigin;
+                bd.moveTo           = d.rect.topLeft - targetOrigin;
                 bd.repeatX          = cellCountX;
                 bd.repeatY          = cellCountY;
 

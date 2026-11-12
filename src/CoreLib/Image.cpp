@@ -149,6 +149,14 @@ Point Point::operator+(const Point& s)
     return result;
 }
 
+Point Point::operator-(const Point& s) const
+{
+    Point result = *this;
+    result.x -= s.x;
+    result.y -= s.y;
+    return result;
+}
+
 Point& Point::operator+=(const Point& r)
 {
     x += r.x;
