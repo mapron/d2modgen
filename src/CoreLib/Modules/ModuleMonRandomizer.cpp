@@ -15,6 +15,14 @@ namespace D2ModGen {
 namespace {
 constexpr const int s_maxIngameLevel = 110;
 
+const std::map<std::string, std::string> s_superUniqueReplacement{
+    { "unraveler5", "unraveler4" },
+    { "fallenshaman5", "fallenshaman4" },
+    { "minion1", "minion2" },
+    { "deathmauler1", "deathmauler2" },
+    { "overseer1", "overseer2" },
+};
+
 std::string printStringSetSummary(const std::vector<std::string>& idsSource, int limit = 5)
 {
     std::vector<std::string> idsUnique;
@@ -74,21 +82,24 @@ void ModuleMonRandomizer::generate()
                 auto& monstat = output.monstats.rows[n];
                 if (monstat.useForRando && monstat.firstAreaIndexToSpawn == -1) {
                     monstat.firstAreaIndexToSpawn = idx;
-                    //if (extraTrace)
-                    //    Logger() << "detecting first spawn of '" << monstat.id << "' as level [" << idx << "] (" << row.name << ")";
                 }
             }
         }
     }
     for (int idx = -1; auto& row : output.superuniques.rows) {
         idx++;
-        auto n = output.monstats.findN(row.monsterClass);
+        auto key = row.monsterClass;
+        if (auto it = s_superUniqueReplacement.find(key); it != s_superUniqueReplacement.cend())
+            key = it->second;
+        auto n = output.monstats.findN(key);
         if (n == size_t(-1))
             continue;
 
         auto& monstat = output.monstats.rows[n];
         if (monstat.firstAreaIndexToSpawn >= 0)
             output.levels.rows[monstat.firstAreaIndexToSpawn].superUniquesIndexes.push_back(idx);
+        else if (extraTrace)
+            Logger() << "skipping superunique spawn id = " << monstat.id << " (no area to attach)";
     }
 
     for (auto& row : output.levels.rows) {
