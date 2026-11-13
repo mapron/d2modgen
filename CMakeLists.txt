@@ -97,14 +97,13 @@ AddTarget( TYPE app_console NAME modgen_console
 # Tests
 if (D2MODGEN_BUILD_TESTS)
     enable_testing()
-    include(GoogleTest)
     AddTarget(TYPE app_console NAME CoreTests
         SOURCE_DIR ${sourceRoot}/CoreTests
         LINK_LIBRARIES ModgenCore MernelPlatform gtest_main
         SKIP_INSTALL
         )
-    target_compile_definitions(CoreTests PRIVATE D2MODGEN_TEST_DATA="${sourceRoot}/CoreTests/data")
-    gtest_discover_tests(CoreTests DISCOVERY_MODE PRE_TEST)
+    file(COPY ${sourceRoot}/CoreTests/data/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/CoreTestsData)
+    add_test(NAME CoreTests COMMAND CoreTests WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 if (NOT Qt6_FOUND)
