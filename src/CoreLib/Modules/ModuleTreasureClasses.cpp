@@ -140,6 +140,10 @@ MobType getMobType(int group, const std::string& className)
         assert(className.contains(" Super "));
         return MobType::SuperUnique;
     }
+    if (className.contains("Map Champ "))
+        return MobType::Champion;
+    if (className.contains("Map Unique "))
+        return MobType::Unique;
     return MobType::Skip;
 }
 
@@ -163,7 +167,7 @@ TCType getTC(const std::string& tc)
     if (sv.starts_with(" Junk"))
         return TCType::Junk;
 
-    if (sv.ends_with(" Good"))
+    if (sv.ends_with(" Good") || sv.starts_with("Map Good "))
         return TCType::Good;
     if (sv.starts_with("gld") || sv.starts_with("\"gld"))
         return TCType::Gold;
