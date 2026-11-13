@@ -22,6 +22,10 @@
 #include "ModuleOtherHoradricCube.hpp"
 #include "ModuleOtherQualityOfLife.hpp"
 
+#include "TblParser.hpp"
+
+#include "Version.hpp"
+
 #include "Logger.hpp"
 
 namespace D2ModGen {
@@ -122,12 +126,104 @@ void ModuleGlobal::generate()
         auto& jsonDoc = output.jsonFiles[JsonId::Missiles];
         doReplace(output.idClones.missiles, jsonDoc, "missiles.json");
     }
+
+    if (output.newLoc.items.size() > 0) {
+        size_t totalKeySize = 0;
+        size_t totalValSize = 0;
+        for (const auto& loc : output.newLoc.items) {
+            totalKeySize += loc.key.size() + 1;
+            totalValSize += loc.value.size() + 1;
+        }
+        Logger(Logger::Notice) << "Adding new " << output.newLoc.items.size() << " translations, totalKeySize=" << totalKeySize << ", totalValSize=" << totalValSize;
+        if (output.jsonFiles.contains(JsonId::ItemNames)) {
+            auto& jsonDoc = output.jsonFiles[JsonId::ItemNames];
+            updateD2Rtranslation(jsonDoc, env.d2rLocaleId);
+        }
+        if (output.blobs.contains(BlobId::PatchStringTbl)) {
+            auto& blob = output.blobs[BlobId::PatchStringTbl];
+            updateLoDtranslation(blob);
+        }
+    }
+
+    auto replaceJson = [this](const std::map<std::string, std::string>& replacements, const JsonId& name) {
+        if (replacements.empty() || !output.jsonFiles.contains(name))
+            return;
+        auto& jsonDoc   = output.jsonFiles[name];
+        auto& jsonArray = jsonDoc.getList();
+        for (Mernel::PropertyTree& lang : jsonArray) {
+            const std::string key = lang["Key"].getScalar().toString();
+            if (replacements.contains(key)) {
+                auto val              = replacements.at(key);
+                lang[env.d2rLocaleId] = Mernel::PropertyTreeScalar{ val };
+            }
+        }
+    };
+    replaceJson(output.locReplacement.itemNames, JsonId::ItemNames);
+    replaceJson(output.locReplacement.itemAffixes, JsonId::ItemNameAffixes);
+
+    std::string configCrc = "A0B1C2D3"; /// @todo:
+
+    if (output.jsonFiles.contains(JsonId::ItemNames)) {
+        auto& jsonDoc = output.jsonFiles[JsonId::ItemNames];
+        for (auto& itemDesc : jsonDoc.getList()) {
+            const std::string key = itemDesc["Key"].getScalar().toString();
+            if (key == "box") {
+                itemDesc[env.d2rLocaleId] = Mernel::PropertyTreeScalar("d2modgen " + std::string(g_version) + " CRC:" + configCrc);
+            }
+        }
+    }
 }
 
 template<class T>
 void ModuleGlobal::create(const std::string& id)
 {
     m_modules.push_back(ModuleRecord{ id, std::make_unique<T>(output, config, env) });
+}
+
+void ModuleGlobal::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId)
+{
+    {
+        size_t totalKeySize = 0;
+        size_t totalValSize = 0;
+        for (const auto& itemDesc : jsonDoc.getList()) {
+            const std::string key = itemDesc["Key"].getScalar().toString();
+            const std::string val = itemDesc[localeId].getScalar().toString();
+            totalKeySize += key.size() + 1;
+            totalValSize += val.size() + 1;
+        }
+        Logger(Logger::Notice) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
+    }
+
+    int id = 1000000;
+    for (const DataContext::NewLoc& loc : output.newLoc.items) {
+        Mernel::PropertyTree itemDesc;
+        itemDesc["Key"]    = Mernel::PropertyTreeScalar(loc.key);
+        itemDesc["id"]     = Mernel::PropertyTreeScalar(id++);
+        itemDesc[localeId] = Mernel::PropertyTreeScalar(loc.value);
+
+        jsonDoc.append(itemDesc);
+    }
+}
+
+void ModuleGlobal::updateLoDtranslation(std::string& patchstringTlb)
+{
+    TblStructure tbl;
+    tbl.readFromBuffer(patchstringTlb);
+
+    {
+        size_t totalKeySize = 0;
+        size_t totalValSize = 0;
+        for (const auto& itemDesc : tbl.m_rows) {
+            totalKeySize += itemDesc.Key.size() + 1;
+            totalValSize += itemDesc.Val.size() + 1;
+        }
+        Logger(Logger::Notice) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
+    }
+
+    for (const DataContext::NewLoc& loc : output.newLoc.items) {
+        tbl.m_rows.push_back({ .Key = loc.key, .Val = loc.value });
+    }
+    tbl.writeToBuffer(patchstringTlb);
 }
 
 }

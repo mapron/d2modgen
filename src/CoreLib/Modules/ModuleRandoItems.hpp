@@ -51,9 +51,6 @@ struct ModuleRandoItems : public AbstractModule {
 
     void dumpAttributes(const Mernel::std_path& dumpFile, const AllAttributeData& attributeData, const std::set<AttributeId>& skip);
 
-    void updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId);
-    void updateLoDtranslation(std::string& patchstringTlb);
-
 private:
     struct MagicContext {
         MagicContext(AllAttributeData gameData_);
@@ -72,7 +69,6 @@ private:
 
     SkillCodeResolver m_codeResolver;
     SkillGetter       m_skillGetter;
-    ExtraLoc          m_extraLoc;
     RandomGenerator   rng;
 };
 

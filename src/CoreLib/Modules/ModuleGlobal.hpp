@@ -24,6 +24,9 @@ private:
     template<class T>
     void create(const std::string& id);
 
+    void updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId);
+    void updateLoDtranslation(std::string& patchstringTlb);
+
 private:
     std::vector<ModuleRecord> m_modules;
 };

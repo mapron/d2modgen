@@ -114,8 +114,22 @@ struct DataContext {
     struct {
         IdCloneList monstats;
         IdCloneList missiles;
-        IdCloneList skills;
     } idClones;
+
+    struct NewLoc {
+        std::string key;
+        std::string value;
+    };
+    using NewLocList = std::vector<NewLoc>;
+    struct {
+        NewLocList items;
+    } newLoc;
+
+    using LocReplacement = std::map<std::string, std::string>;
+    struct {
+        LocReplacement itemNames;
+        LocReplacement itemAffixes;
+    } locReplacement;
 
     DataContext();
     ~DataContext();

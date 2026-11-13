@@ -608,7 +608,6 @@ void ModuleRandoSkills::CharacterData::createIdx(DataContext& output)
         row.setNewClass(clas);
 
         row.skilldesc = "gen_" + enumToString(clas) + "_" + std::to_string(i);
-        output.idClones.skills.push_back({ .from = row.skill, .to = row.skilldesc });
 
         row.skill      = row.skilldesc;
         row.id         = rowIdx;

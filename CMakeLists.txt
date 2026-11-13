@@ -26,6 +26,8 @@ if (WIN32)
     add_definitions(-DNOMINMAX -D_UNICODE -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES)
 endif()
 
+configure_file(src/Version.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/version/Version.hpp)
+
 
 # Qt Setup
 set(QT_MODULE_LIST Core Gui Widgets Svg Qml Quick
@@ -82,7 +84,7 @@ endif()
 
 AddTarget(TYPE shared NAME ModgenCore
     SOURCE_DIR ${sourceRoot}/CoreLib
-	INCLUDES   ${sourceRoot}/CoreLib
+	INCLUDES   ${sourceRoot}/CoreLib ${CMAKE_CURRENT_BINARY_DIR}/version
     EXPORT_INCLUDES
     LINK_LIBRARIES casclib stormlib rapidjson MernelPlatform Config
     )
@@ -105,10 +107,10 @@ qt_standard_project_setup()
 
 AddTarget( TYPE app_qt NAME modgen_ui
     SOURCE_DIR ${sourceRoot}/QtApp
-    INCLUDES   ${sourceRoot}/QtApp
+    INCLUDES   ${sourceRoot}/QtApp  ${CMAKE_CURRENT_BINARY_DIR}/version
     LINK_LIBRARIES ModgenCore MernelPlatform Config
     QT_MODULES Widgets Qml Quick Network
-    COMPILE_DEFINITIONS APP_VERSION="${PROJECT_VERSION}"
+    
     EXTRA_SOURCES assets/resource.rc
     )
 

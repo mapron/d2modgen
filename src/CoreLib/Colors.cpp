@@ -76,43 +76,11 @@ static const std::vector<ColorDesc> s_colors = []() {
     return result;
 }();
 
-static const std::map<char, std::string> s_code2user = []() {
-    std::map<char, std::string> m;
-    std::vector<ColorDesc>      result(s_shortCodes.size());
-    for (size_t i = 0; i < s_shortCodes.size(); i++)
-        m[s_shortCodes[i]] = s_user[i];
-
-    return m;
-}();
-
 }
 
 const ColorDesc& getColorDesc(Color color)
 {
     return s_colors[static_cast<size_t>(color)];
-}
-
-std::string replaceColorsToUser(std::string s)
-{
-    size_t pos = 0;
-    while ((pos = s.find(s_binaryPrefixCode, pos)) != std::string::npos) {
-        char c  = s[pos + s_binaryPrefixCode.size()];
-        auto it = s_code2user.find(c);
-        if (it == s_code2user.cend()) {
-            pos += s_binaryPrefixCode.length();
-            assert(!"Unknown color code.");
-            continue;
-        }
-
-        s.replace(pos, s_binaryPrefixCode.length() + 1, "\\{" + it->second + "}");
-        pos += it->second.length();
-    }
-    return s;
-}
-
-std::string replaceColorsToBinary(std::string s)
-{
-    return s;
 }
 
 }

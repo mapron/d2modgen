@@ -7,7 +7,6 @@
 #include "MernelPlatform/StringUtils.hpp"
 #include "RandoUtils.hpp"
 #include "AttributeHelper.hpp"
-#include "TblParser.hpp"
 
 #include "Logger.hpp"
 #include "MernelPlatform/FileIOUtils.hpp"
@@ -76,7 +75,6 @@ void ModuleRandoItems::generate()
             return nullptr;
         return &output.skills.rows[index];
     };
-    m_extraLoc = {};
 
     std::set<std::string> skippedAttributes;
     std::set<std::string> unknownAttributes;
@@ -232,24 +230,6 @@ void ModuleRandoItems::generate()
     fillProps(output.cubemain, paramsCrafted, RollType::Common);
 
     Logger(Logger::Notice) << allStat.toString(ItemStatistics::Mode::All);
-
-    if (m_extraLoc.size() > 0) {
-        size_t totalKeySize = 0;
-        size_t totalValSize = 0;
-        for (const Loc& loc : m_extraLoc) {
-            totalKeySize += loc.key.size() + 1;
-            totalValSize += loc.value.size() + 1;
-        }
-        Logger(Logger::Notice) << "Adding new " << m_extraLoc.size() << " translations, totalKeySize=" << totalKeySize << ", totalValSize=" << totalValSize;
-        if (output.jsonFiles.contains(JsonId::ItemNames)) {
-            auto& jsonDoc = output.jsonFiles[JsonId::ItemNames];
-            updateD2Rtranslation(jsonDoc, env.d2rLocaleId);
-        }
-        if (output.blobs.contains(BlobId::PatchStringTbl)) {
-            auto& blob = output.blobs[BlobId::PatchStringTbl];
-            updateLoDtranslation(blob);
-        }
-    }
 
     if (module.m_sameRarityForSetUniqueItems) {
         for (auto& row : output.uniqueitems.rows) {
@@ -427,7 +407,7 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
         auto afterCopyUniq = [this, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_uniqueitems& row, const DataRow_uniqueitems& old) {
             row.index       = makeKey(id, 'u');
             row.displayName = makeValue(old.index, i);
-            m_extraLoc.push_back({ row.index, row.displayName });
+            output.newLoc.items.push_back({ row.index, row.displayName });
 
             row.version         = 100;
             row.ux              = {};
@@ -458,7 +438,7 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
         auto afterCopySetitem = [this, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_setitems& row, const DataRow_setitems& old) {
             row.index       = makeKey(id, 's');
             row.displayName = makeValue(old.index, i);
-            m_extraLoc.push_back({ row.index, row.displayName });
+            output.newLoc.items.push_back({ row.index, row.displayName });
 
             row.setIndex = makeValue(old.setIndex, i);
 
@@ -475,7 +455,7 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
         };
         auto afterCopySet = [this, &getRandomColor, &getNewLevelAndCode](int id, int i, DataRow_sets& row, const DataRow_sets& old) {
             row.index = makeValue(old.index, i);
-            m_extraLoc.push_back({ row.index, row.index });
+            output.newLoc.items.push_back({ row.index, row.index });
 
             row.name = row.index;
         };
@@ -640,52 +620,6 @@ void ModuleRandoItems::dumpAttributes(const Mernel::std_path& dumpFile, const Al
 
     if (oldData != dump.str())
         Mernel::writeFileFromBufferNoexcept(dumpFile, dump.str());
-}
-
-void ModuleRandoItems::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId)
-{
-    {
-        size_t totalKeySize = 0;
-        size_t totalValSize = 0;
-        for (const auto& itemDesc : jsonDoc.getList()) {
-            const std::string key = itemDesc["Key"].getScalar().toString();
-            const std::string val = itemDesc[localeId].getScalar().toString();
-            totalKeySize += key.size() + 1;
-            totalValSize += val.size() + 1;
-        }
-        Logger(Logger::Notice) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
-    }
-
-    int id = 1000000;
-    for (const Loc& loc : m_extraLoc) {
-        Mernel::PropertyTree itemDesc;
-        itemDesc["Key"]    = Mernel::PropertyTreeScalar(loc.key);
-        itemDesc["id"]     = Mernel::PropertyTreeScalar(id++);
-        itemDesc[localeId] = Mernel::PropertyTreeScalar(loc.value);
-
-        jsonDoc.append(itemDesc);
-    }
-}
-
-void ModuleRandoItems::updateLoDtranslation(std::string& patchstringTlb)
-{
-    TblStructure tbl;
-    tbl.readFromBuffer(patchstringTlb);
-
-    {
-        size_t totalKeySize = 0;
-        size_t totalValSize = 0;
-        for (const auto& itemDesc : tbl.m_rows) {
-            totalKeySize += itemDesc.Key.size() + 1;
-            totalValSize += itemDesc.Val.size() + 1;
-        }
-        Logger(Logger::Notice) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
-    }
-
-    for (const Loc& loc : m_extraLoc) {
-        tbl.m_rows.push_back({ .Key = loc.key, .Val = loc.value });
-    }
-    tbl.writeToBuffer(patchstringTlb);
 }
 
 void ModuleRandoItems::MagicContext::addExtra(const Config& config, const DataContext& output)

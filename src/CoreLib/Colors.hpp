@@ -43,7 +43,4 @@ struct ColorDesc {
 
 const ColorDesc& getColorDesc(Color color);
 
-std::string replaceColorsToUser(std::string s);
-std::string replaceColorsToBinary(std::string s);
-
 }

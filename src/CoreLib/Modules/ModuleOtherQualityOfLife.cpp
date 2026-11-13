@@ -100,22 +100,8 @@ void ModuleOtherQualityOfLife::generate()
             row.showLevel = true;
     }
 
-    auto replaceJson = [this](const std::map<std::string, std::string>& replacements, const JsonId& name) {
-        if (replacements.empty() || !output.jsonFiles.contains(name))
-            return;
-        auto& jsonDoc   = output.jsonFiles[name];
-        auto& jsonArray = jsonDoc.getList();
-        for (Mernel::PropertyTree& lang : jsonArray) {
-            const std::string key = lang["Key"].getScalar().toString();
-            if (replacements.contains(key)) {
-                auto val              = replacements.at(key);
-                lang[env.d2rLocaleId] = Mernel::PropertyTreeScalar{ val };
-            }
-        }
-    };
-    std::map<std::string, std::string> replacementsItems;
-    std::map<std::string, std::string> replacementsAffix;
-    auto                               twoColor = [](const Color& color, const std::string& coloredText, const std::string& grayText) {
+    auto& replacementsItems = output.locReplacement.itemNames;
+    auto  twoColor          = [](const Color& color, const std::string& coloredText, const std::string& grayText) {
         return getColorDesc(color).m_fullBinaryCode + coloredText + getColorDesc(Color::grey).m_fullBinaryCode + grayText;
     };
     if (module.m_compactPots) {
@@ -140,9 +126,6 @@ void ModuleOtherQualityOfLife::generate()
             { "isc", twoColor(Color::red, "•", "ID") },
         });
     }
-
-    replaceJson(replacementsItems, JsonId::ItemNames);
-    replaceJson(replacementsAffix, JsonId::ItemNameAffixes);
 }
 
 }
