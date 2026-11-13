@@ -10,12 +10,13 @@
 
 #include "MernelPlatform/FsUtils.hpp"
 
+#include <functional>
 #include <string>
 #include <vector>
 
 namespace D2ModGen {
 
-struct LinuxShortcutRequest {
+struct ShortcutRequest {
     Mernel::std_path userHome;       // Wine user root, <prefix>/drive_c/users/<user>/
     Mernel::std_path exe;            // <install path>/D2R.exe or Diablo II.exe
     std::string      args;           // game command line, e.g. "-mod rando -txt"
@@ -25,10 +26,12 @@ struct LinuxShortcutRequest {
     Mernel::std_path desktopDir; // skipped if empty, missing or the home dir itself
     Mernel::std_path iconPath;   // icon file for the launcher, may be empty
     Mernel::std_path homeDir;    // to find GE-Proton, and to tell a Desktop that is just the home dir
-    std::string      pathEnv;    // to find the runner
+
+    // Full path of an installed program ("umu-run", "steam", or an absolute path), empty if it isn't installed.
+    std::function<Mernel::std_path(const std::string&)> findExecutable;
 };
 
-struct LinuxShortcutResult {
+struct ShortcutResult {
     enum class Status
     {
         Written,
@@ -42,9 +45,9 @@ struct LinuxShortcutResult {
 };
 
 /// Writes "Diablo II - <mod> Mod.desktop" launchers that start the game through a runner (umu-run, steam or a user template).
-MODGENCORE_EXPORT LinuxShortcutResult makeLinuxShortcut(const LinuxShortcutRequest& request);
+MODGENCORE_EXPORT ShortcutResult makeShortcut(const ShortcutRequest& request);
 
 /// Runner template preset for the Wine prefix that holds userHome; empty if there is none (plain Wine prefix).
-MODGENCORE_EXPORT std::string linuxRunnerPreset(const Mernel::std_path& userHome, bool legacy, const Mernel::std_path& homeDir);
+MODGENCORE_EXPORT std::string runnerPreset(const Mernel::std_path& userHome, bool legacy, const Mernel::std_path& homeDir);
 
 }

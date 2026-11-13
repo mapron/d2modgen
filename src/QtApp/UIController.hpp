@@ -74,7 +74,6 @@ private:
     void pushUndoCurrent();
     void updateUndoAction();
     void generateFinish();
-    void makeLinuxShortCut(const Mernel::std_path& exe, const QString& args);
 
 private:
     bool                        m_autoSave = true;

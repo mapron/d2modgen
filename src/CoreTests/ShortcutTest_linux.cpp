@@ -4,12 +4,11 @@
  * SPDX-License-Identifier: BSL-1.0
  * See LICENSE file for details.
  */
-#include "LinuxShortcut.hpp"
+#include "Shortcut.hpp"
 
 #include <gtest/gtest.h>
 
 #include <fstream>
-#include <random>
 #include <sstream>
 
 using namespace D2ModGen;
@@ -42,16 +41,16 @@ std::string entryValue(const std::string& entry, const std::string& key)
     return {};
 }
 
-class LinuxShortcutTest : public testing::Test {
+class ShortcutTest : public testing::Test {
 protected:
     void SetUp() override
     {
-        m_root = std_fs::temp_directory_path() / ("d2modgen-test-" + std::to_string(std::random_device{}()));
+        // A fixed folder per test under the working dir (the build dir under ctest), not in the system temp.
+        m_root = std_fs::absolute("ShortcutTestData") / testing::UnitTest::GetInstance()->current_test_info()->name();
+        std_fs::remove_all(m_root);
         std_fs::create_directories(m_root / "Desktop");
-        for (const char* program : { "env", "umu-run", "steam", "wine" }) {
+        for (const char* program : { "env", "umu-run", "steam", "wine" })
             touch(m_root / "bin" / program);
-            std_fs::permissions(m_root / "bin" / program, std_fs::perms::owner_all);
-        }
     }
     void TearDown() override { std_fs::remove_all(m_root); }
 
@@ -63,18 +62,20 @@ protected:
         return user.string() + "/";
     }
 
-    LinuxShortcutRequest makeRequest(const std::string& userHome, const std::string& exeName = "D2R.exe")
+    ShortcutRequest makeRequest(const std::string& userHome, const std::string& exeName = "D2R.exe")
     {
-        LinuxShortcutRequest request;
-        request.userHome   = userHome;
-        request.exe        = m_root / "game" / exeName;
-        request.args       = exeName == "D2R.exe" ? "-mod rando -txt" : "-direct -txt";
-        request.modName    = "rando";
-        request.appsDir    = m_root / "apps";
-        request.desktopDir = m_root / "Desktop";
-        request.iconPath   = m_root / "icons/d2modgen.png";
-        request.homeDir    = m_root / "home";
-        request.pathEnv    = "/nonexistent:" + (m_root / "bin").string();
+        ShortcutRequest request;
+        request.userHome       = userHome;
+        request.exe            = m_root / "game" / exeName;
+        request.args           = exeName == "D2R.exe" ? "-mod rando -txt" : "-direct -txt";
+        request.modName        = "rando";
+        request.appsDir        = m_root / "apps";
+        request.desktopDir     = m_root / "Desktop";
+        request.iconPath       = m_root / "icons/logo.png";
+        request.homeDir        = m_root / "home";
+        request.findExecutable = [bin = m_root / "bin"](const std::string& program) {
+            return std_fs::exists(bin / program) ? bin / program : std_path();
+        };
         touch(request.exe);
         return request;
     }
@@ -87,114 +88,114 @@ protected:
 
 }
 
-TEST_F(LinuxShortcutTest, SteamD2RUsesSteam)
+TEST_F(ShortcutTest, SteamD2RUsesSteam)
 {
     const std_path prefix = m_root / "steam/steamapps/compatdata/2536520/pfx";
     touch(prefix.parent_path() / "version");
 
-    const auto result = makeLinuxShortcut(makeRequest(makeUserHome(prefix)));
+    const auto result = makeShortcut(makeRequest(makeUserHome(prefix)));
 
-    EXPECT_EQ(result.status, LinuxShortcutResult::Status::Written);
+    EXPECT_EQ(result.status, ShortcutResult::Status::Written);
     EXPECT_EQ(entryValue(appsEntry(), "Exec"), bin("steam") + " -applaunch 2536520 -mod rando -txt");
 }
 
-TEST_F(LinuxShortcutTest, LegacyInSteamD2RPrefixUsesUmu)
+TEST_F(ShortcutTest, LegacyInSteamD2RPrefixUsesUmu)
 {
     const std_path compat = m_root / "steam/steamapps/compatdata/2536520";
     touch(compat / "version");
     const auto request = makeRequest(makeUserHome(compat / "pfx"), "Diablo II.exe");
 
-    const auto result = makeLinuxShortcut(request);
+    const auto result = makeShortcut(request);
 
-    EXPECT_EQ(result.status, LinuxShortcutResult::Status::Written);
+    EXPECT_EQ(result.status, ShortcutResult::Status::Written);
     EXPECT_EQ(entryValue(appsEntry(), "Exec"),
               bin("env") + " WINEPREFIX=\"" + compat.string() + "\" GAMEID=umu-battlenet PROTON_VERB=run umu-run \"" + request.exe.string() + "\" -direct -txt");
 }
 
-TEST_F(LinuxShortcutTest, ProtonCompatDirIsTheUmuPrefix)
+TEST_F(ShortcutTest, ProtonCompatDirIsTheUmuPrefix)
 {
     const std_path compat = m_root / "steam/steamapps/compatdata/123";
     touch(compat / "version");
     const auto request = makeRequest(makeUserHome(compat / "pfx"));
 
-    makeLinuxShortcut(request);
+    makeShortcut(request);
 
     EXPECT_EQ(entryValue(appsEntry(), "Exec"),
               bin("env") + " WINEPREFIX=\"" + compat.string() + "\" GAMEID=umu-battlenet PROTON_VERB=run umu-run \"" + request.exe.string() + "\" -mod rando -txt");
 }
 
-TEST_F(LinuxShortcutTest, UmuMadePrefixUsesUmu)
+TEST_F(ShortcutTest, UmuMadePrefixUsesUmu)
 {
     const std_path prefix = m_root / "Games/battlenet";
     touch(prefix / "tracked_files");
     const auto userHome = makeUserHome(prefix);
     std_fs::create_directory_symlink(".", prefix / "pfx");
 
-    makeLinuxShortcut(makeRequest(userHome));
+    makeShortcut(makeRequest(userHome));
 
     EXPECT_TRUE(entryValue(appsEntry(), "Exec").starts_with(bin("env") + " WINEPREFIX=\"" + prefix.string() + "\" GAMEID=umu-battlenet"));
 }
 
-TEST_F(LinuxShortcutTest, GeProtonAddsProtonPath)
+TEST_F(ShortcutTest, GeProtonAddsProtonPath)
 {
     const std_path prefix = m_root / "Games/battlenet";
     touch(prefix / "version");
     std_fs::create_directories(m_root / "home/.local/share/Steam/compatibilitytools.d/GE-Proton11-7");
 
-    makeLinuxShortcut(makeRequest(makeUserHome(prefix)));
+    makeShortcut(makeRequest(makeUserHome(prefix)));
 
     EXPECT_TRUE(entryValue(appsEntry(), "Exec").starts_with(bin("env") + " WINEPREFIX=\"" + prefix.string() + "\" PROTONPATH=GE-Proton GAMEID=umu-battlenet"));
 }
 
-TEST_F(LinuxShortcutTest, MissingRunnerWritesNothing)
+TEST_F(ShortcutTest, MissingRunnerWritesNothing)
 {
     const std_path prefix = m_root / "Games/battlenet";
     touch(prefix / "version");
     std_fs::remove(m_root / "bin/umu-run");
 
-    const auto result = makeLinuxShortcut(makeRequest(makeUserHome(prefix)));
+    const auto result = makeShortcut(makeRequest(makeUserHome(prefix)));
 
-    EXPECT_EQ(result.status, LinuxShortcutResult::Status::RunnerNotFound);
+    EXPECT_EQ(result.status, ShortcutResult::Status::RunnerNotFound);
     EXPECT_EQ(result.runner, "umu-run");
     EXPECT_FALSE(std_fs::exists(m_root / "apps"));
 }
 
-TEST_F(LinuxShortcutTest, WinePrefixHasNoPreset)
+TEST_F(ShortcutTest, WinePrefixHasNoPreset)
 {
     const std_path prefix   = m_root / "wine";
     const auto     userHome = makeUserHome(prefix);
 
-    const auto result = makeLinuxShortcut(makeRequest(userHome));
+    const auto result = makeShortcut(makeRequest(userHome));
 
-    EXPECT_EQ(result.status, LinuxShortcutResult::Status::NoPreset);
+    EXPECT_EQ(result.status, ShortcutResult::Status::NoPreset);
     EXPECT_FALSE(std_fs::exists(m_root / "apps"));
-    EXPECT_EQ(linuxRunnerPreset(userHome, false, m_root / "home"), "");
+    EXPECT_EQ(runnerPreset(userHome, false, m_root / "home"), "");
 }
 
-TEST_F(LinuxShortcutTest, TemplateIsExpanded)
+TEST_F(ShortcutTest, TemplateIsExpanded)
 {
     const std_path prefix  = m_root / "wine";
     auto           request = makeRequest(makeUserHome(prefix));
     request.runnerTemplate = "wine {exe} {args} --flag";
 
-    const auto result = makeLinuxShortcut(request);
+    const auto result = makeShortcut(request);
 
-    EXPECT_EQ(result.status, LinuxShortcutResult::Status::Written);
+    EXPECT_EQ(result.status, ShortcutResult::Status::Written);
     EXPECT_EQ(entryValue(appsEntry(), "Exec"), bin("wine") + " \"" + request.exe.string() + "\" -mod rando -txt --flag");
 }
 
-TEST_F(LinuxShortcutTest, TemplateRunnerMustExist)
+TEST_F(ShortcutTest, TemplateRunnerMustExist)
 {
     auto request           = makeRequest(makeUserHome(m_root / "wine"));
     request.runnerTemplate = "nosuchwine {exe} {args}";
 
-    const auto result = makeLinuxShortcut(request);
+    const auto result = makeShortcut(request);
 
-    EXPECT_EQ(result.status, LinuxShortcutResult::Status::RunnerNotFound);
+    EXPECT_EQ(result.status, ShortcutResult::Status::RunnerNotFound);
     EXPECT_EQ(result.runner, "nosuchwine");
 }
 
-TEST_F(LinuxShortcutTest, ExecValuesAreQuotedAndEscaped)
+TEST_F(ShortcutTest, ExecValuesAreQuotedAndEscaped)
 {
     auto request           = makeRequest(makeUserHome(m_root / "wine"));
     request.exe            = m_root / "my $game \"x\" 100%" / "D2R.exe";
@@ -202,34 +203,34 @@ TEST_F(LinuxShortcutTest, ExecValuesAreQuotedAndEscaped)
     request.runnerTemplate = "wine {exe} {args}";
     touch(request.exe);
 
-    makeLinuxShortcut(request);
+    makeShortcut(request);
 
     // Desktop Entry quoting (\$, \"), then string escaping (\\) and %%.
     EXPECT_EQ(entryValue(appsEntry(), "Exec"),
               bin("wine") + " \"" + m_root.string() + "/my \\\\$game \\\\\"x\\\\\" 100%%/D2R.exe\" -mod \"my'mod\" -txt");
 }
 
-TEST_F(LinuxShortcutTest, UserHomeIsNormalized)
+TEST_F(ShortcutTest, UserHomeIsNormalized)
 {
     const std_path prefix = m_root / "Games/battlenet";
     touch(prefix / "version");
     const std::string userHome = makeUserHome(prefix);
-    const std::string preset   = linuxRunnerPreset(userHome, false, m_root / "home");
+    const std::string preset   = runnerPreset(userHome, false, m_root / "home");
 
     for (const std::string& variant : { userHome + ".", userHome + "../steamuser", userHome.substr(0, userHome.size() - 1) }) {
-        makeLinuxShortcut(makeRequest(variant));
+        makeShortcut(makeRequest(variant));
         EXPECT_TRUE(entryValue(appsEntry(), "Exec").starts_with(bin("env") + " WINEPREFIX=\"" + prefix.string() + "\" ")) << variant;
-        EXPECT_EQ(linuxRunnerPreset(variant, false, m_root / "home"), preset) << variant;
+        EXPECT_EQ(runnerPreset(variant, false, m_root / "home"), preset) << variant;
     }
 }
 
-TEST_F(LinuxShortcutTest, WritesAppsAndDesktopEntries)
+TEST_F(ShortcutTest, WritesAppsAndDesktopEntries)
 {
     const std_path prefix = m_root / "Games/battlenet";
     touch(prefix / "version");
     const auto request = makeRequest(makeUserHome(prefix));
 
-    const auto result = makeLinuxShortcut(request);
+    const auto result = makeShortcut(request);
 
     const std_path apps    = m_root / "apps/Diablo II - rando Mod.desktop";
     const std_path desktop = m_root / "Desktop/Diablo II - rando Mod.desktop";
@@ -244,20 +245,20 @@ TEST_F(LinuxShortcutTest, WritesAppsAndDesktopEntries)
     EXPECT_EQ(std_fs::status(apps).permissions() & std_fs::perms::all, std_fs::perms(0755));
 }
 
-TEST_F(LinuxShortcutTest, MissingDesktopDirIsSkipped)
+TEST_F(ShortcutTest, MissingDesktopDirIsSkipped)
 {
     const std_path prefix = m_root / "Games/battlenet";
     touch(prefix / "version");
     auto request       = makeRequest(makeUserHome(prefix));
     request.desktopDir = m_root / "NoDesktop";
 
-    const auto result = makeLinuxShortcut(request);
+    const auto result = makeShortcut(request);
 
     EXPECT_EQ(result.written, (std::vector<std_path>{ m_root / "apps/Diablo II - rando Mod.desktop" }));
     EXPECT_FALSE(std_fs::exists(m_root / "NoDesktop"));
 }
 
-TEST_F(LinuxShortcutTest, DesktopThatIsHomeIsSkipped)
+TEST_F(ShortcutTest, DesktopThatIsHomeIsSkipped)
 {
     const std_path prefix = m_root / "Games/battlenet";
     touch(prefix / "version");
@@ -265,33 +266,8 @@ TEST_F(LinuxShortcutTest, DesktopThatIsHomeIsSkipped)
     std_fs::create_directories(request.homeDir);
     request.desktopDir = request.homeDir / ".";
 
-    const auto result = makeLinuxShortcut(request);
+    const auto result = makeShortcut(request);
 
     EXPECT_EQ(result.written, (std::vector<std_path>{ m_root / "apps/Diablo II - rando Mod.desktop" }));
     EXPECT_FALSE(std_fs::exists(request.homeDir / "Diablo II - rando Mod.desktop"));
-}
-
-TEST_F(LinuxShortcutTest, RunnerPathIsNormalized)
-{
-    const std_path prefix = m_root / "Games/battlenet";
-    touch(prefix / "version");
-    auto request    = makeRequest(makeUserHome(prefix));
-    request.pathEnv = (m_root / "game/../bin").string();
-
-    makeLinuxShortcut(request);
-
-    EXPECT_TRUE(entryValue(appsEntry(), "Exec").starts_with(bin("env") + " "));
-}
-
-TEST_F(LinuxShortcutTest, NonExecutableInPathIsSkipped)
-{
-    const std_path prefix = m_root / "Games/battlenet";
-    touch(prefix / "version");
-    touch(m_root / "first/env", "# a sourced script, not a program");
-    auto request    = makeRequest(makeUserHome(prefix));
-    request.pathEnv = (m_root / "first").string() + ":" + (m_root / "bin").string();
-
-    makeLinuxShortcut(request);
-
-    EXPECT_TRUE(entryValue(appsEntry(), "Exec").starts_with(bin("env") + " "));
 }

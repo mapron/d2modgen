@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSL-1.0
  * See LICENSE file for details.
  */
-#include "LinuxShortcut.hpp"
+#include "Shortcut.hpp"
 
 #include "MernelPlatform/ShellUtils.hpp"
 
@@ -46,33 +46,6 @@ bool hasGeProton(const std_path& homeDir)
         }
     }
     return false;
-}
-
-bool isExecutable(const std_path& path)
-{
-    std::error_code ec;
-    const auto      status = std_fs::status(path, ec);
-    using std_fs::perms;
-    return !ec && std_fs::is_regular_file(status) && (status.permissions() & (perms::owner_exec | perms::group_exec | perms::others_exec)) != perms::none;
-}
-
-// The runner's full path: as written if it contains a '/', else the first executable match in PATH (like a shell).
-std_path findProgram(const std::string& pathEnv, const std::string& program)
-{
-    if (program.find('/') != std::string::npos)
-        return isExecutable(Mernel::string2path(program)) ? Mernel::string2path(program) : std_path();
-
-    size_t start = 0;
-    while (start <= pathEnv.size()) {
-        size_t end = pathEnv.find(':', start);
-        if (end == std::string::npos)
-            end = pathEnv.size();
-        const std::string dir = pathEnv.substr(start, end - start);
-        if (!dir.empty() && isExecutable(Mernel::string2path(dir) / program))
-            return (Mernel::string2path(dir) / program).lexically_normal();
-        start = end + 1;
-    }
-    return {};
 }
 
 std_path prefixFromUserHome(const std_path& userHome)
@@ -199,9 +172,9 @@ std::string expandTemplate(const std::string& runnerTemplate, const std_path& pr
 
 }
 
-LinuxShortcutResult makeLinuxShortcut(const LinuxShortcutRequest& request)
+ShortcutResult makeShortcut(const ShortcutRequest& request)
 {
-    LinuxShortcutResult result;
+    ShortcutResult result;
 
     const bool   legacy = request.exe.filename() != "D2R.exe";
     const Preset preset = makePreset(request.userHome, legacy, request.homeDir);
@@ -209,7 +182,7 @@ LinuxShortcutResult makeLinuxShortcut(const LinuxShortcutRequest& request)
     std_path     prefix;
     if (request.runnerTemplate.empty()) {
         if (preset.text.empty()) {
-            result.status = LinuxShortcutResult::Status::NoPreset;
+            result.status = ShortcutResult::Status::NoPreset;
             return result;
         }
         runnerTemplate = preset.text;
@@ -222,10 +195,10 @@ LinuxShortcutResult makeLinuxShortcut(const LinuxShortcutRequest& request)
     // The first word of the template is the program the launcher runs; the rest are its arguments.
     const size_t      split   = runnerTemplate.find_first_of(" \t");
     const std::string first   = runnerTemplate.substr(0, split);
-    const std_path    program = findProgram(request.pathEnv, first);
+    const std_path    program = request.findExecutable(first);
     result.runner             = request.runnerTemplate.empty() ? preset.runner : first;
-    if (program.empty() || findProgram(request.pathEnv, result.runner).empty()) {
-        result.status = LinuxShortcutResult::Status::RunnerNotFound;
+    if (program.empty() || request.findExecutable(result.runner).empty()) {
+        result.status = ShortcutResult::Status::RunnerNotFound;
         return result;
     }
     const std::string args  = split == std::string::npos ? std::string() : expandTemplate(runnerTemplate.substr(split + 1), prefix, request.exe, request.args);
@@ -243,11 +216,11 @@ LinuxShortcutResult makeLinuxShortcut(const LinuxShortcutRequest& request)
         && Mernel::createShortCut(request.desktopDir, title, toDir, Mernel::path2string(program), args, request.iconPath))
         result.written.push_back(request.desktopDir / (title + ".desktop"));
 
-    result.status = LinuxShortcutResult::Status::Written;
+    result.status = ShortcutResult::Status::Written;
     return result;
 }
 
-std::string linuxRunnerPreset(const Mernel::std_path& userHome, bool legacy, const Mernel::std_path& homeDir)
+std::string runnerPreset(const Mernel::std_path& userHome, bool legacy, const Mernel::std_path& homeDir)
 {
     return makePreset(userHome, legacy, homeDir).text;
 }

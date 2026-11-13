@@ -137,7 +137,7 @@ qt6_add_qml_module(modgen_ui
         ${qmlFiles}
         ${jsFiles}
     RESOURCES
-        qml/images/d2modgen.png
+        assets/logo.png
 )
 
 qt_add_translations(modgen_ui

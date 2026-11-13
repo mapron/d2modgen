@@ -137,7 +137,6 @@ If requirements are met, then go "cmake/build/build install". For windows platfo
 - (MIT) CascLib (https://github.com/ladislav-zezula/CascLib) is used for Blizzard CASC data storage read;
 - (Zlib) Zlib library is used internally by CascLib;
 - (MIT) StormLib (https://github.com/ladislav-zezula/StormLib) is used for reading MPQ files.
-- d2modmaker logo (https://github.com/tlentz/d2modmaker) by tlentz is used, with permission, as the icon of Linux shortcuts.
 
 # Third party components as non-distributed dependency
 - Qt , https://www.qt.io/, GPL/LGPL/Commercial; components utilized by d2modgen are available under LGPL.
