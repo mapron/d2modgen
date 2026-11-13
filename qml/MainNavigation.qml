@@ -22,15 +22,15 @@ ColumnLayout {
             isHeader: true
         },
         {
-            name: qsTr("Item Randomizer"),
+            name: qsTr("Items"),
             value_key: config.itemRandomizer.enabled
         },
         {
-            name: qsTr("Monster Randomizer"),
+            name: qsTr("Monsters"),
             value_key: config.monsterRandomizer.enabled
         },
         {
-            name: qsTr("Skill Randomizer"),
+            name: qsTr("Skills"),
             value_key: config.skillRandomizer.enabled
         },
         {

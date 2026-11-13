@@ -137,6 +137,7 @@ qt_add_translations(modgen_ui
         ${cppFiles}
     RESOURCE_PREFIX 
         "/i18n"
+    LUPDATE_OPTIONS -no-obsolete
 )
 
 # a "shortcut"
