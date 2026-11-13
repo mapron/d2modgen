@@ -101,6 +101,9 @@ const std::array<std::string_view, size_t(BlobId::count__)> s_blobpaths{
     "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg.sprite",
     "data\\hd\\global\\ui\\controller\\panel\\inventorypanel\\v2\\inventorybg.lowend.sprite",
 
+    "data\\hd\\global\\ui\\controller\\panel\\mainpanelbg.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\mainpanelbg.lowend.sprite",
+
     "data\\hd\\global\\ui\\spells\\amazon\\amskillicon.sprite",
     "data\\hd\\global\\ui\\spells\\amazon\\amskillicon.lowend.sprite",
     "data\\hd\\global\\ui\\spells\\sorceress\\soskillicon.sprite",

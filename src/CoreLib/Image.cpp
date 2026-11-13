@@ -7,7 +7,6 @@
 
 #include "MernelPlatform/ByteOrderStream.hpp"
 
-#include <numeric>
 #include <cmath>
 
 namespace D2ModGen::Image {
@@ -65,158 +64,6 @@ uint8_t s_defaultPaletteGBR[768] = {
     0x2C, 0x30, 0x28, 0x30, 0x34, 0x2C, 0x34, 0x38, 0x40, 0x3C, 0x30, 0x34, 0x3C, 0x40, 0x38, 0x44,
     0x48, 0x44, 0x4C, 0x50, 0x4C, 0x58, 0x5C, 0x54, 0x5C, 0x60, 0x58, 0x64, 0x68, 0xFF, 0xFF, 0xFF,
     // clang-format on
-};
-
-class StoneTextureGenerator {
-private:
-    int p[512];
-
-    // Standard Fade function for smooth transitions
-    double fade(double t) { return t * t * t * (t * (t * 6 - 15) + 10); }
-
-    // Linear interpolation
-    double lerp(double t, double a, double b) { return a + t * (b - a); }
-
-    // Gradient calculation
-    double grad(int hash, double x, double y)
-    {
-        int    h = hash & 7;
-        double u = h < 4 ? x : y;
-        double v = h < 4 ? y : x;
-        return ((h & 1) ? -u : u) + ((h & 2) ? -2.0 * v : 2.0 * v);
-    }
-
-public:
-    StoneTextureGenerator(unsigned int seed = 42)
-    {
-        // Initialize permutation table with a standard shuffle sequence
-        int base_p[256];
-        std::iota(std::begin(base_p), std::end(base_p), 0);
-
-        // Simple LCG deterministic shuffle using the seed
-        for (int i = 255; i > 0; --i) {
-            seed  = seed * 1103515245 + 12345;
-            int j = (seed / 65536) % (i + 1);
-            std::swap(base_p[i], base_p[j]);
-        }
-
-        // Duplicate the array to avoid buffer overflows during interpolation
-        for (int i = 0; i < 256; i++) {
-            p[i]       = base_p[i];
-            p[i + 256] = base_p[i];
-        }
-    }
-
-    // 2D Perlin Noise implementation returning range [-1.0, 1.0]
-    double noise(double x, double y)
-    {
-        int X = (int) std::floor(x) & 255;
-        int Y = (int) std::floor(y) & 255;
-
-        x -= std::floor(x);
-        y -= std::floor(y);
-
-        double u = fade(x);
-        double v = fade(y);
-
-        int A = p[X] + Y;
-        int B = p[X + 1] + Y;
-
-        return lerp(v, lerp(u, grad(p[A], x, y), grad(p[B], x - 1, y)), lerp(u, grad(p[A + 1], x, y - 1), grad(p[B + 1], x - 1, y - 1)));
-    }
-
-    // Generates a 32-bit RGBA color buffer matching the UI element dimensions
-    void generateStoneTexture(Bitmap& bitmap, double scale = 0.03)
-    {
-        int width  = bitmap.size.width;
-        int height = bitmap.size.height;
-
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
-                double sampleX = x * scale;
-                double sampleY = y * scale;
-
-                double totalHeight = 0.0;
-                double slopeX      = 0.0;
-                double slopeY      = 0.0;
-
-                double amplitude = 1.0;
-                double frequency = 1.0;
-                double maxValue  = 0.0;
-
-                // 3 octaves for high speed while preserving micro-cracks
-                for (int octave = 0; octave < 3; ++octave) {
-                    double nx = sampleX * frequency;
-                    double ny = sampleY * frequency;
-
-                    // --- FAST ANALYTICAL INLINE DERIVATIVE ---
-                    int    X  = (int) std::floor(nx) & 255;
-                    int    Y  = (int) std::floor(ny) & 255;
-                    double fx = nx - std::floor(nx);
-                    double fy = ny - std::floor(ny);
-
-                    // Inline fade curves and their exact derivatives
-                    double u  = fx * fx * fx * (fx * (fx * 6 - 15) + 10);
-                    double v  = fy * fy * fy * (fy * (fy * 6 - 15) + 10);
-                    double du = 30.0 * fx * fx * (fx * (fx - 2.0) + 1.0);
-                    double dv = 30.0 * fy * fy * (fy * (fy - 2.0) + 1.0);
-
-                    int    A   = p[X] + Y;
-                    int    B   = p[X + 1] + Y;
-                    double g00 = grad(p[A], fx, fy);
-                    double g10 = grad(p[B], fx - 1, fy);
-                    double g01 = grad(p[A + 1], fx, fy - 1);
-                    double g11 = grad(p[B + 1], fx - 1, fy - 1);
-
-                    // Calculate smooth height
-                    double r = lerp(v, lerp(u, g00, g10), lerp(u, g01, g11));
-
-                    // Transform to Ridged/Craggy profile mathematically
-                    double crag   = 1.0 - std::abs(r);
-                    double cragSq = crag * crag;
-
-                    totalHeight += cragSq * amplitude;
-                    maxValue += amplitude;
-
-                    // Chain rule to extract matching slopes instantly without extra noise calls
-                    double dNdx = lerp(v, g10 - g00, g11 - g01) * du;
-                    double dNdy = (lerp(u, g01, g11) - lerp(u, g00, g10)) * dv;
-
-                    // Sign correction based on the absolute value flip
-                    double sign = (r < 0.0) ? 1.0 : -1.0;
-                    slopeX += 2.0 * crag * sign * dNdx * amplitude * frequency;
-                    slopeY += 2.0 * crag * sign * dNdy * amplitude * frequency;
-
-                    amplitude *= 0.45;
-                    frequency *= 2.2;
-                }
-
-                totalHeight /= maxValue;
-
-                // --- FAKE LIGHTING CALCULATIONS ---
-                double lightX  = -0.5;
-                double lightY  = -0.5;
-                double lightZ  = 0.8;
-                double rsq     = slopeX * slopeX + slopeY * slopeY + 1.0;
-                double inv_len = 1.0 / std::sqrt(rsq);
-
-                double light = (slopeX * inv_len) * lightX + (slopeY * inv_len) * lightY + inv_len * lightZ;
-                light        = std::max(0.0, light);
-
-                double rockPattern = std::pow(totalHeight, 2.5);
-                double finalShade  = rockPattern * (0.3 + 0.7 * light);
-
-                // --- COMPATIBILITY WITH YOUR BITMAP API ---
-                Color c;
-                c.r = static_cast<int>(12 + finalShade * 40); // Range ~12 to 52 (Dark Charcoal)
-                c.g = static_cast<int>(14 + finalShade * 42);
-                c.b = static_cast<int>(16 + finalShade * 45);
-                c.a = 255;
-
-                bitmap.putDot({ x, y }, c);
-            }
-        }
-    }
 };
 
 void makeBorderImage(Bitmap& dest, const Bitmap& src, Size cornerSize)
@@ -606,12 +453,6 @@ void Bitmap::fill()
     }
 }
 
-void Bitmap::fillWithStone()
-{
-    StoneTextureGenerator gen;
-    gen.generateStoneTexture(*this);
-}
-
 void Bitmap::copyBorders(const Bitmap& src, Size cornerSize)
 {
     makeBorderImage(*this, src, cornerSize);
@@ -622,20 +463,6 @@ void Bitmap::draw(Point destPoint, const Bitmap& src, Point srcPoint, Size size)
     for (int y = 0; y < size.height; ++y) {
         for (int x = 0; x < size.width; ++x) {
             drawDot(destPoint + Point{ x, y }, src, srcPoint + Point{ x, y });
-        }
-    }
-}
-
-void Bitmap::tileWith(const Bitmap& tile)
-{
-    const int w = tile.size.width - 1;
-    const int h = tile.size.height - 1;
-    for (int x = 0; x < size.width; x++) {
-        const int srcX = x % w;
-        for (int y = 0; y < size.height; y++) {
-            const int srcY = y % h;
-
-            drawDot({ x, y }, tile, { srcX, srcY });
         }
     }
 }

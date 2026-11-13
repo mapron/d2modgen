@@ -115,6 +115,10 @@ enum class BlobId
     OrignCtrlInventoryExpansnSpriteHighre,
     OrignCtrlInventoryExpansnSpriteLowend,
 
+    // fullscreen controller panel background, used as base for all expanded inventory backgrounds
+    OrignCtrlMainPanelBgSpriteHighre,
+    OrignCtrlMainPanelBgSpriteLowend,
+
     IconAmaHighre,
     IconAmaLowres,
     IconSorHighre,
@@ -152,7 +156,7 @@ enum class BlobId
     ResurrectedLast  = IconWarLowres,
 
     SkipWriteFirst = OrignMnkbInventoryClassicSpriteHighre,
-    SkipWriteLast  = OrignCtrlInventoryExpansnSpriteLowend,
+    SkipWriteLast  = OrignCtrlMainPanelBgSpriteLowend,
 };
 
 inline auto getBlobIdsLegacy()
