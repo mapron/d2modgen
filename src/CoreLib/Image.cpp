@@ -7,7 +7,6 @@
 
 #include "MernelPlatform/ByteOrderStream.hpp"
 
-#include <algorithm>
 #include <cmath>
 
 namespace D2ModGen::Image {
@@ -149,25 +148,10 @@ Point Point::operator+(const Point& s)
     return result;
 }
 
-Point Point::operator-(const Point& s)
-{
-    Point result = *this;
-    result.x -= s.x;
-    result.y -= s.y;
-    return result;
-}
-
 Point& Point::operator+=(const Point& r)
 {
     x += r.x;
     y += r.y;
-    return *this;
-}
-
-Point& Point::operator-=(const Point& r)
-{
-    x -= r.x;
-    y -= r.y;
     return *this;
 }
 
@@ -502,44 +486,6 @@ void Bitmap::drawBlended(Point destPoint, const Bitmap& src, Point srcPoint, Siz
                 destPixel[channel] = uint8_t((srcPixel[channel] * alpha + destPixel[channel] * (255 - alpha)) / 255);
             if (alpha > destPixel[3])
                 destPixel[3] = uint8_t(alpha);
-        }
-    }
-}
-
-void Bitmap::drawScaled(Rect destRect, const Bitmap& src, Rect srcRect)
-{
-    if (destRect.size.width <= 0 || destRect.size.height <= 0 || srcRect.size.width <= 0 || srcRect.size.height <= 0)
-        return;
-
-    const double scaleX = double(srcRect.size.width) / destRect.size.width;
-    const double scaleY = double(srcRect.size.height) / destRect.size.height;
-    const int    maxX   = srcRect.size.width - 1;
-    const int    maxY   = srcRect.size.height - 1;
-
-    for (int y = 0; y < destRect.size.height; ++y) {
-        const double sy = std::clamp((y + 0.5) * scaleY - 0.5, 0.0, double(maxY));
-        const int    y0 = int(sy);
-        const int    y1 = std::min(y0 + 1, maxY);
-        const double fy = sy - y0;
-        for (int x = 0; x < destRect.size.width; ++x) {
-            const double sx = std::clamp((x + 0.5) * scaleX - 0.5, 0.0, double(maxX));
-            const int    x0 = int(sx);
-            const int    x1 = std::min(x0 + 1, maxX);
-            const double fx = sx - x0;
-
-            auto*          destPixel = getPixel(destRect.topLeft + Point{ x, y });
-            const uint8_t* p00       = src.getPixel(srcRect.topLeft + Point{ x0, y0 });
-            const uint8_t* p10       = src.getPixel(srcRect.topLeft + Point{ x1, y0 });
-            const uint8_t* p01       = src.getPixel(srcRect.topLeft + Point{ x0, y1 });
-            const uint8_t* p11       = src.getPixel(srcRect.topLeft + Point{ x1, y1 });
-            if (!destPixel || !p00 || !p10 || !p01 || !p11)
-                continue;
-
-            for (int channel = 0; channel < 4; ++channel) {
-                const double top    = p00[channel] + (p10[channel] - p00[channel]) * fx;
-                const double bottom = p01[channel] + (p11[channel] - p01[channel]) * fx;
-                destPixel[channel]  = uint8_t(std::lround(top + (bottom - top) * fy));
-            }
         }
     }
 }

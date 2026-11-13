@@ -20,10 +20,8 @@ struct Point {
     void  read(const Mernel::PropertyTree& data);
     void  write(Mernel::PropertyTree& data) const;
     Point operator+(const Point& s);
-    Point operator-(const Point& s);
 
     Point&      operator+=(const Point& r);
-    Point&      operator-=(const Point& r);
     Point&      operator/=(int downscale);
     std::string toString() const;
 };
@@ -159,8 +157,6 @@ struct MODGENCORE_EXPORT Bitmap {
 
     void draw(Point destPoint, const Bitmap& src, Point srcPoint, Size size);
     void drawBlended(Point destPoint, const Bitmap& src, Point srcPoint, Size size);
-
-    void drawScaled(Rect destRect, const Bitmap& src, Rect srcRect); // bilinear
 
     void drawDot(Point destPoint, const Bitmap& src, Point srcPoint);
 };

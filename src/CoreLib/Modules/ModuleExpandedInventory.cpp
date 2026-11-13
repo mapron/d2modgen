@@ -118,11 +118,12 @@ const Point ctrl2{ 123, -62 };
 const Point s_ctrlPanelCenter{ 1408 / 2, 1486 / 2 };
 const Point s_ctrlBackgroundRectOrig{ -508, -700 };
 const Point s_ctrlBackgroundRectExpanded{ -789, -860 };
-const Point s_ctrlSpriteOriginOrig{ s_ctrlPanelCenter.x + s_ctrlBackgroundRectOrig.x, s_ctrlPanelCenter.y + s_ctrlBackgroundRectOrig.y };
-const Point s_ctrlSpriteOriginExpanded{ s_ctrlPanelCenter.x + s_ctrlBackgroundRectExpanded.x, s_ctrlPanelCenter.y + s_ctrlBackgroundRectExpanded.y };
+const Point s_ctrlSpriteOffsetOrig{ -(s_ctrlPanelCenter.x + s_ctrlBackgroundRectOrig.x), -(s_ctrlPanelCenter.y + s_ctrlBackgroundRectOrig.y) };
+const Point s_ctrlSpriteOffsetExpanded{ -(s_ctrlPanelCenter.x + s_ctrlBackgroundRectExpanded.x), -(s_ctrlPanelCenter.y + s_ctrlBackgroundRectExpanded.y) };
 
 // Stone area of the biggest panel in controller mainpanelbg.sprite, without its frame and corner ornaments.
 const Rect s_panelBgStoneRect{ .topLeft = { 645, 202 }, .size = { 1590, 1366 } };
+const int s_panelBgStoneRepeatRow = 1056;
 
 const int  s_ctrlFrameMargin = 12; // controller frames extend past the widget rect
 const Size s_ctrlBeltSize{ 505, 118 };
@@ -316,8 +317,8 @@ void ModuleExpandedInventory::generate()
         bd.expansion  = desc.expansion;
         bd.controller = desc.controller;
 
-        const Point sourceOrigin = desc.controller ? s_ctrlSpriteOriginOrig : Point{};
-        const Point targetOrigin = desc.controller ? s_ctrlSpriteOriginExpanded : Point{};
+        const Point sourceOffset = desc.controller ? s_ctrlSpriteOffsetOrig : Point{};
+        const Point targetOffset = desc.controller ? s_ctrlSpriteOffsetExpanded : Point{};
 
         const Point widgetsOffset = desc.controller ? Point{ -15, 0 } : Point{ 100, 0 };
 
@@ -342,14 +343,14 @@ void ModuleExpandedInventory::generate()
                 bd.rect = d.rect;
                 d.rect.topLeft += correction;
                 d.rect.topLeft += widgetsOffset; // @todo: future uncollapsing
-                bd.moveTo = d.rect.topLeft - targetOrigin;
+                bd.moveTo = d.rect.topLeft + targetOffset;
 
                 if (bd.rect.size.width > 0) {
                     const int margin = desc.controller ? s_ctrlFrameMargin : 10; // extra borders
                     bd.rect.expand(margin);
-                    bd.moveTo -= Point{ margin, margin };
+                    bd.moveTo += Point{ -margin, -margin };
                 }
-                bd.rect.topLeft -= sourceOrigin;
+                bd.rect.topLeft += sourceOffset;
 
                 d.write(child);
                 blitList.push_back(bd);
@@ -362,13 +363,13 @@ void ModuleExpandedInventory::generate()
                     continue;
 
                 bd.rect = d.rect;
-                bd.rect.topLeft -= sourceOrigin;
+                bd.rect.topLeft += sourceOffset;
                 d.rect.topLeft += correction;
                 d.rect.topLeft += gridOffset;
 
                 bd.rect.size.width  = cellWidth;
                 bd.rect.size.height = cellHeight;
-                bd.moveTo           = d.rect.topLeft - targetOrigin;
+                bd.moveTo           = d.rect.topLeft + targetOffset;
                 bd.repeatX          = cellCountX;
                 bd.repeatY          = cellCountY;
 
@@ -440,9 +441,13 @@ void ModuleExpandedInventory::generate()
         if (desc.controller) {
             bmp.rgba.assign(bmp.rgba.size(), 0); // the game draws its own panel behind the controller background
         } else {
-            Rect stoneRect = s_panelBgStoneRect;
+            const Bitmap& panelBg   = desc.lowres ? panelBgLowend : panelBgHighre;
+            Rect          stoneRect = s_panelBgStoneRect;
             stoneRect /= downscale;
-            bmp.drawScaled({ .topLeft = {}, .size = newSize }, desc.lowres ? panelBgLowend : panelBgHighre, stoneRect);
+            const int repeatRow   = s_panelBgStoneRepeatRow / downscale;
+            const int extraHeight = newSize.height - stoneRect.size.height;
+            bmp.draw({}, panelBg, stoneRect.topLeft, { newSize.width, repeatRow + extraHeight });
+            bmp.draw({ 0, repeatRow + extraHeight }, panelBg, stoneRect.topLeft + Point{ 0, repeatRow }, { newSize.width, stoneRect.size.height - repeatRow });
             bmp.copyBorders(origBmp, cornerSize);
         }
 
@@ -471,7 +476,7 @@ void ModuleExpandedInventory::generate()
                 continue;
 
             if (overlay.controller)
-                overlay.rect.topLeft -= s_ctrlSpriteOriginExpanded;
+                overlay.rect.topLeft += s_ctrlSpriteOffsetExpanded;
             overlay /= desc.lowres ? 2 : 1;
             overlay.paintTo(bmp);
         }
