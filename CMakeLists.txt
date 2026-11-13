@@ -109,6 +109,7 @@ AddTarget( TYPE app_qt NAME modgen_ui
     LINK_LIBRARIES ModgenCore MernelPlatform Config
     QT_MODULES Widgets Qml Quick Network
     COMPILE_DEFINITIONS APP_VERSION="${PROJECT_VERSION}"
+    EXTRA_SOURCES assets/resource.rc
     )
 
 file(GLOB_RECURSE qmlFiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/qml/*.qml)
@@ -142,6 +143,7 @@ AddTarget( TYPE app_ui NAME modgen
     SOURCE_DIR ${sourceRoot}/Shortcut
     STATIC_RUNTIME
     SKIP_INSTALL
+    EXTRA_SOURCES assets/resource.rc
     )
 install(TARGETS modgen RUNTIME DESTINATION .)
 endif()

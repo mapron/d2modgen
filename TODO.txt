@@ -1,2 +1,0 @@
-replace isc with tome
-DO NOT SPAWN treasure goblins in rando!
