@@ -14,6 +14,7 @@ set(Qt6ShaderTools_FOUND TRUE CACHE BOOL "" FORCE)
 set(Qt6TaskTree_FOUND TRUE CACHE BOOL "" FORCE)
 
 option(ENABLE_SCHEMA_GEN "Turn on code-generation for Config.hpp" FALSE)
+option(D2MODGEN_BUILD_TESTS "Build unit tests" OFF)
 
 cmake_minimum_required(VERSION 3.31...4.0)
 
@@ -93,6 +94,18 @@ AddTarget( TYPE app_console NAME modgen_console
     LINK_LIBRARIES ModgenCore MernelPlatform Config
     )
 
+# Tests
+if (D2MODGEN_BUILD_TESTS)
+    enable_testing()
+    AddTarget(TYPE app_console NAME CoreTests
+        SOURCE_DIR ${sourceRoot}/CoreTests
+        LINK_LIBRARIES ModgenCore MernelPlatform gtest_main
+        SKIP_INSTALL
+        )
+    file(COPY ${sourceRoot}/CoreTests/data/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/CoreTestsData)
+    add_test(NAME CoreTests COMMAND CoreTests WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
 if (NOT Qt6_FOUND)
 	return()
 endif()
@@ -123,7 +136,8 @@ qt6_add_qml_module(modgen_ui
     QML_FILES
         ${qmlFiles}
         ${jsFiles}
-        
+    RESOURCES
+        assets/logo.png
 )
 
 qt_add_translations(modgen_ui

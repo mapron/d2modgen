@@ -52,6 +52,7 @@ public:
     Q_INVOKABLE QString detectPath();
     Q_INVOKABLE void    setLaunch(QString arg);
     Q_INVOKABLE void    makeShortCut(QString arg);
+    Q_INVOKABLE QString runnerPreset(QString userHome, bool legacy);
 
     Q_INVOKABLE void copyModSettings();
     Q_INVOKABLE void copySaves();

@@ -6,6 +6,7 @@
 #include "UIController.hpp"
 
 #include "FileIOUtils.hpp"
+#include "Shortcut.hpp"
 
 #include "ConfigHandler.hpp"
 #include "Logger.hpp"
@@ -241,7 +242,7 @@ void UIController::disableAutoSave()
 
 void UIController::browseToAppSettings()
 {
-    QProcess::startDetached("explorer.exe", QStringList() << QDir::toNativeSeparators(QString::fromStdString(path2string(m_configHandler.m_appData))));
+    Mernel::showFolderInFileManager(m_configHandler.m_appData);
 }
 
 QString UIController::urlToPath(const QUrl& url) const
@@ -310,6 +311,60 @@ void UIController::makeShortCut(QString arg)
     if (!env.init(cfg))
         return;
 
+    if (!s_isWindows) {
+        const auto location = [](QStandardPaths::StandardLocation type) {
+            return string2path(QStandardPaths::writableLocation(type).toStdString());
+        };
+
+        ShortcutRequest request;
+        request.userHome       = string2path(cfg.m_userHome);
+        request.exe            = env.inputPath / (env.isLegacy ? "Diablo II.exe" : "D2R.exe");
+        request.args           = arg.toStdString();
+        request.runnerTemplate = cfg.m_runnerTemplate;
+        request.modName        = cfg.m_modname;
+        request.appsDir        = location(QStandardPaths::ApplicationsLocation);
+        request.desktopDir     = location(QStandardPaths::DesktopLocation);
+        request.iconPath       = location(QStandardPaths::GenericDataLocation) / "d2modgen" / "icons" / "logo.png";
+        request.homeDir        = location(QStandardPaths::HomeLocation);
+        request.findExecutable = [](const std::string& program) {
+            return string2path(QStandardPaths::findExecutable(QString::fromStdString(program)).toStdString());
+        };
+
+        // The launcher icon is the app logo from the resources; Icon= needs it as a file on disk.
+        const QString iconFile = QString::fromStdString(path2string(request.iconPath));
+        QDir().mkpath(QFileInfo(iconFile).path());
+        QFile::remove(iconFile);
+        if (!QFile::copy(":/assets/logo.png", iconFile))
+            request.iconPath.clear();
+
+        const ShortcutResult result = makeShortcut(request);
+        switch (result.status) {
+            case ShortcutResult::Status::NoPreset:
+                emit statusUpdate(tr("No runner preset for this Wine prefix. Enter a runner template, or use \"Set launch to mod\"."));
+                return;
+            case ShortcutResult::Status::RunnerNotFound:
+                emit statusUpdate(tr("%1 was not found. Install it or edit the runner template.").arg(QString::fromStdString(result.runner)));
+                return;
+            case ShortcutResult::Status::WriteFailed:
+                emit statusUpdate(tr("Failed to write shortcut"));
+                return;
+            case ShortcutResult::Status::Written:
+                break;
+        }
+
+        QStringList written;
+        for (const auto& file : result.written) {
+            Logger() << "Short cut: " << file;
+            written << QString::fromStdString(path2string(file));
+        }
+        // GNOME only starts launchers on the Desktop once they are trusted.
+        if (result.written.size() > 1)
+            QProcess::startDetached("gio", { "set", written.last(), "metadata::trusted", "true" });
+
+        emit statusUpdate(tr("Shortcut created: %1").arg(written.join(", ")));
+        return;
+    }
+
     const bool        legacy = env.isLegacy;
     auto              d2path = env.inputPath;
     const std::string desk   = cfg.m_userHome + "Desktop/";
@@ -323,6 +378,12 @@ void UIController::makeShortCut(QString arg)
     }
 
     emit statusUpdate(tr("Shortcut created!"));
+}
+
+QString UIController::runnerPreset(QString userHome, bool legacy)
+{
+    const auto home = QStandardPaths::writableLocation(QStandardPaths::HomeLocation).toStdString();
+    return QString::fromStdString(D2ModGen::runnerPreset(string2path(userHome.toStdString()), legacy, string2path(home)));
 }
 
 void UIController::copyModSettings()

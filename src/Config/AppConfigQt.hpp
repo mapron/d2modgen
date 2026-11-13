@@ -21,6 +21,7 @@ class AppConfig_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyString_Qt* langId READ get_langId CONSTANT)
     Q_PROPERTY(PropertyString_Qt* themeId READ get_themeId CONSTANT)
     Q_PROPERTY(PropertyString_Qt* userHome READ get_userHome CONSTANT)
+    Q_PROPERTY(PropertyString_Qt* runnerTemplate READ get_runnerTemplate CONSTANT)
     Q_PROPERTY(ConstantPropertyString_Qt* installLocationLegacy READ get_installLocationLegacy CONSTANT)
     Q_PROPERTY(ConstantPropertyString_Qt* installLocationD2R READ get_installLocationD2R CONSTANT)
     Q_PROPERTY(ConstantPropertyString_Qt* saveSubfolder READ get_saveSubfolder CONSTANT)
@@ -43,10 +44,11 @@ public:
         , m_langId(data.getPropertyString(4))
         , m_themeId(data.getPropertyString(5))
         , m_userHome(data.getPropertyString(6))
-        , m_installLocationLegacy(data.getPropertyString(7))
-        , m_installLocationD2R(data.getPropertyString(8))
-        , m_saveSubfolder(data.getPropertyString(9))
-        , m_bnetConfig(data.getPropertyString(10))
+        , m_runnerTemplate(data.getPropertyString(7))
+        , m_installLocationLegacy(data.getPropertyString(8))
+        , m_installLocationD2R(data.getPropertyString(9))
+        , m_saveSubfolder(data.getPropertyString(10))
+        , m_bnetConfig(data.getPropertyString(11))
     {
     }
 
@@ -75,6 +77,8 @@ public:
     PropertyString_Qt* get_themeId() { return &m_themeId; }
 
     PropertyString_Qt* get_userHome() { return &m_userHome; }
+
+    PropertyString_Qt* get_runnerTemplate() { return &m_runnerTemplate; }
 
     ConstantPropertyString_Qt* get_installLocationLegacy() { return &m_installLocationLegacy; }
 
@@ -114,6 +118,8 @@ private:
     PropertyString_Qt m_themeId;
 
     PropertyString_Qt m_userHome;
+
+    PropertyString_Qt m_runnerTemplate;
 
     ConstantPropertyString_Qt m_installLocationLegacy;
 
