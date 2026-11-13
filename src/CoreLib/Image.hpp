@@ -156,7 +156,6 @@ struct MODGENCORE_EXPORT Bitmap {
     void linedRect(Rect rect);
 
     void draw(Point destPoint, const Bitmap& src, Point srcPoint, Size size);
-    void drawBlended(Point destPoint, const Bitmap& src, Point srcPoint, Size size);
 
     void drawDot(Point destPoint, const Bitmap& src, Point srcPoint);
 };

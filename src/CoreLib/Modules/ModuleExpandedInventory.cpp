@@ -123,7 +123,7 @@ const Point s_ctrlSpriteOffsetExpanded{ -(s_ctrlPanelCenter.x + s_ctrlBackground
 
 // Stone area of the biggest panel in controller mainpanelbg.sprite, without its frame and corner ornaments.
 const Rect s_panelBgStoneRect{ .topLeft = { 645, 202 }, .size = { 1590, 1366 } };
-const int s_panelBgStoneRepeatRow = 1056;
+const int  s_panelBgStoneRepeatRow = 1056;
 
 const int  s_ctrlFrameMargin = 12; // controller frames extend past the widget rect
 const Size s_ctrlBeltSize{ 505, 118 };
@@ -459,10 +459,7 @@ void ModuleExpandedInventory::generate()
             bd /= downscale;
             for (int x = 0, offsetX = 0; x < bd.repeatX; x++, offsetX += bd.rect.size.width) {
                 for (int y = 0, offsetY = 0; y < bd.repeatY; y++, offsetY += bd.rect.size.height) {
-                    if (bd.controller)
-                        bmp.drawBlended(bd.moveTo + Point(offsetX, offsetY), origBmp, bd.rect.topLeft, bd.rect.size);
-                    else
-                        bmp.draw(bd.moveTo + Point(offsetX, offsetY), origBmp, bd.rect.topLeft, bd.rect.size);
+                    bmp.draw(bd.moveTo + Point(offsetX, offsetY), origBmp, bd.rect.topLeft, bd.rect.size);
                 }
             }
         }
