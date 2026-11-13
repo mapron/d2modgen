@@ -5,170 +5,10 @@
 
 namespace D2ModGen {
 
-[[maybe_unused]] static inline bool s_presetNamesSetter_unused = CommonStruct::setPresetNames({ "crazy", "strong", "weak", "pain" });
+[[maybe_unused]] static inline bool s_presetNamesSetter_unused = CommonStruct::setPresetNames({ "crazy", "strong", "pain", "weak" });
 
 struct Config : public CommonStruct {
-    struct TreasureClasses : public CommonStruct {
-        struct Runes : public CommonStruct {
-            bool m_enabled{ false };
-
-            int64_t m_countessSpecialRuneLevel{ 0 };
-
-            bool m_countessSpecialRuneMore{ false };
-
-            bool m_wraithOnlyRunes{ false };
-
-            int64_t m_runeInGoodTC{ 100 };
-
-            int64_t m_zodFactor{ 1 };
-
-            Runes()
-            {
-                addScalar("enabled", m_enabled).setZero(false).setRecc(true);
-                addScalar("countessSpecialRuneLevel", m_countessSpecialRuneLevel).setRange(0, 15).setZero(0).setRecc(3).addPreset(0, 2000).addPreset(1, 600).addPreset(2, 200);
-                addScalar("countessSpecialRuneMore", m_countessSpecialRuneMore).setZero(false).setRecc(false).addPreset(0, true).addPreset(1, true);
-                addScalar("wraithOnlyRunes", m_wraithOnlyRunes).setZero(false).setRecc(false).addPreset(0, true);
-                addScalar("runeInGoodTC", m_runeInGoodTC).setRange(20, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 300).addPreset(2, 100);
-                addScalar("zodFactor", m_zodFactor).setRange(1, 1000).setZero(1).setRecc(20).addPreset(0, 1000).addPreset(1, 100).addPreset(2, 10);
-            }
-        };
-        struct Items : public CommonStruct {
-            bool m_enabled{ false };
-
-            bool m_forceQuestDrops{ false };
-
-            int64_t m_chanceForHighLevel{ 100 };
-
-            int64_t m_noneliteFactorIncrease{ 100 };
-
-            int64_t m_rareFactorIncrease{ 100 };
-
-            int64_t m_setFactorIncrease{ 100 };
-
-            int64_t m_uniqueFactorIncrease{ 100 };
-
-            int64_t m_inverseNodropPercent{ 100 };
-
-            int64_t m_equipPercent{ 100 };
-
-            int64_t m_goldPercent{ 100 };
-
-            int64_t m_goodPercent{ 100 };
-
-            int64_t m_junkPercent{ 100 };
-
-            int64_t m_championItemCount{ 1 };
-
-            int64_t m_uniqueItemCount{ 1 };
-
-            int64_t m_superItemCount{ 2 };
-
-            bool m_removeChampGold{ false };
-
-            bool m_removeElitePotions{ false };
-
-            Items()
-            {
-                addScalar("enabled", m_enabled).setZero(false).setRecc(true);
-                addScalar("forceQuestDrops", m_forceQuestDrops).setZero(false).setRecc(true);
-                addScalar("chanceForHighLevel", m_chanceForHighLevel).setRange(50, 2000).setZero(100).setRecc(150).setPercent().setLogScale();
-                addScalar("noneliteFactorIncrease", m_noneliteFactorIncrease).setRange(20, 5000).setZero(100).setRecc(150).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 300).addPreset(2, 150);
-                addScalar("rareFactorIncrease", m_rareFactorIncrease).setRange(20, 2000).setZero(100).setRecc(200).setPercent().setLogScale().addPreset(0, 2000).addPreset(1, 200).addPreset(2, 100);
-                addScalar("setFactorIncrease", m_setFactorIncrease).setRange(20, 5000).setZero(100).setRecc(300).setPercent().setLogScale().addPreset(0, 5000).addPreset(1, 600).addPreset(2, 200);
-                addScalar("uniqueFactorIncrease", m_uniqueFactorIncrease).setRange(20, 5000).setZero(100).setRecc(400).setPercent().setLogScale().addPreset(0, 5000).addPreset(1, 700).addPreset(2, 250);
-                addScalar("inverseNodropPercent", m_inverseNodropPercent).setRange(25, 9100).setZero(100).setRecc(150).setPercent().setLogScale().addPreset(0, 9000).addPreset(1, 300);
-                addScalar("equipPercent", m_equipPercent).setRange(20, 1000).setZero(100).setPercent().setLogScale();
-                addScalar("goldPercent", m_goldPercent).setRange(5, 1000).setZero(100).setPercent().setLogScale();
-                addScalar("goodPercent", m_goodPercent).setRange(25, 1000).setZero(100).setPercent().setLogScale();
-                addScalar("junkPercent", m_junkPercent).setRange(5, 500).setZero(100).setRecc(10).setPercent().setLogScale();
-                addScalar("championItemCount", m_championItemCount).setRange(0, 6).setZero(1).setRecc(2).addPreset(0, 6).addPreset(1, 3);
-                addScalar("uniqueItemCount", m_uniqueItemCount).setRange(0, 6).setZero(1).setRecc(2).addPreset(0, 6).addPreset(1, 3);
-                addScalar("superItemCount", m_superItemCount).setRange(0, 6).setZero(2).setRecc(3).addPreset(0, 6).addPreset(1, 4);
-                addScalar("removeChampGold", m_removeChampGold).setZero(false).setRecc(true);
-                addScalar("removeElitePotions", m_removeElitePotions).setZero(false).setRecc(false).addPreset(3, true);
-            }
-        };
-        Runes m_runes{};
-
-        Items m_items{};
-
-        TreasureClasses()
-        {
-            addStruct("runes", m_runes);
-            addStruct("items", m_items);
-        }
-    };
-    struct ItemBalance : public CommonStruct {
-        struct CommonSettings : public CommonStruct {
-            bool m_doOverride{ false };
-
-            int64_t m_rollMode{ 0 };
-
-            int64_t m_itemLevel{ 100 };
-
-            int64_t m_reqLevel{ 100 };
-
-            int64_t m_randoKeepOriginalPercent{ 100 };
-
-            int64_t m_randoGenerateMin{ 0 };
-
-            int64_t m_randoGenerateMax{ 0 };
-
-            int64_t m_powerScaleLevel1{ 100 };
-
-            int64_t m_powerScaleLevel50{ 100 };
-
-            CommonSettings()
-            {
-                addScalar("doOverride", m_doOverride).setZero(false).setRecc(false);
-                addScalar("rollMode", m_rollMode).setRange(0, 3).setZero(0).setRecc(0).addPreset(0, 3).addPreset(1, 3);
-                addScalar("itemLevel", m_itemLevel).setRange(5, 150).setZero(100).setRecc(100).setPercent();
-                addScalar("reqLevel", m_reqLevel).setRange(5, 150).setZero(100).setRecc(100).setPercent();
-                addScalar("randoKeepOriginalPercent", m_randoKeepOriginalPercent).setRange(0, 100).setZero(100).setRecc(50).setPercent().addPreset(0, 25).addPreset(3, 0);
-                addScalar("randoGenerateMin", m_randoGenerateMin).setRange(0, 1000).setZero(0).setRecc(50).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 60).addPreset(2, 40);
-                addScalar("randoGenerateMax", m_randoGenerateMax).setRange(0, 1000).setZero(0).setRecc(100).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 200).addPreset(2, 120);
-                addScalar("powerScaleLevel1", m_powerScaleLevel1).setRange(50, 500).setZero(100).setPercent().setLogScale();
-                addScalar("powerScaleLevel50", m_powerScaleLevel50).setRange(50, 500).setZero(100).setPercent().setLogScale();
-            }
-        };
-        CommonSettings m_defaults{};
-
-        CommonSettings m_uniques{};
-
-        CommonSettings m_setitems{};
-
-        CommonSettings m_sets{};
-
-        CommonSettings m_affixes{};
-
-        CommonSettings m_crafted{};
-
-        CommonSettings m_runewords{};
-
-        CommonSettings m_gems{};
-
-        CommonSettings m_equipment{};
-
-        int64_t m_reqDex{ 100 };
-
-        int64_t m_reqStr{ 100 };
-
-        ItemBalance()
-        {
-            addStruct("defaults", m_defaults);
-            addStruct("uniques", m_uniques);
-            addStruct("setitems", m_setitems);
-            addStruct("sets", m_sets);
-            addStruct("affixes", m_affixes);
-            addStruct("crafted", m_crafted);
-            addStruct("runewords", m_runewords);
-            addStruct("gems", m_gems);
-            addStruct("equipment", m_equipment);
-            addScalar("reqDex", m_reqDex).setRange(5, 150).setZero(100).setRecc(80).setPercent();
-            addScalar("reqStr", m_reqStr).setRange(5, 150).setZero(100).setRecc(80).setPercent();
-        }
-    };
-    struct ItemRandomizer : public CommonStruct {
+    struct RandoItems : public CommonStruct {
         bool m_enabled{ false };
 
         int64_t m_seed{ 0 };
@@ -213,7 +53,7 @@ struct Config : public CommonStruct {
 
         bool m_sameRarityForSetUniqueItems{ false };
 
-        ItemRandomizer()
+        RandoItems()
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true);
             addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0).skipPresets();
@@ -223,7 +63,7 @@ struct Config : public CommonStruct {
             addScalar("levelPlus", m_levelPlus).setRange(0, 100).setZero(0).setRecc(5).addPreset(0, 100).addPreset(1, 20);
             addScalar("repeatSets", m_repeatSets).setRange(1, 5).setZero(1).setRecc(5);
             addScalar("repeatUniques", m_repeatUniques).setRange(1, 5).setZero(1).setRecc(5);
-            addScalar("affixRandom", m_affixRandom).setZero(false).setRecc(true).addPreset(3, false);
+            addScalar("affixRandom", m_affixRandom).setZero(false).setRecc(true).addPreset(2, false);
             addScalar("gemsRandom", m_gemsRandom).setZero(false);
             addScalar("craftedRandom", m_craftedRandom).setZero(false);
             addScalar("removeKnock", m_removeKnock).setZero(false).setRecc(true);
@@ -232,19 +72,17 @@ struct Config : public CommonStruct {
             addScalar("updateExisting", m_updateExisting).setZero(false).setRecc(true);
             addScalar("setBonusMode", m_setBonusMode).setRange(0, 2).setZero(0).setRecc(1);
             addScalar("frequencyAuras", m_frequencyAuras).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 1000);
-            addScalar("frequencyCharAttributes", m_frequencyCharAttributes).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(3, 50);
+            addScalar("frequencyCharAttributes", m_frequencyCharAttributes).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 50);
             addScalar("frequencyProcs", m_frequencyProcs).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 1000);
-            addScalar("frequencyResistances", m_frequencyResistances).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(3, 50);
+            addScalar("frequencyResistances", m_frequencyResistances).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 50);
             addScalar("frequencySkills", m_frequencySkills).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 1000);
             addScalar("sameRarityForSetUniqueItems", m_sameRarityForSetUniqueItems).setZero(false).setRecc(true);
         }
     };
-    struct MonsterRandomizer : public CommonStruct {
+    struct RandoMonsters : public CommonStruct {
         bool m_enabled{ false };
 
         int64_t m_seed{ 0 };
-
-        int64_t m_numMonExtra{ 0 };
 
         int64_t m_spawnKeepOriginal{ 100 };
 
@@ -266,57 +104,26 @@ struct Config : public CommonStruct {
 
         int64_t m_rollStatMax{ 0 };
 
-        int64_t m_densityMin{ 100 };
-
-        int64_t m_densityMax{ 100 };
-
-        int64_t m_elitePacksMin{ 100 };
-
-        int64_t m_elitePacksMax{ 100 };
-
-        int64_t m_monGroupIncreaseSize{ 0 };
-
-        bool m_hellResistances{ false };
-
-        bool m_hellPacks{ false };
-
-        bool m_maxPacks{ false };
-
-        int64_t m_minAbsDensity{ 0 };
-
-        int64_t m_minAbsPacks{ 0 };
-
         int64_t m_minNormalZoneId{ 0 };
 
-        MonsterRandomizer()
+        RandoMonsters()
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true);
             addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0).skipPresets();
-            addScalar("numMonExtra", m_numMonExtra).setRange(-2, 10).setZero(0).addPreset(0, 5);
-            addScalar("spawnKeepOriginal", m_spawnKeepOriginal).setRange(0, 100).setZero(100).setRecc(100).setPercent().addPreset(0, 50).addPreset(3, 50);
-            addScalar("superuniqueRando", m_superuniqueRando).setRange(0, 100).setZero(0).setRecc(50).setPercent().addPreset(0, 100).addPreset(3, 100);
-            addScalar("guestsMin", m_guestsMin).setRange(0, 1000).setZero(0).setRecc(25).setPercent().addPreset(0, 0).addPreset(3, 200);
-            addScalar("guestsMax", m_guestsMax).setRange(0, 1000).setZero(0).setRecc(50).setPercent().addPreset(0, 300).addPreset(3, 200);
+            addScalar("spawnKeepOriginal", m_spawnKeepOriginal).setRange(0, 100).setZero(100).setRecc(100).setPercent().addPreset(0, 50).addPreset(2, 50);
+            addScalar("superuniqueRando", m_superuniqueRando).setRange(0, 100).setZero(0).setRecc(50).setPercent().addPreset(0, 100).addPreset(2, 100);
+            addScalar("guestsMin", m_guestsMin).setRange(0, 1000).setZero(0).setRecc(25).setPercent().addPreset(0, 0).addPreset(2, 200);
+            addScalar("guestsMax", m_guestsMax).setRange(0, 1000).setZero(0).setRecc(50).setPercent().addPreset(0, 300).addPreset(2, 200);
             addScalar("chimeraAIMin", m_chimeraAIMin).setRange(0, 100).setZero(0).setRecc(0).setPercent();
             addScalar("chimeraAIMax", m_chimeraAIMax).setRange(0, 100).setZero(0).setRecc(0).setPercent();
-            addScalar("rollResistancesMin", m_rollResistancesMin).setRange(0, 100).setZero(0).setRecc(0).setPercent().addPreset(3, 100);
-            addScalar("rollResistancesMax", m_rollResistancesMax).setRange(0, 100).setZero(0).setRecc(30).setPercent().addPreset(3, 100);
-            addScalar("rollStatMin", m_rollStatMin).setRange(0, 100).setZero(0).setRecc(0).setPercent().addPreset(3, 100);
-            addScalar("rollStatMax", m_rollStatMax).setRange(0, 100).setZero(0).setRecc(50).setPercent().addPreset(3, 100);
-            addScalar("densityMin", m_densityMin).setRange(20, 1000).setZero(100).setRecc(100).setPercent().setLogScale();
-            addScalar("densityMax", m_densityMax).setRange(20, 1000).setZero(100).setRecc(150).setPercent().setLogScale();
-            addScalar("elitePacksMin", m_elitePacksMin).setRange(20, 1000).setZero(100).setRecc(100).setPercent().setLogScale();
-            addScalar("elitePacksMax", m_elitePacksMax).setRange(20, 1000).setZero(100).setRecc(150).setPercent().setLogScale();
-            addScalar("monGroupIncreaseSize", m_monGroupIncreaseSize).setRange(0, 20).setZero(0).addPreset(0, 5).addPreset(1, 2);
-            addScalar("hellResistances", m_hellResistances).setZero(false).setRecc(false).addPreset(3, true);
-            addScalar("hellPacks", m_hellPacks).setZero(false).setRecc(false);
-            addScalar("maxPacks", m_maxPacks).setZero(false).setRecc(true);
-            addScalar("minAbsDensity", m_minAbsDensity).setRange(0, 9000).setZero(0).setRecc(800).addPreset(0, 5000).addPreset(3, 1500);
-            addScalar("minAbsPacks", m_minAbsPacks).setRange(0, 20).setZero(0).setRecc(3).addPreset(0, 10).addPreset(1, 5).addPreset(3, 10);
-            addScalar("minNormalZoneId", m_minNormalZoneId).setRange(0, 133).setZero(0).setRecc(12).addPreset(3, 0);
+            addScalar("rollResistancesMin", m_rollResistancesMin).setRange(0, 100).setZero(0).setRecc(0).setPercent().addPreset(2, 100);
+            addScalar("rollResistancesMax", m_rollResistancesMax).setRange(0, 100).setZero(0).setRecc(30).setPercent().addPreset(2, 100);
+            addScalar("rollStatMin", m_rollStatMin).setRange(0, 100).setZero(0).setRecc(0).setPercent().addPreset(2, 100);
+            addScalar("rollStatMax", m_rollStatMax).setRange(0, 100).setZero(0).setRecc(50).setPercent().addPreset(2, 100);
+            addScalar("minNormalZoneId", m_minNormalZoneId).setRange(0, 133).setZero(0).setRecc(12).addPreset(2, 0);
         }
     };
-    struct SkillRandomizer : public CommonStruct {
+    struct RandoSkills : public CommonStruct {
         bool m_enabled{ false };
 
         int64_t m_seed{ 0 };
@@ -332,8 +139,6 @@ struct Config : public CommonStruct {
         int64_t m_keepOriginal{ 40 };
 
         int64_t m_generate{ 0 };
-
-        int64_t m_globalHitShift{ 2 };
 
         int64_t m_weightAma{ 100 };
 
@@ -351,21 +156,9 @@ struct Config : public CommonStruct {
 
         int64_t m_weightWar{ 100 };
 
-        int64_t m_lvlreqRow1{ 0 };
-
-        int64_t m_lvlreqRow2{ 6 };
-
-        int64_t m_lvlreqRow3{ 12 };
-
-        int64_t m_lvlreqRow4{ 18 };
-
-        int64_t m_lvlreqRow5{ 24 };
-
-        int64_t m_lvlreqRow6{ 30 };
-
-        SkillRandomizer()
+        RandoSkills()
         {
-            addScalar("enabled", m_enabled).setZero(false).setRecc(true).addPreset(2, false);
+            addScalar("enabled", m_enabled).setZero(false).setRecc(true).addPreset(3, false);
             addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0).skipPresets();
             addScalar("chanceElemChange", m_chanceElemChange).setRange(0, 100).setZero(0).setRecc(75).setPercent();
             addScalar("maximumElements", m_maximumElements).setRange(2, 5).setZero(5).setRecc(3);
@@ -373,7 +166,6 @@ struct Config : public CommonStruct {
             addScalar("specificClass", m_specificClass).setRange(0, 7).setZero(0).setRecc(0);
             addScalar("keepOriginal", m_keepOriginal).setRange(0, 40).setZero(40).setRecc(10);
             addScalar("generate", m_generate).setRange(0, 54).setZero(0).setRecc(20);
-            addScalar("globalHitShift", m_globalHitShift).setRange(0, 5).setZero(2).setRecc(2);
             addScalar("weightAma", m_weightAma).setRange(0, 100).setZero(100).setRecc(100);
             addScalar("weightSor", m_weightSor).setRange(0, 100).setZero(100).setRecc(100);
             addScalar("weightNec", m_weightNec).setRange(0, 100).setZero(100).setRecc(100);
@@ -382,152 +174,79 @@ struct Config : public CommonStruct {
             addScalar("weightDru", m_weightDru).setRange(0, 100).setZero(100).setRecc(100);
             addScalar("weightAss", m_weightAss).setRange(0, 100).setZero(100).setRecc(100);
             addScalar("weightWar", m_weightWar).setRange(0, 100).setZero(100).setRecc(100);
-            addScalar("lvlreqRow1", m_lvlreqRow1).setRange(0, 50).setZero(0).setRecc(0);
-            addScalar("lvlreqRow2", m_lvlreqRow2).setRange(0, 50).setZero(6).setRecc(6);
-            addScalar("lvlreqRow3", m_lvlreqRow3).setRange(0, 50).setZero(12).setRecc(12);
-            addScalar("lvlreqRow4", m_lvlreqRow4).setRange(0, 50).setZero(18).setRecc(18);
-            addScalar("lvlreqRow5", m_lvlreqRow5).setRange(0, 50).setZero(24).setRecc(24);
-            addScalar("lvlreqRow6", m_lvlreqRow6).setRange(0, 50).setZero(30).setRecc(30);
         }
     };
-    struct Challenge : public CommonStruct {
-        int64_t m_levelIncreaseHell{ 0 };
+    struct BalanceItems : public CommonStruct {
+        struct CommonSettings : public CommonStruct {
+            bool m_doOverride{ false };
 
-        int64_t m_levelIncreaseNightmare{ 0 };
+            int64_t m_rollMode{ 0 };
 
-        bool m_levelIncreaseOverBound{ false };
+            int64_t m_itemLevel{ 100 };
 
-        int64_t m_normalResPenalty{ 0 };
+            int64_t m_reqLevel{ 100 };
 
-        int64_t m_nightmareResPenalty{ 40 };
+            int64_t m_randoKeepOriginalPercent{ 100 };
 
-        int64_t m_hellResPenalty{ 100 };
+            int64_t m_randoGenerateMin{ 0 };
 
-        bool m_disableDropsHealthPot{ false };
+            int64_t m_randoGenerateMax{ 0 };
 
-        bool m_disableDropsManaPot{ false };
+            int64_t m_powerScaleLevel1{ 100 };
 
-        bool m_disableDropsRejuvPot{ false };
+            int64_t m_powerScaleLevel50{ 100 };
 
-        Challenge()
+            CommonSettings()
+            {
+                addScalar("doOverride", m_doOverride).setZero(false).setRecc(false);
+                addScalar("rollMode", m_rollMode).setRange(0, 3).setZero(0).setRecc(0).addPreset(0, 3).addPreset(1, 3);
+                addScalar("itemLevel", m_itemLevel).setRange(5, 150).setZero(100).setRecc(100).setPercent();
+                addScalar("reqLevel", m_reqLevel).setRange(5, 150).setZero(100).setRecc(100).setPercent();
+                addScalar("randoKeepOriginalPercent", m_randoKeepOriginalPercent).setRange(0, 100).setZero(100).setRecc(50).setPercent().addPreset(0, 25).addPreset(2, 0);
+                addScalar("randoGenerateMin", m_randoGenerateMin).setRange(0, 1000).setZero(0).setRecc(50).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 60).addPreset(3, 40);
+                addScalar("randoGenerateMax", m_randoGenerateMax).setRange(0, 1000).setZero(0).setRecc(100).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 200).addPreset(3, 120);
+                addScalar("powerScaleLevel1", m_powerScaleLevel1).setRange(50, 500).setZero(100).setPercent().setLogScale();
+                addScalar("powerScaleLevel50", m_powerScaleLevel50).setRange(50, 500).setZero(100).setPercent().setLogScale();
+            }
+        };
+        CommonSettings m_defaults{};
+
+        CommonSettings m_uniques{};
+
+        CommonSettings m_setitems{};
+
+        CommonSettings m_sets{};
+
+        CommonSettings m_affixes{};
+
+        CommonSettings m_crafted{};
+
+        CommonSettings m_runewords{};
+
+        CommonSettings m_gems{};
+
+        CommonSettings m_equipment{};
+
+        int64_t m_reqDex{ 100 };
+
+        int64_t m_reqStr{ 100 };
+
+        BalanceItems()
         {
-            addScalar("levelIncreaseHell", m_levelIncreaseHell).setRange(0, 30).setZero(0).setRecc(10);
-            addScalar("levelIncreaseNightmare", m_levelIncreaseNightmare).setRange(0, 20).setZero(0).setRecc(5);
-            addScalar("levelIncreaseOverBound", m_levelIncreaseOverBound).setZero(false);
-            addScalar("normalResPenalty", m_normalResPenalty).setRange(0, 250).setZero(0).setRecc(10).addPreset(3, 30);
-            addScalar("nightmareResPenalty", m_nightmareResPenalty).setRange(0, 250).setZero(40).setRecc(50).addPreset(3, 100);
-            addScalar("hellResPenalty", m_hellResPenalty).setRange(0, 250).setZero(100).setRecc(120).addPreset(3, 250);
-            addScalar("disableDropsHealthPot", m_disableDropsHealthPot).setZero(false);
-            addScalar("disableDropsManaPot", m_disableDropsManaPot).setZero(false);
-            addScalar("disableDropsRejuvPot", m_disableDropsRejuvPot).setZero(false).addPreset(3, true);
+            addStruct("defaults", m_defaults);
+            addStruct("uniques", m_uniques);
+            addStruct("setitems", m_setitems);
+            addStruct("sets", m_sets);
+            addStruct("affixes", m_affixes);
+            addStruct("crafted", m_crafted);
+            addStruct("runewords", m_runewords);
+            addStruct("gems", m_gems);
+            addStruct("equipment", m_equipment);
+            addScalar("reqDex", m_reqDex).setRange(5, 150).setZero(100).setRecc(100).setPercent();
+            addScalar("reqStr", m_reqStr).setRange(5, 150).setZero(100).setRecc(100).setPercent();
         }
     };
-    struct Character : public CommonStruct {
-        bool m_addCube{ false };
-
-        bool m_addTeleport{ false };
-
-        bool m_idTome{ false };
-
-        bool m_tpTome{ false };
-
-        bool m_manaPots{ false };
-
-        int64_t m_mercDam{ 100 };
-
-        int64_t m_mercHP{ 100 };
-
-        int64_t m_skillPointLimit{ 20 };
-
-        int64_t m_skillsReqLevel{ 100 };
-
-        int64_t m_extraSkillPerLevel{ 0 };
-
-        int64_t m_extraStatPerLevel{ 0 };
-
-        int64_t m_extraHpPerLevel{ 0 };
-
-        int64_t m_extraManaPerLevel{ 0 };
-
-        int64_t m_hpPotEfficacy{ 100 };
-
-        int64_t m_mpPotEfficacy{ 100 };
-
-        Character()
-        {
-            addScalar("addCube", m_addCube).setZero(false).setRecc(true);
-            addScalar("addTeleport", m_addTeleport).setZero(false).setRecc(true);
-            addScalar("idTome", m_idTome).setZero(false).setRecc(true);
-            addScalar("tpTome", m_tpTome).setZero(false).setRecc(true);
-            addScalar("manaPots", m_manaPots).setZero(false).setRecc(false);
-            addScalar("mercDam", m_mercDam).setRange(20, 1000).setZero(100).setPercent().setLogScale();
-            addScalar("mercHP", m_mercHP).setRange(20, 1000).setZero(100).setRecc(300).setPercent().setLogScale().addPreset(3, 20);
-            addScalar("skillPointLimit", m_skillPointLimit).setRange(1, 60).setZero(20);
-            addScalar("skillsReqLevel", m_skillsReqLevel).setRange(5, 150).setZero(100).setRecc(100).setPercent();
-            addScalar("extraSkillPerLevel", m_extraSkillPerLevel).setRange(-1, 20).setZero(0).addPreset(3, true);
-            addScalar("extraStatPerLevel", m_extraStatPerLevel).setRange(-5, 50).setZero(0).addPreset(3, -2);
-            addScalar("extraHpPerLevel", m_extraHpPerLevel).setRange(-3, 30).setZero(0).addPreset(3, -1);
-            addScalar("extraManaPerLevel", m_extraManaPerLevel).setRange(-3, 30).setZero(0).addPreset(3, -1);
-            addScalar("hpPotEfficacy", m_hpPotEfficacy).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(3, 50);
-            addScalar("mpPotEfficacy", m_mpPotEfficacy).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(3, 50);
-        }
-    };
-    struct HoradricCube : public CommonStruct {
-        bool m_cheatCharms{ false };
-
-        bool m_craftHighIlvl{ false };
-
-        bool m_craftNoRunes{ false };
-
-        bool m_craftNoStrict{ false };
-
-        bool m_noGemUpgrade{ false };
-
-        bool m_quickPortals{ false };
-
-        bool m_quickQuests{ false };
-
-        bool m_socketing{ false };
-
-        bool m_upgrading{ false };
-
-        HoradricCube()
-        {
-            addScalar("cheatCharms", m_cheatCharms).setZero(false).setRecc(true);
-            addScalar("craftHighIlvl", m_craftHighIlvl).setZero(false);
-            addScalar("craftNoRunes", m_craftNoRunes).setZero(false);
-            addScalar("craftNoStrict", m_craftNoStrict).setZero(false);
-            addScalar("noGemUpgrade", m_noGemUpgrade).setZero(false);
-            addScalar("quickPortals", m_quickPortals).setZero(false).setRecc(true);
-            addScalar("quickQuests", m_quickQuests).setZero(false).setRecc(true);
-            addScalar("socketing", m_socketing).setZero(false).setRecc(true);
-            addScalar("upgrading", m_upgrading).setZero(false).setRecc(true);
-        }
-    };
-    struct Gambling : public CommonStruct {
-        bool m_charmGamble{ false };
-
-        int64_t m_ratioElite{ 1 };
-
-        int64_t m_ratioExc{ 1 };
-
-        int64_t m_ratioRare{ 1 };
-
-        int64_t m_ratioSet{ 1 };
-
-        int64_t m_ratioUnique{ 1 };
-
-        Gambling()
-        {
-            addScalar("charmGamble", m_charmGamble).setZero(false);
-            addScalar("ratioElite", m_ratioElite).setRange(1, 10).setZero(1);
-            addScalar("ratioExc", m_ratioExc).setRange(1, 4).setZero(1);
-            addScalar("ratioRare", m_ratioRare).setRange(1, 4).setZero(1);
-            addScalar("ratioSet", m_ratioSet).setRange(1, 250).setZero(1);
-            addScalar("ratioUnique", m_ratioUnique).setRange(1, 500).setZero(1);
-        }
-    };
-    struct MonsterStats : public CommonStruct {
+    struct BalanceMonsters : public CommonStruct {
         int64_t m_monsterAttack{ 100 };
 
         int64_t m_monsterDamage{ 100 };
@@ -554,13 +273,17 @@ struct Config : public CommonStruct {
 
         bool m_applyPhys{ false };
 
-        MonsterStats()
+        bool m_hellResistances{ false };
+
+        bool m_makeSecondImmunity{ false };
+
+        BalanceMonsters()
         {
             addScalar("monsterAttack", m_monsterAttack).setRange(10, 1000).setZero(100).setPercent().setLogScale();
-            addScalar("monsterDamage", m_monsterDamage).setRange(10, 1000).setZero(100).setPercent().setLogScale().addPreset(3, 150);
+            addScalar("monsterDamage", m_monsterDamage).setRange(10, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 150);
             addScalar("monsterDefense", m_monsterDefense).setRange(10, 1000).setZero(100).setPercent().setLogScale();
             addScalar("monsterHealth", m_monsterHealth).setRange(10, 1000).setZero(100).setPercent().setLogScale();
-            addScalar("monsterExperience", m_monsterExperience).setRange(10, 1000).setZero(100).setPercent().setLogScale().addPreset(3, 75);
+            addScalar("monsterExperience", m_monsterExperience).setRange(10, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 75);
             addScalar("immunityLimit", m_immunityLimit).setRange(90, 250).setZero(250);
             addScalar("relativeResistDmg", m_relativeResistDmg).setRange(10, 1000).setZero(100).setPercent().setLogScale();
             addScalar("applyFire", m_applyFire).setZero(false).setRecc(true);
@@ -569,10 +292,302 @@ struct Config : public CommonStruct {
             addScalar("applyPois", m_applyPois).setZero(false).setRecc(true);
             addScalar("applyMag", m_applyMag).setZero(false);
             addScalar("applyPhys", m_applyPhys).setZero(false);
+            addScalar("hellResistances", m_hellResistances).setZero(false).setRecc(false).addPreset(2, true);
+            addScalar("makeSecondImmunity", m_makeSecondImmunity).setZero(false).setRecc(false).addPreset(2, true);
         }
     };
-    struct QualityOfLife : public CommonStruct {
+    struct BalanceSkills : public CommonStruct {
+        int64_t m_lvlreqRow1{ 0 };
+
+        int64_t m_lvlreqRow2{ 6 };
+
+        int64_t m_lvlreqRow3{ 12 };
+
+        int64_t m_lvlreqRow4{ 18 };
+
+        int64_t m_lvlreqRow5{ 24 };
+
+        int64_t m_lvlreqRow6{ 30 };
+
+        int64_t m_globalHitShift{ 2 };
+
+        BalanceSkills()
+        {
+            addScalar("lvlreqRow1", m_lvlreqRow1).setRange(0, 50).setZero(0).setRecc(0);
+            addScalar("lvlreqRow2", m_lvlreqRow2).setRange(0, 50).setZero(6).setRecc(6);
+            addScalar("lvlreqRow3", m_lvlreqRow3).setRange(0, 50).setZero(12).setRecc(12);
+            addScalar("lvlreqRow4", m_lvlreqRow4).setRange(0, 50).setZero(18).setRecc(18);
+            addScalar("lvlreqRow5", m_lvlreqRow5).setRange(0, 50).setZero(24).setRecc(24);
+            addScalar("lvlreqRow6", m_lvlreqRow6).setRange(0, 50).setZero(30).setRecc(30);
+            addScalar("globalHitShift", m_globalHitShift).setRange(0, 5).setZero(2).setRecc(2);
+        }
+    };
+    struct BalanceCharacter : public CommonStruct {
+        int64_t m_mercDam{ 100 };
+
+        int64_t m_mercHP{ 100 };
+
+        int64_t m_skillPointLimit{ 20 };
+
+        int64_t m_extraSkillPerLevel{ 0 };
+
+        int64_t m_extraStatPerLevel{ 0 };
+
+        int64_t m_extraHpPerLevel{ 0 };
+
+        int64_t m_extraManaPerLevel{ 0 };
+
+        int64_t m_hpPotEfficacy{ 100 };
+
+        int64_t m_mpPotEfficacy{ 100 };
+
+        int64_t m_normalResPenalty{ 0 };
+
+        int64_t m_nightmareResPenalty{ 40 };
+
+        int64_t m_hellResPenalty{ 100 };
+
         bool m_disableExpPenalty{ false };
+
+        BalanceCharacter()
+        {
+            addScalar("mercDam", m_mercDam).setRange(20, 1000).setZero(100).setPercent().setLogScale();
+            addScalar("mercHP", m_mercHP).setRange(20, 1000).setZero(100).setRecc(300).setPercent().setLogScale().addPreset(2, 20);
+            addScalar("skillPointLimit", m_skillPointLimit).setRange(1, 60).setZero(20);
+            addScalar("extraSkillPerLevel", m_extraSkillPerLevel).setRange(-1, 20).setZero(0).addPreset(2, true);
+            addScalar("extraStatPerLevel", m_extraStatPerLevel).setRange(-5, 50).setZero(0).addPreset(2, -2);
+            addScalar("extraHpPerLevel", m_extraHpPerLevel).setRange(-3, 30).setZero(0).addPreset(2, -1);
+            addScalar("extraManaPerLevel", m_extraManaPerLevel).setRange(-3, 30).setZero(0).addPreset(2, -1);
+            addScalar("hpPotEfficacy", m_hpPotEfficacy).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 50);
+            addScalar("mpPotEfficacy", m_mpPotEfficacy).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 50);
+            addScalar("normalResPenalty", m_normalResPenalty).setRange(0, 250).setZero(0).setRecc(10).addPreset(2, 30);
+            addScalar("nightmareResPenalty", m_nightmareResPenalty).setRange(0, 250).setZero(40).setRecc(50).addPreset(2, 100);
+            addScalar("hellResPenalty", m_hellResPenalty).setRange(0, 250).setZero(100).setRecc(120).addPreset(2, 250);
+            addScalar("disableExpPenalty", m_disableExpPenalty).setZero(false).setRecc(true);
+        }
+    };
+    struct BalanceMaps : public CommonStruct {
+        int64_t m_levelIncreaseHell{ 0 };
+
+        int64_t m_levelIncreaseNightmare{ 0 };
+
+        bool m_levelIncreaseOverBound{ false };
+
+        int64_t m_mazeMode{ 0 };
+
+        int64_t m_densityMin{ 100 };
+
+        int64_t m_densityMax{ 100 };
+
+        int64_t m_elitePacksMin{ 100 };
+
+        int64_t m_elitePacksMax{ 100 };
+
+        int64_t m_numMonExtra{ 0 };
+
+        int64_t m_monGroupIncreaseSize{ 0 };
+
+        bool m_hellPacks{ false };
+
+        bool m_maxPacks{ false };
+
+        int64_t m_minAbsDensity{ 0 };
+
+        int64_t m_minAbsPacks{ 0 };
+
+        BalanceMaps()
+        {
+            addScalar("levelIncreaseHell", m_levelIncreaseHell).setRange(0, 30).setZero(0).setRecc(10);
+            addScalar("levelIncreaseNightmare", m_levelIncreaseNightmare).setRange(0, 20).setZero(0).setRecc(5);
+            addScalar("levelIncreaseOverBound", m_levelIncreaseOverBound).setZero(false);
+            addScalar("mazeMode", m_mazeMode).setRange(0, 4).setZero(0).setRecc(0);
+            addScalar("densityMin", m_densityMin).setRange(20, 1000).setZero(100).setRecc(100).setPercent().setLogScale();
+            addScalar("densityMax", m_densityMax).setRange(20, 1000).setZero(100).setRecc(150).setPercent().setLogScale();
+            addScalar("elitePacksMin", m_elitePacksMin).setRange(20, 1000).setZero(100).setRecc(100).setPercent().setLogScale();
+            addScalar("elitePacksMax", m_elitePacksMax).setRange(20, 1000).setZero(100).setRecc(150).setPercent().setLogScale();
+            addScalar("numMonExtra", m_numMonExtra).setRange(-2, 10).setZero(0).addPreset(0, 5);
+            addScalar("monGroupIncreaseSize", m_monGroupIncreaseSize).setRange(0, 20).setZero(0).addPreset(0, 5).addPreset(1, 2);
+            addScalar("hellPacks", m_hellPacks).setZero(false).setRecc(false);
+            addScalar("maxPacks", m_maxPacks).setZero(false).setRecc(true);
+            addScalar("minAbsDensity", m_minAbsDensity).setRange(0, 9000).setZero(0).setRecc(800).addPreset(0, 5000).addPreset(2, 1500);
+            addScalar("minAbsPacks", m_minAbsPacks).setRange(0, 20).setZero(0).setRecc(3).addPreset(0, 10).addPreset(1, 5).addPreset(2, 10);
+        }
+    };
+    struct BalanceGambling : public CommonStruct {
+        bool m_charmGamble{ false };
+
+        int64_t m_ratioElite{ 1 };
+
+        int64_t m_ratioExc{ 1 };
+
+        int64_t m_ratioRare{ 1 };
+
+        int64_t m_ratioSet{ 1 };
+
+        int64_t m_ratioUnique{ 1 };
+
+        BalanceGambling()
+        {
+            addScalar("charmGamble", m_charmGamble).setZero(false);
+            addScalar("ratioElite", m_ratioElite).setRange(1, 10).setZero(1);
+            addScalar("ratioExc", m_ratioExc).setRange(1, 4).setZero(1);
+            addScalar("ratioRare", m_ratioRare).setRange(1, 4).setZero(1);
+            addScalar("ratioSet", m_ratioSet).setRange(1, 250).setZero(1);
+            addScalar("ratioUnique", m_ratioUnique).setRange(1, 500).setZero(1);
+        }
+    };
+    struct Droprate : public CommonStruct {
+        struct Runes : public CommonStruct {
+            bool m_enabled{ false };
+
+            int64_t m_countessSpecialRuneLevel{ 0 };
+
+            bool m_countessSpecialRuneMore{ false };
+
+            bool m_wraithOnlyRunes{ false };
+
+            int64_t m_runeInGoodTC{ 100 };
+
+            int64_t m_zodFactor{ 1 };
+
+            Runes()
+            {
+                addScalar("enabled", m_enabled).setZero(false).setRecc(true);
+                addScalar("countessSpecialRuneLevel", m_countessSpecialRuneLevel).setRange(0, 15).setZero(0).setRecc(3).addPreset(0, 2000).addPreset(1, 600).addPreset(3, 200);
+                addScalar("countessSpecialRuneMore", m_countessSpecialRuneMore).setZero(false).setRecc(false).addPreset(0, true).addPreset(1, true);
+                addScalar("wraithOnlyRunes", m_wraithOnlyRunes).setZero(false).setRecc(false).addPreset(0, true);
+                addScalar("runeInGoodTC", m_runeInGoodTC).setRange(20, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 300).addPreset(3, 100);
+                addScalar("zodFactor", m_zodFactor).setRange(1, 1000).setZero(1).setRecc(20).addPreset(0, 1000).addPreset(1, 100).addPreset(3, 10);
+            }
+        };
+        struct Items : public CommonStruct {
+            bool m_enabled{ false };
+
+            bool m_forceQuestDrops{ false };
+
+            int64_t m_chanceForHighLevel{ 100 };
+
+            int64_t m_noneliteFactorIncrease{ 100 };
+
+            int64_t m_rareFactorIncrease{ 100 };
+
+            int64_t m_setFactorIncrease{ 100 };
+
+            int64_t m_uniqueFactorIncrease{ 100 };
+
+            int64_t m_inverseNodropPercent{ 100 };
+
+            int64_t m_equipPercent{ 100 };
+
+            int64_t m_championItemCount{ 1 };
+
+            int64_t m_uniqueItemCount{ 1 };
+
+            int64_t m_superItemCount{ 2 };
+
+            Items()
+            {
+                addScalar("enabled", m_enabled).setZero(false).setRecc(true);
+                addScalar("forceQuestDrops", m_forceQuestDrops).setZero(false).setRecc(true);
+                addScalar("chanceForHighLevel", m_chanceForHighLevel).setRange(50, 2000).setZero(100).setRecc(150).setPercent().setLogScale();
+                addScalar("noneliteFactorIncrease", m_noneliteFactorIncrease).setRange(20, 5000).setZero(100).setRecc(150).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 300).addPreset(3, 150);
+                addScalar("rareFactorIncrease", m_rareFactorIncrease).setRange(20, 2000).setZero(100).setRecc(200).setPercent().setLogScale().addPreset(0, 2000).addPreset(1, 200).addPreset(3, 100);
+                addScalar("setFactorIncrease", m_setFactorIncrease).setRange(20, 5000).setZero(100).setRecc(300).setPercent().setLogScale().addPreset(0, 5000).addPreset(1, 600).addPreset(3, 200);
+                addScalar("uniqueFactorIncrease", m_uniqueFactorIncrease).setRange(20, 5000).setZero(100).setRecc(400).setPercent().setLogScale().addPreset(0, 5000).addPreset(1, 700).addPreset(3, 250);
+                addScalar("inverseNodropPercent", m_inverseNodropPercent).setRange(25, 9100).setZero(100).setRecc(150).setPercent().setLogScale().addPreset(0, 9000).addPreset(1, 300);
+                addScalar("equipPercent", m_equipPercent).setRange(20, 1000).setZero(100).setPercent().setLogScale();
+                addScalar("championItemCount", m_championItemCount).setRange(0, 6).setZero(1).setRecc(2).addPreset(0, 6).addPreset(1, 3);
+                addScalar("uniqueItemCount", m_uniqueItemCount).setRange(0, 6).setZero(1).setRecc(2).addPreset(0, 6).addPreset(1, 3);
+                addScalar("superItemCount", m_superItemCount).setRange(0, 6).setZero(2).setRecc(3).addPreset(0, 6).addPreset(1, 4);
+            }
+        };
+        struct Misc : public CommonStruct {
+            bool m_enabled{ false };
+
+            int64_t m_goldPercent{ 100 };
+
+            int64_t m_goodPercent{ 100 };
+
+            int64_t m_junkPercent{ 100 };
+
+            bool m_removeChampGold{ false };
+
+            bool m_removeElitePotions{ false };
+
+            bool m_disableDropsHealthPot{ false };
+
+            bool m_disableDropsManaPot{ false };
+
+            bool m_disableDropsRejuvPot{ false };
+
+            Misc()
+            {
+                addScalar("enabled", m_enabled).setZero(false).setRecc(true);
+                addScalar("goldPercent", m_goldPercent).setRange(0, 1000).setZero(100).setPercent().setLogScale();
+                addScalar("goodPercent", m_goodPercent).setRange(0, 1000).setZero(100).setPercent().setLogScale();
+                addScalar("junkPercent", m_junkPercent).setRange(0, 500).setZero(100).setRecc(0).setPercent().setLogScale();
+                addScalar("removeChampGold", m_removeChampGold).setZero(false).setRecc(true);
+                addScalar("removeElitePotions", m_removeElitePotions).setZero(false).setRecc(false).addPreset(2, true);
+                addScalar("disableDropsHealthPot", m_disableDropsHealthPot).setZero(false);
+                addScalar("disableDropsManaPot", m_disableDropsManaPot).setZero(false);
+                addScalar("disableDropsRejuvPot", m_disableDropsRejuvPot).setZero(false).addPreset(2, true);
+            }
+        };
+        Runes m_runes{};
+
+        Items m_items{};
+
+        Misc m_misc{};
+
+        Droprate()
+        {
+            addStruct("runes", m_runes);
+            addStruct("items", m_items);
+            addStruct("misc", m_misc);
+        }
+    };
+    struct OtherHoradricCube : public CommonStruct {
+        bool m_cheatCharms{ false };
+
+        bool m_craftHighIlvl{ false };
+
+        bool m_craftNoRunes{ false };
+
+        bool m_craftNoStrict{ false };
+
+        bool m_noGemUpgrade{ false };
+
+        bool m_quickPortals{ false };
+
+        bool m_quickQuests{ false };
+
+        bool m_socketing{ false };
+
+        bool m_upgrading{ false };
+
+        OtherHoradricCube()
+        {
+            addScalar("cheatCharms", m_cheatCharms).setZero(false).setRecc(true);
+            addScalar("craftHighIlvl", m_craftHighIlvl).setZero(false);
+            addScalar("craftNoRunes", m_craftNoRunes).setZero(false);
+            addScalar("craftNoStrict", m_craftNoStrict).setZero(false);
+            addScalar("noGemUpgrade", m_noGemUpgrade).setZero(false);
+            addScalar("quickPortals", m_quickPortals).setZero(false).setRecc(true);
+            addScalar("quickQuests", m_quickQuests).setZero(false).setRecc(true);
+            addScalar("socketing", m_socketing).setZero(false).setRecc(true);
+            addScalar("upgrading", m_upgrading).setZero(false).setRecc(true);
+        }
+    };
+    struct OtherQualityOfLife : public CommonStruct {
+        bool m_addCube{ false };
+
+        bool m_addTeleport{ false };
+
+        bool m_idTome{ false };
+
+        bool m_tpTome{ false };
+
+        bool m_manaPots{ false };
 
         bool m_showItemLevel{ false };
 
@@ -594,9 +609,13 @@ struct Config : public CommonStruct {
 
         bool m_compactScrolls{ false };
 
-        QualityOfLife()
+        OtherQualityOfLife()
         {
-            addScalar("disableExpPenalty", m_disableExpPenalty).setZero(false).setRecc(true);
+            addScalar("addCube", m_addCube).setZero(false).setRecc(true);
+            addScalar("addTeleport", m_addTeleport).setZero(false).setRecc(true);
+            addScalar("idTome", m_idTome).setZero(false).setRecc(true);
+            addScalar("tpTome", m_tpTome).setZero(false).setRecc(true);
+            addScalar("manaPots", m_manaPots).setZero(false).setRecc(false);
             addScalar("showItemLevel", m_showItemLevel).setZero(false).setRecc(false);
             addScalar("uniqueCharmLimit", m_uniqueCharmLimit).setZero(false).setRecc(false);
             addScalar("weakenTownSkills", m_weakenTownSkills).setZero(false).setRecc(true);
@@ -609,66 +628,61 @@ struct Config : public CommonStruct {
             addScalar("compactScrolls", m_compactScrolls).setZero(false).setRecc(true);
         }
     };
-    struct ExpandedInventory : public CommonStruct {
+    struct OtherExpandedInventory : public CommonStruct {
         int64_t m_inventoryHeight{ 4 };
 
         int64_t m_inventoryWidth{ 10 };
 
-        ExpandedInventory()
+        OtherExpandedInventory()
         {
             addScalar("inventoryHeight", m_inventoryHeight).setRange(4, 8).setZero(4).setRecc(4);
             addScalar("inventoryWidth", m_inventoryWidth).setRange(10, 15).setZero(10).setRecc(10);
         }
     };
-    struct Maps : public CommonStruct {
-        int64_t m_mazeMode{ 0 };
+    RandoItems m_itemRandomizer{};
 
-        Maps()
-        {
-            addScalar("mazeMode", m_mazeMode).setRange(0, 4).setZero(0).setRecc(0);
-        }
-    };
-    TreasureClasses m_treasureClasses{};
+    RandoMonsters m_monsterRandomizer{};
 
-    ItemBalance m_itemBalance{};
+    RandoSkills m_skillRandomizer{};
 
-    ItemRandomizer m_itemRandomizer{};
+    BalanceItems m_balanceItems{};
 
-    MonsterRandomizer m_monsterRandomizer{};
+    BalanceMonsters m_balanceMonsters{};
 
-    SkillRandomizer m_skillRandomizer{};
+    BalanceCharacter m_balanceCharacter{};
 
-    Challenge m_challenge{};
+    BalanceSkills m_balanceSkills{};
 
-    Character m_character{};
+    BalanceMaps m_balanceMaps{};
 
-    HoradricCube m_horadricCube{};
+    BalanceGambling m_balanceGambling{};
 
-    Gambling m_gambling{};
+    Droprate m_droprate{};
 
-    MonsterStats m_monsterStats{};
+    OtherHoradricCube m_otherHoradricCube{};
 
-    QualityOfLife m_qualityOfLife{};
+    OtherQualityOfLife m_otherQualityOfLife{};
 
-    ExpandedInventory m_expandedInventory{};
+    OtherExpandedInventory m_otherExpandedInventory{};
 
-    Maps m_maps{};
+    int64_t m_globalSeed{ 0 };
 
     Config()
     {
-        addStruct("treasureClasses", m_treasureClasses);
-        addStruct("itemBalance", m_itemBalance);
         addStruct("itemRandomizer", m_itemRandomizer);
         addStruct("monsterRandomizer", m_monsterRandomizer);
         addStruct("skillRandomizer", m_skillRandomizer);
-        addStruct("challenge", m_challenge);
-        addStruct("character", m_character);
-        addStruct("horadricCube", m_horadricCube);
-        addStruct("gambling", m_gambling);
-        addStruct("monsterStats", m_monsterStats);
-        addStruct("qualityOfLife", m_qualityOfLife);
-        addStruct("expandedInventory", m_expandedInventory);
-        addStruct("maps", m_maps);
+        addStruct("balanceItems", m_balanceItems);
+        addStruct("balanceMonsters", m_balanceMonsters);
+        addStruct("balanceCharacter", m_balanceCharacter);
+        addStruct("balanceSkills", m_balanceSkills);
+        addStruct("balanceMaps", m_balanceMaps);
+        addStruct("balanceGambling", m_balanceGambling);
+        addStruct("droprate", m_droprate);
+        addStruct("otherHoradricCube", m_otherHoradricCube);
+        addStruct("otherQualityOfLife", m_otherQualityOfLife);
+        addStruct("otherExpandedInventory", m_otherExpandedInventory);
+        addScalar("globalSeed", m_globalSeed).setRange(0, 4294967295).setZero(0).skipPresets();
     }
 };
 }

@@ -102,28 +102,29 @@ ApplicationWindow {
 
                     PageMain {}
                     PageTool {}
-                    ModuleItemBalance {}
 
                     Item {}
-                    ModuleItemRandomizer {}
-                    ModuleMonRandomizer {}
-                    ModuleSkillRandomizer {}
+                    ModuleRandoItems {}
+                    ModuleRandoMonsters {}
+                    ModuleRandoSkills {}
 
                     Item {}
-                    ModuleItemDrops {}
-                    ModuleRuneDrops {}
+                    ModuleBalanceItems {}
+                    ModuleBalanceMonsters {}
+                    ModuleBalanceCharacter {}
+                    ModuleBalanceSkills {}
+                    ModuleBalanceMaps {}
+                    ModuleBalanceGambling {}
 
                     Item {}
-                    ModuleMonStats {}
-                    ModuleChallenge {}
-                    ModuleMaps {}
+                    ModuleDroprateItems {}
+                    ModuleDroprateRunes {}
+                    ModuleDroprateMisc {}
 
                     Item {}
-                    ModuleCube {}
-                    ModuleGambling {}
-                    ModuleCharacter {}
-                    ModuleQol {}
-                    ModuleExpandedInventory {}
+                    ModuleOtherHoradricCube {}
+                    ModuleOtherQualityOfLife {}
+                    ModuleOtherExpandedInventory {}
                 }
             }
         }

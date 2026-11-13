@@ -16,7 +16,7 @@ using SkillCodeResolver = std::function<int(const std::string&)>;
 using SkillGetter       = std::function<DataRow_skills_ptr(int)>;
 
 struct RandoParams {
-    Config::ItemBalance::CommonSettings common;
+    Config::BalanceItems::CommonSettings common;
 
     int levelPlus       = 0;
     int levelMinus      = 0;

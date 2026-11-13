@@ -12,98 +12,84 @@ ColumnLayout {
 
     property var navigationModel: [
         {
-            name: qsTr("Main"),
-            tabIndex: 0
+            name: qsTr("Main")
         },
         {
-            name: qsTr("Extra"),
-            tabIndex: 1
-        },
-        {
-            name: qsTr("Item balance"),
-            tabIndex: 2
+            name: qsTr("Extra")
         },
         {
             name: qsTr("Randomizers"),
-            tabIndex: -1
+            isHeader: true
         },
         {
             name: qsTr("Item Randomizer"),
-            value_key: config.itemRandomizer.enabled,
-            tabIndex: 4
+            value_key: config.itemRandomizer.enabled
         },
         {
             name: qsTr("Monster Randomizer"),
-            value_key: config.monsterRandomizer.enabled,
-            tabIndex: 5
+            value_key: config.monsterRandomizer.enabled
         },
         {
             name: qsTr("Skill Randomizer"),
-            value_key: config.skillRandomizer.enabled,
-            tabIndex: 6
+            value_key: config.skillRandomizer.enabled
         },
         {
-            name: qsTr("Increase drops"),
-            tabIndex: -1
+            name: qsTr("Balance and stats"),
+            isHeader: true
+        },
+        {
+            name: qsTr("Items")
+        },
+        {
+            name: qsTr("Monsters")
+        },
+        {
+            name: qsTr("Character")
+        },
+        {
+            name: qsTr("Skills")
+        },
+        {
+            name: qsTr("Areas / density")
+        },
+        {
+            name: qsTr("Gambling")
+        },
+        {
+            name: qsTr("Drop rates"),
+            isHeader: true
         },
         {
             name: qsTr("Items"),
-            value_key: config.treasureClasses.items.enabled,
-            tabIndex: 8
+            value_key: config.droprate.items.enabled
         },
         {
             name: qsTr("Runes"),
-            value_key: config.treasureClasses.runes.enabled,
-            tabIndex: 9
-        },
-        {
-            name: qsTr("Make harder"),
-            tabIndex: -1
-        },
-        {
-            name: qsTr("Monster stats"),
-            tabIndex: 11
-        },
-        {
-            name: qsTr("Challenge"),
-            tabIndex: 12
-        },
-        {
-            name: qsTr("Areas and density"),
-            tabIndex: 13
+            value_key: config.droprate.runes.enabled
         },
         {
             name: qsTr("Misc"),
-            tabIndex: -1
+            value_key: config.droprate.misc.enabled
         },
         {
-            name: qsTr("Horadric Cube"),
-            tabIndex: 15
+            name: qsTr("Other"),
+            isHeader: true
         },
         {
-            name: qsTr("Gambling"),
-            tabIndex: 16
+            name: qsTr("Horadric Cube")
         },
         {
-            name: qsTr("Character"),
-            tabIndex: 17
+            name: qsTr("Quality of life")
         },
         {
-            name: qsTr("Quality of life"),
-            tabIndex: 18
-        },
-        {
-            name: qsTr("Large inventory"),
-            tabIndex: 19
-        },
+            name: qsTr("Large inventory")
+        }
     ]
     // Block horizontal growth, keeping this sidebar strictly predictable
     Layout.fillWidth: false
     Layout.preferredWidth: 200
     Layout.fillHeight: true
 
-    // Enforce minimum height so navigation controls never crash together
-    Layout.minimumHeight: 280
     spacing: 10
 
     property alias activeTabIndex: tabSelection.activeTabIndex
@@ -112,19 +98,23 @@ ColumnLayout {
         id: tabSelection
         Layout.fillWidth: true
         Layout.fillHeight: true
-        // Track the active StackLayout index separately from the ListView's raw row index
         property int activeTabIndex: 0
 
         model: navigationModel
         clip: true
 
         delegate: Item {
+            id: delegateRoot
             width: tabSelection.width
-            height: modelData.tabIndex === -1 ? 22 : 28
+
+            readonly property bool isSectionHeader: !!modelData.isHeader
+            readonly property int rowIndex: index
+
+            height: isSectionHeader ? 22 : 28
 
             Label {
                 text: modelData.name
-                visible: modelData.tabIndex === -1
+                visible: delegateRoot.isSectionHeader
                 anchors.left: parent.left
                 anchors.leftMargin: 65
                 anchors.verticalCenter: parent.verticalCenter
@@ -134,25 +124,18 @@ ColumnLayout {
 
             RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: 0
-                anchors.rightMargin: 0
                 spacing: 6
-
-                visible: modelData.tabIndex >= 0
+                visible: !delegateRoot.isSectionHeader
 
                 Item {
                     id: checkboxContainer
-
                     Layout.preferredWidth: 24
                     Layout.fillHeight: true
 
                     CheckBox {
                         id: tabCheckbox
-
                         visible: !!modelData.value_key
-
                         anchors.centerIn: parent
-
                         indicator.implicitWidth: 18
                         indicator.implicitHeight: 18
 
@@ -164,10 +147,8 @@ ColumnLayout {
                 Button {
                     text: modelData.name
                     Layout.fillWidth: true
-
-                    onClicked: tabSelection.activeTabIndex = modelData.tabIndex
-
-                    palette.button: (tabSelection.activeTabIndex === modelData.tabIndex) ? window.palette.highlight : window.palette.button
+                    onClicked: tabSelection.activeTabIndex = delegateRoot.rowIndex
+                    palette.button: (tabSelection.activeTabIndex === delegateRoot.rowIndex) ? window.palette.highlight : window.palette.button
                 }
             }
         }

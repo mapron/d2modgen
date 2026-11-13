@@ -5,19 +5,22 @@
  */
 #include "ModuleGlobal.hpp"
 
-#include "ModuleChallenge.hpp"
-#include "ModuleCharacter.hpp"
-#include "ModuleCube.hpp"
-#include "ModuleGambling.hpp"
-#include "ModuleTreasureClasses.hpp"
-#include "ModuleItemRandomizer.hpp"
-#include "ModuleMonRandomizer.hpp"
-#include "ModuleMonStats.hpp"
-#include "ModuleItemBalance.hpp"
-#include "ModuleQol.hpp"
-#include "ModuleSkillRandomizer.hpp"
-#include "ModuleExpandedInventory.hpp"
-#include "ModuleMaps.hpp"
+#include "ModuleRandoItems.hpp"
+#include "ModuleRandoSkills.hpp"
+#include "ModuleRandoMonsters.hpp"
+
+#include "ModuleBalanceCharacter.hpp"
+#include "ModuleBalanceGambling.hpp"
+#include "ModuleBalanceItems.hpp"
+#include "ModuleBalanceMaps.hpp"
+#include "ModuleBalanceMonsters.hpp"
+#include "ModuleBalanceSkills.hpp"
+
+#include "ModuleDroprate.hpp"
+
+#include "ModuleOtherExpandedInventory.hpp"
+#include "ModuleOtherHoradricCube.hpp"
+#include "ModuleOtherQualityOfLife.hpp"
 
 #include "Logger.hpp"
 
@@ -32,23 +35,25 @@ ModuleGlobal::ModuleGlobal(DataContext& output_, const Config& config_, const Ge
 void ModuleGlobal::reset()
 {
     // light modules
-    create<ModuleChallenge>("Challenge");
-    create<ModuleCharacter>("Character");
-    create<ModuleGambling>("Gambling");
-    create<ModuleTreasureClasses>("TreasureClasses");
-    create<ModuleMonStats>("MonsterStats");
-    create<ModuleQol>("QualityOfLife");
-    create<ModuleExpandedInventory>("ExpandedInventory");
-    create<ModuleMaps>("Maps");
+    create<ModuleBalanceCharacter>("BalanceCharacter");
+    create<ModuleBalanceGambling>("BalanceGambling");
+    create<ModuleBalanceMonsters>("BalanceMonsters");
+    create<ModuleBalanceMaps>("BalanceMaps");
+
+    create<ModuleDroprate>("Droprate");
+    create<ModuleOtherQualityOfLife>("OtherQualityOfLife");
+    create<ModuleOtherExpandedInventory>("OtherExpandedInventory");
 
     // modules that can add more rows, thus in the end
-    create<ModuleCube>("HoradricCube");
-    create<ModuleMonRandomizer>("MonsterRandomizer");
-    create<ModuleItemRandomizer>("ItemRandomizer");
-    create<ModuleSkillRandomizer>("SkillRandomizer");
+    create<ModuleOtherHoradricCube>("OtherHoradricCube");
+    create<ModuleRandoItems>("RandoItems");
+    create<ModuleRandoMonsters>("RandoMonsters");
+    create<ModuleRandoSkills>("RandoSkills");
 
     // item balance affect possible input (item stat ranges) for randomizer, that's why it is in the end.
-    create<ModuleItemBalance>("ItemBalance");
+    create<ModuleBalanceItems>("BalanceItems");
+    // same for this coming after rando.
+    create<ModuleBalanceSkills>("BalanceSkills");
 }
 
 void ModuleGlobal::generate()

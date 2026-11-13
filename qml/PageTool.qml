@@ -161,4 +161,8 @@ WidgetScrollable {
         stretchCaption: false
         value_key: root.value_context.extraTrace
     }
+    WidgetSeed {
+        title: qsTr("Random seed for non-randomizers")
+        value_key: config.globalSeed
+    }
 }

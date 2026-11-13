@@ -1,0 +1,583 @@
+/*
+ * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * SPDX-License-Identifier: BSL-1.0
+ * See LICENSE file for details.
+ */
+#include "ModuleRandoMonsters.hpp"
+
+#include "Logger.hpp"
+#include "RandoUtils.hpp"
+
+#include <algorithm>
+
+namespace D2ModGen {
+
+namespace {
+constexpr const int s_maxIngameLevel = 110;
+
+const std::map<std::string, std::string> s_superUniqueReplacement{
+    { "unraveler5", "unraveler4" },
+    { "fallenshaman5", "fallenshaman4" },
+    { "minion1", "minion2" },
+    { "deathmauler1", "deathmauler2" },
+    { "overseer1", "overseer2" },
+};
+
+std::string printStringSetSummary(const std::vector<std::string>& idsSource, int limit = 5)
+{
+    std::vector<std::string> idsUnique;
+
+    for (const auto& id : idsSource) {
+        if (std::find(idsUnique.cbegin(), idsUnique.cend(), id) == idsUnique.cend())
+            idsUnique.push_back(id);
+    }
+    std::ostringstream os;
+    for (int i = 0; std::string& ai : idsUnique) {
+        i++;
+        if (i > limit) {
+            os << ", ...";
+            break;
+        }
+        if (i > 1)
+            os << ", ";
+        os << ai;
+    }
+    os << " (unique: " << idsUnique.size() << ", total: " << idsSource.size() << ")";
+    return os.str();
+}
+
+}
+
+void ModuleRandoMonsters::generate()
+{
+    if (!config.m_monsterRandomizer.m_enabled)
+        return;
+
+    const auto& module = config.m_monsterRandomizer;
+    rng                = createRNG(module.m_seed);
+
+    extraTrace = env.extraTrace.contains("monster_rando");
+
+    hcIdx = output.monstats.rows.back().hcIdx + 1;
+
+    for (auto& row : output.treasureclassex.rows)
+        tcTable.add(row.name, row.group.value_or(0), row.level.value_or(0));
+
+    prepareChimeraPools();
+    prepareGuestPools();
+
+    for (int idx = -1; auto& row : output.levels.rows) {
+        idx++;
+        if (!row.useForRando)
+            continue;
+
+        for (const auto* monSet : { &row.mon, &row.umon, &row.nmon }) {
+            for (auto& id : *monSet) {
+                auto n = output.monstats.findN(id);
+                if (n == size_t(-1))
+                    continue;
+
+                auto& monstat = output.monstats.rows[n];
+                if (monstat.useForRando && monstat.firstAreaIndexToSpawn == -1) {
+                    monstat.firstAreaIndexToSpawn = idx;
+                }
+            }
+        }
+    }
+    for (int idx = -1; auto& row : output.superuniques.rows) {
+        idx++;
+        auto key = row.monsterClass;
+        if (auto it = s_superUniqueReplacement.find(key); it != s_superUniqueReplacement.cend())
+            key = it->second;
+        auto n = output.monstats.findN(key);
+        if (n == size_t(-1))
+            continue;
+
+        auto& monstat = output.monstats.rows[n];
+        if (monstat.firstAreaIndexToSpawn >= 0)
+            output.levels.rows[monstat.firstAreaIndexToSpawn].superUniquesIndexes.push_back(idx);
+        else if (extraTrace)
+            Logger() << "skipping superunique spawn id = " << monstat.id << " (no area to attach)";
+    }
+
+    for (auto& row : output.levels.rows) {
+        if (!row.useForRando)
+            continue;
+
+        auto prevRow = row;
+
+        auto& monIds = row.nmon;
+
+        StringSet monSet;
+
+        AreaContext context;
+        context.m_areaIndex       = row.id;
+        context.m_areaNormalLevel = 0;
+
+        MonsterTaskList                   tasks;
+        std::set<const DataRow_monstats*> existingIndexes;
+        for (auto& id : monIds) {
+            MonsterTask task;
+            task.m_source = output.monstats.find(id);
+            if (!task.m_source->useForRando)
+                task.m_skip = true;
+            if (existingIndexes.contains(task.m_source))
+                continue;
+
+            existingIndexes.insert(task.m_source);
+            context.m_areaNormalLevel = std::max(context.m_areaNormalLevel, task.m_source->level.value_or(0));
+            tasks.push_back(task);
+        }
+        assert(context.m_areaNormalLevel > 0);
+        context.m_areaNormalLevel = context.m_areaNormalLevel * 9 / 10;
+
+        const int originalSize = tasks.size();
+        const int guestAmount  = genRandomScaledValue(rng, originalSize, module.m_guestsMin, module.m_guestsMax);
+        const int keepAmount   = scaleValue(originalSize, module.m_spawnKeepOriginal, 0);
+
+        if (keepAmount > 0) {
+            while (tasks.size() > keepAmount) {
+                auto r = rng(static_cast<int>(tasks.size()));
+                tasks.erase(tasks.begin() + r);
+            }
+        } else {
+            tasks.clear();
+        }
+
+        std::set<const DataRow_monstats*> guestIndexes = existingIndexes;
+        for (int i = 0, target = guestAmount + existingIndexes.size(); i < guestAmount + 5; ++i) {
+            if (guestIndexes.size() >= target)
+                break;
+            guestIndexes.insert(validGuestPointers[rng(validGuestPointers.size())]);
+        }
+        for (const DataRow_monstats* guestIdx : guestIndexes) {
+            if (existingIndexes.contains(guestIdx))
+                continue;
+            MonsterTask task;
+            task.m_source  = guestIdx;
+            task.m_isGuest = true;
+            tasks.push_back(task);
+        }
+
+        const int totalAmount    = tasks.size();
+        const int chimeraAmount  = genRandomScaledValue(rng, totalAmount, module.m_chimeraAIMin, module.m_chimeraAIMax);
+        const int rollStatAmount = genRandomScaledValue(rng, totalAmount, module.m_rollStatMin, module.m_rollStatMax);
+        const int rollResAmount  = genRandomScaledValue(rng, totalAmount, module.m_rollResistancesMin, module.m_rollResistancesMax);
+
+        for (auto index : genRandomIndexes(rng, totalAmount, chimeraAmount))
+            tasks[index].m_makeChimera = true;
+        for (auto index : genRandomIndexes(rng, totalAmount, rollStatAmount))
+            tasks[index].m_rollStat = true;
+        for (auto index : genRandomIndexes(rng, totalAmount, rollResAmount))
+            tasks[index].m_rollRes = true;
+
+        if (extraTrace)
+            Logger() << "Area '" << row.name << "' > total=" << totalAmount << ", guests=" << guestAmount << ", chimera=" << chimeraAmount << ", rollStat=" << rollStatAmount << ", rollRes=" << rollResAmount << ", targetLevel=" << context.m_areaNormalLevel;
+
+        for (auto& task : tasks) {
+            if (!task.hasAnyMods())
+                task.m_skip = true;
+
+            MonsterTaskList extraMinions;
+            processTask(task, extraMinions, context, 0);
+
+            if (extraTrace) {
+                Logger() << "        " << task.toString();
+                for (auto& minionTask : extraMinions)
+                    Logger() << "         minion: " << minionTask.toString();
+            }
+        }
+        for (int superUniqIdx : row.superUniquesIndexes) {
+            auto&       su = output.superuniques.rows[superUniqIdx];
+            MonsterTask task;
+            task.m_source      = validGuestPointers[rng(validGuestPointers.size())];
+            task.m_isGuest     = true;
+            task.m_makeChimera = genRandomScaledValue(rng, 1, module.m_chimeraAIMin, module.m_chimeraAIMax);
+            task.m_rollStat    = genRandomScaledValue(rng, 1, module.m_rollStatMin, module.m_rollStatMax);
+            task.m_rollRes     = genRandomScaledValue(rng, 1, module.m_rollResistancesMin, module.m_rollResistancesMax);
+
+            MonsterTaskList extraMinions;
+            processTask(task, extraMinions, context, 0);
+
+            if (extraTrace) {
+                Logger() << "        superunique [" << superUniqIdx << "] " << su.monsterClass << " -> " << task.m_dest.id;
+                Logger() << "        " << task.toString();
+                for (auto& minionTask : extraMinions)
+                    Logger() << "         minion: " << minionTask.toString();
+            }
+            su.monsterClass = task.m_dest.id;
+        }
+
+        row.nmon.clear();
+        for (auto& task : tasks) {
+            row.nmon.push_back(task.m_dest.id);
+        }
+
+        const bool enableNormalSpawns = row.id >= (module.m_minNormalZoneId);
+        if (!enableNormalSpawns)
+            continue;
+
+        row.mon.clear();
+        for (auto& task : tasks) {
+            row.mon.push_back(task.m_dest.id);
+        }
+
+        row.umon.clear();
+        for (auto& task : tasks) {
+            if (task.m_source->spawnedAsElite)
+                row.umon.push_back(task.m_dest.id);
+        }
+    }
+
+    output.monstats.commitExtraRows();
+    output.monstatsEx.commitExtraRows();
+}
+
+bool ModuleRandoMonsters::compatibleMonSeq(const std::string& sequenceId, const DataRow_monstatsEx& recipient)
+{
+    for (const auto& row : output.monseq.rows) {
+        if (row.sequence == sequenceId) {
+            if (!recipient.hasMode(row.mode)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+void ModuleRandoMonsters::processTask(MonsterTask& task, MonsterTaskList& extraMinions, AreaContext& context, int depth)
+{
+    if (depth > 5) {
+        assert(false);
+        throw std::runtime_error("Infinite recursion detected");
+    }
+
+    DataRow_monstats& row = task.m_dest;
+    row                   = *task.m_source;
+
+    if (task.m_skip) {
+        return;
+    }
+
+    DataRow_monstatsEx& rowEx = task.m_destEx;
+    rowEx                     = *output.monstatsEx.index.at(row.monStatsEx);
+
+    const std::string origId = row.id;
+    row.useForRando          = false;
+
+    if (context.m_exisingRepl.contains(origId)) {
+        row.id = context.m_exisingRepl[origId];
+        return;
+    }
+    const auto generatedId = "gen_" + origId + "_" + std::to_string(context.m_areaIndex);
+
+    context.m_exisingRepl[origId] = generatedId;
+    row.id                        = generatedId;
+
+    const int guestOrigLevel = row.level.value_or(0);
+
+    row.monStatsEx = row.id;
+    rowEx.id       = row.id;
+
+    row.hcIdx   = hcIdx;
+    rowEx.hcIdx = hcIdx;
+    hcIdx++;
+
+    if (task.m_isGuest) {
+        if (guestOrigLevel > context.m_areaNormalLevel) {
+            for (auto& skill : row.skills) {
+                const int newLevel = skill.level.value_or(0) * context.m_areaNormalLevel / guestOrigLevel;
+                skill.level        = (std::max(1, newLevel));
+            }
+        }
+        for (auto* tc : row.nonEmptyTCs()) {
+            auto promoted = tcTable.promote(*tc, guestOrigLevel, context.m_areaNormalLevel);
+            *tc           = promoted;
+        }
+        row.level = context.m_areaNormalLevel;
+    }
+
+    if (task.m_makeChimera) {
+        generateChimera(row, rowEx);
+    }
+
+    if (task.m_rollRes) {
+        std::array<MonResist, 3> r;
+        for (size_t i = 0; i < 3; ++i)
+            r[i].readFromRow(row, i);
+
+        for (size_t i = 0; i < 3; ++i)
+            r[i].shuffle(rng);
+
+        for (size_t i = 0; i < 3; ++i)
+            r[i].writeToRow(row, i);
+    }
+    if (task.m_rollStat) {
+        auto genTriangle = [this](int steps) -> int {
+            int totalF = 0;
+            for (int i = steps; i >= 1; --i)
+                totalF += i;
+            int number = rng(totalF);
+            totalF     = 0;
+            for (int i = steps, result = 0; i >= 1; --i, result++) {
+                totalF += i;
+                if (totalF > number)
+                    return result;
+            }
+            return 0;
+        };
+
+        auto genStat = [this, &genTriangle](std::optional<int>& val, int min, int med, int max, int steps = 4) {
+            if (!val.has_value())
+                return;
+            int branch = rng(3);
+            if (branch == 0) {
+                val = med;
+                return;
+            }
+            const int roll = genTriangle(steps) + 1; // [1..steps]
+            const int diff = (branch == 1 ? max : min) - med;
+            val            = med + roll * diff / steps;
+        };
+        genStat(row.walkSpeed, 2, 8, 14);
+        genStat(row.runSpeed, 6, 12, 18);
+        genStat(row.toBlock, 5, 25, 45);
+
+        for (auto& s : row.battleStats) {
+            auto old = s.maxHP;
+            genStat(s.maxHP, 40, 120, 280);
+            if (s.maxHP.has_value())
+                s.minHP = s.maxHP.value() * 3 / 4;
+
+            genStat(s.AC, 70, 100, 150);
+            genStat(s.exp, 50, 100, 180);
+
+            auto genMinMax = [&genStat](std::optional<int>& minVal, std::optional<int>& maxVal, int minLow, int minMed, int minHigh, int maxLow, int maxMed, int maxHigh) {
+                minVal = 0;
+                maxVal = 0;
+                genStat(minVal, minLow, minMed, minHigh);
+                genStat(maxVal, maxLow, maxMed, maxHigh);
+                maxVal = std::max(*minVal + 1, *maxVal);
+            };
+
+            genMinMax(s.A1minD, s.A1maxD, 50, 90, 160, 110, 160, 250);
+            genMinMax(s.A2minD, s.A2maxD, 50, 90, 160, 110, 160, 250);
+            genMinMax(s.S1minD, s.S1maxD, 50, 90, 160, 110, 160, 250);
+            genMinMax(s.el1MinD, s.el1MaxD, 10, 30, 60, 30, 60, 100);
+
+            s.A1TH = 0;
+            s.A2TH = 0;
+            s.S1TH = 0;
+            genStat(s.A1TH, 70, 100, 220);
+            genStat(s.A2TH, 70, 100, 220);
+            genStat(s.S1TH, 70, 100, 220);
+
+            if (!s.el1Dur.has_value())
+                s.el1Dur = 100;
+
+            genStat(s.el1Pct, 25, 50, 100);
+        }
+        if (rowEx.hasMode(AnimationMode::A1) && row.el1Mode.empty()) {
+            row.el1Mode = "A1";
+        }
+        if (rowEx.hasMode(AnimationMode::A2) && row.el1Mode.empty()) {
+            row.el1Mode = "A2";
+        }
+        const auto elements     = std::array{ Element::Ltng, Element::Fire, Element::Cold, Element::Pois };
+        Element    randoElement = elements[rng(elements.size())];
+        row.el1Type             = enumToString(randoElement);
+    }
+
+    for (auto& minionId : row.minionIds) {
+        if (minionId.empty())
+            continue;
+        MonsterTask minionTask = task;
+        minionTask.m_source    = output.monstats.index.at(minionId);
+        if (!minionTask.m_source->useForRando) {
+            minionTask.m_skip = true;
+        }
+        processTask(minionTask, extraMinions, context, depth + 1);
+        minionId = minionTask.m_dest.id;
+        extraMinions.push_back(minionTask);
+    }
+    output.monstats.extra.push_back(row);
+    output.monstatsEx.extra.push_back(rowEx);
+    output.idClones.monstats.push_back({ origId, row.id });
+}
+
+void ModuleRandoMonsters::prepareChimeraPools()
+{
+    std::vector<std::vector<size_t>> pools;
+
+    std::vector<std::function<bool(const DataRow_monstats&)>> filters;
+    filters.push_back([](const DataRow_monstats& row) -> bool {
+        return !row.isRanged() && !row.isFlying(); // melee walkers
+    });
+    filters.push_back([](const DataRow_monstats& row) -> bool {
+        return row.isRanged() && !row.isFlying(); // ranged walkers
+    });
+
+    filters.push_back([](const DataRow_monstats& row) -> bool {
+        return !row.isRanged() && row.isFlying(); // melee flyers
+    });
+    filters.push_back([](const DataRow_monstats& row) -> bool {
+        return row.isRanged() && row.isFlying(); // ranged flyers
+    });
+
+    pools.resize(filters.size());
+    std::set<std::string> allGuestAiIds;
+
+    for (size_t p = 0; p < pools.size(); ++p) {
+        auto& pool = pools[p];
+        auto& f    = filters[p];
+        for (size_t i = 0; i < output.monstats.rows.size(); ++i) {
+            auto& row = output.monstats.rows[i];
+            if (row.useForRando && f(row)) {
+                pool.push_back(i);
+                row.usedAsGuest = true;
+                allGuestAiIds.insert(row.AI);
+            }
+        }
+    }
+
+    std::vector<std::string> nonRando;
+    for (size_t i = 0; i < output.monstats.rows.size() && i < 700; ++i) {
+        auto& row = output.monstats.rows[i];
+        if (!row.useForRando && !row.usedAsGuest && !allGuestAiIds.contains(row.AI)) {
+            nonRando.push_back(row.AI);
+            continue;
+        }
+    }
+    if (extraTrace)
+        Logger() << "Unused: " << printStringSetSummary(nonRando, 20);
+
+    for (auto& pool : pools) {
+        if (pool.size() < 2)
+            return;
+        std::vector<std::string> ais;
+
+        for (size_t i = 0; i < pool.size(); ++i) {
+            const size_t recipientIdx = pool[i];
+            auto         ai           = output.monstats.rows[recipientIdx].AI;
+            ais.push_back(ai);
+        }
+        if (extraTrace)
+            Logger() << "AI pool: " << printStringSetSummary(ais, 10);
+
+        for (size_t i = 0; i < pool.size(); ++i) {
+            const size_t shiftedI = pool.size() > 10 ? rng(pool.size()) : ((i + 1) % pool.size());
+
+            const size_t recipientIdx = pool[i];
+            const size_t donorIdx     = pool[shiftedI];
+
+            DataRow_monstats&       recipient = output.monstats.rows[recipientIdx];
+            const DataRow_monstats& donor     = output.monstats.rows[donorIdx];
+
+            recipient.donorIdx = donorIdx;
+        }
+    }
+}
+
+void ModuleRandoMonsters::prepareGuestPools()
+{
+    StringSet monSet;
+    for (auto& row : output.monstats.rows) {
+        if (!row.useForRando || !row.spawnedAsNormal || row.hasMinions)
+            continue;
+
+        validGuestPointers.push_back(&row);
+    }
+}
+
+void ModuleRandoMonsters::generateChimera(DataRow_monstats& chimera, DataRow_monstatsEx& chimeraEx)
+{
+    if (chimera.donorIdx == size_t(-1)) {
+        chimera.donorId = "FAIL";
+        Logger() << "Failed to generate chimera for " << chimera.id << " - no donor";
+        return;
+    }
+
+    const DataRow_monstats&   donor   = output.monstats.rows[chimera.donorIdx];
+    const DataRow_monstatsEx& donorEx = *output.monstatsEx.index.at(donor.monStatsEx);
+
+    chimera.donorId = donor.id;
+
+    // behavioral brain components from the AI donor row
+    chimera.AI     = donor.AI;
+    chimera.aipar  = donor.aipar;
+    chimera.skills = donor.skills;
+
+    // AI skill frames
+    chimeraEx.hitClass = donorEx.hitClass;
+
+    bool result = true;
+    // Handle skill mappings / AI sequence
+    for (auto& skill : chimera.skills) {
+        std::string& skillName = skill.name;
+        std::string& mode      = skill.mode;
+
+        // Check if the donor mode string represents a custom sequence hook
+        if (mode.starts_with("seq_")) {
+            if (!compatibleMonSeq(mode, chimeraEx)) {
+                const auto newMode = chimeraEx.getSafeSupportedMode();
+                skill.mode         = animationModeToString(newMode);
+            }
+        } else {
+            AnimationMode directMode = animationModeFromString(mode);
+            assert(directMode != AnimationMode::Undefined);
+            const auto newMode = chimeraEx.hasMode(directMode) ? directMode : chimeraEx.getSafeSupportedMode();
+            skill.mode         = animationModeToString(newMode);
+        }
+    }
+}
+
+void ModuleRandoMonsters::TCTable::add(const std::string& id, int group, int level)
+{
+    if (!group || !level)
+        return;
+    TCGroup& g = groups[group];
+    g.records.push_back(TCGroup::TCRecord{ id, level });
+    tc2group[id] = group;
+}
+
+std::string ModuleRandoMonsters::TCTable::promote(const std::string& tc, const int oldLevel, const int newLevel) const
+{
+    if (!tc2group.contains(tc) || oldLevel == newLevel)
+        return tc;
+    const TCGroup& g = groups.at(tc2group.at(tc));
+    std::string    res;
+    for (int i = g.records.size() - 1; i >= 0; i--) {
+        if (g.records[i].level > newLevel)
+            res = g.records[i].id;
+        else
+            break;
+    }
+    return res.empty() ? tc : res;
+}
+
+std::string ModuleRandoMonsters::MonsterTask::toString() const
+{
+    std::ostringstream os;
+    os << "{ srcId:" << m_source->id;
+    if (m_skip) {
+        os << ", SKIP }";
+        return os.str();
+    }
+    os << ", dstId:" << m_dest.id;
+    os << ", oldAI:" << m_source->AI;
+    os << ", newAI:" << m_dest.AI;
+    os << ", makeChimera:" << m_makeChimera;
+    if (m_makeChimera)
+        os << ", donor:" << m_dest.donorId;
+
+    os << ", rollStat:" << m_rollStat;
+    os << ", rollRes:" << m_rollRes;
+    os << ", srcLvl:" << m_source->level.value_or(0);
+    os << ", dstLvl:" << m_dest.level.value_or(0);
+
+    os << "}";
+    return os.str();
+}
+
+}

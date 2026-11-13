@@ -10,11 +10,13 @@ import QtQuick.Controls.Fusion
 RowLayout {
     id: root
     property QtObject value_key: null
+    property alias title: caption.text
 
     spacing: 10
     Layout.fillWidth: true
 
     Label {
+        id: caption
         text: qsTr("Random seed:")
     }
     WidgetHelpIcon {

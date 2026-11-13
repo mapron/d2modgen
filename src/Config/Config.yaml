@@ -1,44 +1,81 @@
 structs:
-    TreasureClasses:
-        structs:
-            Runes:
-                members:
-                    enabled: { type: bool, zero: false, recc: true }
-                    countessSpecialRuneLevel: { type: int, zero: 0, recc: 3, min: 0, max: 15, presets: {crazy: 2000, strong: 600 , weak: 200} }
-                    countessSpecialRuneMore: { type: bool, zero: false, recc: false, presets: {crazy: true, strong: true} }
-                    wraithOnlyRunes: { type: bool, zero: false, recc: false, presets: {crazy: true} }
+    RandoItems:
+       members:
+           enabled: { type: bool, zero: false, recc: true }
 
-                    runeInGoodTC: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true, presets: {crazy: 1000, strong: 300 , weak: 100} }
-                    zodFactor: { type: int, zero: 1, recc: 20, min: 1, max: 1000, presets: {crazy: 1000, strong: 100 , weak: 10} }
+           seed: { type: int, zero: 0, min: 0, max: 4294967295, skipPresets: true }
 
-            Items:
-                members:
-                    enabled: { type: bool, zero: false, recc: true }
-                    forceQuestDrops: { type: bool, zero: false, recc: true }
-                    chanceForHighLevel: { type: int, zero: 100, recc: 150, min: 50, max: 2000, percent: true, logScale: true }
+           forceCasterType:         { type: int, zero: 0,   recc: 25, min: 0, max: 100, percent: true }
+           itemFit:                 { type: int, zero: 100, recc: 90, min: 0, max: 100, percent: true, presets: {crazy: 50, strong: 75} }
+           levelMinus:              { type: int, zero: 0,   recc: 10, min: 0, max: 100, presets: {crazy: 0, strong: 5} }
+           levelPlus:               { type: int, zero: 0,   recc: 5, min: 0, max: 100, presets: {crazy: 100, strong: 20} }
+           repeatSets:              { type: int, zero: 1,   recc: 5, min: 1, max: 5 }
+           repeatUniques:           { type: int, zero: 1,   recc: 5, min: 1, max: 5 }
 
-                    noneliteFactorIncrease: { type: int, zero: 100, recc: 150, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 1000, strong: 300 , weak: 150} }
+           affixRandom:             { type: bool, zero: false, recc: true, presets: { pain: false } }
+           gemsRandom:              { type: bool, zero: false }
+           craftedRandom:           { type: bool, zero: false }
+           removeKnock:             { type: bool, zero: false, recc: true }
+           replaceCharges:          { type: bool, zero: false, recc: true }
+           replaceSkills:           { type: bool, zero: false }
+           updateExisting:          { type: bool, zero: false, recc: true }
+           setBonusMode:            { type: int, zero: 0, recc: 1, min: 0, max: 2 }
 
-                    rareFactorIncrease:   { type: int, zero: 100, recc: 200, min: 20, max: 2000, percent: true, logScale: true, presets: {crazy: 2000, strong: 200 , weak: 100} }
-                    setFactorIncrease:    { type: int, zero: 100, recc: 300, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 600 , weak: 200} }
-                    uniqueFactorIncrease: { type: int, zero: 100, recc: 400, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 700 , weak: 250} }
-                    
-                    inverseNodropPercent:  { type: int, zero: 100, recc: 150, min: 25, max: 9100, percent: true, logScale: true, presets: {crazy: 9000, strong: 300} }
-                    equipPercent: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
-                    goldPercent:  { type: int, zero: 100, min: 5 , max: 1000, percent: true, logScale: true }
-                    goodPercent:  { type: int, zero: 100, min: 25, max: 1000, percent: true, logScale: true }
-                    junkPercent:  { type: int, zero: 100, recc: 10, min: 5 , max: 500 , percent: true, logScale: true }
+           frequencyAuras:          { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
+           frequencyCharAttributes: { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: { pain: 50 }, logScale: true }
+           frequencyProcs:          { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
+           frequencyResistances:    { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: { pain: 50 }, logScale: true }
+           frequencySkills:         { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
 
-                    championItemCount:  { type: int, zero: 1, recc: 2, min: 0, max: 6,  presets: {crazy: 6, strong: 3}  }
-                    uniqueItemCount:    { type: int, zero: 1, recc: 2, min: 0, max: 6,  presets: {crazy: 6, strong: 3}  }
-                    superItemCount:     { type: int, zero: 2, recc: 3, min: 0, max: 6,  presets: {crazy: 6, strong: 4}  }
-                    removeChampGold:    { type: bool, zero: false, recc: true }
-                    removeElitePotions: { type: bool, zero: false, recc: false,  presets: {pain: true} }
+           sameRarityForSetUniqueItems: { type: bool, zero: false, recc: true }
+
+
+    RandoMonsters:
+       members:
+           enabled:              { type: bool, zero: false, recc: true }
+    
+           seed: { type: int, zero: 0, min: 0, max: 4294967295, skipPresets: true }
+    
+           # all = percent from set(mon+nmon+umon).size()
+           spawnKeepOriginal:  { type: int, zero: 100, recc: 100, min: 0, max: 100 , percent: true, presets: { crazy:  50, pain: 50  } }
+           superuniqueRando:   { type: int, zero: 0  , recc: 50 , min: 0, max: 100 , percent: true, presets: { crazy: 100, pain: 100 } }
+           guestsMin:          { type: int, zero: 0  , recc: 25 , min: 0, max: 1000, percent: true, presets: { crazy:   0, pain: 200 } }
+           guestsMax:          { type: int, zero: 0  , recc: 50 , min: 0, max: 1000, percent: true, presets: { crazy: 300, pain: 200 } }
+           chimeraAIMin:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true                         }
+           chimeraAIMax:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true                         }
+           rollResistancesMin: { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
+           rollResistancesMax: { type: int, zero: 0  , recc: 30 , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
+           rollStatMin:        { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
+           rollStatMax:        { type: int, zero: 0  , recc: 50 , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
+
+           minNormalZoneId:      { type: int, zero: 0  , recc: 12 , min: 0, max: 133 ,  presets: { pain: 0 } }
+
+
+    RandoSkills:
         members:
-            runes: { type: struct, name: Runes }
-            items: { type: struct, name: Items }
+            enabled:               { type: bool, zero: false, recc: true , presets: { weak: false} }
+    
+            seed: { type: int, zero: 0, min: 0, max: 4294967295, skipPresets: true }
+    
+            chanceElemChange:      { type: int , zero: 0, recc: 75 , min: 0, max: 100, percent: true}
+            maximumElements:       { type: int , zero: 5, recc: 3  , min: 2, max: 5 }
+    
+            randoMode:             { type: int , zero: 0, recc: 3  , min: 0, max: 3 } # disabled|same class shuffle|specific class|all classes
+            specificClass:         { type: int , zero: 0, recc: 0  , min: 0, max: 7 }
+            keepOriginal:          { type: int , zero: 40, recc: 10, min: 0, max: 40 }
+            generate:              { type: int , zero: 0 , recc: 20, min: 0, max: 54 }
+            
+            weightAma:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightSor:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightNec:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightPal:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightBar:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightDru:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightAss:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
+            weightWar:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
 
-    ItemBalance:
+
+    BalanceItems:
         structs: 
             CommonSettings:
                  members:
@@ -66,159 +103,11 @@ structs:
             gems:       { type: struct, name: CommonSettings }
             equipment:  { type: struct, name: CommonSettings } # weapon+armor
 
-            reqDex:           { type: int, zero: 100, recc: 80 , min: 5, max: 150, percent: true }
-            reqStr:           { type: int, zero: 100, recc: 80 , min: 5, max: 150, percent: true }
+            reqDex:           { type: int, zero: 100, recc: 100 , min: 5, max: 150, percent: true }
+            reqStr:           { type: int, zero: 100, recc: 100 , min: 5, max: 150, percent: true }
 
-    ItemRandomizer:
-        members:
-            enabled: { type: bool, zero: false, recc: true }
 
-            seed: { type: int, zero: 0, min: 0, max: 4294967295, skipPresets: true }
-    
-            forceCasterType:         { type: int, zero: 0,   recc: 25, min: 0, max: 100, percent: true }
-            itemFit:                 { type: int, zero: 100, recc: 90, min: 0, max: 100, percent: true, presets: {crazy: 50, strong: 75} }
-            levelMinus:              { type: int, zero: 0,   recc: 10, min: 0, max: 100, presets: {crazy: 0, strong: 5} }
-            levelPlus:               { type: int, zero: 0,   recc: 5, min: 0, max: 100, presets: {crazy: 100, strong: 20} }
-            repeatSets:              { type: int, zero: 1,   recc: 5, min: 1, max: 5 }
-            repeatUniques:           { type: int, zero: 1,   recc: 5, min: 1, max: 5 }
-    
-            affixRandom:             { type: bool, zero: false, recc: true, presets: { pain: false } }
-            gemsRandom:              { type: bool, zero: false }
-            craftedRandom:           { type: bool, zero: false }
-            removeKnock:             { type: bool, zero: false, recc: true }
-            replaceCharges:          { type: bool, zero: false, recc: true }
-            replaceSkills:           { type: bool, zero: false }
-            updateExisting:          { type: bool, zero: false, recc: true }
-            setBonusMode:            { type: int, zero: 0, recc: 1, min: 0, max: 2 }
-    
-            frequencyAuras:          { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
-            frequencyCharAttributes: { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: { pain: 50 }, logScale: true }
-            frequencyProcs:          { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
-            frequencyResistances:    { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: { pain: 50 }, logScale: true }
-            frequencySkills:         { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
-
-            sameRarityForSetUniqueItems: { type: bool, zero: false, recc: true }
-
-    MonsterRandomizer:
-        members:
-            enabled:              { type: bool, zero: false, recc: true }
-
-            seed: { type: int, zero: 0, min: 0, max: 4294967295, skipPresets: true }
-            
-            numMonExtra:          { type: int, zero: 0, min: -2, max: 10, presets: { crazy: 5} }
-
-            # all = percent from set(mon+nmon+umon).size()
-            spawnKeepOriginal:  { type: int, zero: 100, recc: 100, min: 0, max: 100 , percent: true, presets: { crazy:  50, pain: 50  } }
-            superuniqueRando:   { type: int, zero: 0  , recc: 50 , min: 0, max: 100 , percent: true, presets: { crazy: 100, pain: 100 } }
-            guestsMin:          { type: int, zero: 0  , recc: 25 , min: 0, max: 1000, percent: true, presets: { crazy:   0, pain: 200 } }
-            guestsMax:          { type: int, zero: 0  , recc: 50 , min: 0, max: 1000, percent: true, presets: { crazy: 300, pain: 200 } }
-            chimeraAIMin:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true                         }
-            chimeraAIMax:       { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true                         }
-            rollResistancesMin: { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
-            rollResistancesMax: { type: int, zero: 0  , recc: 30 , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
-            rollStatMin:        { type: int, zero: 0  , recc: 0  , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
-            rollStatMax:        { type: int, zero: 0  , recc: 50 , min: 0, max: 100 , percent: true, presets: { pain: 100 } }
-
-            densityMin:         { type: int, zero: 100, recc: 100, min: 20, max: 1000, percent: true, logScale: true }
-            densityMax:         { type: int, zero: 100, recc: 150, min: 20, max: 1000, percent: true, logScale: true }
-            elitePacksMin:      { type: int, zero: 100, recc: 100, min: 20, max: 1000, percent: true, logScale: true }
-            elitePacksMax:      { type: int, zero: 100, recc: 150, min: 20, max: 1000, percent: true, logScale: true }
-
-            monGroupIncreaseSize: { type: int, zero: 0, min: 0, max: 20, presets: { crazy: 5, strong: 2 } } # dangerous and laggy! D2R tanks this
-            hellResistances:      { type: bool, zero: false, recc: false, presets: { pain: true } }
-            hellPacks:            { type: bool, zero: false, recc: false }
-            maxPacks:             { type: bool, zero: false, recc: true }
-            minAbsDensity:        { type: int, zero: 0  , recc: 800 , min: 0, max: 9000 , presets: { crazy: 5000 , pain: 1500 }}
-            minAbsPacks:          { type: int, zero: 0  , recc: 3   , min: 0, max: 20   , presets: { crazy: 10, strong: 5 , pain: 10 }}
-
-            minNormalZoneId:      { type: int, zero: 0  , recc: 12 , min: 0, max: 133 ,  presets: { pain: 0 } }
-
-    SkillRandomizer:
-        members:
-            enabled:               { type: bool, zero: false, recc: true , presets: { weak: false} }
-
-            seed: { type: int, zero: 0, min: 0, max: 4294967295, skipPresets: true }
-
-            chanceElemChange:      { type: int , zero: 0, recc: 75 , min: 0, max: 100, percent: true}
-            maximumElements:       { type: int , zero: 5, recc: 3  , min: 2, max: 5 }
-
-            randoMode:             { type: int , zero: 0, recc: 3  , min: 0, max: 3 } # disabled|same class shuffle|specific class|all classes
-            specificClass:         { type: int , zero: 0, recc: 0  , min: 0, max: 7 }
-            keepOriginal:          { type: int , zero: 40, recc: 10, min: 0, max: 40 }
-            generate:              { type: int , zero: 0 , recc: 20, min: 0, max: 54 }
-            globalHitShift:        { type: int , zero: 2, recc: 2  , min: 0, max: 5 }
-            
-            weightAma:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
-            weightSor:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
-            weightNec:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
-            weightPal:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
-            weightBar:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
-            weightDru:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
-            weightAss:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
-            weightWar:             { type: int , zero: 100, recc: 100, min: 0, max: 100 }
-            
-            lvlreqRow1:            { type: int , zero: 0 , recc: 0 , min: 0, max: 50 }
-            lvlreqRow2:            { type: int , zero: 6 , recc: 6 , min: 0, max: 50 }
-            lvlreqRow3:            { type: int , zero: 12, recc: 12, min: 0, max: 50 }
-            lvlreqRow4:            { type: int , zero: 18, recc: 18, min: 0, max: 50 }
-            lvlreqRow5:            { type: int , zero: 24, recc: 24, min: 0, max: 50 }
-            lvlreqRow6:            { type: int , zero: 30, recc: 30, min: 0, max: 50 }
-    Challenge:
-        members:
-            levelIncreaseHell:      { type: int, zero: 0, recc: 10, min: 0, max: 30 }
-            levelIncreaseNightmare: { type: int, zero: 0, recc: 5, min: 0, max: 20 }
-            levelIncreaseOverBound: { type: bool, zero: false }
-            normalResPenalty:       { type: int, zero: 0  ,  recc: 10 , min: 0, max: 250 , presets: {pain : 30  } }
-            nightmareResPenalty:    { type: int, zero: 40 ,  recc: 50 , min: 0, max: 250 , presets: {pain : 100 } }
-            hellResPenalty:         { type: int, zero: 100,  recc: 120, min: 0, max: 250 , presets: {pain : 250 } }
-            disableDropsHealthPot:  { type: bool, zero: false }
-            disableDropsManaPot:    { type: bool, zero: false }
-            disableDropsRejuvPot:   { type: bool, zero: false, presets: { pain: true } }
-    
-    Character:
-        members:
-            addCube:     { type: bool, zero: false, recc: true }
-            addTeleport: { type: bool, zero: false, recc: true }
-            idTome:      { type: bool, zero: false, recc: true }
-            tpTome:      { type: bool, zero: false, recc: true }
-            manaPots:    { type: bool, zero: false, recc: false }
-
-            mercDam:     { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
-            mercHP:      { type: int, zero: 100, recc: 300, min: 20, max: 1000, percent: true, logScale: true, presets: { pain: 20 } }
-
-            skillPointLimit:  { type: int, zero: 20, min: 1, max: 60 }
-            skillsReqLevel:   { type: int, zero: 100, recc: 100, min: 5, max: 150, percent: true }
-
-            extraSkillPerLevel: { type: int, zero: 0, min: -1, max: 20, presets: { pain: true } }
-            extraStatPerLevel:  { type: int, zero: 0, min: -5, max: 50, presets: { pain: -2 } }
-            extraHpPerLevel:    { type: int, zero: 0, min: -3, max: 30, presets: { pain: -1 } }
-            extraManaPerLevel:  { type: int, zero: 0, min: -3, max: 30, presets: { pain: -1 } }
-
-            hpPotEfficacy:  { type: int, zero: 100 , min: 5 , max: 1000 , percent: true, logScale: true, presets: { pain: 50 } }
-            mpPotEfficacy:  { type: int, zero: 100 , min: 5 , max: 1000 , percent: true, logScale: true, presets: { pain: 50 } }
-
-    HoradricCube:
-        members:
-            cheatCharms:   { type: bool, zero: false, recc: true }
-            craftHighIlvl: { type: bool, zero: false }
-            craftNoRunes:  { type: bool, zero: false }
-            craftNoStrict: { type: bool, zero: false }
-            noGemUpgrade:  { type: bool, zero: false }
-            quickPortals:  { type: bool, zero: false, recc: true }
-            quickQuests:   { type: bool, zero: false, recc: true }
-            socketing:     { type: bool, zero: false, recc: true }
-            upgrading:     { type: bool, zero: false, recc: true }
-
-    Gambling:
-        members:
-            charmGamble:  { type: bool, zero: false }
-            ratioElite:   { type: int, zero: 1, min: 1, max: 10 }
-            ratioExc:     { type: int, zero: 1, min: 1, max: 4 }
-            ratioRare:    { type: int, zero: 1, min: 1, max: 4 }
-            ratioSet:     { type: int, zero: 1, min: 1, max: 250 }
-            ratioUnique:  { type: int, zero: 1, min: 1, max: 500 }
-
-    MonsterStats:
+    BalanceMonsters:
         members:
             monsterAttack:      { type: int, zero: 100,           min: 10, max: 1000, percent: true, logScale: true }
             monsterDamage:      { type: int, zero: 100,           min: 10, max: 1000, percent: true, logScale: true, presets: { pain: 150 } }
@@ -235,9 +124,141 @@ structs:
             applyMag:   { type: bool, zero: false }
             applyPhys:  { type: bool, zero: false }
 
-    QualityOfLife:
+            hellResistances:      { type: bool, zero: false, recc: false, presets: { pain: true } }
+            makeSecondImmunity:   { type: bool, zero: false, recc: false, presets: { pain: true } }
+
+    BalanceSkills:
         members:
+            lvlreqRow1:            { type: int , zero: 0 , recc: 0 , min: 0, max: 50 }
+            lvlreqRow2:            { type: int , zero: 6 , recc: 6 , min: 0, max: 50 }
+            lvlreqRow3:            { type: int , zero: 12, recc: 12, min: 0, max: 50 }
+            lvlreqRow4:            { type: int , zero: 18, recc: 18, min: 0, max: 50 }
+            lvlreqRow5:            { type: int , zero: 24, recc: 24, min: 0, max: 50 }
+            lvlreqRow6:            { type: int , zero: 30, recc: 30, min: 0, max: 50 }
+
+            globalHitShift:        { type: int , zero: 2, recc: 2  , min: 0, max: 5 }
+
+    BalanceCharacter:
+        members:
+            mercDam:     { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
+            mercHP:      { type: int, zero: 100, recc: 300, min: 20, max: 1000, percent: true, logScale: true, presets: { pain: 20 } }
+
+            skillPointLimit:  { type: int, zero: 20, min: 1, max: 60 }
+
+            extraSkillPerLevel: { type: int, zero: 0, min: -1, max: 20, presets: { pain: true } }
+            extraStatPerLevel:  { type: int, zero: 0, min: -5, max: 50, presets: { pain: -2 } }
+            extraHpPerLevel:    { type: int, zero: 0, min: -3, max: 30, presets: { pain: -1 } }
+            extraManaPerLevel:  { type: int, zero: 0, min: -3, max: 30, presets: { pain: -1 } }
+
+            hpPotEfficacy:  { type: int, zero: 100 , min: 5 , max: 1000 , percent: true, logScale: true, presets: { pain: 50 } }
+            mpPotEfficacy:  { type: int, zero: 100 , min: 5 , max: 1000 , percent: true, logScale: true, presets: { pain: 50 } }
+
+            normalResPenalty:       { type: int, zero: 0  ,  recc: 10 , min: 0, max: 250 , presets: {pain : 30  } }
+            nightmareResPenalty:    { type: int, zero: 40 ,  recc: 50 , min: 0, max: 250 , presets: {pain : 100 } }
+            hellResPenalty:         { type: int, zero: 100,  recc: 120, min: 0, max: 250 , presets: {pain : 250 } }
+
             disableExpPenalty:   { type: bool, zero: false, recc: true }
+
+
+    BalanceMaps:
+        members:
+            levelIncreaseHell:      { type: int, zero: 0, recc: 10, min: 0, max: 30 }
+            levelIncreaseNightmare: { type: int, zero: 0, recc: 5, min: 0, max: 20 }
+            levelIncreaseOverBound: { type: bool, zero: false }
+            mazeMode: { type: int, zero:  0, recc:  0, min:  0, max: 4 } # enum=none|compact|hormal|hell
+
+            densityMin:         { type: int, zero: 100, recc: 100, min: 20, max: 1000, percent: true, logScale: true }
+            densityMax:         { type: int, zero: 100, recc: 150, min: 20, max: 1000, percent: true, logScale: true }
+            elitePacksMin:      { type: int, zero: 100, recc: 100, min: 20, max: 1000, percent: true, logScale: true }
+            elitePacksMax:      { type: int, zero: 100, recc: 150, min: 20, max: 1000, percent: true, logScale: true }
+
+            numMonExtra:          { type: int, zero: 0, min: -2, max: 10, presets: { crazy: 5} }
+            
+            monGroupIncreaseSize: { type: int, zero: 0, min: 0, max: 20, presets: { crazy: 5, strong: 2 } } # dangerous and laggy! D2R tanks this
+            hellPacks:            { type: bool, zero: false, recc: false }
+            maxPacks:             { type: bool, zero: false, recc: true }
+            minAbsDensity:        { type: int, zero: 0  , recc: 800 , min: 0, max: 9000 , presets: { crazy: 5000 , pain: 1500 }}
+            minAbsPacks:          { type: int, zero: 0  , recc: 3   , min: 0, max: 20   , presets: { crazy: 10, strong: 5 , pain: 10 }}
+
+    BalanceGambling:
+        members:
+            charmGamble:  { type: bool, zero: false }
+            ratioElite:   { type: int, zero: 1, min: 1, max: 10 }
+            ratioExc:     { type: int, zero: 1, min: 1, max: 4 }
+            ratioRare:    { type: int, zero: 1, min: 1, max: 4 }
+            ratioSet:     { type: int, zero: 1, min: 1, max: 250 }
+            ratioUnique:  { type: int, zero: 1, min: 1, max: 500 }
+
+    Droprate:
+        structs:
+            Runes:
+                members:
+                    enabled: { type: bool, zero: false, recc: true }
+                    countessSpecialRuneLevel: { type: int, zero: 0, recc: 3, min: 0, max: 15, presets: {crazy: 2000, strong: 600 , weak: 200} }
+                    countessSpecialRuneMore: { type: bool, zero: false, recc: false, presets: {crazy: true, strong: true} }
+                    wraithOnlyRunes: { type: bool, zero: false, recc: false, presets: {crazy: true} }
+    
+                    runeInGoodTC: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true, presets: {crazy: 1000, strong: 300 , weak: 100} }
+                    zodFactor: { type: int, zero: 1, recc: 20, min: 1, max: 1000, presets: {crazy: 1000, strong: 100 , weak: 10} }
+    
+            Items:
+                members:
+                    enabled: { type: bool, zero: false, recc: true }
+                    forceQuestDrops: { type: bool, zero: false, recc: true }
+                    chanceForHighLevel: { type: int, zero: 100, recc: 150, min: 50, max: 2000, percent: true, logScale: true }
+    
+                    noneliteFactorIncrease: { type: int, zero: 100, recc: 150, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 1000, strong: 300 , weak: 150} }
+    
+                    rareFactorIncrease:   { type: int, zero: 100, recc: 200, min: 20, max: 2000, percent: true, logScale: true, presets: {crazy: 2000, strong: 200 , weak: 100} }
+                    setFactorIncrease:    { type: int, zero: 100, recc: 300, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 600 , weak: 200} }
+                    uniqueFactorIncrease: { type: int, zero: 100, recc: 400, min: 20, max: 5000, percent: true, logScale: true, presets: {crazy: 5000, strong: 700 , weak: 250} }
+                    
+                    inverseNodropPercent:  { type: int, zero: 100, recc: 150, min: 25, max: 9100, percent: true, logScale: true, presets: {crazy: 9000, strong: 300} }
+                    equipPercent: { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
+    
+                    championItemCount:  { type: int, zero: 1, recc: 2, min: 0, max: 6,  presets: {crazy: 6, strong: 3}  }
+                    uniqueItemCount:    { type: int, zero: 1, recc: 2, min: 0, max: 6,  presets: {crazy: 6, strong: 3}  }
+                    superItemCount:     { type: int, zero: 2, recc: 3, min: 0, max: 6,  presets: {crazy: 6, strong: 4}  }
+            Misc:
+                members:
+                    enabled: { type: bool, zero: false, recc: true }
+                    goldPercent:  { type: int, zero: 100,          min: 0 , max: 1000, percent: true, logScale: true }
+                    goodPercent:  { type: int, zero: 100,          min: 0 , max: 1000, percent: true, logScale: true }
+                    junkPercent:  { type: int, zero: 100, recc: 0, min: 0 , max: 500 , percent: true, logScale: true }
+    
+                    removeChampGold:    { type: bool, zero: false, recc: true }
+                    removeElitePotions: { type: bool, zero: false, recc: false,  presets: {pain: true} }
+    
+                    disableDropsHealthPot:  { type: bool, zero: false }
+                    disableDropsManaPot:    { type: bool, zero: false }
+                    disableDropsRejuvPot:   { type: bool, zero: false, presets: { pain: true } }
+        members:
+            runes: { type: struct, name: Runes }
+            items: { type: struct, name: Items }
+            misc : { type: struct, name: Misc }
+
+
+    OtherHoradricCube:
+        members:
+            cheatCharms:   { type: bool, zero: false, recc: true }
+            craftHighIlvl: { type: bool, zero: false }
+            craftNoRunes:  { type: bool, zero: false }
+            craftNoStrict: { type: bool, zero: false }
+            noGemUpgrade:  { type: bool, zero: false }
+            quickPortals:  { type: bool, zero: false, recc: true }
+            quickQuests:   { type: bool, zero: false, recc: true }
+            socketing:     { type: bool, zero: false, recc: true }
+            upgrading:     { type: bool, zero: false, recc: true }
+
+
+    OtherQualityOfLife:
+        members:
+            addCube:     { type: bool, zero: false, recc: true }
+            addTeleport: { type: bool, zero: false, recc: true }
+            idTome:      { type: bool, zero: false, recc: true }
+            tpTome:      { type: bool, zero: false, recc: true }
+            manaPots:    { type: bool, zero: false, recc: false }
+
             showItemLevel:       { type: bool, zero: false, recc: false }
             uniqueCharmLimit:    { type: bool, zero: false, recc: false }
             weakenTownSkills:    { type: bool, zero: false, recc: true }
@@ -250,29 +271,36 @@ structs:
 
             compactPots:    { type: bool, zero: false, recc: true  }
             compactScrolls: { type: bool, zero: false, recc: true  }
-    ExpandedInventory:
+
+    OtherExpandedInventory:
         members:
             inventoryHeight: { type: int, zero:  4, recc:  4, min:  4, max: 8 }
             inventoryWidth:  { type: int, zero: 10, recc: 10, min: 10, max: 15 }
             
-    Maps:
-        members:
-            mazeMode: { type: int, zero:  0, recc:  0, min:  0, max: 4 } # enum=none|compact|hormal|hell
 
 members:
-    treasureClasses:   { type: struct, name:  TreasureClasses }
-    itemBalance:       { type: struct, name:  ItemBalance     }
+    # rando
+    itemRandomizer:    { type: struct, name:  RandoItems      }
+    monsterRandomizer: { type: struct, name:  RandoMonsters   }
+    skillRandomizer:   { type: struct, name:  RandoSkills     }
 
-    itemRandomizer:    { type: struct, name:  ItemRandomizer      }
-    monsterRandomizer: { type: struct, name:  MonsterRandomizer   }
-    skillRandomizer:   { type: struct, name:  SkillRandomizer     }
+    #balance
+    balanceItems:      { type: struct, name:  BalanceItems     }
+    balanceMonsters:   { type: struct, name:  BalanceMonsters   }
+    balanceCharacter:  { type: struct, name:  BalanceCharacter   }
+    balanceSkills:     { type: struct, name:  BalanceSkills   }
+    balanceMaps:       { type: struct, name:  BalanceMaps  }
+    balanceGambling:   { type: struct, name:  BalanceGambling   }
 
-    challenge:         { type: struct, name:  Challenge   }
-    character:         { type: struct, name:  Character   }
-    horadricCube:      { type: struct, name:  HoradricCube   }
-    gambling:          { type: struct, name:  Gambling   }
-    monsterStats:      { type: struct, name:  MonsterStats   }
-    qualityOfLife:     { type: struct, name:  QualityOfLife   }
-    expandedInventory: { type: struct, name:  ExpandedInventory   }
-    maps:              { type: struct, name:  Maps   }
+    # drop rates
+    droprate:          { type: struct, name:  Droprate }
+
+    # other
+    otherHoradricCube:      { type: struct, name:  OtherHoradricCube   }
+    otherQualityOfLife:     { type: struct, name:  OtherQualityOfLife   }
+    otherExpandedInventory: { type: struct, name:  OtherExpandedInventory   }
+
+    # this is for tiny local use in non-rando modules
+    globalSeed: { type: int, zero: 0, min: 0, max: 4294967295, skipPresets: true }
+
 
