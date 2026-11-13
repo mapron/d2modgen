@@ -24,7 +24,11 @@ void ModuleBalanceSkills::generate()
         return 0;
     };
 
+    /// @todo: will break will randomized skill
+    static const StringSet s_exceptions{ "Teleport", "Battle Orders", "Battle Command" };
+
     const int globalHitShift = config.m_balanceSkills.m_globalHitShift - 2;
+
     for (auto& row : output.skills.rows) {
         if (row.classSpecific == Character::None)
             continue;
@@ -34,6 +38,25 @@ void ModuleBalanceSkills::generate()
         }
         if (auto* desc = output.skilldesc.find(row.skilldesc))
             row.lvlreq = getLevelFromRow(desc->skillRow.value_or(0));
+        if (module.m_weakenTownSkillsExt || module.m_weakenTownSkills && s_exceptions.contains(row.skill))
+            row.inTown = true;
+        if (module.m_leftCast)
+            row.leftskill = true;
+    }
+
+    for (auto& row : output.skills.rows) {
+        if (row.classSpecific == Character::None)
+            continue;
+    }
+
+    const int skillPointLimit = module.m_skillPointLimit;
+    if (skillPointLimit != 20) {
+        output.skills.applyTransform(
+            &DataRow_skills::maxlvl, [skillPointLimit](std::optional<int>& data) {
+                if (!data.has_value() || data.value() != 20)
+                    return;
+                data = skillPointLimit;
+            });
     }
 }
 

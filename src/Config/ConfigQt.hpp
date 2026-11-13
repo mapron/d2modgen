@@ -627,6 +627,10 @@ class Config_BalanceSkills_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyInt_Qt* lvlreqRow5 READ get_lvlreqRow5 CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* lvlreqRow6 READ get_lvlreqRow6 CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* globalHitShift READ get_globalHitShift CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* skillPointLimit READ get_skillPointLimit CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* weakenTownSkills READ get_weakenTownSkills CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* weakenTownSkillsExt READ get_weakenTownSkillsExt CONSTANT)
+    Q_PROPERTY(PropertyBool_Qt* leftCast READ get_leftCast CONSTANT)
 
 public:
     explicit Config_BalanceSkills_Qt(Config::BalanceSkills& data)
@@ -639,6 +643,10 @@ public:
         , m_lvlreqRow5(data.getPropertyInt(4))
         , m_lvlreqRow6(data.getPropertyInt(5))
         , m_globalHitShift(data.getPropertyInt(6))
+        , m_skillPointLimit(data.getPropertyInt(7))
+        , m_weakenTownSkills(data.getPropertyBool(0))
+        , m_weakenTownSkillsExt(data.getPropertyBool(1))
+        , m_leftCast(data.getPropertyBool(2))
     {
     }
 
@@ -655,6 +663,14 @@ public:
     PropertyInt_Qt* get_lvlreqRow6() { return &m_lvlreqRow6; }
 
     PropertyInt_Qt* get_globalHitShift() { return &m_globalHitShift; }
+
+    PropertyInt_Qt* get_skillPointLimit() { return &m_skillPointLimit; }
+
+    PropertyBool_Qt* get_weakenTownSkills() { return &m_weakenTownSkills; }
+
+    PropertyBool_Qt* get_weakenTownSkillsExt() { return &m_weakenTownSkillsExt; }
+
+    PropertyBool_Qt* get_leftCast() { return &m_leftCast; }
 
     Q_INVOKABLE void assign(Config_BalanceSkills_Qt* another) { m_data.assign(another->m_data, true); }
 
@@ -674,13 +690,20 @@ private:
     PropertyInt_Qt m_lvlreqRow6;
 
     PropertyInt_Qt m_globalHitShift;
+
+    PropertyInt_Qt m_skillPointLimit;
+
+    PropertyBool_Qt m_weakenTownSkills;
+
+    PropertyBool_Qt m_weakenTownSkillsExt;
+
+    PropertyBool_Qt m_leftCast;
 };
 
 class Config_BalanceCharacter_Qt : public CommonStruct_Qt {
     Q_OBJECT
     Q_PROPERTY(PropertyInt_Qt* mercDam READ get_mercDam CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* mercHP READ get_mercHP CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* skillPointLimit READ get_skillPointLimit CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* extraSkillPerLevel READ get_extraSkillPerLevel CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* extraStatPerLevel READ get_extraStatPerLevel CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* extraHpPerLevel READ get_extraHpPerLevel CONSTANT)
@@ -698,16 +721,15 @@ public:
         , m_data(data)
         , m_mercDam(data.getPropertyInt(0))
         , m_mercHP(data.getPropertyInt(1))
-        , m_skillPointLimit(data.getPropertyInt(2))
-        , m_extraSkillPerLevel(data.getPropertyInt(3))
-        , m_extraStatPerLevel(data.getPropertyInt(4))
-        , m_extraHpPerLevel(data.getPropertyInt(5))
-        , m_extraManaPerLevel(data.getPropertyInt(6))
-        , m_hpPotEfficacy(data.getPropertyInt(7))
-        , m_mpPotEfficacy(data.getPropertyInt(8))
-        , m_normalResPenalty(data.getPropertyInt(9))
-        , m_nightmareResPenalty(data.getPropertyInt(10))
-        , m_hellResPenalty(data.getPropertyInt(11))
+        , m_extraSkillPerLevel(data.getPropertyInt(2))
+        , m_extraStatPerLevel(data.getPropertyInt(3))
+        , m_extraHpPerLevel(data.getPropertyInt(4))
+        , m_extraManaPerLevel(data.getPropertyInt(5))
+        , m_hpPotEfficacy(data.getPropertyInt(6))
+        , m_mpPotEfficacy(data.getPropertyInt(7))
+        , m_normalResPenalty(data.getPropertyInt(8))
+        , m_nightmareResPenalty(data.getPropertyInt(9))
+        , m_hellResPenalty(data.getPropertyInt(10))
         , m_disableExpPenalty(data.getPropertyBool(0))
     {
     }
@@ -715,8 +737,6 @@ public:
     PropertyInt_Qt* get_mercDam() { return &m_mercDam; }
 
     PropertyInt_Qt* get_mercHP() { return &m_mercHP; }
-
-    PropertyInt_Qt* get_skillPointLimit() { return &m_skillPointLimit; }
 
     PropertyInt_Qt* get_extraSkillPerLevel() { return &m_extraSkillPerLevel; }
 
@@ -746,8 +766,6 @@ private:
     PropertyInt_Qt m_mercDam;
 
     PropertyInt_Qt m_mercHP;
-
-    PropertyInt_Qt m_skillPointLimit;
 
     PropertyInt_Qt m_extraSkillPerLevel;
 
@@ -1245,8 +1263,6 @@ class Config_OtherQualityOfLife_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyBool_Qt* manaPots READ get_manaPots CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* showItemLevel READ get_showItemLevel CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* uniqueCharmLimit READ get_uniqueCharmLimit CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* weakenTownSkills READ get_weakenTownSkills CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* weakenTownSkillsExt READ get_weakenTownSkillsExt CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* tomeSize READ get_tomeSize CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* quiverSize READ get_quiverSize CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* keySize READ get_keySize CONSTANT)
@@ -1265,14 +1281,12 @@ public:
         , m_manaPots(data.getPropertyBool(4))
         , m_showItemLevel(data.getPropertyBool(5))
         , m_uniqueCharmLimit(data.getPropertyBool(6))
-        , m_weakenTownSkills(data.getPropertyBool(7))
-        , m_weakenTownSkillsExt(data.getPropertyBool(8))
         , m_tomeSize(data.getPropertyInt(0))
         , m_quiverSize(data.getPropertyInt(1))
         , m_keySize(data.getPropertyInt(2))
         , m_reduceCost(data.getPropertyInt(3))
-        , m_compactPots(data.getPropertyBool(9))
-        , m_compactScrolls(data.getPropertyBool(10))
+        , m_compactPots(data.getPropertyBool(7))
+        , m_compactScrolls(data.getPropertyBool(8))
     {
     }
 
@@ -1289,10 +1303,6 @@ public:
     PropertyBool_Qt* get_showItemLevel() { return &m_showItemLevel; }
 
     PropertyBool_Qt* get_uniqueCharmLimit() { return &m_uniqueCharmLimit; }
-
-    PropertyBool_Qt* get_weakenTownSkills() { return &m_weakenTownSkills; }
-
-    PropertyBool_Qt* get_weakenTownSkillsExt() { return &m_weakenTownSkillsExt; }
 
     PropertyInt_Qt* get_tomeSize() { return &m_tomeSize; }
 
@@ -1324,10 +1334,6 @@ private:
     PropertyBool_Qt m_showItemLevel;
 
     PropertyBool_Qt m_uniqueCharmLimit;
-
-    PropertyBool_Qt m_weakenTownSkills;
-
-    PropertyBool_Qt m_weakenTownSkillsExt;
 
     PropertyInt_Qt m_tomeSize;
 

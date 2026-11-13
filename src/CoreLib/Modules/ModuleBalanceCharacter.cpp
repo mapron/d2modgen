@@ -11,7 +11,6 @@ void ModuleBalanceCharacter::generate()
 {
     const auto& module = config.m_balanceCharacter;
 
-    const int  skillPointLimit   = module.m_skillPointLimit;
     const int  mercHPpercent     = module.m_mercHP;
     const int  mercDampercent    = module.m_mercDam;
     const bool disableExpPenalty = module.m_disableExpPenalty;
@@ -47,15 +46,6 @@ void ModuleBalanceCharacter::generate()
         output.hireling.applyIntTransform(&DataRow_hireling::dmg_min, mercDampercent);
         output.hireling.applyIntTransform(&DataRow_hireling::dmg_max, mercDampercent);
         output.hireling.applyIntTransform(&DataRow_hireling::dmg_lvl, mercDampercent);
-    }
-
-    if (skillPointLimit != 20) {
-        output.skills.applyTransform(
-            &DataRow_skills::maxlvl, [skillPointLimit](std::optional<int>& data) {
-                if (!data.has_value() || data.value() != 20)
-                    return;
-                data = skillPointLimit;
-            });
     }
 
     {

@@ -137,14 +137,18 @@ structs:
             lvlreqRow6:            { type: int , zero: 30, recc: 30, min: 0, max: 50 }
 
             globalHitShift:        { type: int , zero: 2, recc: 2  , min: 0, max: 5 }
+            skillPointLimit:       { type: int, zero: 20, min: 1, max: 60 }
+            weakenTownSkills:    { type: bool, zero: false, recc: true }
+            weakenTownSkillsExt: { type: bool, zero: false, recc: false }
+            leftCast:            { type: bool, zero: false, recc: false }
+
 
     BalanceCharacter:
         members:
             mercDam:     { type: int, zero: 100, min: 20, max: 1000, percent: true, logScale: true }
             mercHP:      { type: int, zero: 100, recc: 300, min: 20, max: 1000, percent: true, logScale: true, presets: { pain: 20 } }
 
-            skillPointLimit:  { type: int, zero: 20, min: 1, max: 60 }
-
+           
             extraSkillPerLevel: { type: int, zero: 0, min: -1, max: 20, presets: { pain: true } }
             extraStatPerLevel:  { type: int, zero: 0, min: -5, max: 50, presets: { pain: -2 } }
             extraHpPerLevel:    { type: int, zero: 0, min: -3, max: 30, presets: { pain: -1 } }
@@ -261,9 +265,7 @@ structs:
 
             showItemLevel:       { type: bool, zero: false, recc: false }
             uniqueCharmLimit:    { type: bool, zero: false, recc: false }
-            weakenTownSkills:    { type: bool, zero: false, recc: true }
-            weakenTownSkillsExt: { type: bool, zero: false, recc: false }
-
+          
             tomeSize:         { type: int, zero: 20, recc: 60, min: 2, max: 511}
             quiverSize:       { type: int, zero: 150, recc: 500, min: 2, max: 511 }
             keySize:          { type: int, zero: 12, recc: 50, min: 2, max: 511 }

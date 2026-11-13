@@ -391,6 +391,7 @@ public:
     std::optional<int>  maxlvl;
     std::optional<int>  lvlreq;
     std::optional<bool> inTown;
+    std::optional<bool> leftskill;
     std::optional<int>  costMult;
     std::optional<int>  costAdd;
 

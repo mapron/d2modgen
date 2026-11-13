@@ -311,6 +311,14 @@ struct Config : public CommonStruct {
 
         int64_t m_globalHitShift{ 2 };
 
+        int64_t m_skillPointLimit{ 20 };
+
+        bool m_weakenTownSkills{ false };
+
+        bool m_weakenTownSkillsExt{ false };
+
+        bool m_leftCast{ false };
+
         BalanceSkills()
         {
             addScalar("lvlreqRow1", m_lvlreqRow1).setRange(0, 50).setZero(0).setRecc(0);
@@ -320,14 +328,16 @@ struct Config : public CommonStruct {
             addScalar("lvlreqRow5", m_lvlreqRow5).setRange(0, 50).setZero(24).setRecc(24);
             addScalar("lvlreqRow6", m_lvlreqRow6).setRange(0, 50).setZero(30).setRecc(30);
             addScalar("globalHitShift", m_globalHitShift).setRange(0, 5).setZero(2).setRecc(2);
+            addScalar("skillPointLimit", m_skillPointLimit).setRange(1, 60).setZero(20);
+            addScalar("weakenTownSkills", m_weakenTownSkills).setZero(false).setRecc(true);
+            addScalar("weakenTownSkillsExt", m_weakenTownSkillsExt).setZero(false).setRecc(false);
+            addScalar("leftCast", m_leftCast).setZero(false).setRecc(false);
         }
     };
     struct BalanceCharacter : public CommonStruct {
         int64_t m_mercDam{ 100 };
 
         int64_t m_mercHP{ 100 };
-
-        int64_t m_skillPointLimit{ 20 };
 
         int64_t m_extraSkillPerLevel{ 0 };
 
@@ -353,7 +363,6 @@ struct Config : public CommonStruct {
         {
             addScalar("mercDam", m_mercDam).setRange(20, 1000).setZero(100).setPercent().setLogScale();
             addScalar("mercHP", m_mercHP).setRange(20, 1000).setZero(100).setRecc(300).setPercent().setLogScale().addPreset(2, 20);
-            addScalar("skillPointLimit", m_skillPointLimit).setRange(1, 60).setZero(20);
             addScalar("extraSkillPerLevel", m_extraSkillPerLevel).setRange(-1, 20).setZero(0).addPreset(2, true);
             addScalar("extraStatPerLevel", m_extraStatPerLevel).setRange(-5, 50).setZero(0).addPreset(2, -2);
             addScalar("extraHpPerLevel", m_extraHpPerLevel).setRange(-3, 30).setZero(0).addPreset(2, -1);
@@ -593,10 +602,6 @@ struct Config : public CommonStruct {
 
         bool m_uniqueCharmLimit{ false };
 
-        bool m_weakenTownSkills{ false };
-
-        bool m_weakenTownSkillsExt{ false };
-
         int64_t m_tomeSize{ 20 };
 
         int64_t m_quiverSize{ 150 };
@@ -618,8 +623,6 @@ struct Config : public CommonStruct {
             addScalar("manaPots", m_manaPots).setZero(false).setRecc(false);
             addScalar("showItemLevel", m_showItemLevel).setZero(false).setRecc(false);
             addScalar("uniqueCharmLimit", m_uniqueCharmLimit).setZero(false).setRecc(false);
-            addScalar("weakenTownSkills", m_weakenTownSkills).setZero(false).setRecc(true);
-            addScalar("weakenTownSkillsExt", m_weakenTownSkillsExt).setZero(false).setRecc(false);
             addScalar("tomeSize", m_tomeSize).setRange(2, 511).setZero(20).setRecc(60);
             addScalar("quiverSize", m_quiverSize).setRange(2, 511).setZero(150).setRecc(500);
             addScalar("keySize", m_keySize).setRange(2, 511).setZero(12).setRecc(50);

@@ -56,17 +56,7 @@ WidgetCommonTab {
         tooltip: qsTr("You can carry several Gheed's or Torches.")
         value_key: root.value_context.uniqueCharmLimit
     }
-    WidgetCheckbox {
-        caption: qsTr("Allow using Teleport, BC, BO in town")
-        tooltip: ""
-        value_key: root.value_context.weakenTownSkills
-    }
 
-    WidgetCheckbox {
-        caption: qsTr("Allow all skills in town")
-        tooltip: ""
-        value_key: root.value_context.weakenTownSkillsExt
-    }
     Separator {}
 
     WidgetSlider {

@@ -41,18 +41,12 @@ WidgetCommonTab {
         value_key: root.value_context.extraManaPerLevel
     }
     WidgetSlider {
-        caption: qsTr("Health potion speed increase")
+        caption: qsTr("Health potion heal amount")
         value_key: root.value_context.hpPotEfficacy
     }
     WidgetSlider {
-        caption: qsTr("Mana potion speed increase")
+        caption: qsTr("Mana potion restore amount")
         value_key: root.value_context.mpPotEfficacy
-    }
-
-    WidgetSlider {
-        caption: qsTr("Maximum hard points for skill")
-        tooltip: qsTr("D2R only")
-        value_key: root.value_context.skillPointLimit
     }
 
     WidgetSlider {

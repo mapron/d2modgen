@@ -31,6 +31,27 @@ WidgetCommonTab {
         }
     }
 
+    WidgetSlider {
+        caption: qsTr("Maximum hard points for skill")
+        tooltip: qsTr("D2R only")
+        value_key: root.value_context.skillPointLimit
+    }
+    WidgetCheckbox {
+        caption: qsTr("Allow all skills on left button")
+        value_key: root.value_context.leftCast
+    }
+    WidgetCheckbox {
+        caption: qsTr("Allow using Teleport, BC, BO in town")
+        tooltip: ""
+        value_key: root.value_context.weakenTownSkills
+    }
+
+    WidgetCheckbox {
+        caption: qsTr("Allow all skills in town")
+        tooltip: ""
+        value_key: root.value_context.weakenTownSkillsExt
+    }
+
     Separator {}
     LabelLarge {
         text: qsTr("Change skill requirement for each skill row:")

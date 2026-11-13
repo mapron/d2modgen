@@ -13,14 +13,12 @@ void ModuleOtherQualityOfLife::generate()
 {
     const auto& module = config.m_otherQualityOfLife;
 
-    const int  tomeSize            = module.m_tomeSize;
-    const int  keySize             = module.m_keySize;
-    const int  quiverSize          = module.m_quiverSize;
-    const bool uniqueCharmLimit    = module.m_uniqueCharmLimit;
-    const bool weakenTownSkills    = module.m_weakenTownSkills;
-    const bool weakenTownSkillsExt = module.m_weakenTownSkillsExt;
-    const bool showItemLevel       = module.m_showItemLevel;
-    const int  reduceCost          = module.m_reduceCost;
+    const int  tomeSize         = module.m_tomeSize;
+    const int  keySize          = module.m_keySize;
+    const int  quiverSize       = module.m_quiverSize;
+    const bool uniqueCharmLimit = module.m_uniqueCharmLimit;
+    const bool showItemLevel    = module.m_showItemLevel;
+    const int  reduceCost       = module.m_reduceCost;
 
     auto updateStack = [](std::optional<int>& value, int configValue) {
         if (!value.has_value())
@@ -67,13 +65,7 @@ void ModuleOtherQualityOfLife::generate()
             row.carry1.reset();
         }
     }
-    if (weakenTownSkills || weakenTownSkillsExt) {
-        static const StringSet s_exceptions{ "Teleport", "Battle Orders", "Battle Command" };
-        for (auto& row : output.skills.rows) {
-            if (s_exceptions.contains(row.skill) || weakenTownSkillsExt)
-                row.inTown = true;
-        }
-    }
+
     if (reduceCost != 100) {
         for (auto& row : output.skills.rows) {
             auto& mult = row.costMult;
