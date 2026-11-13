@@ -33,7 +33,7 @@ public:
 
     void updateSeeds(bool forceUpdate);
 
-    bool generate(const GenerationEnvironment& env);
+    bool generate(const GenerationEnvironment& env, std::string& crc);
 
     AppConfig m_appConfig;
 

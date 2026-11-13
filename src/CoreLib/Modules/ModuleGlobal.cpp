@@ -30,8 +30,9 @@
 
 namespace D2ModGen {
 
-ModuleGlobal::ModuleGlobal(DataContext& output_, const Config& config_, const GenerationEnvironment& env_)
+ModuleGlobal::ModuleGlobal(std::string crc, DataContext& output_, const Config& config_, const GenerationEnvironment& env_)
     : AbstractModule(output_, config_, env_)
+    , m_crc(std::move(crc))
 {
     reset();
 }
@@ -161,14 +162,12 @@ void ModuleGlobal::generate()
     replaceJson(output.locReplacement.itemNames, JsonId::ItemNames);
     replaceJson(output.locReplacement.itemAffixes, JsonId::ItemNameAffixes);
 
-    std::string configCrc = "A0B1C2D3"; /// @todo:
-
     if (output.jsonFiles.contains(JsonId::ItemNames)) {
         auto& jsonDoc = output.jsonFiles[JsonId::ItemNames];
         for (auto& itemDesc : jsonDoc.getList()) {
             const std::string key = itemDesc["Key"].getScalar().toString();
             if (key == "box") {
-                itemDesc[env.d2rLocaleId] = Mernel::PropertyTreeScalar("d2modgen " + std::string(g_version) + " CRC:" + configCrc);
+                itemDesc[env.d2rLocaleId] = Mernel::PropertyTreeScalar("d2modgen " + std::string(g_version) + " CRC: " + m_crc);
             }
         }
     }

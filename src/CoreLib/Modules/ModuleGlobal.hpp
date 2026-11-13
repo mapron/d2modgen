@@ -10,7 +10,7 @@
 namespace D2ModGen {
 
 struct ModuleGlobal : public AbstractModule {
-    ModuleGlobal(DataContext& output_, const Config& config_, const GenerationEnvironment& env_);
+    ModuleGlobal(std::string crc, DataContext& output_, const Config& config_, const GenerationEnvironment& env_);
 
     void reset();
 
@@ -29,6 +29,7 @@ private:
 
 private:
     std::vector<ModuleRecord> m_modules;
+    std::string               m_crc;
 };
 
 }

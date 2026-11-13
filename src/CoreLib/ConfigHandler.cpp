@@ -22,6 +22,7 @@
 #include "MernelPlatform/AppLocations.hpp"
 
 #include <random>
+#include <format>
 
 namespace D2ModGen {
 
@@ -135,9 +136,13 @@ void ConfigHandler::updateSeeds(bool forceUpdate)
         m_config.m_skillRandomizer.m_seed = rd();
         m_config.m_skillRandomizer.notifyChangeInner();
     }
+    if (m_config.m_globalSeed == 0 || forceUpdate) {
+        m_config.m_globalSeed = rd();
+        m_config.notifyChangeInner();
+    }
 }
 
-bool ConfigHandler::generate(const GenerationEnvironment& env)
+bool ConfigHandler::generate(const GenerationEnvironment& env, std::string& crc)
 {
     auto startAll = Mernel::ChronoPoint(true);
     updateSeeds(m_appConfig.m_refreshSeed);
@@ -191,7 +196,11 @@ bool ConfigHandler::generate(const GenerationEnvironment& env)
     {
         auto start = Mernel::ChronoPoint(true);
 
-        ModuleGlobal all(output, m_config, env);
+        ConfigHasher hasher;
+        m_config.hash(hasher);
+        crc = std::format("{:08X}", hasher.hash);
+
+        ModuleGlobal all(crc, output, m_config, env);
         try {
             all.generate();
         }

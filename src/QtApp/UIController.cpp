@@ -157,7 +157,8 @@ void UIController::generate()
 
     GenerationEnvironment env;
 
-    bool result = env.init(m_configHandler.m_appConfig) && m_configHandler.generate(env);
+    std::string crc;
+    bool        result = env.init(m_configHandler.m_appConfig) && m_configHandler.generate(env, crc);
 
     if (!result) {
         emit statusUpdate(tr("Error: %1").arg(QString::fromStdString("generation failure")));
@@ -165,8 +166,9 @@ void UIController::generate()
         return;
     }
 
-    emit statusUpdate(tr("Mod '%1' is updated.")
-                          .arg(QString::fromStdString(m_configHandler.m_appConfig.m_modname)));
+    emit statusUpdate(tr("Mod '%1' is updated. CRC: %2")
+                          .arg(QString::fromStdString(m_configHandler.m_appConfig.m_modname))
+                          .arg(QString::fromStdString(crc)));
 }
 
 void UIController::saveConfig(QString filename)

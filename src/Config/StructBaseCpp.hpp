@@ -12,6 +12,42 @@
 
 namespace D2ModGen {
 
+struct ConfigHasher {
+    uint32_t hash = 2166136261u;
+
+    void add(bool value)
+    {
+        uint8_t byte = value ? 1 : 0;
+        add(&byte, sizeof(byte));
+    }
+
+    void add(int64_t value)
+    {
+        add(reinterpret_cast<const uint8_t*>(&value), sizeof(value));
+    }
+
+    void add(std::string_view value)
+    {
+        int64_t len = static_cast<int64_t>(value.size());
+        add(len);
+        add(reinterpret_cast<const uint8_t*>(value.data()), value.size());
+    }
+    void add(const std::string& value)
+    {
+        add(std::string_view(value));
+    }
+
+    void add(const uint8_t* data, size_t size)
+    {
+        for (size_t i = 0; i < size; ++i) {
+            hash ^= data[i];
+            hash *= 16777619u;
+        }
+    }
+    template<typename T>
+    void add(T) = delete;
+};
+
 struct CommonStruct {
     struct PropertyCommon {
         std::string_view m_name;
@@ -30,6 +66,11 @@ struct CommonStruct {
         std::vector<Preset> m_presets;
         bool                m_isConstant  = false;
         bool                m_skipPresets = false;
+
+        void hash(ConfigHasher& hasher) const
+        {
+            hasher.add(*m_pointer);
+        }
 
         Derived& addPreset(int globalIndex, Scalar value)
         {
@@ -197,6 +238,13 @@ protected:
                 *(m_list[i].m_pointer) = *(other.m_list[i].m_pointer);
         }
 
+        void hash(ConfigHasher& hasher) const
+        {
+            hasher.add(static_cast<int64_t>(m_list.size()));
+            for (auto& prop : m_list)
+                prop.hash(hasher);
+        }
+
         std::vector<Property> m_list;
     };
 
@@ -239,6 +287,16 @@ protected:
     }
 
 public:
+    void hash(ConfigHasher& hasher) const
+    {
+        m_bool.hash(hasher);
+        m_int.hash(hasher);
+        m_string.hash(hasher);
+        hasher.add(static_cast<int64_t>(m_children.size()));
+        for (auto& prop : m_children)
+            prop.m_record->hash(hasher);
+    }
+
     // this called in BL to send notification to UX
     void notifyChangeInner()
     {
