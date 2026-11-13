@@ -7,6 +7,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
 import "Modules"
+import "Widgets"
 
 ApplicationWindow {
     id: window
@@ -161,6 +162,11 @@ ApplicationWindow {
                     function onStatusUpdate(status) {
                         statusLabel.text = Qt.formatDateTime(new Date(), "[HH:mm:ss] ") + status;
                     }
+                    function onShowErrorDialog(mainLine, extraInfo) {
+                        errorDialog.mainText = mainLine;
+                        errorDialog.detailsText = extraInfo;
+                        errorDialog.open();
+                    }
                 }
             }
 
@@ -169,6 +175,61 @@ ApplicationWindow {
                 Component.onCompleted: font.pointSize = font.pointSize * 1.2
 
                 onClicked: appui.generate()
+            }
+        }
+    }
+
+    Dialog {
+        id: errorDialog
+        title: qsTr("Error on Generate")
+        modal: true
+        anchors.centerIn: parent
+        standardButtons: Dialog.Ok
+        header: LabelImportant {
+            text: errorDialog.title
+        }
+
+        width: Math.min(parent.width - 40, 450)
+
+        property string mainText: ""
+        property string detailsText: ""
+
+        contentItem: ColumnLayout {
+            spacing: 10
+
+            LabelLarge {
+                text: errorDialog.mainText
+                Layout.fillWidth: true
+                wrapMode: Text.Wrap
+            }
+
+            ScrollView {
+                id: scrollView
+                Layout.fillWidth: true
+                // Automatically sizes to text up to 200px (~8-10 lines).
+                // Below 200px, no scrollbar appears. Above 200px, it scrolls.
+                Layout.preferredHeight: Math.min(errorLabel.implicitHeight, 200)
+                clip: true
+
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+                TextArea {
+                    id: errorLabel
+                    text: errorDialog.detailsText
+                    readOnly: true
+                    wrapMode: TextEdit.Wrap
+                    selectByMouse: true
+
+                    color: palette.text
+
+                    background: Rectangle {
+                        color: palette.base
+                        radius: 4
+
+                        border.color: palette.mid
+                        border.width: 1
+                    }
+                }
             }
         }
     }

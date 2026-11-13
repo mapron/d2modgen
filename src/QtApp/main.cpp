@@ -57,6 +57,18 @@ public:
     }
 };
 
+class LoggerBackendFilesIntercept : public Mernel::LoggerBackendFiles {
+public:
+    using LoggerBackendFiles::LoggerBackendFiles;
+    void FlushMessage(const std::string& message, int level) const override
+    {
+        LoggerBackendFiles::FlushMessage(message, level);
+        if (level <= Mernel::Logger::Notice) {
+            D2ModGen::UIController::logNotice(QString::fromStdString(message));
+        }
+    }
+};
+
 }
 
 void customMessageOutput(QtMsgType type, const QMessageLogContext& input, const QString& msg)
@@ -105,7 +117,7 @@ int main(int argc, char* argv[])
     const auto   logDir  = appData / "applog";
 
     {
-        Logger::SetLoggerBackend(std::make_unique<Mernel::LoggerBackendFiles>(
+        Logger::SetLoggerBackend(std::make_unique<LoggerBackendFilesIntercept>(
             7,
             true,  /*duplicateInStderr*/
             true,  /*outputLoglevel   */

@@ -35,6 +35,8 @@ constexpr const bool s_isWindows =
 
 namespace {
 
+QStringList s_noticeLogs;
+
 QString ensureTrailingSlash(QString value)
 {
     auto str = QString::fromStdString(::D2ModGen::ensureTrailingSlash(value.toStdString()));
@@ -116,6 +118,7 @@ UIController::UIController(ConfigHandler& configHandler)
     cfg.m_installLocationD2R    = getInstallLocationFromRegistry(true);
     cfg.m_installLocationLegacy = getInstallLocationFromRegistry(false);
 
+    // out contract is to always have at least 1 record in m_undo. We can undo when we have 2 and more.
     pushUndoCurrent();
 }
 
@@ -142,10 +145,27 @@ QString UIController::getBattleNetConfig()
     return QFileInfo::exists(config) ? config : "";
 }
 
+void UIController::logNotice(const QString& message)
+{
+    s_noticeLogs << message;
+}
+
 void UIController::generate()
 {
-    emit statusUpdate(tr("Start..."));
-    QTimer::singleShot(30, this, &UIController::generateFinish); // todo: move this bs to another thread.
+    s_noticeLogs.clear();
+
+    GenerationEnvironment env;
+
+    bool result = env.init(m_configHandler.m_appConfig) && m_configHandler.generate(env);
+
+    if (!result) {
+        emit statusUpdate(tr("Error: %1").arg(QString::fromStdString("generation failure")));
+        emit showErrorDialog(s_noticeLogs.last(), s_noticeLogs.join("\n"));
+        return;
+    }
+
+    emit statusUpdate(tr("Mod '%1' is updated.")
+                          .arg(QString::fromStdString(m_configHandler.m_appConfig.m_modname)));
 }
 
 void UIController::saveConfig(QString filename)
@@ -247,22 +267,7 @@ QString UIController::detectPath()
 
 void UIController::updateUndoAction()
 {
-    // @todo: change enabled state
-}
-
-void UIController::generateFinish()
-{
-    GenerationEnvironment env;
-
-    bool result = env.init(m_configHandler.m_appConfig) && m_configHandler.generate(env);
-
-    if (!result) {
-        emit statusUpdate(tr("Error: %1").arg(QString::fromStdString("generation failure")));
-        return;
-    }
-
-    emit statusUpdate(tr("Mod '%1' is updated.")
-                          .arg(QString::fromStdString(m_configHandler.m_appConfig.m_modname)));
+    emit undoEnabled(m_undo.size() >= 2);
 }
 
 void UIController::setLaunch(QString arg)

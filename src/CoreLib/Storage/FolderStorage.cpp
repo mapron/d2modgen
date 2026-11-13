@@ -168,7 +168,7 @@ bool FolderStorage::create() const noexcept
         if (std_fs::exists(data)) {
             const auto global = data / "global";
             if (!std_fs::exists(global)) {
-                Logger(Logger::Err) << "There is /data/ subfolder, but no /data/global/";
+                Logger(Logger::Err) << "There is /data/ subfolder, but no /data/global/. Did you select output mode as Full Folders for D2R?";
                 return false;
             }
 
