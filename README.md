@@ -50,75 +50,8 @@ Note 3: if you want to return to unmodded, press "Reset launch to unmodded" (aga
 There are 5 pre-made configs to quickly start rando!  
 For starters I recommend first in the list.
 
-# How it looks like
-![density](docs/density.png "Density")  
-High density setting in Lost City  
-![rando_gem](docs/rando_gem.png "rando_gem")  
-Random affixes set on gem with Randomizer  
-![rando_rune](docs/rando_rune.png "rando_rune")  
-That's and Eld rune I always wanted to see!  
-![rando_rare](docs/rando_rare.png "rando_rare")  
-Nice boots i found in Cold Plains Normal!  
-![rando_unique](docs/rando_unique.png "rando_unique")  
-Another GG find, Pelta Lunata! Trying to use balanced drops next time...  
-![drops_max](docs/drops_max.png "drops_max")  
-A lot of features enabled here - more Boss drops, increased Uniques/drop count/Rune drops etc. Almost close to D3 drop count (please, dont go that far!)  
-
-# Detailed description how everything works
-1. Game (D2 and D2R) stores a lot of properties/balance of game cotent in tables - imagine an Excel spreadsheet or database table inside the game. One way to modify this data - provide a set of txt files (which are CSV - tab-separted). Starting with D2R, that can be done in a very simple way - creating a mod subfolder, so custom mod no not override the main game. d2modgen utilizes this feature.
-2. Main game data located in "D2R folder", mod in "D2R folder/mod/modname/modname.mpq/"; save files stored in "User folder/Saved Games", mod save files (and games settings) stored in  "User folder/Saved Games/mods/modname". You can easily transfer your data between modded and non-modded versions (for example, shared storage).
-3. To run the game in modded version, you need to provide command-line option, like "-mod rando -txt" will run D2R with mod "rando" enabled.
-
-# Feature tabs
-For each tab, just click or hover over question button (?) to get help about features on each page.  
-Also, as you noticed, support for Dark and Light theme is available - choose what you prefer in Actions -> Theme.
-
-#### Main item balance settings  
-![items](docs/main_balance.png)  
-
-#### Randomize items  
-![Randomize items](docs/rando_item.png)  
-
-#### Randomize monsters  
-![Randomize monsters](docs/rando_monster.png)  
-
-#### Randomize some skills  
-![Randomize monsters](docs/rando_skill.png)  
-
-#### Increase item drops 
-![Increase item drops](docs/increase_items.png)  
-
-#### Increase rune drops 
-![Increase rune drops](docs/increase_runes.png)  
-
-#### Change monster stats  
-![monster stats](docs/harder_monstats.png)  
-
-#### Challenge difficulty  
-![Challenge](docs/harder_challenge.png)  
-
-#### Cube recipes to blaze through  
-![Horadric cube](docs/misc_cube.png)  
-
-#### Easier Gambling
-![Gambling](docs/misc_gamble.png)  
-
-#### Character
-![Character](docs/misc_character.png)  
-
-#### Quality of life
-![Quality of life](docs/misc_qol.png)  
-
-
-# Using commandline
-You also can run d2modgen in commandline mode (without UI). `bin/modgen_console.exe`   
-will generate output using default application config (in `%LOCALAPPDATA%`).  
-You can create script/batch file/global hotkey command that runs this executeable, and it will generate and update mod files.  
-If you want to have new seed on every run, use "Create new seed on every Generate call" checkbox.  
-
-# KnownIssues
-1. If there is many dead bodies on the screen, some portals won't open (e.g. near Summoner). Workaround - go far away to another location, wait while corpses disappeared and then trigger the portal.
-2. You need to completely quit out of the game for Diablo2:Resurrected, for mod changes to apply. In Diablo2 legacy (LoD/PD2), however, you can just reload save again without quitting.
+# Detailed docs with screenshots
+**[Check documentation and in-game screenshots here](docs/app.md)**
 
 # How to build from the source
 Prerequisites:
