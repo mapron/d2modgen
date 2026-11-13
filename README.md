@@ -45,6 +45,12 @@ Note 1: all you offline character still exist in non-modded save folder.
 Note 2: mod does not affect online play in any way, you won't get banned for it.  
 Note 3: if you want to return to unmodded, press "Reset launch to unmodded" (again, BNet must be closed when you press this button).
 
+# Linux
+"Make shortcut" writes `d2modgen-<mod>.desktop` to your app menu and Desktop. It runs the command in "Runner template".  
+Leave the template empty to use the preset for your Wine user root: `steam` for Steam's D2R, `umu-run` for other Proton prefixes (umu, Lutris with GE-Proton, Battle.net added to Steam).  
+Plain Wine prefixes have no preset. Write your own command with `{prefix}`, `{exe}` and `{args}`, for example `env WINEPREFIX={prefix} wine {exe} {args}`, or use "Set launch to mod".  
+If D2R says you have not been online in the last 30 days, start it once from Battle.net in that prefix, then use the shortcut again.
+
 # Start new config from preset
 ![presets_menu](docs/presets_menu.png "Presets menu")  
 There are 5 pre-made configs to quickly start rando!  

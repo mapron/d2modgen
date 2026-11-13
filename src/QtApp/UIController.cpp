@@ -6,6 +6,7 @@
 #include "UIController.hpp"
 
 #include "FileIOUtils.hpp"
+#include "LinuxShortcut.hpp"
 
 #include "ConfigHandler.hpp"
 #include "Logger.hpp"
@@ -220,7 +221,7 @@ void UIController::disableAutoSave()
 
 void UIController::browseToAppSettings()
 {
-    QProcess::startDetached("explorer.exe", QStringList() << QDir::toNativeSeparators(QString::fromStdString(path2string(m_configHandler.m_appData))));
+    Mernel::showFolderInFileManager(m_configHandler.m_appData);
 }
 
 QString UIController::urlToPath(const QUrl& url) const
@@ -304,6 +305,11 @@ void UIController::makeShortCut(QString arg)
     if (!env.init(cfg))
         return;
 
+    if (!s_isWindows) {
+        makeLinuxShortCut(env.inputPath / (env.isLegacy ? "Diablo II.exe" : "D2R.exe"), arg);
+        return;
+    }
+
     const bool        legacy = env.isLegacy;
     auto              d2path = env.inputPath;
     const std::string desk   = cfg.m_userHome + "Desktop/";
@@ -317,6 +323,58 @@ void UIController::makeShortCut(QString arg)
     }
 
     emit statusUpdate(tr("Shortcut created!"));
+}
+
+void UIController::makeLinuxShortCut(const Mernel::std_path& exe, const QString& args)
+{
+    auto&      cfg      = m_configHandler.m_appConfig;
+    const auto location = [](QStandardPaths::StandardLocation type) {
+        return string2path(QStandardPaths::writableLocation(type).toStdString());
+    };
+
+    LinuxShortcutRequest request;
+    request.userHome       = string2path(cfg.m_userHome);
+    request.exe            = exe;
+    request.args           = args.toStdString();
+    request.runnerTemplate = cfg.m_runnerTemplate;
+    request.modName        = cfg.m_modname;
+    request.appsDir        = location(QStandardPaths::ApplicationsLocation);
+    request.desktopDir     = location(QStandardPaths::DesktopLocation);
+    request.iconDir        = location(QStandardPaths::GenericDataLocation) / "d2modgen" / "icons";
+    request.homeDir        = location(QStandardPaths::HomeLocation);
+    request.pathEnv        = qEnvironmentVariable("PATH").toStdString();
+
+    const LinuxShortcutResult result = makeLinuxShortcut(request);
+    switch (result.status) {
+        case LinuxShortcutResult::Status::NoPreset:
+            emit statusUpdate(tr("No runner preset for this Wine prefix. Enter a runner template, or use \"Set launch to mod\"."));
+            return;
+        case LinuxShortcutResult::Status::WriteFailed:
+            emit statusUpdate(tr("Failed to write shortcut"));
+            return;
+        case LinuxShortcutResult::Status::Written:
+            break;
+    }
+
+    QStringList written;
+    for (const auto& file : result.written) {
+        Logger() << "Short cut: " << file;
+        written << QString::fromStdString(path2string(file));
+    }
+    // GNOME only starts launchers on the Desktop once they are trusted.
+    if (result.written.size() > 1)
+        QProcess::startDetached("gio", { "set", written.last(), "metadata::trusted", "true" });
+
+    if (result.runnerMissing)
+        emit statusUpdate(tr("Shortcut created, but its runner was not found. Edit the runner template."));
+    else
+        emit statusUpdate(tr("Shortcut created: %1").arg(written.join(", ")));
+}
+
+QString UIController::runnerPreset(QString userHome, bool legacy)
+{
+    const auto home = QStandardPaths::writableLocation(QStandardPaths::HomeLocation).toStdString();
+    return QString::fromStdString(linuxRunnerPreset(string2path(userHome.toStdString()), legacy, string2path(home)));
 }
 
 void UIController::copyModSettings()

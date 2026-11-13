@@ -117,10 +117,25 @@ WidgetScrollable {
         }
 
         Button {
-            text: qsTr("Make shortcut on Desktop")
+            text: Qt.platform.os === "linux" ? qsTr("Make shortcut") : qsTr("Make shortcut on Desktop")
             Layout.preferredWidth: 200
             onClicked: appui.makeShortCut(command_line.text)
         }
+        WidgetHelpIcon {
+            visible: Qt.platform.os === "linux"
+            tooltipText: qsTr("Adds a launcher to the application menu and to the Desktop.")
+        }
+    }
+
+    WidgetLineEdit {
+        property string preset: appui.runnerPreset(appConfig.userHome.value, !root.isD2R)
+
+        caption: qsTr("Runner template:")
+        tooltip: qsTr("Command the shortcut runs: {prefix} is the Wine prefix, {exe} the game executable, {args} the command line above.<br>Leave it empty to use the preset.")
+        isCompact: false
+        value_key: root.value_context.runnerTemplate
+        placeholderText: preset !== "" ? preset : qsTr("No preset for this Wine prefix: enter a command")
+        visible: Qt.platform.os === "linux"
     }
 
     RowLayout {
