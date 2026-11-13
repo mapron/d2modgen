@@ -10,7 +10,7 @@
 
 namespace D2ModGen {
 
-class StormStorage final : public IStorage {
+class MODGENCORE_EXPORT StormStorage final : public IStorage {
 public:
     StormStorage(const Mernel::std_path& storageRoot)
         : m_storageRoot(storageRoot)
