@@ -14,6 +14,7 @@ set(Qt6ShaderTools_FOUND TRUE CACHE BOOL "" FORCE)
 set(Qt6TaskTree_FOUND TRUE CACHE BOOL "" FORCE)
 
 option(ENABLE_SCHEMA_GEN "Turn on code-generation for Config.hpp" FALSE)
+option(D2MODGEN_BUILD_TESTS "Build unit tests" OFF)
 
 cmake_minimum_required(VERSION 3.31...4.0)
 
@@ -92,6 +93,19 @@ AddTarget( TYPE app_console NAME modgen_console
     SOURCE_DIR ${sourceRoot}/ConsoleApp
     LINK_LIBRARIES ModgenCore MernelPlatform Config
     )
+
+# Tests
+if (D2MODGEN_BUILD_TESTS)
+    enable_testing()
+    include(GoogleTest)
+    AddTarget(TYPE app_console NAME CoreTests
+        SOURCE_DIR ${sourceRoot}/CoreTests
+        LINK_LIBRARIES ModgenCore MernelPlatform gtest_main
+        SKIP_INSTALL
+        )
+    target_compile_definitions(CoreTests PRIVATE D2MODGEN_TEST_DATA="${sourceRoot}/CoreTests/data")
+    gtest_discover_tests(CoreTests DISCOVERY_MODE PRE_TEST)
+endif()
 
 if (NOT Qt6_FOUND)
 	return()
