@@ -1,13 +1,11 @@
 /*
  * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * Copyright (C) 2026 Bertus Steenberg / bertus.steenberg@gmail.com
  * SPDX-License-Identifier: BSL-1.0
  * See LICENSE file for details.
  */
 #include "LinuxShortcut.hpp"
 
-#include "ExeIcon.hpp"
-
-#include "MernelPlatform/FileIOUtils.hpp"
 #include "MernelPlatform/ShellUtils.hpp"
 
 namespace D2ModGen {
@@ -50,19 +48,31 @@ bool hasGeProton(const std_path& homeDir)
     return false;
 }
 
-bool isInPath(const std::string& pathEnv, const std::string& program)
+bool isExecutable(const std_path& path)
 {
+    std::error_code ec;
+    const auto      status = std_fs::status(path, ec);
+    using std_fs::perms;
+    return !ec && std_fs::is_regular_file(status) && (status.permissions() & (perms::owner_exec | perms::group_exec | perms::others_exec)) != perms::none;
+}
+
+// The runner's full path: as written if it contains a '/', else the first executable match in PATH (like a shell).
+std_path findProgram(const std::string& pathEnv, const std::string& program)
+{
+    if (program.find('/') != std::string::npos)
+        return isExecutable(Mernel::string2path(program)) ? Mernel::string2path(program) : std_path();
+
     size_t start = 0;
     while (start <= pathEnv.size()) {
         size_t end = pathEnv.find(':', start);
         if (end == std::string::npos)
             end = pathEnv.size();
         const std::string dir = pathEnv.substr(start, end - start);
-        if (!dir.empty() && fileExists(Mernel::string2path(dir) / program))
-            return true;
+        if (!dir.empty() && isExecutable(Mernel::string2path(dir) / program))
+            return (Mernel::string2path(dir) / program).lexically_normal();
         start = end + 1;
     }
-    return false;
+    return {};
 }
 
 std_path prefixFromUserHome(const std_path& userHome)
@@ -75,7 +85,7 @@ std_path prefixFromUserHome(const std_path& userHome)
 
 struct Preset {
     std::string text;
-    std::string runner;
+    std::string runner; // program that must be installed, e.g. umu-run behind "env"
     std_path    prefix; // value of {prefix} for this preset
 };
 
@@ -187,31 +197,6 @@ std::string expandTemplate(const std::string& runnerTemplate, const std_path& pr
     return result;
 }
 
-std::string sanitizeFileName(const std::string& name)
-{
-    std::string result = name;
-    for (char& c : result) {
-        const bool keep = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_';
-        if (!keep)
-            c = '_';
-    }
-    return result;
-}
-
-std_path extractIcon(const std_path& exe, const std_path& iconDir, bool legacy)
-{
-    const auto png = extractExePngIcon(exe);
-    if (!png)
-        return "applications-games";
-
-    std::error_code ec;
-    std_fs::create_directories(iconDir, ec);
-    const std_path iconPath = iconDir / (legacy ? "d2legacy.png" : "d2r.png");
-    if (ec || !Mernel::writeFileFromBufferNoexcept(iconPath, *png))
-        return "applications-games";
-    return iconPath;
-}
-
 }
 
 LinuxShortcutResult makeLinuxShortcut(const LinuxShortcutRequest& request)
@@ -227,28 +212,36 @@ LinuxShortcutResult makeLinuxShortcut(const LinuxShortcutRequest& request)
             result.status = LinuxShortcutResult::Status::NoPreset;
             return result;
         }
-        runnerTemplate       = preset.text;
-        prefix               = preset.prefix;
-        result.runnerMissing = !isInPath(request.pathEnv, preset.runner);
+        runnerTemplate = preset.text;
+        prefix         = preset.prefix;
     } else {
         runnerTemplate = request.runnerTemplate;
         prefix         = prefixFromUserHome(request.userHome);
     }
 
-    const std::string execLine = expandTemplate(runnerTemplate, prefix, request.exe, request.args);
-    const std::string title    = "Diablo II - " + request.modName + " Mod";
-    const std::string fileName = "d2modgen-" + sanitizeFileName(request.modName) + ".desktop";
-    const std_path    icon     = extractIcon(request.exe, request.iconDir, legacy);
-    const std_path    workDir  = request.exe.parent_path();
-
-    if (!Mernel::createDesktopEntry(request.appsDir, fileName, title, execLine, workDir, icon))
+    // The first word of the template is the program the launcher runs; the rest are its arguments.
+    const size_t      split   = runnerTemplate.find_first_of(" \t");
+    const std::string first   = runnerTemplate.substr(0, split);
+    const std_path    program = findProgram(request.pathEnv, first);
+    result.runner             = request.runnerTemplate.empty() ? preset.runner : first;
+    if (program.empty() || findProgram(request.pathEnv, result.runner).empty()) {
+        result.status = LinuxShortcutResult::Status::RunnerNotFound;
         return result;
-    result.written.push_back(request.appsDir / fileName);
+    }
+    const std::string args  = split == std::string::npos ? std::string() : expandTemplate(runnerTemplate.substr(split + 1), prefix, request.exe, request.args);
+    const std::string title = "Diablo II - " + request.modName + " Mod";
+    const std_path    toDir = request.exe.parent_path();
 
+    if (!Mernel::createShortCut(request.appsDir, title, toDir, Mernel::path2string(program), args, request.iconPath))
+        return result;
+    result.written.push_back(request.appsDir / (title + ".desktop"));
+
+    // Desktop may be configured as the home dir itself (XDG_DESKTOP_DIR="$HOME/"); don't drop a launcher there.
     std::error_code ec;
-    if (!request.desktopDir.empty() && std_fs::is_directory(request.desktopDir, ec)
-        && Mernel::createDesktopEntry(request.desktopDir, fileName, title, execLine, workDir, icon))
-        result.written.push_back(request.desktopDir / fileName);
+    const bool      desktopIsHome = std_fs::equivalent(request.desktopDir, request.homeDir, ec);
+    if (!request.desktopDir.empty() && !desktopIsHome && std_fs::is_directory(request.desktopDir, ec)
+        && Mernel::createShortCut(request.desktopDir, title, toDir, Mernel::path2string(program), args, request.iconPath))
+        result.written.push_back(request.desktopDir / (title + ".desktop"));
 
     result.status = LinuxShortcutResult::Status::Written;
     return result;

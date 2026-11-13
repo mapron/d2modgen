@@ -340,14 +340,24 @@ void UIController::makeLinuxShortCut(const Mernel::std_path& exe, const QString&
     request.modName        = cfg.m_modname;
     request.appsDir        = location(QStandardPaths::ApplicationsLocation);
     request.desktopDir     = location(QStandardPaths::DesktopLocation);
-    request.iconDir        = location(QStandardPaths::GenericDataLocation) / "d2modgen" / "icons";
+    request.iconPath       = location(QStandardPaths::GenericDataLocation) / "d2modgen" / "icons" / "d2modgen.png";
     request.homeDir        = location(QStandardPaths::HomeLocation);
     request.pathEnv        = qEnvironmentVariable("PATH").toStdString();
+
+    // The launcher icon is the d2modmaker logo (by tlentz) bundled as a resource; it needs to be a file on disk.
+    const QString iconFile = QString::fromStdString(path2string(request.iconPath));
+    QDir().mkpath(QFileInfo(iconFile).path());
+    QFile::remove(iconFile);
+    if (!QFile::copy(":/qml/images/d2modgen.png", iconFile))
+        request.iconPath.clear();
 
     const LinuxShortcutResult result = makeLinuxShortcut(request);
     switch (result.status) {
         case LinuxShortcutResult::Status::NoPreset:
             emit statusUpdate(tr("No runner preset for this Wine prefix. Enter a runner template, or use \"Set launch to mod\"."));
+            return;
+        case LinuxShortcutResult::Status::RunnerNotFound:
+            emit statusUpdate(tr("%1 was not found. Install it or edit the runner template.").arg(QString::fromStdString(result.runner)));
             return;
         case LinuxShortcutResult::Status::WriteFailed:
             emit statusUpdate(tr("Failed to write shortcut"));
@@ -365,10 +375,7 @@ void UIController::makeLinuxShortCut(const Mernel::std_path& exe, const QString&
     if (result.written.size() > 1)
         QProcess::startDetached("gio", { "set", written.last(), "metadata::trusted", "true" });
 
-    if (result.runnerMissing)
-        emit statusUpdate(tr("Shortcut created, but its runner was not found. Edit the runner template."));
-    else
-        emit statusUpdate(tr("Shortcut created: %1").arg(written.join(", ")));
+    emit statusUpdate(tr("Shortcut created: %1").arg(written.join(", ")));
 }
 
 QString UIController::runnerPreset(QString userHome, bool legacy)

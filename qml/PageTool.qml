@@ -123,7 +123,7 @@ WidgetScrollable {
         }
         WidgetHelpIcon {
             visible: Qt.platform.os === "linux"
-            tooltipText: qsTr("Adds a launcher to the application menu and to the Desktop.")
+            tooltipText: qsTr("Adds \"Diablo II - <mod> Mod\" to the application menu and to the Desktop.")
         }
     }
 
@@ -131,7 +131,11 @@ WidgetScrollable {
         property string preset: appui.runnerPreset(appConfig.userHome.value, !root.isD2R)
 
         caption: qsTr("Runner template:")
-        tooltip: qsTr("Command the shortcut runs: {prefix} is the Wine prefix, {exe} the game executable, {args} the command line above.<br>Leave it empty to use the preset.")
+        tooltip: qsTr("Command the Linux shortcut runs. Leave it empty to use the preset shown in the field.") + //
+        qsTr("<br>{prefix} is the Wine prefix, {exe} the game executable, {args} the command line above.") + //
+        qsTr("<br>Presets: steam for Steam's D2R, umu-run for other Proton prefixes (umu, Lutris with GE-Proton, Battle.net added to Steam).") + //
+        qsTr("<br>Plain Wine prefixes have no preset: write your own, e.g. env WINEPREFIX={prefix} wine {exe} {args}, or use \"Set launch to mod\".") + //
+        qsTr("<br>If D2R says you have not been online for 30 days, start it once from Battle.net in that prefix.")
         isCompact: false
         value_key: root.value_context.runnerTemplate
         placeholderText: preset !== "" ? preset : qsTr("No preset for this Wine prefix: enter a command")
