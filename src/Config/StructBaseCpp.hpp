@@ -9,11 +9,12 @@
 
 #include <algorithm>
 #include <functional>
+#include <cstdint>
 
 namespace D2ModGen {
 
 struct ConfigHasher {
-    uint32_t hash = 2166136261u;
+    uint32_t hashv = 2166136261u;
 
     void add(bool value)
     {
@@ -40,8 +41,8 @@ struct ConfigHasher {
     void add(const uint8_t* data, size_t size)
     {
         for (size_t i = 0; i < size; ++i) {
-            hash ^= data[i];
-            hash *= 16777619u;
+            hashv ^= data[i];
+            hashv *= 16777619u;
         }
     }
     template<typename T>
@@ -67,7 +68,7 @@ struct CommonStruct {
         bool                m_isConstant  = false;
         bool                m_skipPresets = false;
 
-        void hash(ConfigHasher& hasher) const
+        void calchash(ConfigHasher& hasher) const
         {
             hasher.add(*m_pointer);
         }
@@ -238,11 +239,11 @@ protected:
                 *(m_list[i].m_pointer) = *(other.m_list[i].m_pointer);
         }
 
-        void hash(ConfigHasher& hasher) const
+        void calchash(ConfigHasher& hasher) const
         {
             hasher.add(static_cast<int64_t>(m_list.size()));
             for (auto& prop : m_list)
-                prop.hash(hasher);
+                prop.calchash(hasher);
         }
 
         std::vector<Property> m_list;
@@ -287,14 +288,14 @@ protected:
     }
 
 public:
-    void hash(ConfigHasher& hasher) const
+    void calchash(ConfigHasher& hasher) const
     {
-        m_bool.hash(hasher);
-        m_int.hash(hasher);
-        m_string.hash(hasher);
+        m_bool.calchash(hasher);
+        m_int.calchash(hasher);
+        m_string.calchash(hasher);
         hasher.add(static_cast<int64_t>(m_children.size()));
         for (auto& prop : m_children)
-            prop.m_record->hash(hasher);
+            prop.m_record->calchash(hasher);
     }
 
     // this called in BL to send notification to UX

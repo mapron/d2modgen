@@ -197,8 +197,8 @@ bool ConfigHandler::generate(const GenerationEnvironment& env, std::string& crc)
         auto start = Mernel::ChronoPoint(true);
 
         ConfigHasher hasher;
-        m_config.hash(hasher);
-        crc = std::format("{:08X}", hasher.hash);
+        m_config.calchash(hasher);
+        crc = std::format("{:08X}", hasher.hashv);
 
         ModuleGlobal all(crc, output, m_config, env);
         try {
