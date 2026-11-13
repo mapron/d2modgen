@@ -124,9 +124,10 @@ UIController::UIController(ConfigHandler& configHandler)
 
 UIController::~UIController()
 {
-    m_configHandler.saveAppConfig();
-    if (m_autoSave)
+    if (m_autoSave) {
+        m_configHandler.saveAppConfig();
         m_configHandler.saveConfig(m_configHandler.m_defaultPath);
+    }
 }
 
 QString UIController::getSaveRoot(bool modSubfolder)

@@ -121,6 +121,12 @@ MenuBar {
     }
 
     Menu {
+        Connections {
+            target: appui
+            function onUndoEnabled(state) {
+                undoAction.enabled = state;
+            }
+        }
         delegate: MenuItem {
             id: menuItem2
             implicitHeight: 26
@@ -132,7 +138,7 @@ MenuBar {
                 // Left Text Component (Action name)
                 Label {
                     text: menuItem2.text
-                    color: menuItem2.highlighted ? window.palette.highlightedText : window.palette.text
+                    color: menuItem2.enabled ? (menuItem2.highlighted ? window.palette.highlightedText : window.palette.text) : "#888888"
                     Layout.fillWidth: true
                 }
 
@@ -158,6 +164,8 @@ MenuBar {
             onTriggered: appui.refreshAllSeeds()
         }
         Action {
+            id: undoAction
+            enabled: false
             text: qsTr("Undo")
             shortcut: "Ctrl+Z"
             onTriggered: appui.makeUndo()
