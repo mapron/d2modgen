@@ -129,7 +129,7 @@ void ModuleRandoMonsters::generate()
             tasks.push_back(task);
         }
         assert(context.m_areaNormalLevel > 0);
-        context.m_areaNormalLevel = context.m_areaNormalLevel * 9 / 10;
+        context.m_areaNormalLevel = std::max(1, context.m_areaNormalLevel * 9 / 10);
 
         const int originalSize = tasks.size();
         const int guestAmount  = genRandomScaledValue(rng, originalSize, module.m_guestsMin, module.m_guestsMax);
