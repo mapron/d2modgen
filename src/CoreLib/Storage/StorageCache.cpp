@@ -14,13 +14,17 @@ namespace D2ModGen {
 
 IStorage::StoredData StorageCache::load(const Context& input, bool verbose)
 {
-    if (input == m_prev) {
+    std::string buildInfo;
+    const bool  canCache = input.m_storage != StorageType::D2ResurrectedInternal
+                          || Mernel::readFileIntoBufferNoexcept(input.m_root / ".build.info", buildInfo);
+    if (canCache && m_cache.valid && input == m_prev && buildInfo == m_buildInfo) {
         Logger(Logger::Info) << "Using cached data for " << path2string(input.m_root);
         return m_cache;
     }
 
-    m_cache = loadImpl(input, verbose);
-    m_prev  = input;
+    m_cache     = loadImpl(input, verbose);
+    m_prev      = input;
+    m_buildInfo = std::move(buildInfo);
     return m_cache;
 }
 

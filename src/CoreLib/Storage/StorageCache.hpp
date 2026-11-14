@@ -30,6 +30,7 @@ private:
 private:
     IStorage::StoredData m_cache;
     Context              m_prev;
+    std::string          m_buildInfo;
 };
 
 }
