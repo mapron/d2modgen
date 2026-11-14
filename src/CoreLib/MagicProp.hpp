@@ -24,6 +24,7 @@ struct RandoParams {
     int forceCasterType = 0;
 
     bool enableGeneration   = true;
+    bool emptyListAllowed   = false;
     bool uniqueCheckAcross  = false;
     bool updateExisting     = false;
     bool supportRandomRange = true; // gems can't have random variance

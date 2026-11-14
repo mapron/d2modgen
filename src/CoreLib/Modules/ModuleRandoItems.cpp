@@ -180,6 +180,7 @@ void ModuleRandoItems::generate()
     auto paramsCrafted             = params;
     paramsCrafted.common           = craftedSettings;
     paramsCrafted.enableGeneration = module.m_craftedRandom;
+    paramsCrafted.emptyListAllowed = true;
 
     ItemStatistics allStat;
 
@@ -198,10 +199,6 @@ void ModuleRandoItems::generate()
             item.randoParams    = &params;
             item.readParams(row);
             item.readAffixes(row, m_codeResolver, m_skillGetter, nullptr, nullptr);
-
-            if (extraTrace && item.id == "Ripsaw b") {
-                Logger() << "read: " << item.toString(traceItemProps);
-            }
 
             if (item.filter.props.slot == SlotType::None || item.filter.props.slot == SlotType::PD2Map)
                 continue;
