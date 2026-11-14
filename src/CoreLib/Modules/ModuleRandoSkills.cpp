@@ -231,7 +231,7 @@ void dump(std::string indent, DataContext& output, const DataRow_skills& row)
 namespace {
 
 struct TreeSpriteCfg {
-    BlobId blobAma;
+    BlobId blob;
     bool   controller = false;
     bool   lowend     = false;
 };
@@ -325,12 +325,12 @@ void ModuleRandoSkills::generate()
     bool spritesTreeExist = true;
     for (size_t i = 0; i < s_treeSprites.size(); ++i) {
         const auto& cfg = s_treeSprites[i];
-        if (!output.blobs.contains(cfg.blobAma)) {
+        if (!output.blobs.contains(cfg.blob)) {
             spritesTreeExist = false;
             break;
         }
 
-        auto&   spriteBlob = output.blobs[cfg.blobAma];
+        auto&   spriteBlob = output.blobs[cfg.blob];
         Bitmap& bmp        = spriteTreeAmaExisting[i];
 
         if (!bmp.readFromSprite(spriteBlob)) {
@@ -1125,7 +1125,7 @@ void ModuleRandoSkills::CharacterData::makeTreeSpritesD2R(const SkillTreeSpriteL
     for (size_t i = 0; i < s_treeSprites.size(); ++i) {
         const TreeSpriteCfg& cfg           = s_treeSprites[i];
         const Bitmap&        amaTreeSprite = amaExisting[i];
-        const BlobId         blobId        = static_cast<BlobId>(static_cast<int>(cfg.blobAma) + static_cast<int>(clas));
+        const BlobId         blobId        = static_cast<BlobId>(static_cast<int>(cfg.blob) + static_cast<int>(clas));
         if (!output.blobs.contains(blobId))
             continue;
 
@@ -1151,7 +1151,8 @@ void ModuleRandoSkills::CharacterData::makeTreeSpritesD2R(const SkillTreeSpriteL
 
         Point boxSourcePoint = Point{ cols[0], rows[4] } + box.topLeft;
 
-        std::fill(out.rgba.begin() + static_cast<size_t>(headerHeight) * out.size.width * 4, out.rgba.end(), 0);
+        out.brush = {};
+        out.fillRect({ .topLeft = { 0, headerHeight }, .size = { out.size.width, out.size.height - headerHeight } });
 
         for (Ptr skill : getActive()) {
             const int page      = skill->desc.skillPage.value();
