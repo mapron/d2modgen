@@ -74,6 +74,13 @@ IStorage::StoredData CascStorage::readData() const noexcept
 
         result.jsonFiles[id] = std::move(buffer);
     }
+    for (BlobId id : getBlobIdsLegacyIcons()) {
+        std::string buffer;
+        if (!readCascFile(buffer, std::string(getBlobRelPath(id))))
+            continue;
+
+        result.blobs[id] = std::move(buffer);
+    }
     for (BlobId id : getBlobIdsResurrected()) {
         std::string buffer;
         if (!readCascFile(buffer, std::string(getBlobRelPath(id))))

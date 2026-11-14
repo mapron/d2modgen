@@ -255,7 +255,7 @@ void ModuleRandoSkills::generate()
     rng = createRNG(module.m_seed);
 
     bool spritesD2RExist = true;
-    bool spritesLodExist = true;
+    bool spritesLodExist = !env.isRotW; // RotW does not support legacy graphic
     for (const auto& cfg : s_skillSritesD2R) {
         if (!output.blobs.contains(cfg.high)) {
             spritesD2RExist = false;

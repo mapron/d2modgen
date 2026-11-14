@@ -152,6 +152,9 @@ enum class BlobId
     LegacyFirst = PatchStringTbl,
     LegacyLast  = IconAssDC6,
 
+    LegacyIconFirst = IconAmaDC6,
+    LegacyIconLast  = IconAssDC6,
+
     ResurrectedFirst = OrignMnkbInventoryClassicSpriteHighre,
     ResurrectedLast  = IconWarLowres,
 
@@ -170,6 +173,16 @@ inline auto getBlobIdsLegacy()
     return result;
 }
 
+inline auto getBlobIdsLegacyIcons()
+{
+    using enum BlobId;
+    const size_t                        start = size_t(LegacyIconFirst);
+    const size_t                        end   = size_t(LegacyIconLast);
+    std::array<BlobId, 1 + end - start> result;
+    for (size_t i = start; i <= end; ++i)
+        result[i - start] = static_cast<BlobId>(i);
+    return result;
+}
 inline auto getBlobIdsResurrected()
 {
     using enum BlobId;
