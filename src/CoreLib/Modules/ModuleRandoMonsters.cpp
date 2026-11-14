@@ -112,7 +112,7 @@ void ModuleRandoMonsters::generate()
 
         AreaContext context;
         context.m_areaIndex       = row.id;
-        context.m_areaNormalLevel = 0;
+        context.m_areaNormalLevel = std::max(5, row.monLvlEx[0].value_or(0));
 
         MonsterTaskList                   tasks;
         std::set<const DataRow_monstats*> existingIndexes;
@@ -128,8 +128,8 @@ void ModuleRandoMonsters::generate()
             context.m_areaNormalLevel = std::max(context.m_areaNormalLevel, task.m_source->level.value_or(0));
             tasks.push_back(task);
         }
-        assert(context.m_areaNormalLevel > 0);
         context.m_areaNormalLevel = context.m_areaNormalLevel * 9 / 10;
+        assert(context.m_areaNormalLevel > 0);
 
         const int originalSize = tasks.size();
         const int guestAmount  = genRandomScaledValue(rng, originalSize, module.m_guestsMin, module.m_guestsMax);
