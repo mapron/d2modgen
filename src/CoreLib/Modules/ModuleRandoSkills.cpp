@@ -228,6 +228,33 @@ void dump(std::string indent, DataContext& output, const DataRow_skills& row)
 
 }
 
+namespace {
+
+struct TreeSpriteCfg {
+    BlobId blobAma;
+    bool   controller = false;
+    bool   lowend     = false;
+};
+const std::array<TreeSpriteCfg, 4> s_treeSprites{ {
+    { BlobId::TreeMnkbHighreAma, false, false },
+    { BlobId::TreeMnkbLowendAma, false, true },
+    { BlobId::TreeCtrlHighreAma, true, false },
+    { BlobId::TreeCtrlLowendAma, true, true },
+} };
+
+// skillColumn/skillRow from data/global/ui/layouts/[controller/]skillstreepanelhd.json
+// minus the offset
+const std::array<int, 3> s_treeColsMnkb{ 253 - 132, 515 - 132, 775 - 132 };
+const std::array<int, 6> s_treeRowsMnkb{ 296 - 160, 478 - 160, 654 - 160, 834 - 160, 1014 - 160, 1190 - 160 };
+const std::array<int, 3> s_treeColsCtrl{ 451 - 249, 789 - 249, 1125 - 249 };
+const std::array<int, 6> s_treeRowsCtrl{ 179 + 2, 368 + 2, 560 + 2, 750 + 2, 939 + 2, 1129 + 2 };
+
+const Rect s_treeBox{ .topLeft = { -14, -14 }, .size = { 237, 167 } }; // this contains both skill icon and point square
+const int  s_treeHeaderMnkb = 105;
+const int  s_treeHeaderCtrl = 124;
+
+}
+
 std::string enumToString(SType stype, bool asEnum)
 {
     using enum SType;
@@ -293,6 +320,24 @@ void ModuleRandoSkills::generate()
         }
 
         spriteLegacyMapExisting[cfg.cha] = dcfile.getFrames();
+    }
+
+    bool spritesTreeExist = true;
+    for (size_t i = 0; i < s_treeSprites.size(); ++i) {
+        const auto& cfg = s_treeSprites[i];
+        if (!output.blobs.contains(cfg.blobAma)) {
+            spritesTreeExist = false;
+            break;
+        }
+
+        auto&   spriteBlob = output.blobs[cfg.blobAma];
+        Bitmap& bmp        = spriteTreeAmaExisting[i];
+
+        if (!bmp.readFromSprite(spriteBlob)) {
+            Logger(Logger::Err) << "Failed to read skill tree sprite: " << enumToString(Character::Ama);
+            spritesTreeExist = false;
+            break;
+        }
     }
 
     const int totalNewSkillsPerClass = 60;
@@ -397,6 +442,9 @@ void ModuleRandoSkills::generate()
         }
         if (spritesLodExist) {
             cha.makeSpritesLod(spriteLegacyMapExisting, spriteLegacyMapGenerated[key]);
+        }
+        if (spritesTreeExist && randoEnabled) {
+            cha.makeTreeSpritesD2R(spriteTreeAmaExisting, output);
         }
     }
 
@@ -1069,6 +1117,51 @@ void ModuleRandoSkills::SkillInfo::setNewElement(Element element, bool extraTrac
                     str = "exma";
             }
         }
+    }
+}
+
+void ModuleRandoSkills::CharacterData::makeTreeSpritesD2R(const SkillTreeSpriteList& amaExisting, DataContext& output)
+{
+    for (size_t i = 0; i < s_treeSprites.size(); ++i) {
+        const TreeSpriteCfg& cfg           = s_treeSprites[i];
+        const Bitmap&        amaTreeSprite = amaExisting[i];
+        const BlobId         blobId        = static_cast<BlobId>(static_cast<int>(cfg.blobAma) + static_cast<int>(clas));
+        if (!output.blobs.contains(blobId))
+            continue;
+
+        auto&  spriteBlob = output.blobs[blobId];
+        Bitmap out;
+        if (!out.readFromSprite(spriteBlob)) {
+            Logger(Logger::Err) << "Failed to read skill tree sprite: " << enumToString(clas);
+            continue;
+        }
+
+        const int downscale      = cfg.lowend ? 2 : 1;
+        const int frameCount     = amaTreeSprite.frameCount;
+        const int frameWidthCalc = amaTreeSprite.size.width / frameCount;
+        const int headerHeight   = (cfg.controller ? s_treeHeaderCtrl : s_treeHeaderMnkb) / downscale;
+        auto      cols           = cfg.controller ? s_treeColsCtrl : s_treeColsMnkb;
+        auto      rows           = cfg.controller ? s_treeRowsCtrl : s_treeRowsMnkb;
+        for (int& v : cols)
+            v /= downscale;
+        for (int& v : rows)
+            v /= downscale;
+        Rect box = s_treeBox;
+        box /= downscale;
+
+        Point boxSourcePoint = Point{ cols[0], rows[4] } + box.topLeft;
+
+        std::fill(out.rgba.begin() + static_cast<size_t>(headerHeight) * out.size.width * 4, out.rgba.end(), 0);
+
+        for (Ptr skill : getActive()) {
+            const int page      = skill->desc.skillPage.value();
+            const int row       = skill->desc.skillRow.value();
+            const int col       = skill->desc.skillColumn.value();
+            const int frame     = frameCount - page;
+            Point     destPoint = Point{ frame * frameWidthCalc + cols[col - 1], rows[row - 1] } + box.topLeft;
+            out.draw(destPoint, amaTreeSprite, boxSourcePoint, box.size);
+        }
+        out.writeToSprite(spriteBlob);
     }
 }
 
