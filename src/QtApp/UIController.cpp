@@ -19,6 +19,7 @@
 #include <QProcess>
 #include <QDir>
 #include <QSettings>
+#include <QSaveFile>
 #include <QStandardPaths>
 #include <QUrl>
 
@@ -49,7 +50,7 @@ std::string getInstallLocationFromRegistry(bool resurrected)
 {
     static const QString base("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II");
     QSettings            set(base + (resurrected ? " Resurrected" : ""),
-                             QSettings::Registry32Format);
+                  QSettings::Registry32Format);
     return ensureTrailingSlash(set.value("InstallLocation").toString()).toStdString();
 }
 #else
@@ -334,12 +335,33 @@ void UIController::copyModSettings()
         return;
 
     const QString modSaves = getSaveRoot(true);
-    if (!QFileInfo::exists(modSaves))
-        QDir().mkpath(modSaves);
-    const QString name = "Settings.json";
-    QFile::remove(modSaves + name);
-    QFile::copy(saves + name, modSaves + name);
-    emit statusUpdate(tr("Settings updated!"));
+    if (!QDir().mkpath(modSaves)) {
+        emit statusUpdate(tr("Failed to create mod settings folder."));
+        return;
+    }
+
+    int copied = 0;
+    for (const QString& name : { QStringLiteral("Settings.json"), QStringLiteral("Custom.key") }) {
+        if (!QFileInfo::exists(saves + name))
+            continue;
+
+        QFile     source(saves + name);
+        QSaveFile destination(modSaves + name);
+        if (!source.open(QIODevice::ReadOnly)) {
+            emit statusUpdate(tr("Failed to read %1.").arg(name));
+            return;
+        }
+        const QByteArray contents = source.readAll();
+        if (source.error() != QFileDevice::NoError
+            || !destination.open(QIODevice::WriteOnly)
+            || destination.write(contents) != contents.size()
+            || !destination.commit()) {
+            emit statusUpdate(tr("Failed to copy %1.").arg(name));
+            return;
+        }
+        copied++;
+    }
+    emit statusUpdate(copied ? tr("Settings copied (%1 files).").arg(copied) : tr("No settings files found."));
 }
 
 void UIController::copySaves()
