@@ -60,6 +60,8 @@ private:
 
     using SkillLegacySpriteMap = std::map<Character, Image::Pal8BitmapList>;
 
+    using SkillTreeSpriteList = std::array<Image::Bitmap, 4>;
+
     struct CharacterData {
         std::vector<std::pair<Character, int>> skillsIcons;
 
@@ -97,6 +99,7 @@ private:
 
         void makeSpritesD2R(const SkillSpriteMap& allExisting, std::array<Image::Bitmap, 2>& generated) const;
         void makeSpritesLod(const SkillLegacySpriteMap& allExisting, Image::Pal8BitmapList& generated) const;
+        void makeTreeSpritesD2R(const SkillTreeSpriteList& amaExisting, DataContext& output);
     };
 
     using AllCharacterData = std::map<Character, CharacterData>;
@@ -106,6 +109,8 @@ private:
 
     SkillLegacySpriteMap spriteLegacyMapExisting;
     SkillLegacySpriteMap spriteLegacyMapGenerated;
+
+    SkillTreeSpriteList spriteTreeAmaExisting;
 
     AllCharacterData existingData;
     AllCharacterData generatedData;
