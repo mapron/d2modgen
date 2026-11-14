@@ -1120,7 +1120,7 @@ void ModuleRandoSkills::SkillInfo::setNewElement(Element element, bool extraTrac
     }
 }
 
-void ModuleSkillRandomizer::CharacterData::makeTreeSpritesD2R(const SkillTreeSpriteList& amaExisting, DataContext& output)
+void ModuleRandoSkills::CharacterData::makeTreeSpritesD2R(const SkillTreeSpriteList& amaExisting, DataContext& output)
 {
     for (size_t i = 0; i < s_treeSprites.size(); ++i) {
         const TreeSpriteCfg& cfg           = s_treeSprites[i];
