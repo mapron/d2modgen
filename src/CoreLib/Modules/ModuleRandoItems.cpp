@@ -79,10 +79,10 @@ void ModuleRandoItems::generate()
     std::set<std::string> skippedAttributes;
     std::set<std::string> unknownAttributes;
 
-    const bool extraTrace     = env.extraTrace.contains("item_rando_verbose");
+    m_verbose                 = env.extraTrace.contains("item_rando");
     const bool traceItemProps = env.extraTrace.contains("item_rando_props");
 
-    Logger() << "Grab properties from game data...";
+    Logger(m_verbose) << "Grab properties from game data...";
     const AllProps gameProps = grabAllProps(false, &unknownAttributes, &skippedAttributes);
     {
         std::ostringstream skipped, unknown;
@@ -91,21 +91,21 @@ void ModuleRandoItems::generate()
         for (auto& str : unknownAttributes)
             unknown << str << ", ";
         if (!unknownAttributes.empty())
-            Logger(Logger::Warning) << "Unknown attributes: " << unknown.str();
+            Logger(Logger::Warning) << "    Unknown attributes: " << unknown.str();
         if (!skippedAttributes.empty())
-            Logger() << "Ignored attributes: " << skipped.str();
+            Logger(m_verbose) << "Ignored attributes: " << skipped.str();
     }
 
-    Logger() << "Analyze game properties, build statistic profile...";
+    Logger(m_verbose) << "Analyze game properties, build statistic profile...";
     AllAttributeData gameAttributes = analyzeAll(gameProps);
 
-    Logger() << "Init pre-compiled attributes...";
+    Logger(m_verbose) << "Init pre-compiled attributes...";
     MagicContext magicContext(std::move(gameAttributes));
-    Logger() << "precompiled=" << magicContext.precompiled.ids.size()
-             << ", gameData=" << magicContext.gameData.ids.size()
-             << ", actual=" << magicContext.actual.ids.size();
+    Logger(m_verbose) << "precompiled=" << magicContext.precompiled.ids.size()
+                      << ", gameData=" << magicContext.gameData.ids.size()
+                      << ", actual=" << magicContext.actual.ids.size();
 
-    Logger() << "Add some extra fine-tuned properties...";
+    Logger(m_verbose) << "Add some extra fine-tuned properties...";
 
     magicContext.addExtra(config, output);
 
@@ -125,7 +125,7 @@ void ModuleRandoItems::generate()
 
     createNewItems(repeatUniques, repeatSets);
 
-    if (extraTrace) {
+    if (m_verbose) {
         const AllAttributeData attrib = analyzeAll(grabAllProps());
         statisticsTable.addSnapshot(attrib, 0);
     }
@@ -184,7 +184,7 @@ void ModuleRandoItems::generate()
 
     ItemStatistics allStat;
 
-    auto fillProps = [&props, &allStat, this, extraTrace, traceItemProps]<typename Row>(DataTable<Row>& table, const RandoParams& params, RollType roll) {
+    auto fillProps = [&props, &allStat, this, traceItemProps]<typename Row>(DataTable<Row>& table, const RandoParams& params, RollType roll) {
         if (!params.enableGeneration)
             return;
         ItemStatistics tableStat;
@@ -208,12 +208,11 @@ void ModuleRandoItems::generate()
 
             tableStat += item.stats;
 
-            if (extraTrace)
-                Logger() << "write: " << item.toString(traceItemProps);
+            Logger(m_verbose) << "write: " << item.toString(traceItemProps);
         }
         allStat += tableStat;
 
-        Logger() << "table '" << getTableIdString(Row::s_tableId) << "' " << tableStat.toString(ItemStatistics::Mode::Table);
+        Logger(m_verbose) << "table '" << getTableIdString(Row::s_tableId) << "' " << tableStat.toString(ItemStatistics::Mode::Table);
     };
 
     fillProps(output.uniqueitems, paramsUniq, RollType::Rare);
@@ -226,7 +225,7 @@ void ModuleRandoItems::generate()
     fillProps(output.magicsuffix, paramsAffix, RollType::Common);
     fillProps(output.cubemain, paramsCrafted, RollType::Common);
 
-    Logger(Logger::Notice) << allStat.toString(ItemStatistics::Mode::All);
+    Logger(Logger::Notice) << "    " << allStat.toString(ItemStatistics::Mode::All);
 
     if (module.m_sameRarityForSetUniqueItems) {
         for (auto& row : output.uniqueitems.rows) {
@@ -241,7 +240,7 @@ void ModuleRandoItems::generate()
         }
     }
 
-    if (extraTrace) {
+    if (m_verbose) {
         const AllAttributeData attrib = analyzeAll(grabAllProps());
         statisticsTable.addSnapshot(attrib, 1);
         statisticsTable.traceStatistics();
@@ -317,7 +316,7 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
     if (repeatUniques == 1 && repeatSets == 1)
         return;
 
-    Logger() << "Create additional records for setitems/uniqueitems...";
+    Logger(m_verbose) << "Create additional records for setitems/uniqueitems...";
 
     const std::vector<std::string> colors{ "whit", "lgry", "dgry", "blac", "lblu", "dblu", "cblu", "lred", "dred", "cred", "lgrn", "dgrn", "cgrn", "lyel", "dyel", "lgld", "dgld", "lpur", "dpur", "oran", "bwht" };
 
@@ -388,7 +387,7 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
             table.commitExtraRows();
         };
 
-        auto beforeCopyUniq = [](DataRow_uniqueitems& row) -> bool {
+        auto beforeCopyUniq = [this](DataRow_uniqueitems& row) -> bool {
             row.disableChronicle = true;
             if (row.eqipmentType->category != EquipmentCategory::Misc)
                 row.lvlreq = 2;
@@ -396,7 +395,7 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
                 auto slot = row.getItemFilter().determineSlot();
                 if (slot == SlotType::Amulet || slot == SlotType::Charm || slot == SlotType::Ring || slot == SlotType::Weapon)
                     return true;
-                Logger() << "uniq copy skip: " << row.getId();
+                Logger(m_verbose) << "uniq copy skip: " << row.getId();
                 return false;
             }
             return true;

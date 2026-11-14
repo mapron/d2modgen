@@ -5,6 +5,8 @@
  */
 #include "IStorage.hpp"
 
+#include <sstream>
+
 namespace D2ModGen {
 
 std::string_view IStorage::s_dataVersionPath = "data\\global\\dataversionbuild.txt";
@@ -192,6 +194,22 @@ std::string IStorage::makeTableRelativePath(TableId id, bool baseSub)
 {
     const std::string& base = baseSub ? s_tableBase : s_tableSubfolder;
     return base + std::string(getTableIdString(id)) + ".txt";
+}
+
+std::string IStorage::StoredData::getStatistics() const
+{
+    if (!valid)
+        return "INVALID";
+    std::ostringstream os;
+    os << "tables: " << tablesMain.size();
+    if (tablesBase.size())
+        os << ", tablesBase: " << tablesBase.size();
+
+    os << ", json: " << jsonFiles.size();
+    os << ", blobs: " << blobs.size();
+    if (dataVersion)
+        os << ", dataVersion: " << dataVersion;
+    return os.str();
 }
 
 }

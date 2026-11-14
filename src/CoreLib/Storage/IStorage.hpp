@@ -235,6 +235,8 @@ public:
         int64_t dataVersion = 0;
 
         bool operator==(const StoredData&) const = default;
+
+        std::string getStatistics() const;
     };
 
 public:
@@ -242,7 +244,7 @@ public:
 
     virtual StoredData readData() const noexcept = 0;
 
-    virtual void setSilentTrace(bool silent) noexcept {}
+    virtual void setVerbose(bool verbose) noexcept = 0;
     virtual void setFileSuffix(const std::string& suffix) noexcept {}
 };
 

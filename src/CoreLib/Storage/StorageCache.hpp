@@ -16,15 +16,16 @@ public:
     struct Context {
         StorageType      m_storage;
         Mernel::std_path m_root;
+        Mernel::std_path m_cascCache;
 
         bool operator==(const Context& rh) const noexcept = default;
     };
 
 public:
-    IStorage::StoredData load(const Context& input);
+    IStorage::StoredData load(const Context& input, bool verbose);
 
 private:
-    static IStorage::StoredData loadImpl(const Context& input);
+    static IStorage::StoredData loadImpl(const Context& input, bool verbose);
 
 private:
     IStorage::StoredData m_cache;

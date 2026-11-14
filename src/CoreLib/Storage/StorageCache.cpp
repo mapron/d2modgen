@@ -12,29 +12,29 @@
 
 namespace D2ModGen {
 
-IStorage::StoredData StorageCache::load(const Context& input)
+IStorage::StoredData StorageCache::load(const Context& input, bool verbose)
 {
     if (input == m_prev) {
         Logger(Logger::Info) << "Using cached data for " << path2string(input.m_root);
         return m_cache;
     }
 
-    m_cache = loadImpl(input);
+    m_cache = loadImpl(input, verbose);
     m_prev  = input;
     return m_cache;
 }
 
-IStorage::StoredData StorageCache::loadImpl(const Context& input)
+IStorage::StoredData StorageCache::loadImpl(const Context& input, bool verbose)
 {
     std::unique_ptr<IStorage> storage;
     if (input.m_storage == StorageType::D2ResurrectedInternal)
-        storage = std::make_unique<CascStorage>(input.m_root);
+        storage = std::make_unique<CascStorage>(input.m_root, input.m_cascCache);
     else if (input.m_storage == StorageType::D2LegacyInternal)
         storage = std::make_unique<StormStorage>(input.m_root);
     else {
         storage = std::make_unique<FolderStorage>(input.m_root, input.m_storage);
     }
-    storage->setSilentTrace(false);
+    storage->setVerbose(verbose);
     return storage->readData();
 }
 

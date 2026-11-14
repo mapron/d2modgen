@@ -21,6 +21,8 @@ struct DataRow_charstats : public RowBase {
         std::string        code;
         std::optional<int> count;
         std::string        loc;
+
+        bool operator==(const Item&) const noexcept = default;
     };
     std::vector<Item> items;
 
@@ -435,6 +437,8 @@ struct DataRow_treasureclassex : public RowBase {
     struct Item {
         std::string        tc;
         std::optional<int> prob;
+
+        bool operator==(const Item&) const noexcept = default;
     };
     std::vector<Item> items;
 

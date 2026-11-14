@@ -552,8 +552,7 @@ void ModuleRandoSkills::CharacterData::writeOut(DataContext& output) const
     for (int i = -1; const SkillInfo& skill : skills) {
         i++;
         if (skill.stype < SType::ExistingActive) {
-            if (extraTrace)
-                Logger() << "WRITE-SKIP [" << i << "] " << enumToString(clas) << " " << skill.toString();
+            Logger(extraTrace) << "WRITE-SKIP [" << i << "] " << enumToString(clas) << " " << skill.toString();
             continue;
         }
 
@@ -562,8 +561,7 @@ void ModuleRandoSkills::CharacterData::writeOut(DataContext& output) const
         output.skilldesc.rows[skill.descIdx] = skill.desc;
         if (skill.eType != Element::None)
             row.eType = enumToString(skill.eType);
-        if (extraTrace)
-            Logger() << "WRITE      [" << i << "] " << enumToString(clas) << " " << skill.toString();
+        Logger(extraTrace) << "WRITE      [" << i << "] " << enumToString(clas) << " " << skill.toString();
     }
 }
 
@@ -609,21 +607,18 @@ void ModuleRandoSkills::CharacterData::generateAdditionalSkills(RandomGenerator&
     }
     [[maybe_unused]] const size_t activeSize = getActive().size();
     assert(activeSize <= 18 * 3);
-    if (extraTrace)
-        Logger() << "char '" << enumToString(clas) << "' generateCount=" << generateCount << ", generated="
-                 << generated << " from '" << enumToString(someOtherClass.clas) << "' with incomingSize=" << incomingSize;
+    Logger(extraTrace) << "char '" << enumToString(clas) << "' generateCount=" << generateCount << ", generated="
+                       << generated << " from '" << enumToString(someOtherClass.clas) << "' with incomingSize=" << incomingSize;
 }
 
 void ModuleRandoSkills::CharacterData::createIdx(DataContext& output)
 {
-    if (extraTrace)
-        Logger() << "char " << enumToString(clas) << " createIdx start=" << rowIdxStart;
+    Logger(extraTrace) << "char " << enumToString(clas) << " createIdx start=" << rowIdxStart;
     size_t i          = 0;
     int    iconCel    = 0;
     auto   pushSprite = [&iconCel, this](std::optional<int>& iconCelSrc, Character ogClass) {
         int cel = iconCelSrc.value();
-        if (extraTrace)
-            Logger() << "   skill icon " << cel << " from " << enumToString(ogClass);
+        Logger(extraTrace) << "   skill icon " << cel << " from " << enumToString(ogClass);
         skillsIcons.push_back({ ogClass, cel });
         skillsIcons.push_back({ ogClass, cel + 1 });
 
@@ -872,14 +867,12 @@ void ModuleRandoSkills::CharacterData::randomizeElements(RandomGenerator& rng, i
             continue;
 
         if (skill.eType == Element::None) {
-            if (extraTrace)
-                Logger() << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " elem=None, SKIP";
+            Logger(extraTrace) << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " elem=None, SKIP";
             continue;
         }
 
         if (s_skippedSkills.contains(Mernel::strToLower(skill.originalId))) {
-            if (extraTrace)
-                Logger() << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " ignoredlist, SKIP";
+            Logger(extraTrace) << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " ignoredlist, SKIP";
             continue;
         }
         if (percentToChange < 100) {
@@ -1056,8 +1049,7 @@ void ModuleRandoSkills::SkillInfo::setNewElement(Element element, bool extraTrac
 
     row.hitShift = std::clamp(row.hitShift.value_or(0) - oldCompensation + newCompensation, 0, 15);
 
-    if (extraTrace)
-        Logger() << "'" << row.skill << "' (og='" << originalId << "') " << " element change " << enumToString(old) << " -> " << enumToString(element) << " (hs=" << row.hitShift.value_or(0) << ")";
+    Logger(extraTrace) << "'" << row.skill << "' (og='" << originalId << "') " << " element change " << enumToString(old) << " -> " << enumToString(element) << " (hs=" << row.hitShift.value_or(0) << ")";
 
     const int duration = newDesc.dur;
     if (duration > 0) {

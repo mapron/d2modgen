@@ -103,7 +103,7 @@ struct DataContext {
     std::map<std::string, Image::Bitmap>   bitmaps;
 
     int64_t dataVersion  = 0;
-    bool    silent       = true;
+    bool    verbose      = false;
     bool    useBaseTable = false;
 
     struct IdClone {
@@ -140,15 +140,9 @@ struct DataContext {
     IStorage::StoredData writeDebug() const;
 
     DataContext calculateDiff(const DataContext& older) const;
+    void        removeIdenticalRecords(const DataContext& older);
 
     int getClassesCount() const;
-
-    DataContext makeSilent() const
-    {
-        DataContext result = *this;
-        result.silent      = true;
-        return result;
-    }
 
 private:
     bool postProcess();

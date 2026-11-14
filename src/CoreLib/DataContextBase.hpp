@@ -115,6 +115,8 @@ struct AffixProp {
     std::optional<int> max;
     std::optional<int> chance;
 
+    bool operator==(const AffixProp&) const noexcept = default;
+
     bool hasPar() const { return !(par.empty() || par == "0" || par == " "); }
     int  parAsInt() const { return hasPar() ? std::atoi(par.c_str()) : 0; }
     bool hasRange() const { return min.has_value() && max.has_value(); }

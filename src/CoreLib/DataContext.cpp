@@ -38,27 +38,17 @@ bool DataContext::parseData(const IStorage::StoredData& data, bool doPostprocess
 
     if (!result)
         return true;
-    if (!doPostprocess)
-        return true;
 
-    if (!silent)
-        Logger() << "Tables have parsed successfully, now doing postprocess to establish links";
-    if (!postProcess()) {
-        if (!silent)
-            Logger(Logger::Err) << "Postprocess failure";
+    if (doPostprocess && !postProcess()) {
+        Logger(verbose, Logger::Err) << "Postprocess failure";
         return false;
     }
 
-    if (!silent)
-        Logger() << "Postprocess done";
-
     for (const auto& [id, fileData] : data.jsonFiles) {
         Mernel::PropertyTree doc;
-        if (!silent)
-            Logger() << "parse json: " << std::string(getJsonRelPath(id));
+        Logger(verbose) << "parse json: " << std::string(getJsonRelPath(id));
         if (!readDirtyJsonFromBufferNoexcept(fileData, doc)) {
-            if (!silent)
-                Logger(Logger::Warning) << "failed to parse json: " << getJsonRelPath(id);
+            Logger(verbose, Logger::Warning) << "failed to parse json: " << getJsonRelPath(id);
             return false;
         }
         jsonFiles[id] = std::move(doc);
@@ -134,7 +124,10 @@ DataContext DataContext::calculateDiff(const DataContext& older) const
         const auto& tableOlder  = older.*m;
         const auto& tableNewer  = this->*m;
         auto&       tableResult = result.*m;
-        tableResult             = tableNewer;
+        if (tableOlder.rows.empty() || tableNewer.rows.empty())
+            return true;
+
+        tableResult = tableNewer;
         tableResult.rows.clear();
 
         diffTable(tableOlder, tableNewer, tableResult);
@@ -147,6 +140,36 @@ DataContext DataContext::calculateDiff(const DataContext& older) const
                              allTables());
 
     return result;
+}
+
+void DataContext::removeIdenticalRecords(const DataContext& older)
+{
+    auto cleanup = [&older, this](auto m) -> bool {
+        const auto& tableOlder = older.*m;
+        auto&       tableNewer = this->*m;
+        if (tableNewer.rows == tableOlder.rows) {
+            tableNewer.rows.clear();
+        }
+
+        return true;
+    };
+
+    std::ignore = std::apply([&cleanup](const auto&... args) -> bool {
+        return (cleanup(std::forward<decltype(args)>(args)) && ...);
+    },
+                             allTables());
+    for (auto& [key, value] : older.jsonFiles) {
+        if (auto it = jsonFiles.find(key); it != jsonFiles.cend()) {
+            if (value == it->second)
+                jsonFiles.erase(it);
+        }
+    }
+    for (auto& [key, value] : older.blobs) {
+        if (auto it = blobs.find(key); it != blobs.cend()) {
+            if (value == it->second)
+                blobs.erase(it);
+        }
+    }
 }
 
 int DataContext::getClassesCount() const
@@ -331,7 +354,7 @@ bool DataContext::postProcess()
             row.eqipmentType = findEquip(input1);
 
         } else {
-            auto slot = row.itemType->determineSlot();
+            [[maybe_unused]] auto slot = row.itemType->determineSlot();
             assert(slot != SlotType::None);
         }
     }
@@ -394,18 +417,16 @@ bool DataContext::parseTable(DataTable<Row>& table, const IStorage::TableMap& da
         return true;
     const std::string& buffer = data.at(tableId);
     if (!table.parseTable(buffer)) {
-        if (!silent)
-            Logger(Logger::Warning) << "failed to parse csv:" << getTableIdString(tableId);
+        Logger(verbose, Logger::Warning) << "failed to parse csv:" << getTableIdString(tableId);
         return false;
     }
     for (size_t i = 0; i < table.indicesUsed.size(); i++) {
-        if (table.indicesUsed[i] == size_t(-1) && !silent) {
-            Logger(Logger::Warning) << "Missing column '" << table.requestedColumns[i] << "' in table '" << getTableIdString(tableId) << "', generation may be incomplete.";
+        if (table.indicesUsed[i] == size_t(-1)) {
+            Logger(verbose, Logger::Warning) << "Missing column '" << table.requestedColumns[i] << "' in table '" << getTableIdString(tableId) << "', generation may be incomplete.";
         }
     }
 
-    if (!silent)
-        Logger() << "parse '" << getTableIdString(tableId) << "' buffer[" << buffer.size() << "] => csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "]";
+    Logger(verbose) << "parse '" << getTableIdString(tableId) << "' buffer[" << buffer.size() << "] => csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "]";
 
     return true;
 }
@@ -413,7 +434,7 @@ bool DataContext::parseTable(DataTable<Row>& table, const IStorage::TableMap& da
 template<class Row>
 bool DataContext::serializeTable(const DataTable<Row>& table, IStorage::TableMap& data, bool full) const
 {
-    if (!table.valid)
+    if (!table.valid || table.rows.empty())
         return true;
 
     const TableId tableId = Row::s_tableId;
@@ -421,8 +442,7 @@ bool DataContext::serializeTable(const DataTable<Row>& table, IStorage::TableMap
     if (!table.serializeTable(buffer, full))
         return false;
 
-    if (full && !silent)
-        Logger() << "serialize '" << getTableIdString(tableId) << "' csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "] => buffer[" << buffer.size() << "] ";
+    Logger(full && verbose) << "serialize '" << getTableIdString(tableId) << "' csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "] => buffer[" << buffer.size() << "] ";
 
     return true;
 }
@@ -538,19 +558,8 @@ void DataContext::diffTable(const DataTable<Row>& tableOlder, const DataTable<Ro
 
         auto olderRow = tableOlder.rows[i];
         auto newerRow = tableNewer.rows[i];
-        olderRow._ser_usedCells.resize(tableOlder.indicesUsed.size());
-        olderRow._ser_read      = false;
-        olderRow._ser_cellIndex = 0;
-        olderRow._ser_key.reset();
-        olderRow.serialize();
 
-        newerRow._ser_usedCells.resize(tableOlder.indicesUsed.size());
-        newerRow._ser_read      = false;
-        newerRow._ser_cellIndex = 0;
-        newerRow._ser_key.reset();
-        newerRow.serialize();
-
-        if (olderRow._ser_usedCells == newerRow._ser_usedCells)
+        if (olderRow == newerRow)
             continue;
         result.rows.push_back(newerRow);
     }

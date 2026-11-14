@@ -4,6 +4,7 @@
  * See LICENSE file for details.
  */
 #include "ModuleBalanceSkills.hpp"
+#include "Logger.hpp"
 
 namespace D2ModGen {
 
@@ -33,20 +34,16 @@ void ModuleBalanceSkills::generate()
         if (row.classSpecific == Character::None)
             continue;
 
-        if (config.m_skillRandomizer.m_enabled == false) {
+        if (config.m_skillRandomizer.m_enabled == false && globalHitShift != 0) {
             row.hitShift = std::clamp(row.hitShift.value_or(0) + globalHitShift, 0, 15);
         }
-        if (auto* desc = output.skilldesc.find(row.skilldesc))
-            row.lvlreq = getLevelFromRow(desc->skillRow.value_or(0));
+        if (auto* desc = output.skilldesc.find(row.skilldesc); desc && desc->skillRow.value_or(0) > 0 && row.lvlreq.has_value()) {
+            row.lvlreq = std::max(1, getLevelFromRow(desc->skillRow.value_or(0)));
+        }
         if (module.m_weakenTownSkillsExt || module.m_weakenTownSkills && s_exceptions.contains(row.skill))
             row.inTown = true;
         if (module.m_leftCast)
             row.leftskill = true;
-    }
-
-    for (auto& row : output.skills.rows) {
-        if (row.classSpecific == Character::None)
-            continue;
     }
 
     const int skillPointLimit = module.m_skillPointLimit;

@@ -6,12 +6,52 @@
 #include "CascStorage.hpp"
 
 #include "MernelPlatform/ScopeExit.hpp"
+#include "MernelPlatform/Profiler.hpp"
 
 #include "Logger.hpp"
 
 #include <CascLib.h>
 
 namespace D2ModGen {
+
+namespace {
+
+struct CacheStorage {
+public:
+    std_path m_root;
+
+    bool writeFile(const std::string& data, const std_path& relPath) const
+    {
+        const auto absPath = m_root / toFsPath(relPath);
+        if (!createDirectoriesForFile(absPath))
+            return false;
+
+        if (std_fs::exists(absPath))
+            std_fs::remove(absPath);
+        if (data.empty())
+            return true;
+
+        auto res = Mernel::writeFileFromBufferNoexcept(absPath, data);
+        return res;
+    }
+
+    bool readFile(std::string& data, uint32_t expectedSize, const std_path& relPath) const
+    {
+        const auto absPath = m_root / toFsPath(relPath);
+        if (!std_fs::exists(absPath))
+            return false;
+
+        if (std_fs::file_size(absPath) != expectedSize)
+            return false;
+
+        if (!Mernel::readFileIntoBufferNoexcept(absPath, data))
+            return false;
+
+        return true;
+    }
+};
+
+}
 
 IStorage::StoredData CascStorage::readData() const noexcept
 {
@@ -22,15 +62,21 @@ IStorage::StoredData CascStorage::readData() const noexcept
     CASC_OPEN_STORAGE_ARGS openArgs = { sizeof(CASC_OPEN_STORAGE_ARGS) };
 
     openArgs.dwFlags = CASC_FEATURE_ALLOW_DOWNLOAD;
-    if (!CascOpenStorageEx(wdata.c_str(), &openArgs, false, &storage)) {
-        Logger(Logger::Warning) << "failed to open storage:" << path2string(utf8path) << ", err=" << GetCascError();
-        return {};
-    } else {
-        Logger() << "Opened CASC:" << path2string(utf8path);
+    {
+        Mernel::ProfilerScope scope("CascOpenStorageEx");
+        if (!CascOpenStorageEx(wdata.c_str(), &openArgs, false, &storage)) {
+            Logger(Logger::Warning) << "failed to open storage:" << path2string(utf8path) << ", err=" << GetCascError();
+            return {};
+        } else {
+            Logger(m_verbose) << "Opened CASC: " << path2string(utf8path);
+        }
     }
     MERNEL_SCOPE_EXIT([storage] { CascCloseStorage(storage); });
 
-    auto readCascFile = [storage](std::string& data, const std::string& filename) -> bool {
+    CacheStorage cache;
+    cache.m_root = m_cacheRoot;
+
+    auto readCascFile = [storage, &cache, this](std::string& data, const std::string& filename, bool useCache = false) -> bool {
         const std::string fullId = "data:" + filename;
         HANDLE            fileHandle;
 
@@ -41,13 +87,25 @@ IStorage::StoredData CascStorage::readData() const noexcept
         MERNEL_SCOPE_EXIT([fileHandle] { CascCloseFile(fileHandle); });
 
         auto dataSize = CascGetFileSize(fileHandle, nullptr);
+        if (useCache) {
+            Mernel::ProfilerScope scope("cache.readFile");
+            if (cache.readFile(data, dataSize, filename)) {
+                Logger(m_verbose) << "Read (cache): " << filename << " [size: " << data.size() << "]";
+                return true;
+            }
+        }
 
         data.resize(dataSize);
-        DWORD wread;
+        DWORD                 wread;
+        Mernel::ProfilerScope scope("CascReadFile");
         if (!CascReadFile(fileHandle, data.data(), dataSize, &wread)) {
             Logger(Logger::Warning) << "failed to read:" << fullId << ", err=" << GetCascError();
             return false;
         }
+        if (useCache)
+            cache.writeFile(data, filename);
+
+        Logger(m_verbose) << "Read: " << filename << " [size: " << data.size() << "]";
         return true;
     };
 
@@ -76,7 +134,7 @@ IStorage::StoredData CascStorage::readData() const noexcept
     }
     for (BlobId id : getBlobIdsResurrected()) {
         std::string buffer;
-        if (!readCascFile(buffer, std::string(getBlobRelPath(id))))
+        if (!readCascFile(buffer, std::string(getBlobRelPath(id)), true))
             continue;
 
         result.blobs[id] = std::move(buffer);
@@ -87,6 +145,7 @@ IStorage::StoredData CascStorage::readData() const noexcept
         result.dataVersion = std::atoll(buffer.c_str());
     }
     result.valid = !result.tablesMain.empty();
+    Logger(Logger::Info) << "Read CASC result = " << result.getStatistics();
 
     return result;
 }

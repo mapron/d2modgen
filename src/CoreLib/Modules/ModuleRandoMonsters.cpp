@@ -96,8 +96,8 @@ void ModuleRandoMonsters::generate()
         auto& monstat = output.monstats.rows[n];
         if (monstat.firstAreaIndexToSpawn >= 0)
             output.levels.rows[monstat.firstAreaIndexToSpawn].superUniquesIndexes.push_back(idx);
-        else if (extraTrace)
-            Logger() << "skipping superunique spawn id = " << monstat.id << " (no area to attach)";
+        else
+            Logger(extraTrace) << "skipping superunique spawn id = " << monstat.id << " (no area to attach)";
     }
 
     for (auto& row : output.levels.rows) {
@@ -171,8 +171,7 @@ void ModuleRandoMonsters::generate()
         for (auto index : genRandomIndexes(rng, totalAmount, rollResAmount))
             tasks[index].m_rollRes = true;
 
-        if (extraTrace)
-            Logger() << "Area '" << row.name << "' > total=" << totalAmount << ", guests=" << guestAmount << ", chimera=" << chimeraAmount << ", rollStat=" << rollStatAmount << ", rollRes=" << rollResAmount << ", targetLevel=" << context.m_areaNormalLevel;
+        Logger(extraTrace) << "Area '" << row.name << "' > total=" << totalAmount << ", guests=" << guestAmount << ", chimera=" << chimeraAmount << ", rollStat=" << rollStatAmount << ", rollRes=" << rollResAmount << ", targetLevel=" << context.m_areaNormalLevel;
 
         for (auto& task : tasks) {
             if (!task.hasAnyMods())
@@ -181,11 +180,9 @@ void ModuleRandoMonsters::generate()
             MonsterTaskList extraMinions;
             processTask(task, extraMinions, context, 0);
 
-            if (extraTrace) {
-                Logger() << "        " << task.toString();
-                for (auto& minionTask : extraMinions)
-                    Logger() << "         minion: " << minionTask.toString();
-            }
+            Logger(extraTrace) << "        " << task.toString();
+            for (auto& minionTask : extraMinions)
+                Logger(extraTrace) << "         minion: " << minionTask.toString();
         }
         for (int superUniqIdx : row.superUniquesIndexes) {
             auto&       su = output.superuniques.rows[superUniqIdx];
@@ -449,8 +446,7 @@ void ModuleRandoMonsters::prepareChimeraPools()
             continue;
         }
     }
-    if (extraTrace)
-        Logger() << "Unused: " << printStringSetSummary(nonRando, 20);
+    Logger(extraTrace) << "Unused: " << printStringSetSummary(nonRando, 20);
 
     for (auto& pool : pools) {
         if (pool.size() < 2)
@@ -462,8 +458,7 @@ void ModuleRandoMonsters::prepareChimeraPools()
             auto         ai           = output.monstats.rows[recipientIdx].AI;
             ais.push_back(ai);
         }
-        if (extraTrace)
-            Logger() << "AI pool: " << printStringSetSummary(ais, 10);
+        Logger(extraTrace) << "AI pool: " << printStringSetSummary(ais, 10);
 
         for (size_t i = 0; i < pool.size(); ++i) {
             const size_t shiftedI = pool.size() > 10 ? rng(pool.size()) : ((i + 1) % pool.size());

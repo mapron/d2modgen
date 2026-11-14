@@ -70,6 +70,8 @@ private:
     SkillCodeResolver m_codeResolver;
     SkillGetter       m_skillGetter;
     RandomGenerator   rng;
+
+    bool m_verbose = true;
 };
 
 }

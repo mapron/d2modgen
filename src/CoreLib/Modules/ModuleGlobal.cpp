@@ -28,6 +28,8 @@
 
 #include "Logger.hpp"
 
+#include "MernelPlatform/Profiler.hpp"
+
 namespace D2ModGen {
 
 ModuleGlobal::ModuleGlobal(std::string crc, DataContext& output_, const Config& config_, const GenerationEnvironment& env_)
@@ -66,14 +68,18 @@ void ModuleGlobal::generate()
     for (auto& module : m_modules) {
         Logger() << "start module: " << module.m_id;
         try {
+            Mernel::ProfilerScope scope(module.m_id);
             module.m_gen->generate();
         }
         catch (const std::exception& ex) {
-            std::string msg("module '" + module.m_id + "': " + std::string(ex.what()));
+            std::string msg("module '" + std::string(module.m_id) + "': " + std::string(ex.what()));
 
             throw std::runtime_error(msg);
         }
     }
+    Logger() << "generate() finished";
+
+    m_verbose = env.extraTrace.contains("json_updates");
 
     auto replaceKey = [](Mernel::PropertyTreeMap& jsonObject, const std::string& sourceId, const std::string& newId) -> bool {
         if (!jsonObject.contains(sourceId))
@@ -96,9 +102,9 @@ void ModuleGlobal::generate()
         return s;
     };
 
-    auto doReplace = [&replaceKey, &underscoreBeforeLast, &underscored](const DataContext::IdCloneList& cloneList, Mernel::PropertyTree& jsonDoc, std::string title) {
+    auto doReplace = [&replaceKey, &underscoreBeforeLast, &underscored, this](const DataContext::IdCloneList& cloneList, Mernel::PropertyTree& jsonDoc, std::string title) {
         Mernel::PropertyTreeMap& jsonObject = jsonDoc.getMap();
-        Logger() << "Start updating " << title << ", existing keys: " << jsonObject.size() << ", clone list size:" << cloneList.size();
+        Logger(m_verbose) << "Start updating " << title << ", existing keys: " << jsonObject.size() << ", clone list size:" << cloneList.size();
         for (const auto& [sourceId, newId] : cloneList) {
             if (replaceKey(jsonObject, sourceId, newId))
                 continue;
@@ -115,7 +121,7 @@ void ModuleGlobal::generate()
             }
             Logger(Logger::Err) << "Not found replacement for=" << sourceId << " / " << safeId;
         }
-        Logger() << "Finish  updating " << title << ", new size: " << jsonObject.size();
+        Logger(m_verbose) << "Finish  updating " << title << ", new size: " << jsonObject.size();
     };
 
     if (output.jsonFiles.contains(JsonId::Monsters)) {
@@ -135,7 +141,7 @@ void ModuleGlobal::generate()
             totalKeySize += loc.key.size() + 1;
             totalValSize += loc.value.size() + 1;
         }
-        Logger(Logger::Notice) << "Adding new " << output.newLoc.items.size() << " translations, totalKeySize=" << totalKeySize << ", totalValSize=" << totalValSize;
+        Logger(m_verbose, Logger::Notice) << "Adding new " << output.newLoc.items.size() << " translations, totalKeySize=" << totalKeySize << ", totalValSize=" << totalValSize;
         if (output.jsonFiles.contains(JsonId::ItemNames)) {
             auto& jsonDoc = output.jsonFiles[JsonId::ItemNames];
             updateD2Rtranslation(jsonDoc, env.d2rLocaleId);
@@ -174,7 +180,7 @@ void ModuleGlobal::generate()
 }
 
 template<class T>
-void ModuleGlobal::create(const std::string& id)
+void ModuleGlobal::create(const std::string_view& id)
 {
     m_modules.push_back(ModuleRecord{ id, std::make_unique<T>(output, config, env) });
 }
@@ -190,7 +196,7 @@ void ModuleGlobal::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std
             totalKeySize += key.size() + 1;
             totalValSize += val.size() + 1;
         }
-        Logger(Logger::Notice) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
+        Logger(m_verbose, Logger::Info) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
     }
 
     int id = 1000000;
@@ -216,7 +222,7 @@ void ModuleGlobal::updateLoDtranslation(std::string& patchstringTlb)
             totalKeySize += itemDesc.Key.size() + 1;
             totalValSize += itemDesc.Val.size() + 1;
         }
-        Logger(Logger::Notice) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
+        Logger(m_verbose, Logger::Info) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
     }
 
     for (const DataContext::NewLoc& loc : output.newLoc.items) {
