@@ -45,6 +45,10 @@ Note 1: all you offline character still exist in non-modded save folder.
 Note 2: mod does not affect online play in any way, you won't get banned for it.  
 Note 3: if you want to return to unmodded, press "Reset launch to unmodded" (again, BNet must be closed when you press this button).
 
+# After a game update
+
+Regenerate your mod from the updated game installation before playing. If the game reports a data version mismatch, regenerate from current game data rather than editing `dataversionbuild.txt`: changing that number does not update the mod's tables or assets. When using extracted files as input, extract them again after updating the game.
+
 # Start new config from preset
 ![presets_menu](docs/presets_menu.png "Presets menu")  
 There are 5 pre-made configs to quickly start rando!  

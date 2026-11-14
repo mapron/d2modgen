@@ -86,10 +86,25 @@ IStorage::StoredData CascStorage::readData() const noexcept
         }
         MERNEL_SCOPE_EXIT([fileHandle] { CascCloseFile(fileHandle); });
 
-        auto dataSize = CascGetFileSize(fileHandle, nullptr);
+        auto     dataSize = CascGetFileSize(fileHandle, nullptr);
+        std_path cachePath;
+        if (useCache) {
+            CASC_FILE_FULL_INFO info{};
+            useCache = CascGetFileInfo(fileHandle, CascFileFullInfo, &info, sizeof(info), nullptr);
+            if (useCache) {
+                // File size alone cannot detect changed assets after a game update.
+                constexpr char hex[] = "0123456789abcdef";
+                std::string    contentKey;
+                for (const auto byte : info.CKey) {
+                    contentKey += hex[byte >> 4];
+                    contentKey += hex[byte & 15];
+                }
+                cachePath = std_path(contentKey) / filename;
+            }
+        }
         if (useCache) {
             Mernel::ProfilerScope scope("cache.readFile");
-            if (cache.readFile(data, dataSize, filename)) {
+            if (cache.readFile(data, dataSize, cachePath)) {
                 Logger(m_verbose) << "Read (cache): " << filename << " [size: " << data.size() << "]";
                 return true;
             }
@@ -103,7 +118,7 @@ IStorage::StoredData CascStorage::readData() const noexcept
             return false;
         }
         if (useCache)
-            cache.writeFile(data, filename);
+            cache.writeFile(data, cachePath);
 
         Logger(m_verbose) << "Read: " << filename << " [size: " << data.size() << "]";
         return true;
