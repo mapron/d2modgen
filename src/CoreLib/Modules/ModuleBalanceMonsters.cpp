@@ -19,7 +19,7 @@ void ModuleBalanceMonsters::generate()
             val = val * percent / 100;
         };
         for (auto& row : output.monlvl.rows) {
-            if (row.level <= 1)
+            if (row.level < 1)
                 continue;
             for (size_t i = 0; i < 6; ++i) {
                 proceedMonParam(module.m_monsterAttack, row.TH[i]);
