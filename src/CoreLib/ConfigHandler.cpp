@@ -169,9 +169,10 @@ bool ConfigHandler::generate(const GenerationEnvironment& env, std::string& crc)
         }
     }
 
+    DataContext output;
     DataContext input;
-    input.useBaseTable = env.needDataSubfolder;
-    input.verbose      = serializeVerbose;
+    output.useBaseTable = env.needDataSubfolder;
+    output.verbose      = serializeVerbose;
 
     Logger() << "Loading data from main storage...";
     IStorage::StoredData inData;
@@ -187,19 +188,19 @@ bool ConfigHandler::generate(const GenerationEnvironment& env, std::string& crc)
     {
         ProfilerScope scope("output.parseData");
         Logger() << "Parsing files into object data...";
-        if (!input.parseData(inData)) {
+        if (!output.parseData(inData)) {
             Logger(Logger::Err) << "Failed parse D2 data files.";
             return false;
         }
-        input.verbose = false; // so other can copy me with no traces
+        input.copyDataFrom(output);
+        output.verbose = false; // so other can copy me with no traces
     }
     if (env.extraTrace.contains("dump_in")) {
         outDebugStorage.setFileSuffix(".in");
         if (outDebugStorage.create())
-            outDebugStorage.writeMainData(input.writeDebug());
+            outDebugStorage.writeMainData(output.writeDebug());
     }
 
-    DataContext output = input;
     {
         output.verbose = serializeVerbose;
 
@@ -227,8 +228,11 @@ bool ConfigHandler::generate(const GenerationEnvironment& env, std::string& crc)
 
     if (env.extraTrace.contains("dump_diff")) {
         outDebugStorage.setFileSuffix(".diff");
-        if (outDebugStorage.create())
-            outDebugStorage.writeMainData(output.calculateDiff(input).writeDebug());
+        if (outDebugStorage.create()) {
+            DataContext diff;
+            output.calculateDiff(diff, input);
+            outDebugStorage.writeMainData(diff.writeDebug());
+        }
     }
 
     IStorage::StoredData outData;

@@ -17,6 +17,9 @@
 namespace D2ModGen {
 
 struct DataContext {
+    DataContext(const DataContext&)            = delete;
+    DataContext& operator=(const DataContext&) = delete;
+
     DataTable<DataRow_itemtypes> itemtypes;
 
     DataTable<DataRow_weapons> weapons;
@@ -139,8 +142,9 @@ struct DataContext {
 
     IStorage::StoredData writeDebug() const;
 
-    DataContext calculateDiff(const DataContext& older) const;
-    void        removeIdenticalRecords(const DataContext& older);
+    void calculateDiff(DataContext& result, const DataContext& older) const;
+    void removeIdenticalRecords(const DataContext& older);
+    void copyDataFrom(const DataContext& older);
 
     int getClassesCount() const;
 

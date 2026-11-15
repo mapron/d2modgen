@@ -115,9 +115,8 @@ IStorage::StoredData DataContext::writeDebug() const
     return data;
 }
 
-DataContext DataContext::calculateDiff(const DataContext& older) const
+void DataContext::calculateDiff(DataContext& result, const DataContext& older) const
 {
-    DataContext result;
     result.dataVersion = dataVersion;
 
     auto diffTab = [&older, &result, this](auto m) -> bool {
@@ -138,8 +137,6 @@ DataContext DataContext::calculateDiff(const DataContext& older) const
         return (diffTab(std::forward<decltype(args)>(args)) && ...);
     },
                              allTables());
-
-    return result;
 }
 
 void DataContext::removeIdenticalRecords(const DataContext& older)
@@ -170,6 +167,22 @@ void DataContext::removeIdenticalRecords(const DataContext& older)
                 blobs.erase(it);
         }
     }
+}
+
+void DataContext::copyDataFrom(const DataContext& older)
+{
+    auto copy = [&older, this](auto m) -> bool {
+        this->*m = older.*m;
+        return true;
+    };
+
+    std::ignore = std::apply([&copy](const auto&... args) -> bool {
+        return (copy(std::forward<decltype(args)>(args)) && ...);
+    },
+                             allTables());
+
+    jsonFiles = older.jsonFiles;
+    blobs     = older.blobs;
 }
 
 int DataContext::getClassesCount() const
@@ -230,7 +243,7 @@ bool DataContext::postProcess()
         if (!row.isValid())
             continue;
 
-        auto* parent_set = sets.index.at(Mernel::strToLower(row.setIndex));
+        auto* parent_set = sets.find(Mernel::strToLower(row.setIndex));
         row.eqipmentType = findEquip(row.eqipmentCode);
 
         const_cast<DataRow_sets*>(parent_set)->level = row.getLevel();
@@ -261,12 +274,12 @@ bool DataContext::postProcess()
         const auto parent1 = row.equiv1;
         const auto parent2 = row.equiv2;
         if (!parent1.empty()) {
-            auto parent1ptr = const_cast<DataRow_itemtypes*>(itemtypes.index.at(parent1));
+            auto parent1ptr = const_cast<DataRow_itemtypes*>(itemtypes.find(parent1));
             row.parents.insert(parent1ptr);
             parent1ptr->nested.insert(&row);
         }
         if (!parent2.empty()) {
-            auto parent2ptr = const_cast<DataRow_itemtypes*>(itemtypes.index.at(parent2));
+            auto parent2ptr = const_cast<DataRow_itemtypes*>(itemtypes.find(parent2));
             row.parents.insert(parent2ptr);
             parent2ptr->nested.insert(&row);
         }
@@ -329,7 +342,7 @@ bool DataContext::postProcess()
     for (auto& row : runes.rows) {
         row.lvl = 0;
         for (const std::string& rune : row.runeCodes)
-            row.lvl = std::max(row.lvl, misc.index.at(rune)->getLevel());
+            row.lvl = std::max(row.lvl, misc.find(rune)->getLevel());
     }
     setstypes.equiv1 = "SET";
     for (auto& row : sets.rows) {
@@ -370,16 +383,16 @@ bool DataContext::postProcess()
 
         row.useForRando = true;
         for (auto& id : row.mon) {
-            if (auto idx = monstats.findN(id); idx != size_t(-1))
-                monstats.rows[idx].spawnedAsNormal = true;
+            if (auto* row = monstats.find(id))
+                row->spawnedAsNormal = true;
         }
         for (auto& id : row.nmon) {
-            if (auto idx = monstats.findN(id); idx != size_t(-1))
-                monstats.rows[idx].spawnedAsNormal = true;
+            if (auto* row = monstats.find(id))
+                row->spawnedAsNormal = true;
         }
         for (auto& id : row.umon) {
-            if (auto idx = monstats.findN(id); idx != size_t(-1))
-                monstats.rows[idx].spawnedAsElite = true;
+            if (auto* row = monstats.find(id))
+                row->spawnedAsElite = true;
         }
     }
 
@@ -390,15 +403,15 @@ bool DataContext::postProcess()
                 if (minionId.empty() || minionId == row.id)
                     continue;
 
-                auto n = monstats.findN(minionId);
-                if (n != size_t(-1))
-                    monstats.rows[n].spawnedAsNormal = true;
+                auto* mon = monstats.find(minionId);
+                if (mon)
+                    mon->spawnedAsNormal = true;
             }
         }
     }
     for (auto& row : monstats.rows) {
-        row.isRegular = row.isEnabled() && row.isSpawn() && row.isKillable() && !row.isNpc() && !row.isBoss() && row.level.has_value();
-        row.isRegular = row.isRegular && monstatsEx.index.contains(row.monStatsEx);
+        row.isRegular = row.isEnabled() && row.isSpawn() && row.isKillable() && !row.isNpc() && row.level.has_value();
+        row.isRegular = row.isRegular && monstatsEx.indexN.contains(row.monStatsEx);
 
         row.useForRando = row.isRegular && row.spawnedAsNormal;
         hasRegular      = hasRegular || row.isRegular;
