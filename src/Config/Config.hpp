@@ -257,25 +257,21 @@ struct Config : public CommonStruct {
 
         int64_t m_monsterExperience{ 100 };
 
-        int64_t m_immunityLimit{ 250 };
+        int64_t m_resChangeMode{ 0 };
 
-        int64_t m_relativeResistDmg{ 100 };
+        int64_t m_resMin1{ -100 };
 
-        bool m_applyFire{ false };
+        int64_t m_resMax1{ 175 };
 
-        bool m_applyCold{ false };
+        int64_t m_resMin2{ -100 };
 
-        bool m_applyLight{ false };
+        int64_t m_resMax2{ 175 };
 
-        bool m_applyPois{ false };
+        int64_t m_resMin3{ -100 };
 
-        bool m_applyMag{ false };
-
-        bool m_applyPhys{ false };
+        int64_t m_resMax3{ 175 };
 
         bool m_hellResistances{ false };
-
-        bool m_makeSecondImmunity{ false };
 
         BalanceMonsters()
         {
@@ -284,16 +280,14 @@ struct Config : public CommonStruct {
             addScalar("monsterDefense", m_monsterDefense).setRange(10, 1000).setZero(100).setPercent().setLogScale();
             addScalar("monsterHealth", m_monsterHealth).setRange(10, 1000).setZero(100).setPercent().setLogScale();
             addScalar("monsterExperience", m_monsterExperience).setRange(10, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 75);
-            addScalar("immunityLimit", m_immunityLimit).setRange(90, 250).setZero(250);
-            addScalar("relativeResistDmg", m_relativeResistDmg).setRange(10, 1000).setZero(100).setPercent().setLogScale();
-            addScalar("applyFire", m_applyFire).setZero(false).setRecc(true);
-            addScalar("applyCold", m_applyCold).setZero(false).setRecc(true);
-            addScalar("applyLight", m_applyLight).setZero(false).setRecc(true);
-            addScalar("applyPois", m_applyPois).setZero(false).setRecc(true);
-            addScalar("applyMag", m_applyMag).setZero(false);
-            addScalar("applyPhys", m_applyPhys).setZero(false);
+            addScalar("resChangeMode", m_resChangeMode).setRange(0, 3).setZero(0);
+            addScalar("resMin1", m_resMin1).setRange(-100, 175).setZero(-100).setPercent();
+            addScalar("resMax1", m_resMax1).setRange(-100, 175).setZero(175).setPercent();
+            addScalar("resMin2", m_resMin2).setRange(-100, 175).setZero(-100).setPercent();
+            addScalar("resMax2", m_resMax2).setRange(-100, 175).setZero(175).setPercent();
+            addScalar("resMin3", m_resMin3).setRange(-100, 175).setZero(-100).setPercent();
+            addScalar("resMax3", m_resMax3).setRange(-100, 175).setZero(175).setPercent();
             addScalar("hellResistances", m_hellResistances).setZero(false).setRecc(false).addPreset(2, true);
-            addScalar("makeSecondImmunity", m_makeSecondImmunity).setZero(false).setRecc(false).addPreset(2, true);
         }
     };
     struct BalanceSkills : public CommonStruct {

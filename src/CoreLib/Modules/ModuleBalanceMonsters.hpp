@@ -13,6 +13,9 @@ struct ModuleBalanceMonsters : public AbstractModule {
     using AbstractModule::AbstractModule;
 
     void generate() override;
+
+private:
+    bool m_verbose = false;
 };
 
 }

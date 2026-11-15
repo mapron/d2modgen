@@ -6,87 +6,94 @@
 #include "ModuleBalanceMonsters.hpp"
 
 #include "MonsterUtils.hpp"
+#include "Logger.hpp"
 
 #include <algorithm>
 
 namespace D2ModGen {
 
+namespace {
+
+enum ChangeMode
+{
+    None,
+    HellOnly,
+    NmAndHell,
+    All,
+};
+
+}
+
 void ModuleBalanceMonsters::generate()
 {
     const auto& module = config.m_balanceMonsters;
-    {
-        auto proceedMonParam = [](int64_t percent, int& val) {
-            val = val * percent / 100;
-        };
-        for (auto& row : output.monlvl.rows) {
-            if (row.level <= 0)
-                continue;
-            for (size_t i = 0; i < 6; ++i) {
-                proceedMonParam(module.m_monsterAttack, row.TH[i]);
-                proceedMonParam(module.m_monsterDefense, row.AC[i]);
-                proceedMonParam(module.m_monsterHealth, row.HP[i]);
-                proceedMonParam(module.m_monsterDamage, row.DM[i]);
-                proceedMonParam(module.m_monsterExperience, row.XP[i]);
-            }
+
+    m_verbose = env.extraTrace.contains("monster_balance");
+
+    auto proceedMonParam = [](int64_t percent, int& val) {
+        val = val * percent / 100;
+    };
+    for (auto& row : output.monlvl.rows) {
+        if (row.level <= 0)
+            continue;
+        for (size_t i = 0; i < 6; ++i) {
+            proceedMonParam(module.m_monsterAttack, row.TH[i]);
+            proceedMonParam(module.m_monsterDefense, row.AC[i]);
+            proceedMonParam(module.m_monsterHealth, row.HP[i]);
+            proceedMonParam(module.m_monsterDamage, row.DM[i]);
+            proceedMonParam(module.m_monsterExperience, row.XP[i]);
         }
     }
 
-    const int  maxResistCap   = module.m_immunityLimit;
-    const bool applyResistCap = maxResistCap < 250;
-    if (applyResistCap) {
-        std::vector<decltype(&DataRow_monstats::resCo)> resCols;
+    auto applySingeResClamp = [](int* res, int min, int max) {
+        *res = std::clamp(*res, min, max);
+    };
 
-        if (module.m_applyCold)
-            resCols.push_back(&DataRow_monstats::resCo);
-        if (module.m_applyLight)
-            resCols.push_back(&DataRow_monstats::resLi);
-        if (module.m_applyFire)
-            resCols.push_back(&DataRow_monstats::resFi);
-        if (module.m_applyPois)
-            resCols.push_back(&DataRow_monstats::resPo);
-        if (module.m_applyMag)
-            resCols.push_back(&DataRow_monstats::resMa);
-        if (module.m_applyPhys)
-            resCols.push_back(&DataRow_monstats::resDm);
+    auto applyResClamp = [&module, &applySingeResClamp](MonResist& monResist) {
+        applySingeResClamp(monResist.m_sorted[0], module.m_resMin1, module.m_resMax1);
+        applySingeResClamp(monResist.m_sorted[1], module.m_resMin2, module.m_resMax2);
+        applySingeResClamp(monResist.m_sorted[2], module.m_resMin3, module.m_resMax3);
+    };
 
-        const int relResist = module.m_relativeResistDmg;
+    for (auto& row : output.monstats.rows) {
+        if (!row.isRegular)
+            continue;
+        const size_t nm   = 1;
+        const size_t hell = 2;
 
-        for (auto& row : output.monstats.rows) {
-            if (!row.isRegular)
-                continue;
+        std::array<MonResist, 3> r;
 
-            for (auto& col : resCols) {
-                for (size_t i = 0; i < 3; ++i) {
-                    std::optional<int>& value = (row.*col)[i];
+        for (size_t i = 0; i < 3; ++i) {
+            r[i].readFromRow(row, i); // stable_sort inside for m_sorted
+        }
+        Logger(m_verbose) << "Resistances '" << row.id
+                          << "', before: \n    NOR =" << r[0].toString()
+                          << "\n    NM  =" << r[1].toString()
+                          << "\n    HELL=" << r[2].toString();
 
-                    int resist = value.value_or(0);
-                    resist     = std::min(maxResistCap, resist);
-                    if (resist < 100 && relResist != 100) {
-                        const int damage    = 100 - resist;
-                        const int newDamage = damage * relResist / 100;
-                        resist              = std::clamp(100 - newDamage, 0, std::min(99, maxResistCap));
-                    }
-                    if (resist == 0)
-                        value.reset();
-                    else
-                        value = resist;
-                }
+        if (module.m_resChangeMode != ChangeMode::None) {
+            for (size_t i = 0; i < 3; ++i) {
+                const bool applyOnHell   = module.m_resChangeMode == ChangeMode::HellOnly && i == hell;
+                const bool applyOnNmPlus = module.m_resChangeMode == ChangeMode::NmAndHell && i >= nm;
+                const bool applyAll      = module.m_resChangeMode == ChangeMode::All;
+                if (applyOnHell || applyOnNmPlus || applyAll)
+                    applyResClamp(r[i]);
             }
         }
-    }
 
-    if (module.m_hellResistances) {
-        for (auto& row : output.monstats.rows) {
-            if (!row.isRegular)
-                continue;
-            size_t                   hell = 2;
-            std::array<MonResist, 3> r;
+        // separate feature "apply Hell res to all 3 difficulties".
+        if (module.m_hellResistances) {
             for (size_t i = 0; i < 3; ++i)
-                r[i].readFromRow(row, hell);
-
+                r[hell].writeToRow(row, i);
+        } else {
             for (size_t i = 0; i < 3; ++i)
                 r[i].writeToRow(row, i);
         }
+
+        Logger(m_verbose) << "Resistances '" << row.id
+                          << "',  after:\n    NOR =" << r[0].toString()
+                          << "\n    NM  =" << r[1].toString()
+                          << "\n    HELL=" << r[2].toString();
     }
 }
 

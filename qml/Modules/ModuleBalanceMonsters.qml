@@ -45,67 +45,51 @@ WidgetCommonTab {
         value_key: root.value_context.monsterExperience
     }
 
-    WidgetSlider {
-        caption: qsTr("Maximum resistance allowed for base monsters, percent:")
-        tooltip: qsTr("If you make this below 100, then regular monsters will have NO IMMUNITIES at all!<br>Use with caution. You can set this to 110-115, to make cold immunes breakable.<br>Also this do not prevent Enchanted monsters to have immunities.")
-        value_key: root.value_context.immunityLimit
+    LabelWithTooltip {
+        caption: qsTr("Change monster resistances")
+
+        tooltip: qsTr("Say monster have 120 Fire res on Hell, 25 Lightning and 50 Cold" //
+        + "<br>Then Fire is considered 'first', cold 'second' and Lightning 'third'. " //
+        + "<br>If you want all monsters to be immune, set minimum range as 100" //
+        + "<br>To make 3 immunities, set all 3 sliders to 100 minimum" //
+        + "<br>To make all monster have 'Sunder charm' effect, set 95 as max" //
+        + "<br>This will not affext X Enchanted elites boosting res" + "<br><b>Unbreakable res:</b> D2R= 145%, PD2= 170%.")
+    }
+
+    WidgetRadioGroup {
+        caption: qsTr("What difficulty to apply resistance change:")
         isCompact: false
+        model: [qsTr("None"), qsTr("Hell"), qsTr("Nightmare and Hell"), qsTr("Normal, Nightmare and Hell")]
+        value_key: root.value_context.resChangeMode
     }
 
-    WidgetSlider {
-        caption: qsTr("Change monster resistances, by multiplying damage from magic they take")
-        tooltip: qsTr("DO NOT affect IMMUNE monsters and monsters with 0 resistance!<br>It affects resistance perent indirectly, through this calculation:<br>Lets say you have 200% selected for multiply, and monster has 80% basic Fire resist.<br>That means, he has 20% damage taken from fire, and new value will be 40% damage, or 60% resist.<br>Damage is capped at 100%, so you won't get negative reistance.<br>Also monster can't become immune to element, maximum resistance is 99%")
-        value_key: root.value_context.relativeResistDmg
-        isCompact: false
+    WidgetRes {
+        caption: qsTr("Change highest resistance")
+        tooltip: qsTr("This modifies monster's highest resisntance value.<br>Usually this is its immunity")
+        enabled: root.value_context.resChangeMode.value > 0
+
+        value_key1: root.value_context.resMin1
+        value_key2: root.value_context.resMax1
     }
 
-    LabelLarge {
-        text: qsTr("Apply resistance options to following:")
+    WidgetRes {
+        caption: qsTr("Change 2nd resistance")
+        tooltip: qsTr("This modifies resistance that is second in value,<br> it can be immunity on hell or just high value.")
+        enabled: root.value_context.resChangeMode.value > 0
+
+        value_key1: root.value_context.resMin2
+        value_key2: root.value_context.resMax2
     }
 
-    RowLayout {
-        ColumnLayout {
-            WidgetCheckbox {
-                caption: qsTr("Fire")
-                tooltip: ""
-                value_key: root.value_context.applyFire
-            }
-            WidgetCheckbox {
-                caption: qsTr("Cold")
-                tooltip: ""
-                value_key: root.value_context.applyCold
-            }
-            WidgetCheckbox {
-                caption: qsTr("Lightning")
-                tooltip: ""
-                value_key: root.value_context.applyLight
-            }
-            Item {
-                Layout.fillHeight: true
-            }
-        }
-        ColumnLayout {
-            WidgetCheckbox {
-                caption: qsTr("Poison")
-                tooltip: ""
-                value_key: root.value_context.applyPois
-            }
-            WidgetCheckbox {
-                caption: qsTr("Magic (Non-elemental)")
-                tooltip: ""
-                value_key: root.value_context.applyMag
-            }
+    WidgetRes {
+        caption: qsTr("Change 3nd resistance")
+        tooltip: qsTr("You probably never notice in gameplay what 3rd resistance of monster is,<br>if you put mim to 100 and above you will learn a lot<br>Also monster can have all 6 res set, I don't want to add 6 controls")
+        enabled: root.value_context.resChangeMode.value > 0
 
-            WidgetCheckbox {
-                caption: qsTr("Physical")
-                tooltip: ""
-                value_key: root.value_context.applyPhys
-            }
-            Item {
-                Layout.fillHeight: true
-            }
-        }
+        value_key1: root.value_context.resMin3
+        value_key2: root.value_context.resMax3
     }
+
     WidgetCheckbox {
         caption: qsTr("Use Hell resistances on NM/Normal")
         tooltip: qsTr("Want to deal with immunities in Normal? Here you go.")

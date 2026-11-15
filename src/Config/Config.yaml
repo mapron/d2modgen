@@ -114,18 +114,19 @@ structs:
             monsterDefense:     { type: int, zero: 100,           min: 10, max: 1000, percent: true, logScale: true }
             monsterHealth:      { type: int, zero: 100, rec: 200, min: 10, max: 1000, percent: true, logScale: true }
             monsterExperience:  { type: int, zero: 100, rec: 200, min: 10, max: 1000, percent: true, logScale: true, presets: { pain: 75 } }
-            immunityLimit:      { type: int, zero: 250, min: 90, max: 250 }
-            relativeResistDmg:  { type: int, zero: 100, min: 10, max: 1000, percent: true, logScale: true }
-            
-            applyFire:  { type: bool, zero: false, recc: true }
-            applyCold:  { type: bool, zero: false, recc: true }
-            applyLight: { type: bool, zero: false, recc: true }
-            applyPois:  { type: bool, zero: false, recc: true }
-            applyMag:   { type: bool, zero: false }
-            applyPhys:  { type: bool, zero: false }
 
-            hellResistances:      { type: bool, zero: false, recc: false, presets: { pain: true } }
-            makeSecondImmunity:   { type: bool, zero: false, recc: false, presets: { pain: true } }
+            resChangeMode:      { type: int, zero: 0,             min: 0, max: 3 } # none|hellOnly|nmAndHell|all
+
+            resMin1:            { type: int, zero: -100,          min: -100, max: 175, percent: true }
+            resMax1:            { type: int, zero:  175,          min: -100, max: 175, percent: true }
+
+            resMin2:            { type: int, zero: -100,          min: -100, max: 175, percent: true }
+            resMax2:            { type: int, zero:  175,          min: -100, max: 175, percent: true }
+
+            resMin3:            { type: int, zero: -100,          min: -100, max: 175, percent: true }
+            resMax3:            { type: int, zero:  175,          min: -100, max: 175, percent: true }
+
+            hellResistances:    { type: bool, zero: false, recc: false, presets: { pain: true } }
 
     BalanceSkills:
         members:

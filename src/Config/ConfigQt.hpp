@@ -519,16 +519,14 @@ class Config_BalanceMonsters_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyInt_Qt* monsterDefense READ get_monsterDefense CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* monsterHealth READ get_monsterHealth CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* monsterExperience READ get_monsterExperience CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* immunityLimit READ get_immunityLimit CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* relativeResistDmg READ get_relativeResistDmg CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* applyFire READ get_applyFire CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* applyCold READ get_applyCold CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* applyLight READ get_applyLight CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* applyPois READ get_applyPois CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* applyMag READ get_applyMag CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* applyPhys READ get_applyPhys CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* resChangeMode READ get_resChangeMode CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* resMin1 READ get_resMin1 CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* resMax1 READ get_resMax1 CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* resMin2 READ get_resMin2 CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* resMax2 READ get_resMax2 CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* resMin3 READ get_resMin3 CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* resMax3 READ get_resMax3 CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* hellResistances READ get_hellResistances CONSTANT)
-    Q_PROPERTY(PropertyBool_Qt* makeSecondImmunity READ get_makeSecondImmunity CONSTANT)
 
 public:
     explicit Config_BalanceMonsters_Qt(Config::BalanceMonsters& data)
@@ -539,16 +537,14 @@ public:
         , m_monsterDefense(data.getPropertyInt(2))
         , m_monsterHealth(data.getPropertyInt(3))
         , m_monsterExperience(data.getPropertyInt(4))
-        , m_immunityLimit(data.getPropertyInt(5))
-        , m_relativeResistDmg(data.getPropertyInt(6))
-        , m_applyFire(data.getPropertyBool(0))
-        , m_applyCold(data.getPropertyBool(1))
-        , m_applyLight(data.getPropertyBool(2))
-        , m_applyPois(data.getPropertyBool(3))
-        , m_applyMag(data.getPropertyBool(4))
-        , m_applyPhys(data.getPropertyBool(5))
-        , m_hellResistances(data.getPropertyBool(6))
-        , m_makeSecondImmunity(data.getPropertyBool(7))
+        , m_resChangeMode(data.getPropertyInt(5))
+        , m_resMin1(data.getPropertyInt(6))
+        , m_resMax1(data.getPropertyInt(7))
+        , m_resMin2(data.getPropertyInt(8))
+        , m_resMax2(data.getPropertyInt(9))
+        , m_resMin3(data.getPropertyInt(10))
+        , m_resMax3(data.getPropertyInt(11))
+        , m_hellResistances(data.getPropertyBool(0))
     {
     }
 
@@ -562,25 +558,21 @@ public:
 
     PropertyInt_Qt* get_monsterExperience() { return &m_monsterExperience; }
 
-    PropertyInt_Qt* get_immunityLimit() { return &m_immunityLimit; }
+    PropertyInt_Qt* get_resChangeMode() { return &m_resChangeMode; }
 
-    PropertyInt_Qt* get_relativeResistDmg() { return &m_relativeResistDmg; }
+    PropertyInt_Qt* get_resMin1() { return &m_resMin1; }
 
-    PropertyBool_Qt* get_applyFire() { return &m_applyFire; }
+    PropertyInt_Qt* get_resMax1() { return &m_resMax1; }
 
-    PropertyBool_Qt* get_applyCold() { return &m_applyCold; }
+    PropertyInt_Qt* get_resMin2() { return &m_resMin2; }
 
-    PropertyBool_Qt* get_applyLight() { return &m_applyLight; }
+    PropertyInt_Qt* get_resMax2() { return &m_resMax2; }
 
-    PropertyBool_Qt* get_applyPois() { return &m_applyPois; }
+    PropertyInt_Qt* get_resMin3() { return &m_resMin3; }
 
-    PropertyBool_Qt* get_applyMag() { return &m_applyMag; }
-
-    PropertyBool_Qt* get_applyPhys() { return &m_applyPhys; }
+    PropertyInt_Qt* get_resMax3() { return &m_resMax3; }
 
     PropertyBool_Qt* get_hellResistances() { return &m_hellResistances; }
-
-    PropertyBool_Qt* get_makeSecondImmunity() { return &m_makeSecondImmunity; }
 
     Q_INVOKABLE void assign(Config_BalanceMonsters_Qt* another) { m_data.assign(another->m_data, true); }
 
@@ -597,25 +589,21 @@ private:
 
     PropertyInt_Qt m_monsterExperience;
 
-    PropertyInt_Qt m_immunityLimit;
+    PropertyInt_Qt m_resChangeMode;
 
-    PropertyInt_Qt m_relativeResistDmg;
+    PropertyInt_Qt m_resMin1;
 
-    PropertyBool_Qt m_applyFire;
+    PropertyInt_Qt m_resMax1;
 
-    PropertyBool_Qt m_applyCold;
+    PropertyInt_Qt m_resMin2;
 
-    PropertyBool_Qt m_applyLight;
+    PropertyInt_Qt m_resMax2;
 
-    PropertyBool_Qt m_applyPois;
+    PropertyInt_Qt m_resMin3;
 
-    PropertyBool_Qt m_applyMag;
-
-    PropertyBool_Qt m_applyPhys;
+    PropertyInt_Qt m_resMax3;
 
     PropertyBool_Qt m_hellResistances;
-
-    PropertyBool_Qt m_makeSecondImmunity;
 };
 
 class Config_BalanceSkills_Qt : public CommonStruct_Qt {

@@ -5,6 +5,8 @@
  */
 #include "MonsterUtils.hpp"
 
+#include <algorithm>
+
 namespace D2ModGen {
 
 void MonResist::readFromRow(const DataRow_monstats& row, size_t i)
@@ -15,6 +17,14 @@ void MonResist::readFromRow(const DataRow_monstats& row, size_t i)
     m_resist[Element::Ltng] = row.resLi[i].value_or(0);
     m_resist[Element::Cold] = row.resCo[i].value_or(0);
     m_resist[Element::Pois] = row.resPo[i].value_or(0);
+
+    for (auto& [key, val] : m_resist)
+        m_sorted.push_back(&val);
+
+    // highest res in [0]!
+    std::stable_sort(m_sorted.begin(), m_sorted.end(), [](const auto* a, const auto* b) {
+        return *a > *b;
+    });
 }
 
 void MonResist::writeToRow(DataRow_monstats& row, size_t i) const
@@ -79,5 +89,17 @@ void MonResist::shuffle(RandomGenerator& rng)
         newResist[dest] = m_resist[src];
 
     m_resist = newResist;
+}
+
+std::string MonResist::toString() const
+{
+    std::ostringstream os;
+    os << "{ ";
+    for (auto& [key, value] : m_resist) {
+        os << enumToString(key) << "=" << value << ", ";
+    }
+    os << " TOP1=" << *m_sorted[0];
+    os << " }";
+    return os.str();
 }
 }

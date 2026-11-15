@@ -11,11 +11,14 @@
 namespace D2ModGen {
 struct MonResist {
     std::map<Element, int> m_resist;
+    std::vector<int*>      m_sorted; // [0] contains highest res.
 
     void readFromRow(const DataRow_monstats& row, size_t i);
 
     void writeToRow(DataRow_monstats& row, size_t i) const;
 
     void shuffle(RandomGenerator& rng);
+
+    std::string toString() const;
 };
 }
