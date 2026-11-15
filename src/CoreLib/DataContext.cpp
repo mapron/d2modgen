@@ -367,8 +367,7 @@ bool DataContext::postProcess()
             continue;
         if (row.mon.empty() || row.umon.empty() || !row.numMon.has_value())
             continue;
-        if (!row.hasSpawns())
-            continue;
+
         row.useForRando = true;
         for (auto& id : row.mon) {
             if (auto idx = monstats.findN(id); idx != size_t(-1))

@@ -122,11 +122,6 @@ struct DataRow_levels : public RowBase {
 
     bool useForRando = false;
 
-    bool hasSpawns() const
-    {
-        return monUMax[0].has_value() || monUMax[1].has_value() || monUMax[2].has_value();
-    }
-
     std::vector<std::string>           getColumns() const;
     std::map<std::string, std::string> getColumnAliases() const;
     void                               serialize();
