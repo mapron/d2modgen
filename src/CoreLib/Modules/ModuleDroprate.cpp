@@ -292,7 +292,7 @@ void ModuleDroprate::generateItems(DataContext& output, const Config::Droprate::
 
             const auto mobType = getMobType(treasureGroup, className);
             if (alwaysQuest && mobType == MobType::ActBoss) {
-                auto* questRow = output.treasureclassex.index.at(Mernel::strToLower(s_bossTC.at(className)));
+                auto* questRow = output.treasureclassex.find(Mernel::strToLower(s_bossTC.at(className)));
                 if (questRow) {
                     row.k_unique = questRow->k_unique;
                     row.k_set    = questRow->k_set;

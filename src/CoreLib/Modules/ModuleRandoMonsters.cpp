@@ -73,11 +73,11 @@ void ModuleRandoMonsters::generate()
 
         for (const auto* monSet : { &row.mon, &row.umon, &row.nmon }) {
             for (auto& id : *monSet) {
-                auto n = output.monstats.findN(id);
-                if (n == size_t(-1))
+                auto* mon = output.monstats.find(id);
+                if (!mon)
                     continue;
 
-                auto& monstat = output.monstats.rows[n];
+                auto& monstat = *mon;
                 if (monstat.useForRando && monstat.firstAreaIndexToSpawn == -1) {
                     monstat.firstAreaIndexToSpawn = idx;
                 }
@@ -89,11 +89,11 @@ void ModuleRandoMonsters::generate()
         auto key = row.monsterClass;
         if (auto it = s_superUniqueReplacement.find(key); it != s_superUniqueReplacement.cend())
             key = it->second;
-        auto n = output.monstats.findN(key);
-        if (n == size_t(-1))
+        auto* mon = output.monstats.find(key);
+        if (!mon)
             continue;
 
-        auto& monstat = output.monstats.rows[n];
+        auto& monstat = *mon;
         if (monstat.firstAreaIndexToSpawn >= 0)
             output.levels.rows[monstat.firstAreaIndexToSpawn].superUniquesIndexes.push_back(idx);
         else
@@ -256,9 +256,11 @@ void ModuleRandoMonsters::processTask(MonsterTask& task, MonsterTaskList& extraM
     if (task.m_skip) {
         return;
     }
+    assert(row.isRegular);
+    assert(row.useForRando);
 
     DataRow_monstatsEx& rowEx = task.m_destEx;
-    rowEx                     = *output.monstatsEx.index.at(row.monStatsEx);
+    rowEx                     = *output.monstatsEx.find(row.monStatsEx);
 
     const std::string origId = row.id;
     row.useForRando          = false;
@@ -390,7 +392,7 @@ void ModuleRandoMonsters::processTask(MonsterTask& task, MonsterTaskList& extraM
         if (minionId.empty())
             continue;
         MonsterTask minionTask = task;
-        minionTask.m_source    = output.monstats.index.at(minionId);
+        minionTask.m_source    = output.monstats.find(minionId);
         if (!minionTask.m_source->useForRando) {
             minionTask.m_skip = true;
         }
@@ -494,7 +496,7 @@ void ModuleRandoMonsters::generateChimera(DataRow_monstats& chimera, DataRow_mon
     }
 
     const DataRow_monstats&   donor   = output.monstats.rows[chimera.donorIdx];
-    const DataRow_monstatsEx& donorEx = *output.monstatsEx.index.at(donor.monStatsEx);
+    const DataRow_monstatsEx& donorEx = *output.monstatsEx.find(donor.monStatsEx);
 
     chimera.donorId = donor.id;
 
