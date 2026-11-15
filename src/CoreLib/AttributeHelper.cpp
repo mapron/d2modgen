@@ -487,6 +487,7 @@ const AttributeDesc s_attributes[]{
     AttributeDesc{ AttributeId::skilltab_war, P::None, R::Range, { AF::Skills } }.setRange(1, 7).setClass(CH::War), // +# to Warlock Skill random tab Levels
     AttributeDesc{ AttributeId::magdam_rand, P::None, R::Flag },                                                    // Random magic damage
     AttributeDesc{ AttributeId::roguesbow_affix1, P::None, R::Flag, { AF::Keep } }.setClass(CH::Ama),               // +3 to Cold or Fire arrow
+    AttributeDesc{ AttributeId::eternity_update, P::None, R::Flag, { AF::Keep } },                                  //
 
 };
 
@@ -841,7 +842,7 @@ const AttributeDescStr s_attrCodes[]{
     { AttributeId::skilltab_war, "skilltab-war", "skilltab_war" },
     { AttributeId::magdam_rand, "magdam-rand", "magdam_rand" },
     { AttributeId::roguesbow_affix1, "roguesbow-affix1", "roguesbow_affix1" },
-
+    { AttributeId::eternity_update, "eternity-update", "eternity_update" },
 };
 
 const std::unordered_map<std::string_view, AttributeId> s_attributesIndex = [] {
