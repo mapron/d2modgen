@@ -77,24 +77,14 @@ WidgetCommonTab {
 
     Separator {}
 
-    RowLayout {
-        spacing: 10
-        Layout.fillWidth: true
-        Label {
-            text: qsTr("Change size of maze levels:")
-        }
+    WidgetRadioGroup {
+        caption: qsTr("Change size of maze levels:")
+        tooltip: qsTr("Compact setting will make all maps either L-shaped with just 3 tiles, or<br>square with just 2 extra tiles (like flayer dungeon maps)")
 
-        WidgetHelpIcon {
-            tooltipText: qsTr("Compact setting will make all maps either L-shaped with just 3 tiles, or<br>square with just 2 extra tiles (like flayer dungeon maps)")
-        }
-        RadioGroup {
-            model: [qsTr("Disable"), qsTr("Compact"), qsTr("All to Normal"), qsTr("All to Hell")]
-            value_key: root.value_context.mazeMode
-        }
-        Item {
-            Layout.fillWidth: true
-        }
+        model: [qsTr("Disable"), qsTr("Compact"), qsTr("All to Normal"), qsTr("All to Hell")]
+        value_key: root.value_context.mazeMode
     }
+
     Separator {}
     WidgetSlider {
         caption: qsTr("Increase Nightmare area levels, +levels")

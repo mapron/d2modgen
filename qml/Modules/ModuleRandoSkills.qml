@@ -31,19 +31,11 @@ WidgetCommonTab {
 
     Separator {}
 
-    RowLayout {
-        spacing: 10
-        Layout.fillWidth: true
-        Label {
-            text: qsTr("Skill randomizer:")
-        }
-        RadioGroup {
-            model: [qsTr("Disable"), qsTr("Same class shuffle"), qsTr("Select class"), qsTr("Full class rando")]
-            value_key: root.value_context.randoMode
-        }
-        Item {
-            Layout.fillWidth: true
-        }
+    WidgetRadioGroup {
+        caption: qsTr("Skill randomizer:")
+
+        model: [qsTr("Disable"), qsTr("Same class shuffle"), qsTr("Select class"), qsTr("Full class rando")]
+        value_key: root.value_context.randoMode
     }
 
     WidgetComboBox {

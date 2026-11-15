@@ -82,19 +82,11 @@ Frame {
 
             Separator {}
 
-            RowLayout {
-                spacing: 10
-                Layout.fillWidth: true
-                Label {
-                    text: qsTr("Min/max roll mode:")
-                }
-                RadioGroup {
-                    model: [qsTr("Keep random"), qsTr("Anti-perfect"), qsTr("Average"), qsTr("Perfect max")]
-                    value_key: root.value_context.rollMode
-                }
-                Item {
-                    Layout.fillWidth: true
-                }
+            WidgetRadioGroup {
+                caption: qsTr("Min/max roll mode:")
+
+                model: [qsTr("Keep random"), qsTr("Anti-perfect"), qsTr("Average"), qsTr("Perfect max")]
+                value_key: root.value_context.rollMode
             }
 
             WidgetSlider {

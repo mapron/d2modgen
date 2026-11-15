@@ -84,21 +84,9 @@ WidgetCommonTab {
         isCompact: false
     }
 
-    RowLayout {
-        spacing: 6
-        Layout.fillWidth: true
-
-        LabelLarge {
-            text: qsTr("Make items' names compact - world's smallest loot filter!")
-        }
-
-        WidgetHelpIcon {
-            tooltipText: qsTr("this will make item names take less space, e.g. '!HP2' for health potion.<br>Have only effect for D2R. Use loot filters for PD2.")
-        }
-
-        Item {
-            Layout.fillWidth: true
-        }
+    LabelWithTooltip {
+        caption: qsTr("Make items' names compact - world's smallest loot filter!")
+        tooltip: qsTr("this will make item names take less space, e.g. '!HP2' for health potion.<br>Have only effect for D2R. Use loot filters for PD2.")
     }
 
     WidgetCheckbox {

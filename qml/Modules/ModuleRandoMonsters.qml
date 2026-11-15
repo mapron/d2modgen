@@ -23,27 +23,16 @@ WidgetCommonTab {
         value_key: root.value_context.seed
     }
 
-    RowLayout {
-        spacing: 6
-        Layout.fillWidth: true
+    LabelWithTooltip {
+        caption: qsTr("Area population randomizer")
 
-        LabelLarge {
-            text: qsTr("Area population randomizer")
-        }
-
-        WidgetHelpIcon {
-            tooltipText: qsTr("Game area is what you see in red text on screen and in corner of the map" //
-            + "<br>(Blood Moor, River of Flame, etc). " //
-            + "<br>Each area have so-called 'spawns' - what monster type can possibly genrated in the game" //
-            + "<br>Example: Tal Rasha tombs have 6 possible monster types" //
-            + "<br>and each time you create a game, area will have 3 out of this 6 spawns (with rare exceptions)" //
-            + "<br>This sections allow you to bring new monsters to the area," //
-            + "<br>remove existing spawsn and modify properies of what is left.")
-        }
-
-        Item {
-            Layout.fillWidth: true
-        }
+        tooltip: qsTr("Game area is what you see in red text on screen and in corner of the map" //
+        + "<br>(Blood Moor, River of Flame, etc). " //
+        + "<br>Each area have so-called 'spawns' - what monster type can possibly genrated in the game" //
+        + "<br>Example: Tal Rasha tombs have 6 possible monster types" //
+        + "<br>and each time you create a game, area will have 3 out of this 6 spawns (with rare exceptions)" //
+        + "<br>This sections allow you to bring new monsters to the area," //
+        + "<br>remove existing spawsn and modify properies of what is left.")
     }
 
     WidgetSlider {
