@@ -12,9 +12,8 @@ namespace D2ModGen {
 
 class CascStorage final : public IStorage {
 public:
-    CascStorage(const Mernel::std_path& storageRoot, const Mernel::std_path& cacheRoot)
+    CascStorage(const Mernel::std_path& storageRoot)
         : m_storageRoot(storageRoot)
-        , m_cacheRoot(cacheRoot)
     {}
 
 private:
@@ -24,7 +23,6 @@ private:
 
 private:
     const Mernel::std_path m_storageRoot;
-    const Mernel::std_path m_cacheRoot;
 
     bool m_verbose = false;
 };

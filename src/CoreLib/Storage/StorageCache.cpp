@@ -28,7 +28,7 @@ IStorage::StoredData StorageCache::loadImpl(const Context& input, bool verbose)
 {
     std::unique_ptr<IStorage> storage;
     if (input.m_storage == StorageType::D2ResurrectedInternal)
-        storage = std::make_unique<CascStorage>(input.m_root, input.m_cascCache);
+        storage = std::make_unique<CascStorage>(input.m_root);
     else if (input.m_storage == StorageType::D2LegacyInternal)
         storage = std::make_unique<StormStorage>(input.m_root);
     else {

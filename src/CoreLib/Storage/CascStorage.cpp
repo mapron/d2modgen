@@ -16,6 +16,7 @@ namespace D2ModGen {
 
 namespace {
 
+/// unused. Maybe re-think it later.
 struct CacheStorage {
 public:
     std_path m_root;
@@ -73,10 +74,7 @@ IStorage::StoredData CascStorage::readData() const noexcept
     }
     MERNEL_SCOPE_EXIT([storage] { CascCloseStorage(storage); });
 
-    CacheStorage cache;
-    cache.m_root = m_cacheRoot;
-
-    auto readCascFile = [storage, &cache, this](std::string& data, const std::string& filename, bool useCache = false) -> bool {
+    auto readCascFile = [storage, this](std::string& data, const std::string& filename, bool useCache = false) -> bool {
         const std::string fullId = "data:" + filename;
         HANDLE            fileHandle;
 
@@ -87,13 +85,6 @@ IStorage::StoredData CascStorage::readData() const noexcept
         MERNEL_SCOPE_EXIT([fileHandle] { CascCloseFile(fileHandle); });
 
         auto dataSize = CascGetFileSize(fileHandle, nullptr);
-        if (useCache) {
-            Mernel::ProfilerScope scope("cache.readFile");
-            if (cache.readFile(data, dataSize, filename)) {
-                Logger(m_verbose) << "Read (cache): " << filename << " [size: " << data.size() << "]";
-                return true;
-            }
-        }
 
         data.resize(dataSize);
         DWORD                 wread;
@@ -102,8 +93,6 @@ IStorage::StoredData CascStorage::readData() const noexcept
             Logger(Logger::Warning) << "failed to read:" << fullId << ", err=" << GetCascError();
             return false;
         }
-        if (useCache)
-            cache.writeFile(data, filename);
 
         Logger(m_verbose) << "Read: " << filename << " [size: " << data.size() << "]";
         return true;

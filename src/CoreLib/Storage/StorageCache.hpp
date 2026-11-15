@@ -16,7 +16,6 @@ public:
     struct Context {
         StorageType      m_storage;
         Mernel::std_path m_root;
-        Mernel::std_path m_cascCache;
 
         bool operator==(const Context& rh) const noexcept = default;
     };

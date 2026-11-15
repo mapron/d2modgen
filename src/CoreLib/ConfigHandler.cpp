@@ -177,7 +177,7 @@ bool ConfigHandler::generate(const GenerationEnvironment& env, std::string& crc)
     IStorage::StoredData inData;
     {
         ProfilerScope scope("mainStorage.load");
-        inData = m_mainStorageCache->load({ env.inputMode, env.inputPath, m_appData / "cascCache" }, fileIOVerbose);
+        inData = m_mainStorageCache->load({ env.inputMode, env.inputPath }, fileIOVerbose);
     }
     if (!inData.valid) {
         Logger(Logger::Err) << "Failed to read data files from D2 folder.";
