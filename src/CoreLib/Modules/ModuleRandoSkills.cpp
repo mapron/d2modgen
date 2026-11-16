@@ -426,8 +426,6 @@ void ModuleRandoSkills::generate()
 
         cha.insertRows(output, totalNewSkillsPerClass);
         cha.createIdx(output);
-        output.skills.updateIndex();
-        output.skilldesc.updateIndex();
         if (randoEnabled) {
             cha.randomizePositions(rng);
             cha.updateSkillNameRef(output, rng);
@@ -451,6 +449,9 @@ void ModuleRandoSkills::generate()
     for (auto& [key, cha] : generatedData) {
         cha.writeOut(output);
     }
+
+    output.skills.updateIndex();
+    output.skilldesc.updateIndex();
 
     output.missiles.commitExtraRows();
 
@@ -751,7 +752,7 @@ Amazon
 Sorceress
   Blizzard      skilldesc100     synergyA calc: skill('Ice bolt'.blvl)   synergyA desc: skilldesc101
                                  synergyB calc: skill('Ice blast'.blvl)  synergyB desc: skilldesc102
-  Ice bolt      skilldesc101    
+  Ice bolt      skilldesc101
   Ice blast     skilldesc102
 
 Dest:
@@ -760,11 +761,11 @@ Necromancer
                                           synergyA calc: skill('gen_nec_3'.blvl)  synergyA desc: skilldesc11 = synergy from Cold Arrow
                                           synergyB calc: skill('gen_nec_4'.blvl)  synergyB desc: skilldesc21
   gen_nec_2  og: Cold Arrow  skilldesc11
-                                          synergyA calc: skill('gen_nec_1'.blvl)  synergyA desc: skilldesc100 
+                                          synergyA calc: skill('gen_nec_1'.blvl)  synergyA desc: skilldesc100
   gen_nec_3  og: Fire Arrow  skilldesc31
   gen_nec_4  og: Ice  Arrow  skilldesc21
 
-  replace 
+  replace
 */
 
     PtrSet allExistingSkills;
