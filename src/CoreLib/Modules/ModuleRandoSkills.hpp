@@ -82,7 +82,7 @@ private:
         void makeInactive(RandomGenerator& rng, int keepCnt);
 
         void generateAdditionalSkills(RandomGenerator& rng, const CharacterData& someOtherClass, int generateCount);
-        void createIdx(DataContext& output);
+        void createIdx(DataContext& output, int originalIconCount);
 
         void randomizePositions(RandomGenerator& rng);
 

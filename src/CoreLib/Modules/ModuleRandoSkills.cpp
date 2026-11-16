@@ -425,7 +425,14 @@ void ModuleRandoSkills::generate()
         }
 
         cha.insertRows(output, totalNewSkillsPerClass);
-        cha.createIdx(output);
+        int originalIconCount = 0;
+        if (spritesD2RExist) {
+            for (const auto& sprite : spriteMapExisting.at(key))
+                originalIconCount = std::max(originalIconCount, sprite.frameCount);
+        }
+        if (spritesLodExist)
+            originalIconCount = std::max(originalIconCount, int(spriteLegacyMapExisting.at(key).size()));
+        cha.createIdx(output, originalIconCount);
         output.skills.updateIndex();
         output.skilldesc.updateIndex();
         if (randoEnabled) {
@@ -611,11 +618,15 @@ void ModuleRandoSkills::CharacterData::generateAdditionalSkills(RandomGenerator&
                        << generated << " from '" << enumToString(someOtherClass.clas) << "' with incomingSize=" << incomingSize;
 }
 
-void ModuleRandoSkills::CharacterData::createIdx(DataContext& output)
+void ModuleRandoSkills::CharacterData::createIdx(DataContext& output, int originalIconCount)
 {
     Logger(extraTrace) << "char " << enumToString(clas) << " createIdx start=" << rowIdxStart;
+    // Hidden original skills can still be granted by starting equipment or items.
+    // Preserve their icon indices and append generated skills after the original atlas.
+    for (int frame = 0; frame < originalIconCount; ++frame)
+        skillsIcons.push_back({ clas, frame });
     size_t i          = 0;
-    int    iconCel    = 0;
+    int    iconCel    = originalIconCount;
     auto   pushSprite = [&iconCel, this](std::optional<int>& iconCelSrc, Character ogClass) {
         int cel = iconCelSrc.value();
         Logger(extraTrace) << "   skill icon " << cel << " from " << enumToString(ogClass);
@@ -630,10 +641,6 @@ void ModuleRandoSkills::CharacterData::createIdx(DataContext& output)
         auto& row  = skill.row;
         auto& desc = skill.desc;
         if (skill.rowIdx >= 0) {
-            if (skill.stype == ExistingActive) {
-                pushSprite(desc.iconCel, row.classSpecific);
-            }
-
             continue;
         }
 

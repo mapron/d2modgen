@@ -14,6 +14,12 @@ WidgetCommonTab {
     enabled_key: config.skillRandomizer.enabled
     caption: qsTr("Skill Randomizer")
 
+    Label {
+        text: qsTr("Original skills keep their icons, including skills granted by equipment.")
+        Layout.fillWidth: true
+        wrapMode: Text.WordWrap
+    }
+
     WidgetSeed {
         value_key: root.value_context.seed
     }
