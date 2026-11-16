@@ -19,7 +19,6 @@
 #include <QProcess>
 #include <QDir>
 #include <QSettings>
-#include <QSaveFile>
 #include <QStandardPaths>
 #include <QUrl>
 
@@ -50,7 +49,7 @@ std::string getInstallLocationFromRegistry(bool resurrected)
 {
     static const QString base("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II");
     QSettings            set(base + (resurrected ? " Resurrected" : ""),
-                  QSettings::Registry32Format);
+                             QSettings::Registry32Format);
     return ensureTrailingSlash(set.value("InstallLocation").toString()).toStdString();
 }
 #else
@@ -341,21 +340,14 @@ void UIController::copyModSettings()
     }
 
     int copied = 0;
-    for (const QString& name : { QStringLiteral("Settings.json"), QStringLiteral("Custom.key") }) {
-        if (!QFileInfo::exists(saves + name))
+    for (const QString& name : QStringList{ "Settings.json", "Custom.key" }) {
+        const QString source      = saves + name;
+        const QString destination = modSaves + name;
+        if (!QFileInfo::exists(source))
             continue;
 
-        QFile     source(saves + name);
-        QSaveFile destination(modSaves + name);
-        if (!source.open(QIODevice::ReadOnly)) {
-            emit statusUpdate(tr("Failed to read %1.").arg(name));
-            return;
-        }
-        const QByteArray contents = source.readAll();
-        if (source.error() != QFileDevice::NoError
-            || !destination.open(QIODevice::WriteOnly)
-            || destination.write(contents) != contents.size()
-            || !destination.commit()) {
+        if ((QFileInfo::exists(destination) && !QFile::remove(destination))
+            || !QFile::copy(source, destination)) {
             emit statusUpdate(tr("Failed to copy %1.").arg(name));
             return;
         }

@@ -67,7 +67,7 @@ WidgetScrollable {
         visible: root.isD2R
 
         Button {
-            text: qsTr("Copy settings and keybindings")
+            text: qsTr("Copy settings")
             onClicked: appui.copyModSettings()
         }
         WidgetHelpIcon {
