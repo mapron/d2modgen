@@ -78,3 +78,12 @@ jobs:
 
     - name: Test
       run: ctest --test-dir ${{ github.workspace }}/build -C ${{ matrix.build_type }} --output-on-failure
+
+    - name: Build and Install
+      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }} --target install
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: d2modgen-${{ matrix.os }}-${{ matrix.build_type }}
+        path: ${{ github.workspace }}/build/install/

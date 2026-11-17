@@ -17,6 +17,9 @@
 namespace D2ModGen {
 
 struct DataContext {
+    DataContext(const DataContext&)            = delete;
+    DataContext& operator=(const DataContext&) = delete;
+
     DataTable<DataRow_itemtypes> itemtypes;
 
     DataTable<DataRow_weapons> weapons;
@@ -103,7 +106,7 @@ struct DataContext {
     std::map<std::string, Image::Bitmap>   bitmaps;
 
     int64_t dataVersion  = 0;
-    bool    silent       = true;
+    bool    verbose      = false;
     bool    useBaseTable = false;
 
     struct IdClone {
@@ -114,8 +117,22 @@ struct DataContext {
     struct {
         IdCloneList monstats;
         IdCloneList missiles;
-        IdCloneList skills;
     } idClones;
+
+    struct NewLoc {
+        std::string key;
+        std::string value;
+    };
+    using NewLocList = std::vector<NewLoc>;
+    struct {
+        NewLocList items;
+    } newLoc;
+
+    using LocReplacement = std::map<std::string, std::string>;
+    struct {
+        LocReplacement itemNames;
+        LocReplacement itemAffixes;
+    } locReplacement;
 
     DataContext();
     ~DataContext();
@@ -125,16 +142,11 @@ struct DataContext {
 
     IStorage::StoredData writeDebug() const;
 
-    DataContext calculateDiff(const DataContext& older) const;
+    void calculateDiff(DataContext& result, const DataContext& older) const;
+    void removeIdenticalRecords(const DataContext& older);
+    void copyDataFrom(const DataContext& older);
 
     int getClassesCount() const;
-
-    DataContext makeSilent() const
-    {
-        DataContext result = *this;
-        result.silent      = true;
-        return result;
-    }
 
 private:
     bool postProcess();

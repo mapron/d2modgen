@@ -19,8 +19,12 @@ public:
 private:
     StoredData readData() const noexcept override;
 
+    void setVerbose(bool verbose) noexcept override { m_verbose = verbose; }
+
 private:
     const Mernel::std_path m_storageRoot;
+
+    bool m_verbose = false;
 };
 
 }

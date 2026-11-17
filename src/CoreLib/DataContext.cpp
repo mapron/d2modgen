@@ -38,27 +38,17 @@ bool DataContext::parseData(const IStorage::StoredData& data, bool doPostprocess
 
     if (!result)
         return true;
-    if (!doPostprocess)
-        return true;
 
-    if (!silent)
-        Logger() << "Tables have parsed successfully, now doing postprocess to establish links";
-    if (!postProcess()) {
-        if (!silent)
-            Logger(Logger::Err) << "Postprocess failure";
+    if (doPostprocess && !postProcess()) {
+        Logger(verbose, Logger::Err) << "Postprocess failure";
         return false;
     }
 
-    if (!silent)
-        Logger() << "Postprocess done";
-
     for (const auto& [id, fileData] : data.jsonFiles) {
         Mernel::PropertyTree doc;
-        if (!silent)
-            Logger() << "parse json: " << std::string(getJsonRelPath(id));
+        Logger(verbose) << "parse json: " << std::string(getJsonRelPath(id));
         if (!readDirtyJsonFromBufferNoexcept(fileData, doc)) {
-            if (!silent)
-                Logger(Logger::Warning) << "failed to parse json: " << getJsonRelPath(id);
+            Logger(verbose, Logger::Warning) << "failed to parse json: " << getJsonRelPath(id);
             return false;
         }
         jsonFiles[id] = std::move(doc);
@@ -125,16 +115,18 @@ IStorage::StoredData DataContext::writeDebug() const
     return data;
 }
 
-DataContext DataContext::calculateDiff(const DataContext& older) const
+void DataContext::calculateDiff(DataContext& result, const DataContext& older) const
 {
-    DataContext result;
     result.dataVersion = dataVersion;
 
     auto diffTab = [&older, &result, this](auto m) -> bool {
         const auto& tableOlder  = older.*m;
         const auto& tableNewer  = this->*m;
         auto&       tableResult = result.*m;
-        tableResult             = tableNewer;
+        if (tableOlder.rows.empty() || tableNewer.rows.empty())
+            return true;
+
+        tableResult = tableNewer;
         tableResult.rows.clear();
 
         diffTable(tableOlder, tableNewer, tableResult);
@@ -145,8 +137,52 @@ DataContext DataContext::calculateDiff(const DataContext& older) const
         return (diffTab(std::forward<decltype(args)>(args)) && ...);
     },
                              allTables());
+}
 
-    return result;
+void DataContext::removeIdenticalRecords(const DataContext& older)
+{
+    auto cleanup = [&older, this](auto m) -> bool {
+        const auto& tableOlder = older.*m;
+        auto&       tableNewer = this->*m;
+        if (tableNewer.rows == tableOlder.rows) {
+            tableNewer.rows.clear();
+        }
+
+        return true;
+    };
+
+    std::ignore = std::apply([&cleanup](const auto&... args) -> bool {
+        return (cleanup(std::forward<decltype(args)>(args)) && ...);
+    },
+                             allTables());
+    for (auto& [key, value] : older.jsonFiles) {
+        if (auto it = jsonFiles.find(key); it != jsonFiles.cend()) {
+            if (value == it->second)
+                jsonFiles.erase(it);
+        }
+    }
+    for (auto& [key, value] : older.blobs) {
+        if (auto it = blobs.find(key); it != blobs.cend()) {
+            if (value == it->second)
+                blobs.erase(it);
+        }
+    }
+}
+
+void DataContext::copyDataFrom(const DataContext& older)
+{
+    auto copy = [&older, this](auto m) -> bool {
+        this->*m = older.*m;
+        return true;
+    };
+
+    std::ignore = std::apply([&copy](const auto&... args) -> bool {
+        return (copy(std::forward<decltype(args)>(args)) && ...);
+    },
+                             allTables());
+
+    jsonFiles = older.jsonFiles;
+    blobs     = older.blobs;
 }
 
 int DataContext::getClassesCount() const
@@ -207,7 +243,7 @@ bool DataContext::postProcess()
         if (!row.isValid())
             continue;
 
-        auto* parent_set = sets.index.at(Mernel::strToLower(row.setIndex));
+        auto* parent_set = sets.find(Mernel::strToLower(row.setIndex));
         row.eqipmentType = findEquip(row.eqipmentCode);
 
         const_cast<DataRow_sets*>(parent_set)->level = row.getLevel();
@@ -238,12 +274,12 @@ bool DataContext::postProcess()
         const auto parent1 = row.equiv1;
         const auto parent2 = row.equiv2;
         if (!parent1.empty()) {
-            auto parent1ptr = const_cast<DataRow_itemtypes*>(itemtypes.index.at(parent1));
+            auto parent1ptr = const_cast<DataRow_itemtypes*>(itemtypes.find(parent1));
             row.parents.insert(parent1ptr);
             parent1ptr->nested.insert(&row);
         }
         if (!parent2.empty()) {
-            auto parent2ptr = const_cast<DataRow_itemtypes*>(itemtypes.index.at(parent2));
+            auto parent2ptr = const_cast<DataRow_itemtypes*>(itemtypes.find(parent2));
             row.parents.insert(parent2ptr);
             parent2ptr->nested.insert(&row);
         }
@@ -306,7 +342,7 @@ bool DataContext::postProcess()
     for (auto& row : runes.rows) {
         row.lvl = 0;
         for (const std::string& rune : row.runeCodes)
-            row.lvl = std::max(row.lvl, misc.index.at(rune)->getLevel());
+            row.lvl = std::max(row.lvl, misc.find(rune)->getLevel());
     }
     setstypes.equiv1 = "SET";
     for (auto& row : sets.rows) {
@@ -331,7 +367,7 @@ bool DataContext::postProcess()
             row.eqipmentType = findEquip(input1);
 
         } else {
-            auto slot = row.itemType->determineSlot();
+            [[maybe_unused]] auto slot = row.itemType->determineSlot();
             assert(slot != SlotType::None);
         }
     }
@@ -344,20 +380,19 @@ bool DataContext::postProcess()
             continue;
         if (row.mon.empty() || row.umon.empty() || !row.numMon.has_value())
             continue;
-        if (!row.hasSpawns())
-            continue;
+
         row.useForRando = true;
         for (auto& id : row.mon) {
-            if (auto idx = monstats.findN(id); idx != size_t(-1))
-                monstats.rows[idx].spawnedAsNormal = true;
+            if (auto* row = monstats.find(id))
+                row->spawnedAsNormal = true;
         }
         for (auto& id : row.nmon) {
-            if (auto idx = monstats.findN(id); idx != size_t(-1))
-                monstats.rows[idx].spawnedAsNormal = true;
+            if (auto* row = monstats.find(id))
+                row->spawnedAsNormal = true;
         }
         for (auto& id : row.umon) {
-            if (auto idx = monstats.findN(id); idx != size_t(-1))
-                monstats.rows[idx].spawnedAsElite = true;
+            if (auto* row = monstats.find(id))
+                row->spawnedAsElite = true;
         }
     }
 
@@ -368,15 +403,15 @@ bool DataContext::postProcess()
                 if (minionId.empty() || minionId == row.id)
                     continue;
 
-                auto n = monstats.findN(minionId);
-                if (n != size_t(-1))
-                    monstats.rows[n].spawnedAsNormal = true;
+                auto* mon = monstats.find(minionId);
+                if (mon)
+                    mon->spawnedAsNormal = true;
             }
         }
     }
     for (auto& row : monstats.rows) {
-        row.isRegular = row.isEnabled() && row.isSpawn() && row.isKillable() && !row.isNpc() && !row.isBoss() && row.level.has_value();
-        row.isRegular = row.isRegular && monstatsEx.index.contains(row.monStatsEx);
+        row.isRegular = row.isEnabled() && row.isSpawn() && row.isKillable() && !row.isNpc() && row.level.has_value();
+        row.isRegular = row.isRegular && monstatsEx.indexN.contains(row.monStatsEx);
 
         row.useForRando = row.isRegular && row.spawnedAsNormal;
         hasRegular      = hasRegular || row.isRegular;
@@ -394,18 +429,16 @@ bool DataContext::parseTable(DataTable<Row>& table, const IStorage::TableMap& da
         return true;
     const std::string& buffer = data.at(tableId);
     if (!table.parseTable(buffer)) {
-        if (!silent)
-            Logger(Logger::Warning) << "failed to parse csv:" << getTableIdString(tableId);
+        Logger(verbose, Logger::Warning) << "failed to parse csv:" << getTableIdString(tableId);
         return false;
     }
     for (size_t i = 0; i < table.indicesUsed.size(); i++) {
-        if (table.indicesUsed[i] == size_t(-1) && !silent) {
-            Logger(Logger::Warning) << "Missing column '" << table.requestedColumns[i] << "' in table '" << getTableIdString(tableId) << "', generation may be incomplete.";
+        if (table.indicesUsed[i] == size_t(-1)) {
+            Logger(verbose, Logger::Warning) << "Missing column '" << table.requestedColumns[i] << "' in table '" << getTableIdString(tableId) << "', generation may be incomplete.";
         }
     }
 
-    if (!silent)
-        Logger() << "parse '" << getTableIdString(tableId) << "' buffer[" << buffer.size() << "] => csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "]";
+    Logger(verbose) << "parse '" << getTableIdString(tableId) << "' buffer[" << buffer.size() << "] => csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "]";
 
     return true;
 }
@@ -413,7 +446,7 @@ bool DataContext::parseTable(DataTable<Row>& table, const IStorage::TableMap& da
 template<class Row>
 bool DataContext::serializeTable(const DataTable<Row>& table, IStorage::TableMap& data, bool full) const
 {
-    if (!table.valid)
+    if (!table.valid || table.rows.empty())
         return true;
 
     const TableId tableId = Row::s_tableId;
@@ -421,8 +454,7 @@ bool DataContext::serializeTable(const DataTable<Row>& table, IStorage::TableMap
     if (!table.serializeTable(buffer, full))
         return false;
 
-    if (full && !silent)
-        Logger() << "serialize '" << getTableIdString(tableId) << "' csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "] => buffer[" << buffer.size() << "] ";
+    Logger(full && verbose) << "serialize '" << getTableIdString(tableId) << "' csv[" << table.columnsOriginal.size() << "x" << table.rows.size() << "] => buffer[" << buffer.size() << "] ";
 
     return true;
 }
@@ -538,19 +570,8 @@ void DataContext::diffTable(const DataTable<Row>& tableOlder, const DataTable<Ro
 
         auto olderRow = tableOlder.rows[i];
         auto newerRow = tableNewer.rows[i];
-        olderRow._ser_usedCells.resize(tableOlder.indicesUsed.size());
-        olderRow._ser_read      = false;
-        olderRow._ser_cellIndex = 0;
-        olderRow._ser_key.reset();
-        olderRow.serialize();
 
-        newerRow._ser_usedCells.resize(tableOlder.indicesUsed.size());
-        newerRow._ser_read      = false;
-        newerRow._ser_cellIndex = 0;
-        newerRow._ser_key.reset();
-        newerRow.serialize();
-
-        if (olderRow._ser_usedCells == newerRow._ser_usedCells)
+        if (olderRow == newerRow)
             continue;
         result.rows.push_back(newerRow);
     }

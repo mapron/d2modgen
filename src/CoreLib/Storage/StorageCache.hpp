@@ -21,10 +21,10 @@ public:
     };
 
 public:
-    IStorage::StoredData load(const Context& input);
+    IStorage::StoredData load(const Context& input, bool verbose);
 
 private:
-    static IStorage::StoredData loadImpl(const Context& input);
+    static IStorage::StoredData loadImpl(const Context& input, bool verbose);
 
 private:
     IStorage::StoredData m_cache;

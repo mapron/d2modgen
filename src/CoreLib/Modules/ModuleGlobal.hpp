@@ -10,7 +10,7 @@
 namespace D2ModGen {
 
 struct ModuleGlobal : public AbstractModule {
-    ModuleGlobal(DataContext& output_, const Config& config_, const GenerationEnvironment& env_);
+    ModuleGlobal(std::string crc, DataContext& output_, const Config& config_, const GenerationEnvironment& env_);
 
     void reset();
 
@@ -18,14 +18,19 @@ struct ModuleGlobal : public AbstractModule {
 
 private:
     struct ModuleRecord {
-        std::string              m_id;
+        std::string_view         m_id;
         std::unique_ptr<IModule> m_gen;
     };
     template<class T>
-    void create(const std::string& id);
+    void create(const std::string_view& id);
+
+    void updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId);
+    void updateLoDtranslation(std::string& patchstringTlb);
 
 private:
     std::vector<ModuleRecord> m_modules;
+    std::string               m_crc;
+    bool                      m_verbose = false;
 };
 
 }

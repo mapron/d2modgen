@@ -5,26 +5,36 @@
  */
 #include "ModuleGlobal.hpp"
 
-#include "ModuleChallenge.hpp"
-#include "ModuleCharacter.hpp"
-#include "ModuleCube.hpp"
-#include "ModuleGambling.hpp"
-#include "ModuleTreasureClasses.hpp"
-#include "ModuleItemRandomizer.hpp"
-#include "ModuleMonRandomizer.hpp"
-#include "ModuleMonStats.hpp"
-#include "ModuleItemBalance.hpp"
-#include "ModuleQol.hpp"
-#include "ModuleSkillRandomizer.hpp"
-#include "ModuleExpandedInventory.hpp"
-#include "ModuleMaps.hpp"
+#include "ModuleRandoItems.hpp"
+#include "ModuleRandoSkills.hpp"
+#include "ModuleRandoMonsters.hpp"
+
+#include "ModuleBalanceCharacter.hpp"
+#include "ModuleBalanceGambling.hpp"
+#include "ModuleBalanceItems.hpp"
+#include "ModuleBalanceMaps.hpp"
+#include "ModuleBalanceMonsters.hpp"
+#include "ModuleBalanceSkills.hpp"
+
+#include "ModuleDroprate.hpp"
+
+#include "ModuleOtherExpandedInventory.hpp"
+#include "ModuleOtherHoradricCube.hpp"
+#include "ModuleOtherQualityOfLife.hpp"
+
+#include "TblParser.hpp"
+
+#include "Version.hpp"
 
 #include "Logger.hpp"
 
+#include "MernelPlatform/Profiler.hpp"
+
 namespace D2ModGen {
 
-ModuleGlobal::ModuleGlobal(DataContext& output_, const Config& config_, const GenerationEnvironment& env_)
+ModuleGlobal::ModuleGlobal(std::string crc, DataContext& output_, const Config& config_, const GenerationEnvironment& env_)
     : AbstractModule(output_, config_, env_)
+    , m_crc(std::move(crc))
 {
     reset();
 }
@@ -32,23 +42,25 @@ ModuleGlobal::ModuleGlobal(DataContext& output_, const Config& config_, const Ge
 void ModuleGlobal::reset()
 {
     // light modules
-    create<ModuleChallenge>("Challenge");
-    create<ModuleCharacter>("Character");
-    create<ModuleGambling>("Gambling");
-    create<ModuleTreasureClasses>("TreasureClasses");
-    create<ModuleMonStats>("MonsterStats");
-    create<ModuleQol>("QualityOfLife");
-    create<ModuleExpandedInventory>("ExpandedInventory");
-    create<ModuleMaps>("Maps");
+    create<ModuleBalanceCharacter>("BalanceCharacter");
+    create<ModuleBalanceGambling>("BalanceGambling");
+    create<ModuleBalanceMonsters>("BalanceMonsters");
+    create<ModuleBalanceMaps>("BalanceMaps");
+
+    create<ModuleDroprate>("Droprate");
+    create<ModuleOtherQualityOfLife>("OtherQualityOfLife");
+    create<ModuleOtherExpandedInventory>("OtherExpandedInventory");
 
     // modules that can add more rows, thus in the end
-    create<ModuleCube>("HoradricCube");
-    create<ModuleMonRandomizer>("MonsterRandomizer");
-    create<ModuleItemRandomizer>("ItemRandomizer");
-    create<ModuleSkillRandomizer>("SkillRandomizer");
+    create<ModuleOtherHoradricCube>("OtherHoradricCube");
+    create<ModuleRandoItems>("RandoItems");
+    create<ModuleRandoMonsters>("RandoMonsters");
+    create<ModuleRandoSkills>("RandoSkills");
 
     // item balance affect possible input (item stat ranges) for randomizer, that's why it is in the end.
-    create<ModuleItemBalance>("ItemBalance");
+    create<ModuleBalanceItems>("BalanceItems");
+    // same for this coming after rando.
+    create<ModuleBalanceSkills>("BalanceSkills");
 }
 
 void ModuleGlobal::generate()
@@ -56,14 +68,18 @@ void ModuleGlobal::generate()
     for (auto& module : m_modules) {
         Logger() << "start module: " << module.m_id;
         try {
+            Mernel::ProfilerScope scope(module.m_id);
             module.m_gen->generate();
         }
         catch (const std::exception& ex) {
-            std::string msg("module '" + module.m_id + "': " + std::string(ex.what()));
+            std::string msg("module '" + std::string(module.m_id) + "': " + std::string(ex.what()));
 
             throw std::runtime_error(msg);
         }
     }
+    Logger() << "generate() finished";
+
+    m_verbose = env.extraTrace.contains("json_updates");
 
     auto replaceKey = [](Mernel::PropertyTreeMap& jsonObject, const std::string& sourceId, const std::string& newId) -> bool {
         if (!jsonObject.contains(sourceId))
@@ -86,9 +102,9 @@ void ModuleGlobal::generate()
         return s;
     };
 
-    auto doReplace = [&replaceKey, &underscoreBeforeLast, &underscored](const DataContext::IdCloneList& cloneList, Mernel::PropertyTree& jsonDoc, std::string title) {
+    auto doReplace = [&replaceKey, &underscoreBeforeLast, &underscored, this](const DataContext::IdCloneList& cloneList, Mernel::PropertyTree& jsonDoc, std::string title) {
         Mernel::PropertyTreeMap& jsonObject = jsonDoc.getMap();
-        Logger() << "Start updating " << title << ", existing keys: " << jsonObject.size() << ", clone list size:" << cloneList.size();
+        Logger(m_verbose) << "Start updating " << title << ", existing keys: " << jsonObject.size() << ", clone list size:" << cloneList.size();
         for (const auto& [sourceId, newId] : cloneList) {
             if (replaceKey(jsonObject, sourceId, newId))
                 continue;
@@ -105,7 +121,7 @@ void ModuleGlobal::generate()
             }
             Logger(Logger::Err) << "Not found replacement for=" << sourceId << " / " << safeId;
         }
-        Logger() << "Finish  updating " << title << ", new size: " << jsonObject.size();
+        Logger(m_verbose) << "Finish  updating " << title << ", new size: " << jsonObject.size();
     };
 
     if (output.jsonFiles.contains(JsonId::Monsters)) {
@@ -117,12 +133,102 @@ void ModuleGlobal::generate()
         auto& jsonDoc = output.jsonFiles[JsonId::Missiles];
         doReplace(output.idClones.missiles, jsonDoc, "missiles.json");
     }
+
+    if (output.newLoc.items.size() > 0) {
+        size_t totalKeySize = 0;
+        size_t totalValSize = 0;
+        for (const auto& loc : output.newLoc.items) {
+            totalKeySize += loc.key.size() + 1;
+            totalValSize += loc.value.size() + 1;
+        }
+        Logger(m_verbose, Logger::Notice) << "Adding new " << output.newLoc.items.size() << " translations, totalKeySize=" << totalKeySize << ", totalValSize=" << totalValSize;
+        if (output.jsonFiles.contains(JsonId::ItemNames)) {
+            auto& jsonDoc = output.jsonFiles[JsonId::ItemNames];
+            updateD2Rtranslation(jsonDoc, env.d2rLocaleId);
+        }
+        if (output.blobs.contains(BlobId::PatchStringTbl)) {
+            auto& blob = output.blobs[BlobId::PatchStringTbl];
+            updateLoDtranslation(blob);
+        }
+    }
+
+    auto replaceJson = [this](const std::map<std::string, std::string>& replacements, const JsonId& name) {
+        if (replacements.empty() || !output.jsonFiles.contains(name))
+            return;
+        auto& jsonDoc   = output.jsonFiles[name];
+        auto& jsonArray = jsonDoc.getList();
+        for (Mernel::PropertyTree& lang : jsonArray) {
+            const std::string key = lang["Key"].getScalar().toString();
+            if (replacements.contains(key)) {
+                auto val              = replacements.at(key);
+                lang[env.d2rLocaleId] = Mernel::PropertyTreeScalar{ val };
+            }
+        }
+    };
+    replaceJson(output.locReplacement.itemNames, JsonId::ItemNames);
+    replaceJson(output.locReplacement.itemAffixes, JsonId::ItemNameAffixes);
+
+    if (output.jsonFiles.contains(JsonId::ItemNames)) {
+        auto& jsonDoc = output.jsonFiles[JsonId::ItemNames];
+        for (auto& itemDesc : jsonDoc.getList()) {
+            const std::string key = itemDesc["Key"].getScalar().toString();
+            if (key == "box") {
+                itemDesc[env.d2rLocaleId] = Mernel::PropertyTreeScalar("d2modgen " + std::string(g_version) + " CRC: " + m_crc);
+            }
+        }
+    }
 }
 
 template<class T>
-void ModuleGlobal::create(const std::string& id)
+void ModuleGlobal::create(const std::string_view& id)
 {
     m_modules.push_back(ModuleRecord{ id, std::make_unique<T>(output, config, env) });
+}
+
+void ModuleGlobal::updateD2Rtranslation(Mernel::PropertyTree& jsonDoc, const std::string& localeId)
+{
+    {
+        size_t totalKeySize = 0;
+        size_t totalValSize = 0;
+        for (const auto& itemDesc : jsonDoc.getList()) {
+            const std::string key = itemDesc["Key"].getScalar().toString();
+            const std::string val = itemDesc[localeId].getScalar().toString();
+            totalKeySize += key.size() + 1;
+            totalValSize += val.size() + 1;
+        }
+        Logger(m_verbose, Logger::Info) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
+    }
+
+    int id = 1000000;
+    for (const DataContext::NewLoc& loc : output.newLoc.items) {
+        Mernel::PropertyTree itemDesc;
+        itemDesc["Key"]    = Mernel::PropertyTreeScalar(loc.key);
+        itemDesc["id"]     = Mernel::PropertyTreeScalar(id++);
+        itemDesc[localeId] = Mernel::PropertyTreeScalar(loc.value);
+
+        jsonDoc.append(itemDesc);
+    }
+}
+
+void ModuleGlobal::updateLoDtranslation(std::string& patchstringTlb)
+{
+    TblStructure tbl;
+    tbl.readFromBuffer(patchstringTlb);
+
+    {
+        size_t totalKeySize = 0;
+        size_t totalValSize = 0;
+        for (const auto& itemDesc : tbl.m_rows) {
+            totalKeySize += itemDesc.Key.size() + 1;
+            totalValSize += itemDesc.Val.size() + 1;
+        }
+        Logger(m_verbose, Logger::Info) << "Existing: totalKeySize=" << totalKeySize << " totalValSize=" << totalValSize;
+    }
+
+    for (const DataContext::NewLoc& loc : output.newLoc.items) {
+        tbl.m_rows.push_back({ .Key = loc.key, .Val = loc.value });
+    }
+    tbl.writeToBuffer(patchstringTlb);
 }
 
 }

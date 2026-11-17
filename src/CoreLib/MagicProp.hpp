@@ -16,7 +16,7 @@ using SkillCodeResolver = std::function<int(const std::string&)>;
 using SkillGetter       = std::function<DataRow_skills_ptr(int)>;
 
 struct RandoParams {
-    Config::ItemBalance::CommonSettings common;
+    Config::BalanceItems::CommonSettings common;
 
     int levelPlus       = 0;
     int levelMinus      = 0;
@@ -24,6 +24,7 @@ struct RandoParams {
     int forceCasterType = 0;
 
     bool enableGeneration   = true;
+    bool emptyListAllowed   = false;
     bool uniqueCheckAcross  = false;
     bool updateExisting     = false;
     bool supportRandomRange = true; // gems can't have random variance

@@ -21,6 +21,8 @@ struct DataRow_charstats : public RowBase {
         std::string        code;
         std::optional<int> count;
         std::string        loc;
+
+        bool operator==(const Item&) const noexcept = default;
     };
     std::vector<Item> items;
 
@@ -119,11 +121,6 @@ struct DataRow_levels : public RowBase {
     std::string name;
 
     bool useForRando = false;
-
-    bool hasSpawns() const
-    {
-        return monUMax[0].has_value() || monUMax[1].has_value() || monUMax[2].has_value();
-    }
 
     std::vector<std::string>           getColumns() const;
     std::map<std::string, std::string> getColumnAliases() const;
@@ -391,6 +388,7 @@ public:
     std::optional<int>  maxlvl;
     std::optional<int>  lvlreq;
     std::optional<bool> inTown;
+    std::optional<bool> leftskill;
     std::optional<int>  costMult;
     std::optional<int>  costAdd;
 
@@ -434,6 +432,8 @@ struct DataRow_treasureclassex : public RowBase {
     struct Item {
         std::string        tc;
         std::optional<int> prob;
+
+        bool operator==(const Item&) const noexcept = default;
     };
     std::vector<Item> items;
 

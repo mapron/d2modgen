@@ -75,18 +75,32 @@ struct DataRow_misc : public RowBaseEquipment {
 
 struct DataRow_automagic : public RowBaseAffixes {
     static constexpr const TableId s_tableId{ TableId::automagic };
+
+    bool m_stub{ false };
+
+    bool operator==(const DataRow_automagic&) const noexcept = default;
 };
 struct DataRow_magicprefix : public RowBaseAffixes {
     static constexpr const TableId s_tableId{ TableId::magicprefix };
+
+    bool m_stub{ false };
+
+    bool operator==(const DataRow_magicprefix&) const noexcept = default;
 };
 struct DataRow_magicsuffix : public RowBaseAffixes {
     static constexpr const TableId s_tableId{ TableId::magicsuffix };
+
+    bool m_stub{ false };
+
+    bool operator==(const DataRow_magicsuffix&) const noexcept = default;
 };
 // =========================================================
 
 struct RowBaseUniqueSet
     : public RowBase
     , public IAffixContainer {
+    bool operator==(const RowBaseUniqueSet&) const noexcept = default;
+
     std::string   index;
     std::string   eqipmentCode;
     EquipmentType eqipmentType = nullptr;
@@ -112,6 +126,8 @@ struct RowBaseUniqueSet
         std::string dropsfxframe;
         std::string usesound;
         int         eol = 0;
+
+        bool operator==(const UX&) const noexcept = default;
     } ux;
 
     std::string displayName; // mostly for debug purposes like logs/dumps
@@ -154,6 +170,8 @@ struct RowBaseUniqueSet
 struct DataRow_uniqueitems : public RowBaseUniqueSet {
     static constexpr const TableId s_tableId{ TableId::uniqueitems };
 
+    bool operator==(const DataRow_uniqueitems&) const noexcept = default;
+
     std::optional<int> carry1;
     std::optional<int> version = 100;
 
@@ -171,6 +189,8 @@ struct DataRow_uniqueitems : public RowBaseUniqueSet {
 struct DataRow_sets;
 struct DataRow_setitems : public RowBaseUniqueSet {
     static constexpr const TableId s_tableId{ TableId::setitems };
+
+    bool operator==(const DataRow_setitems&) const noexcept = default;
 
     std::optional<int> addfunc;
     std::string        setIndex;

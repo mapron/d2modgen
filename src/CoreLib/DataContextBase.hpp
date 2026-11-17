@@ -45,8 +45,7 @@ struct DataTable {
     std::vector<size_t> indicesUsed;
     std::vector<size_t> indicesUnused;
 
-    std::unordered_map<std::string, const Row*> index;
-    std::unordered_map<std::string, int>        indexN;
+    std::unordered_map<std::string, int> indexN;
 
     std::string Row::* indexField = nullptr;
 
@@ -76,10 +75,9 @@ struct DataTable {
         if (!indexField)
             return;
         indexN.clear();
-        index.clear();
         for (int i = 0; auto& row : rows) {
-            auto key    = Mernel::strToLower(row.*indexField);
-            index[key]  = &row;
+            auto key = Mernel::strToLower(row.*indexField);
+
             indexN[key] = i++;
         }
     }
@@ -90,8 +88,13 @@ struct DataTable {
 
     const Row* find(const std::string& code) const
     {
-        auto it = index.find(code);
-        return it == index.cend() ? nullptr : it->second;
+        auto idx = findN(code);
+        return idx == size_t(-1) ? nullptr : &rows[idx];
+    }
+    Row* find(const std::string& code)
+    {
+        auto idx = findN(code);
+        return idx == size_t(-1) ? nullptr : &rows[idx];
     }
 
     size_t findN(const std::string& code) const
@@ -114,6 +117,8 @@ struct AffixProp {
     std::optional<int> min;
     std::optional<int> max;
     std::optional<int> chance;
+
+    bool operator==(const AffixProp&) const noexcept = default;
 
     bool hasPar() const { return !(par.empty() || par == "0" || par == " "); }
     int  parAsInt() const { return hasPar() ? std::atoi(par.c_str()) : 0; }

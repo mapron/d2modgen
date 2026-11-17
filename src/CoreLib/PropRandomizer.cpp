@@ -35,7 +35,6 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
         assert(recEstimate);
         estimatedSizePar += recEstimate;
     }
-    Logger() << "estimatedSize: nonPar=" << estimatedSizeNonPar << ", par=" << estimatedSizePar;
     const auto totalEstimate = estimatedSizeNonPar + estimatedSizePar;
     if (totalEstimate == 0)
         throw std::runtime_error("Randomizer attribute config is empty!");

@@ -25,10 +25,11 @@ int main(int argc, char* argv[])
     if (!env.init(configHandler.m_appConfig))
         return EXIT_FAILURE;
 
-    if (!configHandler.generate(env)) {
+    std::string crc;
+    if (!configHandler.generate(env, crc)) {
         return EXIT_FAILURE;
     }
     configHandler.saveConfig(configHandler.m_defaultPath);
-    Logger(Logger::Info) << "Success!";
+    Logger(Logger::Info) << "Success. CRC: " << crc;
     return EXIT_SUCCESS;
 }

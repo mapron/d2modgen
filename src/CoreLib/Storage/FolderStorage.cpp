@@ -66,29 +66,30 @@ bool FolderStorage::writeFile(const std::string& data, const std_path& relPath) 
         return true;
 
     auto res = Mernel::writeFileFromBufferNoexcept(absPath, data);
-    if (!m_silent) {
-        if (res) {
-            Logger() << "Write: " << path2string(relPath) << " [size: " << data.size() << "]";
-        } else {
-            Logger(Logger::Err) << "Failed to write file:" << relPath;
-        }
+    if (res) {
+        Logger(m_verbose) << "Write: " << path2string(relPath) << " [size: " << data.size() << "]";
+    } else {
+        Logger(Logger::Err) << "Failed to write file:" << relPath;
     }
+
     return res;
 }
 
-bool FolderStorage::readFile(std::string& data, const std_path& relPath, bool warnNonExistent) const
+bool FolderStorage::readFile(std::string& data, const std_path& relPath, bool important) const
 {
     const auto absPath = getRoot() / toFsPath(relPath);
-    if (!warnNonExistent && !std_fs::exists(absPath))
+    if (!std_fs::exists(absPath)) {
+        if (important && m_verbose) {
+            Logger(Logger::Warning) << "File does not exist:" << relPath;
+        }
         return false;
+    }
 
     auto res = Mernel::readFileIntoBufferNoexcept(absPath, data);
-    if (!m_silent) {
-        if (res) {
-            Logger() << "Read: " << path2string(relPath) << " [size: " << data.size() << "]";
-        } else {
-            Logger(Logger::Err) << "Failed to read file:" << relPath;
-        }
+    if (res) {
+        Logger(m_verbose) << "Read: " << path2string(relPath) << " [size: " << data.size() << "]";
+    } else {
+        Logger(Logger::Err) << "Failed to read file:" << relPath;
     }
     return res;
 }
@@ -99,10 +100,6 @@ IStorage::StoredData FolderStorage::readData() const noexcept
 
     if (m_storageType == StorageType::None)
         return result;
-
-    if (!m_silent) {
-        Logger(Logger::Notice) << "Start reading from root:" << getRoot();
-    }
 
     const auto root = getRoot();
 
@@ -150,6 +147,8 @@ IStorage::StoredData FolderStorage::readData() const noexcept
 
     result.valid = !(result.tablesMain.empty() && result.tablesBase.empty());
 
+    Logger(Logger::Info) << "Read Folder (" << path2string(getRoot()) << ") result = " << result.getStatistics();
+
     return result;
 }
 
@@ -158,9 +157,7 @@ bool FolderStorage::create() const noexcept
     if (m_storageType == StorageType::None)
         return true;
 
-    if (!m_silent) {
-        Logger(Logger::Notice) << "Start creating: " << getRoot();
-    }
+    Logger(m_verbose) << "Start creating: " << getRoot();
 
     const auto root = getRoot();
     const auto data = root / "data";
@@ -168,7 +165,7 @@ bool FolderStorage::create() const noexcept
         if (std_fs::exists(data)) {
             const auto global = data / "global";
             if (!std_fs::exists(global)) {
-                Logger(Logger::Err) << "There is /data/ subfolder, but no /data/global/";
+                Logger(Logger::Err) << "There is /data/ subfolder, but no /data/global/. Did you select output mode as Full Folders for D2R?";
                 return false;
             }
 
@@ -197,9 +194,7 @@ bool FolderStorage::writeMeta(const StoredData& data) const noexcept
     if (m_storageType != StorageType::D2ResurrectedModFolder)
         return true;
 
-    if (!m_silent) {
-        Logger(Logger::Info) << "Write meta to: " << getRoot();
-    }
+    Logger(m_verbose) << "Write meta to: " << getRoot();
 
     const auto           root     = getRoot();
     auto                 jsonPath = root / "modinfo.json";
@@ -225,9 +220,9 @@ bool FolderStorage::writeMainData(const StoredData& data) const noexcept
         return true;
 
     const auto root = getRoot();
-    if (!m_silent) {
-        Logger(Logger::Notice) << "Write data to: " << getRoot();
-    }
+
+    Logger(Logger::Info) << "Write to Folder (" << path2string(getRoot()) << ") data = " << data.getStatistics();
+
     for (const auto& [id, tableData] : data.tablesMain) {
         const std::string relPath = m_storageType == StorageType::CsvFolder ? std::string(getTableIdString(id)) + m_suffix + ".txt" : makeTableRelativePath(id, false);
         const auto        absPath = root / relPath;
@@ -267,9 +262,6 @@ bool FolderStorage::writeBitmaps(const StoredData& data) const noexcept
     if (data.bitmaps.empty())
         return true;
 
-    if (!m_silent) {
-        Logger(Logger::Info) << "Write bitmaps to: " << getRoot();
-    }
     const auto root = getRoot();
     for (auto& [key, buffer] : data.bitmaps) {
         auto path = root / (key + m_suffix + ".bmp");

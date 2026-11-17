@@ -128,9 +128,12 @@ void MagicPropItem::process()
 
     // preproces:: replace skills, potentially remove some attrs;
     for (MagicPropRawList& rawList : affixlists) {
-        rawList.removeKnock(*randoParams);
         rawList.replaceToOskill(*randoParams);
-        rawList.removeNonClass(filter.props.clas);
+        // don't remove last knockback from rune if nothing to generate on it.
+        if (genCountRel > 0 && rawList.parsedProps.size() > 1) {
+            rawList.removeKnock(*randoParams);
+            rawList.removeNonClass(filter.props.clas);
+        }
     }
 
     // determine how much keep and how much generate
@@ -163,7 +166,8 @@ void MagicPropItem::process()
     }
 
     // Actually generate new stuff
-    for (MagicPropRawList& rawList : affixlists) {
+    for (int idx = -1; MagicPropRawList& rawList : affixlists) {
+        idx++;
         if (!randoParams->uniqueCheckAcross) {
             existingIdPar = propRandomizer->createIndexNone();
             propRandomizer->indexOr(existingIdPar, rawList.parsedProps);
@@ -184,7 +188,9 @@ void MagicPropItem::process()
 
         rawList.replaceToOskill(*randoParams);
 
-        assert(!rawList.parsedProps.empty());
+        const bool isOptionalAffixList = idx > 0 && randoParams->uniqueCheckAcross;
+        if (!isOptionalAffixList && !randoParams->emptyListAllowed)
+            assert(!rawList.parsedProps.empty());
     }
 
     stats.process += start.GetElapsedTime().GetUS();

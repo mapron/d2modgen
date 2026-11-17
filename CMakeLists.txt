@@ -18,7 +18,7 @@ option(D2MODGEN_BUILD_TESTS "Build unit tests" OFF)
 
 cmake_minimum_required(VERSION 3.31...4.0)
 
-project(modgen VERSION 1.1.0)
+project(modgen VERSION 1.1.1)
 
 set(MERNEL_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/mernel)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake ${MERNEL_ROOT}/cmake)
@@ -26,6 +26,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake ${MERNEL_ROOT}/cmake)
 if (WIN32)
     add_definitions(-DNOMINMAX -D_UNICODE -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES)
 endif()
+
+configure_file(src/Version.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/version/Version.hpp)
 
 
 # Qt Setup
@@ -83,7 +85,7 @@ endif()
 
 AddTarget(TYPE shared NAME ModgenCore
     SOURCE_DIR ${sourceRoot}/CoreLib
-	INCLUDES   ${sourceRoot}/CoreLib
+	INCLUDES   ${sourceRoot}/CoreLib ${CMAKE_CURRENT_BINARY_DIR}/version
     EXPORT_INCLUDES
     LINK_LIBRARIES casclib stormlib rapidjson MernelPlatform Config
     )
@@ -118,10 +120,10 @@ qt_standard_project_setup()
 
 AddTarget( TYPE app_qt NAME modgen_ui
     SOURCE_DIR ${sourceRoot}/QtApp
-    INCLUDES   ${sourceRoot}/QtApp
+    INCLUDES   ${sourceRoot}/QtApp  ${CMAKE_CURRENT_BINARY_DIR}/version
     LINK_LIBRARIES ModgenCore MernelPlatform Config
     QT_MODULES Widgets Qml Quick Network
-    COMPILE_DEFINITIONS APP_VERSION="${PROJECT_VERSION}"
+    
     EXTRA_SOURCES assets/resource.rc
     )
 
@@ -148,6 +150,7 @@ qt_add_translations(modgen_ui
         ${cppFiles}
     RESOURCE_PREFIX 
         "/i18n"
+    LUPDATE_OPTIONS -no-obsolete
 )
 
 # a "shortcut"

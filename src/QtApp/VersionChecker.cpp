@@ -5,6 +5,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
+#include "Version.hpp"
+
 namespace D2ModGen {
 
 namespace {
@@ -17,7 +19,7 @@ const QString releaseTemplate = "https://github.com/%1/%2/releases/tag/%3";
 VersionChecker::VersionChecker(QObject* parent)
     : QObject(parent)
 {
-    m_currentVersion = APP_VERSION;
+    m_currentVersion = QString::fromLatin1(g_version);
     updateTxt();
 }
 

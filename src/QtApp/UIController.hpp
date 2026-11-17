@@ -64,15 +64,17 @@ public:
     Q_INVOKABLE QString getSaveRoot(bool modSubfolder);
     QString             getBattleNetConfig();
 
+    static void logNotice(const QString& message);
+
 signals:
     void statusUpdate(QString status);
-    void generateInternal();
+    void showErrorDialog(QString mainLine, QString extra);
+    void undoEnabled(bool state);
 
 private:
     void pushUndo(const Mernel::PropertyTree& data);
     void pushUndoCurrent();
     void updateUndoAction();
-    void generateFinish();
 
 private:
     bool                        m_autoSave = true;

@@ -42,7 +42,7 @@ IStorage::StoredData StormStorage::readData() const noexcept
         Logger(Logger::Err) << "Failed to load main mpq: " << path2string(mainMpqPath);
         return {};
     } else {
-        Logger() << "Opened main mpq: " << path2string(mainMpqPath);
+        Logger(m_verbose) << "Opened main mpq: " << path2string(mainMpqPath);
     }
 
     MERNEL_SCOPE_EXIT([mpq] { SFileCloseArchive(mpq); });
@@ -52,14 +52,14 @@ IStorage::StoredData StormStorage::readData() const noexcept
             Logger(Logger::Err) << "Failed to load patch mpq: " << path2string(patchPath);
             return {};
         } else {
-            Logger() << "Opened patch mpq: " << path2string(patchPath);
+            Logger(m_verbose) << "Opened patch mpq: " << path2string(patchPath);
         }
     }
 
-    auto readStormFile = [mpq](std::string& data, const std::string& filename) -> bool {
+    auto readStormFile = [mpq, this](std::string& data, const std::string& filename) -> bool {
         const std::string fullId = filename;
         if (!SFileHasFile(mpq, fullId.c_str())) {
-            Logger() << "no such file:" << filename;
+            Logger(m_verbose) << "no such file:" << filename;
             return false;
         }
 
@@ -78,7 +78,7 @@ IStorage::StoredData StormStorage::readData() const noexcept
             return false;
         }
 
-        Logger() << "Read: " << filename << " [size: " << data.size() << "]";
+        Logger(m_verbose) << "Read: " << filename << " [size: " << data.size() << "]";
 
         return true;
     };
@@ -100,6 +100,8 @@ IStorage::StoredData StormStorage::readData() const noexcept
     }
     // hmm probably never will have json in mpq.
     result.valid = !result.tablesMain.empty();
+
+    Logger(Logger::Info) << "Read STORM result = " << result.getStatistics();
 
     return result;
 }
