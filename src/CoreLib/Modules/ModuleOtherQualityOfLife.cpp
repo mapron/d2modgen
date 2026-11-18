@@ -7,11 +7,15 @@
 
 #include "Colors.hpp"
 
+#include "Logger.hpp"
+
 namespace D2ModGen {
 
 void ModuleOtherQualityOfLife::generate()
 {
     const auto& module = config.m_otherQualityOfLife;
+
+    m_verbose = env.extraTrace.contains("qol");
 
     const int  tomeSize         = module.m_tomeSize;
     const int  keySize          = module.m_keySize;
@@ -20,13 +24,14 @@ void ModuleOtherQualityOfLife::generate()
     const bool showItemLevel    = module.m_showItemLevel;
     const int  reduceCost       = module.m_reduceCost;
 
-    auto updateStack = [](std::optional<int>& value, int configValue) {
+    auto updateStack = [this](const std::string& code, std::optional<int>& value, int configValue) {
         if (!value.has_value())
             return;
         int prev = value.value();
         if (prev == 0)
             return;
         value = std::max(prev, configValue);
+        Logger(m_verbose) << "Updated stack " << code << " " << prev << " -> " << value.value();
     };
 
     for (auto& row : output.charstats.rows) {
@@ -49,17 +54,16 @@ void ModuleOtherQualityOfLife::generate()
             row.skills.push_back("Teleport");
     }
 
-    if (keySize || quiverSize) {
-        for (auto& row : output.misc.rows) {
-            auto& code = row.code;
-            if (row.code == "ibk" || row.code == "tbk")
-                updateStack(row.maxstack, tomeSize);
-            if (keySize && code == "key")
-                updateStack(row.maxstack, keySize);
-            if (quiverSize && (code == "aqv" || code == "cqv"))
-                updateStack(row.maxstack, quiverSize);
-        }
+    for (auto& row : output.misc.rows) {
+        auto& code = row.code;
+        if (row.code == "ibk" || row.code == "tbk")
+            updateStack(row.code, row.maxstack, tomeSize);
+        if (keySize && code == "key")
+            updateStack(row.code, row.maxstack, keySize);
+        if (quiverSize && (code == "aqv" || code == "cqv"))
+            updateStack(row.code, row.maxstack, quiverSize);
     }
+
     if (uniqueCharmLimit) {
         for (auto& row : output.uniqueitems.rows) {
             row.carry1.reset();

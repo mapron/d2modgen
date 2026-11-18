@@ -47,6 +47,8 @@ struct DataRow_itemtypes : public RowBase {
 struct DataRow_weapons : public RowBaseEquipment {
     static constexpr const TableId s_tableId{ TableId::weapons };
 
+    bool operator==(const DataRow_weapons&) const noexcept = default;
+
     std::optional<int> mindam;
     std::optional<int> maxdam;
 
@@ -56,6 +58,8 @@ struct DataRow_weapons : public RowBaseEquipment {
 struct DataRow_armor : public RowBaseEquipment {
     static constexpr const TableId s_tableId{ TableId::armor };
 
+    bool operator==(const DataRow_armor&) const noexcept = default;
+
     std::optional<int> minac;
     std::optional<int> maxac;
 
@@ -64,6 +68,8 @@ struct DataRow_armor : public RowBaseEquipment {
 };
 struct DataRow_misc : public RowBaseEquipment {
     static constexpr const TableId s_tableId{ TableId::misc };
+
+    bool operator==(const DataRow_misc&) const noexcept = default;
 
     std::optional<int> maxstack;
 
