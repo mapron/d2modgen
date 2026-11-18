@@ -50,7 +50,7 @@ private:
             descIdx = -1;
         }
 
-        void setNewElement(Element element, bool extraTrace);
+        void setNewElement(Element element, bool verbose);
     };
     using Ptr     = SkillInfo*;
     using PtrList = std::vector<Ptr>;
@@ -66,10 +66,11 @@ private:
         std::vector<std::pair<Character, int>> skillsIcons;
 
         std::vector<SkillInfo> skills;
-        bool                   extraTrace = false;
+        bool                   verbose = false;
 
         int rowIdxStart  = -1;
         int descIdxStart = -1;
+        int genMissile   = 1;
 
         Character clas = Character::None;
 
@@ -87,7 +88,7 @@ private:
         void randomizePositions(RandomGenerator& rng);
 
         void updateSkillReq(bool recalDeps);
-        void updateSkillNameRef(const DataContext& output, RandomGenerator& rng);
+        void updateSkillNameRef(DataContext& output, RandomGenerator& rng);
         void updateSkillPower(int globalHitShift);
 
         void randomizeElements(RandomGenerator& rng, int maximumVariants, int percentToChange);
@@ -116,6 +117,8 @@ private:
     AllCharacterData generatedData;
 
     RandomGenerator rng;
+
+    bool verbose = false;
 };
 
 }
