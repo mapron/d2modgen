@@ -668,7 +668,7 @@ std::vector<std::string> DataRow_missiles::getColumns() const
 {
     return {
         // clang-format off
-    "missile", "*id", "etype", "red", "green", "blue" , "skill", "missileskill",
+    "missile", "*id", "etype", "red", "green", "blue" , "skill", "missileskill", "edmgsympercalc",
     "explosionmissile", "submissile1", "submissile2", "submissile3",
     "hitsubmissile1", "hitsubmissile2", "hitsubmissile3", "hitsubmissile4",
     "cltsubmissile1", "cltsubmissile2", "cltsubmissile3",
@@ -694,6 +694,7 @@ void DataRow_missiles::serialize()
     ser(color.blue);
     ser(skill);
     ser(missileSkill);
+    ser(EDmgSymPerCalc);
     ser(childmissile);
 }
 

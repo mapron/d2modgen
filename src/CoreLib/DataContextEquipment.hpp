@@ -147,9 +147,14 @@ struct RowBaseUniqueSet
         return 0;
     }
 
-    bool isValid() const override
+    bool isValidBase() const
     {
         return spawnable.value_or(false) && !eqipmentCode.empty() && getLevel() > 0;
+    }
+
+    bool isValid() const override
+    {
+        return isValidBase() && eqipmentType;
     }
 
     ItemCodeList getItemFilter() const override
@@ -327,9 +332,14 @@ struct DataRow_gems : public RowBase
         return eqipmentType->getId();
     }
 
-    bool isValid() const override
+    bool isValidBase() const
     {
         return !eqipmentCode.empty();
+    }
+
+    bool isValid() const override
+    {
+        return isValidBase() && eqipmentType;
     }
 
     int getLevel() const override

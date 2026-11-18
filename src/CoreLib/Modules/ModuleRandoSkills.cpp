@@ -345,12 +345,12 @@ void ModuleRandoSkills::generate()
     const int keepSkillCount          = module.m_randoMode == 1 ? 0 : module.m_keepOriginal;
     const int generateCountSuggestion = module.m_generate;
 
-    const bool extraTrace = env.extraTrace.contains("skill_rando");
+    verbose = env.extraTrace.contains("skill_rando");
 
     for (Character clas : getClassTypes()) {
         CharacterData data;
-        data.extraTrace = extraTrace;
-        data.clas       = clas;
+        data.verbose = verbose;
+        data.clas    = clas;
         if (data.readExisting(output))
             existingData[clas] = std::move(data);
     }
@@ -378,6 +378,7 @@ void ModuleRandoSkills::generate()
     const bool randoEnabled = module.m_randoMode > 0;
 
     for (auto& [key, cha] : generatedData) {
+        Logger(verbose) << "\n\n ========= " << enumToString(key) << " ========= ";
         if (randoEnabled) {
             cha.makeInactive(rng, keepSkillCount);
         }
@@ -428,13 +429,17 @@ void ModuleRandoSkills::generate()
         cha.createIdx(output);
         if (randoEnabled) {
             cha.randomizePositions(rng);
-            cha.updateSkillNameRef(output, rng);
         }
         cha.updateSkillReq(randoEnabled);
         cha.updateSkillPower(config.m_balanceSkills.m_globalHitShift - 2);
 
         cha.randomizeElements(rng, module.m_maximumElements, module.m_chanceElemChange);
         cha.updateMissiles(output);
+        output.missiles.commitExtraRows(); // this is required for updateSkillNameRef
+
+        if (randoEnabled) {
+            cha.updateSkillNameRef(output, rng);
+        }
         if (spritesD2RExist) {
             cha.makeSpritesD2R(spriteMapExisting, spriteMapGenerated[key]);
         }
@@ -458,7 +463,7 @@ void ModuleRandoSkills::generate()
     for (auto& skill : output.skills.rows) {
         if (skill.classSpecific != Character::Nec)
             continue;
-        if (extraTrace)
+        if (verbose)
             dump("", output, skill);
     }
 
@@ -553,7 +558,7 @@ void ModuleRandoSkills::CharacterData::writeOut(DataContext& output) const
     for (int i = -1; const SkillInfo& skill : skills) {
         i++;
         if (skill.stype < SType::ExistingActive) {
-            Logger(extraTrace) << "WRITE-SKIP [" << i << "] " << enumToString(clas) << " " << skill.toString();
+            Logger(verbose) << "WRITE-SKIP [" << i << "] " << enumToString(clas) << " " << skill.toString();
             continue;
         }
 
@@ -562,7 +567,7 @@ void ModuleRandoSkills::CharacterData::writeOut(DataContext& output) const
         output.skilldesc.rows[skill.descIdx] = skill.desc;
         if (skill.eType != Element::None)
             row.eType = enumToString(skill.eType);
-        Logger(extraTrace) << "WRITE      [" << i << "] " << enumToString(clas) << " " << skill.toString();
+        Logger(verbose) << "WRITE      [" << i << "] " << enumToString(clas) << " " << skill.toString();
     }
 }
 
@@ -608,18 +613,18 @@ void ModuleRandoSkills::CharacterData::generateAdditionalSkills(RandomGenerator&
     }
     [[maybe_unused]] const size_t activeSize = getActive().size();
     assert(activeSize <= 18 * 3);
-    Logger(extraTrace) << "char '" << enumToString(clas) << "' generateCount=" << generateCount << ", generated="
-                       << generated << " from '" << enumToString(someOtherClass.clas) << "' with incomingSize=" << incomingSize;
+    Logger(verbose) << "char '" << enumToString(clas) << "' generateCount=" << generateCount << ", generated="
+                    << generated << " from '" << enumToString(someOtherClass.clas) << "' with incomingSize=" << incomingSize;
 }
 
 void ModuleRandoSkills::CharacterData::createIdx(DataContext& output)
 {
-    Logger(extraTrace) << "char " << enumToString(clas) << " createIdx start=" << rowIdxStart;
+    Logger(verbose) << "char " << enumToString(clas) << " createIdx start=" << rowIdxStart;
     size_t i          = 0;
     int    iconCel    = 0;
     auto   pushSprite = [&iconCel, this](std::optional<int>& iconCelSrc, Character ogClass) {
         int cel = iconCelSrc.value();
-        Logger(extraTrace) << "   skill icon " << cel << " from " << enumToString(ogClass);
+        Logger(verbose) << "   skill icon " << cel << " from " << enumToString(ogClass);
         skillsIcons.push_back({ ogClass, cel });
         skillsIcons.push_back({ ogClass, cel + 1 });
 
@@ -737,7 +742,7 @@ void ModuleRandoSkills::CharacterData::updateSkillReq(bool recalDeps)
     }
 }
 
-void ModuleRandoSkills::CharacterData::updateSkillNameRef(const DataContext& output, RandomGenerator& rng)
+void ModuleRandoSkills::CharacterData::updateSkillNameRef(DataContext& output, RandomGenerator& rng)
 {
     PtrList activeSkills = getActive();
     if (activeSkills.size() <= 2)
@@ -790,7 +795,7 @@ Necromancer
     std::map<std::string, Ptr> replacementBySkillId;
     std::map<std::string, Ptr> replacementBySkillTranslationKey;
 
-    auto replaceSkillId = [&replacementBySkillId, &replacementBySkillTranslationKey, &refreshWS, &currentWorkingSet, &output, &rng](const std::string& str) -> std::string {
+    auto replaceSkillId = [this, &replacementBySkillId, &replacementBySkillTranslationKey, &refreshWS, &currentWorkingSet, &output, &rng](const std::string& str) -> std::string {
         if (auto it = replacementBySkillId.find(str); it != replacementBySkillId.cend())
             return it->second->row.skill;
 
@@ -806,8 +811,28 @@ Necromancer
                 replacementBySkillTranslationKey[sourceDesc->strName] = replacementId;
             }
         }
-
+        Logger(verbose) << "replace '" << str << "' => '" << replacementId->row.skill << "'";
         return replacementId->row.skill;
+    };
+    /// @todo: This is sharing iteration logic with updateMissiles... a bit.
+    // recursive lambda idiom.
+    std::function<void(const std::string&)> missileVisitor;
+    std::set<DataRow_missiles*>             visitedMissiles; // recursion break.
+    missileVisitor = [&missileVisitor, &visitedMissiles, &replaceSkillId, &output](const std::string& missileId) {
+        if (missileId.empty())
+            return;
+        DataRow_missiles* missile = output.missiles.find(missileId);
+        assert(missile);
+        if (!missile)
+            return;
+        if (visitedMissiles.contains(missile))
+            return;
+        visitedMissiles.insert(missile);
+
+        replaceTokensInplace(missile->EDmgSymPerCalc, replaceSkillId);
+
+        for (const std::string& child : missile->childmissile)
+            missileVisitor(child);
     };
 
     for (Ptr skill : activeSkills) {
@@ -817,6 +842,14 @@ Necromancer
             replaceTokensInplace(str, replaceSkillId);
         for (auto& str : skill->row.aurastatcalc)
             replaceTokensInplace(str, replaceSkillId);
+
+        /// @todo: fix visit logic duplication with updateMissiles();
+        for (auto& str : skill->row.missile) {
+            missileVisitor(str);
+        }
+        for (auto& str : skill->desc.missile) {
+            missileVisitor(str);
+        }
     }
     for (Ptr skill : activeSkills) {
         for (auto& str : skill->desc.desc) {
@@ -868,12 +901,12 @@ void ModuleRandoSkills::CharacterData::randomizeElements(RandomGenerator& rng, i
             continue;
 
         if (skill.eType == Element::None) {
-            Logger(extraTrace) << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " elem=None, SKIP";
+            Logger(verbose) << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " elem=None, SKIP";
             continue;
         }
 
         if (s_skippedSkills.contains(Mernel::strToLower(skill.originalId))) {
-            Logger(extraTrace) << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " ignoredlist, SKIP";
+            Logger(verbose) << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " ignoredlist, SKIP";
             continue;
         }
         if (percentToChange < 100) {
@@ -898,7 +931,7 @@ void ModuleRandoSkills::CharacterData::randomizeElements(RandomGenerator& rng, i
         if (elementsTmp.empty())
             continue;
 
-        skill.setNewElement(elementsTmp[rng((int) elementsTmp.size())], extraTrace);
+        skill.setNewElement(elementsTmp[rng((int) elementsTmp.size())], verbose);
     }
 }
 
@@ -950,9 +983,11 @@ void ModuleRandoSkills::CharacterData::updateMissile(DataContext& output, const 
         Logger(Logger::Warning) << "Unknown missileId: " << missileId;
         return;
     }
-    DataRow_missiles  newMiss = *miss;
-    auto              origId  = newMiss.name;
-    const std::string newName = makeIdString(parent.row.skill + "_" + newMiss.name);
+    DataRow_missiles newMiss = *miss;
+    auto             origId  = newMiss.name;
+
+    // prevent too long ids (LoD limit 32) and give a bit of hint with 5 original characters. class + sequence id should make it unique.
+    const std::string newName = "mis_" + enumToString(clas) + "_" + makeIdString(origId).substr(0, 5) + "_" + std::to_string(genMissile++);
     scope[origId]             = newName;
 
     for (std::string& child : newMiss.childmissile)
@@ -1032,7 +1067,7 @@ std::string ModuleRandoSkills::SkillInfo::toString() const
     return os.str();
 }
 
-void ModuleRandoSkills::SkillInfo::setNewElement(Element element, bool extraTrace)
+void ModuleRandoSkills::SkillInfo::setNewElement(Element element, bool verbose)
 {
     if (eType == element)
         return;
@@ -1050,7 +1085,7 @@ void ModuleRandoSkills::SkillInfo::setNewElement(Element element, bool extraTrac
 
     row.hitShift = std::clamp(row.hitShift.value_or(0) - oldCompensation + newCompensation, 0, 15);
 
-    Logger(extraTrace) << "'" << row.skill << "' (og='" << originalId << "') " << " element change " << enumToString(old) << " -> " << enumToString(element) << " (hs=" << row.hitShift.value_or(0) << ")";
+    Logger(verbose) << "'" << row.skill << "' (og='" << originalId << "') " << " element change " << enumToString(old) << " -> " << enumToString(element) << " (hs=" << row.hitShift.value_or(0) << ")";
 
     const int duration = newDesc.dur;
     if (duration > 0) {

@@ -464,6 +464,8 @@ struct DataRow_missiles : public RowBase {
     std::string        skill;
     std::optional<int> missileSkill;
 
+    std::string EDmgSymPerCalc;
+
     std::string eType;
     struct Color {
         int red   = 0;
