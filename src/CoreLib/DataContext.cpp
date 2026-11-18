@@ -228,19 +228,20 @@ bool DataContext::postProcess()
     for (auto& row : misc.rows)
         bindEquip(row);
 
-    auto findEquip = [this](const std::string& equipCode) -> EquipmentType {
+    auto findEquip = [this](std::string equipCode) -> EquipmentType {
+        equipCode = Mernel::strToLower(equipCode);
         if (auto it = armor.find(equipCode))
             return it;
         if (auto it = weapons.find(equipCode))
             return it;
         if (auto it = misc.find(equipCode))
             return it;
-        assert(false);
+
         return nullptr;
     };
 
     for (auto& row : setitems.rows) {
-        if (!row.isValid())
+        if (!row.isValidBase())
             continue;
 
         auto* parent_set = sets.find(Mernel::strToLower(row.setIndex));
@@ -249,14 +250,14 @@ bool DataContext::postProcess()
         const_cast<DataRow_sets*>(parent_set)->level = row.getLevel();
     }
     for (auto& row : uniqueitems.rows) {
-        if (!row.isValid())
+        if (!row.isValidBase())
             continue;
 
         row.eqipmentType = findEquip(row.eqipmentCode);
     }
 
     for (auto& row : gems.rows) {
-        if (!row.isValid())
+        if (!row.isValidBase())
             continue;
 
         row.eqipmentType = findEquip(row.eqipmentCode);
@@ -319,14 +320,18 @@ bool DataContext::postProcess()
         ItemTypeSet filter;
         for (auto& itype : row.itype) {
             ItemType t = getItemType(itype);
-            filter.insert(t);
-            filter.insert(t->nested.cbegin(), t->nested.cend());
+            if (t) {
+                filter.insert(t);
+                filter.insert(t->nested.cbegin(), t->nested.cend());
+            }
         }
         for (auto& etype : row.etype) {
             ItemType t = getItemType(etype);
-            filter.erase(t);
-            for (auto* n : t->nested)
-                filter.erase(n);
+            if (t) {
+                filter.erase(t);
+                for (auto* n : t->nested)
+                    filter.erase(n);
+            }
         }
         row.filter = ItemCodeList(filter);
     };

@@ -274,15 +274,20 @@ std::string PropRandomizer::PropGenerator::toString() const
 
 PropRandomizer::PropGeneratorPtr PropRandomizer::getRandomAttributeGenerator(const DynamicBitSet& filter, RandomGenerator& rng) const
 {
-    const uint64_t totalFrequency = filter.getTotal(frequencies);
+    uint64_t totalFrequency = filter.getTotal(frequencies);
     if (totalFrequency == 0) [[unlikely]] {
         return nullptr;
     }
     if (totalFrequency == 1) [[unlikely]] {
         return &gens[0];
     }
-    assert(totalFrequency < uint64_t(std::numeric_limits<int>::max()));
-    const uint64_t targetValue = rng(int(totalFrequency));
+    uint64_t mult = 1;
+    while (totalFrequency >= uint64_t(std::numeric_limits<int>::max())) {
+        totalFrequency /= 2;
+        mult *= 2;
+    }
+
+    const uint64_t targetValue = uint64_t(rng(int(totalFrequency))) * mult;
 
     const size_t i = filter.findLowerBound(frequencies, targetValue);
     return &gens[i];
