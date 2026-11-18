@@ -1,0 +1,63 @@
+/*
+ * Copyright (C) 2026 Smirnov Vladimir / mapron1@gmail.com
+ * SPDX-License-Identifier: BSL-1.0
+ * See LICENSE file for details.
+ */
+import QtQuick.Controls.Fusion
+import QtQuick.Layouts
+import QtQuick
+import "../Widgets"
+
+WidgetCommonTab {
+    id: root
+    value_context: config.balanceSkills
+    caption: qsTr("Skill balance")
+
+    WidgetRadioGroup {
+        caption: qsTr("Adjust all skill damage")
+        tooltip: qsTr("Weird values because technicalities:<br>easy adjustement only goes with power of 2.<br>Use as last resort to compensate for bad seed.")
+
+        model: [qsTr("1/4"), qsTr("1/2"), qsTr("Normal"), qsTr("2x"), qsTr("4x")]
+        value_key: root.value_context.globalHitShift
+    }
+
+    WidgetSlider {
+        caption: qsTr("Maximum hard points for skill")
+        tooltip: qsTr("D2R only")
+        value_key: root.value_context.skillPointLimit
+    }
+    WidgetCheckbox {
+        caption: qsTr("Allow all skills on left button")
+        value_key: root.value_context.leftCast
+    }
+    WidgetCheckbox {
+        caption: qsTr("Allow using Teleport, BC, BO in town")
+        tooltip: ""
+        value_key: root.value_context.weakenTownSkills
+    }
+
+    WidgetCheckbox {
+        caption: qsTr("Allow all skills in town")
+        tooltip: ""
+        value_key: root.value_context.weakenTownSkillsExt
+    }
+
+    Separator {}
+    LabelLarge {
+        text: qsTr("Change skill requirement for each skill row:")
+    }
+
+    readonly property var lvlreqRows: [root.value_context.lvlreqRow1, root.value_context.lvlreqRow2, root.value_context.lvlreqRow3, root.value_context.lvlreqRow4, root.value_context.lvlreqRow5, root.value_context.lvlreqRow6]
+
+    Repeater {
+        model: root.lvlreqRows
+
+        WidgetSlider {
+            required property int index
+            required property var modelData
+
+            caption: qsTr("Row %1 (from level %2)").arg(index + 1).arg(index * 6)
+            value_key: modelData
+        }
+    }
+}

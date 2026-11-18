@@ -25,18 +25,18 @@ public:
     bool writeMainData(const StoredData& data) const noexcept override;
     bool writeBitmaps(const StoredData& data) const noexcept override;
 
-    void setSilentTrace(bool silent) noexcept override { m_silent = silent; }
+    void setVerbose(bool verbose) noexcept override { m_verbose = verbose; }
     void setFileSuffix(const std::string& suffix) noexcept override { m_suffix = suffix; }
     void setModName(const std::string& modname) noexcept override { m_modname = modname; }
 
 private:
     std_path getRoot() const;
     bool     writeFile(const std::string& data, const std_path& relPath) const;
-    bool     readFile(std::string& data, const std_path& relPath, bool warnNonExistent = false) const;
+    bool     readFile(std::string& data, const std_path& relPath, bool important = false) const;
 
     const StorageType m_storageType;
     std_path          m_root;
-    bool              m_silent = true;
+    bool              m_verbose = false;
     std::string       m_suffix;
     std::string       m_modname;
 };

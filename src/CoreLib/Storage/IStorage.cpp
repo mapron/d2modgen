@@ -5,6 +5,8 @@
  */
 #include "IStorage.hpp"
 
+#include <sstream>
+
 namespace D2ModGen {
 
 std::string_view IStorage::s_dataVersionPath = "data\\global\\dataversionbuild.txt";
@@ -104,6 +106,39 @@ const std::array<std::string_view, size_t(BlobId::count__)> s_blobpaths{
     "data\\hd\\global\\ui\\controller\\panel\\mainpanelbg.sprite",
     "data\\hd\\global\\ui\\controller\\panel\\mainpanelbg.lowend.sprite",
 
+    "data\\hd\\global\\ui\\spells\\skill_trees\\amskilltree.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\soskilltree.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\neskilltree.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\paskilltree.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\baskilltree.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\drskilltree.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\asskilltree.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\waskilltree.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\amskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\soskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\neskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\paskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\baskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\drskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\asskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\spells\\skill_trees\\waskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\amskilltree.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\soskilltree.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\neskilltree.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\paskilltree.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\baskilltree.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\drskilltree.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\asskilltree.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\waskilltree.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\amskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\soskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\neskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\paskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\baskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\drskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\asskilltree.lowend.sprite",
+    "data\\hd\\global\\ui\\controller\\panel\\spells\\v2\\waskilltree.lowend.sprite",
+
     "data\\hd\\global\\ui\\spells\\amazon\\amskillicon.sprite",
     "data\\hd\\global\\ui\\spells\\amazon\\amskillicon.lowend.sprite",
     "data\\hd\\global\\ui\\spells\\sorceress\\soskillicon.sprite",
@@ -159,6 +194,22 @@ std::string IStorage::makeTableRelativePath(TableId id, bool baseSub)
 {
     const std::string& base = baseSub ? s_tableBase : s_tableSubfolder;
     return base + std::string(getTableIdString(id)) + ".txt";
+}
+
+std::string IStorage::StoredData::getStatistics() const
+{
+    if (!valid)
+        return "INVALID";
+    std::ostringstream os;
+    os << "tables: " << tablesMain.size();
+    if (tablesBase.size())
+        os << ", tablesBase: " << tablesBase.size();
+
+    os << ", json: " << jsonFiles.size();
+    os << ", blobs: " << blobs.size();
+    if (dataVersion)
+        os << ", dataVersion: " << dataVersion;
+    return os.str();
 }
 
 }

@@ -10,7 +10,7 @@
 #include "Logger.hpp"
 
 #include "MernelPlatform/ScopeExit.hpp"
-#include "MernelPlatform/ChronoPoint.hpp"
+#include "MernelPlatform/Profiler.hpp"
 
 #include "Modules/ModuleGlobal.hpp"
 
@@ -22,6 +22,7 @@
 #include "MernelPlatform/AppLocations.hpp"
 
 #include <random>
+#include <format>
 
 namespace D2ModGen {
 
@@ -135,121 +136,162 @@ void ConfigHandler::updateSeeds(bool forceUpdate)
         m_config.m_skillRandomizer.m_seed = rd();
         m_config.m_skillRandomizer.notifyChangeInner();
     }
+    if (m_config.m_globalSeed == 0 || forceUpdate) {
+        m_config.m_globalSeed = rd();
+        m_config.notifyChangeInner();
+    }
 }
 
-bool ConfigHandler::generate(const GenerationEnvironment& env)
+bool ConfigHandler::generate(const GenerationEnvironment& env, std::string& crc)
 {
-    auto startAll = Mernel::ChronoPoint(true);
+    using namespace Mernel;
+    auto generateTotal = std::make_unique<ProfilerScope>("ConfigHandler::generate");
     updateSeeds(m_appConfig.m_refreshSeed);
 
+    const bool fileIOVerbose    = env.extraTrace.contains("file_io");
+    const bool serializeVerbose = env.extraTrace.contains("serialize");
+
     FolderStorage outDebugStorage(m_appData / "debug");
-    FolderStorage outStorage(env.outputPath, env.outputMode);
-    outStorage.setModName(env.modName);
-    outStorage.setSilentTrace(false);
 
     DataContext previousData;
     previousData.useBaseTable = env.needDataSubfolder;
 
-    Logger(Logger::Notice) << "started in: " << path2string(env.outputPath);
+    Logger(Logger::Notice) << "started generate in: " << path2string(env.outputPath);
 
-    IStorage::StoredData previousStoredData = outStorage.readData();
+    {
+        FolderStorage outStoragePrev(env.outputPath, env.outputMode);
+        outStoragePrev.setModName(env.modName);
+        IStorage::StoredData previousStoredData = outStoragePrev.readData();
 
-    if (previousStoredData.valid) {
-        previousData.parseData(previousStoredData, false);
+        if (previousStoredData.valid) {
+            ProfilerScope scope("previousData.parseData");
+            previousData.parseData(previousStoredData, false);
+        }
     }
 
     DataContext output;
+    DataContext input;
     output.useBaseTable = env.needDataSubfolder;
-    output.silent       = false;
-
-    DataContext initialOutput;
+    output.verbose      = serializeVerbose;
 
     Logger() << "Loading data from main storage...";
-    const IStorage::StoredData inData = m_mainStorageCache->load({ env.inputMode, env.inputPath });
+    IStorage::StoredData inData;
+    {
+        ProfilerScope scope("mainStorage.load");
+        inData = m_mainStorageCache->load({ env.inputMode, env.inputPath }, fileIOVerbose);
+    }
     if (!inData.valid) {
         Logger(Logger::Err) << "Failed to read data files from D2 folder.";
         return false;
     }
-    Logger(Logger::Info) << "Load files from game storage time: " << startAll.GetElapsedTime().ToProfilingTime();
 
-    Logger() << "Parsing json and txt...";
-    if (!output.parseData(inData)) {
-        Logger(Logger::Err) << "Failed parse D2 data files.";
-        return false;
-    }
-    if (env.extraTrace.contains("dump_diff")) {
-        initialOutput = output.makeSilent();
+    {
+        ProfilerScope scope("output.parseData");
+        Logger() << "Parsing files into object data...";
+        if (!output.parseData(inData)) {
+            Logger(Logger::Err) << "Failed parse D2 data files.";
+            return false;
+        }
+        input.copyDataFrom(output);
+        output.verbose = false; // so other can copy me with no traces
     }
     if (env.extraTrace.contains("dump_in")) {
         outDebugStorage.setFileSuffix(".in");
         if (outDebugStorage.create())
-            outDebugStorage.writeMainData(output.makeSilent().writeDebug());
+            outDebugStorage.writeMainData(output.writeDebug());
     }
 
-    Logger() << "prepare ended; Starting generate phase.";
-
     {
-        auto start = Mernel::ChronoPoint(true);
+        output.verbose = serializeVerbose;
 
-        ModuleGlobal all(output, m_config, env);
+        ProfilerScope scope("all.generate");
+        ConfigHasher  hasher;
+        m_config.calchash(hasher);
+        crc = std::format("{:08X}", hasher.hashv);
+
+        ModuleGlobal all(crc, output, m_config, env);
         try {
+            Logger() << "generate() start";
             all.generate();
         }
         catch (const std::exception& ex) {
             Logger(Logger::Err) << ex.what();
             return false;
         }
-
-        Logger(Logger::Info) << "generate logic finished in: " << start.GetElapsedTime().ToProfilingTime();
     }
 
     if (env.extraTrace.contains("dump_out")) {
         outDebugStorage.setFileSuffix(".out");
         if (outDebugStorage.create())
-            outDebugStorage.writeMainData(output.makeSilent().writeDebug());
+            outDebugStorage.writeMainData(output.writeDebug());
     }
 
     if (env.extraTrace.contains("dump_diff")) {
         outDebugStorage.setFileSuffix(".diff");
-        if (outDebugStorage.create())
-            outDebugStorage.writeMainData(output.calculateDiff(initialOutput).makeSilent().writeDebug());
+        if (outDebugStorage.create()) {
+            DataContext diff;
+            output.calculateDiff(diff, input);
+            outDebugStorage.writeMainData(diff.writeDebug());
+        }
     }
 
     IStorage::StoredData outData;
-    if (!output.serializeData(outData))
-        return false;
+    {
+        output.removeIdenticalRecords(input);
 
-    if (output.useBaseTable) {
-        // if we target pre-RotW, still generate copy of monstats tables in excel/. Need to use new column layout, that's why we read them again.
-        IStorage::StoredData outDataCopy;
-        DataContext          outputCopy;
-        outputCopy.useBaseTable = false; // switch to tablesMain read/write
-        outputCopy.parseData(inData);
-        outputCopy.monstats.rows   = output.monstats.rows;
-        outputCopy.monstatsEx.rows = output.monstatsEx.rows;
+        output.verbose = serializeVerbose;
+        Logger() << "Serializing object data into files...";
+        ProfilerScope scope("output.serializeData");
+        if (!output.serializeData(outData))
+            return false;
+    }
 
-        outputCopy.silent = true;
-        if (!outputCopy.serializeData(outDataCopy))
+    if (env.needDataSubfolder) {
+        // if we target pre-RotW, still generate copy of monstats tables in excel/.
+        // Need to use new column layout, that's why we read them again from inData.
+        IStorage::StoredData data;
+        DataContext          baseOutput;
+        baseOutput.useBaseTable = false; // switch to tablesMain read/write
+        baseOutput.parseData(inData);
+        baseOutput.monstats.rows   = output.monstats.rows;
+        baseOutput.monstatsEx.rows = output.monstatsEx.rows;
+
+        baseOutput.verbose = false;
+
+        ProfilerScope scope("outputCopy.serializeData");
+        if (!baseOutput.serializeData(data))
             return false;
 
         outData.tablesMain.clear();
-        outData.tablesMain[TableId::monstats]  = outDataCopy.tablesMain[TableId::monstats];
-        outData.tablesMain[TableId::monstats2] = outDataCopy.tablesMain[TableId::monstats2];
+        outData.tablesMain[TableId::monstats]  = data.tablesMain[TableId::monstats];
+        outData.tablesMain[TableId::monstats2] = data.tablesMain[TableId::monstats2];
     }
 
+    FolderStorage outStorage(env.outputPath, env.outputMode);
+    outStorage.setModName(env.modName);
+    outStorage.setVerbose(fileIOVerbose);
     if (!outStorage.create())
         return false;
 
     if (env.extraTrace.contains("dump_bmp")) {
+        ProfilerScope scope("outDebugStorageBmp.writeBitmaps");
         FolderStorage outDebugStorageBmp(m_appData / "debugBitmaps");
         if (outDebugStorageBmp.create())
             outDebugStorageBmp.writeBitmaps(outData);
     }
 
-    if (!outStorage.writeMainData(outData) || !outStorage.writeMeta(outData))
-        return false;
+    {
+        ProfilerScope scope("outStorage.write");
+        if (!outStorage.writeMainData(outData) || !outStorage.writeMeta(outData))
+            return false;
+    }
 
-    Logger(Logger::Info) << "Total time: " << startAll.GetElapsedTime().ToProfilingTime();
+    if (env.extraTrace.contains("profiler")) {
+        generateTotal.reset();
+        Logger() << "Execution profile:\n"
+                 << ProfilerScope::printToStr();
+    }
+
     return true;
 }
 

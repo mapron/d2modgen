@@ -119,6 +119,40 @@ enum class BlobId
     OrignCtrlMainPanelBgSpriteHighre,
     OrignCtrlMainPanelBgSpriteLowend,
 
+    // skill tree backgrounds
+    TreeMnkbHighreAma,
+    TreeMnkbHighreSor,
+    TreeMnkbHighreNec,
+    TreeMnkbHighrePal,
+    TreeMnkbHighreBar,
+    TreeMnkbHighreDru,
+    TreeMnkbHighreAss,
+    TreeMnkbHighreWar,
+    TreeMnkbLowendAma,
+    TreeMnkbLowendSor,
+    TreeMnkbLowendNec,
+    TreeMnkbLowendPal,
+    TreeMnkbLowendBar,
+    TreeMnkbLowendDru,
+    TreeMnkbLowendAss,
+    TreeMnkbLowendWar,
+    TreeCtrlHighreAma,
+    TreeCtrlHighreSor,
+    TreeCtrlHighreNec,
+    TreeCtrlHighrePal,
+    TreeCtrlHighreBar,
+    TreeCtrlHighreDru,
+    TreeCtrlHighreAss,
+    TreeCtrlHighreWar,
+    TreeCtrlLowendAma,
+    TreeCtrlLowendSor,
+    TreeCtrlLowendNec,
+    TreeCtrlLowendPal,
+    TreeCtrlLowendBar,
+    TreeCtrlLowendDru,
+    TreeCtrlLowendAss,
+    TreeCtrlLowendWar,
+
     IconAmaHighre,
     IconAmaLowres,
     IconSorHighre,
@@ -201,6 +235,8 @@ public:
         int64_t dataVersion = 0;
 
         bool operator==(const StoredData&) const = default;
+
+        std::string getStatistics() const;
     };
 
 public:
@@ -208,7 +244,7 @@ public:
 
     virtual StoredData readData() const noexcept = 0;
 
-    virtual void setSilentTrace(bool silent) noexcept {}
+    virtual void setVerbose(bool verbose) noexcept = 0;
     virtual void setFileSuffix(const std::string& suffix) noexcept {}
 };
 

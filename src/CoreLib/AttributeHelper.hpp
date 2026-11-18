@@ -416,6 +416,7 @@ enum class AttributeId
     skilltab_war,
     magdam_rand,
     roguesbow_affix1,
+    eternity_update,
 
     count__,
 };
