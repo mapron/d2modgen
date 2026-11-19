@@ -30,7 +30,11 @@ WidgetCommonControl {
         Button {
             visible: root.showDetect // not ideal but...
             text: qsTr("Detect!")
-            onClicked: root.value_key.value = appui.detectPath()
+            onClicked: {
+                const detected = appui.detectPath();
+                if (detected.length > 0)
+                    root.value_key.value = detected;
+            }
         }
         Button {
             text: qsTr("Browse...")

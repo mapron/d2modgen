@@ -168,6 +168,9 @@ ApplicationWindow {
                         errorDialog.detailsText = extraInfo;
                         errorDialog.open();
                     }
+                    function onPrefixChoice(matches, preselected) {
+                        prefixDialog.show(matches, preselected);
+                    }
                 }
             }
 
@@ -233,5 +236,9 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    PrefixDialog {
+        id: prefixDialog
     }
 }
