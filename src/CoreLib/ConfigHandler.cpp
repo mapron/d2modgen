@@ -255,6 +255,7 @@ bool ConfigHandler::generate(const GenerationEnvironment& env, std::string& crc)
         baseOutput.parseData(inData);
         baseOutput.monstats.rows   = output.monstats.rows;
         baseOutput.monstatsEx.rows = output.monstatsEx.rows;
+        baseOutput.missiles.rows   = output.missiles.rows;
 
         baseOutput.verbose = false;
 
@@ -265,6 +266,7 @@ bool ConfigHandler::generate(const GenerationEnvironment& env, std::string& crc)
         outData.tablesMain.clear();
         outData.tablesMain[TableId::monstats]  = data.tablesMain[TableId::monstats];
         outData.tablesMain[TableId::monstats2] = data.tablesMain[TableId::monstats2];
+        outData.tablesMain[TableId::missiles]  = data.tablesMain[TableId::missiles];
     }
 
     FolderStorage outStorage(env.outputPath, env.outputMode);
