@@ -138,7 +138,8 @@ qt6_add_qml_module(modgen_ui
     QML_FILES
         ${qmlFiles}
         ${jsFiles}
-        
+    RESOURCES
+        assets/logo.png
 )
 
 qt_add_translations(modgen_ui

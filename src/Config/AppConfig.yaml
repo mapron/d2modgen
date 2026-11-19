@@ -12,6 +12,7 @@ members:
     langId:        { type: str, zero: "en_US" }
     themeId:       { type: str, zero: "dark" }
     userHome:      { type: str, zero: "" }
+    runnerTemplate: { type: str, zero: "" }
 
     installLocationLegacy: { type: str, zero: "" , constant: true } # constant in a way that it is init once in BL.
     installLocationD2R:    { type: str, zero: "" , constant: true }

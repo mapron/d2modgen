@@ -32,6 +32,8 @@ struct AppConfig : public CommonStruct {
 
     std::string m_userHome{ "" };
 
+    std::string m_runnerTemplate{ "" };
+
     std::string m_installLocationLegacy{ "" };
 
     std::string m_installLocationD2R{ "" };
@@ -55,6 +57,7 @@ struct AppConfig : public CommonStruct {
         addScalar("langId", m_langId).setZero("en_US");
         addScalar("themeId", m_themeId).setZero("dark");
         addScalar("userHome", m_userHome).setZero("");
+        addScalar("runnerTemplate", m_runnerTemplate).setZero("");
         addScalar("installLocationLegacy", m_installLocationLegacy).setZero("").setConstant();
         addScalar("installLocationD2R", m_installLocationD2R).setZero("").setConstant();
         addScalar("saveSubfolder", m_saveSubfolder).setZero("Saved Games/Diablo II Resurrected/").setConstant();
