@@ -395,12 +395,26 @@ void UIController::copyModSettings()
         return;
 
     const QString modSaves = getSaveRoot(true);
-    if (!QFileInfo::exists(modSaves))
-        QDir().mkpath(modSaves);
-    const QString name = "Settings.json";
-    QFile::remove(modSaves + name);
-    QFile::copy(saves + name, modSaves + name);
-    emit statusUpdate(tr("Settings updated!"));
+    if (!QDir().mkpath(modSaves)) {
+        emit statusUpdate(tr("Failed to create mod settings folder."));
+        return;
+    }
+
+    int copied = 0;
+    for (const QString& name : QStringList{ "Settings.json", "Custom.key" }) {
+        const QString source      = saves + name;
+        const QString destination = modSaves + name;
+        if (!QFileInfo::exists(source))
+            continue;
+
+        if ((QFileInfo::exists(destination) && !QFile::remove(destination))
+            || !QFile::copy(source, destination)) {
+            emit statusUpdate(tr("Failed to copy %1.").arg(name));
+            return;
+        }
+        copied++;
+    }
+    emit statusUpdate(copied ? tr("Settings copied (%1 files).").arg(copied) : tr("No settings files found."));
 }
 
 void UIController::copySaves()

@@ -67,11 +67,11 @@ WidgetScrollable {
         visible: root.isD2R
 
         Button {
-            text: qsTr("Copy Settings.json")
+            text: qsTr("Copy settings")
             onClicked: appui.copyModSettings()
         }
         WidgetHelpIcon {
-            tooltipText: qsTr("This will copy Game Settings to mod folder<br>That will allow to skip configuring mod on launch.")
+            tooltipText: qsTr("Copies Settings.json and Custom.key (if present) to the mod save folder, replacing existing copies.<br>This includes game settings and your custom keybinding preset.")
         }
         Item {
             Layout.minimumWidth: 30

@@ -29,7 +29,7 @@ Now randomizer mod is created, see next chapter how to set launch for D2R.
 # Set launch for mod in D2R
 ![mainwindow](docs/main_extra.png "Extra Tab")  
 Go to "Extra" Tab
-1. Optional; press "Copy Settings.json" to initialize new mod with your default game settings (music volume, etc);
+1. Optional; press "Copy settings" to initialize the mod with your game settings and custom keybinding preset (`Settings.json` and `Custom.key`, when present);
 2. Optional; press "Copy all save files" to copy character files to randomizer mod;
 3. Now you need to setup modded launch of D2R - that can be done either by creating the shortcut or modifying launch option in BNet launcher, choose what is suitable for you:  
 a) Press "Make shortcut on Desktop", that will make "Diablo II - modname Mod" link on your Desktop;  
