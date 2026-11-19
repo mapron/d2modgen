@@ -32,7 +32,7 @@ WidgetScrollable {
 
     WidgetFolder {
         caption: qsTr("Input folder (mandatory):")
-        tooltip: qsTr("Generally, just choose folder with Game.exe.<br>Note: for ProjectD2, select subfolder named 'ProjectD2' in Diablo II.<br>Press Detect! to find information in Windows Registry.")
+        tooltip: Qt.platform.os === "linux" ? qsTr("Generally, just choose folder with Game.exe.<br>Note: for ProjectD2, select subfolder named 'ProjectD2' in Diablo II.<br>Press Detect! to search Wine/Proton prefixes for the game; it fills both the input folder and the Wine user root.") : qsTr("Generally, just choose folder with Game.exe.<br>Note: for ProjectD2, select subfolder named 'ProjectD2' in Diablo II.<br>Press Detect! to find information in Windows Registry.")
 
         validateNonEmpty: true
         showDetect: true

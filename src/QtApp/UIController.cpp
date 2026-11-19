@@ -55,6 +55,24 @@ QString getUserHomeDefault()
     return home;
 }
 
+bool sameDir(const Mernel::std_path& l, const Mernel::std_path& r)
+{
+    return (l / "").lexically_normal() == (r / "").lexically_normal();
+}
+
+void setGamePaths(AppConfig& cfg, const GameMatch& match)
+{
+    cfg.m_userHome  = path2string(match.userHome);
+    cfg.m_inputPath = ::D2ModGen::ensureTrailingSlash(path2string(match.installPath));
+}
+
+std::vector<GameMatch> findGamesFor(const AppConfig& cfg)
+{
+    const auto kind = cfg.m_versionMajor == 1 ? GameKind::Resurrected : GameKind::Legacy;
+    const auto home = QStandardPaths::writableLocation(QStandardPaths::HomeLocation).toStdString();
+    return findGames(kind, string2path(home), qEnvironmentVariable("WINEPREFIX").toStdString());
+}
+
 }
 
 DelayedTimer::DelayedTimer(int thresholdMs, std::function<void()> onShot, QObject* parent)
@@ -97,6 +115,9 @@ UIController::UIController(ConfigHandler& configHandler)
     });
 
     auto& cfg = m_configHandler.m_appConfig;
+
+    if (!s_isWindows)
+        detectOnStartup();
 
     if (s_isWindows || cfg.m_userHome.empty())
         cfg.m_userHome = getUserHomeDefault().toStdString();
@@ -251,7 +272,65 @@ QString UIController::detectPath()
 {
     auto& cfg         = m_configHandler.m_appConfig;
     bool  resurrected = cfg.m_versionMajor == 1;
-    return QString::fromStdString(resurrected ? cfg.m_installLocationD2R : cfg.m_installLocationLegacy);
+    if (s_isWindows)
+        return QString::fromStdString(resurrected ? cfg.m_installLocationD2R : cfg.m_installLocationLegacy);
+
+    m_matches = findGamesFor(cfg);
+    if (m_matches.empty()) {
+        emit statusUpdate(tr("No Wine prefix with Diablo II found. See the log for where it looked."));
+        return {};
+    }
+    if (m_matches.size() == 1) {
+        applyMatch(0);
+        return {};
+    }
+
+    int          preselected = 0;
+    QVariantList matches;
+    for (size_t i = 0; i < m_matches.size(); ++i) {
+        const auto& match = m_matches[i];
+        matches << QVariantMap{
+            { "prefix", QString::fromStdString(path2string(match.prefix)) },
+            { "installPath", QString::fromStdString(path2string(match.installPath)) },
+            { "hasSavedGames", match.hasSavedGames },
+            { "hasBattleNetConfig", match.hasBattleNetConfig },
+        };
+        if (sameDir(match.userHome, string2path(cfg.m_userHome)))
+            preselected = static_cast<int>(i);
+    }
+    emit prefixChoice(matches, preselected);
+    return {};
+}
+
+void UIController::applyMatch(int index)
+{
+    if (index < 0 || static_cast<size_t>(index) >= m_matches.size())
+        return;
+
+    const auto& match = m_matches[index];
+    auto&       cfg   = m_configHandler.m_appConfig;
+    setGamePaths(cfg, match);
+    cfg.notifyChangeInner();
+    emit statusUpdate(tr("Found Diablo II in %1").arg(QString::fromStdString(path2string(match.prefix))));
+}
+
+void UIController::detectOnStartup()
+{
+    auto& cfg = m_configHandler.m_appConfig;
+    if (Mernel::isExistingDirectory(string2path(cfg.m_userHome)))
+        return;
+
+    // Both fields come from one prefix, or neither changes: an input folder that points at another install stays.
+    const auto matches = findGamesFor(cfg);
+    const auto input   = string2path(cfg.m_inputPath);
+    if (matches.size() == 1 && (!Mernel::isExistingDirectory(input) || sameDir(input, matches[0].installPath))) {
+        setGamePaths(cfg, matches[0]);
+    } else if (!matches.empty()) {
+        // The UI isn't up yet; post the hint once the event loop runs.
+        QTimer::singleShot(0, this, [this] {
+            emit statusUpdate(tr("Wine user root not found. Press Detect! to fill it from a Wine prefix with Diablo II."));
+        });
+    }
 }
 
 void UIController::updateUndoAction()
