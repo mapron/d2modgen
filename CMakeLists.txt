@@ -95,7 +95,11 @@ AddTarget( TYPE app_console NAME modgen_console
     SOURCE_DIR ${sourceRoot}/ConsoleApp
     LINK_LIBRARIES ModgenCore MernelPlatform Config
     )
-
+AddTarget( TYPE app_console NAME GenTester
+    SOURCE_DIR ${sourceRoot}/GenTester
+    LINK_LIBRARIES ModgenCore MernelPlatform Config
+    SKIP_INSTALL
+    )
 # Tests
 if (D2MODGEN_BUILD_TESTS)
     enable_testing()

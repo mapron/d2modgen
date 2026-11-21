@@ -8,6 +8,7 @@
 #include "AttributeHelper.hpp"
 #include "DynamicBitSet.hpp"
 #include "MagicProp.hpp"
+#include "Scale.hpp"
 
 namespace D2ModGen {
 
@@ -17,10 +18,12 @@ struct PropRandomizer {
 
         Percent                           power = g_identityPct;
         std::optional<NonParValueSummary> nonPar;
+        std::optional<NonParRecordNew>    nonParNew;
 
         MagicProp prop;
 
         MagicProp makeRoll(RandomGenerator& rng) const;
+        MagicProp makeRoll2(RandomGenerator& rng, const BasicProperties& basicProperties, Percent trashChance, Percent luckyChance) const;
 
         std::string toString() const;
     };

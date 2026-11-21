@@ -13,11 +13,35 @@
 #include <set>
 
 #include "AttributeHelper.hpp"
+#include "Scale.hpp"
+
+/*
+.curve      = { 0, 250, 500, 650, 850 }, // 0 = Heaviside gate (cannot spawn in bracket 0)
+.spread     = { 500, 1600 },             // P10 = 0.50x P50, P90 = 1.60x P50
+.minToMax   = 80,                        // val1 = 80%..100% of val2
+.tailMax    = 1500,                      // Rare jackpot ceiling = 1.50x slotP90
+
+
+our pipeline now looks completely clean and self-maintaining:
+1. Offline Analyzer / Dumper (Run Once to Generate Config):
+	• Normalizes raw values per slot using each slot's high.P90.
+	• Pools symmetrical groups (resists, base_stats, elem_dmg, etc.).
+	• Extracts { curve[5], spread{down, up}, minToMax, tailMax } with monotonic smoothing and prints valid C++ group definitions.
+	• You review the ~25–35 group structs (instead of 200 raw attributes) and tweak any curve numbers by hand if desired.
+2. Runtime Mod Data Scan (Runs on Whatever Mod / Vanilla DB Is Loaded):
+	• Scans actual active items/affixes in the loaded database (automatically skipping dead/unimplemented properties.txt rows).
+	• Populates slotP90 per group/attribute and freqFactor.
+3. Runtime Item Generator:
+	• Evaluates curve[level] + spread + minToMax + tailMax and multiplies by slotP90[slot].
+*/
 
 namespace D2ModGen {
 
 constexpr const int DEFAULT_FREQ      = 100; // arbitrary number. not very large but large enough so 1-2-3 is negligible
 constexpr const int FREQ_PER_ONE_PROP = 100;
+constexpr const int LEVEL_GROUP_SIZE  = 18;
+constexpr const int LEVEL_GROUP_COUNT = 5;
+constexpr const int LEVEL_GROUP_MAX   = LEVEL_GROUP_COUNT * LEVEL_GROUP_SIZE - 1;
 
 struct NonParValue {
     int level = 0;
@@ -31,57 +55,23 @@ struct NonParValueSummary {
     int freq = 0;
 
     struct Stat {
-        int min    = 0;
-        int median = 0;
-        int max    = 0;
+        int min = 0;
+        int p10 = 0;
+        int p50 = 0;
+        int p90 = 0;
+        int max = 0;
 
-        void add(int val)
-        {
-            min = std::min(min, val);
-            max = std::max(max, val);
-        }
-        void add(Stat stat, int currentFreq, int newFreq)
-        {
-            if (!currentFreq) {
-                median = stat.median;
-                min    = stat.min;
-                max    = stat.max;
-            } else {
-                min    = std::min(min, stat.min);
-                max    = std::max(max, stat.max);
-                median = (median * currentFreq + stat.median * newFreq) / (currentFreq + newFreq);
-            }
-        }
         std::string toString() const;
-        void        setMinMaxForCalculation();
-        void        cleanMinMax();
         void        makeMonotonic(const Stat& prev);
+        void        rescaleValuesOnTotal(const Stat& total);
 
         bool isEmpty() const { return min == max && min == 0; }
 
     } low, high, par;
 
-    void add(const NonParValue& value)
-    {
-        low.add(value.min);
-        high.add(value.max);
-        par.add(value.par);
-        freq += FREQ_PER_ONE_PROP;
-    }
-
-    void add(const NonParValueSummary& summary)
-    {
-        if (!summary.freq)
-            return;
-        low.add(summary.low, freq, summary.freq);
-        high.add(summary.high, freq, summary.freq);
-        par.add(summary.par, freq, summary.freq);
-        freq += summary.freq;
-    }
-
-    void setMinMaxForCalculation();
-    void cleanMinMax();
     void makeMonotonic(const NonParValueSummary& prev);
+
+    void rescaleValuesOnTotal(const NonParValueSummary& total);
 
     std::string toString() const;
     std::string toStringTabbed() const;
@@ -95,15 +85,51 @@ struct NonParValueByLevel {
 
     std::array<NonParValueSummary, s_segments> levels;
 
-    std::string toString() const;
+    std::string toString(bool printLevels = true) const;
 
     void makeMonotonic();
     void makeApprox(const NonParValueList& list, NonParValueByLevel* prev = nullptr);
-    void add(const NonParValueByLevel& other);
+
     void rescaleFreq(Percent percent, int denum);
+    void rescaleValuesOnTotal();
 
     size_t estimateSize() const;
 };
+
+using PermilleCurve = std::vector<Permille>;
+using SlotPermMap   = TinyMap<SlotType, Permille>;
+struct NonParRecordNew {
+    static inline const auto s_defaultCurve = PermilleCurve(LEVEL_GROUP_COUNT, 1000_perm);
+    static inline const auto s_emptyCurve   = PermilleCurve(LEVEL_GROUP_COUNT, 0_perm);
+
+    int freq = 0;
+
+    int minMedian = 0;
+    int maxMedian = 0;
+    int penMax    = 0;
+
+    int minLevel = 0;
+
+    AttributeGroup        group;
+    std::set<AttributeId> ids;
+
+    SlotSet     slotTypes;
+    SlotPermMap slotScale; // empty key means = 1000_perm
+
+    // max rolls for each level bracket, median
+    PermilleCurve medCurve = s_defaultCurve;
+
+    // max rolls relative to medCurve
+    PermilleCurve ratioP000 = s_defaultCurve;
+    PermilleCurve ratioP010 = s_defaultCurve;
+    PermilleCurve ratioP090 = s_defaultCurve;
+    PermilleCurve ratioP100 = s_defaultCurve;
+
+    std::string toString() const;
+};
+using NonParRecordNewList     = std::vector<NonParRecordNew>;
+using NonParRecordNewGroupMap = std::map<AttributeGroup, NonParRecordNew>;
+using NonParRecordNewMap      = std::map<AttributeId, NonParRecordNew>;
 
 struct NonParRecord {
     AttributeId code       = AttributeId::INVALID;
@@ -115,6 +141,8 @@ struct NonParRecord {
     NonParValueByLevel comm;
     NonParValueByLevel rare;
     NonParValueByLevel epic;
+
+    //std::map<SlotType, NonParValueByLevel> approxMapForSlot;
 
     void addScale(SlotType slot, const NonParValueSummary& slotApprox, const NonParValueSummary& globalApprox);
     void cleanupScale();
@@ -229,18 +257,23 @@ struct AllAttributeData {
     NonParRecordList nonPar;
     ParRecordList    par;
 
+    NonParRecordNewGroupMap groupMap;
+    NonParRecordNewMap      idMap;
+
     std::map<AttributeId, NonParValueSummary> statistics;
 
     std::set<AttributeId> ids;
 
     void refreshIds();
 
-    void insert(const AllAttributeData& other);
+    //void insert(const AllAttributeData& other);
 
     void erase(AttributeId id);
 
     void add(ParRecord rec);
     void add(NonParRecord rec);
+    void addGrouped(NonParRecordNew rec);
+    void addIdd(NonParRecordNew rec);
 
     ParRecord*    findExistingPar(AttributeId id);
     NonParRecord* findExistingNonPar(AttributeId id);

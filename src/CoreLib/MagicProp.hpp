@@ -41,7 +41,7 @@ struct BasicProperties {
     AttributeIdiom idiom   = AttributeIdiom::None;
     Element        element = Element::None;
 
-    size_t levelBracket20 = size_t(-1);
+    size_t levelBracket18 = size_t(-1);
 
     template<class T>
     bool checkWithDefault(const T& next, T current, T def) const

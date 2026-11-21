@@ -13,38 +13,57 @@
 namespace D2ModGen {
 
 namespace {
-class MedianFinder {
-private:
-    std::vector<int> m_dataLow;
-    std::vector<int> m_dataHigh;
-    std::vector<int> m_dataPar;
 
-public:
+struct MedianFinder {
+    std::vector<int> m_data;
+
+    void add(int val)
+    {
+        m_data.push_back(val);
+    }
+    int calcPercentile(int percentile)
+    {
+        const auto mid = m_data.begin() + m_data.size() * percentile / 100;
+        return *mid;
+    }
+
+    void calc(NonParValueSummary::Stat& stat)
+    {
+        if (m_data.empty()) {
+            stat = {};
+            return;
+        }
+        std::sort(m_data.begin(), m_data.end());
+
+        stat.min = m_data.front();
+        stat.max = m_data.back();
+        stat.p50 = calcPercentile(50);
+        if (m_data.size() > 9) {
+            stat.p10 = calcPercentile(10);
+            stat.p90 = calcPercentile(90);
+        } else {
+            stat.p10 = stat.p90 = stat.p50;
+        }
+    }
+};
+
+struct MedianFinderGroup {
+    MedianFinder low;
+    MedianFinder high;
+    MedianFinder par;
+
     void add(const NonParValue& val)
     {
-        m_dataLow.push_back(val.min);
-        m_dataHigh.push_back(val.max);
-        m_dataPar.push_back(val.par);
+        low.add(val.min);
+        high.add(val.max);
+        par.add(val.par);
     }
     void calc(NonParValueSummary& stat)
     {
-        if (m_dataLow.empty())
-            return;
-        {
-            const auto mid = m_dataLow.begin() + m_dataLow.size() / 2;
-            std::ranges::nth_element(m_dataLow, mid);
-            stat.low.median = *mid;
-        }
-        {
-            const auto mid = m_dataHigh.begin() + m_dataHigh.size() / 2;
-            std::ranges::nth_element(m_dataHigh, mid);
-            stat.high.median = *mid;
-        }
-        {
-            const auto mid = m_dataPar.begin() + m_dataPar.size() / 2;
-            std::ranges::nth_element(m_dataPar, mid);
-            stat.par.median = *mid;
-        }
+        low.calc(stat.low);
+        high.calc(stat.high);
+        par.calc(stat.par);
+        stat.freq = FREQ_PER_ONE_PROP * low.m_data.size();
     }
 };
 
@@ -55,23 +74,9 @@ std::string optionalToString(const std::optional<int>& opt)
     return opt.has_value() ? std::to_string(opt.value()) : "{}";
 }
 
-void NonParValueSummary::Stat::setMinMaxForCalculation()
-{
-    min = std::numeric_limits<int>::max();
-    max = std::numeric_limits<int>::min();
-}
-
-void NonParValueSummary::Stat::cleanMinMax()
-{
-    if (min == std::numeric_limits<int>::max())
-        min = 0;
-    if (max == std::numeric_limits<int>::min())
-        min = 0;
-}
-
 void NonParValueSummary::Stat::makeMonotonic(const Stat& prev)
 {
-    auto fields = { &NonParValueSummary::Stat::min, &NonParValueSummary::Stat::median, &NonParValueSummary::Stat::max };
+    auto fields = { &NonParValueSummary::Stat::min, &NonParValueSummary::Stat::p10, &NonParValueSummary::Stat::p50, &NonParValueSummary::Stat::p90, &NonParValueSummary::Stat::max };
     for (auto&& m : fields) {
         if (prev.*m && !(this->*m))
             this->*m = prev.*m;
@@ -81,18 +86,16 @@ void NonParValueSummary::Stat::makeMonotonic(const Stat& prev)
     }
 }
 
-void NonParValueSummary::setMinMaxForCalculation()
+void NonParValueSummary::Stat::rescaleValuesOnTotal(const Stat& total)
 {
-    low.setMinMaxForCalculation();
-    high.setMinMaxForCalculation();
-    par.setMinMaxForCalculation();
-}
-
-void NonParValueSummary::cleanMinMax()
-{
-    low.cleanMinMax();
-    high.cleanMinMax();
-    par.cleanMinMax();
+    if (!total.p90) {
+        return;
+    }
+    min = min * 1000 / total.p90;
+    max = max * 1000 / total.p90;
+    p10 = p10 * 1000 / total.p90;
+    p50 = p50 * 1000 / total.p90;
+    p90 = p90 * 1000 / total.p90;
 }
 
 void NonParValueSummary::makeMonotonic(const NonParValueSummary& prev)
@@ -102,9 +105,16 @@ void NonParValueSummary::makeMonotonic(const NonParValueSummary& prev)
     par.makeMonotonic(prev.par);
 }
 
+void NonParValueSummary::rescaleValuesOnTotal(const NonParValueSummary& total)
+{
+    low.rescaleValuesOnTotal(total.low);
+    high.rescaleValuesOnTotal(total.high);
+    par.rescaleValuesOnTotal(total.par);
+}
+
 std::string NonParValueSummary::Stat::toString() const
 {
-    return "{ " + std::to_string(min) + ", " + std::to_string(median) + ", " + std::to_string(max) + " }";
+    return "{ " + std::to_string(min) + ", " + std::to_string(p10) + ", " + std::to_string(p50) + ", " + std::to_string(p90) + ", " + std::to_string(max) + " }";
 }
 
 std::string NonParValueSummary::toString() const
@@ -125,9 +135,9 @@ std::string NonParValueSummary::toString() const
 
 std::string NonParValueSummary::toStringTabbed() const
 {
-    return std::to_string(low.min) + "\t" + std::to_string(low.median) + "\t" + std::to_string(low.max) + "\t"      //
-           + std::to_string(high.min) + "\t" + std::to_string(high.median) + "\t" + std::to_string(high.max) + "\t" //
-           + std::to_string(par.min) + "\t" + std::to_string(par.median) + "\t" + std::to_string(par.max);
+    return std::to_string(low.min) + "\t" + std::to_string(low.p50) + "\t" + std::to_string(low.max) + "\t"      //
+           + std::to_string(high.min) + "\t" + std::to_string(high.p50) + "\t" + std::to_string(high.max) + "\t" //
+           + std::to_string(par.min) + "\t" + std::to_string(par.p50) + "\t" + std::to_string(par.max);
 }
 
 void NonParValueSummary::make(const NonParValueList& list)
@@ -137,28 +147,26 @@ void NonParValueSummary::make(const NonParValueList& list)
     if (list.empty())
         return;
 
-    total.setMinMaxForCalculation();
-
-    MedianFinder averages;
+    MedianFinderGroup averages;
     for (const NonParValue& value : list) {
-        total.add(value);
         averages.add(value);
     }
     averages.calc(total);
-    total.cleanMinMax();
 }
 
-std::string NonParValueByLevel::toString() const
+std::string NonParValueByLevel::toString(bool printLevels) const
 {
     if (!total.freq)
         return "{}";
     std::string result = "NonParValueByLevel{\n";
     result += "            .total = " + total.toString() + ",\n";
-    result += "            .levels{ {\n";
-    for (size_t i = 0; i < s_segments; ++i) {
-        result += "                " + levels[i].toString() + ",\n";
+    if (printLevels) {
+        result += "            .levels{ {\n";
+        for (size_t i = 0; i < s_segments; ++i) {
+            result += "                " + levels[i].toString() + ",\n";
+        }
+        result += "            } },\n";
     }
-    result += "            } },\n";
     result += "        }";
     return result;
 }
@@ -187,46 +195,31 @@ void NonParValueByLevel::makeApprox(const NonParValueList& list, NonParValueByLe
     if (list.empty())
         return;
 
-    total.setMinMaxForCalculation();
-
-    for (auto& summary : levels)
-        summary.setMinMaxForCalculation();
-
-    MedianFinder                         averages;
-    std::array<MedianFinder, s_segments> levelAverages;
+    MedianFinderGroup                         averages;
+    std::array<MedianFinderGroup, s_segments> levelAverages;
 
     for (const NonParValue& value : list) {
-        size_t levelBracket20 = std::clamp(value.level, 0, 99) / 20;
+        size_t levelBracket20 = std::clamp(value.level, 0, 89) / 18;
 
         if (prev) {
-            auto& r = prev->levels[levelBracket20];
+            /*auto& r = prev->levels[levelBracket20];
             if (std::abs(value.max) <= std::abs(r.high.max)) {
                 r.add(value);
                 prev->total.add(value);
                 continue;
-            }
+            }*/
         }
-        total.add(value);
         averages.add(value);
 
         auto& byLevel = levels[levelBracket20];
-        byLevel.add(value);
         levelAverages[levelBracket20].add(value);
     }
     averages.calc(total);
-    total.cleanMinMax();
     for (size_t i = 0; i < s_segments; ++i) {
         levelAverages[i].calc(levels[i]);
-        levels[i].cleanMinMax();
     }
 }
 
-void NonParValueByLevel::add(const NonParValueByLevel& other)
-{
-    total.add(other.total);
-    for (size_t i = 0; i < s_segments; ++i)
-        levels[i].add(other.levels[i]);
-}
 
 void NonParValueByLevel::rescaleFreq(Percent percent, int denum)
 {
@@ -238,6 +231,12 @@ void NonParValueByLevel::rescaleFreq(Percent percent, int denum)
     scaler(total.freq);
     for (size_t i = 0; i < s_segments; ++i)
         scaler(levels[i].freq);
+}
+
+void NonParValueByLevel::rescaleValuesOnTotal()
+{
+    for (size_t i = 0; i < s_segments; ++i)
+        levels[i].rescaleValuesOnTotal(total);
 }
 
 size_t NonParValueByLevel::estimateSize() const
@@ -289,6 +288,7 @@ size_t NonParRecord::estimateSize() const
 
 void NonParRecord::doHomogen(const std::vector<const NonParRecord*>& sources)
 {
+    /*
     for (const NonParRecord* source : sources) {
         for (auto slot : source->slotTypes.asVector()) {
             this->slotTypes.insert(slot);
@@ -306,7 +306,7 @@ void NonParRecord::doHomogen(const std::vector<const NonParRecord*>& sources)
         int power = slotTypesScale.get(slot).value_or(100);
         if (power == 100)
             slotTypesScale.erase(slot);
-    }
+    }*/
 }
 
 void NonParRecord::rescaleFreq(Percent percent, int denum)
@@ -328,6 +328,7 @@ std::string NonParRecord::toString() const
         result += enumToString(slotType, true);
     }
     result += " },\n";
+    /*
     result += "        .slotTypesScale = {";
     const bool slotTypesScaleEmpty = slotTypesScale.empty();
     if (!slotTypesScaleEmpty)
@@ -339,7 +340,7 @@ std::string NonParRecord::toString() const
     }
     if (!slotTypesScaleEmpty)
         result += " ";
-    result += "},\n";
+    result += "},\n";*/
 
     std::string pad = "          ";
     if (badd.total.freq) {
@@ -474,8 +475,14 @@ void AllAttributeData::refreshIds()
         ids.insert(rec.code);
     for (auto& rec : nonPar)
         ids.insert(rec.code);
+    for (auto& [group, rec] : groupMap)
+        for (auto id : rec.ids)
+            ids.insert(id);
+    for (auto& [id, _] : idMap)
+        ids.insert(id);
 }
 
+/*
 void AllAttributeData::insert(const AllAttributeData& other)
 {
     par.reserve(par.size() + other.par.size());
@@ -492,7 +499,7 @@ void AllAttributeData::insert(const AllAttributeData& other)
         ids.insert(rec.code);
         nonPar.push_back(rec);
     }
-}
+}*/
 
 void AllAttributeData::erase(AttributeId id)
 {
@@ -511,6 +518,18 @@ void AllAttributeData::add(NonParRecord rec)
 {
     ids.insert(rec.code);
     nonPar.push_back(std::move(rec));
+}
+
+void AllAttributeData::addGrouped(NonParRecordNew rec)
+{
+    ids.insert_range(rec.ids);
+    groupMap[rec.group] = std::move(rec);
+}
+
+void AllAttributeData::addIdd(NonParRecordNew rec)
+{
+    ids.insert_range(rec.ids);
+    idMap[*rec.ids.begin()] = std::move(rec);
 }
 
 ParRecord* AllAttributeData::findExistingPar(AttributeId id)
@@ -580,6 +599,65 @@ void StatisticsTable::traceStatistics() const
     }
 
     Logger() << "---------------- " << "END" << " ----------------";
+}
+
+std::string NonParRecordNew::toString() const
+{
+    std::string result = "    NonParRecordNew{\n";
+    result += "        .freq      = " + std::to_string(freq) + ",\n";
+    result += "        .minMedian = " + std::to_string(minMedian) + ",\n";
+    result += "        .maxMedian = " + std::to_string(maxMedian) + ",\n";
+    if (penMax)
+        result += "        .penMax    = " + std::to_string(penMax) + ",\n";
+    result += "        .minLevel  = " + std::to_string(minLevel) + ",\n";
+
+    result += "        .group     = " + enumToString(group, true) + ",\n";
+
+    result += "        .ids       = { ";
+    for (size_t i = 0; const auto& id : ids) {
+        if (i++)
+            result += ", ";
+        result += enumToString(id, true);
+    }
+    result += " },\n";
+
+    result += "        .slotTypes = { ";
+    for (size_t i = 0; const auto& slotType : slotTypes.asVector()) {
+        if (i++)
+            result += ", ";
+        result += enumToString(slotType, true);
+    }
+    result += " },\n";
+
+    if (!slotScale.empty()) {
+        result += "        .slotScale = { ";
+        for (size_t i = 0; const auto& [slotType, scale] : slotScale.asVector()) {
+            if (i++)
+                result += ", ";
+            result += "{ " + enumToString(slotType, true) + ", " + scale.toString() + " }";
+        }
+        result += " },\n";
+    }
+
+    auto printCurve = [&result](const PermilleCurve& curve, const std::string& name) {
+        if (curve != s_defaultCurve) {
+            result += "        ." + name + " = { ";
+            for (size_t i = 0; auto val : curve) {
+                if (i++)
+                    result += ", ";
+                result += val.toString();
+            }
+            result += " },\n";
+        }
+    };
+    printCurve(medCurve, "medCurve ");
+    printCurve(ratioP000, "ratioP000");
+    printCurve(ratioP010, "ratioP010");
+    printCurve(ratioP090, "ratioP090");
+    printCurve(ratioP100, "ratioP100");
+
+    result += "    },\n";
+    return result;
 }
 
 }

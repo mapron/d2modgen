@@ -120,6 +120,7 @@ void ModuleRandoItems::generate()
         if (!env.extraFile.empty()) {
             const bool dumpAll = env.extraTrace.contains("item_rando_all_attr");
             dumpAttributes(env.extraFile, magicContext.actual, dumpAll ? std::set<AttributeId>{} : magicContext.precompiled.ids);
+            return;
         }
     }
 
@@ -262,8 +263,8 @@ ModuleRandoItems::AllProps ModuleRandoItems::grabAllProps(bool                  
             for (auto& prop : affixlist.parsedProps) {
                 auto& byId = allProps.propsById[prop.id];
 
-                auto&          byRoll  = byId.propsByRoll[affixlist.rollTypeHighestGrab];
-                auto&          bySlot  = byRoll.propsBySlot[slot];
+                //auto&          byRoll  = byId.propsByRoll[RollType::Common];
+                auto&          bySlot  = byId.propsBySlot[slot];
                 MagicPropList& byLevel = bySlot.propsByLevel[level];
                 byLevel.push_back(prop);
                 inserted++;
@@ -462,9 +463,13 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
 
 AllAttributeData ModuleRandoItems::analyzeAll(const AllProps& allProps)
 {
-    AllAttributeData  result;
-    NonParRecordList& nonPropList = result.nonPar;
-    ParRecordList&    propList    = result.par;
+    AllAttributeData                   result;
+    NonParRecordList&                  nonPropList = result.nonPar;
+    ParRecordList&                     propList    = result.par;
+    NonParRecordNewGroupMap&           groupMap    = result.groupMap;
+    NonParRecordNewMap&                idMap       = result.idMap;
+    AllProps                           trivialNoGroup;
+    std::map<AttributeGroup, AllProps> trivial;
 
     for (const auto& [code, codeProps] : allProps.propsById) {
         const auto& desc = getAttributeDesc(code);
@@ -481,10 +486,12 @@ AllAttributeData ModuleRandoItems::analyzeAll(const AllProps& allProps)
         const bool isTrivialPar = desc.parMode == ParMode::PureValue || desc.parMode == ParMode::None;
 
         if (isTrivialPar) {
-            NonParRecord nonParRecord;
-            nonParRecord.code = code;
-            analyzeNonPar(codeProps, nonParRecord, result.statistics[code]);
-            nonPropList.push_back(std::move(nonParRecord));
+            if (desc.group == AttributeGroup::None) {
+                trivialNoGroup.propsById[code] = codeProps;
+            } else {
+                trivial[desc.group].propsById[code] = codeProps;
+            }
+
         } else {
             ParRecord parRecord;
             parRecord.code = code;
@@ -492,84 +499,173 @@ AllAttributeData ModuleRandoItems::analyzeAll(const AllProps& allProps)
             propList.push_back(std::move(parRecord));
         }
     }
+
+    for (const auto& [groupId, trivialProps] : trivial) {
+        NonParRecordNew& record = groupMap[groupId];
+        record.group            = groupId;
+        AllPropsVal allPropsVal;
+        for (const auto& [attrId, allVal] : trivialProps.propsById) {
+            record.ids.insert(attrId);
+            for (const auto& [slot, slotProps] : allVal.propsBySlot) {
+                for (const auto& [level, levelProps] : slotProps.propsByLevel) {
+                    allPropsVal.propsBySlot[slot].propsByLevel[level].append_range(levelProps);
+                }
+            }
+        }
+
+        analyzeNonPar(allPropsVal, record);
+        record.freq /= record.ids.size();
+    }
+    for (const auto& [code, codeProps] : trivialNoGroup.propsById) {
+        NonParRecordNew& record = idMap[code];
+        record.ids.insert(code);
+
+        analyzeNonPar(codeProps, record);
+    }
+
     result.refreshIds();
     return result;
 }
 
-void ModuleRandoItems::analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecord& record, NonParValueSummary& stat)
+void ModuleRandoItems::analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecordNew& record)
 {
-    NonParValueList     allBadds;
-    NonParValueByLevel* prev1 = nullptr;
-    NonParValueList     all;
+    NonParValueList                     all;
+    NonParValueList                     penalty;
+    std::map<SlotType, NonParValueList> bySlot;
 
-    for (const auto& [roll, rollProps] : allPropsVal.propsByRoll) {
-        assert(roll != RollType::Negative);
-        NonParValueByLevel& nonParByLevel = record.get(roll);
-        NonParValueByLevel* prev          = prev1;
-        prev1                             = &nonParByLevel;
+    for (const auto& [slot, slotProps] : allPropsVal.propsBySlot) {
+        NonParValueList& valuesSlot = bySlot[slot];
+        for (const auto& [level, levelProps] : slotProps.propsByLevel) {
+            assert(level >= -1 && level < 260);
+            for (auto prop : levelProps) {
+                const auto min = prop.min.value_or(0);
+                const auto max = prop.max.value_or(0);
+                const auto par = prop.par.value_or(0);
 
-        std::map<SlotType, NonParValueByLevel> approxMapForSlot;
-        NonParValueList                        valuesGood;
-        for (const auto& [slot, slotProps] : rollProps.propsBySlot) {
-            record.slotTypes.insert(slot);
-
-            NonParValueList valuesSlot;
-            for (const auto& [level, levelProps] : slotProps.propsByLevel) {
-                assert(level >= -1 && level < 260);
-                for (auto prop : levelProps) {
-                    const auto min = prop.min.value_or(0);
-                    const auto max = prop.max.value_or(0);
-                    const auto par = prop.par.value_or(0);
-
-                    if (min < 0 || max < 0) {
-                        allBadds.push_back({ level, min, max, par });
-                    } else {
-                        valuesSlot.push_back({ level, min, max, par });
-                        valuesGood.push_back({ level, min, max, par });
-                    }
-
+                if (min >= 0 && max > 0) {
+                    valuesSlot.push_back({ level, min, max, par });
                     all.push_back({ level, min, max, par });
                 }
+                if (max < 0) {
+                    penalty.push_back({ level, min, max, par });
+                }
             }
-
-            approxMapForSlot[slot].makeApprox(valuesSlot);
-        }
-        if (valuesGood.size()) {
-            nonParByLevel.makeApprox(valuesGood, prev);
-            nonParByLevel.makeMonotonic();
-
-            for (const auto& [slot, approxSlot] : approxMapForSlot) {
-                record.addScale(slot, approxSlot.total, nonParByLevel.total);
-            };
         }
     }
-    record.badd.makeApprox(allBadds);
-    stat.make(all);
+    {
+        NonParValueSummary summAll;
+        summAll.make(all);
+        record.freq      = all.size() * FREQ_PER_ONE_PROP;
+        record.minMedian = summAll.low.p50;
+        record.maxMedian = summAll.high.p50;
+    }
+    {
+        NonParValueSummary summpenalty;
+        summpenalty.make(penalty);
+        record.freq += penalty.size() * FREQ_PER_ONE_PROP;
+        record.penMax = std::min(summpenalty.high.p50, summpenalty.low.p50);
+    }
 
-    record.cleanupScale();
+    NonParValueList valuesGoodScaledToMedian;
+    for (auto& [slot, slotProps] : bySlot) {
+        NonParValueSummary summ;
+        summ.make(slotProps);
+
+        int slotMedian = summ.high.p50;
+        int val        = slotMedian * 1000 / record.maxMedian;
+        if (val < 900 || val > 1100)
+            record.slotScale.insert(slot, val);
+
+        record.slotTypes.insert(slot);
+
+        for (auto& val : slotProps) {
+            val.max = val.max * 1000 / slotMedian;
+            val.min = val.min * 1000 / slotMedian;
+        }
+        valuesGoodScaledToMedian.append_range(slotProps);
+    }
+
+    record.minLevel = 999;
+    record.medCurve = NonParRecordNew::s_emptyCurve;
+
+    record.ratioP000 = NonParRecordNew::s_emptyCurve;
+    record.ratioP010 = NonParRecordNew::s_emptyCurve;
+    record.ratioP090 = NonParRecordNew::s_emptyCurve;
+    record.ratioP100 = NonParRecordNew::s_emptyCurve;
+    std::vector<NonParValueList> levelGroups(LEVEL_GROUP_COUNT);
+    for (const NonParValue& value : valuesGoodScaledToMedian) {
+        int levelGroup = std::clamp(value.level, 0, LEVEL_GROUP_MAX) / LEVEL_GROUP_SIZE;
+        levelGroups[levelGroup].push_back(value);
+        record.minLevel = std::min(record.minLevel, value.level);
+    }
+    int nonEmpty = 0;
+    for (int i = 0; i < LEVEL_GROUP_COUNT; i++) {
+        NonParValueSummary summ;
+        summ.make(levelGroups[i]);
+        if (!summ.freq)
+            continue;
+
+        record.medCurve[i] = summ.high.p50;
+
+        record.ratioP000[i] = summ.high.min * 1000 / summ.high.p50;
+        record.ratioP010[i] = summ.high.p10 * 1000 / summ.high.p50;
+        record.ratioP090[i] = summ.high.p90 * 1000 / summ.high.p50;
+        record.ratioP100[i] = summ.high.max * 1000 / summ.high.p50;
+    }
+
+    auto makeMonotonic = [](std::vector<int>& curve) {
+        for (int i = 1; i < LEVEL_GROUP_COUNT - 1; i++) {
+            if (!curve[i] && curve[i - 1] && curve[i + 1])
+                curve[i] = (curve[i - 1] + curve[i + 1]) / 2;
+        }
+
+        for (int i = 1; i < LEVEL_GROUP_COUNT; i++) {
+            if (curve[i] < curve[i - 1])
+                curve[i] = curve[i - 1];
+        }
+        for (int i = LEVEL_GROUP_COUNT - 2; i >= 0; i--) {
+            if (!curve[i])
+                curve[i] = curve[i + 1];
+        }
+    };
+
+    makeMonotonic(record.medCurve);
+
+    makeMonotonic(record.ratioP000);
+    makeMonotonic(record.ratioP010);
+    makeMonotonic(record.ratioP090);
+    makeMonotonic(record.ratioP100);
+
+    for (int i = 0; i < LEVEL_GROUP_COUNT; i++) {
+        auto med            = record.medCurve[i];
+        record.ratioP000[i] = record.ratioP000[i] * 1000 / med;
+        record.ratioP010[i] = record.ratioP010[i] * 1000 / med;
+        record.ratioP090[i] = record.ratioP090[i] * 1000 / med;
+        record.ratioP100[i] = record.ratioP100[i] * 1000 / med;
+    }
 }
 
 void ModuleRandoItems::analyzePar(const AllPropsVal& allPropsVal, ParRecord& record, NonParValueSummary& stat)
 {
     NonParValueList all;
-    for (const auto& [roll, rollProps] : allPropsVal.propsByRoll) {
-        assert(roll != RollType::Negative);
+    //for (const auto& [roll, rollProps] : allPropsVal.propsByRoll) {
+    //  assert(roll != RollType::Negative);
 
-        for (const auto& [slot, slotProps] : rollProps.propsBySlot) {
-            record.slotTypes.insert(slot);
+    for (const auto& [slot, slotProps] : allPropsVal.propsBySlot) {
+        record.slotTypes.insert(slot);
 
-            PropListByLevel& propValues = record.get(roll);
-            for (const auto& [level, levelProps] : slotProps.propsByLevel) {
-                const size_t bracket20 = std::clamp(level, 0, 99) / 20;
+        PropListByLevel& propValues = record.get(RollType::Common);
+        for (const auto& [level, levelProps] : slotProps.propsByLevel) {
+            const size_t bracket20 = std::clamp(level, 0, 89) / 18;
 
-                for (auto prop : levelProps) {
-                    all.push_back({ level, prop.min.value_or(0), prop.max.value_or(0), prop.par.value_or(0) });
-                    propValues.freq++;
-                    propValues.levels[bracket20].push_back({ prop.par, prop.min, prop.max });
-                }
+            for (auto prop : levelProps) {
+                all.push_back({ level, prop.min.value_or(0), prop.max.value_or(0), prop.par.value_or(0) });
+                propValues.freq++;
+                propValues.levels[bracket20].push_back({ prop.par, prop.min, prop.max });
             }
         }
     }
+    // }
     stat.make(all);
 }
 
@@ -585,11 +681,9 @@ void ModuleRandoItems::dumpAttributes(const Mernel::std_path& dumpFile, const Al
          << "// this is generated, do not edit\n\n"
          << "#include \"AttributeValues.hpp\"\n\n"
          << "namespace D2ModGen {\n\n"
-         << "static inline const NonParRecord g_generatedNonParRecordList1[]{\n";
+         << "static inline const NonParRecordNew g_generatedNonParRecordGrouped1[]{\n";
     ;
-    for (const auto& prop : attributeData.nonPar) {
-        if (skip.contains(prop.code))
-            continue;
+    for (const auto& [key, prop] : attributeData.groupMap) {
         isEmpty = false;
         dump << prop.toString();
     }
@@ -599,10 +693,22 @@ void ModuleRandoItems::dumpAttributes(const Mernel::std_path& dumpFile, const Al
     dump << "\n};\n\n";
 
     isEmpty = true;
+    dump << "static inline const NonParRecordNew g_generatedNonParRecordIds1[]{\n";
+
+    for (const auto& [key, prop] : attributeData.idMap) {
+        isEmpty = false;
+        dump << prop.toString();
+    }
+    if (isEmpty) {
+        dump << "    {},\n";
+    }
+    dump << "\n};\n";
+
+    isEmpty = true;
     dump << "static inline const ParRecord g_generatedParRecordList1[]{\n";
 
     for (const auto& prop : attributeData.par) {
-        if (skip.contains(prop.code))
+        if (skip.contains(prop.code) || 1)
             continue;
         isEmpty = false;
         dump << prop.toString();
@@ -690,19 +796,6 @@ void ModuleRandoItems::MagicContext::addExtra(const Config& config, const DataCo
         rec->freqFactor *= 5;
     }
 
-    homogenizeNonPar(200_pct, { A::ama, A::pal, A::nec, A::sor, A::bar, A::dru, A::ass, A::war });
-    homogenizeNonPar(50_pct, { A::res_fire, A::res_ltng, A::res_cold, A::res_mag, A::res_pois });
-    homogenizeNonPar(300_pct, { A::res_fire_max, A::res_ltng_max, A::res_cold_max, A::res_pois_max });
-    homogenizeNonPar(300_pct, { A::abs_fire_percent, A::abs_ltng_percent, A::abs_mag_percent, A::abs_cold_percent });
-    homogenizeNonPar(300_pct, { A::abs_fire, A::abs_ltng, A::abs_mag, A::abs_cold });
-    homogenizeNonPar(200_pct, { A::fireskill, A::poisskill, A::coldskill, A::magskill, A::ltngskill });
-    homogenizeNonPar(200_pct, { A::pierce_fire, A::pierce_ltng, A::pierce_cold, A::pierce_pois, A::pierce_mag });
-    homogenizeNonPar(200_pct, { A::extra_fire, A::extra_ltng, A::extra_cold, A::extra_pois, A::extra_mag });
-
-    homogenizeNonPar(300_pct, { A::dmg_cold_perlvl, A::dmg_fire_perlvl, A::dmg_ltng_perlvl, A::dmg_pois_perlvl });
-    homogenizeNonPar(300_pct, { A::res_cold_perlvl, A::res_fire_perlvl, A::res_ltng_perlvl, A::res_pois_perlvl });
-    homogenizeNonPar(300_pct, { A::abs_cold_perlvl, A::abs_fire_perlvl, A::abs_ltng_perlvl, A::abs_pois_perlvl });
-
     if (auto* rec = actual.findExistingPar(A::res_mag); rec) {
         rec->freqFactor /= 3;
     }
@@ -738,34 +831,6 @@ void ModuleRandoItems::MagicContext::addExtra(const Config& config, const DataCo
                                                         A::att_perlvl,
 
                                                     });
-}
-
-void ModuleRandoItems::MagicContext::homogenizeNonPar(Percent scalePercent, const std::vector<AttributeId>& attrs)
-{
-    std::vector<const NonParRecord*> sources;
-    std::vector<NonParRecord*>       edit;
-    for (auto id : attrs) {
-        if (auto* rec = actual.findExistingNonPar(id)) {
-            sources.push_back(rec);
-
-            edit.push_back(rec);
-        }
-    }
-    if (sources.empty())
-        return;
-
-    NonParRecord homogen;
-    homogen.doHomogen(sources);
-    homogen.rescaleFreq(scalePercent, sources.size());
-
-    std::map<NonParRecord*, NonParRecord> old2new;
-    for (NonParRecord* rec : edit) {
-        rec->comm           = homogen.comm;
-        rec->rare           = homogen.rare;
-        rec->epic           = homogen.epic;
-        rec->slotTypes      = homogen.slotTypes;
-        rec->slotTypesScale = homogen.slotTypesScale;
-    }
 }
 
 void ModuleRandoItems::MagicContext::scaleSettings(Percent scalePercent, const std::vector<AttributeId>& attrs)
@@ -806,6 +871,20 @@ ModuleRandoItems::MagicContext::MagicContext(AllAttributeData gameData_)
             continue;
         }
         actual.add(rec);
+    }
+    for (auto& [groupId, rec] : gameData.groupMap) {
+        /*if (actual.ids.contains(rec.code)) {
+            gameDataSkipped.add(rec);
+            continue;
+        }*/
+        actual.addGrouped(rec);
+    }
+    for (auto& [groupId, rec] : gameData.idMap) {
+        /*if (actual.ids.contains(rec.code)) {
+            gameDataSkipped.add(rec);
+            continue;
+        }*/
+        actual.addIdd(rec);
     }
 }
 

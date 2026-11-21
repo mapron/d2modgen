@@ -62,7 +62,7 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
                     const NonParValueSummary& summary = rolls.levels[bracket];
                     if (!summary.freq)
                         continue;
-                    prop.properties.levelBracket20 = bracket;
+                    prop.properties.levelBracket18 = bracket;
 
                     assert(prop.properties.clas <= Character::War);
 
@@ -100,7 +100,7 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
                     if (!list.size())
                         continue;
 
-                    prop.properties.levelBracket20 = bracket;
+                    prop.properties.levelBracket18 = bracket;
 
                     for (const PropWithRange& propRange : list) {
                         prop.max = propRange.max;
@@ -172,7 +172,7 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
         index.idiom[gen.prop.properties.idiom].set(i);
         index.element[gen.prop.properties.element].set(i);
 
-        index.levelBracket20[gen.prop.properties.levelBracket20].set(i);
+        index.levelBracket20[gen.prop.properties.levelBracket18].set(i);
 
         i++;
     }
@@ -201,8 +201,8 @@ void PropRandomizer::indexAnd(DynamicBitSet& result, const BasicProperties& filt
     if (filter.element > Element::None)
         result &= index.element.at(filter.element);
 
-    if (filter.levelBracket20 >= 0)
-        result &= index.levelBracket20[filter.levelBracket20];
+    if (filter.levelBracket18 >= 0)
+        result &= index.levelBracket20[filter.levelBracket18];
 }
 
 void PropRandomizer::indexAnd(DynamicBitSet& result, const AttributeFlagSet& supportedAttributes) const
@@ -304,8 +304,8 @@ MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator& rng) const
         const NonParValueSummary& vs = nonPar.value();
 
         const int absLimit = result.desc->flags.contains(AttributeFlag::ZeroIsValid) ? 0 : 1;
-        const int min      = scaleValue(genRng(rng, vs.low), power, absLimit);
-        const int max      = scaleValue(genRng(rng, vs.high), power, absLimit);
+        const int min      = scaleValue(genRng(rng, vs.low), Percent{ power }, absLimit);
+        const int max      = scaleValue(genRng(rng, vs.high), Percent{ power }, absLimit);
         const int par      = genRng(rng, vs.par);
 
         result.min = min;
@@ -315,6 +315,48 @@ MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator& rng) const
         if (!result.par && result.desc->defaultParameter.has_value())
             result.par = result.desc->defaultParameter;
     }
+    return result;
+}
+
+MagicProp PropRandomizer::PropGenerator::makeRoll2(RandomGenerator& rng, const BasicProperties& basicProperties, Percent trashChance, Percent luckyChance) const
+{
+    MagicProp              result = prop;
+    const NonParRecordNew& vs     = nonParNew.value();
+
+    Permille scale     = 1000_perm;
+    scale              = scale * vs.medCurve[basicProperties.levelBracket18];
+    Permille slotScale = 1000_perm;
+    if (auto it = vs.slotScale.get(basicProperties.slot)) {
+        slotScale = it.value();
+    }
+    scale = scale * slotScale;
+
+    Permille lowBound;
+    Permille highBound;
+
+    bool isHighPart = rng(2);
+    if (isHighPart) {
+        if (checkChance(rng, luckyChance)) {
+            lowBound  = vs.ratioP090[basicProperties.levelBracket18] * scale;
+            highBound = vs.ratioP100[basicProperties.levelBracket18] * scale;
+        } else {
+            lowBound  = scale;
+            highBound = vs.ratioP090[basicProperties.levelBracket18] * scale;
+        }
+    } else {
+        if (checkChance(rng, trashChance)) {
+            lowBound  = vs.ratioP000[basicProperties.levelBracket18] * scale;
+            highBound = vs.ratioP010[basicProperties.levelBracket18] * scale;
+        } else {
+            lowBound  = vs.ratioP010[basicProperties.levelBracket18] * scale;
+            highBound = scale;
+        }
+    }
+
+    const int maxValue = genRandomScaledValue(rng, vs.maxMedian, lowBound.as<100>(), highBound.as<100>());
+    const int minValue = maxValue * vs.minMedian / vs.maxMedian;
+    result.min         = minValue;
+    result.max         = maxValue;
     return result;
 }
 

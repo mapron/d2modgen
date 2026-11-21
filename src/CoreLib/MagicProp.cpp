@@ -27,8 +27,8 @@ std::string BasicProperties::toString() const noexcept
         result += ", i=" + enumToString(idiom);
     if (element != Element::None)
         result += ", e=" + enumToString(element);
-    if (levelBracket20 != size_t(-1))
-        result += ", l=" + std::to_string(levelBracket20);
+    if (levelBracket18 != size_t(-1))
+        result += ", l=" + std::to_string(levelBracket18);
     result += "}";
     return result;
 }
