@@ -4,7 +4,6 @@
  * See LICENSE file for details.
  */
 #include "ModuleRandoItems.hpp"
-#include "MernelPlatform/StringUtils.hpp"
 #include "RandoUtils.hpp"
 #include "AttributeHelper.hpp"
 
@@ -56,19 +55,7 @@ void ModuleRandoItems::generate()
     rng                = createRNG(module.m_seed);
 
     m_codeResolver = [this](const std::string& skillId) -> int {
-        if (!skillId.empty()) {
-            int intId = std::atoi(skillId.c_str());
-            if (intId > 0) {
-                return intId;
-            }
-            if (skillId == "0") {
-                return 0;
-            }
-            auto it = output.skills.indexN.find(Mernel::strToLower(skillId));
-            if (it != output.skills.indexN.cend())
-                return it->second;
-        }
-        return -1;
+        return output.resolveSkillId(skillId);
     };
     m_skillGetter = [this](int index) -> DataRow_skills_ptr {
         if (index < 0)
