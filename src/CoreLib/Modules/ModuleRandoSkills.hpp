@@ -24,6 +24,8 @@ struct ModuleRandoSkills : public AbstractModule {
     void generate() override;
 
 private:
+    void repointItemSkills(DataContext& output) const;
+
     struct SkillInfo {
         SType stype = SType::Filler;
 
