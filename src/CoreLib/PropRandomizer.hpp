@@ -15,7 +15,7 @@ struct PropRandomizer {
     struct PropGenerator {
         uint64_t frequency = 0;
 
-        int                               power = 100;
+        Percent                           power = g_identityPct;
         std::optional<NonParValueSummary> nonPar;
 
         MagicProp prop;

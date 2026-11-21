@@ -18,10 +18,10 @@ using SkillGetter       = std::function<DataRow_skills_ptr(int)>;
 struct RandoParams {
     Config::BalanceItems::CommonSettings common;
 
-    int levelPlus       = 0;
-    int levelMinus      = 0;
-    int typeFitPercent  = 0;
-    int forceCasterType = 0;
+    int     levelPlus       = 0;
+    int     levelMinus      = 0;
+    Percent typeFitPercent  = 0_pct;
+    Percent forceCasterType = 0_pct;
 
     bool enableGeneration   = true;
     bool emptyListAllowed   = false;

@@ -11,8 +11,8 @@ void ModuleBalanceItems::generate()
 {
     const auto& module = config.m_balanceItems;
 
-    const int reqStr = module.m_reqStr;
-    const int reqDex = module.m_reqDex;
+    const Percent reqStr = module.m_reqStr;
+    const Percent reqDex = module.m_reqDex;
 
     const auto& uniqueSettings    = module.m_uniques.m_doOverride ? module.m_uniques : module.m_defaults;
     const auto& setsSettings      = module.m_sets.m_doOverride ? module.m_sets : module.m_defaults;
@@ -23,8 +23,8 @@ void ModuleBalanceItems::generate()
     const auto& craftedSettings   = module.m_crafted.m_doOverride ? module.m_crafted : module.m_defaults;
     const auto& baseEquipSettings = module.m_equipment.m_doOverride ? module.m_equipment : module.m_defaults;
 
-    const int equipReqLevel  = baseEquipSettings.m_reqLevel;
-    const int equipItemLevel = baseEquipSettings.m_itemLevel;
+    const Percent equipReqLevel  = baseEquipSettings.m_reqLevel;
+    const Percent equipItemLevel = baseEquipSettings.m_itemLevel;
 
     auto applyMinMax = [](const Config::BalanceItems::CommonSettings& settings, std::optional<int>& min, std::optional<int>& max) {
         if (settings.m_rollMode == 0 || !min.has_value() || !max.has_value())
@@ -41,14 +41,14 @@ void ModuleBalanceItems::generate()
         }
     };
 
-    auto makeLevelModifier = [](int percent) {
+    auto makeLevelModifier = [](Percent percent) {
         return [percent](std::optional<int>& data) {
             if (!data.has_value())
                 return;
 
-            if (data.value() <= 0 || percent == 100)
+            if (data.value() <= 0 || percent == g_identityPct)
                 return;
-            const int newLevel = data.value() * percent / 100;
+            const int newLevel = data.value() * percent;
             data               = std::clamp(newLevel, 1, 110);
         };
     };
@@ -57,13 +57,13 @@ void ModuleBalanceItems::generate()
         table.applyTransform(&Row::reqstr, [reqStr](std::optional<int>& data) {
             if (!data.has_value())
                 return;
-            const int newStat = data.value() * reqStr / 100;
+            const int newStat = data.value() * reqStr;
             data              = newStat < 10 ? 0 : newStat;
         });
         table.applyTransform(&Row::reqdex, [reqDex](std::optional<int>& data) {
             if (!data.has_value())
                 return;
-            const int newStat = data.value() * reqDex / 100;
+            const int newStat = data.value() * reqDex;
             data              = newStat < 10 ? 0 : newStat;
         });
 
@@ -92,23 +92,23 @@ void ModuleBalanceItems::generate()
     //const auto& module = config.m_modulePerfectRoll;
 
     auto makeScaler2 = [](const Config::BalanceItems::CommonSettings& settings) {
-        return [&settings](int level) -> int {
-            if (settings.m_powerScaleLevel1 == 100 && settings.m_powerScaleLevel50 == 100)
-                return 100;
-            const int diff = settings.m_powerScaleLevel50 - settings.m_powerScaleLevel1;
+        return [&settings](int level) -> Percent {
+            if (settings.m_powerScaleLevel1 == g_identityPct && settings.m_powerScaleLevel50 == g_identityPct)
+                return g_identityPct;
+            const int diff = settings.m_powerScaleLevel50.raw - settings.m_powerScaleLevel1.raw;
 
-            const int levelDiff = diff * level / 50;
-            const int powerMult = settings.m_powerScaleLevel1 + levelDiff;
+            const int     levelDiff = diff * level / 50;
+            const Percent powerMult = settings.m_powerScaleLevel1 + Percent{ levelDiff };
             return powerMult;
         };
     };
     auto makeScaler1 = [](const Config::BalanceItems::CommonSettings& settings) {
-        return [&settings](int) -> int {
+        return [&settings](int) -> Percent {
             return settings.m_powerScaleLevel50;
         };
     };
 
-    auto empowerRow = [&applyMinMax](AffixPropList& affixList, int powerMult, const Config::BalanceItems::CommonSettings& settings) {
+    auto empowerRow = [&applyMinMax](AffixPropList& affixList, Percent powerMult, const Config::BalanceItems::CommonSettings& settings) {
         for (AffixProp& prop : affixList) {
             if (!prop.hasRange())
                 continue;
@@ -117,7 +117,7 @@ void ModuleBalanceItems::generate()
             if (isMinMaxRange(id))
                 applyMinMax(settings, prop.min, prop.max);
 
-            if (powerMult != 100) {
+            if (powerMult != g_identityPct) {
                 prop.min = powerMultiply(id, prop.min.value(), powerMult);
                 prop.max = powerMultiply(id, prop.max.value(), powerMult);
             }

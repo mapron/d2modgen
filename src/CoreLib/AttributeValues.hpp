@@ -100,7 +100,7 @@ struct NonParValueByLevel {
     void makeMonotonic();
     void makeApprox(const NonParValueList& list, NonParValueByLevel* prev = nullptr);
     void add(const NonParValueByLevel& other);
-    void rescaleFreq(int percent, int denum);
+    void rescaleFreq(Percent percent, int denum);
 
     size_t estimateSize() const;
 };
@@ -121,7 +121,7 @@ struct NonParRecord {
 
     size_t estimateSize() const;
     void   doHomogen(const std::vector<const NonParRecord*>& sources);
-    void   rescaleFreq(int percent, int denum);
+    void   rescaleFreq(Percent percent, int denum);
 
     NonParValueByLevel& get(RollType roll)
     {
@@ -191,7 +191,7 @@ struct ParRecord {
 
     size_t estimateSize() const;
 
-    void rescaleFreq(int percent, int denum);
+    void rescaleFreq(Percent percent, int denum);
 
     PropListByLevel& get(RollType roll)
     {

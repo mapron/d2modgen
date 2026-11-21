@@ -7,6 +7,8 @@
 
 #include "MernelPlatform/PropertyTree.hpp"
 
+#include "Scale.hpp"
+
 #include <algorithm>
 #include <functional>
 #include <cstdint>
@@ -256,6 +258,10 @@ protected:
     PropertyInt& addScalar(std::string_view name, int64_t& val)
     {
         return m_int.add(name, val).setParent(this);
+    }
+    PropertyInt& addScalar(std::string_view name, Percent& val)
+    {
+        return m_int.add(name, val.raw).setParent(this).setPercent();
     }
     PropertyBool& addScalar(std::string_view name, bool& val)
     {

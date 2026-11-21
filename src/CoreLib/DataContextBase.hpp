@@ -8,6 +8,7 @@
 #include "AttributeHelper.hpp"
 #include "AttributeValues.hpp"
 #include "MernelPlatform/StringUtils.hpp"
+#include "Scale.hpp"
 
 #include <unordered_map>
 #include <optional>
@@ -57,12 +58,12 @@ struct DataTable {
         for (Row& row : rows)
             t(row.*m);
     }
-    void applyIntTransform(std::optional<int> Row::* m, int mult, int den = 100)
+    void applyIntTransform(std::optional<int> Row::* m, Percent mult)
     {
-        applyTransform(m, [mult, den](std::optional<int>& data) {
+        applyTransform(m, [mult](std::optional<int>& data) {
             if (!data.has_value())
                 return;
-            data = data.value() * mult / den;
+            data = data.value() * mult;
         });
     }
     void makeIndex(std::string Row::* m)

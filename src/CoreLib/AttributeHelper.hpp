@@ -10,6 +10,8 @@
 #include <vector>
 #include <string>
 
+#include "Scale.hpp"
+
 namespace D2ModGen {
 
 enum class AttributeFlag
@@ -488,6 +490,64 @@ enum class RollType
     last__ = Epic,
 };
 
+enum class AttributeGroup
+{
+    None,
+
+    AllClassSkills,
+    Res,
+    ResMax,
+    ResPerLvl,
+    Absorb,
+    AbsorbPercent,
+    EleSkill,
+    ElePierce,
+    EleExtra,
+    EleDmgPerlvl,
+    AbsorbPerLvl,
+    StrDex,
+    VitEnr,
+    AcFlat,
+    DmgUndeadDemon,
+    DmgUndeadDemonPerLvl,
+    StatPerLvl,
+    HpManaPerLvl,
+    AttUndeadDemon,
+    AttUndeadDemonPerLvl,
+    DeadlyOWCrush,
+    DeadlyOWCrushPerLvl,
+    ManaLifePerKill,
+    ManaLifeSteal,
+    PdrMdrFlat,
+    Sunder,
+    OffensiveSkillProc,
+    DefensiveSkillProc,
+};
+
+/*
+{ A::ama, A::pal, A::nec, A::sor, A::bar, A::dru, A::ass, A::war },
+    { A::res_fire, A::res_ltng, A::res_cold, A::res_mag, A::res_pois },
+    { A::res_fire_max, A::res_ltng_max, A::res_cold_max, A::res_pois_max },
+    { A::abs_fire_percent, A::abs_ltng_percent, A::abs_mag_percent, A::abs_cold_percent },
+    { A::abs_fire, A::abs_ltng, A::abs_mag, A::abs_cold },
+    { A::fireskill, A::poisskill, A::coldskill, A::magskill, A::ltngskill },
+    { A::pierce_fire, A::pierce_ltng, A::pierce_cold, A::pierce_pois, A::pierce_mag },
+    { A::extra_fire, A::extra_ltng, A::extra_cold, A::extra_pois, A::extra_mag },
+    { A::dmg_cold_perlvl, A::dmg_fire_perlvl, A::dmg_ltng_perlvl, A::dmg_pois_perlvl },
+    { A::res_cold_perlvl, A::res_fire_perlvl, A::res_ltng_perlvl, A::res_pois_perlvl },
+    { A::abs_cold_perlvl, A::abs_fire_perlvl, A::abs_ltng_perlvl, A::abs_pois_perlvl },
+    { A::str, A::dex },
+    { A::vit, A::enr },
+    { A::ac, A::ac_miss, A::ac_hth },
+    { A::dmg_demon, A::dmg_undead },
+    { A::dmg_dem_perlvl, A::dmg_und_perlvl },
+    { A::str_perlvl, A::dex_perlvl, A::enr_perlvl, A::vit_perlvl },
+    { A::hp_perlvl, A::mana_perlvl },
+    { A::att_dem_perlvl, A::att_und_perlvl },
+    { A::deadly_perlvl, A::wounds_perlvl, A::crush_perlvl },
+    { A::deadly, A::openwounds, A::crush },
+    { A::mana_kill, A::heal_kill },*/
+
 inline auto getRollTypes()
 {
     return std::array{ RollType::Negative, RollType::Common, RollType::Rare, RollType::Epic };
@@ -632,6 +692,7 @@ struct AttributeDesc {
     Character      classSpecific = Character::None;
     AttributeIdiom idiom         = AttributeIdiom::None;
     Element        element       = Element::None;
+    AttributeGroup group         = AttributeGroup::None;
 
     bool hasLimits() const
     {
@@ -664,6 +725,11 @@ struct AttributeDesc {
         element = e;
         return *this;
     }
+    AttributeDesc setGroup(AttributeGroup g) &&
+    {
+        group = g;
+        return *this;
+    }
     AttributeDesc setRequiredSlots(SlotSet slots_) &&
     {
         requiredSlots = std::move(slots_);
@@ -690,7 +756,7 @@ bool isMinMaxRange(AttributeId code);
 
 const AttributeDesc& getAttributeDesc(AttributeId code);
 
-int powerMultiply(AttributeId code, int value, int powerMultPercent);
+int powerMultiply(AttributeId code, int value, Percent powerMult);
 
 std::string enumToString(Character type, bool asEnum = false);
 std::string enumToString(AttributeIdiom type, bool asEnum = false);
@@ -700,5 +766,6 @@ std::string enumToString(SlotType slotType, bool asEnum = false);
 std::string enumToString(RollType rollType, bool asEnum = false);
 std::string enumToString(RangeMode mode, bool asEnum = false);
 std::string enumToString(ParMode mode, bool asEnum = false);
+std::string enumToString(AttributeGroup group, bool asEnum = false);
 
 }

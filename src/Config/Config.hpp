@@ -13,9 +13,9 @@ struct Config : public CommonStruct {
 
         int64_t m_seed{ 0 };
 
-        int64_t m_forceCasterType{ 0 };
+        Percent m_forceCasterType{ 0 };
 
-        int64_t m_itemFit{ 100 };
+        Percent m_itemFit{ 100 };
 
         int64_t m_levelMinus{ 0 };
 
@@ -41,15 +41,15 @@ struct Config : public CommonStruct {
 
         int64_t m_setBonusMode{ 0 };
 
-        int64_t m_frequencyAuras{ 100 };
+        Percent m_frequencyAuras{ 100 };
 
-        int64_t m_frequencyCharAttributes{ 100 };
+        Percent m_frequencyCharAttributes{ 100 };
 
-        int64_t m_frequencyProcs{ 100 };
+        Percent m_frequencyProcs{ 100 };
 
-        int64_t m_frequencyResistances{ 100 };
+        Percent m_frequencyResistances{ 100 };
 
-        int64_t m_frequencySkills{ 100 };
+        Percent m_frequencySkills{ 100 };
 
         bool m_sameRarityForSetUniqueItems{ false };
 
@@ -57,8 +57,8 @@ struct Config : public CommonStruct {
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true);
             addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0).skipPresets();
-            addScalar("forceCasterType", m_forceCasterType).setRange(0, 100).setZero(0).setRecc(25).setPercent();
-            addScalar("itemFit", m_itemFit).setRange(0, 100).setZero(100).setRecc(90).setPercent().addPreset(0, 50).addPreset(1, 75);
+            addScalar("forceCasterType", m_forceCasterType).setRange(0, 100).setZero(0).setRecc(25);
+            addScalar("itemFit", m_itemFit).setRange(0, 100).setZero(100).setRecc(90).addPreset(0, 50).addPreset(1, 75);
             addScalar("levelMinus", m_levelMinus).setRange(0, 100).setZero(0).setRecc(10).addPreset(0, 0).addPreset(1, 5);
             addScalar("levelPlus", m_levelPlus).setRange(0, 100).setZero(0).setRecc(5).addPreset(0, 100).addPreset(1, 20);
             addScalar("repeatSets", m_repeatSets).setRange(1, 5).setZero(1).setRecc(5);
@@ -71,11 +71,11 @@ struct Config : public CommonStruct {
             addScalar("replaceSkills", m_replaceSkills).setZero(false);
             addScalar("updateExisting", m_updateExisting).setZero(false).setRecc(true);
             addScalar("setBonusMode", m_setBonusMode).setRange(0, 2).setZero(0).setRecc(1);
-            addScalar("frequencyAuras", m_frequencyAuras).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 1000);
-            addScalar("frequencyCharAttributes", m_frequencyCharAttributes).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 50);
-            addScalar("frequencyProcs", m_frequencyProcs).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 1000);
-            addScalar("frequencyResistances", m_frequencyResistances).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 50);
-            addScalar("frequencySkills", m_frequencySkills).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 1000);
+            addScalar("frequencyAuras", m_frequencyAuras).setRange(5, 1000).setZero(100).setLogScale().addPreset(0, 1000);
+            addScalar("frequencyCharAttributes", m_frequencyCharAttributes).setRange(5, 1000).setZero(100).setLogScale().addPreset(2, 50);
+            addScalar("frequencyProcs", m_frequencyProcs).setRange(5, 1000).setZero(100).setLogScale().addPreset(0, 1000);
+            addScalar("frequencyResistances", m_frequencyResistances).setRange(5, 1000).setZero(100).setLogScale().addPreset(2, 50);
+            addScalar("frequencySkills", m_frequencySkills).setRange(5, 1000).setZero(100).setLogScale().addPreset(0, 1000);
             addScalar("sameRarityForSetUniqueItems", m_sameRarityForSetUniqueItems).setZero(false).setRecc(true);
         }
     };
@@ -84,25 +84,25 @@ struct Config : public CommonStruct {
 
         int64_t m_seed{ 0 };
 
-        int64_t m_spawnKeepOriginal{ 100 };
+        Percent m_spawnKeepOriginal{ 100 };
 
-        int64_t m_superuniqueRando{ 0 };
+        Percent m_superuniqueRando{ 0 };
 
-        int64_t m_guestsMin{ 0 };
+        Percent m_guestsMin{ 0 };
 
-        int64_t m_guestsMax{ 0 };
+        Percent m_guestsMax{ 0 };
 
-        int64_t m_chimeraAIMin{ 0 };
+        Percent m_chimeraAIMin{ 0 };
 
-        int64_t m_chimeraAIMax{ 0 };
+        Percent m_chimeraAIMax{ 0 };
 
-        int64_t m_rollResistancesMin{ 0 };
+        Percent m_rollResistancesMin{ 0 };
 
-        int64_t m_rollResistancesMax{ 0 };
+        Percent m_rollResistancesMax{ 0 };
 
-        int64_t m_rollStatMin{ 0 };
+        Percent m_rollStatMin{ 0 };
 
-        int64_t m_rollStatMax{ 0 };
+        Percent m_rollStatMax{ 0 };
 
         int64_t m_minNormalZoneId{ 0 };
 
@@ -110,16 +110,16 @@ struct Config : public CommonStruct {
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true);
             addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0).skipPresets();
-            addScalar("spawnKeepOriginal", m_spawnKeepOriginal).setRange(0, 100).setZero(100).setRecc(100).setPercent().addPreset(0, 50).addPreset(2, 50);
-            addScalar("superuniqueRando", m_superuniqueRando).setRange(0, 100).setZero(0).setRecc(50).setPercent().addPreset(0, 100).addPreset(2, 100);
-            addScalar("guestsMin", m_guestsMin).setRange(0, 1000).setZero(0).setRecc(25).setPercent().addPreset(0, 0).addPreset(2, 200);
-            addScalar("guestsMax", m_guestsMax).setRange(0, 1000).setZero(0).setRecc(50).setPercent().addPreset(0, 300).addPreset(2, 200);
-            addScalar("chimeraAIMin", m_chimeraAIMin).setRange(0, 100).setZero(0).setRecc(0).setPercent();
-            addScalar("chimeraAIMax", m_chimeraAIMax).setRange(0, 100).setZero(0).setRecc(0).setPercent();
-            addScalar("rollResistancesMin", m_rollResistancesMin).setRange(0, 100).setZero(0).setRecc(0).setPercent().addPreset(2, 100);
-            addScalar("rollResistancesMax", m_rollResistancesMax).setRange(0, 100).setZero(0).setRecc(30).setPercent().addPreset(2, 100);
-            addScalar("rollStatMin", m_rollStatMin).setRange(0, 100).setZero(0).setRecc(0).setPercent().addPreset(2, 100);
-            addScalar("rollStatMax", m_rollStatMax).setRange(0, 100).setZero(0).setRecc(50).setPercent().addPreset(2, 100);
+            addScalar("spawnKeepOriginal", m_spawnKeepOriginal).setRange(0, 100).setZero(100).setRecc(100).addPreset(0, 50).addPreset(2, 50);
+            addScalar("superuniqueRando", m_superuniqueRando).setRange(0, 100).setZero(0).setRecc(50).addPreset(0, 100).addPreset(2, 100);
+            addScalar("guestsMin", m_guestsMin).setRange(0, 1000).setZero(0).setRecc(25).addPreset(0, 0).addPreset(2, 200);
+            addScalar("guestsMax", m_guestsMax).setRange(0, 1000).setZero(0).setRecc(50).addPreset(0, 300).addPreset(2, 200);
+            addScalar("chimeraAIMin", m_chimeraAIMin).setRange(0, 100).setZero(0).setRecc(0);
+            addScalar("chimeraAIMax", m_chimeraAIMax).setRange(0, 100).setZero(0).setRecc(0);
+            addScalar("rollResistancesMin", m_rollResistancesMin).setRange(0, 100).setZero(0).setRecc(0).addPreset(2, 100);
+            addScalar("rollResistancesMax", m_rollResistancesMax).setRange(0, 100).setZero(0).setRecc(30).addPreset(2, 100);
+            addScalar("rollStatMin", m_rollStatMin).setRange(0, 100).setZero(0).setRecc(0).addPreset(2, 100);
+            addScalar("rollStatMax", m_rollStatMax).setRange(0, 100).setZero(0).setRecc(50).addPreset(2, 100);
             addScalar("minNormalZoneId", m_minNormalZoneId).setRange(0, 133).setZero(0).setRecc(12).addPreset(2, 0);
         }
     };
@@ -128,7 +128,7 @@ struct Config : public CommonStruct {
 
         int64_t m_seed{ 0 };
 
-        int64_t m_chanceElemChange{ 0 };
+        Percent m_chanceElemChange{ 0 };
 
         int64_t m_maximumElements{ 5 };
 
@@ -160,7 +160,7 @@ struct Config : public CommonStruct {
         {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true).addPreset(3, false);
             addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0).skipPresets();
-            addScalar("chanceElemChange", m_chanceElemChange).setRange(0, 100).setZero(0).setRecc(75).setPercent();
+            addScalar("chanceElemChange", m_chanceElemChange).setRange(0, 100).setZero(0).setRecc(75);
             addScalar("maximumElements", m_maximumElements).setRange(2, 5).setZero(5).setRecc(3);
             addScalar("randoMode", m_randoMode).setRange(0, 3).setZero(0).setRecc(3);
             addScalar("specificClass", m_specificClass).setRange(0, 7).setZero(0).setRecc(0);
@@ -182,31 +182,31 @@ struct Config : public CommonStruct {
 
             int64_t m_rollMode{ 0 };
 
-            int64_t m_itemLevel{ 100 };
+            Percent m_itemLevel{ 100 };
 
-            int64_t m_reqLevel{ 100 };
+            Percent m_reqLevel{ 100 };
 
-            int64_t m_randoKeepOriginalPercent{ 100 };
+            Percent m_randoKeepOriginalPercent{ 100 };
 
-            int64_t m_randoGenerateMin{ 0 };
+            Percent m_randoGenerateMin{ 0 };
 
-            int64_t m_randoGenerateMax{ 0 };
+            Percent m_randoGenerateMax{ 0 };
 
-            int64_t m_powerScaleLevel1{ 100 };
+            Percent m_powerScaleLevel1{ 100 };
 
-            int64_t m_powerScaleLevel50{ 100 };
+            Percent m_powerScaleLevel50{ 100 };
 
             CommonSettings()
             {
                 addScalar("doOverride", m_doOverride).setZero(false).setRecc(false);
                 addScalar("rollMode", m_rollMode).setRange(0, 3).setZero(0).setRecc(0).addPreset(0, 3).addPreset(1, 3);
-                addScalar("itemLevel", m_itemLevel).setRange(5, 150).setZero(100).setRecc(100).setPercent();
-                addScalar("reqLevel", m_reqLevel).setRange(5, 150).setZero(100).setRecc(100).setPercent();
-                addScalar("randoKeepOriginalPercent", m_randoKeepOriginalPercent).setRange(0, 100).setZero(100).setRecc(50).setPercent().addPreset(0, 25).addPreset(2, 0);
-                addScalar("randoGenerateMin", m_randoGenerateMin).setRange(0, 1000).setZero(0).setRecc(50).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 60).addPreset(3, 40);
-                addScalar("randoGenerateMax", m_randoGenerateMax).setRange(0, 1000).setZero(0).setRecc(100).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 200).addPreset(3, 120);
-                addScalar("powerScaleLevel1", m_powerScaleLevel1).setRange(50, 500).setZero(100).setPercent().setLogScale();
-                addScalar("powerScaleLevel50", m_powerScaleLevel50).setRange(50, 500).setZero(100).setPercent().setLogScale();
+                addScalar("itemLevel", m_itemLevel).setRange(5, 150).setZero(100).setRecc(100);
+                addScalar("reqLevel", m_reqLevel).setRange(5, 150).setZero(100).setRecc(100);
+                addScalar("randoKeepOriginalPercent", m_randoKeepOriginalPercent).setRange(0, 100).setZero(100).setRecc(50).addPreset(0, 25).addPreset(2, 0);
+                addScalar("randoGenerateMin", m_randoGenerateMin).setRange(0, 1000).setZero(0).setRecc(50).setLogScale().addPreset(0, 1000).addPreset(1, 60).addPreset(3, 40);
+                addScalar("randoGenerateMax", m_randoGenerateMax).setRange(0, 1000).setZero(0).setRecc(100).setLogScale().addPreset(0, 1000).addPreset(1, 200).addPreset(3, 120);
+                addScalar("powerScaleLevel1", m_powerScaleLevel1).setRange(50, 500).setZero(100).setLogScale();
+                addScalar("powerScaleLevel50", m_powerScaleLevel50).setRange(50, 500).setZero(100).setLogScale();
             }
         };
         CommonSettings m_defaults{};
@@ -227,9 +227,9 @@ struct Config : public CommonStruct {
 
         CommonSettings m_equipment{};
 
-        int64_t m_reqDex{ 100 };
+        Percent m_reqDex{ 100 };
 
-        int64_t m_reqStr{ 100 };
+        Percent m_reqStr{ 100 };
 
         BalanceItems()
         {
@@ -242,51 +242,51 @@ struct Config : public CommonStruct {
             addStruct("runewords", m_runewords);
             addStruct("gems", m_gems);
             addStruct("equipment", m_equipment);
-            addScalar("reqDex", m_reqDex).setRange(5, 150).setZero(100).setRecc(100).setPercent();
-            addScalar("reqStr", m_reqStr).setRange(5, 150).setZero(100).setRecc(100).setPercent();
+            addScalar("reqDex", m_reqDex).setRange(5, 150).setZero(100).setRecc(100);
+            addScalar("reqStr", m_reqStr).setRange(5, 150).setZero(100).setRecc(100);
         }
     };
     struct BalanceMonsters : public CommonStruct {
-        int64_t m_monsterAttack{ 100 };
+        Percent m_monsterAttack{ 100 };
 
-        int64_t m_monsterDamage{ 100 };
+        Percent m_monsterDamage{ 100 };
 
-        int64_t m_monsterDefense{ 100 };
+        Percent m_monsterDefense{ 100 };
 
-        int64_t m_monsterHealth{ 100 };
+        Percent m_monsterHealth{ 100 };
 
-        int64_t m_monsterExperience{ 100 };
+        Percent m_monsterExperience{ 100 };
 
         int64_t m_resChangeMode{ 0 };
 
-        int64_t m_resMin1{ -100 };
+        Percent m_resMin1{ -100 };
 
-        int64_t m_resMax1{ 175 };
+        Percent m_resMax1{ 175 };
 
-        int64_t m_resMin2{ -100 };
+        Percent m_resMin2{ -100 };
 
-        int64_t m_resMax2{ 175 };
+        Percent m_resMax2{ 175 };
 
-        int64_t m_resMin3{ -100 };
+        Percent m_resMin3{ -100 };
 
-        int64_t m_resMax3{ 175 };
+        Percent m_resMax3{ 175 };
 
         bool m_hellResistances{ false };
 
         BalanceMonsters()
         {
-            addScalar("monsterAttack", m_monsterAttack).setRange(10, 1000).setZero(100).setPercent().setLogScale();
-            addScalar("monsterDamage", m_monsterDamage).setRange(10, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 150);
-            addScalar("monsterDefense", m_monsterDefense).setRange(10, 1000).setZero(100).setPercent().setLogScale();
-            addScalar("monsterHealth", m_monsterHealth).setRange(10, 1000).setZero(100).setPercent().setLogScale();
-            addScalar("monsterExperience", m_monsterExperience).setRange(10, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 75);
+            addScalar("monsterAttack", m_monsterAttack).setRange(10, 1000).setZero(100).setLogScale();
+            addScalar("monsterDamage", m_monsterDamage).setRange(10, 1000).setZero(100).setLogScale().addPreset(2, 150);
+            addScalar("monsterDefense", m_monsterDefense).setRange(10, 1000).setZero(100).setLogScale();
+            addScalar("monsterHealth", m_monsterHealth).setRange(10, 1000).setZero(100).setLogScale();
+            addScalar("monsterExperience", m_monsterExperience).setRange(10, 1000).setZero(100).setLogScale().addPreset(2, 75);
             addScalar("resChangeMode", m_resChangeMode).setRange(0, 3).setZero(0);
-            addScalar("resMin1", m_resMin1).setRange(-100, 175).setZero(-100).setPercent();
-            addScalar("resMax1", m_resMax1).setRange(-100, 175).setZero(175).setPercent();
-            addScalar("resMin2", m_resMin2).setRange(-100, 175).setZero(-100).setPercent();
-            addScalar("resMax2", m_resMax2).setRange(-100, 175).setZero(175).setPercent();
-            addScalar("resMin3", m_resMin3).setRange(-100, 175).setZero(-100).setPercent();
-            addScalar("resMax3", m_resMax3).setRange(-100, 175).setZero(175).setPercent();
+            addScalar("resMin1", m_resMin1).setRange(-100, 175).setZero(-100);
+            addScalar("resMax1", m_resMax1).setRange(-100, 175).setZero(175);
+            addScalar("resMin2", m_resMin2).setRange(-100, 175).setZero(-100);
+            addScalar("resMax2", m_resMax2).setRange(-100, 175).setZero(175);
+            addScalar("resMin3", m_resMin3).setRange(-100, 175).setZero(-100);
+            addScalar("resMax3", m_resMax3).setRange(-100, 175).setZero(175);
             addScalar("hellResistances", m_hellResistances).setZero(false).setRecc(false).addPreset(2, true);
         }
     };
@@ -329,9 +329,9 @@ struct Config : public CommonStruct {
         }
     };
     struct BalanceCharacter : public CommonStruct {
-        int64_t m_mercDam{ 100 };
+        Percent m_mercDam{ 100 };
 
-        int64_t m_mercHP{ 100 };
+        Percent m_mercHP{ 100 };
 
         int64_t m_extraSkillPerLevel{ 0 };
 
@@ -341,9 +341,9 @@ struct Config : public CommonStruct {
 
         int64_t m_extraManaPerLevel{ 0 };
 
-        int64_t m_hpPotEfficacy{ 100 };
+        Percent m_hpPotEfficacy{ 100 };
 
-        int64_t m_mpPotEfficacy{ 100 };
+        Percent m_mpPotEfficacy{ 100 };
 
         int64_t m_normalResPenalty{ 0 };
 
@@ -355,14 +355,14 @@ struct Config : public CommonStruct {
 
         BalanceCharacter()
         {
-            addScalar("mercDam", m_mercDam).setRange(20, 1000).setZero(100).setPercent().setLogScale();
-            addScalar("mercHP", m_mercHP).setRange(20, 1000).setZero(100).setRecc(300).setPercent().setLogScale().addPreset(2, 20);
+            addScalar("mercDam", m_mercDam).setRange(20, 1000).setZero(100).setLogScale();
+            addScalar("mercHP", m_mercHP).setRange(20, 1000).setZero(100).setRecc(300).setLogScale().addPreset(2, 20);
             addScalar("extraSkillPerLevel", m_extraSkillPerLevel).setRange(-1, 20).setZero(0).addPreset(2, true);
             addScalar("extraStatPerLevel", m_extraStatPerLevel).setRange(-5, 50).setZero(0).addPreset(2, -2);
             addScalar("extraHpPerLevel", m_extraHpPerLevel).setRange(-3, 30).setZero(0).addPreset(2, -1);
             addScalar("extraManaPerLevel", m_extraManaPerLevel).setRange(-3, 30).setZero(0).addPreset(2, -1);
-            addScalar("hpPotEfficacy", m_hpPotEfficacy).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 50);
-            addScalar("mpPotEfficacy", m_mpPotEfficacy).setRange(5, 1000).setZero(100).setPercent().setLogScale().addPreset(2, 50);
+            addScalar("hpPotEfficacy", m_hpPotEfficacy).setRange(5, 1000).setZero(100).setLogScale().addPreset(2, 50);
+            addScalar("mpPotEfficacy", m_mpPotEfficacy).setRange(5, 1000).setZero(100).setLogScale().addPreset(2, 50);
             addScalar("normalResPenalty", m_normalResPenalty).setRange(0, 250).setZero(0).setRecc(10).addPreset(2, 30);
             addScalar("nightmareResPenalty", m_nightmareResPenalty).setRange(0, 250).setZero(40).setRecc(50).addPreset(2, 100);
             addScalar("hellResPenalty", m_hellResPenalty).setRange(0, 250).setZero(100).setRecc(120).addPreset(2, 250);
@@ -378,13 +378,13 @@ struct Config : public CommonStruct {
 
         int64_t m_mazeMode{ 0 };
 
-        int64_t m_densityMin{ 100 };
+        Percent m_densityMin{ 100 };
 
-        int64_t m_densityMax{ 100 };
+        Percent m_densityMax{ 100 };
 
-        int64_t m_elitePacksMin{ 100 };
+        Percent m_elitePacksMin{ 100 };
 
-        int64_t m_elitePacksMax{ 100 };
+        Percent m_elitePacksMax{ 100 };
 
         int64_t m_numMonExtra{ 0 };
 
@@ -404,10 +404,10 @@ struct Config : public CommonStruct {
             addScalar("levelIncreaseNightmare", m_levelIncreaseNightmare).setRange(0, 20).setZero(0).setRecc(5);
             addScalar("levelIncreaseOverBound", m_levelIncreaseOverBound).setZero(false);
             addScalar("mazeMode", m_mazeMode).setRange(0, 4).setZero(0).setRecc(0);
-            addScalar("densityMin", m_densityMin).setRange(20, 1000).setZero(100).setRecc(100).setPercent().setLogScale();
-            addScalar("densityMax", m_densityMax).setRange(20, 1000).setZero(100).setRecc(150).setPercent().setLogScale();
-            addScalar("elitePacksMin", m_elitePacksMin).setRange(20, 1000).setZero(100).setRecc(100).setPercent().setLogScale();
-            addScalar("elitePacksMax", m_elitePacksMax).setRange(20, 1000).setZero(100).setRecc(150).setPercent().setLogScale();
+            addScalar("densityMin", m_densityMin).setRange(20, 1000).setZero(100).setRecc(100).setLogScale();
+            addScalar("densityMax", m_densityMax).setRange(20, 1000).setZero(100).setRecc(150).setLogScale();
+            addScalar("elitePacksMin", m_elitePacksMin).setRange(20, 1000).setZero(100).setRecc(100).setLogScale();
+            addScalar("elitePacksMax", m_elitePacksMax).setRange(20, 1000).setZero(100).setRecc(150).setLogScale();
             addScalar("numMonExtra", m_numMonExtra).setRange(-2, 10).setZero(0).addPreset(0, 5);
             addScalar("monGroupIncreaseSize", m_monGroupIncreaseSize).setRange(0, 20).setZero(0).addPreset(0, 5).addPreset(1, 2);
             addScalar("hellPacks", m_hellPacks).setZero(false).setRecc(false);
@@ -449,7 +449,7 @@ struct Config : public CommonStruct {
 
             bool m_wraithOnlyRunes{ false };
 
-            int64_t m_runeInGoodTC{ 100 };
+            Percent m_runeInGoodTC{ 100 };
 
             int64_t m_zodFactor{ 1 };
 
@@ -459,7 +459,7 @@ struct Config : public CommonStruct {
                 addScalar("countessSpecialRuneLevel", m_countessSpecialRuneLevel).setRange(0, 15).setZero(0).setRecc(3).addPreset(0, 2000).addPreset(1, 600).addPreset(3, 200);
                 addScalar("countessSpecialRuneMore", m_countessSpecialRuneMore).setZero(false).setRecc(false).addPreset(0, true).addPreset(1, true);
                 addScalar("wraithOnlyRunes", m_wraithOnlyRunes).setZero(false).setRecc(false).addPreset(0, true);
-                addScalar("runeInGoodTC", m_runeInGoodTC).setRange(20, 1000).setZero(100).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 300).addPreset(3, 100);
+                addScalar("runeInGoodTC", m_runeInGoodTC).setRange(20, 1000).setZero(100).setLogScale().addPreset(0, 1000).addPreset(1, 300).addPreset(3, 100);
                 addScalar("zodFactor", m_zodFactor).setRange(1, 1000).setZero(1).setRecc(20).addPreset(0, 1000).addPreset(1, 100).addPreset(3, 10);
             }
         };
@@ -468,19 +468,19 @@ struct Config : public CommonStruct {
 
             bool m_forceQuestDrops{ false };
 
-            int64_t m_chanceForHighLevel{ 100 };
+            Percent m_chanceForHighLevel{ 100 };
 
-            int64_t m_noneliteFactorIncrease{ 100 };
+            Percent m_noneliteFactorIncrease{ 100 };
 
-            int64_t m_rareFactorIncrease{ 100 };
+            Percent m_rareFactorIncrease{ 100 };
 
-            int64_t m_setFactorIncrease{ 100 };
+            Percent m_setFactorIncrease{ 100 };
 
-            int64_t m_uniqueFactorIncrease{ 100 };
+            Percent m_uniqueFactorIncrease{ 100 };
 
-            int64_t m_inverseNodropPercent{ 100 };
+            Percent m_inverseNodropPercent{ 100 };
 
-            int64_t m_equipPercent{ 100 };
+            Percent m_equipPercent{ 100 };
 
             int64_t m_championItemCount{ 1 };
 
@@ -492,13 +492,13 @@ struct Config : public CommonStruct {
             {
                 addScalar("enabled", m_enabled).setZero(false).setRecc(true);
                 addScalar("forceQuestDrops", m_forceQuestDrops).setZero(false).setRecc(true);
-                addScalar("chanceForHighLevel", m_chanceForHighLevel).setRange(50, 2000).setZero(100).setRecc(150).setPercent().setLogScale();
-                addScalar("noneliteFactorIncrease", m_noneliteFactorIncrease).setRange(20, 5000).setZero(100).setRecc(150).setPercent().setLogScale().addPreset(0, 1000).addPreset(1, 300).addPreset(3, 150);
-                addScalar("rareFactorIncrease", m_rareFactorIncrease).setRange(20, 2000).setZero(100).setRecc(200).setPercent().setLogScale().addPreset(0, 2000).addPreset(1, 200).addPreset(3, 100);
-                addScalar("setFactorIncrease", m_setFactorIncrease).setRange(20, 5000).setZero(100).setRecc(300).setPercent().setLogScale().addPreset(0, 5000).addPreset(1, 600).addPreset(3, 200);
-                addScalar("uniqueFactorIncrease", m_uniqueFactorIncrease).setRange(20, 5000).setZero(100).setRecc(400).setPercent().setLogScale().addPreset(0, 5000).addPreset(1, 700).addPreset(3, 250);
-                addScalar("inverseNodropPercent", m_inverseNodropPercent).setRange(25, 9100).setZero(100).setRecc(150).setPercent().setLogScale().addPreset(0, 9000).addPreset(1, 300);
-                addScalar("equipPercent", m_equipPercent).setRange(20, 1000).setZero(100).setPercent().setLogScale();
+                addScalar("chanceForHighLevel", m_chanceForHighLevel).setRange(50, 2000).setZero(100).setRecc(150).setLogScale();
+                addScalar("noneliteFactorIncrease", m_noneliteFactorIncrease).setRange(20, 5000).setZero(100).setRecc(150).setLogScale().addPreset(0, 1000).addPreset(1, 300).addPreset(3, 150);
+                addScalar("rareFactorIncrease", m_rareFactorIncrease).setRange(20, 2000).setZero(100).setRecc(200).setLogScale().addPreset(0, 2000).addPreset(1, 200).addPreset(3, 100);
+                addScalar("setFactorIncrease", m_setFactorIncrease).setRange(20, 5000).setZero(100).setRecc(300).setLogScale().addPreset(0, 5000).addPreset(1, 600).addPreset(3, 200);
+                addScalar("uniqueFactorIncrease", m_uniqueFactorIncrease).setRange(20, 5000).setZero(100).setRecc(400).setLogScale().addPreset(0, 5000).addPreset(1, 700).addPreset(3, 250);
+                addScalar("inverseNodropPercent", m_inverseNodropPercent).setRange(25, 9100).setZero(100).setRecc(150).setLogScale().addPreset(0, 9000).addPreset(1, 300);
+                addScalar("equipPercent", m_equipPercent).setRange(20, 1000).setZero(100).setLogScale();
                 addScalar("championItemCount", m_championItemCount).setRange(0, 6).setZero(1).setRecc(2).addPreset(0, 6).addPreset(1, 3);
                 addScalar("uniqueItemCount", m_uniqueItemCount).setRange(0, 6).setZero(1).setRecc(2).addPreset(0, 6).addPreset(1, 3);
                 addScalar("superItemCount", m_superItemCount).setRange(0, 6).setZero(2).setRecc(3).addPreset(0, 6).addPreset(1, 4);
@@ -507,11 +507,11 @@ struct Config : public CommonStruct {
         struct Misc : public CommonStruct {
             bool m_enabled{ false };
 
-            int64_t m_goldPercent{ 100 };
+            Percent m_goldPercent{ 100 };
 
-            int64_t m_goodPercent{ 100 };
+            Percent m_goodPercent{ 100 };
 
-            int64_t m_junkPercent{ 100 };
+            Percent m_junkPercent{ 100 };
 
             bool m_removeChampGold{ false };
 
@@ -526,9 +526,9 @@ struct Config : public CommonStruct {
             Misc()
             {
                 addScalar("enabled", m_enabled).setZero(false).setRecc(true);
-                addScalar("goldPercent", m_goldPercent).setRange(0, 1000).setZero(100).setPercent().setLogScale();
-                addScalar("goodPercent", m_goodPercent).setRange(0, 1000).setZero(100).setPercent().setLogScale();
-                addScalar("junkPercent", m_junkPercent).setRange(0, 500).setZero(100).setRecc(0).setPercent().setLogScale();
+                addScalar("goldPercent", m_goldPercent).setRange(0, 1000).setZero(100).setLogScale();
+                addScalar("goodPercent", m_goodPercent).setRange(0, 1000).setZero(100).setLogScale();
+                addScalar("junkPercent", m_junkPercent).setRange(0, 500).setZero(100).setRecc(0).setLogScale();
                 addScalar("removeChampGold", m_removeChampGold).setZero(false).setRecc(true);
                 addScalar("removeElitePotions", m_removeElitePotions).setZero(false).setRecc(false).addPreset(2, true);
                 addScalar("disableDropsHealthPot", m_disableDropsHealthPot).setZero(false);
@@ -602,7 +602,7 @@ struct Config : public CommonStruct {
 
         int64_t m_keySize{ 12 };
 
-        int64_t m_reduceCost{ 100 };
+        Percent m_reduceCost{ 100 };
 
         bool m_compactPots{ false };
 
@@ -620,7 +620,7 @@ struct Config : public CommonStruct {
             addScalar("tomeSize", m_tomeSize).setRange(2, 511).setZero(20).setRecc(60);
             addScalar("quiverSize", m_quiverSize).setRange(2, 511).setZero(150).setRecc(500);
             addScalar("keySize", m_keySize).setRange(2, 511).setZero(12).setRecc(50);
-            addScalar("reduceCost", m_reduceCost).setRange(5, 100).setZero(100).setPercent();
+            addScalar("reduceCost", m_reduceCost).setRange(5, 100).setZero(100);
             addScalar("compactPots", m_compactPots).setZero(false).setRecc(true);
             addScalar("compactScrolls", m_compactScrolls).setZero(false).setRecc(true);
         }

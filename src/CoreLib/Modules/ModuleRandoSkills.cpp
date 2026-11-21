@@ -9,6 +9,7 @@
 #include "Logger.hpp"
 #include "Image.hpp"
 #include "DCFile.hpp"
+#include "RandoUtils.hpp"
 
 #include <numeric>
 
@@ -878,9 +879,9 @@ void ModuleRandoSkills::CharacterData::updateSkillPower(int globalHitShift)
     }
 }
 
-void ModuleRandoSkills::CharacterData::randomizeElements(RandomGenerator& rng, int maximumVariants, int percentToChange)
+void ModuleRandoSkills::CharacterData::randomizeElements(RandomGenerator& rng, int maximumVariants, Percent percentToChange)
 {
-    if (percentToChange == 0)
+    if (percentToChange == 0_pct)
         return;
 
     auto elementsTmp1 = s_knownElements;
@@ -909,8 +910,8 @@ void ModuleRandoSkills::CharacterData::randomizeElements(RandomGenerator& rng, i
             Logger(verbose) << "'" << skill.row.skill << "' (og='" << skill.originalId << "') " << " ignoredlist, SKIP";
             continue;
         }
-        if (percentToChange < 100) {
-            if (rng(100) > percentToChange)
+        if (percentToChange < g_identityPct) {
+            if (!checkChance(rng, percentToChange))
                 continue;
         }
         bool noPoison = s_noPoison.contains(Mernel::strToLower(skill.originalId));

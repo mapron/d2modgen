@@ -30,8 +30,8 @@ void ModuleBalanceMonsters::generate()
 
     m_verbose = env.extraTrace.contains("monster_balance");
 
-    auto proceedMonParam = [](int64_t percent, int& val) {
-        val = val * percent / 100;
+    auto proceedMonParam = [](Percent percent, int& val) {
+        val = val * percent;
     };
     for (auto& row : output.monlvl.rows) {
         if (row.level <= 0)
@@ -45,8 +45,8 @@ void ModuleBalanceMonsters::generate()
         }
     }
 
-    auto applySingeResClamp = [](int* res, int min, int max) {
-        *res = std::clamp(*res, min, max);
+    auto applySingeResClamp = [](int* res, Percent min, Percent max) {
+        *res = std::clamp(*res, (int) min.raw, (int) max.raw);
     };
 
     auto applyResClamp = [&module, &applySingeResClamp](MonResist& monResist) {

@@ -17,12 +17,12 @@ void ModuleOtherQualityOfLife::generate()
 
     m_verbose = env.extraTrace.contains("qol");
 
-    const int  tomeSize         = module.m_tomeSize;
-    const int  keySize          = module.m_keySize;
-    const int  quiverSize       = module.m_quiverSize;
-    const bool uniqueCharmLimit = module.m_uniqueCharmLimit;
-    const bool showItemLevel    = module.m_showItemLevel;
-    const int  reduceCost       = module.m_reduceCost;
+    const int     tomeSize         = module.m_tomeSize;
+    const int     keySize          = module.m_keySize;
+    const int     quiverSize       = module.m_quiverSize;
+    const bool    uniqueCharmLimit = module.m_uniqueCharmLimit;
+    const bool    showItemLevel    = module.m_showItemLevel;
+    const Percent reduceCost       = module.m_reduceCost;
 
     auto updateStack = [this](const std::string& code, std::optional<int>& value, int configValue) {
         if (!value.has_value())
@@ -70,14 +70,14 @@ void ModuleOtherQualityOfLife::generate()
         }
     }
 
-    if (reduceCost != 100) {
+    if (reduceCost != g_identityPct) {
         for (auto& row : output.skills.rows) {
             auto& mult = row.costMult;
             auto& add  = row.costAdd;
             if (!mult.has_value())
                 continue;
-            mult = (mult.value() * reduceCost / 100);
-            add  = (add.value_or(0) * reduceCost / 100);
+            mult = (mult.value() * reduceCost);
+            add  = (add.value_or(0) * reduceCost);
         }
 
         for (auto& row : output.itemstatcost.rows) {
@@ -85,8 +85,8 @@ void ModuleOtherQualityOfLife::generate()
             auto& add  = row.add;
             if (!mult.has_value())
                 continue;
-            mult = (mult.value() * reduceCost / 100);
-            add  = (add.value_or(0) * reduceCost / 100);
+            mult = (mult.value() * reduceCost);
+            add  = (add.value_or(0) * reduceCost);
         }
     }
     if (showItemLevel) {

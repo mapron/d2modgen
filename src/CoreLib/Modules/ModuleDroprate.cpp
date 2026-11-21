@@ -221,23 +221,23 @@ void ModuleDroprate::generate()
 void ModuleDroprate::generateItems(DataContext& output, const Config::Droprate::Items& config, const Config::Droprate::Misc& configMisc)
 {
     {
-        const double factorUnique   = double(config.m_uniqueFactorIncrease) / 100.0;
-        const double factorSet      = double(config.m_setFactorIncrease) / 100.0;
-        const double factorRare     = double(config.m_rareFactorIncrease) / 100.0;
-        const double factorNonElite = double(config.m_noneliteFactorIncrease) / 100.0;
+        const double factorUnique   = double(config.m_uniqueFactorIncrease.raw) / 100.0;
+        const double factorSet      = double(config.m_setFactorIncrease.raw) / 100.0;
+        const double factorRare     = double(config.m_rareFactorIncrease.raw) / 100.0;
+        const double factorNonElite = double(config.m_noneliteFactorIncrease.raw) / 100.0;
 
-        const int  factorHighlevel    = config.m_chanceForHighLevel;
-        const int  percentDrop        = config.m_inverseNodropPercent;
-        const int  percentGoodTC      = configMisc.m_enabled ? configMisc.m_goodPercent : 100;
-        const int  percentGold        = configMisc.m_enabled ? configMisc.m_goldPercent : 100;
-        const int  percentEquip       = config.m_equipPercent;
-        const int  percentJunk        = configMisc.m_enabled ? configMisc.m_junkPercent : 100;
-        const int  championItemCount  = config.m_championItemCount;
-        const int  uniqueItemCount    = config.m_uniqueItemCount;
-        const int  superItemCount     = config.m_superItemCount;
-        const bool alwaysQuest        = config.m_forceQuestDrops;
-        const bool removeGoldChamp    = configMisc.m_enabled ? configMisc.m_removeChampGold : false;
-        const bool removeElitePotions = configMisc.m_enabled ? configMisc.m_removeElitePotions : false;
+        const Percent factorHighlevel    = config.m_chanceForHighLevel;
+        const Percent percentDrop        = config.m_inverseNodropPercent;
+        const Percent percentGoodTC      = configMisc.m_enabled ? configMisc.m_goodPercent : 100_pct;
+        const Percent percentGold        = configMisc.m_enabled ? configMisc.m_goldPercent : 100_pct;
+        const Percent percentEquip       = config.m_equipPercent;
+        const Percent percentJunk        = configMisc.m_enabled ? configMisc.m_junkPercent : 100_pct;
+        const int     championItemCount  = config.m_championItemCount;
+        const int     uniqueItemCount    = config.m_uniqueItemCount;
+        const int     superItemCount     = config.m_superItemCount;
+        const bool    alwaysQuest        = config.m_forceQuestDrops;
+        const bool    removeGoldChamp    = configMisc.m_enabled ? configMisc.m_removeChampGold : false;
+        const bool    removeElitePotions = configMisc.m_enabled ? configMisc.m_removeElitePotions : false;
 
         auto factorAdjust = [](std::optional<int>& value, double factor, int maxFact) {
             if (factor == 1.0)
@@ -254,12 +254,12 @@ void ModuleDroprate::generateItems(DataContext& output, const Config::Droprate::
             const int next = static_cast<int>(probNew);
             value          = (std::min(next, maxFact));
         };
-        auto adjustPick = [](std::optional<int>& value, int num, int denum) {
+        auto adjustPick = [](std::optional<int>& value, Percent percent) {
             if (!value.has_value() || value.value() == 0)
                 return;
-            if (num == denum)
+            if (percent == g_identityPct)
                 return;
-            value = value.value() * num / denum;
+            value = value.value() * percent;
             value = std::max(1, value.value());
         };
 
@@ -311,7 +311,7 @@ void ModuleDroprate::generateItems(DataContext& output, const Config::Droprate::
             }
 
             if (mobType == MobType::ActBoss || mobType == MobType::SuperUniqueSpecial || mobType == MobType::Normal)
-                adjustPick(row.noDrop, 100, percentDrop);
+                adjustPick(row.noDrop, inverse(percentDrop));
 
             if (mobType == MobType::Unique) {
                 adjustElite(row.picks, row.items, uniqueItemCount);
@@ -334,7 +334,7 @@ void ModuleDroprate::generateItems(DataContext& output, const Config::Droprate::
 
             if (rowTC == TCType::Other) {
                 for (auto& item : row.items) {
-                    int        percent   = 100;
+                    Percent    percent   = 100_pct;
                     const auto subItemTC = getTC(item.tc);
 
                     if (subItemTC == TCType::Good)
@@ -346,14 +346,14 @@ void ModuleDroprate::generateItems(DataContext& output, const Config::Droprate::
                     else if (subItemTC == TCType::Equip || subItemTC == TCType::Bow)
                         percent = percentEquip;
 
-                    adjustPick(item.prob, percent, 100);
+                    adjustPick(item.prob, percent);
                 }
             }
             if (rowTC == TCType::Equip || rowTC == TCType::Bow) {
                 for (auto& item : row.items) {
                     const auto subItemTC = getTC(item.tc);
                     if (subItemTC == TCType::Equip || subItemTC == TCType::Bow)
-                        adjustPick(item.prob, 100, factorHighlevel);
+                        adjustPick(item.prob, inverse(factorHighlevel));
                 }
             }
         }
@@ -362,15 +362,15 @@ void ModuleDroprate::generateItems(DataContext& output, const Config::Droprate::
 
 void ModuleDroprate::generateRunes(DataContext& output, const Config::Droprate::Runes& config)
 {
-    const int  factorRunePercent = config.m_runeInGoodTC;
-    const int  factorZod         = config.m_zodFactor;
-    const bool countessMore      = config.m_countessSpecialRuneMore;
-    const int  countessUpg       = config.m_countessSpecialRuneLevel;
-    const bool wraithOnlyRunes   = config.m_wraithOnlyRunes;
+    const Percent factorRunePercent = config.m_runeInGoodTC;
+    const int     factorZod         = config.m_zodFactor;
+    const bool    countessMore      = config.m_countessSpecialRuneMore;
+    const int     countessUpg       = config.m_countessSpecialRuneLevel;
+    const bool    wraithOnlyRunes   = config.m_wraithOnlyRunes;
 
-    auto applyScale = [](std::optional<int>& value, int64_t mult, int64_t denom, int64_t min = 1) {
+    auto applyScale = [](std::optional<int>& value, Percent percent, int64_t min = 1) {
         int64_t v = value.value_or(0);
-        v         = v * mult / denom;
+        v         = v * percent;
         v         = std::max(min, v);
         value     = static_cast<int>(v);
     };
@@ -390,11 +390,11 @@ void ModuleDroprate::generateRunes(DataContext& output, const Config::Droprate::
     for (auto& row : output.treasureclassex.rows) {
         auto& className = row.name;
 
-        if (factorRunePercent != 100 && className.ends_with(" Good")) {
+        if (factorRunePercent != g_identityPct && className.ends_with(" Good")) {
             for (auto& item : row.items) {
                 if (!item.tc.starts_with("Runes "))
                     continue;
-                applyScale(item.prob, factorRunePercent, 100);
+                applyScale(item.prob, factorRunePercent);
                 break;
             }
         }
@@ -404,7 +404,7 @@ void ModuleDroprate::generateRunes(DataContext& output, const Config::Droprate::
                 double    factor = runesReplaceMult[oldTC];
                 if (oldTC < 0 || !factor)
                     continue;
-                applyScale(item.prob, factor * 1000, 1000, 5);
+                applyScale(item.prob, Percent{ static_cast<int64_t>(factor * 100) }, 5);
                 break;
             }
         }

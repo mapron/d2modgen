@@ -91,7 +91,7 @@ private:
         void updateSkillNameRef(DataContext& output, RandomGenerator& rng);
         void updateSkillPower(int globalHitShift);
 
-        void randomizeElements(RandomGenerator& rng, int maximumVariants, int percentToChange);
+        void randomizeElements(RandomGenerator& rng, int maximumVariants, Percent percentToChange);
 
         void insertRows(DataContext& output, int rowsPerClass);
         void updateMissiles(DataContext& output);

@@ -77,7 +77,7 @@ def get_member_info(key, record, preset_names, counters, fqn):
             recc_value = value_to_string(record['recc'], do_quote)
             setters = setters + '.setRecc(' + recc_value + ')'
         if 'percent' in record:
-            setters = setters +  f'.setPercent()'
+            type_name = 'Percent'
         if 'logScale' in record:
             setters = setters +  f'.setLogScale()'
         if 'constant' in record:

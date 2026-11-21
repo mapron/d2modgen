@@ -67,7 +67,7 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
                     assert(prop.properties.clas <= Character::War);
 
                     PropGenerator gen;
-                    gen.power     = power;
+                    gen.power     = Percent{ power };
                     gen.prop      = prop;
                     gen.frequency = uint64_t(summary.freq) * rec.freqFactor;
                     gen.nonPar    = summary;

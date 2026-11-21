@@ -8,6 +8,7 @@
 #include "AttributeHelper.hpp"
 
 #include "PropRandomizer.hpp"
+#include "Scale.hpp"
 
 namespace D2ModGen {
 
@@ -142,10 +143,12 @@ struct MagicPropItem {
     std::string toString(bool withProperties) const;
 };
 
-int scaleValue(int val, int percent, int absLimit = 1);
-int genBetweenRng(RandomGenerator& rng, int first, int second);
-int genRandomScaledValue(RandomGenerator& rng, int value, int minPercent, int maxPercent);
-int genRng(RandomGenerator& rng, const NonParValueSummary::Stat& stat);
+int     scaleValue(int val, Percent percent, int absLimit = 1);
+int     genBetweenRng(RandomGenerator& rng, int first, int second);
+Percent genBetweenRng(RandomGenerator& rng, Percent first, Percent second);
+int     genRandomScaledValue(RandomGenerator& rng, int value, Percent minPercent, Percent maxPercent);
+int     genRng(RandomGenerator& rng, const NonParValueSummary::Stat& stat);
+bool    checkChance(RandomGenerator& rng, Percent percent);
 
 std::vector<size_t> genRandomIndexes(RandomGenerator& rng, size_t size, size_t count);
 

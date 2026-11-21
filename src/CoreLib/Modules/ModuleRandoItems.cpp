@@ -690,18 +690,18 @@ void ModuleRandoItems::MagicContext::addExtra(const Config& config, const DataCo
         rec->freqFactor *= 5;
     }
 
-    homogenizeNonPar(200, { A::ama, A::pal, A::nec, A::sor, A::bar, A::dru, A::ass, A::war });
-    homogenizeNonPar(50, { A::res_fire, A::res_ltng, A::res_cold, A::res_mag, A::res_pois });
-    homogenizeNonPar(300, { A::res_fire_max, A::res_ltng_max, A::res_cold_max, A::res_pois_max });
-    homogenizeNonPar(300, { A::abs_fire_percent, A::abs_ltng_percent, A::abs_mag_percent, A::abs_cold_percent });
-    homogenizeNonPar(300, { A::abs_fire, A::abs_ltng, A::abs_mag, A::abs_cold });
-    homogenizeNonPar(200, { A::fireskill, A::poisskill, A::coldskill, A::magskill, A::ltngskill });
-    homogenizeNonPar(200, { A::pierce_fire, A::pierce_ltng, A::pierce_cold, A::pierce_pois, A::pierce_mag });
-    homogenizeNonPar(200, { A::extra_fire, A::extra_ltng, A::extra_cold, A::extra_pois, A::extra_mag });
+    homogenizeNonPar(200_pct, { A::ama, A::pal, A::nec, A::sor, A::bar, A::dru, A::ass, A::war });
+    homogenizeNonPar(50_pct, { A::res_fire, A::res_ltng, A::res_cold, A::res_mag, A::res_pois });
+    homogenizeNonPar(300_pct, { A::res_fire_max, A::res_ltng_max, A::res_cold_max, A::res_pois_max });
+    homogenizeNonPar(300_pct, { A::abs_fire_percent, A::abs_ltng_percent, A::abs_mag_percent, A::abs_cold_percent });
+    homogenizeNonPar(300_pct, { A::abs_fire, A::abs_ltng, A::abs_mag, A::abs_cold });
+    homogenizeNonPar(200_pct, { A::fireskill, A::poisskill, A::coldskill, A::magskill, A::ltngskill });
+    homogenizeNonPar(200_pct, { A::pierce_fire, A::pierce_ltng, A::pierce_cold, A::pierce_pois, A::pierce_mag });
+    homogenizeNonPar(200_pct, { A::extra_fire, A::extra_ltng, A::extra_cold, A::extra_pois, A::extra_mag });
 
-    homogenizeNonPar(300, { A::dmg_cold_perlvl, A::dmg_fire_perlvl, A::dmg_ltng_perlvl, A::dmg_pois_perlvl });
-    homogenizeNonPar(300, { A::res_cold_perlvl, A::res_fire_perlvl, A::res_ltng_perlvl, A::res_pois_perlvl });
-    homogenizeNonPar(300, { A::abs_cold_perlvl, A::abs_fire_perlvl, A::abs_ltng_perlvl, A::abs_pois_perlvl });
+    homogenizeNonPar(300_pct, { A::dmg_cold_perlvl, A::dmg_fire_perlvl, A::dmg_ltng_perlvl, A::dmg_pois_perlvl });
+    homogenizeNonPar(300_pct, { A::res_cold_perlvl, A::res_fire_perlvl, A::res_ltng_perlvl, A::res_pois_perlvl });
+    homogenizeNonPar(300_pct, { A::abs_cold_perlvl, A::abs_fire_perlvl, A::abs_ltng_perlvl, A::abs_pois_perlvl });
 
     if (auto* rec = actual.findExistingPar(A::res_mag); rec) {
         rec->freqFactor /= 3;
@@ -740,7 +740,7 @@ void ModuleRandoItems::MagicContext::addExtra(const Config& config, const DataCo
                                                     });
 }
 
-void ModuleRandoItems::MagicContext::homogenizeNonPar(int64_t scalePercent, const std::vector<AttributeId>& attrs)
+void ModuleRandoItems::MagicContext::homogenizeNonPar(Percent scalePercent, const std::vector<AttributeId>& attrs)
 {
     std::vector<const NonParRecord*> sources;
     std::vector<NonParRecord*>       edit;
@@ -768,7 +768,7 @@ void ModuleRandoItems::MagicContext::homogenizeNonPar(int64_t scalePercent, cons
     }
 }
 
-void ModuleRandoItems::MagicContext::scaleSettings(int64_t scalePercent, const std::vector<AttributeId>& attrs)
+void ModuleRandoItems::MagicContext::scaleSettings(Percent scalePercent, const std::vector<AttributeId>& attrs)
 {
     for (auto id : attrs) {
         if (auto* rec = actual.findExistingNonPar(id)) {

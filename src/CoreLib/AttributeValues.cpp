@@ -228,12 +228,12 @@ void NonParValueByLevel::add(const NonParValueByLevel& other)
         levels[i].add(other.levels[i]);
 }
 
-void NonParValueByLevel::rescaleFreq(int percent, int denum)
+void NonParValueByLevel::rescaleFreq(Percent percent, int denum)
 {
     auto scaler = [percent, denum](int& val) {
         if (!val)
             return;
-        val = std::max(1, ((val * percent) / 100) / denum);
+        val = std::max(1, (val * percent) / denum);
     };
     scaler(total.freq);
     for (size_t i = 0; i < s_segments; ++i)
@@ -309,7 +309,7 @@ void NonParRecord::doHomogen(const std::vector<const NonParRecord*>& sources)
     }
 }
 
-void NonParRecord::rescaleFreq(int percent, int denum)
+void NonParRecord::rescaleFreq(Percent percent, int denum)
 {
     comm.rescaleFreq(percent, denum);
     rare.rescaleFreq(percent, denum);
@@ -445,9 +445,9 @@ size_t ParRecord::estimateSize() const
     return result * slotTypes.estimateSize();
 }
 
-void ParRecord::rescaleFreq(int percent, int denum)
+void ParRecord::rescaleFreq(Percent percent, int denum)
 {
-    freqFactor = ((freqFactor * percent) / 100) / denum;
+    freqFactor = (freqFactor * percent) / denum;
 }
 
 int smartRound(int value, int rounding)

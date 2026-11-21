@@ -88,24 +88,24 @@ void ModuleBalanceMaps::generate()
             value = std::max(min, value.value_or(0));
         }
 
-        if (module.m_densityMin == 100 && module.m_densityMax == 100)
+        if (module.m_densityMin == g_identityPct && module.m_densityMax == g_identityPct)
             return;
 
-        const int prev  = value.value_or(0);
-        const int scale = genBetweenRng(rng, module.m_densityMin, module.m_densityMax);
-        const int next  = scaleValue(prev, scale);
-        value           = std::clamp(next, 200, 9900);
+        const int     prev  = value.value_or(0);
+        const Percent scale = genBetweenRng(rng, module.m_densityMin, module.m_densityMax);
+        const int     next  = scaleValue(prev, scale);
+        value               = std::clamp(next, 200, 9900);
     };
     auto packsAdjust = [&module, this](std::optional<int>& value, int min) {
         if (min > 0) {
             value = std::max(min, value.value_or(0));
         }
-        if (module.m_elitePacksMin == 100 && module.m_elitePacksMax == 100)
+        if (module.m_elitePacksMin == g_identityPct && module.m_elitePacksMax == g_identityPct)
             return;
-        const int prev  = value.value_or(0);
-        const int scale = genBetweenRng(rng, module.m_elitePacksMin, module.m_elitePacksMax);
-        const int next  = scaleValue(prev, scale);
-        value           = (std::min(next, 255));
+        const int     prev  = value.value_or(0);
+        const Percent scale = genBetweenRng(rng, module.m_elitePacksMin, module.m_elitePacksMax);
+        const int     next  = scaleValue(prev, scale);
+        value               = (std::min(next, 255));
     };
 
     const int spawnedCount = module.m_numMonExtra;

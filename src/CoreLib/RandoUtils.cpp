@@ -20,15 +20,20 @@ int genRng(RandomGenerator& rng, const NonParValueSummary::Stat& stat)
     return genBetweenRng(rng, bounds.first, bounds.second);
 }
 
-int scaleValue(int val, int percent, int absLimit)
+bool checkChance(RandomGenerator& rng, Percent percent)
 {
-    if (percent == 100)
+    return rng(100) < percent.raw;
+}
+
+int scaleValue(int val, Percent percent, int absLimit)
+{
+    if (percent == 100_pct)
         return val;
     if (val == 0)
         return 0;
 
     const bool isPositive = val > 0;
-    const int  scaledVal  = val * percent / 100;
+    const int  scaledVal  = val * percent;
     const int  limitsMin  = isPositive ? absLimit : std::numeric_limits<int>::min();
     const int  limitsMax  = isPositive ? std::numeric_limits<int>::max() : -absLimit;
     return std::clamp(scaledVal, limitsMin, limitsMax);
@@ -43,21 +48,26 @@ int genBetweenRng(RandomGenerator& rng, int first, int second)
     return lowerBound + randomDiff;
 }
 
-int genRandomScaledValue(RandomGenerator& rng, int value, int minPercent, int maxPercent)
+Percent genBetweenRng(RandomGenerator& rng, Percent first, Percent second)
+{
+    return Percent{ genBetweenRng(rng, int(first.raw), int(second.raw)) };
+}
+
+int genRandomScaledValue(RandomGenerator& rng, int value, Percent minPercent, Percent maxPercent)
 {
     if (value == 0)
         return 0;
 
-    const int lowerBound = std::min(minPercent, maxPercent);
-    const int upperBound = std::max(minPercent, maxPercent);
-    if (upperBound <= 0)
+    const Percent lowerBound = std::min(minPercent, maxPercent);
+    const Percent upperBound = std::max(minPercent, maxPercent);
+    if (upperBound <= 0_pct)
         return 0;
 
-    const int rolledPercent = (lowerBound == upperBound)
-                                  ? lowerBound
-                                  : genBetweenRng(rng, lowerBound, upperBound);
+    const Percent rolledPercent = (lowerBound == upperBound)
+                                      ? lowerBound
+                                      : Percent{ genBetweenRng(rng, lowerBound, upperBound) };
 
-    if (rolledPercent == 100)
+    if (rolledPercent == 100_pct)
         return value;
 
     const int exact100    = value * rolledPercent;
@@ -65,10 +75,10 @@ int genRandomScaledValue(RandomGenerator& rng, int value, int minPercent, int ma
 
     int result = exact100 / 100;
 
-    if (fracPart100 > 0 && rng(100) < fracPart100)
+    if (fracPart100 > 0 && checkChance(rng, Percent{ fracPart100 }))
         result += 1;
 
-    if (lowerBound > 0 && result < 1)
+    if (lowerBound > 0_pct && result < 1)
         return 1;
 
     return result;
@@ -107,15 +117,15 @@ void MagicPropItem::process()
     }();
     filter.props.levelBracket20 = std::clamp(targetLevel, 0, 99) / 20;
 
-    const int genCountRel = genBetweenRng(*rng, randoParams->common.m_randoGenerateMin, randoParams->common.m_randoGenerateMin);
+    const Percent genCountRel = genBetweenRng(*rng, randoParams->common.m_randoGenerateMin, randoParams->common.m_randoGenerateMin);
 
     const bool forceCaster = [this]() -> bool {
-        if (randoParams->forceCasterType == 100)
+        if (randoParams->forceCasterType == g_identityPct)
             return true;
-        if (randoParams->forceCasterType == 0)
+        if (randoParams->forceCasterType == 0_pct)
             return false;
 
-        return (*rng)(100) < randoParams->typeFitPercent;
+        return checkChance(*rng, randoParams->typeFitPercent);
     }();
 
     assert(filter.props.clas <= Character::War);
@@ -130,7 +140,7 @@ void MagicPropItem::process()
     for (MagicPropRawList& rawList : affixlists) {
         rawList.replaceToOskill(*randoParams);
         // don't remove last knockback from rune if nothing to generate on it.
-        if (genCountRel > 0 && rawList.parsedProps.size() > 1) {
+        if (genCountRel > 0_pct && rawList.parsedProps.size() > 1) {
             rawList.removeKnock(*randoParams);
             rawList.removeNonClass(filter.props.clas);
         }
@@ -143,7 +153,7 @@ void MagicPropItem::process()
         const int keepCnt       = scaleValue(originalCount, randoParams->common.m_randoKeepOriginalPercent, 0);
 
         const int genCountUnbound = scaleValue(originalCount, genCountRel, 0) + genCountRemainder;
-        const int genCountMin     = genCountRel > 0 ? 1 : 0;
+        const int genCountMin     = genCountRel > 0_pct ? 1 : 0;
         const int genCountMax     = std::max(1, rawList.affixLimit - keepCnt);
         const int genCount        = std::clamp(genCountUnbound, genCountMin, genCountMax);
 
@@ -256,7 +266,7 @@ MagicPropList MagicPropItem::processList(int count)
     };
 
     if (hasTypeSlot) {
-        const int typefitCount = scaleValue(count, randoParams->typeFitPercent);
+        const int typefitCount = scaleValue(count, Percent{ randoParams->typeFitPercent });
         addList(true, "typefit", typefitCount);
     }
     addList(false, "common", count - result.size());

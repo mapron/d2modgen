@@ -22,11 +22,11 @@ void ModuleBalanceGambling::generate()
     }
 
     auto& table = output.difficultylevels;
-    table.applyIntTransform(&DataRow_difficultylevels::gambleRare, module.m_ratioRare, 1);
-    table.applyIntTransform(&DataRow_difficultylevels::gambleSet, module.m_ratioSet, 1);
-    table.applyIntTransform(&DataRow_difficultylevels::gambleUnique, module.m_ratioUnique, 1);
-    table.applyIntTransform(&DataRow_difficultylevels::gambleUber, module.m_ratioExc, 1);
-    table.applyIntTransform(&DataRow_difficultylevels::gambleUltra, module.m_ratioElite, 1);
+    table.applyIntTransform(&DataRow_difficultylevels::gambleRare, Percent{ module.m_ratioRare * 100 });
+    table.applyIntTransform(&DataRow_difficultylevels::gambleSet, Percent{ module.m_ratioSet * 100 });
+    table.applyIntTransform(&DataRow_difficultylevels::gambleUnique, Percent{ module.m_ratioUnique * 100 });
+    table.applyIntTransform(&DataRow_difficultylevels::gambleUber, Percent{ module.m_ratioExc * 100 });
+    table.applyIntTransform(&DataRow_difficultylevels::gambleUltra, Percent{ module.m_ratioElite * 100 });
 }
 
 }

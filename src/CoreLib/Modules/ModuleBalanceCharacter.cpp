@@ -11,9 +11,9 @@ void ModuleBalanceCharacter::generate()
 {
     const auto& module = config.m_balanceCharacter;
 
-    const int  mercHPpercent     = module.m_mercHP;
-    const int  mercDampercent    = module.m_mercDam;
-    const bool disableExpPenalty = module.m_disableExpPenalty;
+    const Percent mercHP            = module.m_mercHP;
+    const Percent mercDam           = module.m_mercDam;
+    const bool    disableExpPenalty = module.m_disableExpPenalty;
 
     auto addValue = [](std::optional<int>& value, int extra) {
         int val = value.value_or(0);
@@ -21,9 +21,9 @@ void ModuleBalanceCharacter::generate()
         val   = std::max(0, val);
         value = val;
     };
-    auto scaleValue = [](std::optional<int>& value, int scale) {
+    auto scaleValue = [](std::optional<int>& value, Percent scale) {
         int val = value.value_or(0);
-        val     = val * scale / 100;
+        val     = val * scale;
         val     = std::max(1, val);
         value   = val;
     };
@@ -40,12 +40,14 @@ void ModuleBalanceCharacter::generate()
         scaleValue(row.manaPotEfficacy, module.m_mpPotEfficacy);
     }
 
-    if (mercHPpercent != 100 || mercDampercent != 100) {
-        output.hireling.applyIntTransform(&DataRow_hireling::hp, mercHPpercent);
-        output.hireling.applyIntTransform(&DataRow_hireling::hp_lvl, mercHPpercent);
-        output.hireling.applyIntTransform(&DataRow_hireling::dmg_min, mercDampercent);
-        output.hireling.applyIntTransform(&DataRow_hireling::dmg_max, mercDampercent);
-        output.hireling.applyIntTransform(&DataRow_hireling::dmg_lvl, mercDampercent);
+    if (mercHP != g_identityPct) {
+        output.hireling.applyIntTransform(&DataRow_hireling::hp, mercHP);
+        output.hireling.applyIntTransform(&DataRow_hireling::hp_lvl, mercHP);
+    }
+    if (mercDam != g_identityPct) {
+        output.hireling.applyIntTransform(&DataRow_hireling::dmg_min, mercDam);
+        output.hireling.applyIntTransform(&DataRow_hireling::dmg_max, mercDam);
+        output.hireling.applyIntTransform(&DataRow_hireling::dmg_lvl, mercDam);
     }
 
     {

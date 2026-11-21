@@ -63,8 +63,8 @@ private:
         AllAttributeData gameDataSkipped;
 
         void addExtra(const Config& config, const DataContext& output);
-        void homogenizeNonPar(int64_t scalePercent, const std::vector<AttributeId>& attrs);
-        void scaleSettings(int64_t scalePercent, const std::vector<AttributeId>& attrs);
+        void homogenizeNonPar(Percent scalePercent, const std::vector<AttributeId>& attrs);
+        void scaleSettings(Percent scalePercent, const std::vector<AttributeId>& attrs);
     };
 
     SkillCodeResolver m_codeResolver;
