@@ -190,6 +190,23 @@ int DataContext::getClassesCount() const
     return charstats.rows.size() - 1;
 }
 
+int DataContext::resolveSkillId(const std::string& skillId) const
+{
+    if (!skillId.empty()) {
+        int intId = std::atoi(skillId.c_str());
+        if (intId > 0) {
+            return intId;
+        }
+        if (skillId == "0") {
+            return 0;
+        }
+        auto it = skills.indexN.find(Mernel::strToLower(skillId));
+        if (it != skills.indexN.cend())
+            return it->second;
+    }
+    return -1;
+}
+
 bool DataContext::postProcess()
 {
     itemtypes.makeIndex(&DataRow_itemtypes::code);

@@ -148,6 +148,8 @@ struct DataContext {
 
     int getClassesCount() const;
 
+    int resolveSkillId(const std::string& skillId) const;
+
 private:
     bool postProcess();
 
