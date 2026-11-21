@@ -185,7 +185,7 @@ void ModuleRandoItems::generate()
 
     ItemStatistics allStat;
 
-    auto fillProps = [&props, &allStat, this, traceItemProps]<typename Row>(DataTable<Row>& table, const RandoParams& params, RollType roll) {
+    auto fillProps = [&props, &allStat, this, traceItemProps]<typename Row>(DataTable<Row>& table, const RandoParams& params) {
         if (!params.enableGeneration)
             return;
         ItemStatistics tableStat;
@@ -216,15 +216,15 @@ void ModuleRandoItems::generate()
         Logger(m_verbose) << "table '" << getTableIdString(Row::s_tableId) << "' " << tableStat.toString(ItemStatistics::Mode::Table);
     };
 
-    fillProps(output.uniqueitems, paramsUniq, RollType::Rare);
-    fillProps(output.setitems, paramsSetitems, RollType::Rare);
-    fillProps(output.sets, paramsSets, RollType::Rare);
-    fillProps(output.runes, paramsRunes, RollType::Rare);
+    fillProps(output.uniqueitems, paramsUniq);
+    fillProps(output.setitems, paramsSetitems);
+    fillProps(output.sets, paramsSets);
+    fillProps(output.runes, paramsRunes);
 
-    fillProps(output.gems, paramsGems, RollType::Common);
-    fillProps(output.magicprefix, paramsAffix, RollType::Common);
-    fillProps(output.magicsuffix, paramsAffix, RollType::Common);
-    fillProps(output.cubemain, paramsCrafted, RollType::Common);
+    fillProps(output.gems, paramsGems);
+    fillProps(output.magicprefix, paramsAffix);
+    fillProps(output.magicsuffix, paramsAffix);
+    fillProps(output.cubemain, paramsCrafted);
 
     Logger(Logger::Notice) << "    " << allStat.toString(ItemStatistics::Mode::All);
 
@@ -574,7 +574,7 @@ void ModuleRandoItems::analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecor
         int slotMedian = summ.high.p50;
         int val        = slotMedian * 1000 / record.maxMedian;
         if (val < 900 || val > 1100)
-            record.slotScale.insert(slot, val);
+            record.slotScale.insert(slot, Permille{ val });
 
         record.slotTypes.insert(slot);
 
@@ -594,7 +594,7 @@ void ModuleRandoItems::analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecor
     record.ratioP100 = NonParRecordNew::s_emptyCurve;
     std::vector<NonParValueList> levelGroups(LEVEL_GROUP_COUNT);
     for (const NonParValue& value : valuesGoodScaledToMedian) {
-        int levelGroup = std::clamp(value.level, 0, LEVEL_GROUP_MAX) / LEVEL_GROUP_SIZE;
+        int levelGroup = makeTier(value.level);
         levelGroups[levelGroup].push_back(value);
         record.minLevel = std::min(record.minLevel, value.level);
     }
@@ -605,18 +605,18 @@ void ModuleRandoItems::analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecor
         if (!summ.freq)
             continue;
 
-        record.medCurve[i] = summ.high.p50;
+        record.medCurve[i] = Permille{ summ.high.p50 };
 
-        record.ratioP000[i] = summ.high.min * 1000 / summ.high.p50;
-        record.ratioP010[i] = summ.high.p10 * 1000 / summ.high.p50;
-        record.ratioP090[i] = summ.high.p90 * 1000 / summ.high.p50;
-        record.ratioP100[i] = summ.high.max * 1000 / summ.high.p50;
+        record.ratioP000[i] = Permille{ summ.high.min * 1000 / summ.high.p50 };
+        record.ratioP010[i] = Permille{ summ.high.p10 * 1000 / summ.high.p50 };
+        record.ratioP090[i] = Permille{ summ.high.p90 * 1000 / summ.high.p50 };
+        record.ratioP100[i] = Permille{ summ.high.max * 1000 / summ.high.p50 };
     }
 
-    auto makeMonotonic = [](std::vector<int>& curve) {
+    auto makeMonotonic = [](PermilleCurve& curve) {
         for (int i = 1; i < LEVEL_GROUP_COUNT - 1; i++) {
-            if (!curve[i] && curve[i - 1] && curve[i + 1])
-                curve[i] = (curve[i - 1] + curve[i + 1]) / 2;
+            if (curve[i] == 0_perm && curve[i - 1] != 0_perm && curve[i + 1] != 0_perm)
+                curve[i].raw = (curve[i - 1] + curve[i + 1]).raw / 2;
         }
 
         for (int i = 1; i < LEVEL_GROUP_COUNT; i++) {
@@ -624,7 +624,7 @@ void ModuleRandoItems::analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecor
                 curve[i] = curve[i - 1];
         }
         for (int i = LEVEL_GROUP_COUNT - 2; i >= 0; i--) {
-            if (!curve[i])
+            if (curve[i] == 0_perm)
                 curve[i] = curve[i + 1];
         }
     };
@@ -637,11 +637,11 @@ void ModuleRandoItems::analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecor
     makeMonotonic(record.ratioP100);
 
     for (int i = 0; i < LEVEL_GROUP_COUNT; i++) {
-        auto med            = record.medCurve[i];
-        record.ratioP000[i] = record.ratioP000[i] * 1000 / med;
-        record.ratioP010[i] = record.ratioP010[i] * 1000 / med;
-        record.ratioP090[i] = record.ratioP090[i] * 1000 / med;
-        record.ratioP100[i] = record.ratioP100[i] * 1000 / med;
+        auto med            = record.medCurve[i].raw;
+        record.ratioP000[i] = Permille{ record.ratioP000[i].raw * 1000 / med };
+        record.ratioP010[i] = Permille{ record.ratioP010[i].raw * 1000 / med };
+        record.ratioP090[i] = Permille{ record.ratioP090[i].raw * 1000 / med };
+        record.ratioP100[i] = Permille{ record.ratioP100[i].raw * 1000 / med };
     }
 }
 
@@ -654,14 +654,14 @@ void ModuleRandoItems::analyzePar(const AllPropsVal& allPropsVal, ParRecord& rec
     for (const auto& [slot, slotProps] : allPropsVal.propsBySlot) {
         record.slotTypes.insert(slot);
 
-        PropListByLevel& propValues = record.get(RollType::Common);
+        PropListByLevel& propValues = record.comm;
         for (const auto& [level, levelProps] : slotProps.propsByLevel) {
-            const size_t bracket20 = std::clamp(level, 0, 89) / 18;
+            const int levelTier = makeTier(level);
 
             for (auto prop : levelProps) {
                 all.push_back({ level, prop.min.value_or(0), prop.max.value_or(0), prop.par.value_or(0) });
                 propValues.freq++;
-                propValues.levels[bracket20].push_back({ prop.par, prop.min, prop.max });
+                propValues.levels[levelTier].push_back({ prop.par, prop.min, prop.max });
             }
         }
     }
@@ -727,12 +727,12 @@ void ModuleRandoItems::dumpAttributes(const Mernel::std_path& dumpFile, const Al
 void ModuleRandoItems::MagicContext::addExtra(const Config& config, const DataContext& output)
 {
     using A = AttributeId;
-    actual.erase(A::skilltab);
+    //actual.erase(A::skilltab);
 
     const auto& module = config.m_itemRandomizer;
 
     const int classCount = output.getClassesCount();
-
+#if 0
     // Fill skilltab values
     auto fillPropList = [classCount](PropWithRangeList& props, int min, int max) -> int {
         if (!min || !max)
@@ -771,7 +771,7 @@ void ModuleRandoItems::MagicContext::addExtra(const Config& config, const DataCo
     fillPropList2(RollType::Epic, std::array{ 1, 2, 3, 4, 5 }, std::array{ 2, 3, 5, 6, 7 }, SlotType::MainArmor);
     fillPropList2(RollType::Epic, std::array{ 1, 2, 3, 4, 4 }, std::array{ 2, 3, 5, 6, 5 }, SlotType::Amulet);
     fillPropList2(RollType::Epic, std::array{ 1, 2, 3, 4, 5 }, std::array{ 2, 3, 5, 6, 7 }, SlotType::Weapon);
-
+#endif
     if (auto* rec = actual.findExistingNonPar(A::skill_rand); rec) {
         rec->freqFactor *= 20;
     }

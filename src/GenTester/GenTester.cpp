@@ -16,15 +16,16 @@ int main(int argc, char* argv[])
     using namespace D2ModGen;
 
     Logger::SetLoggerBackend(std::make_unique<Mernel::LoggerBackendConsole>(Logger::Debug, false, false, false, Mernel::LoggerBackendConsole::Type::Cout));
-    if (argc < 4) {
-        Logger(Logger::Err) << "Usage: GenTester attr level size";
+    if (argc < 3) {
+        Logger(Logger::Err) << "Usage: GenTester attr level";
         return EXIT_FAILURE;
     }
-    const int         level      = std::atoi(argv[2]);
-    const int         sampleSize = std::atoi(argv[3]);
+    const int         levelTier  = makeTier(std::atoi(argv[2]));
+    const int         sampleSize = 20;
     const AttributeId attr       = getAttributeId(argv[1]);
     if (attr <= AttributeId::INVALID)
         return EXIT_FAILURE;
+    Logger() << "generate attr=" << enumToString(attr) << ", tier=" << levelTier << ", sampleSize=" << sampleSize;
 
     auto precompiled = getPrecompiledData();
 
@@ -34,17 +35,29 @@ int main(int argc, char* argv[])
 
     auto            idx = randomizer.createIndexAll();
     BasicProperties props;
-    props.levelBracket18 = level / 18;
-    props.slot           = SlotType::MainArmor;
+    props.levelTier = levelTier;
     randomizer.indexAnd(idx, props, true);
+    randomizer.indexAnd(idx, attr, 0);
 
-    auto      gen  = randomizer.getRandomAttributeGenerator(idx, rng);
+    auto gen = randomizer.getRandomAttributeGenerator(idx, rng);
     if (!gen) {
         Logger(Logger::Err) << "failed to make generator";
         return EXIT_FAILURE;
     }
-    MagicProp prop = gen->makeRoll(rng);
-    Logger() << prop.toString();
+
+    std::vector<Percent> extremeChances{ 0_pct, g_identityPct };
+    for (const Percent& extreme : extremeChances) {
+        for (SlotType slot : getSlotTypes()) {
+            if (!gen->slotTypes.contains(slot))
+                continue;
+
+            props.slot = slot;
+            for (int i = 0; i < sampleSize; ++i) {
+                MagicProp prop = gen->makeRoll2(rng, props, extreme, extreme);
+                Logger() << prop.toString();
+            }
+        }
+    }
 
     return EXIT_SUCCESS;
 }

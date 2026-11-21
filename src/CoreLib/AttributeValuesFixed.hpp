@@ -12,7 +12,7 @@ namespace D2ModGen {
 static inline const NonParRecordNewList g_generatedNonParRecordGrouped{
     NonParRecordNew{
         .freq      = 1625,
-        .minMedian = 2,
+        .minMedian = 1,
         .maxMedian = 2,
         .minLevel  = 5,
         .group     = AttributeGroup::AllClassSkills,
@@ -20,6 +20,7 @@ static inline const NonParRecordNewList g_generatedNonParRecordGrouped{
         .slotTypes = { SlotType::MainArmor, SlotType::Amulet, SlotType::Weapon, SlotType::Set },
         .slotScale = { { SlotType::Set, 1500_perm } },
         .medCurve  = { 500_perm, 500_perm, 1000_perm, 1000_perm, 1000_perm }, // 1-1-1, 1-1-2, 2-2-3, 2-3-3, 2-3-4
+        .ratioP000 = { 1000_perm, 1000_perm, 500_perm, 500_perm, 500_perm },
         .ratioP090 = { 1000_perm, 1000_perm, 1000_perm, 1500_perm, 1500_perm },
         .ratioP100 = { 1000_perm, 2000_perm, 1500_perm, 1500_perm, 2000_perm },
     },

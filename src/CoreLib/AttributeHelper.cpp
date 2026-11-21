@@ -100,19 +100,6 @@ const SlotTypeDesc s_slotTypes[]{
     { SlotType::PD2Map, "PD2Map" },
 };
 
-struct RollTypeDesc {
-    RollType         roll;
-    std::string_view code;
-};
-
-const RollTypeDesc s_rollTypes[]{
-    { RollType::None, "None" },
-    { RollType::Negative, "Negative" },
-    { RollType::Common, "Common" },
-    { RollType::Rare, "Rare" },
-    { RollType::Epic, "Epic" },
-};
-
 struct ParModeDesc {
     ParMode          mode;
     std::string_view code;
@@ -1031,11 +1018,7 @@ std::string enumToString(SlotType slotType, bool asEnum)
     const std::string suffix = asEnum ? "SlotType::" : "";
     return suffix + std::string(s_slotTypes[static_cast<int>(slotType)].code);
 }
-std::string enumToString(RollType rollType, bool asEnum)
-{
-    const std::string suffix = asEnum ? "RollType::" : "";
-    return suffix + std::string(s_rollTypes[static_cast<int>(rollType)].code);
-}
+
 std::string enumToString(RangeMode mode, bool asEnum)
 {
     const std::string suffix = asEnum ? "RangeMode::" : "";

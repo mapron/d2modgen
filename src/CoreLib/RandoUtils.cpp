@@ -16,7 +16,7 @@ namespace D2ModGen {
 
 int genRng(RandomGenerator& rng, const NonParValueSummary::Stat& stat)
 {
-    const auto bounds = rng(2) == 0 ? std::pair{ stat.min, stat.median } : std::pair{ stat.median, stat.max };
+    const auto bounds = rng(2) == 0 ? std::pair{ stat.min, stat.p50 } : std::pair{ stat.p50, stat.max };
     return genBetweenRng(rng, bounds.first, bounds.second);
 }
 
@@ -70,13 +70,14 @@ int genRandomScaledValue(RandomGenerator& rng, int value, Percent minPercent, Pe
     if (rolledPercent == 100_pct)
         return value;
 
-    const int exact100    = value * rolledPercent;
+    const int exact100    = value * rolledPercent.raw;
     const int fracPart100 = exact100 % 100;
 
     int result = exact100 / 100;
-
-    if (fracPart100 > 0 && checkChance(rng, Percent{ fracPart100 }))
+    if (fracPart100 > 0 && checkChance(rng, Percent{ fracPart100 })) {
         result += 1;
+        //Logger() << "    checkChance OK for " << fracPart100;
+    }
 
     if (lowerBound > 0_pct && result < 1)
         return 1;
@@ -115,7 +116,7 @@ void MagicPropItem::process()
             return randoParams->levelMinus ? originalLevel - (*rng)(randoParams->levelMinus) : originalLevel;
         }
     }();
-    filter.props.levelBracket20 = std::clamp(targetLevel, 0, 99) / 20;
+    filter.props.levelTier = makeTier(targetLevel);
 
     const Percent genCountRel = genBetweenRng(*rng, randoParams->common.m_randoGenerateMin, randoParams->common.m_randoGenerateMin);
 
@@ -183,8 +184,6 @@ void MagicPropItem::process()
             propRandomizer->indexOr(existingIdPar, rawList.parsedProps);
         }
         filter.availableIdPar = ~existingIdPar;
-        filter.canBeEpic      = rawList.rollTypeHighestGen >= RollType::Epic;
-        filter.canBeRare      = rawList.rollTypeHighestGen >= RollType::Rare;
 
         if (randoParams->updateExisting)
             update(rawList, rawList.needGenerate <= 0);
@@ -238,7 +237,6 @@ MagicPropList MagicPropItem::processList(int count)
         timer          = Mernel::ChronoPoint(true);
         MagicProp prop = gen->makeRoll(*rng);
         stats.makeRoll += timer.GetElapsedTime().GetUS();
-        added(prop);
 
         // update filters and indexes after generating data
         prop.properties.propagateDataToParent(filter.props);
@@ -296,24 +294,6 @@ void MagicPropItem::update(MagicPropRawList& propList, bool noGenerate)
         timer = Mernel::ChronoPoint(true);
         prop  = gen->makeRoll(*rng);
         stats.makeRoll += timer.GetElapsedTime().GetUS();
-
-        if (noGenerate)
-            added(prop);
-    }
-}
-
-void MagicPropItem::added(const MagicProp& prop)
-{
-    if (prop.properties.roll == RollType::Epic) {
-        stats.rollEpic++;
-        filter.generatedEpic = true;
-    }
-    if (prop.properties.roll == RollType::Rare) {
-        stats.rollRare++;
-    }
-    if (prop.properties.roll == RollType::Negative) {
-        stats.rollBadd++;
-        filter.generatedNeg = true;
     }
 }
 
@@ -345,12 +325,6 @@ std::string ItemStatistics::toString(Mode mode) const
                   + ", com=" + std::to_string(genCommon)
                   + ") roll[";
 
-        if (rollRare)
-            result += "rare=" + std::to_string(rollRare) + ", ";
-        if (rollEpic)
-            result += "epic=" + std::to_string(rollEpic) + ", ";
-        if (rollBadd)
-            result += "badd=" + std::to_string(rollBadd) + ", ";
         if (result.ends_with(", "))
             result.resize(result.size() - 2);
 
@@ -374,19 +348,6 @@ std::string ItemStatistics::toString(Mode mode) const
 
 void PropFilter::indexAnd(DynamicBitSet& result, const PropRandomizer* propRandomizer, bool addIdFilter) const
 {
-    DynamicBitSet rollIndex = propRandomizer->createIndexNone();
-    rollIndex |= propRandomizer->index.roll.at(RollType::Common);
-    if (canBeEpic && !generatedEpic) {
-        rollIndex |= propRandomizer->index.roll.at(RollType::Epic);
-    }
-    if (canBeRare) {
-        rollIndex |= propRandomizer->index.roll.at(RollType::Rare);
-    }
-    if (!generatedNeg) {
-        rollIndex |= propRandomizer->index.roll.at(RollType::Negative);
-    }
-    result &= rollIndex;
-
     result &= attributeUnrestricted;
     if (addIdFilter)
         result &= availableIdPar;

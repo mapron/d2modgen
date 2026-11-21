@@ -12,15 +12,16 @@
 
 namespace D2ModGen {
 
-struct PropRandomizer {
-    struct PropGenerator {
+struct MODGENCORE_EXPORT PropRandomizer {
+    struct MODGENCORE_EXPORT PropGenerator {
         uint64_t frequency = 0;
 
         Percent                           power = g_identityPct;
         std::optional<NonParValueSummary> nonPar;
         std::optional<NonParRecordNew>    nonParNew;
 
-        MagicProp prop;
+        MagicProp          prop;
+        std::set<SlotType> slotTypes;
 
         MagicProp makeRoll(RandomGenerator& rng) const;
         MagicProp makeRoll2(RandomGenerator& rng, const BasicProperties& basicProperties, Percent trashChance, Percent luckyChance) const;
@@ -37,11 +38,8 @@ struct PropRandomizer {
 
         std::map<SlotType, DynamicBitSet>       slot;
         std::map<Character, DynamicBitSet>      clas;
-        std::map<RollType, DynamicBitSet>       roll;
         std::map<AttributeIdiom, DynamicBitSet> idiom;
         std::map<Element, DynamicBitSet>        element;
-
-        std::array<DynamicBitSet, NonParValueByLevel::s_segments> levelBracket20;
 
         std::map<AttributeFlag, DynamicBitSet> notRequireFlag;
     } index;

@@ -14,26 +14,7 @@
 
 #include "AttributeHelper.hpp"
 #include "Scale.hpp"
-
-/*
-.curve      = { 0, 250, 500, 650, 850 }, // 0 = Heaviside gate (cannot spawn in bracket 0)
-.spread     = { 500, 1600 },             // P10 = 0.50x P50, P90 = 1.60x P50
-.minToMax   = 80,                        // val1 = 80%..100% of val2
-.tailMax    = 1500,                      // Rare jackpot ceiling = 1.50x slotP90
-
-
-our pipeline now looks completely clean and self-maintaining:
-1. Offline Analyzer / Dumper (Run Once to Generate Config):
-	• Normalizes raw values per slot using each slot's high.P90.
-	• Pools symmetrical groups (resists, base_stats, elem_dmg, etc.).
-	• Extracts { curve[5], spread{down, up}, minToMax, tailMax } with monotonic smoothing and prints valid C++ group definitions.
-	• You review the ~25–35 group structs (instead of 200 raw attributes) and tweak any curve numbers by hand if desired.
-2. Runtime Mod Data Scan (Runs on Whatever Mod / Vanilla DB Is Loaded):
-	• Scans actual active items/affixes in the loaded database (automatically skipping dead/unimplemented properties.txt rows).
-	• Populates slotP90 per group/attribute and freqFactor.
-3. Runtime Item Generator:
-	• Evaluates curve[level] + spread + minToMax + tailMax and multiplies by slotP90[slot].
-*/
+#include "ModgenCoreExport.hpp"
 
 namespace D2ModGen {
 
@@ -42,6 +23,11 @@ constexpr const int FREQ_PER_ONE_PROP = 100;
 constexpr const int LEVEL_GROUP_SIZE  = 18;
 constexpr const int LEVEL_GROUP_COUNT = 5;
 constexpr const int LEVEL_GROUP_MAX   = LEVEL_GROUP_COUNT * LEVEL_GROUP_SIZE - 1;
+
+constexpr inline int makeTier(int level)
+{
+    return std::clamp(level, 0, LEVEL_GROUP_MAX) / LEVEL_GROUP_SIZE;
+}
 
 struct NonParValue {
     int level = 0;
@@ -137,10 +123,7 @@ struct NonParRecord {
     SlotSet     slotTypes;
     SlotIntMap  slotTypesScale; // if empty, means = 100%
 
-    NonParValueByLevel badd;
     NonParValueByLevel comm;
-    NonParValueByLevel rare;
-    NonParValueByLevel epic;
 
     //std::map<SlotType, NonParValueByLevel> approxMapForSlot;
 
@@ -148,35 +131,7 @@ struct NonParRecord {
     void cleanupScale();
 
     size_t estimateSize() const;
-    void   doHomogen(const std::vector<const NonParRecord*>& sources);
     void   rescaleFreq(Percent percent, int denum);
-
-    NonParValueByLevel& get(RollType roll)
-    {
-        switch (roll) {
-                // clang-format off
-            case RollType::Negative: return badd;
-            case RollType::Common: return comm;
-            case RollType::Rare: return rare;
-            case RollType::Epic: return epic;
-                // clang-format on
-            default:
-                throw 0;
-        }
-    }
-    const NonParValueByLevel& get(RollType roll) const
-    {
-        switch (roll) {
-                // clang-format off
-            case RollType::Negative: return badd;
-            case RollType::Common: return comm;
-            case RollType::Rare: return rare;
-            case RollType::Epic: return epic;
-                // clang-format on
-            default:
-                throw 0;
-        }
-    }
 
     std::string toString() const;
 };
@@ -210,43 +165,13 @@ struct ParRecord {
     int         freqFactor = DEFAULT_FREQ * FREQ_PER_ONE_PROP;
     SlotSet     slotTypes;
 
-    PropListByLevel badd;
     PropListByLevel comm;
-    PropListByLevel rare;
-    PropListByLevel epic;
 
     std::string toString() const;
 
     size_t estimateSize() const;
 
     void rescaleFreq(Percent percent, int denum);
-
-    PropListByLevel& get(RollType roll)
-    {
-        switch (roll) {
-                // clang-format off
-            case RollType::Negative: return badd;
-            case RollType::Common: return comm;
-            case RollType::Rare: return rare;
-            case RollType::Epic: return epic;
-                // clang-format on
-            default:
-                throw 0;
-        }
-    }
-    const PropListByLevel& get(RollType roll) const
-    {
-        switch (roll) {
-                // clang-format off
-            case RollType::Negative: return badd;
-            case RollType::Common: return comm;
-            case RollType::Rare: return rare;
-            case RollType::Epic: return epic;
-                // clang-format on
-            default:
-                throw 0;
-        }
-    }
 };
 using ParRecordList = std::vector<ParRecord>;
 
@@ -291,6 +216,6 @@ struct StatisticsTable {
     void traceStatistics() const;
 };
 
-AllAttributeData getPrecompiledData();
+MODGENCORE_EXPORT AllAttributeData getPrecompiledData();
 
 }

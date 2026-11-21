@@ -199,27 +199,17 @@ void NonParValueByLevel::makeApprox(const NonParValueList& list, NonParValueByLe
     std::array<MedianFinderGroup, s_segments> levelAverages;
 
     for (const NonParValue& value : list) {
-        size_t levelBracket20 = std::clamp(value.level, 0, 89) / 18;
-
-        if (prev) {
-            /*auto& r = prev->levels[levelBracket20];
-            if (std::abs(value.max) <= std::abs(r.high.max)) {
-                r.add(value);
-                prev->total.add(value);
-                continue;
-            }*/
-        }
+        auto levelTier = makeTier(value.level);
         averages.add(value);
 
-        auto& byLevel = levels[levelBracket20];
-        levelAverages[levelBracket20].add(value);
+        auto& byLevel = levels[levelTier];
+        levelAverages[levelTier].add(value);
     }
     averages.calc(total);
     for (size_t i = 0; i < s_segments; ++i) {
         levelAverages[i].calc(levels[i]);
     }
 }
-
 
 void NonParValueByLevel::rescaleFreq(Percent percent, int denum)
 {
@@ -279,41 +269,13 @@ void NonParRecord::cleanupScale()
 size_t NonParRecord::estimateSize() const
 {
     size_t result = 0;
-    result += badd.estimateSize();
     result += comm.estimateSize();
-    result += rare.estimateSize();
-    result += epic.estimateSize();
     return result * slotTypes.estimateSize();
-}
-
-void NonParRecord::doHomogen(const std::vector<const NonParRecord*>& sources)
-{
-    /*
-    for (const NonParRecord* source : sources) {
-        for (auto slot : source->slotTypes.asVector()) {
-            this->slotTypes.insert(slot);
-            int powerOld = slotTypesScale.get(slot).value_or(100);
-            int powerNew = source->slotTypesScale.get(slot).value_or(100);
-            powerNew     = std::max(powerNew, powerOld);
-            slotTypesScale.insert(slot, powerNew);
-        }
-        comm.add(source->comm);
-        rare.add(source->rare);
-        epic.add(source->epic);
-    }
-
-    for (auto slot : this->slotTypes.asVector()) {
-        int power = slotTypesScale.get(slot).value_or(100);
-        if (power == 100)
-            slotTypesScale.erase(slot);
-    }*/
 }
 
 void NonParRecord::rescaleFreq(Percent percent, int denum)
 {
     comm.rescaleFreq(percent, denum);
-    rare.rescaleFreq(percent, denum);
-    epic.rescaleFreq(percent, denum);
 }
 
 std::string NonParRecord::toString() const
@@ -343,20 +305,8 @@ std::string NonParRecord::toString() const
     result += "},\n";*/
 
     std::string pad = "          ";
-    if (badd.total.freq) {
-        result += "        .badd " + pad + "= " + badd.toString() + ",\n";
-        pad.clear();
-    }
     if (comm.total.freq) {
         result += "        .comm " + pad + "= " + comm.toString() + ",\n";
-        pad.clear();
-    }
-    if (rare.total.freq) {
-        result += "        .rare " + pad + "= " + rare.toString() + ",\n";
-        pad.clear();
-    }
-    if (epic.total.freq) {
-        result += "        .epic " + pad + "= " + epic.toString() + ",\n";
         pad.clear();
     }
 
@@ -416,22 +366,12 @@ std::string ParRecord::toString() const
     }
     result += " },\n";
     std::string pad = "      ";
-    if (badd.freq) {
-        result += "        .badd " + pad + "= " + badd.toString() + ",\n";
-        pad.clear();
-    }
+
     if (comm.freq) {
         result += "        .comm " + pad + "= " + comm.toString() + ",\n";
         pad.clear();
     }
-    if (rare.freq) {
-        result += "        .rare " + pad + "= " + rare.toString() + ",\n";
-        pad.clear();
-    }
-    if (epic.freq) {
-        result += "        .epic " + pad + "= " + epic.toString() + ",\n";
-        pad.clear();
-    }
+
     result += "    },\n";
     return result;
 }
@@ -439,10 +379,7 @@ std::string ParRecord::toString() const
 size_t ParRecord::estimateSize() const
 {
     size_t result = 0;
-    result += badd.estimateSize();
     result += comm.estimateSize();
-    result += rare.estimateSize();
-    result += epic.estimateSize();
     return result * slotTypes.estimateSize();
 }
 

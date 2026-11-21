@@ -11,6 +11,7 @@
 #include <string>
 
 #include "Scale.hpp"
+#include "ModgenCoreExport.hpp"
 
 namespace D2ModGen {
 
@@ -478,18 +479,6 @@ enum class SlotType
     last__ = PD2Map,
 };
 
-enum class RollType
-{
-    None,
-
-    Negative,
-    Common,
-    Rare,
-    Epic,
-
-    last__ = Epic,
-};
-
 enum class AttributeGroup
 {
     None,
@@ -524,34 +513,6 @@ enum class AttributeGroup
     DefensiveSkillProc,
 };
 
-/*
-{ A::ama, A::pal, A::nec, A::sor, A::bar, A::dru, A::ass, A::war },
-    { A::res_fire, A::res_ltng, A::res_cold, A::res_mag, A::res_pois },
-    { A::res_fire_max, A::res_ltng_max, A::res_cold_max, A::res_pois_max },
-    { A::abs_fire_percent, A::abs_ltng_percent, A::abs_mag_percent, A::abs_cold_percent },
-    { A::abs_fire, A::abs_ltng, A::abs_mag, A::abs_cold },
-    { A::fireskill, A::poisskill, A::coldskill, A::magskill, A::ltngskill },
-    { A::pierce_fire, A::pierce_ltng, A::pierce_cold, A::pierce_pois, A::pierce_mag },
-    { A::extra_fire, A::extra_ltng, A::extra_cold, A::extra_pois, A::extra_mag },
-    { A::dmg_cold_perlvl, A::dmg_fire_perlvl, A::dmg_ltng_perlvl, A::dmg_pois_perlvl },
-    { A::res_cold_perlvl, A::res_fire_perlvl, A::res_ltng_perlvl, A::res_pois_perlvl },
-    { A::abs_cold_perlvl, A::abs_fire_perlvl, A::abs_ltng_perlvl, A::abs_pois_perlvl },
-    { A::str, A::dex },
-    { A::vit, A::enr },
-    { A::ac, A::ac_miss, A::ac_hth },
-    { A::dmg_demon, A::dmg_undead },
-    { A::dmg_dem_perlvl, A::dmg_und_perlvl },
-    { A::str_perlvl, A::dex_perlvl, A::enr_perlvl, A::vit_perlvl },
-    { A::hp_perlvl, A::mana_perlvl },
-    { A::att_dem_perlvl, A::att_und_perlvl },
-    { A::deadly_perlvl, A::wounds_perlvl, A::crush_perlvl },
-    { A::deadly, A::openwounds, A::crush },
-    { A::mana_kill, A::heal_kill },*/
-
-inline auto getRollTypes()
-{
-    return std::array{ RollType::Negative, RollType::Common, RollType::Rare, RollType::Epic };
-}
 inline auto getSlotTypes()
 {
     return std::array{ SlotType::MainArmor, SlotType::OtherArmor, SlotType::Ring, SlotType::Amulet, SlotType::Weapon, SlotType::Charm, SlotType::Socketable, SlotType::Set, SlotType::PD2Map };
@@ -747,25 +708,24 @@ struct AttributeDesc {
     }
 };
 
-Character   getClassId(const std::string& code);
-AttributeId getAttributeId(const std::string& code);
-Element     getElementId(const std::string& code);
+MODGENCORE_EXPORT Character   getClassId(const std::string& code);
+MODGENCORE_EXPORT AttributeId getAttributeId(const std::string& code);
+MODGENCORE_EXPORT Element     getElementId(const std::string& code);
 
-bool hasFlag(AttributeId code, AttributeFlag flag);
-bool isMinMaxRange(AttributeId code);
+MODGENCORE_EXPORT bool hasFlag(AttributeId code, AttributeFlag flag);
+MODGENCORE_EXPORT bool isMinMaxRange(AttributeId code);
 
-const AttributeDesc& getAttributeDesc(AttributeId code);
+MODGENCORE_EXPORT const AttributeDesc& getAttributeDesc(AttributeId code);
 
-int powerMultiply(AttributeId code, int value, Percent powerMult);
+MODGENCORE_EXPORT int powerMultiply(AttributeId code, int value, Percent powerMult);
 
-std::string enumToString(Character type, bool asEnum = false);
-std::string enumToString(AttributeIdiom type, bool asEnum = false);
-std::string enumToString(Element type, bool asEnum = false);
-std::string enumToString(AttributeId id, bool asEnum = false);
-std::string enumToString(SlotType slotType, bool asEnum = false);
-std::string enumToString(RollType rollType, bool asEnum = false);
-std::string enumToString(RangeMode mode, bool asEnum = false);
-std::string enumToString(ParMode mode, bool asEnum = false);
-std::string enumToString(AttributeGroup group, bool asEnum = false);
+MODGENCORE_EXPORT std::string enumToString(Character type, bool asEnum = false);
+MODGENCORE_EXPORT std::string enumToString(AttributeIdiom type, bool asEnum = false);
+MODGENCORE_EXPORT std::string enumToString(Element type, bool asEnum = false);
+MODGENCORE_EXPORT std::string enumToString(AttributeId id, bool asEnum = false);
+MODGENCORE_EXPORT std::string enumToString(SlotType slotType, bool asEnum = false);
+MODGENCORE_EXPORT std::string enumToString(RangeMode mode, bool asEnum = false);
+MODGENCORE_EXPORT std::string enumToString(ParMode mode, bool asEnum = false);
+MODGENCORE_EXPORT std::string enumToString(AttributeGroup group, bool asEnum = false);
 
 }

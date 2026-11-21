@@ -9,6 +9,7 @@
 #include "DataContext.hpp"
 #include "Config.hpp"
 #include "GenerationEnvironment.hpp"
+#include "ModgenCoreExport.hpp"
 
 namespace D2ModGen {
 
@@ -34,14 +35,13 @@ struct RandoParams {
     bool removeKnock    = false;
 };
 
-struct BasicProperties {
+struct MODGENCORE_EXPORT BasicProperties {
     SlotType       slot    = SlotType::None;
     Character      clas    = Character::None;
-    RollType       roll    = RollType::None;
     AttributeIdiom idiom   = AttributeIdiom::None;
     Element        element = Element::None;
 
-    size_t levelBracket18 = size_t(-1);
+    int levelTier = -1;
 
     template<class T>
     bool checkWithDefault(const T& next, T current, T def) const
@@ -67,7 +67,7 @@ struct BasicProperties {
     std::string toString() const noexcept;
 };
 
-struct MagicProp {
+struct MODGENCORE_EXPORT MagicProp {
     AttributeId        id = AttributeId::INVALID;
     std::optional<int> par;
     std::optional<int> min;
@@ -90,9 +90,7 @@ struct MagicProp {
 };
 using MagicPropList = std::vector<MagicProp>;
 
-struct MagicPropRawList {
-    RollType               rollTypeHighestGrab = RollType::Common;
-    RollType               rollTypeHighestGen  = RollType::Common;
+struct MODGENCORE_EXPORT MagicPropRawList {
     MagicPropList          parsedProps;
     std::vector<AffixProp> keptProps;
 

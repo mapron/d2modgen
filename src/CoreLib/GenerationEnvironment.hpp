@@ -70,6 +70,6 @@ struct MODGENCORE_EXPORT GenerationEnvironment {
     bool init(const AppConfig& config);
 };
 
-RandomGenerator createRNG(uint32_t seed);
+MODGENCORE_EXPORT RandomGenerator createRNG(uint32_t seed);
 
 }
