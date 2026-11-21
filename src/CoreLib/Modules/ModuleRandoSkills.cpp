@@ -381,6 +381,7 @@ void ModuleRandoSkills::generate()
         Logger(verbose) << "\n\n ========= " << enumToString(key) << " ========= ";
         if (randoEnabled) {
             cha.makeInactive(rng, keepSkillCount);
+            cha.detachOriginals();
         }
         const int keptActve           = cha.getActive().size();
         const int skillLimit          = 54;
@@ -584,6 +585,25 @@ void ModuleRandoSkills::CharacterData::makeInactive(RandomGenerator& rng, int ke
 
         exisitingActive.erase(exisitingActive.begin() + r);
     }
+}
+
+void ModuleRandoSkills::CharacterData::detachOriginals()
+{
+    // copy original skill to new block, detech old skill from character
+    std::vector<SkillInfo> copies;
+    for (SkillInfo& skill : skills) {
+        if (skill.stype == SType::ExistingActive) {
+            SkillInfo copy = skill;
+            copy.resetIdx();
+            copy.stype = SType::GenActive;
+            copies.push_back(copy);
+        }
+
+        skill.desc.makeHidden();
+        skill.row.classSpecific = Character::None;
+        skill.stype             = SType::GenHidden;
+    }
+    skills.insert(skills.end(), copies.begin(), copies.end());
 }
 
 void ModuleRandoSkills::CharacterData::generateAdditionalSkills(RandomGenerator& rng, const CharacterData& someOtherClass, int generateCount)
