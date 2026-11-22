@@ -158,7 +158,7 @@ void ModuleOtherHoradricCube::generate()
     if (newSocketing) {
         DataRow_cubemain base;
 
-        base.inputs      = std::vector<std::string>{ "\"any,nor,nos\"", "", "" };
+        base.inputs      = std::vector<std::string>{ "\"any,nos\"", "", "" };
         base.description = "Quick Sockets";
         base.enabled     = true;
         base.version     = 100;
@@ -187,19 +187,6 @@ void ModuleOtherHoradricCube::generate()
         socket6.inputs[2]        = "\"isc,qty=2\"";
         socket6.output           = "\"useitem,sock=6\"";
 
-        DataRow_cubemain socket1 = base;
-        socket1.numinputs        = 3;
-        socket1.inputs[0]        = "\"any,uni,nos\"";
-        socket1.inputs[1]        = "tsc";
-        socket1.inputs[2]        = "isc";
-        socket1.output           = "\"useitem,sock=1\"";
-
-        DataRow_cubemain socket1a = socket1;
-        socket1a.inputs[0]        = "\"any,rar,nos\"";
-
-        DataRow_cubemain socket1b = socket1;
-        socket1b.inputs[0]        = "\"any,set,nos\"";
-
         DataRow_cubemain socketClear = base;
         socketClear.numinputs        = 2;
         socketClear.inputs.resize(2);
@@ -211,9 +198,6 @@ void ModuleOtherHoradricCube::generate()
         output.cubemain.extra.push_back(socket4);
         output.cubemain.extra.push_back(socket5);
         output.cubemain.extra.push_back(socket6);
-        output.cubemain.extra.push_back(socket1);
-        output.cubemain.extra.push_back(socket1a);
-        output.cubemain.extra.push_back(socket1b);
         output.cubemain.extra.push_back(socketClear);
     }
 
