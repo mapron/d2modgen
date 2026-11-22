@@ -292,6 +292,7 @@ bool ConfigHandler::generate(const GenerationEnvironment& env, std::string& crc)
         generateTotal.reset();
         Logger() << "Execution profile:\n"
                  << ProfilerScope::printToStr();
+        ProfilerScope::clearAll();
     }
 
     return true;
