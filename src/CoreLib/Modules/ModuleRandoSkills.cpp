@@ -519,6 +519,10 @@ void ModuleRandoSkills::repointItemSkills(DataContext& output) const
         }
     }
 
+    //  Ormus Robes use `skill-rand` to pick a random Sorc's skill
+    const CharacterData& sorc       = generatedData.at(Character::Sor);
+    const int            sorcActive = sorc.getIndexesByType(SType::GenActive).size();
+
     // repoint original `skill` to:
     // 1. If the class still have that skill: point to new id
     // 2. If not, change to `oskill`
@@ -526,7 +530,14 @@ void ModuleRandoSkills::repointItemSkills(DataContext& output) const
         for (auto& row : table.rows) {
             for (AffixPropList* affixList : row.affixLists()) {
                 for (AffixProp& prop : *affixList) {
-                    if (Mernel::strToLower(prop.code) != "skill")
+                    const std::string code = Mernel::strToLower(prop.code);
+                    if (code == "skill-rand") {
+                        prop.min = sorc.rowIdxStart;
+                        prop.max = sorc.rowIdxStart + sorcActive - 1;
+                        Logger(verbose) << "item '" << row.getId() << "': skill-rand -> " << prop.min.value() << ".." << prop.max.value();
+                        continue;
+                    }
+                    if (code != "skill")
                         continue;
                     auto it = redirect.find(output.resolveSkillId(prop.par));
                     if (it == redirect.cend())
