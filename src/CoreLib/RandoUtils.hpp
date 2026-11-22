@@ -94,11 +94,10 @@ struct MagicPropItem {
     }
 
     template<class Row>
-    void readAffixes(const Row&               row,
-                     const SkillCodeResolver& codeResolver,
-                     const SkillGetter&       skillGetter,
-                     std::set<std::string>*   unknownList,
-                     std::set<std::string>*   skippedList)
+    void readAffixes(const Row&             row,
+                     const ISkillGetter&    skillGetter,
+                     std::set<std::string>* unknownList,
+                     std::set<std::string>* skippedList)
     {
         auto rowAffixLists = row.affixLists();
 
@@ -106,7 +105,7 @@ struct MagicPropItem {
         for (size_t i = 0, cnt = rowAffixLists.size(); i < cnt; ++i) {
             const AffixPropList* affixList = rowAffixLists[i];
             MagicPropRawList     rawList;
-            rawList.readFromRow(*affixList, codeResolver, skillGetter, filter.props, unknownList, skippedList);
+            rawList.readFromRow(*affixList, skillGetter, filter.props, unknownList, skippedList);
             affixlists.push_back(std::move(rawList));
         }
     }

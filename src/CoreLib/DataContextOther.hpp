@@ -423,7 +423,17 @@ public:
     void setNewClass(Character clas);
 };
 
-using DataRow_skills_ptr = const DataRow_skills*;
+using DataRow_skills_mutableptr = DataRow_skills*;
+using DataRow_skills_ptr        = const DataRow_skills*;
+
+struct ISkillGetter {
+    virtual ~ISkillGetter() = default;
+
+    virtual int                       resolve(const std::string& nameOrId) const = 0;
+    virtual DataRow_skills_mutableptr get(int idx)                               = 0;
+    virtual DataRow_skills_ptr        get(int idx) const                         = 0;
+};
+
 struct DataRow_treasureclassex : public RowBase {
     static constexpr const TableId s_tableId{ TableId::treasureclassex };
 

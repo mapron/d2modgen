@@ -62,7 +62,10 @@ struct MODGENCORE_EXPORT PropRandomizer {
             slotScale = rec.slotScale;
         }
 
-        MagicProp makeRoll(RandomGenerator& rng, const BasicProperties& basicProperties, Percent trashChance, Percent luckyChance) const;
+        MagicProp makeRoll(RandomGenerator&       rng,
+                           const BasicProperties& basicProperties,
+                           Percent                trashChance,
+                           Percent                luckyChance) const;
 
         std::string toString() const;
     };
@@ -111,7 +114,7 @@ struct MODGENCORE_EXPORT PropRandomizer {
 
     PropGeneratorPtr getRandomAttributeGenerator(const DynamicBitSet& filter, RandomGenerator& rng) const;
 
-    PropRandomizer(const AllAttributeData& attributeData, const SkillGetter& skillGetter);
+    PropRandomizer(const AllAttributeData& attributeData, const ISkillGetter& skillGetter);
 };
 
 }

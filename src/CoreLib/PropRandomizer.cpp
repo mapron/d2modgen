@@ -21,7 +21,7 @@ static const auto s_attFlags = std::array{
 
 }
 
-PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const SkillGetter& skillGetter)
+PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const ISkillGetter& skillGetter)
 {
     size_t estimatedSizeGroup = 0;
     for (const auto& [group, rec] : attributeData.groupMap) {
@@ -61,6 +61,12 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
         for (auto& param : rec.params) {
             PropGenerator gen;
             gen.set(rec, param);
+
+            if (gen.prop.desc->parMode == ParMode::Skill) {
+                gen.prop.parSkill = skillGetter.get(param.par);
+                assert(gen.prop.parSkill);
+                gen.prop.updateProperties();
+            }
             gens.push_back(std::move(gen));
         }
     }
@@ -231,7 +237,10 @@ PropRandomizer::PropGeneratorPtr PropRandomizer::getRandomAttributeGenerator(con
     return &gens[i];
 }
 
-MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator& rng, const BasicProperties& basicProperties, Percent trashChance, Percent luckyChance) const
+MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator&       rng,
+                                                  const BasicProperties& basicProperties,
+                                                  Percent                trashChance,
+                                                  Percent                luckyChance) const
 {
     MagicProp result              = prop;
     result.properties.targetLevel = basicProperties.targetLevel;
@@ -291,6 +300,10 @@ MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator& rng, const Ba
 
         result.desc->clampLimits(result.min);
         result.desc->clampLimits(result.max);
+
+        if (result.desc->parMode == ParMode::Skill) {
+            assert(result.parSkill);
+        }
     }
     return result;
 }

@@ -111,12 +111,11 @@ void MagicPropRawList::makePerfect()
     }
 }
 
-void MagicPropRawList::readFromRow(const AffixPropList&     propList,
-                                   const SkillCodeResolver& codeResolver,
-                                   const SkillGetter&       skillGetter,
-                                   const BasicProperties&   parentProperties,
-                                   std::set<std::string>*   unknownList,
-                                   std::set<std::string>*   skippedList)
+void MagicPropRawList::readFromRow(const AffixPropList&   propList,
+                                   const ISkillGetter&    skillGetter,
+                                   const BasicProperties& parentProperties,
+                                   std::set<std::string>* unknownList,
+                                   std::set<std::string>* skippedList)
 {
     affixLimit = propList.getLimit();
     for (const auto& col : propList) {
@@ -150,11 +149,14 @@ void MagicPropRawList::readFromRow(const AffixPropList&     propList,
         if (!col.par.empty()) {
             if (prop.desc->parMode != ParMode::None) {
                 if (prop.desc->parMode == ParMode::Skill) {
-                    prop.par = codeResolver(col.par);
-                    if (prop.par.value() == -1)
+                    prop.par = skillGetter.resolve(col.par);
+                    if (prop.par.value() == -1) {
+                        assert(!"Failed to resolve skill id");
                         prop.par.reset();
-                    else
-                        prop.parSkill = skillGetter(prop.par.value());
+                    } else {
+                        prop.parSkill = skillGetter.get(prop.par.value());
+                        assert(prop.parSkill);
+                    }
                 } else {
                     prop.par = std::atoi(col.par.c_str());
                 }

@@ -72,27 +72,6 @@ void ModuleRandoItems::generate()
     const auto& module = config.m_itemRandomizer;
     rng                = createRNG(module.m_seed);
 
-    m_codeResolver = [this](const std::string& skillId) -> int {
-        if (!skillId.empty()) {
-            int intId = std::atoi(skillId.c_str());
-            if (intId > 0) {
-                return intId;
-            }
-            if (skillId == "0") {
-                return 0;
-            }
-            auto it = output.skills.indexN.find(Mernel::strToLower(skillId));
-            if (it != output.skills.indexN.cend())
-                return it->second;
-        }
-        return -1;
-    };
-    m_skillGetter = [this](int index) -> DataRow_skills_ptr {
-        if (index < 0)
-            return nullptr;
-        return &output.skills.rows[index];
-    };
-
     std::set<std::string> skippedAttributes;
     std::set<std::string> unknownAttributes;
 
@@ -145,7 +124,7 @@ void ModuleRandoItems::generate()
         statisticsTable.addSnapshot(attrib, 0);
     }
 
-    PropRandomizer props(magicContext.actual, m_skillGetter);
+    PropRandomizer props(magicContext.actual, output);
 
     const auto& b                = config.m_balanceItems;
     const auto& uniqueSettings   = b.m_uniques.m_doOverride ? b.m_uniques : b.m_defaults;
@@ -215,7 +194,7 @@ void ModuleRandoItems::generate()
             item.propRandomizer = &props;
             item.randoParams    = &params;
             item.readParams(row);
-            item.readAffixes(row, m_codeResolver, m_skillGetter, nullptr, nullptr);
+            item.readAffixes(row, output, nullptr, nullptr);
 
             if (item.filter.props.slot == SlotType::None || item.filter.props.slot == SlotType::PD2Map)
                 continue;
@@ -273,13 +252,12 @@ ModuleRandoItems::AllProps ModuleRandoItems::grabAllProps(bool                  
     auto grabPropsRow = [this, &allProps, unknownList, skippedList]<typename Row>(const Row& row, SlotType slot, int level) -> int {
         MagicPropItem item;
         item.readParams(row);
-        item.readAffixes(row, m_codeResolver, m_skillGetter, unknownList, skippedList);
+        item.readAffixes(row, output, unknownList, skippedList);
         int inserted = 0;
         for (auto& affixlist : item.affixlists) {
             for (auto& prop : affixlist.parsedProps) {
                 auto& byId = allProps.propsById[prop.id];
 
-                //auto&          byRoll  = byId.propsByRoll[RollType::Common];
                 auto&          bySlot  = byId.propsBySlot[slot];
                 MagicPropList& byLevel = bySlot.propsByLevel[level];
 
@@ -852,13 +830,13 @@ void ModuleRandoItems::MagicContext::addExtra(const Config& config, const int cl
         rec->freqMult *= 2000_perm;
     }
     if (auto* rec = actual.findExistingNonPar(A::explosivearrow)) {
-        rec->freqMult *= 500_perm;
+        rec->freqMult *= 5000_perm;
     }
     if (auto* rec = actual.findExistingNonPar(A::pierce)) {
-        rec->freqMult *= 500_perm;
+        rec->freqMult *= 5000_perm;
     }
     if (auto* rec = actual.findExistingNonPar(A::rep_quant)) {
-        rec->freqMult *= 1000_perm;
+        rec->freqMult *= 10000_perm;
     }
 
     //---

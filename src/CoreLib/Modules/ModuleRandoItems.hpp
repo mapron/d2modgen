@@ -67,9 +67,7 @@ private:
         void scaleSettings(Percent freqScale, Percent powerScale, const AttrFilter& filter);
     };
 
-    SkillCodeResolver m_codeResolver;
-    SkillGetter       m_skillGetter;
-    RandomGenerator   rng;
+    RandomGenerator rng;
 
     bool m_verbose = true;
 };

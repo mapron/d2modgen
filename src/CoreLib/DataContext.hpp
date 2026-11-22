@@ -16,7 +16,7 @@
 
 namespace D2ModGen {
 
-struct DataContext {
+struct DataContext : public ISkillGetter {
     DataContext(const DataContext&)            = delete;
     DataContext& operator=(const DataContext&) = delete;
 
@@ -147,6 +147,10 @@ struct DataContext {
     void copyDataFrom(const DataContext& older);
 
     int getClassesCount() const;
+
+    int                       resolve(const std::string& nameOrId) const override;
+    DataRow_skills_mutableptr get(int idx) override;
+    DataRow_skills_ptr        get(int idx) const override;
 
 private:
     bool postProcess();

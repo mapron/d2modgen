@@ -13,9 +13,6 @@
 
 namespace D2ModGen {
 
-using SkillCodeResolver = std::function<int(const std::string&)>;
-using SkillGetter       = std::function<DataRow_skills_ptr(int)>;
-
 struct RandoParams {
     Config::BalanceItems::CommonSettings common;
 
@@ -105,12 +102,11 @@ struct MODGENCORE_EXPORT MagicPropRawList {
     void removeNonClass(Character target);
     void makePerfect();
 
-    void readFromRow(const AffixPropList&     propList,
-                     const SkillCodeResolver& codeResolver,
-                     const SkillGetter&       skillGetter,
-                     const BasicProperties&   parentProperties,
-                     std::set<std::string>*   unknownList,
-                     std::set<std::string>*   skippedList);
+    void readFromRow(const AffixPropList&   propList,
+                     const ISkillGetter&    skillGetter,
+                     const BasicProperties& parentProperties,
+                     std::set<std::string>* unknownList,
+                     std::set<std::string>* skippedList);
     void writeToRow(AffixPropList& propList) const;
 
     int getTotalSize() const;
