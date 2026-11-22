@@ -651,7 +651,7 @@ void ModuleRandoSkills::CharacterData::makeInactive(RandomGenerator& rng, int ke
 
 void ModuleRandoSkills::CharacterData::detachOriginals()
 {
-    // copy original skill to new block, detech old skill from character
+    // copy original skill to new block, detach old skill from character
     std::vector<SkillInfo> copies;
     for (SkillInfo& skill : skills) {
         if (skill.stype == SType::ExistingActive) {
