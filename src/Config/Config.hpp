@@ -15,6 +15,10 @@ struct Config : public CommonStruct {
 
         Percent m_forceCasterType{ 0 };
 
+        Percent m_luckyChance{ 0 };
+
+        Percent m_trashChance{ 0 };
+
         Percent m_itemFit{ 100 };
 
         int64_t m_levelMinus{ 0 };
@@ -58,6 +62,8 @@ struct Config : public CommonStruct {
             addScalar("enabled", m_enabled).setZero(false).setRecc(true);
             addScalar("seed", m_seed).setRange(0, 4294967295).setZero(0).skipPresets();
             addScalar("forceCasterType", m_forceCasterType).setRange(0, 100).setZero(0).setRecc(25);
+            addScalar("luckyChance", m_luckyChance).setRange(0, 100).setZero(0).setRecc(10);
+            addScalar("trashChance", m_trashChance).setRange(0, 100).setZero(0).setRecc(5);
             addScalar("itemFit", m_itemFit).setRange(0, 100).setZero(100).setRecc(90).addPreset(0, 50).addPreset(1, 75);
             addScalar("levelMinus", m_levelMinus).setRange(0, 100).setZero(0).setRecc(10).addPreset(0, 0).addPreset(1, 5);
             addScalar("levelPlus", m_levelPlus).setRange(0, 100).setZero(0).setRecc(5).addPreset(0, 100).addPreset(1, 20);

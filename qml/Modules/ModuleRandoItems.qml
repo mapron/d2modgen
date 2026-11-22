@@ -48,6 +48,15 @@ WidgetCommonTab {
     }
 
     WidgetSlider {
+        caption: qsTr("Chance of ultra-high roll")
+        value_key: root.value_context.luckyChance
+    }
+    WidgetSlider {
+        caption: qsTr("Chance of ultra-low roll")
+        value_key: root.value_context.trashChance
+    }
+
+    WidgetSlider {
         caption: qsTr("Number of versions of each unique")
         tooltip: qsTr("Allow you to have different uniques with same name and level, but different properties,<br>you will have N different uniques with different stats;<br>so you have an opportunity to pick same item again to check it out.<br>This works only with Uniques, not Sets.<br>Warning: you CAN NOT reduce it after you created the mod, otherwise game will crash!")
         tooltipWarning: true

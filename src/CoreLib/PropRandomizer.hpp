@@ -8,19 +8,27 @@
 #include "AttributeHelper.hpp"
 #include "DynamicBitSet.hpp"
 #include "MagicProp.hpp"
+#include "Scale.hpp"
 
 namespace D2ModGen {
 
-struct PropRandomizer {
-    struct PropGenerator {
+struct MODGENCORE_EXPORT PropRandomizer {
+    struct MODGENCORE_EXPORT PropGenerator {
         uint64_t frequency = 0;
 
-        Percent                           power = g_identityPct;
-        std::optional<NonParValueSummary> nonPar;
+        Percent power = g_identityPct;
 
-        MagicProp prop;
+        std::optional<NonParRecord> nonPar;
 
-        MagicProp makeRoll(RandomGenerator& rng) const;
+        std::optional<ParRecordParam> par;
+
+        MagicProp          prop;
+        std::set<SlotType> slotTypes;
+        SlotPermMap        slotScale;
+
+        int minLevel = 0;
+
+        MagicProp makeRoll(RandomGenerator& rng, const BasicProperties& basicProperties, Percent trashChance, Percent luckyChance) const;
 
         std::string toString() const;
     };
@@ -32,13 +40,11 @@ struct PropRandomizer {
     struct {
         std::map<std::pair<AttributeId, int>, DynamicBitSet> byIdParam;
 
+        std::map<int, DynamicBitSet>            minLevel;
         std::map<SlotType, DynamicBitSet>       slot;
         std::map<Character, DynamicBitSet>      clas;
-        std::map<RollType, DynamicBitSet>       roll;
         std::map<AttributeIdiom, DynamicBitSet> idiom;
         std::map<Element, DynamicBitSet>        element;
-
-        std::array<DynamicBitSet, NonParValueByLevel::s_segments> levelBracket20;
 
         std::map<AttributeFlag, DynamicBitSet> notRequireFlag;
     } index;

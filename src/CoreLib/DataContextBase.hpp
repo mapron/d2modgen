@@ -155,13 +155,9 @@ struct IItem {
 struct IAffixContainer : public IItem {
     using AffixListListConst   = std::vector<const AffixPropList*>;
     using AffixListListMutable = std::vector<AffixPropList*>;
-    using RollTypes            = std::vector<RollType>;
 
     virtual AffixListListConst   affixLists() const = 0;
     virtual AffixListListMutable affixLists()       = 0;
-
-    virtual RollTypes rollTypesGrab() const = 0;
-    virtual RollTypes rollTypesGen() const  = 0;
 
     bool operator==(const IAffixContainer&) const noexcept { return true; }
 };
@@ -273,8 +269,6 @@ struct RowBaseAffixes
 
     AffixListListConst   affixLists() const override { return { &affixes }; }
     AffixListListMutable affixLists() override { return { &affixes }; }
-    RollTypes            rollTypesGrab() const override { return { RollType::Common }; }
-    RollTypes            rollTypesGen() const override { return { RollType::Rare }; }
 
     int getLevel() const override { return spawnable.value_or(false) ? lvl.value_or(0) : 0; }
 

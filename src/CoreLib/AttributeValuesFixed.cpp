@@ -13,10 +13,9 @@ namespace D2ModGen {
 AllAttributeData getPrecompiledData()
 {
     AllAttributeData result;
-    result.nonPar = NonParRecordList(std::cbegin(g_generatedNonParRecordList), std::cend(g_generatedNonParRecordList));
-    result.par    = ParRecordList(std::cbegin(g_generatedParRecordList), std::cend(g_generatedParRecordList));
+    for (auto& rec : g_generatedNonParRecordsGrouped)
+        result.groupMap[rec.group] = rec;
     result.refreshIds();
-    result.erase(AttributeId::INVALID);
     return result;
 }
 

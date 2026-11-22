@@ -100,19 +100,6 @@ const SlotTypeDesc s_slotTypes[]{
     { SlotType::PD2Map, "PD2Map" },
 };
 
-struct RollTypeDesc {
-    RollType         roll;
-    std::string_view code;
-};
-
-const RollTypeDesc s_rollTypes[]{
-    { RollType::None, "None" },
-    { RollType::Negative, "Negative" },
-    { RollType::Common, "Common" },
-    { RollType::Rare, "Rare" },
-    { RollType::Epic, "Epic" },
-};
-
 struct ParModeDesc {
     ParMode          mode;
     std::string_view code;
@@ -301,12 +288,12 @@ const AttributeDesc s_attributes[]{
 
     AttributeDesc{ AttributeId::sock, P::None, R::Range, { AF::Sockets } }.setRange(1, 6).setGroup(AG::None), // Socketed (#)
 
-    AttributeDesc{ AttributeId::dmg_fire, P::None, R::DoubleParam, { AF::Damage } }.setElement(E::Fire).setIdiom(IDI::Brawler).setGroup(AG::None),                           // Adds #-# Fire Damage
-    AttributeDesc{ AttributeId::dmg_ltng, P::None, R::DoubleParam, { AF::Damage } }.setElement(E::Ltng).setIdiom(IDI::Brawler).setGroup(AG::None),                           // Adds #-# Lightning Damage
-    AttributeDesc{ AttributeId::dmg_mag, P::None, R::DoubleParam, { AF::Damage } }.setElement(E::Mag).setIdiom(IDI::Brawler).setGroup(AG::None),                             // Adds #-# Magic Damage
-    AttributeDesc{ AttributeId::dmg_cold, P::PureValue, R::DoubleParam, { AF::Damage } }.setElement(E::Cold).setIdiom(IDI::Brawler).setDefaultParam(100).setGroup(AG::None), // Adds #-# Cold Damage
-    AttributeDesc{ AttributeId::dmg_pois, P::PureValue, R::DoubleParam, { AF::Damage } }.setElement(E::Pois).setIdiom(IDI::Brawler).setDefaultParam(100).setGroup(AG::None), // Adds #-# Poison Damage Over # Seconds
-    AttributeDesc{ AttributeId::dmg_norm, P::None, R::DoubleParam, { AF::Damage } }.setElement(E::Phys).setIdiom(IDI::Brawler).setGroup(AG::None),                           // Adds #-# Damage
+    AttributeDesc{ AttributeId::dmg_fire, P::None, R::DoubleParam, { AF::Damage } }.setRange(1, 512).setElement(E::Fire).setIdiom(IDI::Brawler).setGroup(AG::None),                            // Adds #-# Fire Damage
+    AttributeDesc{ AttributeId::dmg_ltng, P::None, R::DoubleParam, { AF::Damage } }.setRange(1, 1024).setElement(E::Ltng).setIdiom(IDI::Brawler).setGroup(AG::None),                           // Adds #-# Lightning Damage
+    AttributeDesc{ AttributeId::dmg_mag, P::None, R::DoubleParam, { AF::Damage } }.setRange(1, 256).setElement(E::Mag).setIdiom(IDI::Brawler).setGroup(AG::None),                              // Adds #-# Magic Damage
+    AttributeDesc{ AttributeId::dmg_cold, P::PureValue, R::DoubleParam, { AF::Damage } }.setRange(1, 256).setElement(E::Cold).setIdiom(IDI::Brawler).setDefaultParam(100).setGroup(AG::None),  // Adds #-# Cold Damage
+    AttributeDesc{ AttributeId::dmg_pois, P::PureValue, R::DoubleParam, { AF::Damage } }.setRange(1, 1024).setElement(E::Pois).setIdiom(IDI::Brawler).setDefaultParam(100).setGroup(AG::None), // Adds #-# Poison Damage Over # Seconds
+    AttributeDesc{ AttributeId::dmg_norm, P::None, R::DoubleParam, { AF::Damage } }.setRange(1, 128).setElement(E::Phys).setIdiom(IDI::Brawler).setGroup(AG::None),                            // Adds #-# Damage
 
     AttributeDesc{ AttributeId::rep_dur, P::PureValue, R::None, { AF::Durability } }.setGroup(AG::None),                             // Repairs 1 durability in # seconds
     AttributeDesc{ AttributeId::rep_quant, P::PureValue, R::None, { AF::Throwable } }.setGroup(AG::None),                            // Replenishes quantity
@@ -460,7 +447,7 @@ const AttributeDesc s_attributes[]{
     AttributeDesc{ AttributeId::extra_skele_war, P::None, R::Range },
     AttributeDesc{ AttributeId::extra_skele_mage, P::None, R::Range },
     AttributeDesc{ AttributeId::heal_hit, P::None, R::Range }.setIdiom(IDI::Brawler),
-    AttributeDesc{ AttributeId::rep_charge, P::None, R::Range },
+    AttributeDesc{ AttributeId::rep_charge, P::PureValue, R::None },
     AttributeDesc{ AttributeId::grims_extra_skele_mage, P::None, R::Range },
     AttributeDesc{ AttributeId::inc_splash_radius2, P::None, R::Range },
     AttributeDesc{ AttributeId::ias_frw, P::None, R::Range },
@@ -674,6 +661,9 @@ const AttributeDescStr s_attrCodes[]{
     { AttributeId::pierce_pois, "pierce-pois", "pierce_pois" },
     { AttributeId::indestruct, "indestruct", "indestruct" },
     { AttributeId::charged, "charged", "charged" },
+    { AttributeId::charged_neg, "charged", "charged_neg" },
+    { AttributeId::charged_neg1, "charged", "charged_neg1" },
+    { AttributeId::charged_neg2, "charged", "charged_neg2" },
 
     { AttributeId::extra_fire, "extra-fire", "extra_fire" },
     { AttributeId::extra_ltng, "extra-ltng", "extra_ltng" },
@@ -1036,11 +1026,7 @@ std::string enumToString(SlotType slotType, bool asEnum)
     const std::string suffix = asEnum ? "SlotType::" : "";
     return suffix + std::string(s_slotTypes[static_cast<int>(slotType)].code);
 }
-std::string enumToString(RollType rollType, bool asEnum)
-{
-    const std::string suffix = asEnum ? "RollType::" : "";
-    return suffix + std::string(s_rollTypes[static_cast<int>(rollType)].code);
-}
+
 std::string enumToString(RangeMode mode, bool asEnum)
 {
     const std::string suffix = asEnum ? "RangeMode::" : "";
@@ -1055,6 +1041,22 @@ std::string enumToString(AttributeGroup group, bool asEnum)
 {
     const std::string suffix = asEnum ? "AttributeGroup::" : "";
     return suffix + std::string(s_groupTypes[static_cast<int>(group)].code);
+}
+
+void AttributeDesc::clampLimits(std::optional<int>& value, bool checkMax) const
+{
+    if (!value.has_value())
+        return;
+    if (checkMax && maxValue.has_value())
+        value = std::min(value.value(), maxValue.value());
+
+    if (minValue.has_value())
+        value = std::max(value.value(), minValue.value());
+    else if (value.value() >= 0) {
+        const int absMinLimit = flags.contains(AttributeFlag::ZeroIsValid) ? 0 : 1;
+
+        value = std::max(value.value(), absMinLimit);
+    }
 }
 
 }

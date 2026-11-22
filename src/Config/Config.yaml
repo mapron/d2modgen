@@ -6,6 +6,8 @@ structs:
            seed: { type: int, zero: 0, min: 0, max: 4294967295, skipPresets: true }
 
            forceCasterType:         { type: int, zero: 0,   recc: 25, min: 0, max: 100, percent: true }
+           luckyChance:             { type: int, zero: 0,   recc: 10, min: 0, max: 100, percent: true }
+           trashChance:             { type: int, zero: 0,   recc: 5 , min: 0, max: 100, percent: true }
            itemFit:                 { type: int, zero: 100, recc: 90, min: 0, max: 100, percent: true, presets: {crazy: 50, strong: 75} }
            levelMinus:              { type: int, zero: 0,   recc: 10, min: 0, max: 100, presets: {crazy: 0, strong: 5} }
            levelPlus:               { type: int, zero: 0,   recc: 5, min: 0, max: 100, presets: {crazy: 100, strong: 20} }

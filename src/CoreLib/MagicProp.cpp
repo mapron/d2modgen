@@ -9,12 +9,9 @@ namespace D2ModGen {
 
 void BasicProperties::propagateDataToParent(BasicProperties& parent) const
 {
-    //propagate(slot, parent.slot, SlotType::None);
     propagate(clas, parent.clas, Character::None);
-    propagate(roll, parent.roll, RollType::None);
     propagate(idiom, parent.idiom, AttributeIdiom::None);
     propagate(element, parent.element, Element::None);
-    //propagate(levelBracket20, parent.levelBracket20, size_t(-1));
 }
 
 std::string BasicProperties::toString() const noexcept
@@ -27,9 +24,9 @@ std::string BasicProperties::toString() const noexcept
         result += ", i=" + enumToString(idiom);
     if (element != Element::None)
         result += ", e=" + enumToString(element);
-    if (levelBracket20 != size_t(-1))
-        result += ", l=" + std::to_string(levelBracket20);
-    result += "}";
+    if (targetLevel != -1)
+        result += ", l=" + std::to_string(targetLevel);
+    result += " }";
     return result;
 }
 
@@ -65,7 +62,7 @@ std::string MagicProp::toString() const
     if (min.has_value() && max.has_value())
         result += " " + std::to_string(min.value()) + ".." + std::to_string(max.value());
 
-    result += properties.toString();
+    result += " " + properties.toString();
     return result;
 }
 
@@ -124,9 +121,8 @@ void MagicPropRawList::readFromRow(const AffixPropList&     propList,
     affixLimit = propList.getLimit();
     for (const auto& col : propList) {
         MagicProp prop;
-        prop.id              = getAttributeId(col.code);
-        prop.properties      = parentProperties;
-        prop.properties.roll = rollTypeHighestGrab;
+        prop.id         = getAttributeId(col.code);
+        prop.properties = parentProperties;
 
         if (prop.id == AttributeId::SKIP) {
             if (skippedList)

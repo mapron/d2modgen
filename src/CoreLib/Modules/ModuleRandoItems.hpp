@@ -27,13 +27,10 @@ struct ModuleRandoItems : public AbstractModule {
         std::map<int, MagicPropList> propsByLevel;
     };
 
-    struct RollPropsVal {
+    struct AllPropsVal {
         std::map<SlotType, SlotPropsVal> propsBySlot;
     };
 
-    struct AllPropsVal {
-        std::map<RollType, RollPropsVal> propsByRoll;
-    };
     struct AllProps {
         std::map<AttributeId, AllPropsVal> propsById;
     };
@@ -44,26 +41,22 @@ struct ModuleRandoItems : public AbstractModule {
 
     void createNewItems(int repeatUniques, int repeatSets);
 
-    AllAttributeData analyzeAll(const AllProps& allProps);
+    AllAttributeData    analyzeAll(const AllProps& allProps) const;
+    AttributeStatistics makeStatistics(const AllProps& allProps) const;
 
-    void analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecord& record, NonParValueSummary& stat);
-    void analyzePar(const AllPropsVal& allPropsVal, ParRecord& record, NonParValueSummary& stat);
+    void analyzeNonPar(const AllPropsVal& allPropsVal, NonParRecord& record) const;
+    void analyzePar(const SlotPropsVal& allPropsVal, ParRecordParam& record) const;
 
-    void dumpAttributes(const Mernel::std_path& dumpFile, const AllAttributeData& attributeData, const std::set<AttributeId>& skip);
+    void dumpAttributes(const Mernel::std_path& dumpFile, const AllAttributeData& attributeData) const;
 
 private:
     struct MagicContext {
-        MagicContext(AllAttributeData gameData_);
+        size_t precompiledSize = 0; // exposed for tracing.
 
-        const AllAttributeData precompiled;
-        const AllAttributeData gameData;
-        AllAttributeData       actual;
+        AllAttributeData actual;
 
-        AllAttributeData precompiledSkipped;
-        AllAttributeData gameDataSkipped;
-
-        void addExtra(const Config& config, const DataContext& output);
-        void homogenizeNonPar(Percent scalePercent, const std::vector<AttributeId>& attrs);
+        void loadPrecompiled();
+        void addExtra(const Config& config, const int classCount);
         void scaleSettings(Percent scalePercent, const std::vector<AttributeId>& attrs);
     };
 

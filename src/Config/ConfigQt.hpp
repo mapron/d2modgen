@@ -11,6 +11,8 @@ class Config_RandoItems_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyBool_Qt* enabled READ get_enabled CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* seed READ get_seed CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* forceCasterType READ get_forceCasterType CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* luckyChance READ get_luckyChance CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* trashChance READ get_trashChance CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* itemFit READ get_itemFit CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* levelMinus READ get_levelMinus CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* levelPlus READ get_levelPlus CONSTANT)
@@ -38,11 +40,13 @@ public:
         , m_enabled(data.getPropertyBool(0))
         , m_seed(data.getPropertyInt(0))
         , m_forceCasterType(data.getPropertyInt(1))
-        , m_itemFit(data.getPropertyInt(2))
-        , m_levelMinus(data.getPropertyInt(3))
-        , m_levelPlus(data.getPropertyInt(4))
-        , m_repeatSets(data.getPropertyInt(5))
-        , m_repeatUniques(data.getPropertyInt(6))
+        , m_luckyChance(data.getPropertyInt(2))
+        , m_trashChance(data.getPropertyInt(3))
+        , m_itemFit(data.getPropertyInt(4))
+        , m_levelMinus(data.getPropertyInt(5))
+        , m_levelPlus(data.getPropertyInt(6))
+        , m_repeatSets(data.getPropertyInt(7))
+        , m_repeatUniques(data.getPropertyInt(8))
         , m_affixRandom(data.getPropertyBool(1))
         , m_gemsRandom(data.getPropertyBool(2))
         , m_craftedRandom(data.getPropertyBool(3))
@@ -50,12 +54,12 @@ public:
         , m_replaceCharges(data.getPropertyBool(5))
         , m_replaceSkills(data.getPropertyBool(6))
         , m_updateExisting(data.getPropertyBool(7))
-        , m_setBonusMode(data.getPropertyInt(7))
-        , m_frequencyAuras(data.getPropertyInt(8))
-        , m_frequencyCharAttributes(data.getPropertyInt(9))
-        , m_frequencyProcs(data.getPropertyInt(10))
-        , m_frequencyResistances(data.getPropertyInt(11))
-        , m_frequencySkills(data.getPropertyInt(12))
+        , m_setBonusMode(data.getPropertyInt(9))
+        , m_frequencyAuras(data.getPropertyInt(10))
+        , m_frequencyCharAttributes(data.getPropertyInt(11))
+        , m_frequencyProcs(data.getPropertyInt(12))
+        , m_frequencyResistances(data.getPropertyInt(13))
+        , m_frequencySkills(data.getPropertyInt(14))
         , m_sameRarityForSetUniqueItems(data.getPropertyBool(8))
     {
     }
@@ -65,6 +69,10 @@ public:
     PropertyInt_Qt* get_seed() { return &m_seed; }
 
     PropertyInt_Qt* get_forceCasterType() { return &m_forceCasterType; }
+
+    PropertyInt_Qt* get_luckyChance() { return &m_luckyChance; }
+
+    PropertyInt_Qt* get_trashChance() { return &m_trashChance; }
 
     PropertyInt_Qt* get_itemFit() { return &m_itemFit; }
 
@@ -114,6 +122,10 @@ private:
     PropertyInt_Qt m_seed;
 
     PropertyInt_Qt m_forceCasterType;
+
+    PropertyInt_Qt m_luckyChance;
+
+    PropertyInt_Qt m_trashChance;
 
     PropertyInt_Qt m_itemFit;
 

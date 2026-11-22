@@ -18,12 +18,6 @@ struct PropFilter {
 
     BasicProperties props;
 
-    bool canBeEpic = false;
-    bool canBeRare = false;
-
-    bool generatedEpic = false;
-    bool generatedNeg  = false;
-
     void indexAnd(DynamicBitSet& result, const PropRandomizer* propRandomizer, bool addIdFilter) const;
 };
 
@@ -40,16 +34,12 @@ struct ItemStatistics {
     size_t genCommon   = 0;
     size_t countSearch = 0; // how many times we access index search (approx == kept + genReq)
 
-    size_t rollRare = 0;
-    size_t rollEpic = 0;
-    size_t rollBadd = 0;
-
     int64_t process      = 0; // MagicPropItem::process
     int64_t indexSearch  = 0; // time on DynamicBitSet operations.
     int64_t getGenerator = 0; // time on getGenerator() calls.
     int64_t makeRoll     = 0; // time on gen->makeRoll() calls.
 
-    static auto intMembers() { return std::array{ &S::countRows, &S::src, &S::dest, &S::kept, &S::genReq, &S::genFit, &S::genCommon, &S::countSearch, &S::rollRare, &S::rollEpic, &S::rollBadd }; }
+    static auto intMembers() { return std::array{ &S::countRows, &S::src, &S::dest, &S::kept, &S::genReq, &S::genFit, &S::genCommon, &S::countSearch }; }
     static auto timeMembers() { return std::array{ &S::process, &S::indexSearch, &S::getGenerator, &S::makeRoll }; }
 
     ItemStatistics& operator+=(const ItemStatistics& other)
@@ -110,16 +100,12 @@ struct MagicPropItem {
                      std::set<std::string>*   unknownList,
                      std::set<std::string>*   skippedList)
     {
-        auto rowAffixLists    = row.affixLists();
-        auto rowRollTypesGrab = row.rollTypesGrab();
-        auto rowRollTypesGen  = row.rollTypesGen();
+        auto rowAffixLists = row.affixLists();
 
         affixlists.clear();
         for (size_t i = 0, cnt = rowAffixLists.size(); i < cnt; ++i) {
             const AffixPropList* affixList = rowAffixLists[i];
             MagicPropRawList     rawList;
-            rawList.rollTypeHighestGrab = rowRollTypesGrab[i];
-            rawList.rollTypeHighestGen  = rowRollTypesGen[i];
             rawList.readFromRow(*affixList, codeResolver, skillGetter, filter.props, unknownList, skippedList);
             affixlists.push_back(std::move(rawList));
         }
@@ -130,7 +116,6 @@ struct MagicPropItem {
     MagicPropList processList(int count);
 
     void update(MagicPropRawList& propList, bool noGenerate);
-    void added(const MagicProp& prop);
 
     template<class Row>
     void writeTo(Row& row)

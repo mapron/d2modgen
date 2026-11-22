@@ -23,109 +23,87 @@ static const auto s_attFlags = std::array{
 
 PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const SkillGetter& skillGetter)
 {
-    size_t estimatedSizeNonPar = 0;
-    for (const NonParRecord& rec : attributeData.nonPar) {
-        auto recEstimate = rec.estimateSize();
-        assert(recEstimate);
-        estimatedSizeNonPar += recEstimate;
+    size_t estimatedSizeGroup = 0;
+    for (const auto& [group, rec] : attributeData.groupMap) {
+        estimatedSizeGroup += rec.ids.size();
     }
-    size_t estimatedSizePar = 0;
-    for (const ParRecord& rec : attributeData.par) {
-        auto recEstimate = rec.estimateSize();
-        assert(recEstimate);
-        estimatedSizePar += recEstimate;
+    const size_t estimatedSizeIdmap = attributeData.idMap.size();
+    size_t       estimatedPar       = 0;
+
+    for (const auto& [id, rec] : attributeData.parMap) {
+        estimatedPar += rec.params.size();
     }
-    const auto totalEstimate = estimatedSizeNonPar + estimatedSizePar;
+
+    const auto totalEstimate = estimatedSizeGroup + estimatedSizeIdmap + estimatedPar;
     if (totalEstimate == 0)
         throw std::runtime_error("Randomizer attribute config is empty!");
 
     gens.reserve(totalEstimate);
-    for (const NonParRecord& rec : attributeData.nonPar) {
-        MagicProp prop;
-        prop.id   = rec.code;
-        prop.desc = &getAttributeDesc(prop.id);
+    for (const auto& [group, rec] : attributeData.groupMap) {
+        for (auto& id : rec.ids) {
+            PropGenerator gen;
+            MagicProp&    prop = gen.prop;
+            prop.id            = id;
+            prop.desc          = &getAttributeDesc(id);
+            prop.updateProperties();
+
+            gen.power = g_identityPct;
+            for (auto slot : rec.slotTypes.asVector())
+                gen.slotTypes.insert(slot);
+
+            gen.frequency = rec.freq;
+            gen.nonPar    = rec;
+            gen.minLevel  = rec.minLevel;
+            gen.slotScale = rec.slotScale;
+            gens.push_back(std::move(gen));
+        }
+    }
+
+    for (const auto& [group, rec] : attributeData.idMap) {
+        assert(rec.ids.size() == 1);
+        auto id = *rec.ids.begin();
+
+        PropGenerator gen;
+        MagicProp&    prop = gen.prop;
+        prop.id            = id;
+        prop.desc          = &getAttributeDesc(id);
         prop.updateProperties();
-        [[maybe_unused]] const auto oldSize     = gens.size();
-        [[maybe_unused]] const auto recEstimate = rec.estimateSize();
 
-        for (SlotType slot : getSlotTypes()) {
-            if (!rec.slotTypes.contains(slot))
-                continue;
-            prop.properties.slot = slot;
-            int power            = rec.slotTypesScale.get(slot).value_or(100);
-            for (RollType rollType : getRollTypes()) {
-                auto& rolls = rec.get(rollType);
-                if (!rolls.total.freq)
-                    continue;
-                prop.properties.roll = rollType;
-                for (size_t bracket = 0; bracket < NonParValueByLevel::s_segments; ++bracket) {
-                    const NonParValueSummary& summary = rolls.levels[bracket];
-                    if (!summary.freq)
-                        continue;
-                    prop.properties.levelBracket20 = bracket;
+        gen.power = g_identityPct;
+        for (auto slot : rec.slotTypes.asVector())
+            gen.slotTypes.insert(slot);
 
-                    assert(prop.properties.clas <= Character::War);
-
-                    PropGenerator gen;
-                    gen.power     = Percent{ power };
-                    gen.prop      = prop;
-                    gen.frequency = uint64_t(summary.freq) * rec.freqFactor;
-                    gen.nonPar    = summary;
-                    gens.push_back(std::move(gen));
-                }
-            }
-        }
-
-        assert(gens.size() == oldSize + recEstimate);
+        gen.frequency = rec.freq;
+        gen.nonPar    = rec;
+        gen.minLevel  = rec.minLevel;
+        gen.slotScale = rec.slotScale;
+        gens.push_back(std::move(gen));
     }
-    assert(gens.size() == estimatedSizeNonPar);
 
-    for (const ParRecord& rec : attributeData.par) {
-        MagicProp prop;
-        prop.id   = rec.code;
-        prop.desc = &getAttributeDesc(prop.id);
+    for (const auto& [group, rec] : attributeData.parMap) {
+        for (auto& param : rec.params) {
+            PropGenerator gen;
+            MagicProp&    prop = gen.prop;
+            prop.id            = rec.id;
+            prop.par           = param.par;
+            prop.desc          = &getAttributeDesc(rec.id);
+            prop.updateProperties();
 
-        for (SlotType slot : getSlotTypes()) {
-            if (!rec.slotTypes.contains(slot))
-                continue;
-            prop.properties.slot = slot;
+            gen.power = g_identityPct;
+            for (auto slot : rec.slotTypes.asVector())
+                gen.slotTypes.insert(slot);
 
-            for (RollType rollType : getRollTypes()) {
-                auto& rolls = rec.get(rollType);
-                if (!rolls.freq)
-                    continue;
-                prop.properties.roll = rollType;
-                for (size_t bracket = 0; bracket < NonParValueByLevel::s_segments; ++bracket) {
-                    const PropWithRangeList& list = rolls.levels[bracket];
-                    if (!list.size())
-                        continue;
-
-                    prop.properties.levelBracket20 = bracket;
-
-                    for (const PropWithRange& propRange : list) {
-                        prop.max = propRange.max;
-                        prop.min = propRange.min;
-                        prop.par = propRange.par;
-                        if (prop.desc->parMode == ParMode::Skill) {
-                            prop.parSkill = skillGetter(prop.par.value_or(-1));
-                            assert(prop.parSkill);
-                            if (!prop.parSkill)
-                                continue;
-                        }
-                        prop.updateProperties();
-
-                        assert(prop.properties.clas <= Character::War);
-
-                        PropGenerator gen;
-                        gen.frequency = 1 * rec.freqFactor;
-                        gen.prop      = prop;
-                        gens.push_back(std::move(gen));
-                    }
-                }
-            }
+            gen.frequency = param.freq * rec.freqMult;
+            gen.par       = param;
+            gen.minLevel  = param.minLevel;
+            gen.slotScale = rec.slotScale;
+            gens.push_back(std::move(gen));
         }
     }
+
     const auto size = gens.size();
+    assert(size == totalEstimate);
+
     frequencies.resize((size + DynamicBitSet::BitsPerBlock) / DynamicBitSet::BitsPerBlock);
     for (size_t i = 0; i < size; ++i) {
         auto freq                                                                     = gens[i].frequency;
@@ -133,15 +111,12 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
 
         assert(freq > 0);
     }
-    assert(size == totalEstimate);
-    for (int i = 0, cnt = NonParValueByLevel::s_segments; i < cnt; ++i)
-        index.levelBracket20[i].assign(size);
+
     for (AttributeFlag flag : s_attFlags)
         index.notRequireFlag[flag].assign(size, true);
 
     index.slot[SlotType::None].assign(size);
     index.clas[Character::None].assign(size);
-    index.roll[RollType::None].assign(size);
     index.idiom[AttributeIdiom::None].assign(size);
     index.element[Element::None].assign(size);
 
@@ -149,12 +124,13 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
         index.slot[key].assign(size);
     for (auto key : getClassTypes())
         index.clas[key].assign(size);
-    for (auto key : getRollTypes())
-        index.roll[key].assign(size);
+
     for (auto key : getIdiomTypes())
         index.idiom[key].assign(size);
     for (auto key : getElementTypes())
         index.element[key].assign(size);
+    for (int lvl = 0; lvl < LEVEL_GROUP_MAX + 1; ++lvl)
+        index.minLevel[lvl].assign(size);
 
     for (size_t i = 0; const PropGenerator& gen : gens) {
         auto& byIdParam = index.byIdParam[std::pair{ gen.prop.id, gen.prop.par.value_or(0) }];
@@ -165,14 +141,14 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
                 index.notRequireFlag[flag].set(i, false);
             }
         }
-
-        index.slot[gen.prop.properties.slot].set(i);
+        for (auto slot : gen.slotTypes)
+            index.slot[slot].set(i);
         index.clas[gen.prop.properties.clas].set(i);
-        index.roll[gen.prop.properties.roll].set(i);
         index.idiom[gen.prop.properties.idiom].set(i);
         index.element[gen.prop.properties.element].set(i);
-
-        index.levelBracket20[gen.prop.properties.levelBracket20].set(i);
+        for (int lvl = gen.minLevel; lvl < LEVEL_GROUP_MAX + 1; ++lvl) {
+            index.minLevel[lvl].set(i);
+        }
 
         i++;
     }
@@ -181,8 +157,6 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
         index.slot[key] |= index.slot[SlotType::None];
     for (auto key : getClassTypes())
         index.clas[key] |= index.clas[Character::None];
-    for (auto key : getRollTypes())
-        index.roll[key] |= index.roll[RollType::None];
     for (auto key : getIdiomTypes())
         index.idiom[key] |= index.idiom[AttributeIdiom::None];
     for (auto key : getElementTypes())
@@ -200,9 +174,8 @@ void PropRandomizer::indexAnd(DynamicBitSet& result, const BasicProperties& filt
         result &= index.idiom.at(filter.idiom);
     if (filter.element > Element::None)
         result &= index.element.at(filter.element);
-
-    if (filter.levelBracket20 >= 0)
-        result &= index.levelBracket20[filter.levelBracket20];
+    if (filter.targetLevel > -1)
+        result &= index.minLevel.at(std::min(filter.targetLevel, LEVEL_GROUP_MAX));
 }
 
 void PropRandomizer::indexAnd(DynamicBitSet& result, const AttributeFlagSet& supportedAttributes) const
@@ -293,27 +266,66 @@ PropRandomizer::PropGeneratorPtr PropRandomizer::getRandomAttributeGenerator(con
     return &gens[i];
 }
 
-MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator& rng) const
+MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator& rng, const BasicProperties& basicProperties, Percent trashChance, Percent luckyChance) const
 {
-    MagicProp result = prop;
+    MagicProp result              = prop;
+    result.properties.targetLevel = basicProperties.targetLevel;
+    result.properties.slot        = basicProperties.slot;
+
+    const Permille slotScaleVal = slotScale.get(basicProperties.slot).value_or(g_identityPerm);
+
+    int levelTier = makeTier(basicProperties.targetLevel);
     if (nonPar.has_value()) {
-        if (result.desc->rangeMode == RangeMode::Flag) {
-            result.min = result.max = 1;
-            return result;
+        assert(!par.has_value());
+        const NonParRecord& vs = nonPar.value();
+
+        Permille scale = vs.medCurve[levelTier] * slotScaleVal;
+
+        Permille lowBound;
+        Permille highBound;
+
+        bool isHighPart = rng(2);
+        if (isHighPart) {
+            if (checkChance(rng, luckyChance)) {
+                highBound = vs.ratioP100[levelTier] * scale;
+                lowBound  = highBound;
+            } else {
+                lowBound  = scale;
+                highBound = vs.ratioP090[levelTier] * scale;
+            }
+        } else {
+            if (checkChance(rng, trashChance)) {
+                lowBound  = vs.ratioP000[levelTier] * scale;
+                highBound = lowBound;
+            } else {
+                lowBound  = vs.ratioP010[levelTier] * scale;
+                highBound = scale;
+            }
         }
-        const NonParValueSummary& vs = nonPar.value();
 
-        const int absLimit = result.desc->flags.contains(AttributeFlag::ZeroIsValid) ? 0 : 1;
-        const int min      = scaleValue(genRng(rng, vs.low), power, absLimit);
-        const int max      = scaleValue(genRng(rng, vs.high), power, absLimit);
-        const int par      = genRng(rng, vs.par);
+        const int maxValue = genRandomScaledValue(rng, vs.maxMedian, lowBound.as<100>(), highBound.as<100>());
+        const int minValue = maxValue * vs.minMedian / vs.maxMedian;
 
-        result.min = min;
-        result.max = max;
-        result.par = par;
+        result.min = std::min(minValue, vs.limit);
+        result.max = std::min(maxValue, vs.limit);
 
         if (!result.par && result.desc->defaultParameter.has_value())
             result.par = result.desc->defaultParameter;
+
+        result.desc->clampLimits(result.min, false);
+        result.desc->clampLimits(result.max, false);
+    } else if (par.has_value()) {
+        const ParRecordParam& vs = par.value();
+        result.par               = vs.par;
+
+        Permille scaleMin = vs.minCurve[levelTier] * slotScaleVal;
+        Permille scaleMax = vs.maxCurve[levelTier] * slotScaleVal;
+
+        result.min = vs.minMedian * scaleMin;
+        result.max = vs.maxMedian * scaleMax;
+
+        result.desc->clampLimits(result.min);
+        result.desc->clampLimits(result.max);
     }
     return result;
 }

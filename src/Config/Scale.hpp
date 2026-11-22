@@ -50,7 +50,7 @@ struct Scaled {
     template<int TargetDenom>
     constexpr Scaled<TargetDenom> as() const
     {
-        return { static_cast<int>((raw * TargetDenom) / Denom) };
+        return { static_cast<int64_t>((raw * TargetDenom) / Denom) };
     }
 
     auto operator<=>(const Scaled&) const = default;
