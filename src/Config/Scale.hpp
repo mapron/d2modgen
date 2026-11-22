@@ -95,7 +95,7 @@ inline constexpr Percent inverse(Percent value)
     //100 => 100
     // 75 => 133
     // 150 => 66
-    return { 100LL / value.raw };
+    return { 10000LL / value.raw };
 }
 
 }
