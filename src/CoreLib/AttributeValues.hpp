@@ -65,7 +65,9 @@ struct NonParRecord {
     static inline const auto s_emptyCurve   = PermilleCurve{ { 0_perm, 0_perm, 0_perm, 0_perm, 0_perm } };
 
     /// condition
-    int freq = 0;
+    int      freq      = 0;
+    Permille freqMult  = g_identityPerm;
+    Permille powerMult = g_identityPerm;
 
     AttributeGroup        group = AttributeGroup::None;
     std::set<AttributeId> ids; // only one dynamic-allocated memeber. Maybe tiny_flat_set<> or something?
@@ -123,9 +125,12 @@ struct ParRecord {
     /// condition
 
     AttributeId id = AttributeId::INVALID;
+
+    Permille freqMult  = g_identityPerm;
+    Permille powerMult = g_identityPerm;
+
     SlotSet     slotTypes;
     SlotPermMap slotScale;
-    Permille    freqMult = g_identityPerm;
 
     /// model
     ParRecordParamList params;
@@ -155,10 +160,17 @@ struct AllAttributeData {
         auto it = parMap.find(id);
         return it == parMap.cend() ? nullptr : &it->second;
     }
+    std::vector<ParRecord*> findExistingGroupPar(AttributeGroup id);
+
     NonParRecord* findExistingNonPar(AttributeId id)
     {
         auto it = idMap.find(id);
         return it == idMap.cend() ? nullptr : &it->second;
+    }
+    NonParRecord* findExistingGroupNonPar(AttributeGroup id)
+    {
+        auto it = groupMap.find(id);
+        return it == groupMap.cend() ? nullptr : &it->second;
     }
 };
 

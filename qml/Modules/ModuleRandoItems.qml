@@ -49,10 +49,12 @@ WidgetCommonTab {
 
     WidgetSlider {
         caption: qsTr("Chance of ultra-high roll")
+        tooltip: qsTr("Chance that property will be rolled higher than usual limit (e.g. +3 skills instead of +2)")
         value_key: root.value_context.luckyChance
     }
     WidgetSlider {
         caption: qsTr("Chance of ultra-low roll")
+        tooltip: qsTr("Chance that property will be rolled lower than usual lower boundary,<br> e.g. (20-25% fire res) will be rolled as 15%")
         value_key: root.value_context.trashChance
     }
 
@@ -128,36 +130,5 @@ WidgetCommonTab {
         tooltip: qsTr("How generated items will use partial set bonuses:<br>Keep original - Existing item logic is preserved;<br>No partial - space for extra attributes will used for 'Blue' properties<br>Use partial - extra set attributes will require other pieces, 'Green' props.")
         model: [qsTr("Keep original"), qsTr("No partial"), qsTr("Use partial")]
         value_key: root.value_context.setBonusMode
-    }
-
-    Separator {}
-    LabelImportant {
-        text: qsTr("Adjust frequencies of different attributes to appear:")
-    }
-
-    WidgetSlider {
-        caption: qsTr("Resistances:")
-        tooltip: ""
-        value_key: root.value_context.frequencyResistances
-    }
-    WidgetSlider {
-        caption: qsTr("Aura when equip:")
-        tooltip: ""
-        value_key: root.value_context.frequencyAuras
-    }
-    WidgetSlider {
-        caption: qsTr("On hit/attack/struck procs:")
-        tooltip: ""
-        value_key: root.value_context.frequencyProcs
-    }
-    WidgetSlider {
-        caption: qsTr("+skills:")
-        tooltip: ""
-        value_key: root.value_context.frequencySkills
-    }
-    WidgetSlider {
-        caption: qsTr("Stats - life/mana/attributes:")
-        tooltip: ""
-        value_key: root.value_context.frequencyCharAttributes
     }
 }

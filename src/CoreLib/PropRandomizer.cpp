@@ -39,22 +39,11 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
         throw std::runtime_error("Randomizer attribute config is empty!");
 
     gens.reserve(totalEstimate);
+
     for (const auto& [group, rec] : attributeData.groupMap) {
         for (auto& id : rec.ids) {
             PropGenerator gen;
-            MagicProp&    prop = gen.prop;
-            prop.id            = id;
-            prop.desc          = &getAttributeDesc(id);
-            prop.updateProperties();
-
-            gen.power = g_identityPct;
-            for (auto slot : rec.slotTypes.asVector())
-                gen.slotTypes.insert(slot);
-
-            gen.frequency = rec.freq;
-            gen.nonPar    = rec;
-            gen.minLevel  = rec.minLevel;
-            gen.slotScale = rec.slotScale;
+            gen.set(rec, id);
             gens.push_back(std::move(gen));
         }
     }
@@ -64,39 +53,14 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const Skil
         auto id = *rec.ids.begin();
 
         PropGenerator gen;
-        MagicProp&    prop = gen.prop;
-        prop.id            = id;
-        prop.desc          = &getAttributeDesc(id);
-        prop.updateProperties();
-
-        gen.power = g_identityPct;
-        for (auto slot : rec.slotTypes.asVector())
-            gen.slotTypes.insert(slot);
-
-        gen.frequency = rec.freq;
-        gen.nonPar    = rec;
-        gen.minLevel  = rec.minLevel;
-        gen.slotScale = rec.slotScale;
+        gen.set(rec, id);
         gens.push_back(std::move(gen));
     }
 
     for (const auto& [group, rec] : attributeData.parMap) {
         for (auto& param : rec.params) {
             PropGenerator gen;
-            MagicProp&    prop = gen.prop;
-            prop.id            = rec.id;
-            prop.par           = param.par;
-            prop.desc          = &getAttributeDesc(rec.id);
-            prop.updateProperties();
-
-            gen.power = g_identityPct;
-            for (auto slot : rec.slotTypes.asVector())
-                gen.slotTypes.insert(slot);
-
-            gen.frequency = param.freq * rec.freqMult;
-            gen.par       = param;
-            gen.minLevel  = param.minLevel;
-            gen.slotScale = rec.slotScale;
+            gen.set(rec, param);
             gens.push_back(std::move(gen));
         }
     }
@@ -174,6 +138,7 @@ void PropRandomizer::indexAnd(DynamicBitSet& result, const BasicProperties& filt
         result &= index.idiom.at(filter.idiom);
     if (filter.element > Element::None)
         result &= index.element.at(filter.element);
+
     if (filter.targetLevel > -1)
         result &= index.minLevel.at(std::min(filter.targetLevel, LEVEL_GROUP_MAX));
 }
@@ -279,7 +244,7 @@ MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator& rng, const Ba
         assert(!par.has_value());
         const NonParRecord& vs = nonPar.value();
 
-        Permille scale = vs.medCurve[levelTier] * slotScaleVal;
+        Permille scale = vs.medCurve[levelTier] * slotScaleVal * powerMult;
 
         Permille lowBound;
         Permille highBound;
@@ -318,8 +283,8 @@ MagicProp PropRandomizer::PropGenerator::makeRoll(RandomGenerator& rng, const Ba
         const ParRecordParam& vs = par.value();
         result.par               = vs.par;
 
-        Permille scaleMin = vs.minCurve[levelTier] * slotScaleVal;
-        Permille scaleMax = vs.maxCurve[levelTier] * slotScaleVal;
+        Permille scaleMin = vs.minCurve[levelTier] * slotScaleVal * powerMult;
+        Permille scaleMax = vs.maxCurve[levelTier] * slotScaleVal * powerMult;
 
         result.min = vs.minMedian * scaleMin;
         result.max = vs.maxMedian * scaleMax;

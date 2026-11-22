@@ -115,7 +115,7 @@ void MagicPropItem::process()
             return randoParams->levelMinus ? originalLevel - (*rng)(randoParams->levelMinus) : originalLevel;
         }
     }();
-    filter.props.targetLevel = targetLevel;
+    filter.props.targetLevel = std::clamp(targetLevel, 3, LEVEL_GROUP_MAX);
 
     const Percent genCountRel = genBetweenRng(*rng, randoParams->common.m_randoGenerateMin, randoParams->common.m_randoGenerateMin);
 
@@ -221,7 +221,9 @@ MagicPropList MagicPropItem::processList(int count)
 
         DynamicBitSet index = propRandomizer->createIndexAll();
         filter.indexAnd(index, propRandomizer, true);
+
         propRandomizer->indexAnd(index, filter.props, useSlot);
+        assert(index.count() > 0);
 
         stats.countSearch++;
         stats.indexSearch += timer.GetElapsedTime().GetUS();

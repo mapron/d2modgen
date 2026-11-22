@@ -16,7 +16,7 @@ struct MODGENCORE_EXPORT PropRandomizer {
     struct MODGENCORE_EXPORT PropGenerator {
         uint64_t frequency = 0;
 
-        Percent power = g_identityPct;
+        Permille powerMult = g_identityPerm;
 
         std::optional<NonParRecord> nonPar;
 
@@ -27,6 +27,40 @@ struct MODGENCORE_EXPORT PropRandomizer {
         SlotPermMap        slotScale;
 
         int minLevel = 0;
+
+        void set(const NonParRecord& rec, AttributeId id)
+        {
+            prop.id   = id;
+            prop.desc = &getAttributeDesc(id);
+            prop.updateProperties();
+
+            powerMult = rec.powerMult;
+            for (auto slot : rec.slotTypes.asVector())
+                slotTypes.insert(slot);
+
+            frequency = rec.freq * rec.freqMult;
+            assert(frequency > 0);
+            nonPar    = rec;
+            minLevel  = rec.minLevel;
+            slotScale = rec.slotScale;
+        }
+        void set(const ParRecord& rec, const ParRecordParam& param)
+        {
+            prop.id   = rec.id;
+            prop.par  = param.par;
+            prop.desc = &getAttributeDesc(rec.id);
+            prop.updateProperties();
+
+            powerMult = rec.powerMult;
+            for (auto slot : rec.slotTypes.asVector())
+                slotTypes.insert(slot);
+
+            frequency = param.freq * rec.freqMult;
+            assert(frequency > 0);
+            par       = param;
+            minLevel  = param.minLevel;
+            slotScale = rec.slotScale;
+        }
 
         MagicProp makeRoll(RandomGenerator& rng, const BasicProperties& basicProperties, Percent trashChance, Percent luckyChance) const;
 

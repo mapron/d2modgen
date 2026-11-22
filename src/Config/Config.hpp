@@ -45,16 +45,6 @@ struct Config : public CommonStruct {
 
         int64_t m_setBonusMode{ 0 };
 
-        Percent m_frequencyAuras{ 100 };
-
-        Percent m_frequencyCharAttributes{ 100 };
-
-        Percent m_frequencyProcs{ 100 };
-
-        Percent m_frequencyResistances{ 100 };
-
-        Percent m_frequencySkills{ 100 };
-
         bool m_sameRarityForSetUniqueItems{ false };
 
         RandoItems()
@@ -77,11 +67,6 @@ struct Config : public CommonStruct {
             addScalar("replaceSkills", m_replaceSkills).setZero(false);
             addScalar("updateExisting", m_updateExisting).setZero(false).setRecc(true);
             addScalar("setBonusMode", m_setBonusMode).setRange(0, 2).setZero(0).setRecc(1);
-            addScalar("frequencyAuras", m_frequencyAuras).setRange(5, 1000).setZero(100).setLogScale().addPreset(0, 1000);
-            addScalar("frequencyCharAttributes", m_frequencyCharAttributes).setRange(5, 1000).setZero(100).setLogScale().addPreset(2, 50);
-            addScalar("frequencyProcs", m_frequencyProcs).setRange(5, 1000).setZero(100).setLogScale().addPreset(0, 1000);
-            addScalar("frequencyResistances", m_frequencyResistances).setRange(5, 1000).setZero(100).setLogScale().addPreset(2, 50);
-            addScalar("frequencySkills", m_frequencySkills).setRange(5, 1000).setZero(100).setLogScale().addPreset(0, 1000);
             addScalar("sameRarityForSetUniqueItems", m_sameRarityForSetUniqueItems).setZero(false).setRecc(true);
         }
     };
@@ -250,6 +235,53 @@ struct Config : public CommonStruct {
             addStruct("equipment", m_equipment);
             addScalar("reqDex", m_reqDex).setRange(5, 150).setZero(100).setRecc(100);
             addScalar("reqStr", m_reqStr).setRange(5, 150).setZero(100).setRecc(100);
+        }
+    };
+    struct BalanceAttributes : public CommonStruct {
+        Percent m_frequencyAuras{ 100 };
+
+        Percent m_frequencyProcs{ 100 };
+
+        Percent m_frequencyCharAttributes{ 100 };
+
+        Percent m_frequencyResistances{ 100 };
+
+        Percent m_frequencySkills{ 100 };
+
+        Percent m_frequencyDamage{ 100 };
+
+        Percent m_frequencyRestoration{ 100 };
+
+        Percent m_powerAuras{ 100 };
+
+        Percent m_powerProcs{ 100 };
+
+        Percent m_powerCharAttributes{ 100 };
+
+        Percent m_powerResistances{ 100 };
+
+        Percent m_powerSkills{ 100 };
+
+        Percent m_powerDamage{ 100 };
+
+        Percent m_powerRestoration{ 100 };
+
+        BalanceAttributes()
+        {
+            addScalar("frequencyAuras", m_frequencyAuras).setRange(5, 1000).setZero(100).setLogScale().addPreset(0, 1000);
+            addScalar("frequencyProcs", m_frequencyProcs).setRange(5, 1000).setZero(100).setLogScale().addPreset(0, 1000);
+            addScalar("frequencyCharAttributes", m_frequencyCharAttributes).setRange(5, 1000).setZero(100).setLogScale().addPreset(2, 50);
+            addScalar("frequencyResistances", m_frequencyResistances).setRange(5, 1000).setZero(100).setLogScale().addPreset(2, 50);
+            addScalar("frequencySkills", m_frequencySkills).setRange(5, 1000).setZero(100).setLogScale().addPreset(0, 1000);
+            addScalar("frequencyDamage", m_frequencyDamage).setRange(5, 1000).setZero(100).setLogScale();
+            addScalar("frequencyRestoration", m_frequencyRestoration).setRange(5, 1000).setZero(100).setLogScale().addPreset(2, 50);
+            addScalar("powerAuras", m_powerAuras).setRange(100, 100).setZero(100).setConstant();
+            addScalar("powerProcs", m_powerProcs).setRange(100, 100).setZero(100).setConstant();
+            addScalar("powerCharAttributes", m_powerCharAttributes).setRange(20, 500).setZero(100).setLogScale();
+            addScalar("powerResistances", m_powerResistances).setRange(20, 500).setZero(100).setLogScale();
+            addScalar("powerSkills", m_powerSkills).setRange(20, 500).setZero(100).setLogScale();
+            addScalar("powerDamage", m_powerDamage).setRange(20, 500).setZero(100).setLogScale().addPreset(0, 500);
+            addScalar("powerRestoration", m_powerRestoration).setRange(20, 500).setZero(100).setLogScale();
         }
     };
     struct BalanceMonsters : public CommonStruct {
@@ -650,6 +682,8 @@ struct Config : public CommonStruct {
 
     BalanceItems m_balanceItems{};
 
+    BalanceAttributes m_balanceAttributes{};
+
     BalanceMonsters m_balanceMonsters{};
 
     BalanceCharacter m_balanceCharacter{};
@@ -676,6 +710,7 @@ struct Config : public CommonStruct {
         addStruct("monsterRandomizer", m_monsterRandomizer);
         addStruct("skillRandomizer", m_skillRandomizer);
         addStruct("balanceItems", m_balanceItems);
+        addStruct("balanceAttributes", m_balanceAttributes);
         addStruct("balanceMonsters", m_balanceMonsters);
         addStruct("balanceCharacter", m_balanceCharacter);
         addStruct("balanceSkills", m_balanceSkills);

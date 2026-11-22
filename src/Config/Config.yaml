@@ -23,12 +23,6 @@ structs:
            updateExisting:          { type: bool, zero: false, recc: true }
            setBonusMode:            { type: int, zero: 0, recc: 1, min: 0, max: 2 }
 
-           frequencyAuras:          { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
-           frequencyCharAttributes: { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: { pain: 50 }, logScale: true }
-           frequencyProcs:          { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
-           frequencyResistances:    { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: { pain: 50 }, logScale: true }
-           frequencySkills:         { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
-
            sameRarityForSetUniqueItems: { type: bool, zero: false, recc: true }
 
 
@@ -107,6 +101,24 @@ structs:
 
             reqDex:           { type: int, zero: 100, recc: 100 , min: 5, max: 150, percent: true }
             reqStr:           { type: int, zero: 100, recc: 100 , min: 5, max: 150, percent: true }
+
+    BalanceAttributes:
+        members:
+            frequencyAuras:          { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
+            frequencyProcs:          { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
+            frequencyCharAttributes: { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: { pain: 50  }, logScale: true }
+            frequencyResistances:    { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: { pain: 50  }, logScale: true }
+            frequencySkills:         { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: {crazy: 1000}, logScale: true }
+            frequencyDamage:         { type: int, zero: 100, min: 5, max: 1000, percent: true,                         logScale: true }
+            frequencyRestoration:    { type: int, zero: 100, min: 5, max: 1000, percent: true, presets: { pain: 50  }, logScale: true }
+
+            powerAuras:              { type: int, zero: 100, min: 100, max: 100, constant: true, percent: true }
+            powerProcs:              { type: int, zero: 100, min: 100, max: 100, constant: true, percent: true }
+            powerCharAttributes:     { type: int, zero: 100, min: 20, max: 500, percent: true,                        logScale: true }
+            powerResistances:        { type: int, zero: 100, min: 20, max: 500, percent: true,                        logScale: true }
+            powerSkills:             { type: int, zero: 100, min: 20, max: 500, percent: true,                        logScale: true }
+            powerDamage:             { type: int, zero: 100, min: 20, max: 500, percent: true, presets: {crazy: 500}, logScale: true }
+            powerRestoration:        { type: int, zero: 100, min: 20, max: 500, percent: true,                        logScale: true }
 
 
     BalanceMonsters:
@@ -291,6 +303,7 @@ members:
 
     #balance
     balanceItems:      { type: struct, name:  BalanceItems     }
+    balanceAttributes: { type: struct, name:  BalanceAttributes     }
     balanceMonsters:   { type: struct, name:  BalanceMonsters   }
     balanceCharacter:  { type: struct, name:  BalanceCharacter   }
     balanceSkills:     { type: struct, name:  BalanceSkills   }

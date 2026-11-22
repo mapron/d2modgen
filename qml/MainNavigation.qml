@@ -41,6 +41,9 @@ ColumnLayout {
             name: qsTr("Items")
         },
         {
+            name: qsTr("Item attributes")
+        },
+        {
             name: qsTr("Monsters")
         },
         {

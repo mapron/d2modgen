@@ -826,8 +826,7 @@ void ModuleRandoItems::MagicContext::loadPrecompiled()
 void ModuleRandoItems::MagicContext::addExtra(const Config& config, const int classCount)
 {
     using A = AttributeId;
-
-    const auto& module = config.m_itemRandomizer;
+    using G = AttributeGroup;
 
     ParRecord& skilltabs = actual.parMap.at(A::skilltab);
 
@@ -850,72 +849,122 @@ void ModuleRandoItems::MagicContext::addExtra(const Config& config, const int cl
     }
 
     if (auto* rec = actual.findExistingNonPar(A::skill_rand)) {
-        rec->freq *= 20;
+        rec->freqMult *= 2000_perm;
     }
     if (auto* rec = actual.findExistingNonPar(A::explosivearrow)) {
-        rec->freq *= 5;
+        rec->freqMult *= 500_perm;
     }
     if (auto* rec = actual.findExistingNonPar(A::pierce)) {
-        rec->freq *= 5;
+        rec->freqMult *= 500_perm;
     }
     if (auto* rec = actual.findExistingNonPar(A::rep_quant)) {
-        rec->freq *= 10;
+        rec->freqMult *= 1000_perm;
     }
 
     //---
     if (auto* rec = actual.findExistingPar(A::charged)) {
-        rec->freqMult.raw /= 3;
+        rec->freqMult *= 300_perm;
     }
     if (auto* rec = actual.findExistingPar(A::skill)) {
-        rec->freqMult.raw *= 3;
-    }
-    if (auto* rec = actual.findExistingPar(A::aura)) {
-        rec->freqMult.raw *= 2;
+        rec->freqMult *= 3000_perm;
     }
 
-    scaleSettings(module.m_frequencyResistances, { A::res_fire, A::res_ltng, A::res_cold, A::res_mag, A::res_pois, A::res_all });
-    scaleSettings(module.m_frequencyAuras, { A::aura });
-    scaleSettings(module.m_frequencyProcs, {
-                                               A::att_skill,
-                                               A::hit_skill,
-                                               A::gethit_skill,
-                                               A::kill_skill,
-                                               A::death_skill,
-                                               A::levelup_skill,
-                                               A::block_skill,
-                                               A::cast_skill,
-                                           });
-    scaleSettings(module.m_frequencySkills, { A::skill, A::skilltab, A::allskills, A::ama, A::pal, A::nec, A::sor, A::bar, A::dru, A::ass, A::war });
-    scaleSettings(module.m_frequencyCharAttributes, {
-                                                        A::str,
-                                                        A::dex,
-                                                        A::vit,
-                                                        A::enr,
-                                                        A::mana,
-                                                        A::mana_percent,
-                                                        A::hp,
-                                                        A::hp_percent,
-                                                        A::hp_perlvl,
-                                                        A::mana_perlvl,
-                                                        A::str_perlvl,
-                                                        A::dex_perlvl,
-                                                        A::enr_perlvl,
-                                                        A::vit_perlvl,
-                                                        A::att_perlvl,
+    const auto& module = config.m_balanceAttributes;
 
-                                                    });
+    scaleSettings(module.m_frequencyAuras * 200_pct, module.m_powerAuras, { .attrsPar = { A::aura } });
+
+    scaleSettings(module.m_frequencyCharAttributes,
+                  module.m_powerCharAttributes,
+                  {
+                      .groupNonPar = { G::StrDex, G::VitEnr, G::StatPerLvl, G::HpManaPerLvl },
+                      .attrsNonPar = { A::mana, A::mana_percent, A::hp, A::hp_percent },
+                  });
+
+    scaleSettings(module.m_frequencyProcs, module.m_powerProcs, { .groupPar = { G::DefensiveSkillProc, G::OffensiveSkillProc } });
+
+    scaleSettings(module.m_frequencyResistances,
+                  module.m_powerResistances,
+                  {
+                      .groupNonPar = { G::Res, G::ResMax },
+                      .attrsNonPar = { A::res_all },
+                  });
+
+    scaleSettings(module.m_frequencySkills,
+                  module.m_powerSkills,
+                  {
+                      .groupNonPar = { G::AllClassSkills },
+                      .attrsNonPar = { A::allskills },
+                      .attrsPar    = { A::skill, A::skilltab },
+                  });
+
+    scaleSettings(module.m_frequencyDamage,
+                  module.m_powerDamage,
+                  {
+                      .groupNonPar = { G::EleDmgPerlvl },
+                      .attrsNonPar = {
+                          A::cold_min,
+                          A::cold_max,
+                          A::fire_min,
+                          A::fire_max,
+                          A::ltng_max,
+                          A::pois_min,
+                          A::pois_max,
+                          A::dmg_min,
+                          A::dmg_max,
+                          A::dmg,
+                          A::dmg_fire,
+                          A::dmg_ltng,
+                          A::dmg_mag,
+                          A::dmg_cold,
+                          A::dmg_pois,
+                          A::dmg_norm,
+                      },
+                  });
+    scaleSettings(module.m_frequencyRestoration,
+                  module.m_powerRestoration,
+                  {
+                      .groupNonPar = { G::ManaLifePerKill, G::ManaLifeSteal },
+                      .attrsNonPar = { A::regen_mana, A::dmg_to_mana, A::regen },
+                  });
 }
 
-void ModuleRandoItems::MagicContext::scaleSettings(Percent scalePercent, const std::vector<AttributeId>& attrs)
+void ModuleRandoItems::MagicContext::scaleSettings(Percent freqScale, Percent powerScale, const AttrFilter& filter)
 {
-    /*
-    for (auto id : attrs) {
-        if (auto* rec = actual.findExistingNonPar(id)) {
-            rec->rescaleFreq(scalePercent, 1);
-        } else if (auto* rec = actual.findExistingPar(id)) {
-            rec->rescaleFreq(scalePercent, 1);
+    for (auto group : filter.groupNonPar) {
+        if (auto* rec = actual.findExistingGroupNonPar(group)) {
+            rec->freqMult *= freqScale;
+            rec->powerMult *= powerScale;
+        } else {
+            assert(!"Not found fine-tuning id");
         }
-    }*/
+    }
+    for (auto group : filter.groupPar) {
+        auto recs = actual.findExistingGroupPar(group);
+
+        for (ParRecord* rec : recs) {
+            rec->freqMult *= freqScale;
+            rec->powerMult *= powerScale;
+        }
+        if (recs.empty()) {
+            assert(!"Not found fine-tuning id");
+        }
+    }
+    for (auto id : filter.attrsNonPar) {
+        if (auto* rec = actual.findExistingNonPar(id)) {
+            rec->freqMult *= freqScale;
+            rec->powerMult *= powerScale;
+        } else {
+            assert(!"Not found fine-tuning id");
+        }
+    }
+    for (auto id : filter.attrsPar) {
+        if (auto* rec = actual.findExistingPar(id)) {
+            rec->freqMult *= freqScale;
+            rec->powerMult *= powerScale;
+        } else {
+            assert(!"Not found fine-tuning id");
+        }
+    }
 }
 
 }

@@ -26,11 +26,6 @@ class Config_RandoItems_Qt : public CommonStruct_Qt {
     Q_PROPERTY(PropertyBool_Qt* replaceSkills READ get_replaceSkills CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* updateExisting READ get_updateExisting CONSTANT)
     Q_PROPERTY(PropertyInt_Qt* setBonusMode READ get_setBonusMode CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* frequencyAuras READ get_frequencyAuras CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* frequencyCharAttributes READ get_frequencyCharAttributes CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* frequencyProcs READ get_frequencyProcs CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* frequencyResistances READ get_frequencyResistances CONSTANT)
-    Q_PROPERTY(PropertyInt_Qt* frequencySkills READ get_frequencySkills CONSTANT)
     Q_PROPERTY(PropertyBool_Qt* sameRarityForSetUniqueItems READ get_sameRarityForSetUniqueItems CONSTANT)
 
 public:
@@ -55,11 +50,6 @@ public:
         , m_replaceSkills(data.getPropertyBool(6))
         , m_updateExisting(data.getPropertyBool(7))
         , m_setBonusMode(data.getPropertyInt(9))
-        , m_frequencyAuras(data.getPropertyInt(10))
-        , m_frequencyCharAttributes(data.getPropertyInt(11))
-        , m_frequencyProcs(data.getPropertyInt(12))
-        , m_frequencyResistances(data.getPropertyInt(13))
-        , m_frequencySkills(data.getPropertyInt(14))
         , m_sameRarityForSetUniqueItems(data.getPropertyBool(8))
     {
     }
@@ -99,16 +89,6 @@ public:
     PropertyBool_Qt* get_updateExisting() { return &m_updateExisting; }
 
     PropertyInt_Qt* get_setBonusMode() { return &m_setBonusMode; }
-
-    PropertyInt_Qt* get_frequencyAuras() { return &m_frequencyAuras; }
-
-    PropertyInt_Qt* get_frequencyCharAttributes() { return &m_frequencyCharAttributes; }
-
-    PropertyInt_Qt* get_frequencyProcs() { return &m_frequencyProcs; }
-
-    PropertyInt_Qt* get_frequencyResistances() { return &m_frequencyResistances; }
-
-    PropertyInt_Qt* get_frequencySkills() { return &m_frequencySkills; }
 
     PropertyBool_Qt* get_sameRarityForSetUniqueItems() { return &m_sameRarityForSetUniqueItems; }
 
@@ -152,16 +132,6 @@ private:
     PropertyBool_Qt m_updateExisting;
 
     PropertyInt_Qt m_setBonusMode;
-
-    PropertyInt_Qt m_frequencyAuras;
-
-    PropertyInt_Qt m_frequencyCharAttributes;
-
-    PropertyInt_Qt m_frequencyProcs;
-
-    PropertyInt_Qt m_frequencyResistances;
-
-    PropertyInt_Qt m_frequencySkills;
 
     PropertyBool_Qt m_sameRarityForSetUniqueItems;
 };
@@ -522,6 +492,106 @@ private:
     PropertyInt_Qt m_reqDex;
 
     PropertyInt_Qt m_reqStr;
+};
+
+class Config_BalanceAttributes_Qt : public CommonStruct_Qt {
+    Q_OBJECT
+    Q_PROPERTY(PropertyInt_Qt* frequencyAuras READ get_frequencyAuras CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* frequencyProcs READ get_frequencyProcs CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* frequencyCharAttributes READ get_frequencyCharAttributes CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* frequencyResistances READ get_frequencyResistances CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* frequencySkills READ get_frequencySkills CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* frequencyDamage READ get_frequencyDamage CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* frequencyRestoration READ get_frequencyRestoration CONSTANT)
+    Q_PROPERTY(ConstantPropertyInt_Qt* powerAuras READ get_powerAuras CONSTANT)
+    Q_PROPERTY(ConstantPropertyInt_Qt* powerProcs READ get_powerProcs CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* powerCharAttributes READ get_powerCharAttributes CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* powerResistances READ get_powerResistances CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* powerSkills READ get_powerSkills CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* powerDamage READ get_powerDamage CONSTANT)
+    Q_PROPERTY(PropertyInt_Qt* powerRestoration READ get_powerRestoration CONSTANT)
+
+public:
+    explicit Config_BalanceAttributes_Qt(Config::BalanceAttributes& data)
+        : CommonStruct_Qt(data)
+        , m_data(data)
+        , m_frequencyAuras(data.getPropertyInt(0))
+        , m_frequencyProcs(data.getPropertyInt(1))
+        , m_frequencyCharAttributes(data.getPropertyInt(2))
+        , m_frequencyResistances(data.getPropertyInt(3))
+        , m_frequencySkills(data.getPropertyInt(4))
+        , m_frequencyDamage(data.getPropertyInt(5))
+        , m_frequencyRestoration(data.getPropertyInt(6))
+        , m_powerAuras(data.getPropertyInt(7))
+        , m_powerProcs(data.getPropertyInt(8))
+        , m_powerCharAttributes(data.getPropertyInt(9))
+        , m_powerResistances(data.getPropertyInt(10))
+        , m_powerSkills(data.getPropertyInt(11))
+        , m_powerDamage(data.getPropertyInt(12))
+        , m_powerRestoration(data.getPropertyInt(13))
+    {
+    }
+
+    PropertyInt_Qt* get_frequencyAuras() { return &m_frequencyAuras; }
+
+    PropertyInt_Qt* get_frequencyProcs() { return &m_frequencyProcs; }
+
+    PropertyInt_Qt* get_frequencyCharAttributes() { return &m_frequencyCharAttributes; }
+
+    PropertyInt_Qt* get_frequencyResistances() { return &m_frequencyResistances; }
+
+    PropertyInt_Qt* get_frequencySkills() { return &m_frequencySkills; }
+
+    PropertyInt_Qt* get_frequencyDamage() { return &m_frequencyDamage; }
+
+    PropertyInt_Qt* get_frequencyRestoration() { return &m_frequencyRestoration; }
+
+    ConstantPropertyInt_Qt* get_powerAuras() { return &m_powerAuras; }
+
+    ConstantPropertyInt_Qt* get_powerProcs() { return &m_powerProcs; }
+
+    PropertyInt_Qt* get_powerCharAttributes() { return &m_powerCharAttributes; }
+
+    PropertyInt_Qt* get_powerResistances() { return &m_powerResistances; }
+
+    PropertyInt_Qt* get_powerSkills() { return &m_powerSkills; }
+
+    PropertyInt_Qt* get_powerDamage() { return &m_powerDamage; }
+
+    PropertyInt_Qt* get_powerRestoration() { return &m_powerRestoration; }
+
+    Q_INVOKABLE void assign(Config_BalanceAttributes_Qt* another) { m_data.assign(another->m_data, true); }
+
+private:
+    Config::BalanceAttributes& m_data;
+
+    PropertyInt_Qt m_frequencyAuras;
+
+    PropertyInt_Qt m_frequencyProcs;
+
+    PropertyInt_Qt m_frequencyCharAttributes;
+
+    PropertyInt_Qt m_frequencyResistances;
+
+    PropertyInt_Qt m_frequencySkills;
+
+    PropertyInt_Qt m_frequencyDamage;
+
+    PropertyInt_Qt m_frequencyRestoration;
+
+    ConstantPropertyInt_Qt m_powerAuras;
+
+    ConstantPropertyInt_Qt m_powerProcs;
+
+    PropertyInt_Qt m_powerCharAttributes;
+
+    PropertyInt_Qt m_powerResistances;
+
+    PropertyInt_Qt m_powerSkills;
+
+    PropertyInt_Qt m_powerDamage;
+
+    PropertyInt_Qt m_powerRestoration;
 };
 
 class Config_BalanceMonsters_Qt : public CommonStruct_Qt {
@@ -1382,6 +1452,7 @@ class Config_Qt : public CommonStruct_Qt {
     Q_PROPERTY(Config_RandoMonsters_Qt* monsterRandomizer READ get_monsterRandomizer CONSTANT)
     Q_PROPERTY(Config_RandoSkills_Qt* skillRandomizer READ get_skillRandomizer CONSTANT)
     Q_PROPERTY(Config_BalanceItems_Qt* balanceItems READ get_balanceItems CONSTANT)
+    Q_PROPERTY(Config_BalanceAttributes_Qt* balanceAttributes READ get_balanceAttributes CONSTANT)
     Q_PROPERTY(Config_BalanceMonsters_Qt* balanceMonsters READ get_balanceMonsters CONSTANT)
     Q_PROPERTY(Config_BalanceCharacter_Qt* balanceCharacter READ get_balanceCharacter CONSTANT)
     Q_PROPERTY(Config_BalanceSkills_Qt* balanceSkills READ get_balanceSkills CONSTANT)
@@ -1401,6 +1472,7 @@ public:
         , m_monsterRandomizer(data.m_monsterRandomizer)
         , m_skillRandomizer(data.m_skillRandomizer)
         , m_balanceItems(data.m_balanceItems)
+        , m_balanceAttributes(data.m_balanceAttributes)
         , m_balanceMonsters(data.m_balanceMonsters)
         , m_balanceCharacter(data.m_balanceCharacter)
         , m_balanceSkills(data.m_balanceSkills)
@@ -1421,6 +1493,8 @@ public:
     Config_RandoSkills_Qt* get_skillRandomizer() { return &m_skillRandomizer; }
 
     Config_BalanceItems_Qt* get_balanceItems() { return &m_balanceItems; }
+
+    Config_BalanceAttributes_Qt* get_balanceAttributes() { return &m_balanceAttributes; }
 
     Config_BalanceMonsters_Qt* get_balanceMonsters() { return &m_balanceMonsters; }
 
@@ -1454,6 +1528,8 @@ private:
     Config_RandoSkills_Qt m_skillRandomizer;
 
     Config_BalanceItems_Qt m_balanceItems;
+
+    Config_BalanceAttributes_Qt m_balanceAttributes;
 
     Config_BalanceMonsters_Qt m_balanceMonsters;
 

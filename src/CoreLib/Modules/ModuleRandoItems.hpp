@@ -55,9 +55,16 @@ private:
 
         AllAttributeData actual;
 
+        struct AttrFilter {
+            std::vector<AttributeGroup> groupNonPar;
+            std::vector<AttributeId>    attrsNonPar;
+            std::vector<AttributeGroup> groupPar;
+            std::vector<AttributeId>    attrsPar;
+        };
+
         void loadPrecompiled();
         void addExtra(const Config& config, const int classCount);
-        void scaleSettings(Percent scalePercent, const std::vector<AttributeId>& attrs);
+        void scaleSettings(Percent freqScale, Percent powerScale, const AttrFilter& filter);
     };
 
     SkillCodeResolver m_codeResolver;

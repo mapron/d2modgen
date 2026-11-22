@@ -153,4 +153,20 @@ private:
     CommonStruct::PropertyString& m_data;
 };
 
+class ConstantPropertyInt_Qt : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(qlonglong value READ getValue CONSTANT)
+
+public:
+    ConstantPropertyInt_Qt(CommonStruct::PropertyInt& data)
+        : m_data(data)
+    {
+    }
+
+    qlonglong getValue() const { return m_data.get(); }
+
+private:
+    CommonStruct::PropertyInt& m_data;
+};
+
 }

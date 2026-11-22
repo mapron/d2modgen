@@ -30,6 +30,13 @@ struct Scaled {
         return Scaled<OutDenom>{ ((raw * rhs.raw) / Divisor) };
     }
 
+    template<int OtherDenom>
+    constexpr Scaled& operator*=(Scaled<OtherDenom> rhs)
+    {
+        raw = raw * rhs;
+        return *this;
+    }
+
     friend constexpr int operator*(int val, Scaled s)
     {
         return static_cast<int>((val * s.raw) / Denom);

@@ -110,6 +110,7 @@ ApplicationWindow {
 
                     Item {}
                     ModuleBalanceItems {}
+                    ModuleBalanceAttributes {}
                     ModuleBalanceMonsters {}
                     ModuleBalanceCharacter {}
                     ModuleBalanceSkills {}

@@ -145,6 +145,18 @@ void AllAttributeData::refreshIds()
         ids.insert(id);
 }
 
+std::vector<ParRecord*> AllAttributeData::findExistingGroupPar(AttributeGroup id)
+{
+    std::vector<ParRecord*> result;
+    for (auto& [_, rec] : parMap) {
+        auto desc = getAttributeDesc(rec.id);
+        if (desc.group == id) {
+            result.push_back(&rec);
+        }
+    }
+    return result;
+}
+
 void StatisticsTable::addSnapshot(const AttributeStatistics& allData, int ver)
 {
     versions.insert(ver);
@@ -192,6 +204,8 @@ std::string NonParRecord::toString() const
 {
     std::string result = "    NonParRecord{\n";
     result += "        .freq      = " + std::to_string(freq) + ",\n";
+    result += "        .freqMult  = " + freqMult.toString() + ",\n";
+    result += "        .powerMult = " + powerMult.toString() + ",\n";
     result += "        .group     = " + enumToString(group, true) + ",\n";
     result += "        .ids       = { ";
     for (size_t i = 0; const auto& id : ids) {
@@ -281,6 +295,9 @@ std::string ParRecord::toString() const
 {
     std::string result = "    ParRecord{\n";
     result += "        .id        = " + enumToString(id, true) + ",\n";
+
+    result += "        .freqMult  = " + freqMult.toString() + ",\n";
+    result += "        .powerMult = " + powerMult.toString() + ",\n";
 
     result += "        .slotTypes = { ";
     for (size_t i = 0; const auto& slotType : slotTypes.asVector()) {

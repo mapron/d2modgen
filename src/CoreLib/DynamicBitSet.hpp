@@ -99,6 +99,14 @@ public:
             m_blocks[i].flip();
     }
 
+    size_t count() const noexcept
+    {
+        size_t result = 0;
+        for (size_t i = 0; i < m_blocks.size(); ++i)
+            result += m_blocks[i].count();
+        return result;
+    }
+
     uint64_t getTotal(const FrequencyArray& frequencies) const noexcept
     {
         uint64_t total = 0;
