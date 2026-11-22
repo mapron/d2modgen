@@ -18,7 +18,7 @@ option(D2MODGEN_BUILD_TESTS "Build unit tests" OFF)
 
 cmake_minimum_required(VERSION 3.31...4.0)
 
-project(modgen VERSION 1.1.2)
+project(modgen VERSION 1.1.3)
 
 set(MERNEL_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/mernel)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake ${MERNEL_ROOT}/cmake)

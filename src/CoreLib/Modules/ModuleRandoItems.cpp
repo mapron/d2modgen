@@ -323,37 +323,52 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
         }
         return "";
     };
-    std::vector<EquipmentType> validArmor;
-    std::vector<EquipmentType> validWeapon;
+    std::map<Tier, std::vector<EquipmentType>> validArmor;
+    std::map<Tier, std::vector<EquipmentType>> validWeapon;
     for (auto& row : output.armor.rows) {
         if (row.getTier() != Tier::None)
-            validArmor.push_back(&row);
+            validArmor[row.getTier()].push_back(&row);
     }
     for (auto& row : output.weapons.rows) {
         if (row.getTier() != Tier::None)
-            validWeapon.push_back(&row);
+            validWeapon[row.getTier()].push_back(&row);
     }
 
     {
         auto getNewLevelAndCode = [this, validArmor, validWeapon](std::optional<int>& lvl,
+                                                                  std::optional<int>& lvlreq,
                                                                   EquipmentType&      eqipmentType,
                                                                   std::string&        eqipmentCode,
                                                                   std::string&        eqipmentName) {
-            int base_ilvl = -1;
-            if (eqipmentType->category == EquipmentCategory::Armor) {
-                eqipmentType = validArmor[rng(validArmor.size())];
-                base_ilvl    = eqipmentType->lvl.value();
-            } else if (eqipmentType->category == EquipmentCategory::Weapon) {
-                eqipmentType = validWeapon[rng(validWeapon.size())];
-                base_ilvl    = eqipmentType->lvl.value();
-            }
-            const int oldLvl = lvl.value_or(1);
+            int base_ilvl = lvl.value_or(1);
+            if (eqipmentType->getTier() != Tier::None) {
+                Tier newTier = eqipmentType->getTier();
+                // only make occasional Elite->Exceptional and Expectional->Normal code swap
+                if (newTier == Tier::Exceptional && rng(3) == 0) {
+                    newTier = Tier::Normal;
+                }
+                if (newTier == Tier::Elite && rng(3) == 0) {
+                    newTier = Tier::Exceptional;
+                }
 
-            const int oldLvl1 = base_ilvl == -1 ? oldLvl : (oldLvl + base_ilvl) / 2;
-            const int minLvl  = std::max(2, oldLvl1 - 10);
-            const int maxLvl  = base_ilvl == -1 ? 87 : std::min(87, oldLvl1 + 20);
-            const int newLvl  = minLvl + rng(maxLvl - minLvl);
-            lvl               = newLvl;
+                if (eqipmentType->category == EquipmentCategory::Armor) {
+                    auto& pool   = validArmor.at(newTier);
+                    eqipmentType = pool[rng(pool.size())];
+                    base_ilvl    = eqipmentType->lvl.value();
+                } else if (eqipmentType->category == EquipmentCategory::Weapon) {
+                    auto& pool   = validWeapon.at(newTier);
+                    eqipmentType = pool[rng(pool.size())];
+                    base_ilvl    = eqipmentType->lvl.value();
+                }
+            }
+            const int oldLvl         = lvl.value_or(1);
+            const int minLvl         = std::min(base_ilvl, oldLvl);
+            const int newTargetLevel = genBetweenRng(rng, minLvl - 5, minLvl + 10);
+            const int targetLevel    = std::clamp(newTargetLevel, 5, 89);
+            const int lvlreqSubtract = (targetLevel / 5) + 5;
+
+            lvl    = targetLevel;
+            lvlreq = std::clamp(targetLevel - lvlreqSubtract, 2, 80);
 
             eqipmentName = eqipmentType->name;
             eqipmentCode = eqipmentType->code;
@@ -385,9 +400,7 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
 
         auto beforeCopyUniq = [this](DataRow_uniqueitems& row) -> bool {
             row.disableChronicle = true;
-            if (row.eqipmentType->category != EquipmentCategory::Misc)
-                row.lvlreq = 2;
-            else {
+            if (row.eqipmentType->category == EquipmentCategory::Misc) {
                 auto slot = row.getItemFilter().determineSlot();
                 if (slot == SlotType::Amulet || slot == SlotType::Charm || slot == SlotType::Ring || slot == SlotType::Weapon)
                     return true;
@@ -405,7 +418,7 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
             row.ux              = {};
             row.ux.id           = id;
             row.ux.chrtransform = row.ux.invtransform = getRandomColor();
-            getNewLevelAndCode(row.lvl, row.eqipmentType, row.eqipmentCode, row.ux.itemName);
+            getNewLevelAndCode(row.lvl, row.lvlreq, row.eqipmentType, row.eqipmentCode, row.ux.itemName);
         };
 
         processTableWithCopies(output.uniqueitems, repeatUniques, beforeCopyUniq, afterCopyUniq);
@@ -437,7 +450,7 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
             row.ux              = {};
             row.ux.id           = id;
             row.ux.chrtransform = row.ux.invtransform = getRandomColor();
-            getNewLevelAndCode(row.lvl, row.eqipmentType, row.eqipmentCode, row.ux.itemName);
+            getNewLevelAndCode(row.lvl, row.lvlreq, row.eqipmentType, row.eqipmentCode, row.ux.itemName);
         };
 
         processTableWithCopies(output.setitems, repeatSets, beforeCopySetitem, afterCopySetitem);
