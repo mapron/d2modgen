@@ -87,12 +87,9 @@ void MagicPropRawList::replaceToOskill(const RandoParams& randoParams)
             if (prop.parSkill && prop.parSkill->canBeOskill)
                 prop.id = AttributeId::oskill;
         }
-        if (randoParams.replaceCharges && prop.id == AttributeId::charged) {
+        if (randoParams.replaceCharges && (prop.id >= AttributeId::charged && prop.id <= AttributeId::charged_neg2)) {
             if (prop.parSkill && prop.parSkill->canBeOskill) {
-                prop.id = AttributeId::oskill;
-                if (prop.max < 0) {
-                    prop.max = -prop.max.value_or(0);
-                }
+                prop.id  = AttributeId::oskill;
                 prop.min = prop.max;
             }
         }
@@ -181,6 +178,21 @@ void MagicPropRawList::readFromRow(const AffixPropList&     propList,
             prop.min = -prop.min.value_or(0);
             prop.max = -prop.max.value_or(0);
         }
+        if (prop.id == AttributeId::charged) {
+            if (prop.min.value_or(0) < 0 && prop.max.value_or(0) < 0) {
+                prop.id = AttributeId::charged_neg;
+            }
+            if (prop.min.value_or(0) < 0 && prop.max.value_or(0) >= 0) {
+                prop.id = AttributeId::charged_neg1;
+            }
+            if (prop.min.value_or(0) >= 0 && prop.max.value_or(0) < 0) {
+                prop.id = AttributeId::charged_neg2;
+            }
+
+            prop.desc = &getAttributeDesc(prop.id);
+            prop.min  = std::abs(prop.min.value_or(0));
+            prop.max  = std::abs(prop.max.value_or(0));
+        }
 
         prop.updateProperties();
         parsedProps.push_back(std::move(prop));
@@ -204,10 +216,15 @@ void MagicPropRawList::writeToRow(AffixPropList& propList) const
             .min  = prop.min,
             .max  = prop.max,
         };
-        if (prop.desc->flags.contains(AttributeFlag::Negative)) {
+        if (prop.desc->flags.contains(AttributeFlag::Negative) || prop.id == AttributeId::charged_neg) {
             affix.min = -affix.min.value_or(0);
             affix.max = -affix.max.value_or(0);
         }
+        if (prop.id == AttributeId::charged_neg1)
+            affix.min = -affix.min.value_or(0);
+        if (prop.id == AttributeId::charged_neg2)
+            affix.max = -affix.max.value_or(0);
+
         if (prop.desc->parMode == ParMode::PureValue && prop.desc->rangeMode == RangeMode::None) {
             affix.par = std::to_string(prop.min.value());
             affix.min.reset();

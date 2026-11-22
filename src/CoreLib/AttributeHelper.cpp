@@ -316,7 +316,10 @@ const AttributeDesc s_attributes[]{
     AttributeDesc{ AttributeId::pierce_cold, P::None, R::Range }.setElement(E::Cold).setRange(1, 255).setGroup(AG::ElePierce),       // -#% to Enemy Cold Resistance
     AttributeDesc{ AttributeId::pierce_pois, P::None, R::Range }.setElement(E::Pois).setRange(1, 255).setGroup(AG::ElePierce),       // -#% to Enemy Poison Resistance
     AttributeDesc{ AttributeId::indestruct, P::None, R::Flag, { AF::Durability } }.setGroup(AG::None),                               // Indestructible
-    AttributeDesc{ AttributeId::charged, P::Skill, R::Range, {} }.setGroup(AG::None),                                                // Level # [Skill] (#/# Charges)  par: [SKill], min:-ChargesCount, max: -Level
+    AttributeDesc{ AttributeId::charged, P::Skill, R::DoubleParam, {} }.setGroup(AG::None),                                          // Level # [Skill] (#/# Charges)  par: [SKill], min:-ChargesCount, max: -Level
+    AttributeDesc{ AttributeId::charged_neg, P::Skill, R::DoubleParam, {} }.setGroup(AG::None),                                      // Level # [Skill] (#/# Charges)  par: [SKill], min:-ChargesCount, max: -Level
+    AttributeDesc{ AttributeId::charged_neg1, P::Skill, R::DoubleParam, {} }.setGroup(AG::None),                                     // Level # [Skill] (#/# Charges)  par: [SKill], min:-ChargesCount, max: -Level
+    AttributeDesc{ AttributeId::charged_neg2, P::Skill, R::DoubleParam, {} }.setGroup(AG::None),                                     // Level # [Skill] (#/# Charges)  par: [SKill], min:-ChargesCount, max: -Level
     AttributeDesc{ AttributeId::extra_fire, P::None, R::Range }.setRange(-50, 461).setGroup(AG::EleExtra),                           // +#% to Fire Skill Damage
     AttributeDesc{ AttributeId::extra_ltng, P::None, R::Range }.setRange(-50, 461).setGroup(AG::EleExtra),                           // +#% to Lightning Skill Damage
     AttributeDesc{ AttributeId::extra_cold, P::None, R::Range }.setRange(-50, 461).setGroup(AG::EleExtra),                           // +#% to Cold Skill Damage
@@ -889,9 +892,11 @@ const AttributeDescStr s_attrCodes[]{
 const std::unordered_map<std::string_view, AttributeId> s_attributesIndex = [] {
     std::unordered_map<std::string_view, AttributeId> result;
     for (int i = 0, cnt = int(AttributeId::count__); i < cnt; ++i) {
-        AttributeId id       = static_cast<AttributeId>(i);
-        auto&       attrCode = s_attrCodes[i];
-        auto&       attrDesc = s_attributes[i];
+        AttributeId id = static_cast<AttributeId>(i);
+        if (id >= AttributeId::charged_neg && id <= AttributeId::charged_neg2)
+            continue;
+        auto& attrCode = s_attrCodes[i];
+        auto& attrDesc = s_attributes[i];
         assert(attrDesc.code == id);
         assert(attrCode.id == id);
         result[attrCode.code] = id;

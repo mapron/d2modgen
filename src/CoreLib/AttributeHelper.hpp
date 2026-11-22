@@ -206,6 +206,9 @@ enum class AttributeId
     pierce_pois,
     indestruct,
     charged,
+    charged_neg,
+    charged_neg1,
+    charged_neg2,
 
     extra_fire,
     extra_ltng,
