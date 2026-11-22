@@ -148,9 +148,9 @@ struct DataContext : public ISkillGetter {
 
     int getClassesCount() const;
 
-    int                       resolve(const std::string& nameOrId) const override;
-    DataRow_skills_mutableptr get(int idx) override;
-    DataRow_skills_ptr        get(int idx) const override;
+    int                       resolveSkillName(const std::string& nameOrId) const override;
+    DataRow_skills_mutableptr getSkill(int idx) override;
+    DataRow_skills_ptr        getSkill(int idx) const override;
 
 private:
     bool postProcess();

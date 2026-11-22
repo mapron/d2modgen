@@ -149,12 +149,12 @@ void MagicPropRawList::readFromRow(const AffixPropList&   propList,
         if (!col.par.empty()) {
             if (prop.desc->parMode != ParMode::None) {
                 if (prop.desc->parMode == ParMode::Skill) {
-                    prop.par = skillGetter.resolve(col.par);
+                    prop.par = skillGetter.resolveSkillName(col.par);
                     if (prop.par.value() == -1) {
                         assert(!"Failed to resolve skill id");
                         prop.par.reset();
                     } else {
-                        prop.parSkill = skillGetter.get(prop.par.value());
+                        prop.parSkill = skillGetter.getSkill(prop.par.value());
                         assert(prop.parSkill);
                     }
                 } else {

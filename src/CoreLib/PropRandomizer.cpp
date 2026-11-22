@@ -63,7 +63,7 @@ PropRandomizer::PropRandomizer(const AllAttributeData& attributeData, const ISki
             gen.set(rec, param);
 
             if (gen.prop.desc->parMode == ParMode::Skill) {
-                gen.prop.parSkill = skillGetter.get(param.par);
+                gen.prop.parSkill = skillGetter.getSkill(param.par);
                 assert(gen.prop.parSkill);
                 gen.prop.updateProperties();
             }

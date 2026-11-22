@@ -190,7 +190,7 @@ int DataContext::getClassesCount() const
     return charstats.rows.size() - 1;
 }
 
-int DataContext::resolve(const std::string& nameOrId) const
+int DataContext::resolveSkillName(const std::string& nameOrId) const
 {
     if (!nameOrId.empty()) {
         int intId = std::atoi(nameOrId.c_str());
@@ -207,14 +207,14 @@ int DataContext::resolve(const std::string& nameOrId) const
     return -1;
 }
 
-DataRow_skills_mutableptr DataContext::get(int idx)
+DataRow_skills_mutableptr DataContext::getSkill(int idx)
 {
     if (idx < 0)
         return nullptr;
     return &skills.rows[idx];
 }
 
-DataRow_skills_ptr DataContext::get(int idx) const
+DataRow_skills_ptr DataContext::getSkill(int idx) const
 {
     if (idx < 0)
         return nullptr;

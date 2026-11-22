@@ -429,9 +429,10 @@ using DataRow_skills_ptr        = const DataRow_skills*;
 struct ISkillGetter {
     virtual ~ISkillGetter() = default;
 
-    virtual int                       resolve(const std::string& nameOrId) const = 0;
-    virtual DataRow_skills_mutableptr get(int idx)                               = 0;
-    virtual DataRow_skills_ptr        get(int idx) const                         = 0;
+    virtual int resolveSkillName(const std::string& nameOrId) const = 0;
+
+    virtual DataRow_skills_mutableptr getSkill(int idx)       = 0;
+    virtual DataRow_skills_ptr        getSkill(int idx) const = 0;
 };
 
 struct DataRow_treasureclassex : public RowBase {
