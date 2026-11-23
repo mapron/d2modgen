@@ -283,7 +283,6 @@ struct DataRow_monstats : public RowBase {
     bool useForRando     = false;
     bool spawnedAsNormal = false;
     bool spawnedAsElite  = false;
-    bool hasMinions      = false;
     bool usedAsGuest     = false;
 
     int firstAreaIndexToSpawn = -1;

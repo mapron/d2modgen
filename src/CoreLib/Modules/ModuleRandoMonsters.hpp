@@ -45,6 +45,7 @@ private:
         DataRow_monstatsEx m_destEx;
 
         bool m_isGuest     = false;
+        bool m_levelAdjust = false;
         bool m_makeChimera = false;
         bool m_rollStat    = false;
         bool m_rollRes     = false;
@@ -53,7 +54,7 @@ private:
 
         bool hasAnyMods() const
         {
-            return m_isGuest || m_makeChimera || m_rollStat || m_rollRes;
+            return m_isGuest || m_levelAdjust || m_makeChimera || m_rollStat || m_rollRes;
         }
 
         std::string toString() const;

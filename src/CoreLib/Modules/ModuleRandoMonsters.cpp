@@ -119,6 +119,8 @@ void ModuleRandoMonsters::generate()
         for (auto& id : monIds) {
             MonsterTask task;
             task.m_source = output.monstats.find(id);
+            if (!task.m_source)
+                continue;
             if (!task.m_source->useForRando)
                 task.m_skip = true;
             if (existingIndexes.contains(task.m_source))
@@ -145,6 +147,7 @@ void ModuleRandoMonsters::generate()
         }
 
         std::set<const DataRow_monstats*> guestIndexes = existingIndexes;
+        // we can underdeliver with 5 extra attempts on collision checks; but that is simpler than doing shuffle. In practice 2 extra is enough.
         for (int i = 0, target = guestAmount + existingIndexes.size(); i < guestAmount + 5; ++i) {
             if (guestIndexes.size() >= target)
                 break;
@@ -154,8 +157,9 @@ void ModuleRandoMonsters::generate()
             if (existingIndexes.contains(guestIdx))
                 continue;
             MonsterTask task;
-            task.m_source  = guestIdx;
-            task.m_isGuest = true;
+            task.m_source      = guestIdx;
+            task.m_isGuest     = true;
+            task.m_levelAdjust = true;
             tasks.push_back(task);
         }
 
@@ -189,6 +193,7 @@ void ModuleRandoMonsters::generate()
             MonsterTask task;
             task.m_source      = validGuestPointers[rng(validGuestPointers.size())];
             task.m_isGuest     = true;
+            task.m_levelAdjust = true;
             task.m_makeChimera = genRandomScaledValue(rng, 1, module.m_chimeraAIMin, module.m_chimeraAIMax);
             task.m_rollStat    = genRandomScaledValue(rng, 1, module.m_rollStatMin, module.m_rollStatMax);
             task.m_rollRes     = genRandomScaledValue(rng, 1, module.m_rollResistancesMin, module.m_rollResistancesMax);
@@ -256,8 +261,6 @@ void ModuleRandoMonsters::processTask(MonsterTask& task, MonsterTaskList& extraM
     if (task.m_skip) {
         return;
     }
-    assert(row.isRegular);
-    assert(row.useForRando);
 
     DataRow_monstatsEx& rowEx = task.m_destEx;
     rowEx                     = *output.monstatsEx.find(row.monStatsEx);
@@ -294,6 +297,8 @@ void ModuleRandoMonsters::processTask(MonsterTask& task, MonsterTaskList& extraM
             auto promoted = tcTable.promote(*tc, guestOrigLevel, context.m_areaNormalLevel);
             *tc           = promoted;
         }
+    }
+    if (task.m_levelAdjust) {
         row.level = context.m_areaNormalLevel;
     }
 
@@ -392,11 +397,15 @@ void ModuleRandoMonsters::processTask(MonsterTask& task, MonsterTaskList& extraM
         if (minionId.empty())
             continue;
         MonsterTask minionTask = task;
+        minionTask.m_isGuest   = false;
         minionTask.m_source    = output.monstats.find(minionId);
+        if (!minionTask.m_source)
+            continue;
         if (!minionTask.m_source->useForRando) {
-            minionTask.m_skip = true;
+            minionTask.m_makeChimera = false;
         }
         processTask(minionTask, extraMinions, context, depth + 1);
+
         minionId = minionTask.m_dest.id;
         extraMinions.push_back(minionTask);
     }
@@ -480,7 +489,7 @@ void ModuleRandoMonsters::prepareGuestPools()
 {
     StringSet monSet;
     for (auto& row : output.monstats.rows) {
-        if (!row.useForRando || !row.spawnedAsNormal || row.hasMinions)
+        if (!row.useForRando || !row.spawnedAsNormal)
             continue;
 
         validGuestPointers.push_back(&row);
