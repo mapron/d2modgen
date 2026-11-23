@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include "ModgenCoreExport.hpp"
+#include "AppUtilExport.hpp"
 
 #include "MernelPlatform/FsUtils.hpp"
 
@@ -30,6 +30,6 @@ struct GameMatch {
 };
 
 /// Every prefix under homeDir (plus prefixEnv) that holds the game, best first.
-MODGENCORE_EXPORT std::vector<GameMatch> findGames(GameKind kind, const Mernel::std_path& homeDir, const std::string& prefixEnv);
+APPUTIL_EXPORT std::vector<GameMatch> findGames(GameKind kind, const Mernel::std_path& homeDir, const std::string& prefixEnv);
 
 }

@@ -106,20 +106,28 @@ AddTarget( TYPE app_console NAME modgen_console
     LINK_LIBRARIES ModgenCore MernelPlatform Config
     )
 
+if (NOT Qt6_FOUND)
+	return()
+endif()
+
+# AppUtil: finds the game on this machine, outside the generator
+AddTarget(TYPE shared NAME AppUtil
+    SOURCE_DIR ${sourceRoot}/AppUtil
+    EXPORT_INCLUDES
+    LINK_LIBRARIES MernelPlatform
+    QT_MODULES Core
+    )
+
 # Tests
 if (D2MODGEN_BUILD_TESTS)
     enable_testing()
     AddTarget(TYPE app_console NAME CoreTests
         SOURCE_DIR ${sourceRoot}/CoreTests
-        LINK_LIBRARIES ModgenCore MernelPlatform gtest_main
+        LINK_LIBRARIES ModgenCore AppUtil MernelPlatform gtest_main
         SKIP_INSTALL
         )
     file(COPY ${sourceRoot}/CoreTests/data/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/CoreTestsData)
     add_test(NAME CoreTests COMMAND CoreTests WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-endif()
-
-if (NOT Qt6_FOUND)
-	return()
 endif()
 
 

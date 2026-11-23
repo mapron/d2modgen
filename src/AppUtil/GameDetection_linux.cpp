@@ -6,9 +6,8 @@
  */
 #include "GameDetection.hpp"
 
-#include "Logger.hpp"
-
 #include "MernelPlatform/FileIOUtils.hpp"
+#include "MernelPlatform/Logger.hpp"
 #include "MernelPlatform/StringUtils.hpp"
 
 #include <algorithm>
@@ -22,6 +21,7 @@ namespace D2ModGen {
 
 namespace {
 
+using Mernel::Logger;
 using Mernel::path2string;
 using Mernel::std_path;
 using Mernel::string2path;
