@@ -180,6 +180,12 @@ WidgetScrollable {
         stretchCaption: false
         value_key: root.value_context.extraTrace
     }
+    WidgetLineEdit {
+        caption: qsTr("Run command after generation:")
+        tooltip: qsTr("Specify full path and arguments to program that is being executed after generate, example:<br>C:/Python3/python.exe path/to/script.py")
+        stretchCaption: false
+        value_key: root.value_context.postProcess
+    }
     WidgetSeed {
         title: qsTr("Random seed for non-randomizers")
         value_key: config.globalSeed

@@ -23,6 +23,7 @@
 
 #include <random>
 #include <format>
+#include <cstdlib>
 
 namespace D2ModGen {
 
@@ -63,7 +64,7 @@ bool ConfigHandler::saveAppConfig() const
     m_appConfig.writeToProperty(data);
 
     std::string buffer;
-    Mernel::writeJsonToBufferNoexcept(buffer, data, true);
+    Mernel::writeJconsJsonToBufferNoexcept(buffer, data, true);
     if (!Mernel::writeFileFromBufferNoexcept(filename, buffer)) {
         Logger(Logger::Err) << "Failed to write: " << path2string(filename);
         return false;
@@ -294,8 +295,24 @@ bool ConfigHandler::generate(const GenerationEnvironment& env, std::string& crc)
                  << ProfilerScope::printToStr();
         ProfilerScope::clearAll();
     }
+    executePost(m_appConfig.m_postProcess);
 
     return true;
+}
+
+void ConfigHandler::executePost(const std::string& str) const
+{
+    if (str.empty())
+        return;
+    Logger(Logger::Info) << "Execute: " << str;
+
+#ifdef _WIN32
+    const std::wstring wideCmd    = string2path(str).wstring();
+    const std::wstring wrappedCmd = L"\"" + wideCmd + L"\"";
+    _wsystem(wrappedCmd.c_str());
+#else
+    std::system(str.c_str());
+#endif
 }
 
 ConfigHandler::~ConfigHandler() = default;

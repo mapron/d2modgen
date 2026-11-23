@@ -35,6 +35,8 @@ public:
 
     bool generate(const GenerationEnvironment& env, std::string& crc);
 
+    void executePost(const std::string& str) const;
+
     AppConfig m_appConfig;
 
     Config m_config;
