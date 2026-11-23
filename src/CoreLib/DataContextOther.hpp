@@ -415,8 +415,6 @@ public:
     std::string anim;
     std::string seqtrans;
 
-    bool canBeOskill = true;
-
     std::array<std::string, s_calcCount> calc;
 
     std::vector<std::string> getColumns() const;

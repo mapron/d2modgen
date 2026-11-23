@@ -234,10 +234,6 @@ bool DataContext::postProcess()
     skilldesc.makeIndex(&DataRow_skilldesc::skilldesc);
     missiles.makeIndex(&DataRow_missiles::name);
 
-    const size_t skill_Leap = 132;
-    if (skills.rows.size() > skill_Leap)
-        skills.rows[skill_Leap].canBeOskill = false;
-
     auto getItemType = [this](std::string code) -> ItemType {
         if (code.size() > 4)
             code.resize(4);

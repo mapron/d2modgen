@@ -550,7 +550,7 @@ void ModuleRandoSkills::repointItemSkills(DataContext& output) const
                     const std::string before = prop.par;
                     if (it->second.has_value())
                         prop.par = std::to_string(it->second.value());
-                    else if (output.skills.rows[it->first].canBeOskill)
+                    else
                         prop.code = enumToString(AttributeId::oskill);
                     Logger(verbose) << "item '" << row.getId() << "': skill " << before << " -> " << prop.code << " " << prop.par;
                 }

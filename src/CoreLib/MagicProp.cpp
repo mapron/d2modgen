@@ -81,11 +81,11 @@ void MagicPropRawList::replaceToOskill(const RandoParams& randoParams)
 {
     for (MagicProp& prop : parsedProps) {
         if (randoParams.replaceSkills && prop.id == AttributeId::skill) {
-            if (prop.parSkill && prop.parSkill->canBeOskill)
+            if (prop.parSkill)
                 prop.id = AttributeId::oskill;
         }
         if (randoParams.replaceCharges && (prop.id >= AttributeId::charged && prop.id <= AttributeId::charged_neg2)) {
-            if (prop.parSkill && prop.parSkill->canBeOskill) {
+            if (prop.parSkill) {
                 prop.id  = AttributeId::oskill;
                 prop.min = prop.max;
             }
