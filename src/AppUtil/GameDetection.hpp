@@ -22,7 +22,7 @@ enum class GameKind
 };
 
 struct GameMatch {
-    Mernel::std_path prefix;      // Wine prefix (holds system.reg)
+    Mernel::std_path prefix;      // Wine prefix (holds drive_c)
     Mernel::std_path installPath; // game dir, validated
     Mernel::std_path userHome;    // prefix user dir, <prefix>/drive_c/users/<user>/
     bool             hasSavedGames      = false;

@@ -16,12 +16,7 @@ namespace std_fs = Mernel::std_fs;
 
 namespace {
 
-// Key paths and values below are written as they appear in a .reg file, with doubled backslashes.
-const std::string g_uninstallKey = R"(Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II Resurrected)";
-const std::string g_shellFolders = R"(Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders)";
-const std::string g_installPath  = R"(C:\\Program Files (x86)\\Diablo II Resurrected)";
-const std::string g_appData      = R"(C:\\users\\steamuser\\AppData\\Roaming)";
-const std::string g_gameDir      = "drive_c/Program Files (x86)/Diablo II Resurrected";
+const std::string g_gameDir = "drive_c/Program Files (x86)/Diablo II Resurrected";
 
 void touch(const std_path& file, const std::string& content = {})
 {
@@ -29,29 +24,16 @@ void touch(const std_path& file, const std::string& content = {})
     std::ofstream(file, std::ios::binary) << content;
 }
 
-std::string regSection(const std::string& key, const std::string& name, const std::string& value)
+void makePrefix(const std_path& prefix)
 {
-    return "\n[" + key + "] 1700000000\n#time=1da0000000000000\n\"" + name + "\"=\"" + value + "\"\n";
-}
-
-void writeReg(const std_path& file, const std::string& sections)
-{
-    touch(file, "WINE REGISTRY Version 2\n;; All keys relative to REGISTRY\\\\Machine\n\n#arch=win64\n" + sections);
-}
-
-void makePrefix(const std_path& prefix, const std::string& systemSections, const std::string& userSections)
-{
-    writeReg(prefix / "system.reg", systemSections);
-    writeReg(prefix / "user.reg", userSections);
-    std_fs::create_directories(prefix / "dosdevices");
+    touch(prefix / "user.reg");
     std_fs::create_directories(prefix / "drive_c/users/steamuser/AppData/Roaming");
     std_fs::create_directories(prefix / "drive_c/users/Public");
-    std_fs::create_directory_symlink("../drive_c", prefix / "dosdevices/c:");
 }
 
-void makeD2RPrefix(const std_path& prefix, const std::string& installPath = g_installPath)
+void makeD2RPrefix(const std_path& prefix)
 {
-    makePrefix(prefix, regSection(g_uninstallKey, "InstallLocation", installPath), regSection(g_shellFolders, "AppData", g_appData));
+    makePrefix(prefix);
     touch(prefix / g_gameDir / "D2R.exe");
 }
 
@@ -126,7 +108,7 @@ TEST_F(GameDetectionTest, SteamAppInstall)
 {
     const std_path steamapps = m_home / ".local/share/Steam/steamapps";
     const std_path prefix    = steamapps / "compatdata/2536520/pfx";
-    makePrefix(prefix, {}, regSection(g_shellFolders, "AppData", g_appData));
+    makePrefix(prefix);
     touch(steamapps / "appmanifest_2536520.acf", "\"AppState\"\n{\n\t\"appid\"\t\t\"2536520\"\n\t\"installdir\"\t\t\"Diablo II Resurrected\"\n}\n");
     touch(steamapps / "common/Diablo II Resurrected/D2R.exe");
 
@@ -161,21 +143,11 @@ TEST_F(GameDetectionTest, LutrisPrefix)
     EXPECT_EQ(matches[0].prefix, m_home / "elsewhere/bnet");
 }
 
-TEST_F(GameDetectionTest, InstallLocationCaseDiffers)
-{
-    const std_path prefix = m_home / "Games/battlenet";
-    makeD2RPrefix(prefix, R"(c:\\program files (x86)\\diablo ii resurrected)");
-
-    const auto matches = find();
-    ASSERT_EQ(matches.size(), 1u);
-    EXPECT_EQ(matches[0].installPath, prefix / g_gameDir);
-}
-
-TEST_F(GameDetectionTest, InstallLocationHexEscape)
+TEST_F(GameDetectionTest, GameFolderCaseDiffers)
 {
     const std_path prefix  = m_home / "Games/battlenet";
-    const std_path gameDir = prefix / "drive_c/Games" / Mernel::string2path("Diablo II R\xC3\xA9surrected");
-    makeD2RPrefix(prefix, R"(C:\\Games\\Diablo II R\x00e9surrected)");
+    const std_path gameDir = prefix / "drive_c/program files (x86)/diablo ii resurrected";
+    makePrefix(prefix);
     touch(gameDir / "D2R.exe");
 
     const auto matches = find();
@@ -202,11 +174,12 @@ TEST_F(GameDetectionTest, InstallDirSymlinkLoopIsNoMatch)
     EXPECT_TRUE(find().empty());
 }
 
-TEST_F(GameDetectionTest, UserHomeFromUsersDir)
+TEST_F(GameDetectionTest, ProtonUserSymlinkCountsOnce)
 {
     const std_path prefix = m_home / "Games/battlenet";
     makeD2RPrefix(prefix);
-    writeReg(prefix / "user.reg", {});
+    // Proton links drive_c/users/<Linux user> to steamuser.
+    std_fs::create_directory_symlink("steamuser", prefix / "drive_c/users/bertus");
 
     const auto matches = find();
     ASSERT_EQ(matches.size(), 1u);
@@ -240,36 +213,32 @@ TEST_F(GameDetectionTest, NewerUserRegRanksFirst)
     EXPECT_EQ(matches[1].prefix, m_home / "Games/a");
 }
 
-TEST_F(GameDetectionTest, LegacyFromUserRegInstallPath)
+TEST_F(GameDetectionTest, LegacyInDefaultFolder)
 {
-    const std_path prefix = m_home / ".wine";
-    makePrefix(prefix,
-               {},
-               regSection(R"(Software\\Blizzard Entertainment\\Diablo II)", "InstallPath", R"(C:\\Games\\Diablo II)")
-                   + regSection(g_shellFolders, "AppData", g_appData));
-    touch(prefix / "drive_c/Games/Diablo II/GAME.EXE");
-    touch(prefix / "drive_c/Games/Diablo II/D2Data.MPQ");
-    touch(prefix / "drive_c/Games/Diablo II/D2EXP.MPQ");
-    touch(prefix / "drive_c/Games/Diablo II/Patch_D2.mpq");
+    const std_path prefix  = m_home / ".wine";
+    const std_path gameDir = prefix / "drive_c/Program Files (x86)/Diablo II";
+    makePrefix(prefix);
+    touch(gameDir / "GAME.EXE");
+    touch(gameDir / "D2Data.MPQ");
+    touch(gameDir / "D2EXP.MPQ");
+    touch(gameDir / "Patch_D2.mpq");
     touch(prefix / "drive_c/users/steamuser/AppData/Roaming/Battle.net/Battle.net.config", "{}");
 
     const auto matches = find(GameKind::Legacy);
     ASSERT_EQ(matches.size(), 1u);
     EXPECT_EQ(matches[0].prefix, prefix);
-    EXPECT_EQ(matches[0].installPath, prefix / "drive_c/Games/Diablo II");
+    EXPECT_EQ(matches[0].installPath, gameDir);
     EXPECT_FALSE(matches[0].hasBattleNetConfig);
 }
 
 TEST_F(GameDetectionTest, LegacyMarkersIncomplete)
 {
-    const std_path prefix = m_home / ".wine";
-    makePrefix(prefix,
-               {},
-               regSection(R"(Software\\Blizzard Entertainment\\Diablo II)", "InstallPath", R"(C:\\Games\\Diablo II)")
-                   + regSection(g_shellFolders, "AppData", g_appData));
-    touch(prefix / "drive_c/Games/Diablo II/Game.exe");
-    touch(prefix / "drive_c/Games/Diablo II/d2data.mpq");
-    touch(prefix / "drive_c/Games/Diablo II/patch_d2.mpq");
+    const std_path prefix  = m_home / ".wine";
+    const std_path gameDir = prefix / "drive_c/Program Files (x86)/Diablo II";
+    makePrefix(prefix);
+    touch(gameDir / "Game.exe");
+    touch(gameDir / "d2data.mpq");
+    touch(gameDir / "patch_d2.mpq");
 
     EXPECT_TRUE(find(GameKind::Legacy).empty());
 }

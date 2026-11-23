@@ -11,9 +11,7 @@
 #include "MernelPlatform/StringUtils.hpp"
 
 #include <algorithm>
-#include <cctype>
 #include <charconv>
-#include <map>
 #include <set>
 #include <vector>
 
@@ -27,15 +25,6 @@ using Mernel::std_path;
 using Mernel::string2path;
 using Mernel::strToLower;
 namespace std_fs = Mernel::std_fs;
-
-using RegKey  = std::map<std::string, std::string>; // lowercase value name -> value
-using RegKeys = std::map<std::string, RegKey>;      // lowercase key path -> values
-
-const std::string g_uninstallWow = "Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
-const std::string g_uninstall    = "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
-const std::string g_blizzardWow  = "Software\\Wow6432Node\\Blizzard Entertainment\\Diablo II";
-const std::string g_blizzard     = "Software\\Blizzard Entertainment\\Diablo II";
-const std::string g_shellFolders = "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders";
 
 std::vector<std::string> readLines(const std_path& file)
 {
@@ -62,102 +51,21 @@ std::vector<std::string> readLines(const std_path& file)
     return lines;
 }
 
-void appendUtf8(std::string& out, unsigned code)
-{
-    if (code < 0x80) {
-        out += char(code);
-    } else if (code < 0x800) {
-        out += char(0xC0 | (code >> 6));
-        out += char(0x80 | (code & 0x3F));
-    } else {
-        out += char(0xE0 | (code >> 12));
-        out += char(0x80 | ((code >> 6) & 0x3F));
-        out += char(0x80 | (code & 0x3F));
-    }
-}
-
-// Reads a quoted .reg string starting at pos (on the opening quote). Wine writes non-ASCII characters as \x
-// with up to four hex digits (UTF-16 code units).
+// Reads a quoted .vdf string starting at pos (on the opening quote). A backslash escapes the next character.
 bool parseQuoted(const std::string& line, size_t& pos, std::string& out)
 {
     if (pos >= line.size() || line[pos] != '"')
         return false;
     for (++pos; pos < line.size(); ++pos) {
-        const char c = line[pos];
-        if (c == '"') {
+        if (line[pos] == '"') {
             ++pos;
             return true;
         }
-        if (c != '\\' || pos + 1 >= line.size()) {
-            out += c;
-            continue;
-        }
-        const char next = line[++pos];
-        if (next != 'x') {
-            out += next;
-            continue;
-        }
-        unsigned   code  = 0;
-        const auto first = line.data() + pos + 1;
-        const auto last  = line.data() + std::min(line.size(), pos + 5);
-        const auto res   = std::from_chars(first, last, code, 16);
-        if (res.ptr == first) {
-            out += next;
-            continue;
-        }
-        appendUtf8(out, code);
-        pos += res.ptr - first;
+        if (line[pos] == '\\' && pos + 1 < line.size())
+            ++pos;
+        out += line[pos];
     }
     return false;
-}
-
-std::string unescapeKey(const std::string& key)
-{
-    std::string result;
-    for (size_t i = 0; i < key.size(); ++i) {
-        if (key[i] == '\\' && i + 1 < key.size() && key[i + 1] == '\\')
-            ++i;
-        result += key[i];
-    }
-    return result;
-}
-
-// Wine .reg files: "[Key\\Path] <timestamp>" section headers followed by "Name"="value" lines.
-RegKeys readRegKeys(const std_path& file, const std::vector<std::string>& keys)
-{
-    std::set<std::string> wanted;
-    for (const auto& key : keys)
-        wanted.insert(strToLower(key));
-
-    RegKeys result;
-    RegKey* current = nullptr;
-    for (const std::string& line : readLines(file)) {
-        if (line.starts_with('[')) {
-            const size_t      end = line.rfind(']');
-            const std::string key = end == std::string::npos ? std::string() : strToLower(unescapeKey(line.substr(1, end - 1)));
-            current               = wanted.contains(key) ? &result[key] : nullptr;
-            continue;
-        }
-        if (!current || !line.starts_with('"'))
-            continue;
-        size_t      pos = 0;
-        std::string name, value;
-        if (!parseQuoted(line, pos, name) || line.compare(pos, 1, "=") != 0)
-            continue;
-        ++pos;
-        if (parseQuoted(line, pos, value))
-            (*current)[strToLower(name)] = value;
-    }
-    return result;
-}
-
-std::string regValue(const RegKeys& keys, const std::string& key, const std::string& name)
-{
-    const auto keyIt = keys.find(strToLower(key));
-    if (keyIt == keys.cend())
-        return {};
-    const auto valueIt = keyIt->second.find(strToLower(name));
-    return valueIt == keyIt->second.cend() ? std::string() : valueIt->second;
 }
 
 std_path findEntry(const std_path& dir, const std::string& name)
@@ -174,38 +82,15 @@ std_path findEntry(const std_path& dir, const std::string& name)
     return {};
 }
 
-std_path driveRoot(const std_path& prefix, const std::string& winPath)
+// Windows paths ignore case: "program files (x86)" finds "Program Files (x86)".
+std_path findPath(std_path dir, const std::vector<std::string>& parts)
 {
-    if (winPath.size() < 2 || !std::isalpha(static_cast<unsigned char>(winPath[0])) || winPath[1] != ':')
-        return {};
-    const std_path  dosdevices = prefix / "dosdevices";
-    const std_path  drive      = dosdevices / strToLower(winPath.substr(0, 2));
-    std::error_code ec;
-    std_path        target = std_fs::read_symlink(drive, ec);
-    if (ec)
-        target = drive;
-    else if (target.is_relative())
-        target = (dosdevices / target).lexically_normal();
-    return Mernel::isExistingDirectory(target) ? target : std_path();
-}
-
-std_path resolveWinPath(const std_path& root, const std::string& winPath)
-{
-    std_path result = root;
-    size_t   start  = 2;
-    while (start < winPath.size()) {
-        size_t end = winPath.find_first_of("\\/", start);
-        if (end == std::string::npos)
-            end = winPath.size();
-        const std::string part = winPath.substr(start, end - start);
-        if (!part.empty()) {
-            result = findEntry(result, part);
-            if (result.empty())
-                return {};
-        }
-        start = end + 1;
+    for (const auto& part : parts) {
+        dir = findEntry(dir, part);
+        if (dir.empty())
+            return {};
     }
-    return result;
+    return dir;
 }
 
 bool validateInstall(GameKind kind, const std_path& dir, std::string& reason)
@@ -237,7 +122,7 @@ std::string vdfValue(std::string line, const std::string& key)
 }
 
 // D2R bought on Steam (app 2536520): the prefix is <library>/steamapps/compatdata/2536520/pfx and the game is in
-// <library>/steamapps/common/<installdir from appmanifest_2536520.acf>. No Blizzard uninstall key in the prefix.
+// <library>/steamapps/common/<installdir from appmanifest_2536520.acf>, outside the prefix.
 std_path steamInstall(const std_path& prefix)
 {
     std_path pfx = prefix.lexically_normal();
@@ -254,67 +139,38 @@ std_path steamInstall(const std_path& prefix)
     return {};
 }
 
+// The installers' default folders in drive_c. A game installed elsewhere in the prefix is not found; Browse... still takes it.
 std_path findInstall(GameKind kind, const std_path& prefix)
 {
-    const auto accept = [kind, &prefix](const std_path& dir, const std::string& source) {
+    const auto accept = [kind, &prefix](const std_path& dir) {
         std::string reason = "install dir missing";
         if (Mernel::isExistingDirectory(dir) && validateInstall(kind, dir, reason))
             return true;
-        Logger(Logger::Info) << "Wine detection: " << path2string(prefix) << ": " << source << ": " << reason;
+        Logger(Logger::Info) << "Wine detection: " << path2string(prefix) << ": " << path2string(dir) << ": " << reason;
         return false;
     };
 
-    std::vector<std::string> winPaths;
     if (kind == GameKind::Resurrected) {
-        if (const std_path dir = steamInstall(prefix); !dir.empty() && accept(dir, path2string(dir)))
-            return dir;
-        const RegKeys system = readRegKeys(prefix / "system.reg", { g_uninstallWow + "Diablo II Resurrected", g_uninstall + "Diablo II Resurrected" });
-        winPaths.push_back(regValue(system, g_uninstallWow + "Diablo II Resurrected", "InstallLocation"));
-        winPaths.push_back(regValue(system, g_uninstall + "Diablo II Resurrected", "InstallLocation"));
-    } else {
-        const RegKeys system = readRegKeys(prefix / "system.reg", { g_uninstallWow + "Diablo II", g_uninstall + "Diablo II", g_blizzardWow, g_blizzard });
-        const RegKeys user   = readRegKeys(prefix / "user.reg", { g_blizzard });
-        winPaths.push_back(regValue(system, g_uninstallWow + "Diablo II", "InstallLocation"));
-        winPaths.push_back(regValue(system, g_uninstall + "Diablo II", "InstallLocation"));
-        winPaths.push_back(regValue(system, g_blizzardWow, "InstallPath"));
-        winPaths.push_back(regValue(system, g_blizzard, "InstallPath"));
-        winPaths.push_back(regValue(user, g_blizzard, "InstallPath"));
-        winPaths.push_back("C:\\Program Files (x86)\\Diablo II");
-        winPaths.push_back("C:\\Program Files\\Diablo II");
-        winPaths.push_back("C:\\Diablo II");
-    }
-    std::erase(winPaths, std::string());
-    if (winPaths.empty()) {
-        Logger(Logger::Info) << "Wine detection: " << path2string(prefix) << ": no uninstall key";
-        return {};
-    }
-
-    for (const auto& winPath : winPaths) {
-        const std_path root = driveRoot(prefix, winPath);
-        if (root.empty()) {
-            Logger(Logger::Info) << "Wine detection: " << path2string(prefix) << ": " << winPath << ": drive not mapped";
-            continue;
-        }
-        if (const std_path dir = resolveWinPath(root, winPath); accept(dir, winPath))
+        if (const std_path dir = steamInstall(prefix); !dir.empty() && accept(dir))
             return dir;
     }
+    const std::string game = kind == GameKind::Resurrected ? "Diablo II Resurrected" : "Diablo II";
+    for (const auto& parts : std::vector<std::vector<std::string>>{ { "Program Files (x86)", game }, { "Program Files", game }, { game } }) {
+        if (const std_path dir = findPath(prefix / "drive_c", parts); !dir.empty() && accept(dir))
+            return dir;
+    }
+    Logger(Logger::Info) << "Wine detection: " << path2string(prefix) << ": " << game << " not in its default folders";
     return {};
 }
 
+// The one user folder in drive_c/users with AppData. Proton adds a symlink named after the Linux user that points at
+// steamuser; symlinks are skipped so that folder counts once.
 std_path findUserHome(const std_path& prefix)
 {
-    const RegKeys     user    = readRegKeys(prefix / "user.reg", { g_shellFolders });
-    const std::string appData = regValue(user, g_shellFolders, "AppData");
-    if (const std_path root = driveRoot(prefix, appData); !root.empty()) {
-        const std_path dir = resolveWinPath(root, appData);
-        if (!dir.empty())
-            return dir.parent_path().parent_path();
-    }
-
     std_path        found;
     std::error_code ec;
     for (const auto& entry : std_fs::directory_iterator(prefix / "drive_c/users", ec)) {
-        if (entry.path().filename() == "Public" || !std_fs::is_directory(entry.path() / "AppData", ec))
+        if (entry.is_symlink(ec) || entry.path().filename() == "Public" || !std_fs::is_directory(entry.path() / "AppData", ec))
             continue;
         if (!found.empty())
             return {};
@@ -445,10 +301,10 @@ std::vector<GameMatch> findGames(GameKind kind, const Mernel::std_path& homeDir,
     std::set<std_path> checked;
     for (const auto& dir : collectCandidates(homeDir, prefixEnv)) {
         std_path prefix = dir;
-        if (!Mernel::isExistingFile(prefix / "system.reg"))
+        if (!Mernel::isExistingDirectory(prefix / "drive_c"))
             prefix = dir / "pfx";
-        if (!Mernel::isExistingFile(prefix / "system.reg")) {
-            Logger(Logger::Info) << "Wine detection: " << path2string(dir) << ": no system.reg";
+        if (!Mernel::isExistingDirectory(prefix / "drive_c")) {
+            Logger(Logger::Info) << "Wine detection: " << path2string(dir) << ": no drive_c";
             continue;
         }
         std::error_code ec;
@@ -477,6 +333,7 @@ std::vector<GameMatch> findGames(GameKind kind, const Mernel::std_path& homeDir,
         }
         Logger(Logger::Info) << "Wine detection: " << path2string(prefix) << ": accepted, game in " << path2string(match.installPath);
 
+        // Wine writes user.reg when the prefix shuts down, so its time is when the prefix was last used.
         const auto userRegTime = std_fs::last_write_time(prefix / "user.reg", ec);
         found.push_back({ match, ec ? std_fs::file_time_type::min() : userRegTime });
     }
