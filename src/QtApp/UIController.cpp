@@ -116,9 +116,6 @@ UIController::UIController(ConfigHandler& configHandler)
 
     auto& cfg = m_configHandler.m_appConfig;
 
-    if (!s_isWindows)
-        detectOnStartup();
-
     if (s_isWindows || cfg.m_userHome.empty())
         cfg.m_userHome = getUserHomeDefault().toStdString();
 
@@ -312,25 +309,6 @@ void UIController::applyMatch(int index)
     setGamePaths(cfg, match);
     cfg.notifyChangeInner();
     emit statusUpdate(tr("Found Diablo II in %1").arg(QString::fromStdString(path2string(match.prefix))));
-}
-
-void UIController::detectOnStartup()
-{
-    auto& cfg = m_configHandler.m_appConfig;
-    if (Mernel::isExistingDirectory(string2path(cfg.m_userHome)))
-        return;
-
-    // Both fields come from one prefix, or neither changes: an input folder that points at another install stays.
-    const auto matches = findGamesFor(cfg);
-    const auto input   = string2path(cfg.m_inputPath);
-    if (matches.size() == 1 && (!Mernel::isExistingDirectory(input) || sameDir(input, matches[0].installPath))) {
-        setGamePaths(cfg, matches[0]);
-    } else if (!matches.empty()) {
-        // The UI isn't up yet; post the hint once the event loop runs.
-        QTimer::singleShot(0, this, [this] {
-            emit statusUpdate(tr("Wine user root not found. Press Detect! to fill it from a Wine prefix with Diablo II."));
-        });
-    }
 }
 
 void UIController::updateUndoAction()

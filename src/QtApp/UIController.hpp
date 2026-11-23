@@ -79,7 +79,6 @@ private:
     void pushUndo(const Mernel::PropertyTree& data);
     void pushUndoCurrent();
     void updateUndoAction();
-    void detectOnStartup();
 
 private:
     bool                        m_autoSave = true;
