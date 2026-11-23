@@ -460,8 +460,10 @@ void ModuleRandoSkills::generate()
     output.skills.updateIndex();
     output.skilldesc.updateIndex();
 
-    if (randoEnabled)
+    if (randoEnabled) {
         repointItemSkills(output);
+        repointStartSkills(output);
+    }
 
     output.missiles.commitExtraRows();
 
@@ -557,6 +559,29 @@ void ModuleRandoSkills::repointItemSkills(DataContext& output) const
     processTable(output.setitems);
     processTable(output.sets);
     processTable(output.runes);
+}
+
+void ModuleRandoSkills::repointStartSkills(DataContext& output)
+{
+    const auto classes = getClassTypes();
+    for (size_t i = 0; auto& row : output.charstats.rows) {
+        if (row.clas == "Expansion")
+            continue;
+        const Character clas = classes[i++];
+        if (row.startSkill.empty())
+            continue;
+
+        std::vector<const SkillInfo*> levelOne;
+        for (const SkillInfo& skill : generatedData.at(clas).skills)
+            if (skill.stype == SType::GenActive && skill.desc.skillRow == 1)
+                levelOne.push_back(&skill);
+        if (levelOne.empty())
+            continue;
+
+        const std::string before = row.startSkill;
+        row.startSkill           = levelOne[rng(levelOne.size())]->row.skill;
+        Logger(verbose) << "charstats '" << row.clas << "': StartSkill " << before << " -> " << row.startSkill;
+    }
 }
 
 std::vector<size_t> ModuleRandoSkills::CharacterData::getIndexesByType(SType stype, SType stype2) const
