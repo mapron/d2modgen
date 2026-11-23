@@ -530,7 +530,7 @@ void ModuleRandoSkills::repointItemSkills(DataContext& output) const
     // repoint original `skill` to:
     // 1. If the class still have that skill: point to new id
     // 2. If not, change to `oskill`
-    auto processTable = [&](auto& table) {
+    auto processTable = [this, &output, &redirect, &sorc, sorcActive](auto& table) {
         for (auto& row : table.rows) {
             for (AffixPropList* affixList : row.affixLists()) {
                 for (AffixProp& prop : *affixList) {
