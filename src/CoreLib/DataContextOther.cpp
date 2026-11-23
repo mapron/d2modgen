@@ -145,13 +145,16 @@ void DataRow_hireling::serialize()
 
 std::vector<std::string> DataRow_itemstatcost::getColumns() const
 {
-    return { "multiply", "add" };
+    return { "stat", "multiply", "add", "send param bits", "save param bits" };
 }
 
 void DataRow_itemstatcost::serialize()
 {
+    ser(stat);
     ser(multiply);
     ser(add);
+    ser(sendParamBits);
+    ser(saveParamBits);
 }
 
 std::vector<std::string> DataRow_levels::getColumns() const

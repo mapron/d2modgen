@@ -467,6 +467,8 @@ void ModuleRandoSkills::generate()
 
     output.missiles.commitExtraRows();
 
+    extendSkillParamBits(output);
+
     for (auto& skill : output.skills.rows) {
         if (skill.classSpecific != Character::Nec)
             continue;
@@ -581,6 +583,22 @@ void ModuleRandoSkills::repointStartSkills(DataContext& output)
         const std::string before = row.startSkill;
         row.startSkill           = levelOne[rng(levelOne.size())]->row.skill;
         Logger(verbose) << "charstats '" << row.clas << "': StartSkill " << before << " -> " << row.startSkill;
+    }
+}
+
+void ModuleRandoSkills::extendSkillParamBits(DataContext& output) const
+{
+    int requiredBits = 10;
+
+    for (auto& row : output.itemstatcost.rows) {
+        if (row.stat != "item_singleskill" && row.stat != "item_nonclassskill" && row.stat != "item_aura")
+            continue;
+        if (row.saveParamBits.value() < requiredBits)
+            row.saveParamBits = requiredBits;
+
+        if (row.sendParamBits.has_value() && row.sendParamBits.value() < requiredBits)
+            row.sendParamBits = requiredBits;
+        Logger(verbose) << "itemstatcost '" << row.stat << "': param bits -> " << requiredBits;
     }
 }
 

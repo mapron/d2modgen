@@ -26,6 +26,7 @@ struct ModuleRandoSkills : public AbstractModule {
 private:
     void repointItemSkills(DataContext& output) const;
     void repointStartSkills(DataContext& output);
+    void extendSkillParamBits(DataContext& output) const;
 
     struct SkillInfo {
         SType stype = SType::Filler;

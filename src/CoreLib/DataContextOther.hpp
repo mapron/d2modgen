@@ -99,8 +99,11 @@ struct DataRow_itemstatcost : public RowBase {
 
     bool operator==(const DataRow_itemstatcost&) const noexcept = default;
 
+    std::string        stat;
     std::optional<int> multiply;
     std::optional<int> add;
+    std::optional<int> sendParamBits;
+    std::optional<int> saveParamBits;
 
     std::vector<std::string> getColumns() const;
     void                     serialize();
