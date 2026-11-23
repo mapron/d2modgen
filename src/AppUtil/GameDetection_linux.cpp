@@ -505,4 +505,9 @@ std::vector<GameMatch> findGames(GameKind kind, const Mernel::std_path& homeDir,
     return result;
 }
 
+std::string getInstallLocationFromRegistry(GameKind)
+{
+    return {};
+}
+
 }

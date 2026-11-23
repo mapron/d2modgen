@@ -139,7 +139,7 @@ qt_standard_project_setup()
 AddTarget( TYPE app_qt NAME modgen_ui
     SOURCE_DIR ${sourceRoot}/QtApp
     INCLUDES   ${sourceRoot}/QtApp  ${CMAKE_CURRENT_BINARY_DIR}/version
-    LINK_LIBRARIES ModgenCore MernelPlatform Config
+    LINK_LIBRARIES ModgenCore AppUtil MernelPlatform Config
     QT_MODULES Widgets Qml Quick Network
     
     EXTRA_SOURCES assets/resource.rc

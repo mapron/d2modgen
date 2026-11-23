@@ -6,6 +6,7 @@
 #include "UIController.hpp"
 
 #include "FileIOUtils.hpp"
+#include "GameDetection.hpp"
 #include "Shortcut.hpp"
 
 #include "ConfigHandler.hpp"
@@ -19,7 +20,6 @@
 #include <QTimer>
 #include <QProcess>
 #include <QDir>
-#include <QSettings>
 #include <QStandardPaths>
 #include <QUrl>
 
@@ -44,21 +44,6 @@ QString ensureTrailingSlash(QString value)
     str.replace('\\', '/');
     return str;
 }
-
-#ifdef _WIN32
-std::string getInstallLocationFromRegistry(bool resurrected)
-{
-    static const QString base("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II");
-    QSettings            set(base + (resurrected ? " Resurrected" : ""),
-                             QSettings::Registry32Format);
-    return ensureTrailingSlash(set.value("InstallLocation").toString()).toStdString();
-}
-#else
-std::string getInstallLocationFromRegistry(bool resurrected)
-{
-    return {};
-}
-#endif
 
 QString getUserHomeDefault()
 {
@@ -116,8 +101,8 @@ UIController::UIController(ConfigHandler& configHandler)
     if (s_isWindows || cfg.m_userHome.empty())
         cfg.m_userHome = getUserHomeDefault().toStdString();
 
-    cfg.m_installLocationD2R    = getInstallLocationFromRegistry(true);
-    cfg.m_installLocationLegacy = getInstallLocationFromRegistry(false);
+    cfg.m_installLocationD2R    = ensureTrailingSlash(QString::fromStdString(getInstallLocationFromRegistry(GameKind::Resurrected))).toStdString();
+    cfg.m_installLocationLegacy = ensureTrailingSlash(QString::fromStdString(getInstallLocationFromRegistry(GameKind::Legacy))).toStdString();
 
     // out contract is to always have at least 1 record in m_undo. We can undo when we have 2 and more.
     pushUndoCurrent();

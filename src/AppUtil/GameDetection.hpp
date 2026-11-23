@@ -29,7 +29,10 @@ struct GameMatch {
     bool             hasBattleNetConfig = false; // always false for Legacy
 };
 
-/// Every prefix under homeDir (plus prefixEnv) that holds the game, best first.
+/// Every Wine prefix under homeDir (plus prefixEnv) that holds the game, best first. Empty on Windows.
 APPUTIL_EXPORT std::vector<GameMatch> findGames(GameKind kind, const Mernel::std_path& homeDir, const std::string& prefixEnv);
+
+/// Windows: the game folder from its uninstall key in the registry. Empty elsewhere.
+APPUTIL_EXPORT std::string getInstallLocationFromRegistry(GameKind kind);
 
 }

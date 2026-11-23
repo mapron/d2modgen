@@ -6,7 +6,17 @@
  */
 #include "GameDetection.hpp"
 
+#include <QSettings>
+
 namespace D2ModGen {
+
+std::string getInstallLocationFromRegistry(GameKind kind)
+{
+    static const QString base("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Diablo II");
+    QSettings            set(base + (kind == GameKind::Resurrected ? " Resurrected" : ""),
+                             QSettings::Registry32Format);
+    return set.value("InstallLocation").toString().toStdString();
+}
 
 std::vector<GameMatch> findGames(GameKind, const Mernel::std_path&, const std::string&)
 {
