@@ -1082,9 +1082,6 @@ void ModuleRandoSkills::CharacterData::updateMissiles(DataContext& output)
         if (skill.stype != SType::ExistingActive && skill.stype != SType::GenActive)
             continue;
 
-        if (skill.eType == Element::None)
-            continue;
-
         std::map<std::string, std::string> skillScope;
         for (std::string& child : skill.row.missile)
             updateMissile(output, skill, child, skillScope);
@@ -1122,7 +1119,7 @@ void ModuleRandoSkills::CharacterData::updateMissile(DataContext& output, const 
     newMiss.id   = output.missiles.rows.size() + output.missiles.extra.size();
     missileId    = newMiss.name;
 
-    if (getElementId(newMiss.eType) != Element::None) // will skip freeze/bleed
+    if (parent.eType != Element::None && getElementId(newMiss.eType) != Element::None) // will skip freeze/bleed
         newMiss.eType = enumToString(parent.eType);
 
     if (!newMiss.skill.empty())

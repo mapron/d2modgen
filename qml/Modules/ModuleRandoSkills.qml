@@ -36,6 +36,7 @@ WidgetCommonTab {
 
         model: [qsTr("Disable"), qsTr("Same class shuffle"), qsTr("Select class"), qsTr("Full class rando")]
         value_key: root.value_context.randoMode
+        stretchCaption: false
     }
 
     WidgetComboBox {
