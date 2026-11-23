@@ -6,6 +6,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Fusion
+import QtQuick.Dialogs
 import "Modules"
 import "Widgets"
 
@@ -164,11 +165,6 @@ ApplicationWindow {
                     function onStatusUpdate(status) {
                         statusLabel.text = Qt.formatDateTime(new Date(), "[HH:mm:ss] ") + status;
                     }
-                    function onShowErrorDialog(mainLine, extraInfo) {
-                        errorDialog.mainText = mainLine;
-                        errorDialog.detailsText = extraInfo;
-                        errorDialog.open();
-                    }
                 }
             }
 
@@ -181,32 +177,48 @@ ApplicationWindow {
         }
     }
 
-    Dialog {
+    ApplicationWindow {
         id: errorDialog
         title: qsTr("Error on Generate")
-        modal: true
-        anchors.centerIn: parent
-        standardButtons: Dialog.Ok
-        header: LabelImportant {
-            text: errorDialog.title
+        flags: Qt.Dialog                      // thin frame, no minimize/maximize
+        modality: Qt.ApplicationModal
+        width: Math.min(window.width * 2 / 3, 720)
+        height: contentColumn.implicitHeight + 40
+        palette: window.palette
+
+        Shortcut {
+            sequence: "Escape"
+            onActivated: errorDialog.close()
         }
 
-        width: Math.min(parent.width - 40, 450)
+        Connections {
+            target: appui
+            function onShowErrorDialog(mainLine, extraInfo) {
+                errorDialog.showError(mainLine, extraInfo);
+            }
+        }
+        // center over the main window when opened
+        function showError(text, details) {
+            mainTextLabel.text = text;
+            errorLabel.text = details;
+            x = window.x + (window.width - width) / 2;
+            y = window.y + (window.height - height) / 2;
+            visible = true;
+        }
 
-        property string mainText: ""
-        property string detailsText: ""
-
-        contentItem: ColumnLayout {
-            spacing: 10
+        ColumnLayout {
+            id: contentColumn
+            anchors.fill: parent
+            anchors.margins: 16
+            // your Label + Frame + ScrollView layout from before, unchanged
 
             LabelLarge {
-                text: errorDialog.mainText
+                id: mainTextLabel
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
             }
 
             ScrollView {
-                id: scrollView
                 Layout.fillWidth: true
                 // Automatically sizes to text up to 200px (~8-10 lines).
                 // Below 200px, no scrollbar appears. Above 200px, it scrolls.
@@ -217,7 +229,6 @@ ApplicationWindow {
 
                 TextArea {
                     id: errorLabel
-                    text: errorDialog.detailsText
                     readOnly: true
                     wrapMode: TextEdit.Wrap
                     selectByMouse: true
@@ -232,6 +243,16 @@ ApplicationWindow {
                         border.width: 1
                     }
                 }
+            }
+
+            Button {
+                text: qsTr("OK")
+                Layout.alignment: Qt.AlignRight
+                Layout.topMargin: 8
+
+                onClicked: errorDialog.close()
+
+                Component.onCompleted: forceActiveFocus()   // Enter/Space closes it
             }
         }
     }

@@ -25,7 +25,6 @@
 #include <QResource>
 #include <QTimer>
 
-#include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QValidator>
