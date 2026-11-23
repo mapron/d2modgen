@@ -510,7 +510,7 @@ void ModuleRandoSkills::repointItemSkills(DataContext& output) const
                 redirect.try_emplace(skill.rowIdx, std::nullopt);
             if (skill.stype != SType::GenActive || skill.origClass != clas)
                 continue;
-            const int originalRow = output.resolveSkillId(skill.originalId);
+            const int originalRow = output.resolveSkillName(skill.originalId);
             if (originalRow == -1) {
                 Logger(Logger::Warning) << "Can not find original skill '" << skill.originalId << "' to repoint items to its copy";
                 continue;
@@ -530,16 +530,16 @@ void ModuleRandoSkills::repointItemSkills(DataContext& output) const
         for (auto& row : table.rows) {
             for (AffixPropList* affixList : row.affixLists()) {
                 for (AffixProp& prop : *affixList) {
-                    const std::string code = Mernel::strToLower(prop.code);
-                    if (code == "skill-rand") {
+                    const AttributeId id = getAttributeId(prop.code);
+                    if (id == AttributeId::skill_rand) {
                         prop.min = sorc.rowIdxStart;
                         prop.max = sorc.rowIdxStart + sorcActive - 1;
                         Logger(verbose) << "item '" << row.getId() << "': skill-rand -> " << prop.min.value() << ".." << prop.max.value();
                         continue;
                     }
-                    if (code != "skill")
+                    if (id != AttributeId::skill)
                         continue;
-                    auto it = redirect.find(output.resolveSkillId(prop.par));
+                    auto it = redirect.find(output.resolveSkillName(prop.par));
                     if (it == redirect.cend())
                         continue;
 
@@ -547,7 +547,7 @@ void ModuleRandoSkills::repointItemSkills(DataContext& output) const
                     if (it->second.has_value())
                         prop.par = std::to_string(it->second.value());
                     else if (output.skills.rows[it->first].canBeOskill)
-                        prop.code = "oskill";
+                        prop.code = enumToString(AttributeId::oskill);
                     Logger(verbose) << "item '" << row.getId() << "': skill " << before << " -> " << prop.code << " " << prop.par;
                 }
             }
