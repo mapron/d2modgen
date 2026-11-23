@@ -51,7 +51,7 @@ std::string animationModeToString(AnimationMode mode)
 
 std::vector<std::string> DataRow_charstats::getColumns() const
 {
-    std::vector<std::string> result{ "class", "statperlevel", "skillsperlevel", "lifeperlevel", "manaperlevel", "healthpotionpercent", "manapotionpercent" };
+    std::vector<std::string> result{ "class", "statperlevel", "skillsperlevel", "lifeperlevel", "manaperlevel", "healthpotionpercent", "manapotionpercent", "startskill" };
     for (size_t i = 0; i < maxItems; ++i) {
         auto istr = std::to_string(i + 1);
         result.push_back("item" + istr + "count");
@@ -74,6 +74,7 @@ void DataRow_charstats::serialize()
     ser(manaPerLevel);
     ser(hpPotEfficacy);
     ser(manaPotEfficacy);
+    ser(startSkill);
     serArray(items, maxItems, [this](Item& item) {
         ser(item.count);
         ser(item.code);
@@ -144,13 +145,16 @@ void DataRow_hireling::serialize()
 
 std::vector<std::string> DataRow_itemstatcost::getColumns() const
 {
-    return { "multiply", "add" };
+    return { "stat", "multiply", "add", "send param bits", "save param bits" };
 }
 
 void DataRow_itemstatcost::serialize()
 {
+    ser(stat);
     ser(multiply);
     ser(add);
+    ser(sendParamBits);
+    ser(saveParamBits);
 }
 
 std::vector<std::string> DataRow_levels::getColumns() const

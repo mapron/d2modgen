@@ -24,6 +24,10 @@ struct ModuleRandoSkills : public AbstractModule {
     void generate() override;
 
 private:
+    void repointItemSkills(DataContext& output) const;
+    void repointStartSkills(DataContext& output);
+    void extendSkillParamBits(DataContext& output) const;
+
     struct SkillInfo {
         SType stype = SType::Filler;
 
@@ -81,6 +85,7 @@ private:
         void writeOut(DataContext& output) const;
 
         void makeInactive(RandomGenerator& rng, int keepCnt);
+        void detachOriginals();
 
         void generateAdditionalSkills(RandomGenerator& rng, const CharacterData& someOtherClass, int generateCount);
         void createIdx(DataContext& output);

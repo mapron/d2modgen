@@ -382,6 +382,7 @@ void ModuleRandoSkills::generate()
         Logger(verbose) << "\n\n ========= " << enumToString(key) << " ========= ";
         if (randoEnabled) {
             cha.makeInactive(rng, keepSkillCount);
+            cha.detachOriginals();
         }
         const int keptActve           = cha.getActive().size();
         const int skillLimit          = 54;
@@ -459,7 +460,14 @@ void ModuleRandoSkills::generate()
     output.skills.updateIndex();
     output.skilldesc.updateIndex();
 
+    if (randoEnabled) {
+        repointItemSkills(output);
+        repointStartSkills(output);
+    }
+
     output.missiles.commitExtraRows();
+
+    extendSkillParamBits(output);
 
     for (auto& skill : output.skills.rows) {
         if (skill.classSpecific != Character::Nec)
@@ -494,6 +502,103 @@ void ModuleRandoSkills::generate()
         DC6File dcfile;
         dcfile.setFrames(frames);
         dcfile.writeToSprite(spriteBlobHi);
+    }
+}
+
+void ModuleRandoSkills::repointItemSkills(DataContext& output) const
+{
+    std::map<int, std::optional<int>> redirect; // original skill -> new skill in the same class, or `nullopt` if not kept
+    for (const auto& [clas, cha] : generatedData) {
+        for (const SkillInfo& skill : cha.skills) {
+            if (skill.stype == SType::GenHidden)
+                redirect.try_emplace(skill.rowIdx, std::nullopt);
+            if (skill.stype != SType::GenActive || skill.origClass != clas)
+                continue;
+            const int originalRow = output.resolveSkillName(skill.originalId);
+            if (originalRow == -1) {
+                Logger(Logger::Warning) << "Can not find original skill '" << skill.originalId << "' to repoint items to its copy";
+                continue;
+            }
+            redirect[originalRow] = skill.rowIdx;
+        }
+    }
+
+    //  Ormus Robes use `skill-rand` to pick a random Sorc's skill
+    const CharacterData& sorc       = generatedData.at(Character::Sor);
+    const int            sorcActive = sorc.getIndexesByType(SType::GenActive).size();
+
+    // repoint original `skill` to:
+    // 1. If the class still have that skill: point to new id
+    // 2. If not, change to `oskill`
+    auto processTable = [this, &output, &redirect, &sorc, sorcActive](auto& table) {
+        for (auto& row : table.rows) {
+            for (AffixPropList* affixList : row.affixLists()) {
+                for (AffixProp& prop : *affixList) {
+                    const AttributeId id = getAttributeId(prop.code);
+                    if (id == AttributeId::skill_rand) {
+                        prop.min = sorc.rowIdxStart;
+                        prop.max = sorc.rowIdxStart + sorcActive - 1;
+                        Logger(verbose) << "item '" << row.getId() << "': skill-rand -> " << prop.min.value() << ".." << prop.max.value();
+                        continue;
+                    }
+                    if (id != AttributeId::skill)
+                        continue;
+                    auto it = redirect.find(output.resolveSkillName(prop.par));
+                    if (it == redirect.cend())
+                        continue;
+
+                    const std::string before = prop.par;
+                    if (it->second.has_value())
+                        prop.par = std::to_string(it->second.value());
+                    else if (output.skills.rows[it->first].canBeOskill)
+                        prop.code = enumToString(AttributeId::oskill);
+                    Logger(verbose) << "item '" << row.getId() << "': skill " << before << " -> " << prop.code << " " << prop.par;
+                }
+            }
+        }
+    };
+    processTable(output.uniqueitems);
+    processTable(output.setitems);
+    processTable(output.sets);
+    processTable(output.runes);
+}
+
+void ModuleRandoSkills::repointStartSkills(DataContext& output)
+{
+    const auto classes = getClassTypes();
+    for (size_t i = 0; auto& row : output.charstats.rows) {
+        if (row.clas == "Expansion")
+            continue;
+        const Character clas = classes[i++];
+        if (row.startSkill.empty())
+            continue;
+
+        std::vector<const SkillInfo*> levelOne;
+        for (const SkillInfo& skill : generatedData.at(clas).skills)
+            if (skill.stype == SType::GenActive && skill.desc.skillRow == 1)
+                levelOne.push_back(&skill);
+        if (levelOne.empty())
+            continue;
+
+        const std::string before = row.startSkill;
+        row.startSkill           = levelOne[rng(levelOne.size())]->row.skill;
+        Logger(verbose) << "charstats '" << row.clas << "': StartSkill " << before << " -> " << row.startSkill;
+    }
+}
+
+void ModuleRandoSkills::extendSkillParamBits(DataContext& output) const
+{
+    int requiredBits = 10;
+
+    for (auto& row : output.itemstatcost.rows) {
+        if (row.stat != "item_singleskill" && row.stat != "item_nonclassskill" && row.stat != "item_aura")
+            continue;
+        if (row.saveParamBits.value() < requiredBits)
+            row.saveParamBits = requiredBits;
+
+        if (row.sendParamBits.has_value() && row.sendParamBits.value() < requiredBits)
+            row.sendParamBits = requiredBits;
+        Logger(verbose) << "itemstatcost '" << row.stat << "': param bits -> " << requiredBits;
     }
 }
 
@@ -585,6 +690,25 @@ void ModuleRandoSkills::CharacterData::makeInactive(RandomGenerator& rng, int ke
 
         exisitingActive.erase(exisitingActive.begin() + r);
     }
+}
+
+void ModuleRandoSkills::CharacterData::detachOriginals()
+{
+    // copy original skill to new block, detach old skill from character
+    std::vector<SkillInfo> copies;
+    for (SkillInfo& skill : skills) {
+        if (skill.stype == SType::ExistingActive) {
+            SkillInfo copy = skill;
+            copy.resetIdx();
+            copy.stype = SType::GenActive;
+            copies.push_back(copy);
+        }
+
+        skill.desc.makeHidden();
+        skill.row.classSpecific = Character::None;
+        skill.stype             = SType::GenHidden;
+    }
+    skills.insert(skills.end(), copies.begin(), copies.end());
 }
 
 void ModuleRandoSkills::CharacterData::generateAdditionalSkills(RandomGenerator& rng, const CharacterData& someOtherClass, int generateCount)
