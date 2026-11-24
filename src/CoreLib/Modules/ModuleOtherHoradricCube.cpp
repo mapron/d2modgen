@@ -366,7 +366,7 @@ void ModuleOtherHoradricCube::generate()
             data.lvl         = 1;
 
             for (auto&& af : c.m_affixes) {
-                data.affixes_a.push_back(AffixProp{ .code = af.m_name, .par = "", .min = af.m_value, .max = af.m_value, .chance = 100 });
+                data.affixes_a.push_back(AffixProp_codegen{ .code = af.m_name, .par = "", .min = af.m_value, .max = af.m_value, .chance = 100 });
             }
             output.cubemain.extra.push_back(data);
         }

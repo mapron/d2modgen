@@ -31,7 +31,7 @@ void ModuleBalanceSkills::generate()
     const int globalHitShift = config.m_balanceSkills.m_globalHitShift - 2;
 
     for (auto& row : output.skills.rows) {
-        if (row.classSpecific == Character::None)
+        if (row.getClass() == Character::None)
             continue;
 
         if (config.m_skillRandomizer.m_enabled == false && globalHitShift != 0) {

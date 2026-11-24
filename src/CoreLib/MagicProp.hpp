@@ -90,8 +90,8 @@ struct MODGENCORE_EXPORT MagicProp {
 using MagicPropList = std::vector<MagicProp>;
 
 struct MODGENCORE_EXPORT MagicPropRawList {
-    MagicPropList          parsedProps;
-    std::vector<AffixProp> keptProps;
+    MagicPropList parsedProps;
+    AffixPropList keptProps;
 
     int affixLimit   = 0;
     int needGenerate = 0;
@@ -103,11 +103,12 @@ struct MODGENCORE_EXPORT MagicPropRawList {
     void makePerfect();
 
     void readFromRow(const AffixPropList&   propList,
+                     int                    affixPropLimit,
                      const ISkillGetter&    skillGetter,
                      const BasicProperties& parentProperties,
                      std::set<std::string>* unknownList,
                      std::set<std::string>* skippedList);
-    void writeToRow(AffixPropList& propList) const;
+    void writeToRow(AffixPropList& propList, int affixPropLimit) const;
 
     int getTotalSize() const;
 

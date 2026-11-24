@@ -58,7 +58,7 @@ void ModuleRandoMonsters::generate()
 
     extraTrace = env.extraTrace.contains("monster_rando");
 
-    hcIdx = output.monstats.rows.back().hcIdx + 1;
+    hcIdx = output.monstats.rows.back().hcIdx.value_or(0) + 1;
 
     for (auto& row : output.treasureclassex.rows)
         tcTable.add(row.name, row.group.value_or(0), row.level.value_or(0));
@@ -111,7 +111,7 @@ void ModuleRandoMonsters::generate()
         StringSet monSet;
 
         AreaContext context;
-        context.m_areaIndex       = row.id;
+        context.m_areaIndex       = row.id.value_or(0);
         context.m_areaNormalLevel = std::max(5, row.monLvlEx[0].value_or(0));
 
         MonsterTaskList                   tasks;

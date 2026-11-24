@@ -9,6 +9,7 @@
 #include "AttributeValues.hpp"
 #include "MernelPlatform/StringUtils.hpp"
 #include "Scale.hpp"
+#include "Tables.hpp"
 
 #include <unordered_map>
 #include <optional>
@@ -17,8 +18,8 @@
 namespace D2ModGen {
 
 class DataRow_itemtypes;
-class RowBaseEquipment;
-using EquipmentType = const RowBaseEquipment*;
+struct IBaseEquipment;
+using EquipmentType = const IBaseEquipment*;
 using ItemType      = const DataRow_itemtypes*;
 using ItemTypeSet   = std::set<ItemType>;
 
@@ -43,7 +44,10 @@ struct DataTable {
     std::vector<std::string> columnsOriginal;
     std::vector<std::string> columnsUsed;
 
+    // Requested column index -> original CSV column index.
     std::vector<size_t> indicesUsed;
+
+    // Original CSV columns not consumed by the generated schema.
     std::vector<size_t> indicesUnused;
 
     std::unordered_map<std::string, int> indexN;
@@ -58,27 +62,32 @@ struct DataTable {
         for (Row& row : rows)
             t(row.*m);
     }
+
     void applyIntTransform(std::optional<int> Row::* m, Percent mult)
     {
         applyTransform(m, [mult](std::optional<int>& data) {
             if (!data.has_value())
                 return;
+
             data = data.value() * mult;
         });
     }
+
     void makeIndex(std::string Row::* m)
     {
         indexField = m;
         updateIndex();
     }
+
     void updateIndex()
     {
         if (!indexField)
             return;
-        indexN.clear();
-        for (int i = 0; auto& row : rows) {
-            auto key = Mernel::strToLower(row.*indexField);
 
+        indexN.clear();
+
+        for (int i = 0; auto& row : rows) {
+            auto key    = Mernel::strToLower(row.*indexField);
             indexN[key] = i++;
         }
     }
@@ -89,18 +98,19 @@ struct DataTable {
 
     const Row* find(const std::string& code) const
     {
-        auto idx = findN(code);
+        const auto idx = findN(code);
         return idx == size_t(-1) ? nullptr : &rows[idx];
     }
+
     Row* find(const std::string& code)
     {
-        auto idx = findN(code);
+        const auto idx = findN(code);
         return idx == size_t(-1) ? nullptr : &rows[idx];
     }
 
     size_t findN(const std::string& code) const
     {
-        auto it = indexN.find(code);
+        const auto it = indexN.find(code);
         return it == indexN.cend() ? size_t(-1) : it->second;
     }
 
@@ -110,33 +120,12 @@ struct DataTable {
         extra.clear();
         updateIndex();
     }
+
+private:
+    void resolveColumns();
 };
 
-struct AffixProp {
-    std::string        code;
-    std::string        par;
-    std::optional<int> min;
-    std::optional<int> max;
-    std::optional<int> chance;
-
-    bool operator==(const AffixProp&) const noexcept = default;
-
-    bool hasPar() const { return !(par.empty() || par == "0" || par == " "); }
-    int  parAsInt() const { return hasPar() ? std::atoi(par.c_str()) : 0; }
-    bool hasRange() const { return min.has_value() && max.has_value(); }
-};
-
-class AffixPropList : public std::vector<AffixProp> {
-    size_t m_limit = 0;
-
-public:
-    AffixPropList() = default;
-    AffixPropList(size_t limit)
-        : m_limit(limit)
-    {}
-
-    size_t getLimit() const { return m_limit; };
-};
+using AffixPropList = std::vector<AffixProp_codegen>;
 
 struct IItem {
     virtual ~IItem() = default;
@@ -155,122 +144,47 @@ struct IItem {
 struct IAffixContainer : public IItem {
     using AffixListListConst   = std::vector<const AffixPropList*>;
     using AffixListListMutable = std::vector<AffixPropList*>;
+    using Limits               = std::vector<size_t>;
 
-    virtual AffixListListConst   affixLists() const = 0;
-    virtual AffixListListMutable affixLists()       = 0;
+    virtual AffixListListConst   affixLists() const  = 0;
+    virtual AffixListListMutable affixLists()        = 0;
+    virtual Limits               affixLimits() const = 0;
 
     bool operator==(const IAffixContainer&) const noexcept { return true; }
 };
 
 struct RowBase {
-    bool                       _ser_read = false;
+    // Cells from unrecognized CSV columns, preserved for full serialization.
+    std::vector<std::string> _ser_unusedCells;
+
+    // Optional key used by partial/diff serialization.
     std::optional<std::string> _ser_key;
-    size_t                     _ser_cellIndex = 0;
-    std::vector<std::string>   _ser_unusedCells;
-    std::vector<std::string>   _ser_usedCells;
 
-    static const std::string s_empty;
-
-    std::map<std::string, std::string> getColumnAliases() const { return {}; }
-
-    bool operator==(const RowBase&) const noexcept { return true; }
-
-    void ser(int& data, int empty = 0);
-    void ser(std::optional<int>& data);
-    void ser(std::optional<bool>& data);
-    void ser(std::optional<bool>& data, bool valueIfNoColumn);
-    void ser(std::string& data);
-
-    template<class Item, class F1, class F2>
-    void serArray(std::vector<Item>& data, size_t size, F1&& itemCallback, F2&& isValidCheck)
+    bool operator==(const RowBase&) const noexcept
     {
-        if (_ser_read) {
-            data.clear();
-            data.reserve(size);
-            for (size_t i = 0; i < size; ++i) {
-                Item item;
-                itemCallback(item);
-                if (isValidCheck(item))
-                    data.push_back(std::move(item));
-            }
-        } else {
-            data.resize(size);
-            for (size_t i = 0; i < size; ++i) {
-                itemCallback(data[i]);
-            }
-        }
-    }
-
-    void ser(AffixPropList& data, bool useChance = false)
-    {
-        serArray(data, data.getLimit(), [this, useChance](AffixProp& item) {
-            ser(item.code);
-            ser(item.par);
-            ser(item.min);
-            ser(item.max);
-            if (useChance)
-                ser(item.chance); }, [](AffixProp& item) { return !item.code.empty(); });
-    }
-
-    void ser(std::vector<std::string>& data, size_t size)
-    {
-        serArray(data, size, [this](std::string& item) { ser(item); }, [](std::string& item) { return !item.empty(); });
-    }
-    void ser(std::vector<int>& data, size_t size)
-    {
-        serArray(data, size, [this](int& item) { ser(item); }, [](int& item) { return item != 0; });
-    }
-    template<class T, size_t size>
-    void ser(std::array<T, size>& data)
-    {
-        for (size_t i = 0; i < size; ++i)
-            ser(data[i]);
-    }
-    template<class T, class FromString, class ToString>
-    void serEnum(T& data, T def, FromString&& fromString, ToString&& toString)
-    {
-        auto& str = _ser_usedCells[_ser_cellIndex++];
-        if (_ser_read) {
-            if (str.empty() || str == s_empty) {
-                data = def;
-            } else {
-                data = fromString(str);
-            }
-        } else {
-            if (data == def)
-                str = {};
-            else
-                str = toString(data);
-        }
+        return true;
     }
 };
 
+template<class CRTP>
 struct RowBaseAffixes
     : public RowBase
-    , public IAffixContainer {
+    , public IAffixContainer
+    , public CRTP {
     bool operator==(const RowBaseAffixes&) const noexcept = default;
 
-    std::optional<int>  lvl;
-    std::optional<int>  maxlevel;
-    std::optional<int>  lvlreq;
-    std::optional<bool> spawnable;
-    AffixPropList       affixes{ 3 };
-
-    std::vector<std::string> itype; //7
-    std::vector<std::string> etype; // 5
-    ItemCodeList             filter;
-
-    std::string name;
+    ItemCodeList filter;
 
     std::string getId() const override
     {
-        return name;
+        return this->name;
     }
 
-    AffixListListConst   affixLists() const override { return { &affixes }; }
-    AffixListListMutable affixLists() override { return { &affixes }; }
+    AffixListListConst   affixLists() const override { return { &this->affixes }; }
+    AffixListListMutable affixLists() override { return { &this->affixes }; }
+    Limits               affixLimits() const override { return { this->affixes_limit }; }
 
-    int getLevel() const override { return spawnable.value_or(false) ? lvl.value_or(0) : 0; }
+    int getLevel() const override { return this->spawnable.value_or(false) ? this->lvl.value_or(0) : 0; }
 
     bool isValid() const override
     {
@@ -279,15 +193,12 @@ struct RowBaseAffixes
 
     ItemCodeList getItemFilter() const override
     {
-        return filter;
+        return this->filter;
     }
     AttributeFlagSet getAttributes() const override
     {
         return AttributeFlagSet{};
     }
-
-    std::vector<std::string> getColumns() const;
-    void                     serialize();
 };
 
 enum class Tier
@@ -305,66 +216,55 @@ enum class EquipmentCategory
     Armor,
 };
 
+struct IBaseEquipment : public IItem {
+    virtual Tier              getTier() const     = 0;
+    virtual EquipmentCategory getCategory() const = 0;
+    virtual std::string       getName() const     = 0;
+    virtual std::string       getCode() const     = 0;
+};
+
+template<class CRTP>
 struct RowBaseEquipment
     : public RowBase
-    , public IItem {
+    , public IBaseEquipment
+    , public CRTP {
     bool operator==(const RowBaseEquipment&) const noexcept = default;
 
-    EquipmentCategory   category = EquipmentCategory::Misc;
-    std::optional<int>  lvl;
-    std::optional<int>  lvlreq;
-    std::optional<int>  reqstr;
-    std::optional<int>  reqdex;
-    std::optional<bool> showLevel;
+    EquipmentCategory category = EquipmentCategory::Misc;
+    ItemType          itemType = nullptr;
 
-    std::string name;
-    std::string code;
-    std::string itemTypeCode;
-    ItemType    itemType = nullptr;
-
-    std::string normcode;
-    std::string ubercode;
-    std::string ultracode;
-
-    Tier getTier() const
+    EquipmentCategory getCategory() const override
     {
-        if (!getLevel() || ultracode.empty())
-            return Tier::None;
-        if (ultracode == code)
-            return Tier::Elite;
-        if (ubercode == code)
-            return Tier::Exceptional;
-        if (normcode == code)
-            return Tier::Normal;
-
-        return Tier::None;
+        return category;
     }
+    std::string getName() const override { return this->name; }
+    std::string getCode() const override { return this->code; }
 
     std::string getId() const override
     {
-        return code;
+        return this->code;
     }
 
     int getLevel() const override
     {
-        if (lvl.has_value() && lvl.value() > 0)
-            return lvl.value();
+        if (this->lvl.has_value() && this->lvl.value() > 0)
+            return this->lvl.value();
 
-        if (lvlreq.has_value())
-            return lvlreq.value();
+        if (this->lvlreq.has_value())
+            return this->lvlreq.value();
         return 0;
     }
 
     bool isValid() const override
     {
-        return !itemTypeCode.empty() && (getLevel() > 0 || category == EquipmentCategory::Misc);
+        return !this->itemTypeCode.empty() && (getLevel() > 0 || category == EquipmentCategory::Misc);
     }
 
     ItemCodeList getItemFilter() const override
     {
         ItemCodeList result;
-        if (itemType)
-            result.push_back(itemType);
+        if (this->itemType)
+            result.push_back(this->itemType);
         return result;
     }
 

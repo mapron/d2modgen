@@ -462,7 +462,7 @@ void ModuleRandoSkills::generate()
     output.missiles.commitExtraRows();
 
     for (auto& skill : output.skills.rows) {
-        if (skill.classSpecific != Character::Nec)
+        if (skill.getClass() != Character::Nec)
             continue;
         if (verbose)
             dump("", output, skill);
@@ -528,7 +528,7 @@ bool ModuleRandoSkills::CharacterData::readExisting(DataContext& output)
     int validCnt = 0;
     for (int rowIdx = -1; auto& row : output.skills.rows) {
         rowIdx++;
-        if (row.classSpecific != clas)
+        if (row.getClass() != clas)
             continue;
         if (row.skilldesc.empty())
             continue;
@@ -540,7 +540,7 @@ bool ModuleRandoSkills::CharacterData::readExisting(DataContext& output)
         skill.descIdx         = output.skilldesc.indexN.at(Mernel::strToLower(row.skilldesc));
         skill.desc            = output.skilldesc.rows[skill.descIdx];
         skill.originalId      = row.skill;
-        skill.origClass       = row.classSpecific;
+        skill.origClass       = row.getClass();
         skill.originalIconCel = skill.desc.iconCel.value_or(-1);
 
         if (!skill.desc.isValid()) {
@@ -638,7 +638,7 @@ void ModuleRandoSkills::CharacterData::createIdx(DataContext& output)
         auto& desc = skill.desc;
         if (skill.rowIdx >= 0) {
             if (skill.stype == ExistingActive) {
-                pushSprite(desc.iconCel, row.classSpecific);
+                pushSprite(desc.iconCel, row.getClass());
             }
 
             continue;
@@ -650,7 +650,7 @@ void ModuleRandoSkills::CharacterData::createIdx(DataContext& output)
         descIdx      = descIdxStart + i;
 
         if (skill.stype != SType::Filler) {
-            pushSprite(desc.iconCel, row.classSpecific);
+            pushSprite(desc.iconCel, row.getClass());
         } else {
             desc.iconCel = 0;
         }
@@ -823,7 +823,7 @@ Necromancer
         if (missileId.empty())
             return;
         DataRow_missiles* missile = output.missiles.find(missileId);
-        assert(missile);
+        //assert(missile);
         if (!missile)
             return;
         if (visitedMissiles.contains(missile))
@@ -992,7 +992,7 @@ void ModuleRandoSkills::CharacterData::updateMissile(DataContext& output, const 
         updateMissile(output, parent, child, scope);
 
     newMiss.name = newName;
-    newMiss.id   = output.missiles.rows.size() + output.missiles.extra.size();
+    newMiss.id   = static_cast<int>(output.missiles.rows.size() + output.missiles.extra.size());
     missileId    = newMiss.name;
 
     if (parent.eType != Element::None && getElementId(newMiss.eType) != Element::None) // will skip freeze/bleed

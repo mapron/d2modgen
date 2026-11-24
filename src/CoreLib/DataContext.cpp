@@ -11,6 +11,7 @@
 #include "MernelPlatform/StringUtils.hpp"
 
 #include "Image.hpp"
+#include "TablesBaseCpp.hpp"
 
 #include <cassert>
 #include <algorithm>
@@ -225,9 +226,9 @@ bool DataContext::postProcess()
 {
     itemtypes.makeIndex(&DataRow_itemtypes::code);
     sets.makeIndex(&DataRow_sets::index);
-    armor.makeIndex(&RowBaseEquipment::code);
-    weapons.makeIndex(&RowBaseEquipment::code);
-    misc.makeIndex(&RowBaseEquipment::code);
+    armor.makeIndex(&DataRow_armor::code);
+    weapons.makeIndex(&DataRow_weapons::code);
+    misc.makeIndex(&DataRow_misc::code);
     skills.makeIndex(&DataRow_skills::skill);
     monstatsEx.makeIndex(&DataRow_monstatsEx::id);
     monstats.makeIndex(&DataRow_monstats::id);
@@ -242,7 +243,7 @@ bool DataContext::postProcess()
         return itemtypes.find(code);
     };
 
-    auto bindEquip = [this, &getItemType](RowBaseEquipment& row) {
+    auto bindEquip = [this, &getItemType](auto& row) {
         if (!row.isValid())
             return;
         row.itemType = getItemType(row.itemTypeCode);
@@ -320,6 +321,19 @@ bool DataContext::postProcess()
         } else if (brawlCodes.contains(codeStr)) {
             row.idiom = AttributeIdiom::Brawler;
         }
+
+        row.flags = {};
+        if (row.throwable.value_or(false))
+            row.flags.insert(AttributeFlag::Throwable), row.flags.insert(AttributeFlag::ThrowableOrBow);
+        else if (row.repair.value_or(false))
+            row.flags.insert(AttributeFlag::Durability);
+
+        if (row.sockets[0].value_or(0))
+            row.flags.insert(AttributeFlag::Sockets);
+        if (!row.shoots.empty())
+            row.flags.insert(AttributeFlag::Bow), row.flags.insert(AttributeFlag::ThrowableOrBow);
+        if (row.itemType.starts_with("Map"))
+            row.flags.insert(AttributeFlag::PD2Map);
     }
 
     auto expandNested = [this]() -> bool {
@@ -450,6 +464,16 @@ bool DataContext::postProcess()
     }
     assert(monstats.rows.empty() || hasRegular);
 
+    std::array<std::string, 16> classes{
+        // clang-format off
+        "Amazon", "Assassin", "Barbarian", "Druid", "Necromancer", "Paladin", "Sorceress", "Warlock",
+        "Amazon2", "Assassin2", "Barbarian2", "Druid2", "Necromancer2", "Paladin2", "Sorceress2", "Warlock2",
+        // clang-format on
+    };
+    for (auto& row : inventory.rows) {
+        row.isPlayable = (std::find(classes.cbegin(), classes.cend(), row.charclass) != classes.cend());
+    }
+
     return true;
 }
 
@@ -492,106 +516,6 @@ bool DataContext::serializeTable(const DataTable<Row>& table, IStorage::TableMap
 }
 
 template<class Row>
-bool DataTable<Row>::parseTable(const std::string& buffer)
-{
-    Mernel::CSVTable csv;
-    if (!Mernel::readCSVFromBuffer(buffer, csv)) {
-        return false;
-    }
-    columnsOriginal                                  = csv.columns;
-    valid                                            = true;
-    requestedColumns                                 = Row{}.getColumns();
-    const std::map<std::string, std::string> aliases = Row{}.getColumnAliases();
-    indicesUsed.resize(requestedColumns.size(), size_t(-1));
-
-    for (size_t i = 0; i < columnsOriginal.size(); i++) {
-        std::string col = Mernel::strToLower(columnsOriginal[i]);
-        if (auto it = aliases.find(col); it != aliases.cend())
-            col = it->second;
-
-        auto it = std::find(requestedColumns.cbegin(), requestedColumns.cend(), col);
-        if (it == requestedColumns.cend()) {
-            indicesUnused.push_back(i);
-        } else {
-            auto usedIndex         = std::distance(requestedColumns.cbegin(), it);
-            indicesUsed[usedIndex] = i;
-            columnsUsed.push_back(col);
-        }
-    }
-
-    for (auto& rowCsv : csv.rows) {
-        Row row;
-        row._ser_unusedCells.resize(indicesUnused.size());
-        row._ser_usedCells.resize(indicesUsed.size(), RowBase::s_empty);
-
-        for (size_t i = 0; i < row._ser_unusedCells.size(); ++i) {
-            row._ser_unusedCells[i] = rowCsv.data[indicesUnused[i]].str;
-        }
-        for (size_t i = 0; i < row._ser_usedCells.size(); ++i) {
-            if (indicesUsed[i] != size_t(-1))
-                row._ser_usedCells[i] = rowCsv.data[indicesUsed[i]].str;
-        }
-        row._ser_read      = true;
-        row._ser_cellIndex = 0;
-        row.serialize();
-        row._ser_usedCells.clear();
-        rows.push_back(std::move(row));
-    }
-    return true;
-}
-
-template<class Row>
-bool DataTable<Row>::serializeTable(std::string& buffer, bool full) const
-{
-    Mernel::CSVTable csv;
-    csv.columns       = full ? columnsOriginal : columnsUsed;
-    csv.endsWithNL    = true;
-    bool prependedKey = false;
-
-    for (auto row : rows) {
-        row._ser_usedCells.resize(indicesUsed.size());
-        row._ser_read      = false;
-        row._ser_cellIndex = 0;
-        row._ser_key.reset();
-        row.serialize();
-        if (row._ser_key.has_value() && !prependedKey && !full) {
-            prependedKey = true;
-            csv.columns.insert(csv.columns.begin(), "*pkey");
-        }
-        Mernel::CSVTableRow rowCsv;
-        rowCsv.data.resize(csv.columns.size());
-
-        if (full) {
-            for (size_t i = 0; i < row._ser_unusedCells.size(); ++i) {
-                rowCsv.data[indicesUnused[i]].str = row._ser_unusedCells[i];
-            }
-            for (size_t i = 0; i < row._ser_usedCells.size(); ++i) {
-                if (indicesUsed[i] != size_t(-1))
-                    rowCsv.data[indicesUsed[i]].str = row._ser_usedCells[i];
-            }
-        } else {
-            std::map<size_t, std::string> values;
-            for (size_t i = 0; i < row._ser_usedCells.size(); ++i) {
-                if (indicesUsed[i] != size_t(-1))
-                    values[indicesUsed[i]] = row._ser_usedCells[i];
-            }
-
-            for (size_t i = 0; auto& [_, value] : values)
-                rowCsv.data[i++].str = value;
-        }
-        if (row._ser_key.has_value() && !full)
-            rowCsv.data.insert(rowCsv.data.begin(), row._ser_key.value());
-        csv.rows.push_back(std::move(rowCsv));
-    }
-    if (csv.rows.empty()) {
-        buffer = {};
-        return true;
-    }
-
-    return Mernel::writeCSVToBuffer(buffer, csv);
-}
-
-template<class Row>
 void DataContext::diffTable(const DataTable<Row>& tableOlder, const DataTable<Row>& tableNewer, DataTable<Row>& result) const
 {
     for (size_t i = 0, cnt = tableNewer.rows.size(); i < cnt; ++i) {
@@ -607,6 +531,250 @@ void DataContext::diffTable(const DataTable<Row>& tableOlder, const DataTable<Ro
             continue;
         result.rows.push_back(newerRow);
     }
+}
+
+template<class Row>
+bool DataTable<Row>::parseTable(const std::string& buffer)
+{
+    valid = false;
+
+    Mernel::CSVTable csv;
+    if (!Mernel::readCSVFromBuffer(buffer, csv))
+        return false;
+
+    rows.clear();
+    indexN.clear();
+
+    requestedColumns = Row::tableSchema().columns;
+    columnsOriginal  = csv.columns;
+
+    resolveColumns();
+
+    for (const auto& csvRow : csv.rows) {
+        Row row;
+
+        row._ser_unusedCells.assign(
+            indicesUnused.size(),
+            std::string{});
+
+        std::vector<std::string> usedCells(
+            requestedColumns.size(),
+            missingCsvCell());
+
+        for (size_t i = 0; i < indicesUnused.size(); ++i) {
+            const size_t csvIndex = indicesUnused[i];
+
+            if (csvIndex < csvRow.data.size())
+                row._ser_unusedCells[i] = csvRow.data[csvIndex].str;
+        }
+
+        for (size_t i = 0; i < indicesUsed.size(); ++i) {
+            const size_t csvIndex = indicesUsed[i];
+
+            if (csvIndex == size_t(-1))
+                continue;
+
+            if (csvIndex < csvRow.data.size())
+                usedCells[i] = csvRow.data[csvIndex].str;
+            else
+                usedCells[i].clear();
+        }
+
+        CsvRowReader reader(usedCells);
+        row.readData(reader);
+
+        rows.push_back(std::move(row));
+    }
+
+    valid = true;
+    return true;
+}
+
+template<class Row>
+bool DataTable<Row>::serializeTable(std::string& buffer, bool full) const
+{
+    Mernel::CSVTable csv;
+
+    csv.columns    = full ? columnsOriginal : columnsUsed;
+    csv.endsWithNL = true;
+
+    bool prependedKey = false;
+
+    for (const Row& row : rows) {
+        std::vector<std::string> usedCells(indicesUsed.size());
+
+        CsvRowWriter writer(usedCells);
+        row.writeData(writer);
+
+        const bool wantsKey = !full && row._ser_key.has_value();
+
+        if (wantsKey && !prependedKey) {
+            csv.columns.insert(csv.columns.begin(), "*pkey");
+
+            // Keep previously emitted rows aligned if their key was empty.
+            for (auto& previousRow : csv.rows) {
+                previousRow.data.insert(
+                    previousRow.data.begin(),
+                    Mernel::CSVTableCell{});
+            }
+
+            prependedKey = true;
+        }
+
+        Mernel::CSVTableRow csvRow;
+
+        if (full) {
+            csvRow.data.resize(columnsOriginal.size());
+
+            for (size_t i = 0; i < indicesUnused.size(); ++i) {
+                const size_t csvIndex = indicesUnused[i];
+
+                if (csvIndex >= csvRow.data.size())
+                    continue;
+
+                if (i < row._ser_unusedCells.size()) {
+                    csvRow.data[csvIndex].str = row._ser_unusedCells[i];
+                }
+            }
+
+            for (size_t i = 0; i < indicesUsed.size(); ++i) {
+                const size_t csvIndex = indicesUsed[i];
+
+                if (csvIndex == size_t(-1)
+                    || csvIndex >= csvRow.data.size()) {
+                    continue;
+                }
+
+                csvRow.data[csvIndex].str = usedCells[i];
+            }
+        } else {
+            csvRow.data.resize(columnsUsed.size());
+
+            // Sort values by their original CSV position.
+            std::map<size_t, std::string> values;
+
+            for (size_t i = 0; i < indicesUsed.size(); ++i) {
+                const size_t csvIndex = indicesUsed[i];
+
+                if (csvIndex != size_t(-1))
+                    values[csvIndex] = usedCells[i];
+            }
+
+            size_t outputIndex = 0;
+
+            for (auto& [csvIndex, value] : values) {
+                if (outputIndex >= csvRow.data.size())
+                    break;
+
+                csvRow.data[outputIndex++].str = std::move(value);
+            }
+        }
+
+        if (!full && prependedKey) {
+            if (row._ser_key.has_value()) {
+                csvRow.data.insert(
+                    csvRow.data.begin(),
+                    Mernel::CSVTableCell{ row._ser_key.value() });
+            } else {
+                csvRow.data.insert(
+                    csvRow.data.begin(),
+                    Mernel::CSVTableCell{});
+            }
+        }
+
+        csv.rows.push_back(std::move(csvRow));
+    }
+
+    if (csv.rows.empty()) {
+        buffer.clear();
+        return true;
+    }
+
+    return Mernel::writeCSVToBuffer(buffer, csv);
+}
+
+template<class Row>
+void DataTable<Row>::resolveColumns()
+{
+    const auto& aliases = Row::tableSchema().aliases;
+
+    indicesUsed.assign(requestedColumns.size(), size_t(-1));
+    indicesUnused.clear();
+    columnsUsed.clear();
+
+    std::unordered_map<std::string, size_t> requestedIndices;
+
+    for (size_t i = 0; i < requestedColumns.size(); ++i)
+        requestedIndices[requestedColumns[i]] = i;
+
+    const size_t originalCount = columnsOriginal.size();
+
+    std::vector<std::string> normalized(originalCount);
+    std::vector<std::string> resolvedCanonical(originalCount);
+    std::vector<bool>        originalUsed(originalCount, false);
+
+    for (size_t i = 0; i < originalCount; ++i)
+        normalized[i] = Mernel::strToLower(columnsOriginal[i]);
+
+    // First pass: canonical columns always win over aliases.
+    for (size_t i = 0; i < originalCount; ++i) {
+        const auto requested = requestedIndices.find(normalized[i]);
+
+        if (requested == requestedIndices.end())
+            continue;
+
+        const size_t requestedIndex = requested->second;
+
+        if (indicesUsed[requestedIndex] != size_t(-1))
+            continue;
+
+        indicesUsed[requestedIndex] = i;
+        resolvedCanonical[i]        = normalized[i];
+        originalUsed[i]             = true;
+    }
+
+    // Second pass: resolve aliases only where canonical is absent.
+    for (size_t i = 0; i < originalCount; ++i) {
+        if (originalUsed[i])
+            continue;
+
+        // A duplicate canonical column must not become an alias.
+        if (requestedIndices.contains(normalized[i]))
+            continue;
+
+        const auto alias = aliases.find(normalized[i]);
+
+        if (alias == aliases.end())
+            continue;
+
+        const auto requested = requestedIndices.find(alias->second);
+
+        if (requested == requestedIndices.end())
+            continue;
+
+        const size_t requestedIndex = requested->second;
+
+        if (indicesUsed[requestedIndex] != size_t(-1))
+            continue;
+
+        indicesUsed[requestedIndex] = i;
+        resolvedCanonical[i]        = alias->second;
+        originalUsed[i]             = true;
+    }
+
+    // Preserve original CSV order for partial output and unknown cells.
+    for (size_t i = 0; i < originalCount; ++i) {
+        if (originalUsed[i])
+            columnsUsed.push_back(resolvedCanonical[i]);
+        else
+            indicesUnused.push_back(i);
+    }
+}
+
+template<class CRTP>
+AttributeFlagSet RowBaseEquipment<CRTP>::getAttributes() const
+{
+    return this->itemType ? this->itemType->flags : AttributeFlagSet{};
 }
 
 }

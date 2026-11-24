@@ -39,7 +39,7 @@ void ModuleOtherQualityOfLife::generate()
             continue;
 
         if (module.m_addCube)
-            row.items.push_back(DataRow_charstats::Item{ "box", 1 });
+            row.items.push_back(DataRow_charstats_codegen::Item{ 1, "box" });
 
         for (auto& item : row.items) {
             if (item.code == "isc" && module.m_idTome)

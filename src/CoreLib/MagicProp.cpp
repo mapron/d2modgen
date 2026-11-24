@@ -42,7 +42,7 @@ void MagicProp::updateProperties()
             return static_cast<Character>(tab / 3);
         }
         if (id == AttributeId::skill && parSkill) {
-            return parSkill->classSpecific;
+            return parSkill->getClass();
         }
         return Character::None;
     }();
@@ -112,12 +112,13 @@ void MagicPropRawList::makePerfect()
 }
 
 void MagicPropRawList::readFromRow(const AffixPropList&   propList,
+                                   int                    affixPropLimit,
                                    const ISkillGetter&    skillGetter,
                                    const BasicProperties& parentProperties,
                                    std::set<std::string>* unknownList,
                                    std::set<std::string>* skippedList)
 {
-    affixLimit = propList.getLimit();
+    affixLimit = affixPropLimit;
     for (const auto& col : propList) {
         MagicProp prop;
         prop.id         = getAttributeId(col.code);
@@ -197,7 +198,7 @@ void MagicPropRawList::readFromRow(const AffixPropList&   propList,
     }
 }
 
-void MagicPropRawList::writeToRow(AffixPropList& propList) const
+void MagicPropRawList::writeToRow(AffixPropList& propList, int affixPropLimit) const
 {
     propList.clear();
 
@@ -205,10 +206,10 @@ void MagicPropRawList::writeToRow(AffixPropList& propList) const
         propList.push_back(prop);
     }
     for (const MagicProp& prop : parsedProps) {
-        if (propList.size() + 1 > propList.getLimit())
+        if (propList.size() + 1 > affixPropLimit)
             break;
 
-        AffixProp affix{
+        AffixProp_codegen affix{
             .code = enumToString(prop.id),
             .par  = prop.par.has_value() ? std::to_string(prop.par.value()) : "",
             .min  = prop.min,

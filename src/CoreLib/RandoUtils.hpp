@@ -100,12 +100,13 @@ struct MagicPropItem {
                      std::set<std::string>* skippedList)
     {
         auto rowAffixLists = row.affixLists();
+        auto limits        = row.affixLimits();
 
         affixlists.clear();
         for (size_t i = 0, cnt = rowAffixLists.size(); i < cnt; ++i) {
             const AffixPropList* affixList = rowAffixLists[i];
             MagicPropRawList     rawList;
-            rawList.readFromRow(*affixList, skillGetter, filter.props, unknownList, skippedList);
+            rawList.readFromRow(*affixList, limits[i], skillGetter, filter.props, unknownList, skippedList);
             affixlists.push_back(std::move(rawList));
         }
     }
@@ -119,8 +120,10 @@ struct MagicPropItem {
     template<class Row>
     void writeTo(Row& row)
     {
+        auto limits = row.affixLimits();
         for (size_t i = 0; AffixPropList* affixList : row.affixLists()) {
-            affixlists[i++].writeToRow(*affixList);
+            affixlists[i].writeToRow(*affixList, limits[i]);
+            i++;
         }
     }
 

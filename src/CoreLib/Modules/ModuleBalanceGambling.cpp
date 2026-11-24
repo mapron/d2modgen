@@ -14,10 +14,10 @@ void ModuleBalanceGambling::generate()
     const bool charmGamble = module.m_charmGamble && env.isLegacy;
     if (charmGamble) {
         auto& table = output.gamble;
-        table.extra.push_back(DataRow_gamble{ .name = ("Charm Small"), .code = ("cm1") });
-        table.extra.push_back(DataRow_gamble{ .name = ("Charm Medium"), .code = ("cm2") });
-        table.extra.push_back(DataRow_gamble{ .name = ("Charm Large"), .code = ("cm3") });
-        table.extra.push_back(DataRow_gamble{ .name = ("Jewel"), .code = ("jew") });
+        table.extra.push_back(DataRow_gamble_codegen{ .name = ("Charm Small"), .code = ("cm1") });
+        table.extra.push_back(DataRow_gamble_codegen{ .name = ("Charm Medium"), .code = ("cm2") });
+        table.extra.push_back(DataRow_gamble_codegen{ .name = ("Charm Large"), .code = ("cm3") });
+        table.extra.push_back(DataRow_gamble_codegen{ .name = ("Jewel"), .code = ("jew") });
         table.commitExtraRows();
     }
 

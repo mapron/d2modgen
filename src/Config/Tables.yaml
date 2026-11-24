@@ -1,0 +1,960 @@
+records:
+  AffixProp:
+    fields:
+      code:   { type: string }
+      par:    { type: string }
+      min:    { type: int }
+      max:    { type: int }
+      chance: { type: int }
+
+bases:
+  equipment_core:
+    fields:
+      name:         { column: name,     type: string }
+      lvl:          { column: level,    type: int }
+      lvlreq:       { column: levelreq, type: int }
+      code:         { column: code,     type: string }
+      itemTypeCode: { column: type,     type: string }
+
+  equipment:
+    extends: equipment_core
+    fields:
+      reqstr:    { column: reqstr,    type: int }
+      reqdex:    { column: reqdex,    type: int }
+      showLevel: { column: showlevel, type: bool }
+      normcode:  { column: normcode,  type: string }
+      ubercode:  { column: ubercode,  type: string }
+      ultracode: { column: ultracode, type: string }
+
+  affixes:
+    fields:
+      name:      { column: name,      type: string }
+      lvl:       { column: level,     type: int }
+      maxlevel:  { column: maxlevel,  type: int }
+      lvlreq:    { column: levelreq,  type: int }
+      spawnable: { column: spawnable, type: bool }
+
+      affixes:
+        affix_list:
+          max: 3
+          columns:
+            code: "mod{i}code"
+            par:  "mod{i}param"
+            min:  "mod{i}min"
+            max:  "mod{i}max"
+
+      itype:
+        type: string
+        dynamic_array: { max: 7, column: "itype{i}" }
+
+      etype:
+        type: string
+        dynamic_array: { max: 5, column: "etype{i}" }
+
+  unique_set:
+    fields:
+      index:            { column: index,            type: string }
+      eqipmentCode:     { column: code,             type: string }
+      rarity:           { column: rarity,           type: int }
+      lvl:              { column: lvl,              type: int }
+      lvlreq:           { column: lvl req,          type: int }
+      spawnable:        { column: spawnable,        type: bool, missing: true }
+      disableChronicle: { column: disablechronicle, type: bool }
+      cost_mul:         { column: cost mult,        type: int }
+      cost_add:         { column: cost add,         type: int }
+
+      id:           { column: "*id",        type: int }
+      itemName:     { column: "*itemname",  type: string }
+      chrtransform: { column: chrtransform, type: string }
+      invtransform: { column: invtransform, type: string }
+      flippyfile:   { column: flippyfile,   type: string }
+      invfile:      { column: invfile,      type: string }
+      dropsound:    { column: dropsound,    type: string }
+      dropsfxframe: { column: dropsfxframe, type: string }
+      usesound:     { column: usesound,     type: string }
+      eol:          { column: "*eol",       type: int }
+
+    aliases:
+      enabled: spawnable
+      level:   lvl
+      item:    code
+
+tables:
+  itemtypes:
+    fields:
+      clas:      { column: class,    type: string }
+      code:      { column: code,     type: string }
+      itemType:  { column: itemtype, type: string }
+      equiv1:    { column: equiv1,   type: string }
+      equiv2:    { column: equiv2,   type: string }
+      bodyLoc1:  { column: bodyloc1, type: string }
+      throwable: { column: throwable, type: bool }
+      repair:    { column: repair,    type: bool }
+      shoots:    { column: shoots,    type: string }
+
+      sockets:
+        type: int
+        fixed_array:
+          size: 3
+          column: "maxsockets{i}"
+
+    aliases:
+      maxsock1:  maxsockets1
+      maxsock25: maxsockets2
+      maxsock40: maxsockets3
+
+  charstats:
+    fields:
+      clas:            { column: class,               type: string }
+      statPerLevel:    { column: statperlevel,        type: int }
+      skillsPerLevel:  { column: skillsperlevel,      type: int }
+      hpPerLevel:      { column: lifeperlevel,        type: int }
+      manaPerLevel:    { column: manaperlevel,        type: int }
+      hpPotEfficacy:   { column: healthpotionpercent, type: int }
+      manaPotEfficacy: { column: manapotionpercent,   type: int }
+      startSkill:      { column: startskill,          type: string }
+
+      items:
+        dynamic_array:
+          name: Item
+          max: 10
+          nonempty: code
+          exclude: ["0"]
+          fields:
+            count: { column: "item{i}count", type: int }
+            code:  { column: "item{i}",      type: string }
+            loc:   { column: "item{i}loc",   type: string }
+
+      skills:
+        type: string
+        dynamic_array: { max: 10, column: "skill {i}" }
+
+  difficultylevels:
+    fields:
+      name:          { column: name,          type: string }
+      resistPenalty: { column: resistpenalty, type: int }
+      gambleRare:    { column: gamblerare,    type: int }
+      gambleSet:     { column: gambleset,     type: int }
+      gambleUnique:  { column: gambleunique,  type: int }
+      gambleUber:    { column: gambleuber,    type: int }
+      gambleUltra:   { column: gambleultra,   type: int }
+
+  experience:
+    fields:
+      expRatio: { column: expratio, type: int }
+
+  gamble:
+    fields:
+      name: { column: name, type: string }
+      code: { column: code, type: string }
+
+  hireling:
+    fields:
+      hp:      { column: hp,      type: int }
+      hp_lvl:  { column: hp/lvl,  type: int }
+      dmg_min: { column: dmg-min, type: int }
+      dmg_max: { column: dmg-max, type: int }
+      dmg_lvl: { column: dmg/lvl, type: int }
+
+  itemstatcost:
+    fields:
+      stat:          { column: stat,            type: string }
+      multiply:      { column: multiply,        type: int }
+      add:           { column: add,             type: int }
+      sendParamBits: { column: send param bits, type: int }
+      saveParamBits: { column: save param bits, type: int }
+
+  levels:
+    fields:
+      id:     { column: id,     type: int }
+      name:   { column: name,   type: string }
+      numMon: { column: nummon, type: int }
+
+      monUMin:
+        type: int
+        fixed_array:
+          columns: [monumin, "monumin(n)", "monumin(h)"]
+
+      monUMax:
+        type: int
+        fixed_array:
+          columns: [monumax, "monumax(n)", "monumax(h)"]
+
+      monDen:
+        type: int
+        fixed_array:
+          columns: [monden, "monden(n)", "monden(h)"]
+
+      monLvlEx:
+        type: int
+        fixed_array:
+          columns: [monlvlex, "monlvlex(n)", "monlvlex(h)"]
+
+      mon:
+        type: string
+        dynamic_array: { max: 25, column: "mon{i}" }
+
+      nmon:
+        type: string
+        dynamic_array: { max: 25, column: "nmon{i}" }
+
+      umon:
+        type: string
+        dynamic_array: { max: 25, column: "umon{i}" }
+
+    aliases:
+      monlvl1ex: monlvlex
+      monlvl2ex: "monlvlex(n)"
+      monlvl3ex: "monlvlex(h)"
+
+  monlvl:
+    fields:
+      TH:
+        type: int
+        fixed_array:
+          columns: [th, "th(n)", "th(h)", l-th, "l-th(n)", "l-th(h)"]
+
+      AC:
+        type: int
+        fixed_array:
+          columns: [ac, "ac(n)", "ac(h)", l-ac, "l-ac(n)", "l-ac(h)"]
+
+      HP:
+        type: int
+        fixed_array:
+          columns: [hp, "hp(n)", "hp(h)", l-hp, "l-hp(n)", "l-hp(h)"]
+
+      DM:
+        type: int
+        fixed_array:
+          columns: [dm, "dm(n)", "dm(h)", l-dm, "l-dm(n)", "l-dm(h)"]
+
+      XP:
+        type: int
+        fixed_array:
+          columns: [xp, "xp(n)", "xp(h)", l-xp, "l-xp(n)", "l-xp(h)"]
+
+      level: { column: level, type: int }
+
+  monseq:
+    fields:
+      mode:     { column: mode,     type: string }
+      sequence: { column: sequence, type: string }
+      frame:    { column: frame,    type: int }
+      dir:      { column: dir,      type: int }
+      event:    { column: event,    type: int }
+      eol:      { column: "*eol",   type: int }
+
+    aliases:
+      eol: "*eol"
+
+  monstats:
+    fields:
+      resFi:
+        type: int
+        fixed_array:
+          columns: [resfi, "resfi(n)", "resfi(h)"]
+
+      resLi:
+        type: int
+        fixed_array:
+          columns: [resli, "resli(n)", "resli(h)"]
+
+      resCo:
+        type: int
+        fixed_array:
+          columns: [resco, "resco(n)", "resco(h)"]
+
+      resPo:
+        type: int
+        fixed_array:
+          columns: [respo, "respo(n)", "respo(h)"]
+
+      resMa:
+        type: int
+        fixed_array:
+          columns: [resma, "resma(n)", "resma(h)"]
+
+      resDm:
+        type: int
+        fixed_array:
+          columns: [resdm, "resdm(n)", "resdm(h)"]
+
+      tc:
+        type: string
+        fixed_array:
+          shape: [4, 3]
+          columns:
+            - treasureclass
+            - "treasureclass(n)"
+            - "treasureclass(h)"
+            - treasureclasschamp
+            - "treasureclasschamp(n)"
+            - "treasureclasschamp(h)"
+            - treasureclassunique
+            - "treasureclassunique(n)"
+            - "treasureclassunique(h)"
+            - treasureclassquest
+            - "treasureclassquest(n)"
+            - "treasureclassquest(h)"
+
+      skills:
+        dynamic_array:
+          name: Skill
+          max: 8
+          nonempty: name
+          fields:
+            name:  { column: "skill{i}",  type: string }
+            mode:  { column: "sk{i}mode", type: string }
+            level: { column: "sk{i}lvl",  type: int }
+
+      aipar:
+        type: int
+        fixed_array:
+          columns:
+            - aip1
+            - "aip1(n)"
+            - "aip1(h)"
+            - aip2
+            - "aip2(n)"
+            - "aip2(h)"
+            - aip3
+            - "aip3(n)"
+            - "aip3(h)"
+            - aip4
+            - "aip4(n)"
+            - "aip4(h)"
+            - aip5
+            - "aip5(n)"
+            - "aip5(h)"
+            - aip6
+            - "aip6(n)"
+            - "aip6(h)"
+            - aip7
+            - "aip7(n)"
+            - "aip7(h)"
+            - aip8
+            - "aip8(n)"
+            - "aip8(h)"
+
+      battleStats:
+        fixed_array:
+          name: Stats
+          size: 3
+          fields:
+            minHP:   { type: int, columns: [minhp,   "minhp(n)",   "minhp(h)"] }
+            maxHP:   { type: int, columns: [maxhp,   "maxhp(n)",   "maxhp(h)"] }
+            AC:      { type: int, columns: [ac,      "ac(n)",      "ac(h)"] }
+            exp:     { type: int, columns: [exp,     "exp(n)",     "exp(h)"] }
+            A1minD:  { type: int, columns: [a1mind,  "a1mind(n)",  "a1mind(h)"] }
+            A1maxD:  { type: int, columns: [a1maxd,  "a1maxd(n)",  "a1maxd(h)"] }
+            A1TH:    { type: int, columns: [a1th,    "a1th(n)",    "a1th(h)"] }
+            A2minD:  { type: int, columns: [a2mind,  "a2mind(n)",  "a2mind(h)"] }
+            A2maxD:  { type: int, columns: [a2maxd,  "a2maxd(n)",  "a2maxd(h)"] }
+            A2TH:    { type: int, columns: [a2th,    "a2th(n)",    "a2th(h)"] }
+            S1minD:  { type: int, columns: [s1mind,  "s1mind(n)",  "s1mind(h)"] }
+            S1maxD:  { type: int, columns: [s1maxd,  "s1maxd(n)",  "s1maxd(h)"] }
+            S1TH:    { type: int, columns: [s1th,    "s1th(n)",    "s1th(h)"] }
+            el1Pct:  { type: int, columns: [el1pct,  "el1pct(n)",  "el1pct(h)"] }
+            el1MinD: { type: int, columns: [el1mind, "el1mind(n)", "el1mind(h)"] }
+            el1MaxD: { type: int, columns: [el1maxd, "el1maxd(n)", "el1maxd(h)"] }
+            el1Dur:  { type: int, columns: [el1dur,  "el1dur(n)",  "el1dur(h)"] }
+
+      walkSpeed: { column: velocity, type: int }
+      runSpeed:  { column: run,      type: int }
+      toBlock:   { column: toblock,  type: int }
+      el1Mode:   { column: el1mode,  type: string }
+      el1Type:   { column: el1type,  type: string }
+
+      minionIds:
+        type: string
+        fixed_array:
+          columns: [spawn, minion1, minion2]
+
+      enabled:    { column: enabled,    type: bool }
+      isspawn:    { column: isspawn,    type: bool }
+      killable:   { column: killable,   type: bool }
+      npc:        { column: npc,        type: bool }
+      boss:       { column: boss,       type: bool }
+      rangedtype: { column: rangedtype, type: bool }
+      melee:      { column: ismelee,    type: bool }
+      flying:     { column: flying,     type: bool }
+
+      level:  { column: level,  type: int }
+      minGrp: { column: mingrp, type: int }
+      maxGrp: { column: maxgrp, type: int }
+
+      id:         { column: id,         type: string }
+      baseId:     { column: baseid,     type: string }
+      hcIdx:      { column: "*hcidx",   type: int }
+      monStatsEx: { column: monstatsex, type: string }
+      AI:         { column: ai,         type: string }
+
+    aliases:
+      treasureclass1:      treasureclass
+      "treasureclass1(n)": "treasureclass(n)"
+      "treasureclass1(h)": "treasureclass(h)"
+
+      treasureclass2:      treasureclasschamp
+      "treasureclass2(n)": "treasureclasschamp(n)"
+      "treasureclass2(h)": "treasureclasschamp(h)"
+
+      treasureclass3:      treasureclassunique
+      "treasureclass3(n)": "treasureclassunique(n)"
+      "treasureclass3(h)": "treasureclassunique(h)"
+
+      treasureclass4:      treasureclassquest
+      "treasureclass4(n)": "treasureclassquest(n)"
+      "treasureclass4(h)": "treasureclassquest(h)"
+
+      hcidx: "*hcidx"
+
+  monstats2:
+    fields:
+      id:       { column: id,       type: string }
+      hitClass: { column: hitclass, type: string }
+      hcIdx:    { column: "*hcidx", type: int }
+
+      modes:
+        type: bool
+        fixed_array:
+          missing: true
+          columns:
+            - mdt
+            - mnu
+            - mwl
+            - mgh
+            - ma1
+            - ma2
+            - mbl
+            - msc
+            - ms1
+            - ms2
+            - ms3
+            - ms4
+            - mdd
+            - mkb
+            - msq
+            - mrn
+
+    aliases:
+      hcidx: "*hcidx"
+
+  skilldesc:
+    fields:
+      skilldesc:   { column: skilldesc,   type: string }
+      skillPage:   { column: skillpage,   type: int }
+      skillRow:    { column: skillrow,    type: int }
+      skillColumn: { column: skillcolumn, type: int }
+      listRow:     { column: listrow,     type: int }
+      strName:     { column: str name,    type: string }
+      iconCel:     { column: iconcel,     type: int }
+
+      missile:
+        type: string
+        fixed_array:
+          columns: [descmissile1, descmissile2, descmissile3]
+
+      calc:
+        type: string
+        fixed_array:
+          columns:
+            - desccalca1
+            - desccalcb1
+            - desccalca2
+            - desccalcb2
+            - desccalca3
+            - desccalcb3
+            - desccalca4
+            - desccalcb4
+            - desccalca5
+            - desccalcb5
+            - desccalca6
+            - desccalcb6
+            - dsc2calca1
+            - dsc2calcb1
+            - dsc2calca2
+            - dsc2calcb2
+            - dsc2calca3
+            - dsc2calcb3
+            - dsc2calca4
+            - dsc2calcb4
+            - dsc2calca5
+            - dsc2calcb5
+            - dsc3calca1
+            - dsc3calcb1
+            - dsc3calca2
+            - dsc3calcb2
+            - dsc3calca3
+            - dsc3calcb3
+            - dsc3calca4
+            - dsc3calcb4
+            - dsc3calca5
+            - dsc3calcb5
+            - dsc3calca6
+            - dsc3calcb6
+            - dsc3calca7
+            - dsc3calcb7
+
+      desc:
+        type: string
+        fixed_array:
+          columns:
+            - desctexta1
+            - desctextb1
+            - desctexta2
+            - desctextb2
+            - desctexta3
+            - desctextb3
+            - desctexta4
+            - desctextb4
+            - desctexta5
+            - desctextb5
+            - desctexta6
+            - desctextb6
+            - dsc2texta1
+            - dsc2textb1
+            - dsc2texta2
+            - dsc2textb2
+            - dsc2texta3
+            - dsc2textb3
+            - dsc2texta4
+            - dsc2textb4
+            - dsc2texta5
+            - dsc2textb5
+            - dsc3texta1
+            - dsc3textb1
+            - dsc3texta2
+            - dsc3textb2
+            - dsc3texta3
+            - dsc3textb3
+            - dsc3texta4
+            - dsc3textb4
+            - dsc3texta5
+            - dsc3textb5
+            - dsc3texta6
+            - dsc3textb6
+            - dsc3texta7
+            - dsc3textb7
+
+      descLine:
+        type: int
+        fixed_array:
+          columns:
+            - descline1
+            - descline2
+            - descline3
+            - descline4
+            - descline5
+            - descline6
+            - dsc2line1
+            - dsc2line2
+            - dsc2line3
+            - dsc2line4
+            - dsc2line5
+            - dsc3line1
+            - dsc3line2
+            - dsc3line3
+            - dsc3line4
+            - dsc3line5
+            - dsc3line6
+            - dsc3line7
+
+  skills:
+    fields:
+      skill:         { column: skill,      type: string }
+      id:            { column: "*id",      type: int }
+      skilldesc:     { column: skilldesc,  type: string }
+      maxlvl:        { column: maxlvl,     type: int }
+      lvlreq:        { column: reqlevel,   type: int }
+      inTown:        { column: intown,     type: bool }
+      leftskill:     { column: leftskill,  type: bool }
+      costMult:      { column: cost mult,  type: int }
+      costAdd:       { column: cost add,   type: int }
+      eLen:          { column: elen,       type: int }
+      hitShift:      { column: hitshift,   type: int }
+      manaShift:     { column: manashift,  type: int }
+      eType:         { column: etype,      type: string }
+      classSpecific: { column: charclass,  type: string }
+      itypea1:       { column: itypea1,    type: string }
+      anim:          { column: anim,       type: string }
+      seqtrans:      { column: seqtrans,   type: string }
+
+      reqskills:
+        type: string
+        dynamic_array: { max: 3, column: "reqskill{i}" }
+
+      missile:
+        type: string
+        fixed_array:
+          columns:
+            - srvmissile
+            - srvmissilea
+            - srvmissileb
+            - srvmissilec
+            - srvmissiled
+            - cltmissile
+            - cltmissilea
+            - cltmissileb
+            - cltmissilec
+            - cltmissiled
+
+      calc:
+        type: string
+        fixed_array:
+          columns:
+            - tohitcalc
+            - dmgsympercalc
+            - edmgsympercalc
+            - elensympercalc
+            - auralencalc
+            - aurarangecalc
+            - passivecalc1
+            - passivecalc2
+            - passivecalc3
+            - passivecalc4
+            - passivecalc5
+            - passivecalc6
+            - passivecalc7
+            - passivecalc8
+            - passivecalc9
+            - passivecalc10
+            - passivecalc11
+            - passivecalc12
+            - passivecalc13
+            - passivecalc14
+            - prgcalc1
+            - prgcalc2
+            - prgcalc3
+            - sumsk1calc
+            - sumsk2calc
+            - sumsk3calc
+            - sumsk4calc
+            - sumsk5calc
+            - cltcalc1
+            - cltcalc2
+            - cltcalc3
+            - calc1
+            - calc2
+            - calc3
+            - calc4
+            - calc5
+            - calc6
+            - calc7
+            - calc8
+            - calc9
+            - calc10
+
+      aurastatcalc:
+        type: string
+        dynamic_array: { max: 6, column: "aurastatcalc{i}" }
+
+      aurastat:
+        type: string
+        dynamic_array: { max: 6, column: "aurastat{i}" }
+
+      passivestat:
+        type: string
+        dynamic_array: { max: 14, column: "passivestat{i}" }
+
+    aliases:
+      id: "*id"
+
+  treasureclassex:
+    fields:
+      name:     { column: treasure class, type: string }
+      k_unique: { column: unique,         type: int }
+      k_set:    { column: set,            type: int }
+      k_rare:   { column: rare,           type: int }
+      k_magic:  { column: magic,          type: int }
+      noDrop:   { column: nodrop,         type: int }
+      group:    { column: group,          type: int }
+      picks:    { column: picks,          type: int }
+      level:    { column: level,          type: int }
+
+      items:
+        dynamic_array:
+          name: Item
+          max: 10
+          nonempty: tc
+          fields:
+            prob: { column: "prob{i}", type: int }
+            tc:   { column: "item{i}", type: string }
+
+  missiles:
+    fields:
+      name:  { column: missile, type: string }
+      id:    { column: "*id",   type: int }
+      eType: { column: etype,   type: string }
+
+      color:
+        struct:
+          name: Color
+          fields:
+            red:   { column: red,   type: int }
+            green: { column: green, type: int }
+            blue:  { column: blue,  type: int }
+
+      skill:          { column: skill,          type: string }
+      missileSkill:   { column: missileskill,   type: int }
+      EDmgSymPerCalc: { column: edmgsympercalc, type: string }
+
+      childmissile:
+        type: string
+        fixed_array:
+          columns:
+            - explosionmissile
+            - submissile1
+            - submissile2
+            - submissile3
+            - hitsubmissile1
+            - hitsubmissile2
+            - hitsubmissile3
+            - hitsubmissile4
+            - cltsubmissile1
+            - cltsubmissile2
+            - cltsubmissile3
+            - clthitsubmissile1
+            - clthitsubmissile2
+            - clthitsubmissile3
+            - clthitsubmissile4
+
+    aliases:
+      id: "*id"
+
+  inventory:
+    fields:
+      charclass: { column: class, type: string }
+      gridX:     { column: gridx, type: int }
+      gridY:     { column: gridy, type: int }
+
+  lvlmaze:
+    fields:
+      name:    { column: name,  type: string }
+      levelId: { column: level, type: int }
+
+      rooms:
+        type: int
+        fixed_array:
+          columns: [rooms, "rooms(n)", "rooms(h)"]
+
+  superuniques:
+    fields:
+      monsterClass: { column: class, type: string }
+
+  weapons:
+    extends: equipment
+    fields:
+      mindam: { column: mindam, type: int }
+      maxdam: { column: maxdam, type: int }
+
+  armor:
+    extends: equipment
+    fields:
+      minac: { column: minac, type: int }
+      maxac: { column: maxac, type: int }
+
+  misc:
+    extends: equipment_core
+    fields:
+      maxstack: { column: maxstack, type: int }
+
+  automagic:
+    extends: affixes
+
+  magicprefix:
+    extends: affixes
+
+  magicsuffix:
+    extends: affixes
+
+  uniqueitems:
+    extends: unique_set
+    fields:
+      carry1:  { column: carry1,  type: int }
+      version: { column: version, type: int }
+
+      affixes:
+        affix_list:
+          max: 12
+          columns:
+            code: "prop{i}"
+            par:  "par{i}"
+            min:  "min{i}"
+            max:  "max{i}"
+
+  setitems:
+    extends: unique_set
+    fields:
+      addfunc:  { column: add func, type: int }
+      setIndex: { column: set,      type: string }
+
+      affixes_base:
+        affix_list:
+          max: 9
+          columns:
+            code: "prop{i}"
+            par:  "par{i}"
+            min:  "min{i}"
+            max:  "max{i}"
+
+      affixes_partial1:
+        affix_list:
+          max: 5
+          columns:
+            code: "aprop{i}a"
+            par:  "apar{i}a"
+            min:  "amin{i}a"
+            max:  "amax{i}a"
+
+      affixes_partial2:
+        affix_list:
+          max: 5
+          columns:
+            code: "aprop{i}b"
+            par:  "apar{i}b"
+            min:  "amin{i}b"
+            max:  "amax{i}b"
+
+  sets:
+    fields:
+      index:   { column: index,   type: string }
+      name:    { column: name,    type: string }
+      uiClass: { column: uiclass, type: string }
+      version: { column: version, type: int }
+
+      affixes_full:
+        affix_list:
+          max: 8
+          columns:
+            code: "fcode{i}"
+            par:  "fparam{i}"
+            min:  "fmin{i}"
+            max:  "fmax{i}"
+
+      affixes_partial1:
+        affix_list:
+          max: 4
+          start: 2
+          columns:
+            code: "pcode{i}a"
+            par:  "pparam{i}a"
+            min:  "pmin{i}a"
+            max:  "pmax{i}a"
+
+      affixes_partial2:
+        affix_list:
+          max: 4
+          start: 2
+          columns:
+            code: "pcode{i}b"
+            par:  "pparam{i}b"
+            min:  "pmin{i}b"
+            max:  "pmax{i}b"
+
+  runes:
+    fields:
+      complete: { column: complete,     type: bool }
+      name:     { column: "*rune name", type: string }
+
+      affixes:
+        affix_list:
+          max: 7
+          columns:
+            code: "t1code{i}"
+            par:  "t1param{i}"
+            min:  "t1min{i}"
+            max:  "t1max{i}"
+
+      runeCodes:
+        type: string
+        dynamic_array: { max: 6, column: "rune{i}" }
+
+      itype:
+        type: string
+        dynamic_array: { max: 6, column: "itype{i}" }
+
+      etype:
+        type: string
+        dynamic_array: { max: 3, column: "etype{i}" }
+
+    aliases:
+      rune name: "*rune name"
+
+  gems:
+    fields:
+      eqipmentCode: { column: code, type: string }
+
+      affixes_weapon:
+        affix_list:
+          max: 3
+          columns:
+            code: "weaponmod{i}code"
+            par:  "weaponmod{i}param"
+            min:  "weaponmod{i}min"
+            max:  "weaponmod{i}max"
+
+      affixes_helm:
+        affix_list:
+          max: 3
+          columns:
+            code: "helmmod{i}code"
+            par:  "helmmod{i}param"
+            min:  "helmmod{i}min"
+            max:  "helmmod{i}max"
+
+      affixes_shield:
+        affix_list:
+          max: 3
+          columns:
+            code: "shieldmod{i}code"
+            par:  "shieldmod{i}param"
+            min:  "shieldmod{i}min"
+            max:  "shieldmod{i}max"
+
+  cubemain:
+    fields:
+      description: { column: description, type: string }
+      enabled:     { column: enabled,     type: bool }
+      version:     { column: version,     type: int }
+      op:          { column: op,          type: int }
+      eol:         { column: "*eol",      type: int }
+      numinputs:   { column: numinputs,   type: int }
+      output:      { column: output,      type: string }
+      ilvl:        { column: ilvl,        type: int }
+      plvl:        { column: plvl,        type: int }
+      lvl:         { column: lvl,         type: int }
+
+      affixes_a:
+        affix_list:
+          max: 5
+          columns:
+            code:   "mod {i}"
+            par:    "mod {i} param"
+            min:    "mod {i} min"
+            max:    "mod {i} max"
+            chance: "mod {i} chance"
+
+      affixes_b:
+        affix_list:
+          max: 5
+          columns:
+            code:   "b mod {i}"
+            par:    "b mod {i} param"
+            min:    "b mod {i} min"
+            max:    "b mod {i} max"
+            chance: "b mod {i} chance"
+
+      affixes_c:
+        affix_list:
+          max: 5
+          columns:
+            code:   "c mod {i}"
+            par:    "c mod {i} param"
+            min:    "c mod {i} min"
+            max:    "c mod {i} max"
+            chance: "c mod {i} chance"
+
+      inputs:
+        type: string
+        dynamic_array: { max: 7, column: "input {i}" }

@@ -61,7 +61,9 @@ AddTarget(TYPE static NAME Config
 target_sources(Config PRIVATE 
     ${sourceRoot}/Config/Config.yaml
     ${sourceRoot}/Config/AppConfig.yaml
+    ${sourceRoot}/Config/Tables.yaml
     ${sourceRoot}/Config/update.py
+    ${sourceRoot}/Config/tables_update.py
 )
 
 if (Python3_EXECUTABLE AND ENABLE_SCHEMA_GEN)
@@ -81,6 +83,14 @@ if (Python3_EXECUTABLE AND ENABLE_SCHEMA_GEN)
                        COMMENT "Generating AppConfig.hpp from AppConfig.yaml"
                        VERBATIM
                        CODEGEN)
+   add_custom_command(OUTPUT "${sourceRoot}/Config/Tables.hpp" "${sourceRoot}/Config/Tables.cpp"
+                      COMMAND "${Python3_EXECUTABLE}" "${sourceRoot}/Config/tables_update.py" "Tables"
+                      MAIN_DEPENDENCY "${sourceRoot}/Config/Tables.yaml"
+                      DEPENDS  "${sourceRoot}/Config/tables_update.py"
+                      WORKING_DIRECTORY "${sourceRoot}/Config"
+                      COMMENT "Generating Tables.hpp from Tables.yaml"
+                      VERBATIM
+                      CODEGEN)
 endif()
 
 AddTarget(TYPE shared NAME ModgenCore

@@ -109,8 +109,8 @@ void ModuleBalanceItems::generate()
     };
 
     auto empowerRow = [&applyMinMax](AffixPropList& affixList, Percent powerMult, const Config::BalanceItems::CommonSettings& settings) {
-        for (AffixProp& prop : affixList) {
-            if (!prop.hasRange())
+        for (AffixProp_codegen& prop : affixList) {
+            if (!prop.max.has_value())
                 continue;
 
             auto id = getAttributeId(prop.code);

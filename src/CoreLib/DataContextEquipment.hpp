@@ -7,28 +7,18 @@
 
 #include "DataContextBase.hpp"
 #include "Storage/IStorage.hpp"
+#include "Tables.hpp"
 
 namespace D2ModGen {
 
-struct DataRow_itemtypes : public RowBase {
+struct DataRow_itemtypes : public RowBase
+    , public DataRow_itemtypes_codegen {
     static constexpr const TableId s_tableId{ TableId::itemtypes };
 
     bool operator==(const DataRow_itemtypes&) const noexcept = default;
 
-    std::string clas;
-    std::string code;
-    std::string itemType;
-    std::string equiv1;
-    std::string equiv2;
-    std::string bodyLoc1;
-
     AttributeIdiom idiom         = AttributeIdiom::None;
     Character      classSpecific = Character::None;
-
-    std::optional<bool>               throwable;
-    std::optional<bool>               repair;
-    std::string                       shoots;
-    std::array<std::optional<int>, 3> sockets;
 
     AttributeFlagSet flags;
     ItemTypeSet      nested;
@@ -37,63 +27,92 @@ struct DataRow_itemtypes : public RowBase {
     SlotType       determineSlot() const;
     AttributeIdiom determineIdiom() const { return idiom; }
 
-    std::vector<std::string>           getColumns() const;
-    std::map<std::string, std::string> getColumnAliases() const;
-    void                               serialize();
+    void serialize();
 };
 
 // =========================================================
 
-struct DataRow_weapons : public RowBaseEquipment {
+struct DataRow_weapons : public RowBaseEquipment<DataRow_weapons_codegen> {
     static constexpr const TableId s_tableId{ TableId::weapons };
 
     bool operator==(const DataRow_weapons&) const noexcept = default;
+    DataRow_weapons()
+    {
+        category = EquipmentCategory::Weapon;
+    }
 
-    std::optional<int> mindam;
-    std::optional<int> maxdam;
+    Tier getTier() const override
+    {
+        if (!getLevel() || this->ultracode.empty())
+            return Tier::None;
+        if (this->ultracode == this->code)
+            return Tier::Elite;
+        if (this->ubercode == this->code)
+            return Tier::Exceptional;
+        if (this->normcode == this->code)
+            return Tier::Normal;
 
-    std::vector<std::string> getColumns() const;
-    void                     serialize();
+        return Tier::None;
+    }
 };
-struct DataRow_armor : public RowBaseEquipment {
+struct DataRow_armor
+    : public RowBaseEquipment<DataRow_armor_codegen> {
     static constexpr const TableId s_tableId{ TableId::armor };
 
     bool operator==(const DataRow_armor&) const noexcept = default;
+    DataRow_armor()
+    {
+        category = EquipmentCategory::Armor;
+    }
 
-    std::optional<int> minac;
-    std::optional<int> maxac;
+    Tier getTier() const override
+    {
+        if (!getLevel() || this->ultracode.empty())
+            return Tier::None;
+        if (this->ultracode == this->code)
+            return Tier::Elite;
+        if (this->ubercode == this->code)
+            return Tier::Exceptional;
+        if (this->normcode == this->code)
+            return Tier::Normal;
 
-    std::vector<std::string> getColumns() const;
-    void                     serialize();
+        return Tier::None;
+    }
 };
-struct DataRow_misc : public RowBaseEquipment {
+struct DataRow_misc
+    : public RowBaseEquipment<DataRow_misc_codegen> {
     static constexpr const TableId s_tableId{ TableId::misc };
 
     bool operator==(const DataRow_misc&) const noexcept = default;
 
-    std::optional<int> maxstack;
+    Tier getTier() const override
+    {
+        return Tier::None;
+    }
 
-    std::vector<std::string> getColumns() const;
-    void                     serialize();
+    DataRow_misc()
+    {
+        category = EquipmentCategory::Misc;
+    }
 };
 
 // =========================================================
 
-struct DataRow_automagic : public RowBaseAffixes {
+struct DataRow_automagic : public RowBaseAffixes<DataRow_automagic_codegen> {
     static constexpr const TableId s_tableId{ TableId::automagic };
 
     bool m_stub{ false };
 
     bool operator==(const DataRow_automagic&) const noexcept = default;
 };
-struct DataRow_magicprefix : public RowBaseAffixes {
+struct DataRow_magicprefix : public RowBaseAffixes<DataRow_magicprefix_codegen> {
     static constexpr const TableId s_tableId{ TableId::magicprefix };
 
     bool m_stub{ false };
 
     bool operator==(const DataRow_magicprefix&) const noexcept = default;
 };
-struct DataRow_magicsuffix : public RowBaseAffixes {
+struct DataRow_magicsuffix : public RowBaseAffixes<DataRow_magicsuffix_codegen> {
     static constexpr const TableId s_tableId{ TableId::magicsuffix };
 
     bool m_stub{ false };
@@ -102,41 +121,15 @@ struct DataRow_magicsuffix : public RowBaseAffixes {
 };
 // =========================================================
 
+template<class CRTP>
 struct RowBaseUniqueSet
     : public RowBase
-    , public IAffixContainer {
+    , public IAffixContainer
+    , public CRTP {
     bool operator==(const RowBaseUniqueSet&) const noexcept = default;
 
-    std::string   index;
-    std::string   eqipmentCode;
     EquipmentType eqipmentType = nullptr;
-
-    std::optional<int>  rarity;
-    std::optional<int>  lvl; // "level" or "lvl"
-    std::optional<int>  lvlreq;
-    std::optional<bool> spawnable; // or "enabled"
-    std::optional<bool> disableChronicle;
-
-    std::optional<int> cost_mul = 5;
-    std::optional<int> cost_add = 5000;
-
-    struct UX {
-        std::optional<int> id;
-        std::string        itemName;
-        std::string        chrtransform;
-        std::string        invtransform;
-        std::string        flippyfile;
-
-        std::string invfile;
-        std::string dropsound;
-        std::string dropsfxframe;
-        std::string usesound;
-        int         eol = 0;
-
-        bool operator==(const UX&) const noexcept = default;
-    } ux;
-
-    std::string displayName; // mostly for debug purposes like logs/dumps
+    std::string   displayName; // mostly for debug purposes like logs/dumps
 
     std::string getId() const override
     {
@@ -145,17 +138,17 @@ struct RowBaseUniqueSet
 
     int getLevel() const override
     {
-        if (lvl.has_value())
-            return lvl.value();
+        if (this->lvl.has_value())
+            return this->lvl.value();
 
-        if (lvlreq.has_value())
-            return lvlreq.value();
+        if (this->lvlreq.has_value())
+            return this->lvlreq.value();
         return 0;
     }
 
     bool isValidBase() const
     {
-        return spawnable.value_or(false) && !eqipmentCode.empty() && getLevel() > 0;
+        return this->spawnable.value_or(false) && !this->eqipmentCode.empty() && getLevel() > 0;
     }
 
     bool isValid() const override
@@ -172,68 +165,52 @@ struct RowBaseUniqueSet
         return eqipmentType ? eqipmentType->getAttributes() : AttributeFlagSet{};
     }
 
-    std::map<std::string, std::string> getColumnAliases() const;
+    void resetAppearance()
+    {
+        this->itemName     = {};
+        this->chrtransform = {};
+        this->invtransform = {};
+        this->flippyfile   = {};
 
-    std::vector<std::string> getColumns() const;
-    void                     serialize();
+        this->invfile      = {};
+        this->dropsound    = {};
+        this->dropsfxframe = {};
+        this->usesound     = {};
+    }
 };
 
-struct DataRow_uniqueitems : public RowBaseUniqueSet {
+struct DataRow_uniqueitems : public RowBaseUniqueSet<DataRow_uniqueitems_codegen> {
     static constexpr const TableId s_tableId{ TableId::uniqueitems };
 
     bool operator==(const DataRow_uniqueitems&) const noexcept = default;
 
-    std::optional<int> carry1;
-    std::optional<int> version = 100;
-
-    AffixPropList affixes{ 12 };
-
-    AffixListListConst   affixLists() const { return { &affixes }; }
-    AffixListListMutable affixLists() { return { &affixes }; }
-
-    std::vector<std::string> getColumns() const;
-    void                     serialize();
+    AffixListListConst   affixLists() const override { return { &affixes }; }
+    AffixListListMutable affixLists() override { return { &affixes }; }
+    Limits               affixLimits() const override { return { affixes_limit }; }
 };
 
 struct DataRow_sets;
-struct DataRow_setitems : public RowBaseUniqueSet {
+struct DataRow_setitems : public RowBaseUniqueSet<DataRow_setitems_codegen> {
     static constexpr const TableId s_tableId{ TableId::setitems };
 
     bool operator==(const DataRow_setitems&) const noexcept = default;
 
-    std::optional<int> addfunc;
-    std::string        setIndex;
-
-    AffixPropList affixes_base{ 9 };
-    AffixPropList affixes_partial1{ 5 };
-    AffixPropList affixes_partial2{ 5 };
-
-    AffixListListConst   affixLists() const { return { &affixes_base, &affixes_partial1, &affixes_partial2 }; }
-    AffixListListMutable affixLists() { return { &affixes_base, &affixes_partial1, &affixes_partial2 }; }
-
-    std::vector<std::string> getColumns() const;
-    void                     serialize();
+    AffixListListConst   affixLists() const override { return { &affixes_base, &affixes_partial1, &affixes_partial2 }; }
+    AffixListListMutable affixLists() override { return { &affixes_base, &affixes_partial1, &affixes_partial2 }; }
+    Limits               affixLimits() const override { return { affixes_base_limit, affixes_partial1_limit, affixes_partial2_limit }; }
 };
 
 // =========================================================
 
 struct DataRow_sets : public RowBase
-    , public IAffixContainer {
+    , public IAffixContainer
+    , public DataRow_sets_codegen {
     static constexpr const TableId s_tableId{ TableId::sets };
 
     bool operator==(const DataRow_sets&) const noexcept = default;
 
-    int level = 0;
-
-    std::optional<int> version = 100;
-    std::string        index;
-    std::string        name;
-    std::string        uiClass;
-    ItemCodeList       filter;
-
-    AffixPropList affixes_full{ 8 };
-    AffixPropList affixes_partial1{ 4 };
-    AffixPropList affixes_partial2{ 4 };
+    int          level = 0;
+    ItemCodeList filter;
 
     std::string getId() const override
     {
@@ -242,6 +219,7 @@ struct DataRow_sets : public RowBase
 
     AffixListListConst   affixLists() const override { return { &affixes_full, &affixes_partial1, &affixes_partial2 }; }
     AffixListListMutable affixLists() override { return { &affixes_full, &affixes_partial1, &affixes_partial2 }; }
+    Limits               affixLimits() const override { return { affixes_full_limit, affixes_partial1_limit, affixes_partial2_limit }; }
 
     bool             isValid() const override { return !name.empty(); }
     int              getLevel() const override { return level; }
@@ -250,25 +228,16 @@ struct DataRow_sets : public RowBase
     {
         return AttributeFlagSet{};
     }
-
-    std::vector<std::string> getColumns() const;
-    void                     serialize();
 };
 struct DataRow_runes : public RowBase
-    , public IAffixContainer {
+    , public IAffixContainer
+    , DataRow_runes_codegen {
     static constexpr const TableId s_tableId{ TableId::runes };
 
     bool operator==(const DataRow_runes&) const noexcept = default;
 
-    int                      lvl = 1; // calculated.
-    std::vector<std::string> runeCodes;
-    AffixPropList            affixes{ 7 };
-    std::optional<bool>      complete;
-    std::vector<std::string> itype;
-    std::vector<std::string> etype;
-    ItemCodeList             filter;
-
-    std::string name;
+    int          lvl = 1; // calculated.
+    ItemCodeList filter;
 
     std::string getId() const override
     {
@@ -277,10 +246,7 @@ struct DataRow_runes : public RowBase
 
     AffixListListConst   affixLists() const override { return { &affixes }; }
     AffixListListMutable affixLists() override { return { &affixes }; }
-
-    std::vector<std::string>           getColumns() const;
-    std::map<std::string, std::string> getColumnAliases() const;
-    void                               serialize();
+    Limits               affixLimits() const override { return { affixes_limit }; }
 
     int getLevel() const override
     {
@@ -300,28 +266,20 @@ struct DataRow_runes : public RowBase
     {
         return complete.value_or(false);
     }
-
-private:
-    static const size_t maxRunes = 6;
-    static const size_t maxItype = 6;
-    static const size_t maxEtype = 3;
 };
 
 struct DataRow_gems : public RowBase
-    , public IAffixContainer {
+    , public IAffixContainer
+    , public DataRow_gems_codegen {
     static constexpr const TableId s_tableId{ TableId::gems };
 
     bool operator==(const DataRow_gems&) const noexcept = default;
 
-    AffixPropList affixes_weapon{ 3 };
-    AffixPropList affixes_helm{ 3 };
-    AffixPropList affixes_shield{ 3 };
-
     EquipmentType eqipmentType = nullptr;
-    std::string   eqipmentCode;
 
     AffixListListConst   affixLists() const override { return { &affixes_weapon, &affixes_helm, &affixes_shield }; }
     AffixListListMutable affixLists() override { return { &affixes_weapon, &affixes_helm, &affixes_shield }; }
+    Limits               affixLimits() const override { return { affixes_weapon_limit, affixes_helm_limit, affixes_shield_limit }; }
 
     std::string getId() const override
     {
@@ -351,33 +309,14 @@ struct DataRow_gems : public RowBase
     {
         return eqipmentType->getAttributes();
     }
-
-    std::vector<std::string> getColumns() const;
-    void                     serialize();
 };
 
 struct DataRow_cubemain : public RowBase
-    , public IAffixContainer {
+    , public IAffixContainer
+    , public DataRow_cubemain_codegen {
     static constexpr const TableId s_tableId{ TableId::cubemain };
 
     bool operator==(const DataRow_cubemain&) const noexcept = default;
-
-    AffixPropList            affixes_a{ 5 };
-    AffixPropList            affixes_b{ 5 };
-    AffixPropList            affixes_c{ 5 };
-    std::vector<std::string> inputs;
-    std::string              output;
-
-    std::string         description;
-    std::optional<bool> enabled;
-    std::optional<int>  version;
-    std::optional<int>  op;
-    std::optional<int>  numinputs;
-    int                 eol = 0;
-
-    std::optional<int> ilvl;
-    std::optional<int> plvl;
-    std::optional<int> lvl;
 
     EquipmentType eqipmentType = nullptr;
     ItemType      itemType     = nullptr;
@@ -389,6 +328,7 @@ struct DataRow_cubemain : public RowBase
 
     AffixListListConst   affixLists() const override { return { &affixes_a, &affixes_b, &affixes_c }; }
     AffixListListMutable affixLists() override { return { &affixes_a, &affixes_b, &affixes_c }; }
+    Limits               affixLimits() const override { return { affixes_a_limit, affixes_b_limit, affixes_c_limit }; }
 
     bool isCrafted() const { return output == "\"usetype,crf\""; }
     bool hasLvls() const { return ilvl.has_value() || plvl.has_value() || lvl.has_value(); }
@@ -416,12 +356,6 @@ struct DataRow_cubemain : public RowBase
             return eqipmentType->getAttributes();
         return itemType ? itemType->flags : AttributeFlagSet{};
     }
-
-    std::vector<std::string> getColumns() const;
-    void                     serialize();
-
-private:
-    static const size_t maxInputs = 7;
 };
 
 }

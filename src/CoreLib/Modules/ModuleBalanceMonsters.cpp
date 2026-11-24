@@ -30,8 +30,8 @@ void ModuleBalanceMonsters::generate()
 
     m_verbose = env.extraTrace.contains("monster_balance");
 
-    auto proceedMonParam = [](Percent percent, int& val) {
-        val = val * percent;
+    auto proceedMonParam = [](Percent percent, std::optional<int>& val) {
+        val = val.value() * percent;
     };
     for (auto& row : output.monlvl.rows) {
         if (row.level <= 0)

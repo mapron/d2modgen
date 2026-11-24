@@ -6,6 +6,7 @@
 
 #include "Config.hpp"
 #include "AppConfig.hpp"
+#include "Tables.hpp"
 
 #ifdef USE_QT
 

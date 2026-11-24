@@ -351,14 +351,14 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
                     newTier = Tier::Exceptional;
                 }
 
-                if (eqipmentType->category == EquipmentCategory::Armor) {
+                if (eqipmentType->getCategory() == EquipmentCategory::Armor) {
                     auto& pool   = validArmor.at(newTier);
                     eqipmentType = pool[rng(pool.size())];
-                    base_ilvl    = eqipmentType->lvl.value();
-                } else if (eqipmentType->category == EquipmentCategory::Weapon) {
+                    base_ilvl    = eqipmentType->getLevel();
+                } else if (eqipmentType->getCategory() == EquipmentCategory::Weapon) {
                     auto& pool   = validWeapon.at(newTier);
                     eqipmentType = pool[rng(pool.size())];
-                    base_ilvl    = eqipmentType->lvl.value();
+                    base_ilvl    = eqipmentType->getLevel();
                 }
             }
             const int oldLvl         = lvl.value_or(1);
@@ -370,8 +370,8 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
             lvl    = targetLevel;
             lvlreq = std::clamp(targetLevel - lvlreqSubtract, 2, 80);
 
-            eqipmentName = eqipmentType->name;
-            eqipmentCode = eqipmentType->code;
+            eqipmentName = eqipmentType->getName();
+            eqipmentCode = eqipmentType->getCode();
         };
 
         auto processTableWithCopies = []<typename Row>(DataTable<Row>& table, int copies, auto&& beforeCopy, auto&& afterCopy) {
@@ -400,7 +400,7 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
 
         auto beforeCopyUniq = [this](DataRow_uniqueitems& row) -> bool {
             row.disableChronicle = true;
-            if (row.eqipmentType->category == EquipmentCategory::Misc) {
+            if (row.eqipmentType->getCategory() == EquipmentCategory::Misc) {
                 auto slot = row.getItemFilter().determineSlot();
                 if (slot == SlotType::Amulet || slot == SlotType::Charm || slot == SlotType::Ring || slot == SlotType::Weapon)
                     return true;
@@ -414,19 +414,17 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
             row.displayName = makeValue(old.index, i);
             output.newLoc.items.push_back({ row.index, row.displayName });
 
-            row.version         = 100;
-            row.ux              = {};
-            row.ux.id           = id;
-            row.ux.chrtransform = row.ux.invtransform = getRandomColor();
-            getNewLevelAndCode(row.lvl, row.lvlreq, row.eqipmentType, row.eqipmentCode, row.ux.itemName);
+            row.version = 100;
+            row.resetAppearance();
+            row.id           = id;
+            row.chrtransform = row.invtransform = getRandomColor();
+            getNewLevelAndCode(row.lvl, row.lvlreq, row.eqipmentType, row.eqipmentCode, row.itemName);
         };
 
         processTableWithCopies(output.uniqueitems, repeatUniques, beforeCopyUniq, afterCopyUniq);
 
         auto beforeCopySetitem = [&setBonusMode](DataRow_setitems& row) {
             row.disableChronicle = true;
-            if (row.eqipmentType->category != EquipmentCategory::Misc)
-                row.lvlreq = 2;
 
             // addfunc:
             // 0 -> no green properties on item (apropxx will appear as a blue attribute on the list instead).
@@ -447,10 +445,10 @@ void ModuleRandoItems::createNewItems(int repeatUniques, int repeatSets)
 
             row.setIndex = makeValue(old.setIndex, i);
 
-            row.ux              = {};
-            row.ux.id           = id;
-            row.ux.chrtransform = row.ux.invtransform = getRandomColor();
-            getNewLevelAndCode(row.lvl, row.lvlreq, row.eqipmentType, row.eqipmentCode, row.ux.itemName);
+            row.resetAppearance();
+            row.id           = id;
+            row.chrtransform = row.invtransform = getRandomColor();
+            getNewLevelAndCode(row.lvl, row.lvlreq, row.eqipmentType, row.eqipmentCode, row.itemName);
         };
 
         processTableWithCopies(output.setitems, repeatSets, beforeCopySetitem, afterCopySetitem);
