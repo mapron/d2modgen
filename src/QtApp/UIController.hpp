@@ -12,6 +12,7 @@
 #include <QValidator>
 
 #include "ConfigHandler.hpp"
+#include "GameDetection.hpp"
 
 namespace D2ModGen {
 
@@ -50,6 +51,7 @@ public:
     Q_INVOKABLE void    browseToAppSettings();
     Q_INVOKABLE void    refreshAllSeeds();
     Q_INVOKABLE QString detectPath();
+    Q_INVOKABLE void    applyMatch(int index);
     Q_INVOKABLE void    setLaunch(QString arg);
     Q_INVOKABLE void    makeShortCut(QString arg);
     Q_INVOKABLE QString runnerPreset(QString userHome, bool legacy);
@@ -70,6 +72,7 @@ public:
 signals:
     void statusUpdate(QString status);
     void showErrorDialog(QString mainLine, QString extra);
+    void prefixChoice(QVariantList matches, int preselected);
     void undoEnabled(bool state);
 
 private:
@@ -81,6 +84,7 @@ private:
     bool                        m_autoSave = true;
     DelayedTimer*               m_delayTimer;
     QList<Mernel::PropertyTree> m_undo;
+    std::vector<GameMatch>      m_matches;
     ConfigHandler&              m_configHandler;
 };
 

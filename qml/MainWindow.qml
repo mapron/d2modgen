@@ -165,6 +165,9 @@ ApplicationWindow {
                     function onStatusUpdate(status) {
                         statusLabel.text = Qt.formatDateTime(new Date(), "[HH:mm:ss] ") + status;
                     }
+                    function onPrefixChoice(matches, preselected) {
+                        prefixDialog.show(matches, preselected);
+                    }
                 }
             }
 
@@ -255,5 +258,9 @@ ApplicationWindow {
                 Component.onCompleted: forceActiveFocus()   // Enter/Space closes it
             }
         }
+    }
+
+    PrefixDialog {
+        id: prefixDialog
     }
 }

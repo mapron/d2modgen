@@ -39,8 +39,11 @@ WidgetScrollable {
 
     WidgetFolder {
         caption: qsTr("Wine user root:")
-        tooltip: qsTr("Path to user root folder (drive_c/Users/username) of the Wine/Proton prefix where D2R is installed")
+        tooltip: qsTr("Path to user root folder (drive_c/Users/username) of the Wine/Proton prefix where D2R is installed") + //
+        qsTr("<br>Use a full path, ~ is not expanded.") + //
+        qsTr("<br>Detect! searches umu, Lutris, Heroic, Bottles, Steam and ~/.wine prefixes and fills both this and the input folder; if several prefixes have the game, you choose one.")
         isCompact: false
+        showDetect: true
         value_key: root.value_context.userHome
         visible: Qt.platform.os === "linux"
     }
